@@ -8,6 +8,9 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
     def __init__(self, pads, dq_delay_taps=31, sclk_name="SCLK_ODDR",
                  iddr_name="SPI_IDDR", miso_name="MISO_FDRE", sim=False, spiread=False, prefetch_lines=1):
         self.intro = ModuleDoc("""
+        Intro
+        ********
+        
         SpiOpi implements a dual-mode SPI or OPI interface. OPI is an octal (8-bit) wide
         variant of SPI, which is unique to Macronix parts. It is concurrently interoperable
         with SPI. The chip supports "DTR mode" (double transfer rate, e.g. DDR) where data
@@ -223,9 +226,13 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
         ]
 
         self.architecture = ModuleDoc("""
+        Architecture
+        **************
+        
         The machine is split into two separate pieces, one to handle SPI, and one to handle OPI.
         
-        ## SPI
+        SPI
+        =====
         The SPI machine architecture is split into two levels: MAC and PHY. 
         
         The MAC layer is responsible for:
@@ -250,7 +257,8 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
         one cycle and then ignored until the PHY issues an "ack" that the current cycle is complete. 
         Thus holding "req" high can allow the PHY to back-to-back issue cycles without pause.
         
-        ## OPI
+        OPI
+        =====
         The OPI machine is split into three parts: a command controller, a Tx PHY, and an Rx PHY. 
         
         The Tx PHY is configured with a "dummy cycle" count register, as there is a variable length
@@ -293,6 +301,7 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
         
         * When BUS/STB are asserted:
            TxPhy:
+           
            - capture bus_adr, and compare against the *next read* address pointer
               - if they match, allow the PHYs to do the work
            
