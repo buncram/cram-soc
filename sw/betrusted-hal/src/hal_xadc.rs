@@ -66,8 +66,7 @@ pub enum XadcRegs {
 #[allow(dead_code)]
 fn xadc_write(p: &betrusted_pac::Peripherals, adr: XadcRegs, data: u16) {
     unsafe{ p.INFO.xadc_drp_adr.write(|w| w.bits(adr as u32)); }
-    unsafe{ p.INFO.xadc_drp_dat_w1.write(|w| w.bits(((data >> 8) & 0xff) as u32)); }
-    unsafe{ p.INFO.xadc_drp_dat_w0.write(|w| w.bits((data & 0xff) as u32)); }
+    unsafe{ p.INFO.xadc_drp_dat_w.write(|w| w.bits((data & 0xffff) as u32)); }
     unsafe{ p.INFO.xadc_drp_write.write(|w| w.bits(1)); } // commit the write
 
     while p.INFO.xadc_drp_drdy.read().bits() == 0 {} // wait for the write to complete
@@ -75,14 +74,13 @@ fn xadc_write(p: &betrusted_pac::Peripherals, adr: XadcRegs, data: u16) {
 
 #[allow(dead_code)]
 fn xadc_read(p: &betrusted_pac::Peripherals, adr: XadcRegs) -> u16 {
-    let mut ret: u16;
+    let ret: u16;
     unsafe{ p.INFO.xadc_drp_adr.write(|w| w.bits(adr as u32)); }
     unsafe{ p.INFO.xadc_drp_read.write(|w| w.bits(1)); } // trigger the read
 
     while p.INFO.xadc_drp_drdy.read().bits() == 0 {} // wait for the read to complete
 
-    ret = p.INFO.xadc_drp_dat_r0.read().bits() as u16 & 0xFF;
-    ret = (((p.INFO.xadc_drp_dat_r1.read().bits() as u16) & 0xFF) << 8) | ret;
+    ret = p.INFO.xadc_drp_dat_r.read().bits() as u16;
 
     ret
 }

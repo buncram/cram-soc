@@ -27,8 +27,7 @@ pub fn com_txrx(p: &betrusted_pac::Peripherals, tx: u16) -> u16 {
     while p.COM.status.read().done().bit_is_set() { }
 
     // load the TX register
-    unsafe{ p.COM.tx0.write(|w| w.bits((tx & 0xFF) as u32)); }
-    unsafe{ p.COM.tx1.write(|w| w.bits(((tx >> 8) & 0xFF) as u32)); }
+    unsafe{ p.COM.tx.write(|w| w.bits(tx as u32)); }
 
     // set the go bit
     p.COM.control.write(|w| w.go().bit(true));
@@ -37,6 +36,6 @@ pub fn com_txrx(p: &betrusted_pac::Peripherals, tx: u16) -> u16 {
     while !p.COM.status.read().done().bit_is_set() { }
 
     // grab the RX value and return it
-    let rx: u16 = (p.COM.rx0.read().bits() as u16) | ((p.COM.rx1.read().bits() as u16) << 8);
+    let rx: u16 = p.COM.rx.read().bits() as u16;
     rx
 }

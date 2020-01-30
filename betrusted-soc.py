@@ -615,7 +615,7 @@ class BetrustedSoC(SoCCore):
         ## unique AES key, creating a root of trust that offers a defense against trivial patch attacks.
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=8,
+        SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
             integrated_rom_size  = 0,
             integrated_sram_size = 0x20000,
             ident                = "betrusted.io LiteX Base SoC",

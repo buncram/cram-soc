@@ -36,34 +36,16 @@ const CONFIG_CLOCK_FREQUENCY: u32 = 100_000_000;
 static mut DBGSTR: [u32; 8] = [0, 0, 0, 0, 0, 0, 0, 0];
 
 macro_rules! readpac32 {
-    ($self:ident, $func:ident, $reg3:ident, $reg2:ident, $reg1:ident, $reg0:ident) => {
-        ($self.p.$func.$reg3.read().bits() << 24) | ($self.p.$func.$reg2.read().bits() << 16) | ($self.p.$func.$reg1.read().bits() << 8) | $self.p.$func.$reg0.read().bits()
+    ($self:ident, $func:ident, $reg:ident) => {
+        $self.p.$func.$reg.read().bits()
     };
 }
+#[allow(unused_macros)]
 macro_rules! writepac32 {
-    ($data:expr, $self:ident, $func:ident, $reg3:ident, $reg2:ident, $reg1:ident, $reg0:ident) => {
-        unsafe{ $self.p.$func.$reg3.write( |w| w.bits( ($data >> 24) & 0xFF )); }
-        unsafe{ $self.p.$func.$reg2.write( |w| w.bits( ($data >> 16) & 0xFF )); }
-        unsafe{ $self.p.$func.$reg1.write( |w| w.bits( ($data >> 8) & 0xFF )); }
-        unsafe{ $self.p.$func.$reg0.write( |w| w.bits( $data & 0xFF )); }
+    ($data:expr, $self:ident, $func:ident, $reg:ident) => {
+        unsafe{ $self.p.$func.$reg.write( |w| w.bits( $dat )); }
     };
 }
-
-/*
-macro_rules! readpac32 {
-    ($base:expr) => {{
-        use core::mem::transmute;
-        unsafe {
-            let ptr: *mut usize = transmute($base);
-            ((ptr.sub(3).read_volatile() << 24)
-                | (ptr.sub(2).read_volatile() << 16)
-                | (ptr.sub(1).read_volatile() << 8)
-                | (ptr.sub(0).read_volatile() << 0)
-                | 0) as u32
-        }
-    }};
-}
-*/
 
 #[panic_handler]
 fn panic(_panic_info: &PanicInfo<'_>) -> ! {
@@ -275,14 +257,14 @@ impl Repl {
 
     pub fn spi_perftest(&mut self) {
         const SPI_MEM: *const [u32; 0x100_0000] = 0x20000000 as *const [u32; 0x100_0000];
-        let time: u32 = readpac32!(self, TICKTIMER, time3, time2, time1, time0);
+        let time: u32 = readpac32!(self, TICKTIMER, time0);
     
         let mut sum: u32 = 0;
         for i in 0x0..0x4_0000 {  // 256k words, or 1 megabyte
             unsafe{ sum += (*SPI_MEM)[i]; }
         }
 
-        let endtime: u32 = readpac32!(self, TICKTIMER, time3, time2, time1, time0);
+        let endtime: u32 = readpac32!(self, TICKTIMER, time0);
 
         self.text.add_text(&mut format!("time: {} sum: 0x{:08x}", endtime - time, sum));
     }
@@ -312,10 +294,7 @@ impl Repl {
     pub fn rom_read(&mut self, adr: u8) -> u32 {
         unsafe{ self.p.ROMTEST.address.write(|w| w.bits(adr as u32)); }
 
-        self.p.ROMTEST.data0.read().bits() as u32 |
-        (self.p.ROMTEST.data1.read().bits() as u32) << 8 |
-        (self.p.ROMTEST.data2.read().bits() as u32) << 16 |
-        (self.p.ROMTEST.data3.read().bits() as u32) << 24
+        self.p.ROMTEST.data.read().bits()
     }
 
     pub fn parse_cmd(&mut self) {
@@ -437,10 +416,10 @@ impl Repl {
                     unsafe { self.p.UART.rxtx.write(|w| w.bits(0xd as u32)); }
                 }
             } else if self.cmd.trim() == "xadc" {
-                let vccint: u32 = self.p.INFO.xadc_vccint0.read().bits() as u32 | ((self.p.INFO.xadc_vccint1.read().bits() as u32) << 8);
-                let vccaux: u32 = self.p.INFO.xadc_vccaux0.read().bits() as u32 | ((self.p.INFO.xadc_vccaux1.read().bits() as u32) << 8);
-                let vccbram: u32 = self.p.INFO.xadc_vccbram0.read().bits() as u32 | ((self.p.INFO.xadc_vccbram1.read().bits() as u32) << 8);
-                let temp: u32 = self.p.INFO.xadc_temperature0.read().bits() as u32 | ((self.p.INFO.xadc_temperature1.read().bits() as u32) << 8);
+                let vccint: u32 = self.p.INFO.xadc_vccint.read().bits() as u32;
+                let vccaux: u32 = self.p.INFO.xadc_vccaux.read().bits() as u32;
+                let vccbram: u32 = self.p.INFO.xadc_vccbram.read().bits() as u32;
+                let temp: u32 = self.p.INFO.xadc_temperature.read().bits() as u32;
 
                 self.text.add_text(&mut format!("vccint: {:.3}V", (vccint as f64) / 1365.0));
                 self.text.add_text(&mut format!("vccaux: {:.3}V", (vccaux as f64) / 1365.0));
@@ -571,7 +550,7 @@ fn main() -> ! {
     i2c_init(&p, CONFIG_CLOCK_FREQUENCY / 1_000_000);
     time_init(&p);
 
-    let cr = p.SRAM_EXT.config_status0.read().bits(); // pull out config params for debug
+    let cr = p.SRAM_EXT.config_status.read().bits(); // pull out config params for debug
     unsafe {
         let heap_start = &_sheap as *const u8 as usize;
         let heap_size = &_heap_size as *const u8 as usize;
