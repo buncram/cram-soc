@@ -589,8 +589,7 @@ class Aes(Module, AutoDoc, AutoCSR):
 
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
 bios_size      = 0x8000
-# 128 MB (1024 Mb), but reduce to 64Mbit for bring-up because we don't have extended page addressing implemented yet
-SPI_FLASH_SIZE = 16 * 1024 * 1024
+SPI_FLASH_SIZE = 128 * 1024 * 1024
 
 # BetrustedSoC -------------------------------------------------------------------------------------
 
@@ -605,7 +604,7 @@ class BetrustedSoC(SoCCore):
         "csr":      0xf0000000,
     }
 
-    def __init__(self, platform, sys_clk_freq=int(100e6), spiflash="spiflash_1x", **kwargs):
+    def __init__(self, platform, sys_clk_freq=int(100e6), legacy_spi=False, **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
 
         # CPU cluster
@@ -734,7 +733,6 @@ class BetrustedSoC(SoCCore):
         self.add_csr("power")
 
         # SPI flash controller ---------------------------------------------------------------------
-        legacy_spi = False
         if legacy_spi:
             self.submodules.spinor = spinor.SPINOR(platform, platform.request("spiflash_1x"), size=SPI_FLASH_SIZE)
         else:
