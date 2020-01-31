@@ -72,22 +72,30 @@ _io = [
         # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # PATCH
         # Noise generator
         Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
-     ),
+        Misc("SLEW=SLOW"),
+    ),
 
     # Audio interface
-    ("au_clk1",  0, Pins("D14"), IOStandard("LVCMOS33")),
-    ("au_clk2",  0, Pins("F14"), IOStandard("LVCMOS33")),
-    ("au_mclk",  0, Pins("D18"), IOStandard("LVCMOS33")),
-    ("au_sdi1",  0, Pins("D12"), IOStandard("LVCMOS33")),
-    ("au_sdi2",  0, Pins("A15"), IOStandard("LVCMOS33")),
-    ("au_sdo1",  0, Pins("C13"), IOStandard("LVCMOS33")),
-    ("au_sync1", 0, Pins("B15"), IOStandard("LVCMOS33")),
-    ("au_sync2", 0, Pins("B17"), IOStandard("LVCMOS33")),
+    ("i2s", 0, # headset & mic
+       Subsignal("clk", Pins("D14")),
+       Subsignal("tx", Pins("D12")), # au_sdi1
+       Subsignal("rx", Pins("C13")), # au_sdo1
+       Subsignal("sync", Pins("B15")),
+       IOStandard("LVCMOS33"),
+       Misc("SLEW=SLOW"), Misc("DRIVE=4"),
+     ),
+    ("i2s", 1,  # speaker
+       Subsignal("clk", Pins("F14")),
+       Subsignal("tx", Pins("A15"), IOStandard("LVCMOS33")), # au_sdi2
+       Subsignal("sync", Pins("B17"), IOStandard("LVCMOS33")),
+    ),
+    ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
 
     # I2C1 bus -- to RTC and audio CODEC
     ("i2c", 0,
         Subsignal("scl", Pins("C14"), IOStandard("LVCMOS33")),
         Subsignal("sda", Pins("A14"), IOStandard("LVCMOS33")),
+        Misc("SLEW=SLOW"),
     ),
 
     # RTC interrupt
@@ -111,8 +119,10 @@ _io = [
         # column scan with 1's, so PD to default 0
         Subsignal("row", Pins("F15 E17 G17 E14 E15 H15 G15 H14 H16"), Misc("PULLDOWN True")),
         Subsignal("col", Pins("H17 E18 F18 G18 E13 H18 F13 H13 J13 K13")),
-        IOStandard("LVCMOS33")
-    ),
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
+     ),
 
     # LCD interface
     ("lcd", 0,
@@ -120,8 +130,8 @@ _io = [
         Subsignal("scs",  Pins("C18")),
         Subsignal("si",   Pins("D17")),
         IOStandard("LVCMOS33"),
-        Misc("SLEW=SLOW")
-
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
      ),
 
     # SD card (TF) interface
@@ -153,7 +163,8 @@ _io = [
         Subsignal("dqs",  Pins("R14")),
         Subsignal("ecs_n", Pins("L16")),
         Subsignal("sclk", Pins("L13")),
-        IOStandard("LVCMOS18")
+        IOStandard("LVCMOS18"),
+        Misc("SLEW=SLOW"),
      ),
 
     # SRAM
@@ -182,13 +193,15 @@ _io_uart_debug = [
         Subsignal("tx", Pins("V6")),
         Subsignal("rx", Pins("V7")),
         IOStandard("LVCMOS18"),
+        Misc("SLEW=SLOW"),
     ),
 
     ("serial", 0, # wired to the internal flex
         Subsignal("tx", Pins("B18")), # debug0 breakout
         Subsignal("rx", Pins("D15")), # debug1
         IOStandard("LVCMOS33"),
-    ),
+        Misc("SLEW=SLOW"),
+     ),
 ]
 
 _io_uart_debug_swapped = [
@@ -816,7 +829,7 @@ class BetrustedSoC(SoCCore):
         #self.submodules.aes = Aes(platform)
         #self.add_csr("aes")
 
-        ## TODO: audio, wide-width/fast SPINOR
+        ## TODO: audio
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
