@@ -512,6 +512,7 @@ static unsigned short seed_to_data_16(unsigned short seed, int random)
 static unsigned int seed = 0;
 static int memtest_data(void)
 {
+#if SRAM_EXT_BASE
 	volatile unsigned int *array = (unsigned int *)SRAM_EXT_BASE;
 	int i, errors;
 	unsigned int seed_32;
@@ -548,6 +549,7 @@ static int memtest_data(void)
 	putchar('\n');
 
 	return errors;
+#endif
 }
 
 #ifndef MEMTEST_ADDR_SIZE
@@ -559,6 +561,7 @@ static int memtest_data(void)
 
 static int memtest_addr(void)
 {
+#if SRAM_EXT_BASE
 	volatile unsigned int *array = (unsigned int *)SRAM_EXT_BASE;
 	int i, errors;
 	unsigned short seed_16;
@@ -589,6 +592,7 @@ static int memtest_addr(void)
 	}
 
 	return errors;
+#endif
 }
 
 static int smemtest(char *iter)
@@ -1088,8 +1092,45 @@ int main(int i, char **c)
       dest[r & (1024-1)] = 0xBEEF0000 + j;
     }
 #endif
-	sram_ext_read_config_write(1 << CSR_SRAM_EXT_READ_CONFIG_TRIGGER_OFFSET);
-	
+#if I2S_SIMULATION
+    volatile unsigned int audio[512];
+    int j;
+    unsigned int sample;
+
+    volatile unsigned int *i2s_duplex = (volatile unsigned int *)I2S_DUPLEX_BASE;
+    volatile unsigned int *i2s_spkr = (volatile unsigned int *)I2S_SPKR_BASE;
+
+    i2s_spkr_tx_ctl_write(1 << CSR_I2S_SPKR_TX_CTL_RESET_OFFSET);
+    i2s_duplex_tx_ctl_write(1 << CSR_I2S_DUPLEX_TX_CTL_RESET_OFFSET);
+    i2s_duplex_rx_ctl_write(1 << CSR_I2S_DUPLEX_RX_CTL_RESET_OFFSET);
+
+    for( j = 0; j < 512; j++) {
+       audio[j] = (j << 16) | (512-j);
+    }
+
+    for( j = 0; j < 512; j++) {
+       *i2s_duplex = audio[j];
+       *i2s_spkr = audio[512-j];
+    }
+
+    i2s_spkr_tx_ctl_write(1 << CSR_I2S_SPKR_TX_CTL_ENABLE_OFFSET);
+    i2s_duplex_tx_ctl_write(1 << CSR_I2S_DUPLEX_TX_CTL_ENABLE_OFFSET);
+    i2s_duplex_rx_ctl_write(1 << CSR_I2S_DUPLEX_RX_CTL_ENABLE_OFFSET);
+
+    while(1) {
+       if( (i2s_duplex_rx_stat_read() & (1 << CSR_I2S_DUPLEX_RX_STAT_DATAREADY_OFFSET) &&
+       (i2s_duplex_tx_stat_read() & (1 << CSR_I2S_DUPLEX_TX_STAT_FREE_OFFSET)))
+       ) {
+         for(j = 0; j < 256; j++) {
+           sample = *i2s_duplex;
+           *i2s_duplex = sample + 0x20003000;
+           *i2s_spkr = sample + 0x40005000;
+         }
+       }
+    }
+
+#endif
+
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
@@ -1137,7 +1178,6 @@ int main(int i, char **c)
 	printf("\n");
 
 	printf("--========= \e[1mPeripherals init\e[0m ===========--\n");
-	printf("EXT SRAM config: 0x%08x\n", sram_ext_config_status_read());
 	/*
 	lcd_clear();
 	printf("LCD cleared\n");
