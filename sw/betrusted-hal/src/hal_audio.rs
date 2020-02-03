@@ -492,7 +492,7 @@ impl BtAudio {
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // set output options
-        txbuf = [LM49352_OUTPUT_OPTIONS, (OutputOptions::LR_HP_LEVEL_0DB | OutputOptions::LS_LEVEL_4DB).bits()];
+        txbuf = [LM49352_OUTPUT_OPTIONS, (OutputOptions::LR_HP_LEVEL_N6DB | OutputOptions::LS_LEVEL_4DB).bits()];
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // crank up the gain on the microphone
