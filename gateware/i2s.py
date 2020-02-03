@@ -12,6 +12,11 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
         I2S slave creates a slave audio interface instance. Tx and Rx interfaces are inferred
         based upon the presence or absence of the respective pins in the "pads" argument.
         
+        The interface is I2S-like, but note the deviation that the bits are justified
+        left without a 1-bit pad after sync edges. This isn't a problem for talking to the LM49352
+        codec this was designed for, as the bit offset is programmable, but this will not work well if
+        are talking to a CODEC without a programmable bit offset!
+        
         System Interface
         =================
         
@@ -27,24 +32,26 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
         free space in the transmit FIFO). The maximum depth is 512.
         
         To receive audio data:
-        * reset the Rx FIFO, to guarantee all pointers at zero
-        * hook the Rx full interrupt with an interrupt handler (optional)
-        * if the CODEC is not yet transmitting data, initiate data transmission
-        * enable Rx FIFO to run
-        * poll or wait for interrupt; upon interrupt, read `fifodepth` words. Repeat.
-        * to close the stream, simply clear the Rx FIFO enable bit. The next initiation should call a
+        
+        - reset the Rx FIFO, to guarantee all pointers at zero
+        - hook the Rx full interrupt with an interrupt handler (optional)
+        - if the CODEC is not yet transmitting data, initiate data transmission
+        - enable Rx FIFO to run
+        - poll or wait for interrupt; upon interrupt, read `fifodepth` words. Repeat.
+        - to close the stream, simply clear the Rx FIFO enable bit. The next initiation should call a
           reset of the FIFO to ensure leftover previous data is cleared from the FIFO. 
         
         To transmit audio data:
-        * reset the Tx FIFO, to guarantee all pointers at zero
-        * hook the Tx available interrupt with an interrupt handler (optional)
-        * write 512 words of data into the Tx FIFO, filling it to the max
-        * if the CODEC is not yet requesting data and unmuted, unmute and initiate reception 
-        * enable the Tx FIFO to run
-        * poll or wait for interrupt; upon interrupt, write `fifodepth` words. Repeat.
-        * to close stream, mute the DAC and stop the request clock. Ideally, this can be completed before
+        
+        - reset the Tx FIFO, to guarantee all pointers at zero
+        - hook the Tx available interrupt with an interrupt handler (optional)
+        - write 512 words of data into the Tx FIFO, filling it to the max
+        - if the CODEC is not yet requesting data and unmuted, unmute and initiate reception 
+        - enable the Tx FIFO to run
+        - poll or wait for interrupt; upon interrupt, write `fifodepth` words. Repeat.
+        - to close stream, mute the DAC and stop the request clock. Ideally, this can be completed before
           the FIFO is emptied, so there is no jarring pop or truncation of data
-        * stop FIFO running. Next initiation should reset the FIFO to ensure leftover previous data in
+        - stop FIFO running. Next initiation should reset the FIFO to ensure leftover previous data in
           FIFO is cleared. 
         
         CODEC Interface
@@ -70,13 +77,14 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
                   { "name": "tx/rx",       "wave": ".====|==x.===|==x.=x", "data": ["L15", "L14", "...", "L1", "L0", "R15", "R14", "...", "R1", "R0", "L15"] },
                 ]}
         
-        * Data is updated on the falling edge
-        * Data is sampled on the rising edge
-        * Words are MSB-to-LSB, left-justified
-        * Sync is an input (FPGA is slave, codec is master): low => left channel, high => right channel
-        * Sync can be longer than the wordlen, extra bits are just ignored
-        * Tx is data to the codec (SDI pin on LM49352)
-        * Rx is data from the codec (SDO pin on LM49352)
+        - Data is updated on the falling edge
+        - Data is sampled on the rising edge
+        - Words are MSB-to-LSB, left-justified (**NOTE: this is a deviation from strict I2S, which offsets by 1 from the left**)
+        - Sync is an input (FPGA is slave, codec is master): low => left channel, high => right channel
+        - Sync can be longer than the wordlen, extra bits are just ignored
+        - Tx is data to the codec (SDI pin on LM49352)
+        - Rx is data from the codec (SDO pin on LM49352)
+        
         """)
 
         # one cache line is 8 32-bit words, need to always have enough space for one line or else nothing works
@@ -156,7 +164,9 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
                     CSRField("empty", size=1, description="No data available in FIFO to read"), # next flags probably never used
                     CSRField("wrcount", size=9, description="Write count"),
                     CSRField("rdcount", size=9, description="Read count"),
+                    CSRField("fifodepth", size=9, description="FIFO depth as synthesized")
                 ])
+            self.comb += self.rx_stat.fields.fifodepth.eq(fifodepth)
 
             rx_rst_cnt = Signal(3)
             rx_reset = Signal()
@@ -177,7 +187,7 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
             self.specials += Instance("FIFO_SYNC_MACRO",
                                 p_DEVICE="7SERIES", p_FIFO_SIZE="18Kb", p_DATA_WIDTH=32,
                                 p_ALMOST_EMPTY_OFFSET=8, p_ALMOST_FULL_OFFSET=(512 - fifodepth),
-                                p_DO_REG=1,
+                                p_DO_REG=0,
 
                                 o_ALMOSTFULL=rx_almostfull, o_ALMOSTEMPTY=rx_almostempty,
                                 o_DO=rx_rd_d, o_EMPTY=rx_empty, o_FULL=rx_full,
@@ -194,21 +204,26 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
                 self.ev.rx_ready.trigger.eq(rx_almostfull),
                 self.ev.rx_error.trigger.eq(rx_wrerr | rx_rderr),
             ]
-            self.sync += [  # this is the bus responder -- need to check how this interacts with uncached memory region
-                If(self.bus.cyc & self.bus.stb & ~self.bus.we & ((self.bus.cti == 2) |
-                   (((self.bus.cti == 7) | (self.bus.cti == 0)) & ~self.bus.ack)),
+            bus_read = Signal()
+            bus_read_d = Signal()
+            rd_ack_pipe = Signal()
+            self.comb += bus_read.eq(self.bus.cyc & self.bus.stb & ~self.bus.we & (self.bus.cti == 0))
+            self.sync += [  # this is the bus responder -- only works for uncached memory regions
+                bus_read_d.eq(bus_read),
+                If(bus_read & ~bus_read_d, # one response, one cycle
+                   rd_ack_pipe.eq(1),
                    If(~rx_empty,
                       self.bus.dat_r.eq(rx_rd_d),
                       rx_rden.eq(1),
-                      rd_ack.eq(1),
                    ).Else(
+                       self.bus.dat_r.eq(0xDEADBEEF),  # don't stall the bus indefinitely if we try to read from an empty fifo...just return garbage
                        rx_rden.eq(0),
-                       rd_ack.eq(0),
                    )
                 ).Else(
                     rx_rden.eq(0),
-                    rd_ack.eq(0),
-                )
+                    rd_ack_pipe.eq(0),
+                ),
+                rd_ack.eq(rd_ack_pipe),
             ]
 
             rx_cnt = Signal(5)
@@ -318,8 +333,8 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
             # at a width of 32 bits, an 18kiB fifo is 512 entries deep
             self.specials += Instance("FIFO_SYNC_MACRO",
                                 p_DEVICE="7SERIES", p_FIFO_SIZE="18Kb", p_DATA_WIDTH=32,
-                                p_ALMOST_EMPTY_OFFSET=(512 - fifodepth), p_ALMOST_FULL_OFFSET=8,
-                                p_DO_REG=1,
+                                p_ALMOST_EMPTY_OFFSET=fifodepth, p_ALMOST_FULL_OFFSET=8,
+                                p_DO_REG=0,
 
                                 o_ALMOSTFULL=tx_almostfull, o_ALMOSTEMPTY=tx_almostempty,
                                 o_DO=tx_rd_d, o_EMPTY=tx_empty, o_FULL=tx_full,
@@ -376,7 +391,7 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
             txi2s.act("LEFT",
                       If(~self.tx_ctl.fields.enable, NextState("IDLE")).Else(
                           NextValue(tx_pin, tx_buf[31]),
-                          NextValue(tx_buf, Cat(0, tx_wr_d[:-1])),
+                          NextValue(tx_buf, Cat(0, tx_buf[:-1])),
                           NextValue(tx_cnt, tx_cnt - 1),
                           NextState("LEFT_WAIT"),
                       )
@@ -396,7 +411,7 @@ class i2s_slave(Module, AutoCSR, AutoDoc):
             txi2s.act("RIGHT",
                       If(~self.tx_ctl.fields.enable, NextState("IDLE")).Else(
                           NextValue(tx_pin, tx_buf[31]),
-                          NextValue(tx_buf, Cat(0, tx_wr_d[:-1])),
+                          NextValue(tx_buf, Cat(0, tx_buf[:-1])),
                           NextValue(tx_cnt, tx_cnt - 1),
                           NextState("RIGHT_WAIT"),
                       )

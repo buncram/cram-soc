@@ -236,11 +236,11 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
         The SPI machine architecture is split into two levels: MAC and PHY. 
         
         The MAC layer is responsible for:
-        * receiving requests via CSR register to perform config/status/special command sequences,
+        - receiving requests via CSR register to perform config/status/special command sequences,
         and dispatching these to the SPI PHY
-        * translating wishbone bus requests into command sequences, and routing them to either OPI
+        - translating wishbone bus requests into command sequences, and routing them to either OPI
         or SPI PHY.
-        * managing the chip select to the chip, and ensuring that one dummy cycle is inserted after
+        - managing the chip select to the chip, and ensuring that one dummy cycle is inserted after
         chip select is asserted, or before it is de-asserted; and that the chip select "high" times
         are adequate (1 cycle between reads, 4 cycles for all other operations)
         
@@ -249,9 +249,9 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
         reset to the chip is asserted.
           
         The PHY layers are responsible for the following tasks:
-        * Serializing and deserializing data, standardized on 8 bits for SPI and 16 bits for OPI
-        * counting dummy cycles
-        * managing the clock enable
+        - Serializing and deserializing data, standardized on 8 bits for SPI and 16 bits for OPI
+        - counting dummy cycles
+        - managing the clock enable
         
         PHY cycles are initiated with a "req" signal, which is only sampled for 
         one cycle and then ignored until the PHY issues an "ack" that the current cycle is complete. 
@@ -299,7 +299,7 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
         
         Thus, an OPI read proceeds as follows:
         
-        * When BUS/STB are asserted:
+        - When BUS/STB are asserted:
            TxPhy:
            
            - capture bus_adr, and compare against the *next read* address pointer
@@ -320,7 +320,7 @@ class SpiOpi(Module, AutoCSR, AutoDoc):
            - when CTI==7, ack the data, and wait until the next bus cycle with CTI==2 to resume
              reading
         
-        A FIFO_SYNC_MACRO is used to instantiate the FIFO. This is chosen because:
+        - A FIFO_SYNC_MACRO is used to instantiate the FIFO. This is chosen because:
            - we can specify RAMB18's, which seem to be under-utilized by the auto-inferred memories by migen
            - the XPM_FIFO_ASYNC macro claims no instantiation support, and also looks like it has weird
              requirements for resetting the pointers: you must check the reset outputs, and the time to

@@ -1093,7 +1093,8 @@ int main(int i, char **c)
     }
 #endif
 #if I2S_SIMULATION
-    volatile unsigned int audio[512];
+#define FIFODEPTH 8
+    volatile unsigned int audio[FIFODEPTH*2];
     int j;
     unsigned int sample;
 
@@ -1104,31 +1105,35 @@ int main(int i, char **c)
     i2s_duplex_tx_ctl_write(1 << CSR_I2S_DUPLEX_TX_CTL_RESET_OFFSET);
     i2s_duplex_rx_ctl_write(1 << CSR_I2S_DUPLEX_RX_CTL_RESET_OFFSET);
 
-    for( j = 0; j < 512; j++) {
-       audio[j] = (j << 16) | (512-j);
+    for( j = 0; j < FIFODEPTH*2; j++) {
+       audio[j] = (j << 16) | (FIFODEPTH-j);
     }
 
-    for( j = 0; j < 512; j++) {
+    for( j = 0; j < FIFODEPTH*2; j++) {
        *i2s_duplex = audio[j];
-       *i2s_spkr = audio[512-j];
+       *i2s_spkr = audio[FIFODEPTH*2 -1 -j];
     }
 
     i2s_spkr_tx_ctl_write(1 << CSR_I2S_SPKR_TX_CTL_ENABLE_OFFSET);
     i2s_duplex_tx_ctl_write(1 << CSR_I2S_DUPLEX_TX_CTL_ENABLE_OFFSET);
     i2s_duplex_rx_ctl_write(1 << CSR_I2S_DUPLEX_RX_CTL_ENABLE_OFFSET);
 
-    while(1) {
-       if( (i2s_duplex_rx_stat_read() & (1 << CSR_I2S_DUPLEX_RX_STAT_DATAREADY_OFFSET) &&
-       (i2s_duplex_tx_stat_read() & (1 << CSR_I2S_DUPLEX_TX_STAT_FREE_OFFSET)))
-       ) {
-         for(j = 0; j < 256; j++) {
-           sample = *i2s_duplex;
-           *i2s_duplex = sample + 0x20003000;
-           *i2s_spkr = sample + 0x40005000;
-         }
-       }
-    }
+    unsigned int bar;
+    bar = *((volatile unsigned int *)I2S_DUPLEX_BASE); // test a read when the fifo is empty, check system doesn't hang
 
+    unsigned int foo;
+    while(1) {
+         foo = *(volatile unsigned long *)CSR_I2S_DUPLEX_TX_STAT_ADDR; // csr.h doesn't mark this as volatile, so this gets optimized out...hence redefine with volatile
+         if( (foo >> CSR_I2S_DUPLEX_TX_STAT_FREE_OFFSET) & 1 ) {
+           for( j = 0; j < FIFODEPTH; j++ ) {
+               sample = *i2s_duplex;
+               *i2s_duplex = sample + 0x20003000;
+               *i2s_spkr = sample + 0x40005000;
+           }
+         }
+         if (sample == 0xfeedface)  // this keeps the code after this routine from being optimized out by the while(1)
+            break;
+    }
 #endif
 
 	irq_setmask(0);

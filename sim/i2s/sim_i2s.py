@@ -56,10 +56,12 @@ _io = [
      ),
     ("i2s", 1,  # speaker
      Subsignal("clk", Pins("F14")),
-     Subsignal("tx", Pins("A15"), IOStandard("LVCMOS33")),  # au_sdi2
-     Subsignal("sync", Pins("B17"), IOStandard("LVCMOS33")),
+     Subsignal("tx", Pins("A15")),  # au_sdi2
+     Subsignal("sync", Pins("B17")),
+     IOStandard("LVCMOS33"),
+     Misc("SLEW=SLOW"), Misc("DRIVE=4"),
      ),
-    ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
+     ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
 
 ]
 
@@ -92,23 +94,27 @@ class WarmBoot(Module, AutoCSR):
 boot_offset    = 0x0 #0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
 
 class SimpleSim(SoCCore):
-    mem_map = {
+    SoCCore.mem_map = {
+        "rom":      0x00000000,
+        "sram":     0x10000000,
         "spiflash": 0x20000000,
         "sram_ext": 0x40000000,
-        "audio":    0xc0000000,
+        "audio":    0xe0000000,
+        "csr":      0xf0000000,
     }
-    mem_map.update(SoCCore.mem_map)
 
     def __init__(self, platform, **kwargs):
         SoCCore.__init__(self, platform, sim_config["sys_clk_freq"],
                          integrated_rom_size=0x8000,
                          integrated_sram_size=0x20000,
                          ident="betrusted.io LiteX Base SoC",
-                         cpu_type="vexriscv",
+                         cpu_type="vexriscv", csr_data_width=32,
                          **kwargs)
 
         self.add_constant("SIMULATION", 1)
         self.add_constant("I2S_SIMULATION", 1)
+
+        self.cpu.use_external_variant("../../gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
 
         # instantiate the clock module
         self.submodules.crg = CRG(platform, sim_config)
@@ -119,26 +125,30 @@ class SimpleSim(SoCCore):
             "create_clock -name clk12 -period 83.3333 [get_nets clk12]")
 
         from gateware import i2s
-        self.submodules.i2s_duplex = i2s.i2s_slave(platform.request("i2s", 0))
-        self.register_mem("i2s_duplex", self.mem_map["audio"], self.i2s_duplex.bus, size=4)
+        # shallow fifodepth allows us to work the end points a bit faster in simulation
+        self.submodules.i2s_duplex = i2s.i2s_slave(platform.request("i2s", 0), fifodepth=8)
+        self.add_wb_slave(self.mem_map["audio"], self.i2s_duplex.bus, 0x4)
+        self.add_memory_region("i2s_duplex", self.mem_map["audio"], 4, type='io')
         self.add_csr("i2s_duplex")
+        self.add_interrupt("i2s_duplex")
 
-        self.submodules.i2s_spkr = i2s.i2s_slave(platform.request("i2s", 1))
-        self.register_mem("i2s_spkr", self.mem_map["audio"] + 32, self.i2s_spkr.bus, size=4)
+        self.submodules.i2s_spkr = i2s.i2s_slave(platform.request("i2s", 1), fifodepth=8)
+        self.add_wb_slave(self.mem_map["audio"] + 32, self.i2s_spkr.bus, 0x4)
+        self.add_memory_region("i2s_spkr", self.mem_map["audio"] + 32, 4, type='io')
         self.add_csr("i2s_spkr")
-
+        self.add_interrupt("i2s_spkr")
 
 
 def generate_top():
     platform = Platform()
     soc = SimpleSim(platform)
-    builder = Builder(soc, output_dir="./run", csr_csv="test/csr.csv")
+    builder = Builder(soc, output_dir="./run", csr_csv="test/csr.csv", compile_software=True, compile_gateware=False)
     builder.software_packages = [
     ("libcompiler_rt", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libcompiler_rt"))),
     ("libbase", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libbase"))),
     ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios")))
 ]
-    vns = builder.build(run=False)
+    vns = builder.build()
     soc.do_exit(vns)
 
 #    platform.build(soc, build_dir="./run", run=False)  # run=False prevents synthesis from happening, but a top.v file gets kicked out

@@ -10,7 +10,7 @@ SECTIONS
 		_ftext = .;
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 		_etext = .;
-	} > spiflash
+	} > rom
 
 	.rodata :
 	{
@@ -24,7 +24,7 @@ SECTIONS
 		FILL(0);
 		. = ALIGN(8);
 		_erodata = .;
-	} > spiflash
+	} > rom
 
 	.data :
 	{
@@ -39,7 +39,7 @@ SECTIONS
 		FILL(0);
 		. = ALIGN(8);
 		_edata = .;
-	} > spiflash
+	} > rom
 
 	.bss :
 	{

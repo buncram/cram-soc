@@ -38,6 +38,7 @@ from gateware import spi
 from gateware import messible
 from gateware import i2c
 from gateware import ticktimer
+from gateware import i2s
 
 from gateware import spinor
 from gateware import keyboard
@@ -76,7 +77,7 @@ _io = [
     ),
 
     # Audio interface
-    ("i2s", 0, # headset & mic
+    ("i2s", 0,
        Subsignal("clk", Pins("D14")),
        Subsignal("tx", Pins("D12")), # au_sdi1
        Subsignal("rx", Pins("C13")), # au_sdo1
@@ -84,11 +85,13 @@ _io = [
        IOStandard("LVCMOS33"),
        Misc("SLEW=SLOW"), Misc("DRIVE=4"),
      ),
-    ("i2s", 1,  # speaker
-       Subsignal("clk", Pins("F14")),
-       Subsignal("tx", Pins("A15"), IOStandard("LVCMOS33")), # au_sdi2
-       Subsignal("sync", Pins("B17"), IOStandard("LVCMOS33")),
-    ),
+    # ("i2s", 1,  # speaker
+    #    Subsignal("clk", Pins("F14")),
+    #    Subsignal("tx", Pins("A15")), # au_sdi2
+    #    Subsignal("sync", Pins("B17")),
+    #    IOStandard("LVCMOS33"),
+    #    Misc("SLEW=SLOW"), Misc("DRIVE=4"),
+    # ),
     ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
 
     # I2C1 bus -- to RTC and audio CODEC
@@ -310,12 +313,12 @@ class CRG(Module, AutoCSR):
         platform.add_platform_command("create_clock -name clk12 -period {:0.3f} [get_nets clk12]".format(1e9/12e6))
 
         # This allows PLLs/MMCMEs to be placed anywhere and reference the input clock
-        clk12_bufg = Signal()
-        self.specials += Instance("BUFG", i_I=clk12, o_O=clk12_bufg)
+        self.clk12_bufg = Signal()
+        self.specials += Instance("BUFG", i_I=clk12, o_O=self.clk12_bufg)
 
         self.submodules.mmcm = mmcm = S7MMCM(speedgrade=-1)
         self.comb += mmcm.reset.eq(self.warm_reset)
-        mmcm.register_clkin(clk12_bufg, 12e6)
+        mmcm.register_clkin(self.clk12_bufg, 12e6)
         # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
         mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0) # there should be a precise solution by design
         platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT0]")
@@ -614,6 +617,7 @@ class BetrustedSoC(SoCCore):
         "spiflash": 0x20000000,
         "sram_ext": 0x40000000,
         "memlcd":   0xb0000000,
+        "io":       0xe0000000,
         "csr":      0xf0000000,
     }
 
@@ -812,6 +816,15 @@ class BetrustedSoC(SoCCore):
         self.submodules.romtest = RomTest(platform)
         self.add_csr("romtest")
 
+        # Audio interfaces -------------------------------------------------------------------------
+        self.submodules.audio = i2s.i2s_slave(platform.request("i2s", 0))
+        self.add_wb_slave(self.mem_map["io"], self.audio.bus, 4)
+        self.add_memory_region("audio", self.mem_map["io"], 4, type='io')
+        self.add_csr("audio")
+        self.add_interrupt("audio")
+
+        self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
+
         # Ring Oscillator TRNG ---------------------------------------------------------------------
         self.submodules.trng_osc = TrngRingOsc(platform, target_freq=1e6)
         self.add_csr("trng_osc")
@@ -828,8 +841,6 @@ class BetrustedSoC(SoCCore):
         # AES block --------------------------------------------------------------------------------
         #self.submodules.aes = Aes(platform)
         #self.add_csr("aes")
-
-        ## TODO: audio
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use

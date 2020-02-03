@@ -73,6 +73,7 @@ use betrusted_hal::hal_lcd::*;
 use betrusted_hal::hal_com::*;
 use betrusted_hal::hal_kbd::*;
 use betrusted_hal::hal_xadc::*;
+use betrusted_hal::hal_audio::*;
 use embedded_graphics::prelude::*;
 use embedded_graphics::egcircle;
 use embedded_graphics::pixelcolor::BinaryColor;
@@ -172,6 +173,8 @@ pub struct Repl {
     noise0: [u16; 300],
     noise1: [u16; 300],
     update_noise: bool,
+    audio: BtAudio,
+    audio_run: bool,
 }
 
 const PROMPT: &str = "bt> ";
@@ -194,6 +197,8 @@ impl Repl {
                 noise0: [0; 300],
                 noise1: [0; 300],
                 update_noise: false,
+                audio: BtAudio::new(),
+                audio_run: false,
             }
         };
         r.text.add_text(&mut String::from("Awaiting input."));
@@ -474,16 +479,50 @@ impl Repl {
             } else if self.cmd.trim() == "spi" {
                 // spi performance test
                 self.spi_perftest();
-            } /* else if self.cmd.trim() == "fast" {
-                let mut spiconfig: u32 = readpac32!(self, SPINOR, cfg3, cfg2, cfg1, cfg0);
-                spiconfig |= 1 << 22;
-                writepac32!(spiconfig, self, SPINOR, cfg3, cfg2, cfg1, cfg0);
-                spiconfig |= 1 << 31;
-                writepac32!(spiconfig, self, SPINOR, cfg3, cfg2, cfg1, cfg0);
-                delay_ms(&self.p, 5);
-                spiconfig &= 0x7FFF_FFFF;
-                writepac32!(spiconfig, self, SPINOR, cfg3, cfg2, cfg1, cfg0);
-            }*/ else {
+            } else if self.cmd.trim() == "au" {
+                // start sampling
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
+                self.audio.audio_clocks();
+                self.audio.audio_ports();
+                self.audio.audio_mixer();
+
+                self.audio.audio_i2s_start();
+                self.audio_run = true;
+            } else if self.cmd.trim() == "ao" {
+                // stop sampling
+                self.audio.audio_i2s_stop();
+                self.audio_run = false;
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+            } else if self.cmd.trim() == "aut" { // sample for 10 seconds and report # of samples seen -- for benchmarking sample rate
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
+                self.audio.audio_clocks();
+                self.audio.audio_ports();
+                self.audio.audio_mixer();
+
+                self.audio.audio_i2s_start();
+                self.audio_run = true;
+
+                let mut samples: u32 = 0;
+                let start: u32 = get_time_ms(&self.p);
+                let mut toggle: bool = false;
+                let mut buf_a: [u32; AUDIO_FIFODEPTH] = [0; AUDIO_FIFODEPTH];
+                let mut buf_b: [u32; AUDIO_FIFODEPTH] = [0; AUDIO_FIFODEPTH];
+                loop {
+                    if get_time_ms(&self.p) - start > 10_000 {
+                        break;
+                    }
+                    if self.audio.audio_loopback_poll(&mut buf_a, &mut buf_b, toggle) {
+                        samples = samples + 1;
+                        toggle = !toggle;
+                    }
+                }
+
+                self.text.add_text(&mut format!("{} samples", samples));
+
+                self.audio.audio_i2s_stop();
+                self.audio_run = false;
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+            } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
             }
         }
@@ -586,7 +625,9 @@ fn main() -> ! {
     let mut nu: u8 = 0;
     let mut u1: char = ' ';
     let mut u2: char = ' ';
-    loop {
+
+    let mut samples: u32 = 0;
+loop {
         display.lock().clear();
         if repl.power == false {
             Font12x16::render_str("Betrusted in Standby")
@@ -606,6 +647,14 @@ fn main() -> ! {
 
             continue; // this creates the illusion of being powered off even if we're plugged in
         }
+
+        if repl.audio_run {
+            if repl.audio.audio_loopback_quick() {
+                samples = samples + 1;
+                repl.text.add_text(&mut format!("{} samples", samples));
+            }
+        }
+    
         let mut cur_line: i32 = 5;
 
         let uptime = format!{"Uptime {}s", (get_time_ms(&p) / 1000) as u32};
