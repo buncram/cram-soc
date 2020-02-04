@@ -299,6 +299,30 @@ impl BtXadc {
         }
     }
 
+    pub fn audio_only(&mut self) {
+        const AUDIO: XadcSeq0Mask = XadcSeq0Mask::Dedicated;
+    
+        // 0x0EF0 is constant -- disables alarms not present on this chip, enables calibration, enables all other alarms
+        // set to default before updating the sequence table
+        xadc_write(&self.p, XadcRegs::Config1, ((XadcSeq::Default_ as u16) << 12) | 0x0EF0 );
+
+        // setup the sequencing registers
+        xadc_write(&self.p, XadcRegs::Seq0, AUDIO as u16 );
+        xadc_write(&self.p, XadcRegs::Seq1, 0 );
+
+        // once sequence is set, move to continuous mode. XADC is reset upon changing sequence mode
+        // 0x0EF0 is constant -- disables alarms not present on this chip, enables calibration, enables all other alarms
+        xadc_write(&self.p, XadcRegs::Config1, ((XadcSeq::Continuous as u16) << 12) | 0x0EF0 );
+        // 0x8000 is constant -- disables averaging of cal bit
+        xadc_write(&self.p, XadcRegs::Config0, 0x8000 | (XadcFilter::Avg16 as u16) << 12);
+        // 0x0400 is constant -- sets DCLK to SYSCLK/4 = 25MHz
+        xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4); 
+    }
+
+    pub fn audio(&mut self) -> u16 {
+        xadc_read(&self.p, XadcRegs::Dedicated)
+    }
+
     pub fn set_mode(&mut self, mode: BtXadcMode) {
         self.mode = mode;
     }

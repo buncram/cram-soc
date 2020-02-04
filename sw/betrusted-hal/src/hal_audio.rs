@@ -1,6 +1,7 @@
 use bitflags::*;
 use crate::hal_i2c::i2c_master;
 use crate::hal_time::delay_ms;
+use crate::hal_xadc::*;
 
 pub const LM49352_I2C_ADR: u8 = 0b001_1010;
 pub const AUDIO_FIFODEPTH: usize = 256; // consider replacing this with the property read from the Rx stat register
@@ -584,5 +585,26 @@ impl BtAudio {
         } else {
             false
         }
-    }    
+    }
+    
+    pub fn audio_loopback_xadc(&mut self, xadc: &mut BtXadc) {
+        use crate::hal_time::get_time_ms;
+        
+        use volatile::Volatile;
+        let audio_ptr = 0xE000_0000 as *mut u32;
+        let volatile_audio = audio_ptr as *mut Volatile<u32>;
+
+        let mut sample: u32;
+
+        xadc.audio_only();
+        let start: u32 = get_time_ms(&self.p);
+        while get_time_ms(&self.p) - start < 10000 {
+            if self.p.AUDIO.tx_stat.read().free().bit() {
+                sample = xadc.audio() as u32;
+                unsafe { (*volatile_audio).write(sample | (sample << 16)); }
+            }
+        }
+        // revert xadc settings
+        xadc.noise_only(false);
+    }
 }
