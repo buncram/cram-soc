@@ -14,6 +14,10 @@ pub fn get_time_ms(p: &betrusted_pac::Peripherals) -> u32 {
     time / TICKS_PER_MS
 }
 
+pub fn get_ticks(p: &betrusted_pac::Peripherals) -> u64 {
+    (p.TICKTIMER.time0.read().bits() as u64) | ((p.TICKTIMER.time1.read().bits() as u64) << 32)
+}
+
 /// delay for milliseconds
 pub fn delay_ms(p: &betrusted_pac::Peripherals, ms: u32) {
     let starttime: u32 = get_time_ms(p);

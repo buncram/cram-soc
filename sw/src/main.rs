@@ -74,6 +74,7 @@ use betrusted_hal::hal_com::*;
 use betrusted_hal::hal_kbd::*;
 use betrusted_hal::hal_xadc::*;
 use betrusted_hal::hal_audio::*;
+use betrusted_hal::hal_rtc::*;
 use embedded_graphics::prelude::*;
 use embedded_graphics::egcircle;
 use embedded_graphics::pixelcolor::BinaryColor;
@@ -175,6 +176,7 @@ pub struct Repl {
     update_noise: bool,
     audio: BtAudio,
     audio_run: bool,
+    rtc: BtRtc,
 }
 
 const PROMPT: &str = "bt> ";
@@ -199,6 +201,7 @@ impl Repl {
                 update_noise: false,
                 audio: BtAudio::new(),
                 audio_run: false,
+                rtc: BtRtc::new(),
             }
         };
         r.text.add_text(&mut String::from("Awaiting input."));
@@ -311,6 +314,12 @@ impl Repl {
             if self.cmd.trim() == "shutdown" || self.cmd.trim() == "shut" {
                 self.text.add_text(&mut String::from("Shutting down system"));
                 self.power = false; // the main UI loop needs to pick this up and render the display accordingly
+            } else if self.cmd.trim() == "reboot" || self.cmd.trim() == "reb" {
+                self.text.add_text(&mut String::from("Rebooting in 5 seconds")); // can't see the message actually :P
+                // set the wakeup alarm
+                self.rtc.wakeup_alarm(5);
+                // power down
+                self.power = false;
             } else if self.cmd.trim() == "buzz" {
                 self.text.add_text(&mut String::from("Making a buzz"));
                 unsafe{ self.p.GPIO.drive.write(|w| w.bits(4)); }
@@ -522,6 +531,8 @@ impl Repl {
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+            } else if self.cmd.trim() == "rtc" {
+                self.rtc.rtc_set(0, 51, 16, 4, 2, 20, Weekdays::TUESDAY);
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
             }
@@ -773,18 +784,28 @@ loop {
         }
 
         cur_line += line_height;
-        let dbg = format!{"nd:{} d1:{} d2:{}", nd, d1, d2};
-        Font12x16::render_str(&dbg)
+        let dbg = format!{"nd:{} d1:{} d2:{}     nu:{} u1:{} u2:{}", nd, d1, d2, nu, u1, u2};
+        Font8x16::render_str(&dbg)
         .stroke_color(Some(BinaryColor::On))
         .translate(Point::new(left_margin, cur_line))
         .draw(&mut *display.lock());
 
-        cur_line += line_height;
-        let dbg = format!{"nu:{} u1:{} u2:{}", nu, u1, u2};
-        Font12x16::render_str(&dbg)
-        .stroke_color(Some(BinaryColor::On))
-        .translate(Point::new(left_margin, cur_line))
-        .draw(&mut *display.lock());
+        if !repl.audio_run {
+            cur_line += line_height;
+            repl.rtc.rtc_update();
+            let dbg = format!{"{:2}:{:2}:{:2}, {:}/{:}/20{:}", repl.rtc.hours, repl.rtc.minutes, repl.rtc.seconds, repl.rtc.months, repl.rtc.days, repl.rtc.years};
+            Font12x16::render_str(&dbg)
+            .stroke_color(Some(BinaryColor::On))
+            .translate(Point::new(left_margin, cur_line))
+            .draw(&mut *display.lock());
+        } else {
+            cur_line += line_height;
+            let dbg = format!{"RTC paused for audio"};
+            Font12x16::render_str(&dbg)
+            .stroke_color(Some(BinaryColor::On))
+            .translate(Point::new(left_margin, cur_line))
+            .draw(&mut *display.lock());
+        }
         
         // draw a demarcation line
         cur_line += line_height + 2;
