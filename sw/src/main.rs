@@ -151,6 +151,15 @@ impl Bounce {
     }
 }
 
+pub fn lfsr_next(state: u32) -> u32 {
+    let bit = ((state >> 31) ^
+               (state >> 21) ^
+               (state >>  1) ^
+               (state >>  0)) & 1;
+
+    (state << 1) + bit
+}
+
 pub struct Repl {
     /// PAC access for commands
     p: betrusted_pac::Peripherals,
@@ -275,6 +284,54 @@ impl Repl {
         let endtime: u32 = readpac32!(self, TICKTIMER, time0);
 
         self.text.add_text(&mut format!("time: {} sum: 0x{:08x}", endtime - time, sum));
+    }
+
+    pub fn ram_standby_init(&mut self) -> u32 {
+        const TEST_SIZE: usize = 1024 * 1024 * 8 / 4;
+        let ram_ptr = 0x4008_0000 as *mut [u32; TEST_SIZE];
+        let mut state: u32 = 0xffff_ffff;
+        let mut uniques: u32 = 0;
+        let mut repeat: bool = false;
+
+        for i in 0..TEST_SIZE {
+            unsafe{ (*ram_ptr)[i as usize] = state; }
+            state = lfsr_next(state);
+            // some code to check that the LFSR isn't broken
+            if state == 0xffff_ffff {
+                repeat = true;
+            }
+            if !repeat {
+                uniques = uniques + 1;
+            }
+        }
+
+        uniques
+    }
+
+    pub fn ram_check(&mut self) -> u32 {
+        const TEST_SIZE: usize = 1024 * 1024 * 8 / 4;
+        let ram_ptr = 0x4008_0000 as *mut [u32; TEST_SIZE];
+        let mut state: u32 = 0xffff_ffff;
+        let mut errors: u32 = 0;
+        let mut value: u32;
+
+        for i in 0..TEST_SIZE {
+            unsafe{ value = (*ram_ptr)[i as usize]; }
+            if value != state {
+                errors = errors + 1;
+            }
+            state = lfsr_next(state);
+        }
+        errors
+    }
+
+    pub fn ram_clear(&mut self) {
+        const TEST_SIZE: usize = 1024 * 1024 * 8 / 4;
+        let ram_ptr = 0x4008_0000 as *mut [u32; TEST_SIZE];
+
+        for i in 0..TEST_SIZE {
+            unsafe{ (*ram_ptr)[i as usize] = 0; }
+        }
     }
 
     pub fn uart_tx_u8(&mut self, c: u8) {
@@ -531,8 +588,28 @@ impl Repl {
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+            } else if self.cmd.trim() == "aux" { // xadc audio source
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
+                self.audio.audio_clocks();
+                self.audio.audio_ports();
+                self.audio.audio_mixer();
+
+                self.audio.audio_i2s_start();
+
+                self.audio.audio_loopback_xadc(&mut self.xadc);
+
+                self.audio.audio_i2s_stop();
+            } else if self.cmd.trim() == "ramc" {
+                self.ram_clear();
+                self.text.add_text(&mut format!("RAM cleared."));
+            } else if self.cmd.trim() == "ramx" {
+                let errors = self.ram_check();
+                self.text.add_text(&mut format!("0x{:x} RAM errors.", errors));
+            } else if self.cmd.trim() == "rami" {
+                let len = self.ram_standby_init();
+                self.text.add_text(&mut format!("0x{:x} RAM states.", len));
             } else if self.cmd.trim() == "rtc" {
-                self.rtc.rtc_set(0, 51, 16, 4, 2, 20, Weekdays::TUESDAY);
+                self.rtc.rtc_set(0, 43, 17, 4, 2, 20, Weekdays::TUESDAY);
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
             }
@@ -793,7 +870,7 @@ loop {
         if !repl.audio_run {
             cur_line += line_height;
             repl.rtc.rtc_update();
-            let dbg = format!{"{:2}:{:2}:{:2}, {:}/{:}/20{:}", repl.rtc.hours, repl.rtc.minutes, repl.rtc.seconds, repl.rtc.months, repl.rtc.days, repl.rtc.years};
+            let dbg = format!{"{:2}:{:02}:{:02}, {:}/{:}/20{:}", repl.rtc.hours, repl.rtc.minutes, repl.rtc.seconds, repl.rtc.months, repl.rtc.days, repl.rtc.years};
             Font12x16::render_str(&dbg)
             .stroke_color(Some(BinaryColor::On))
             .translate(Point::new(left_margin, cur_line))
