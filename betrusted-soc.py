@@ -41,6 +41,7 @@ from gateware import ticktimer
 from gateware import i2s
 
 from gateware import spinor
+from gateware import spiopi
 from gateware import keyboard
 
 from gateware.trng import TrngRingOsc
@@ -756,7 +757,7 @@ class BetrustedSoC(SoCCore):
             sclk_instance_name="SCLK_ODDR"
             iddr_instance_name="SPI_IDDR"
             miso_instance_name="MISO_FDRE"
-            self.submodules.spinor = spinor.SpiOpi(platform.request("spiflash_8x"),
+            self.submodules.spinor = spiopi.SpiOpi(platform.request("spiflash_8x"),
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, miso_name=miso_instance_name)
             # reminder to self: the {{ and }} overloading is because Python treats these as special in strings, so {{ -> { in actual constraint
             # NOTE: ECSn is deliberately not constrained -- it's more or less async (0-10ns delay on the signal, only meant to line up with "block" region
