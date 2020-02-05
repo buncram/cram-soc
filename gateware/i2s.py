@@ -1,3 +1,6 @@
+# This file is Copyright (c) 2020 bunnie <bunnie@kosagi.com>
+# License: BSD
+
 from litex.soc.interconnect.csr_eventmanager import *
 from litex.soc.interconnect import wishbone
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
