@@ -609,7 +609,7 @@ impl Repl {
                 let len = self.ram_standby_init();
                 self.text.add_text(&mut format!("0x{:x} RAM states.", len));
             } else if self.cmd.trim() == "rtc" {
-                self.rtc.rtc_set(0, 43, 17, 4, 2, 20, Weekdays::TUESDAY);
+                self.rtc.rtc_set(0, 26, 2, 5, 2, 20, Weekdays::WEDNESDAY);
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
             }

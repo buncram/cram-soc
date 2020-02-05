@@ -229,6 +229,7 @@ impl BtRtc {
 
     /// we only support 24 hour mode
     /// TODO: sanity check arguments
+    /// TODO: write accesses should happen in a single block, to guarante atomicity of the operation
     pub fn rtc_set(&mut self, secs: u8, mins: u8, hours: u8, days: u8, months: u8, years: u8, d: Weekdays) -> bool {
         let mut txbuf: [u8; 2];
 
@@ -266,37 +267,21 @@ impl BtRtc {
 
     pub fn rtc_update(&mut self) {
         let mut txbuf: [u8; 1];
-        let mut rxbuf: [u8; 1] = [0];
+        let mut rxbuf: [u8; 7] = [0; 7];
 
         // only update from RTC if more than 1 second has passed since the last update
         if get_ticks(&self.p) - self.updated_ticks > 1000 {
-            txbuf = [ABRTCMC_WEEKDAYS];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.weekday = to_weekday(rxbuf[0]);
-
-            txbuf = [ABRTCMC_YEARS];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.years = to_binary(rxbuf[0]);
-
-            txbuf = [ABRTCMC_MONTHS];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.months = to_binary(rxbuf[0]);
-
-            txbuf = [ABRTCMC_DAYS];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.days = to_binary(rxbuf[0]);
-
-            txbuf = [ABRTCMC_HOURS];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.hours = to_binary(rxbuf[0]);
-
-            txbuf = [ABRTCMC_MINUTES];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.minutes = to_binary(rxbuf[0]);
-
+            // read as a single block to make the time readout atomic
             txbuf = [ABRTCMC_SECONDS];
             i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
-            self.seconds = to_binary(rxbuf[0]);
+
+            self.seconds = to_binary(rxbuf[0] & 0x7f);
+            self.minutes = to_binary(rxbuf[1] & 0x7f);
+            self.hours = to_binary(rxbuf[2] & 0x3f);
+            self.days = to_binary(rxbuf[3] & 0x3f);
+            self.weekday = to_weekday(rxbuf[4] & 0x7f);
+            self.months = to_binary(rxbuf[5] & 0x1f);
+            self.years = to_binary(rxbuf[6]);
 
             self.updated_ticks = get_ticks(&self.p);
         }
