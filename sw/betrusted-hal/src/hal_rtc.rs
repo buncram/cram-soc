@@ -266,7 +266,7 @@ impl BtRtc {
     }
 
     pub fn rtc_update(&mut self) {
-        let mut txbuf: [u8; 1];
+        let txbuf: [u8; 1];
         let mut rxbuf: [u8; 7] = [0; 7];
 
         // only update from RTC if more than 1 second has passed since the last update

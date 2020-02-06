@@ -29,8 +29,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.cores.clock import S7MMCM
-from litex.soc.cores.i2s import i2s_slave
-from litex.soc.cores.spiopi import SpiOpi
+from litex.soc.cores.i2s import S7I2SSlave
+from litex.soc.cores.spi_opi import S7SPIOPI
 
 from gateware import info
 from gateware import sram_32
@@ -757,7 +757,7 @@ class BetrustedSoC(SoCCore):
             sclk_instance_name="SCLK_ODDR"
             iddr_instance_name="SPI_IDDR"
             miso_instance_name="MISO_FDRE"
-            self.submodules.spinor = SpiOpi(platform.request("spiflash_8x"),
+            self.submodules.spinor = S7SPIOPI(platform.request("spiflash_8x"),
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, miso_name=miso_instance_name)
             # reminder to self: the {{ and }} overloading is because Python treats these as special in strings, so {{ -> { in actual constraint
             # NOTE: ECSn is deliberately not constrained -- it's more or less async (0-10ns delay on the signal, only meant to line up with "block" region
@@ -818,7 +818,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("romtest")
 
         # Audio interfaces -------------------------------------------------------------------------
-        self.submodules.audio = i2s_slave(platform.request("i2s", 0))
+        self.submodules.audio = S7I2SSlave(platform.request("i2s", 0))
         self.add_wb_slave(self.mem_map["audio"], self.audio.bus, 4)
         self.add_memory_region("audio", self.mem_map["audio"], 4, type='io')
         self.add_csr("audio")
