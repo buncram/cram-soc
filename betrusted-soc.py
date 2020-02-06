@@ -9,7 +9,7 @@ LX_DEPENDENCIES = ["riscv", "vivado"]
 
 # Import lxbuildenv to integrate the deps/ directory
 import lxbuildenv
-import lxsocdoc
+import litex.soc.doc as lxsocdoc
 from pathlib import Path
 import subprocess
 
@@ -29,7 +29,8 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.cores.clock import S7MMCM
-from litex.soc.cores import spi_flash
+from litex.soc.cores.i2s import i2s_slave
+from litex.soc.cores.spiopi import SpiOpi
 
 from gateware import info
 from gateware import sram_32
@@ -38,10 +39,8 @@ from gateware import spi
 from gateware import messible
 from gateware import i2c
 from gateware import ticktimer
-from gateware import i2s
 
 from gateware import spinor
-from gateware import spiopi
 from gateware import keyboard
 
 from gateware.trng import TrngRingOsc
@@ -613,13 +612,14 @@ SPI_FLASH_SIZE = 128 * 1024 * 1024
 class BetrustedSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
-        "rom":      0x00000000, # required to keep litex happy
-        "sram":     0x10000000,
-        "spiflash": 0x20000000,
-        "sram_ext": 0x40000000,
-        "memlcd":   0xb0000000,
-        "io":       0xe0000000,
-        "csr":      0xf0000000,
+        "rom":             0x00000000, # required to keep litex happy
+        "sram":            0x10000000,
+        "spiflash":        0x20000000,
+        "sram_ext":        0x40000000,
+        "memlcd":          0xb0000000,
+        "audio":           0xe0000000,
+        "vexriscv_debug":  0xefff0000,
+        "csr":             0xf0000000,
     }
 
     def __init__(self, platform, sys_clk_freq=int(100e6), legacy_spi=False, **kwargs):
@@ -656,7 +656,7 @@ class BetrustedSoC(SoCCore):
         from litex.soc.cores.uart import UARTWishboneBridge
         self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
         self.add_wb_master(self.uart_bridge.wishbone)
-        self.register_mem("vexriscv_debug", 0xe00f0000, self.cpu.debug_bus, 0x100)
+        self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
 
         # Clockgen cluster -------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.2)
@@ -757,7 +757,7 @@ class BetrustedSoC(SoCCore):
             sclk_instance_name="SCLK_ODDR"
             iddr_instance_name="SPI_IDDR"
             miso_instance_name="MISO_FDRE"
-            self.submodules.spinor = spiopi.SpiOpi(platform.request("spiflash_8x"),
+            self.submodules.spinor = SpiOpi(platform.request("spiflash_8x"),
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, miso_name=miso_instance_name)
             # reminder to self: the {{ and }} overloading is because Python treats these as special in strings, so {{ -> { in actual constraint
             # NOTE: ECSn is deliberately not constrained -- it's more or less async (0-10ns delay on the signal, only meant to line up with "block" region
@@ -818,9 +818,9 @@ class BetrustedSoC(SoCCore):
         self.add_csr("romtest")
 
         # Audio interfaces -------------------------------------------------------------------------
-        self.submodules.audio = i2s.i2s_slave(platform.request("i2s", 0))
-        self.add_wb_slave(self.mem_map["io"], self.audio.bus, 4)
-        self.add_memory_region("audio", self.mem_map["io"], 4, type='io')
+        self.submodules.audio = i2s_slave(platform.request("i2s", 0))
+        self.add_wb_slave(self.mem_map["audio"], self.audio.bus, 4)
+        self.add_memory_region("audio", self.mem_map["audio"], 4, type='io')
         self.add_csr("audio")
         self.add_interrupt("audio")
 
