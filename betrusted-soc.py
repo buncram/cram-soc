@@ -43,7 +43,7 @@ from gateware import ticktimer
 from gateware import spinor
 from gateware import keyboard
 
-from gateware.trng import TrngRingOsc
+from gateware import trng
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -827,7 +827,7 @@ class BetrustedSoC(SoCCore):
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
         # Ring Oscillator TRNG ---------------------------------------------------------------------
-        self.submodules.trng_osc = TrngRingOsc(platform, target_freq=1e6)
+        self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=1e6)
         self.add_csr("trng_osc")
         # ignore ring osc paths
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ena]")
