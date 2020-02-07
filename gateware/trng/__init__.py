@@ -1,1 +1,1 @@
-from trng.ring_osc import TrngRingOsc
+from gateware.trng.ring_osc import TrngRingOsc
