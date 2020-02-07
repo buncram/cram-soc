@@ -682,7 +682,7 @@ class BetrustedSoC(SoCCore):
         ]
         self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
         self.add_csr("info")
-        self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{betrustedsoc_dna_cnt_reg[0]/Q}}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
+        self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{betrustedsoc_dna_count_reg[0]/Q}}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
 
         # External SRAM ----------------------------------------------------------------------------
         # Note that page_rd_timing=2 works, but is a slight overclock on RAM. Cache fill time goes from 436ns to 368ns for 8 words.
@@ -793,8 +793,8 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports spiflash_8x_cs_n]") # -3 in reality
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
             # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
-            self.platform.add_platform_command("set_false_path -through [ get_pins betrustedsoc_spiopi_dq_mosi_oe_reg/Q ]")
-            self.platform.add_platform_command("set_false_path -through [ get_pins betrustedsoc_spiopi_dq_oe_reg/Q ]")
+            self.platform.add_platform_command("set_false_path -through [ get_pins betrustedsoc_s7spiopi_dq_mosi_oe_reg/Q ]")
+            self.platform.add_platform_command("set_false_path -through [ get_pins betrustedsoc_s7spiopi_dq_oe_reg/Q ]")
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
