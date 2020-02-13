@@ -99,7 +99,8 @@ class SimpleSim(SoCCore):
         "sram":     0x10000000,
         "spiflash": 0x20000000,
         "sram_ext": 0x40000000,
-        "audio":    0xe0000000,
+        "i2s_duplex":  0xe0000000,
+        "i2s_spkr":  0xe0000020,
         "csr":      0xf0000000,
     }
 
@@ -126,15 +127,15 @@ class SimpleSim(SoCCore):
 
         from litex.soc.cores import i2s
         # shallow fifodepth allows us to work the end points a bit faster in simulation
-        self.submodules.i2s_duplex = i2s.i2s_slave(platform.request("i2s", 0), fifodepth=8)
-        self.add_wb_slave(self.mem_map["audio"], self.i2s_duplex.bus, 0x4)
-        self.add_memory_region("i2s_duplex", self.mem_map["audio"], 4, type='io')
+        self.submodules.i2s_duplex = i2s.S7I2SSlave(platform.request("i2s", 0), fifo_depth=8)
+        self.add_wb_slave(self.mem_map["i2s_duplex"], self.i2s_duplex.bus, 0x4)
+        self.add_memory_region("i2s_duplex", self.mem_map["i2s_duplex"], 4, type='io')
         self.add_csr("i2s_duplex")
         self.add_interrupt("i2s_duplex")
 
-        self.submodules.i2s_spkr = i2s.i2s_slave(platform.request("i2s", 1), fifodepth=8)
-        self.add_wb_slave(self.mem_map["audio"] + 32, self.i2s_spkr.bus, 0x4)
-        self.add_memory_region("i2s_spkr", self.mem_map["audio"] + 32, 4, type='io')
+        self.submodules.i2s_spkr = i2s.S7I2SSlave(platform.request("i2s", 1), fifo_depth=8)
+        self.add_wb_slave(self.mem_map["i2s_spkr"], self.i2s_spkr.bus, 0x4)
+        self.add_memory_region("i2s_spkr", self.mem_map["i2s_spkr"], 4, type='io')
         self.add_csr("i2s_spkr")
         self.add_interrupt("i2s_spkr")
 
