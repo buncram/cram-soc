@@ -1,5 +1,5 @@
 include ../include/generated/variables.mak
-include $(SOC_DIRECTORY)/software/common.mak
+include ../../../../bios/common.mak
 
 ifeq ($(CPUENDIANNESS),big)
 CFLAGS+=-D_YUGA_LITTLE_ENDIAN=0 -D_YUGA_BIG_ENDIAN=1 -Wno-missing-prototypes
