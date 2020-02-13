@@ -124,7 +124,7 @@ class SimpleSim(SoCCore):
         self.platform.add_platform_command(
             "create_clock -name clk12 -period 83.3333 [get_nets clk12]")
 
-        from gateware import i2s
+        from litex.soc.cores import i2s
         # shallow fifodepth allows us to work the end points a bit faster in simulation
         self.submodules.i2s_duplex = i2s.i2s_slave(platform.request("i2s", 0), fifodepth=8)
         self.add_wb_slave(self.mem_map["audio"], self.i2s_duplex.bus, 0x4)
