@@ -24,15 +24,15 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.clock import *
 
 from gateware import spi
-from gateware import sram_32
+from gateware import spi_ec
 
 sim_config = {
     # freqs
     "input_clk_freq": 12e6,
-#    "sys_clk_freq": 12e6,  # UP5K-side
-#    "spi_clk_freq": 24e6,
-    "sys_clk_freq": 100e6,  # Artix-side
-    "spi_clk_freq": 25e6,
+    "sys_clk_freq": 12e6,  # UP5K-side
+    "spi_clk_freq": 24e6,
+#    "sys_clk_freq": 100e6,  # Artix-side
+#    "spi_clk_freq": 25e6,
 }
 
 
@@ -44,13 +44,6 @@ _io = [
      Subsignal("tx", Pins("V6")),
      Subsignal("rx", Pins("V7")),
      IOStandard("LVCMOS18"),
-     ),
-
-    # LCD interface
-    ("lcd", 0,
-     Subsignal("sclk", Pins("A17"), IOStandard("LVCMOS33")),
-     Subsignal("scs", Pins("C18"), IOStandard("LVCMOS33")),
-     Subsignal("si", Pins("D17"), IOStandard("LVCMOS33")),
      ),
 
     # COM to UP5K (maste0)
@@ -67,32 +60,14 @@ _io = [
      Subsignal("miso", Pins("dummy1")),
      Subsignal("mosi", Pins("dummy2")),
      Subsignal("sclk", Pins("dummy3")),
-     ),
-
-    # SRAM
-    ("sram", 0,
-     Subsignal("adr", Pins(
-         "V12 M5 P5 N4  V14 M3 R17 U15",
-         "M4  L6 K3 R18 U16 K1 R5  T2",
-         "U1  N1 L5 K2  M18 T6"),
-               IOStandard("LVCMOS18")),
-     Subsignal("ce_n", Pins("V5"), IOStandard("LVCMOS18")),
-     Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS18")),
-     Subsignal("we_n", Pins("K4"), IOStandard("LVCMOS18")),
-     Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18")),
-     Subsignal("d", Pins(
-         "M2  R4  P2  L4  L1  M1  R1  P1 "
-         "U3  V2  V4  U2  N2  T1  K6  J6 "
-         "V16 V15 U17 U18 P17 T18 P18 M17 "
-         "N3  T4  V13 P15 T14 R15 T3  R7 "), IOStandard("LVCMOS18")),
-     Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
+     Subsignal("irq", Pins("dummy4")),
      ),
 ]
 
 
 class Platform(XilinxPlatform):
     def __init__(self):
-        XilinxPlatform.__init__(self, "", _io)
+        XilinxPlatform.__init__(self, "", _io, toolchain="vivado")
 
 
 class CRG(Module):
@@ -107,11 +82,20 @@ class CRG(Module):
         pll.create_clkout(self.cd_sys, sim_config["sys_clk_freq"])
         pll.create_clkout(self.cd_spi, sim_config["spi_clk_freq"])
 
+class WarmBoot(Module, AutoCSR):
+    def __init__(self, parent, reset_vector=0):
+        self.ctrl = CSRStorage(size=8)
+        self.addr = CSRStorage(size=32, reset=reset_vector)
+        self.do_reset = Signal()
+        # "Reset Key" is 0xac (0b101011xx)
+        self.comb += self.do_reset.eq((self.ctrl.storage & 0xfc) == 0xac)
+
+boot_offset    = 0x0 #0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
+
 
 class SimpleSim(SoCCore):
     mem_map = {
-        "sram_ext": 0x40000000,
-        "memlcd": 0x50000000,
+        "wifi": 0xd0000000,
     }
     mem_map.update(SoCCore.mem_map)
 
@@ -120,11 +104,11 @@ class SimpleSim(SoCCore):
                          integrated_rom_size=0x8000,
                          integrated_sram_size=0x20000,
                          ident="betrusted.io LiteX Base SoC",
-                         cpu_type="vexriscv",
+                         cpu_type="vexriscv", csr_data_width=32,
                          **kwargs)
 
-        self.add_constant("COM_SIMULATION", 1) # add extra COM commands to BIOS
         self.add_constant("SIMULATION", 1)
+        self.add_constant("SPIFIFO_SIMULATION", 1)
 
         # instantiate the clock module
         self.submodules.crg = CRG(platform, sim_config)
@@ -137,29 +121,25 @@ class SimpleSim(SoCCore):
         self.submodules.spimaster = spi.SPIMaster(platform.request("com"))
         self.add_csr("spimaster")
 
-        self.submodules.spislave = spi.SPISlave(platform.request("slave"))
-        self.add_csr("spislave")
-
-        # external SRAM to make BIOS build happy
-        self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=6, page_rd_timing=2)
-        self.add_csr("sram_ext")
-        self.register_mem("sram_ext", self.mem_map["sram_ext"],
-                  self.sram_ext.bus, size=0x1000000)
+        self.submodules.com = ClockDomainsRenamer({"spislave":"spi"})(spi_ec.SpiFifoSlave(platform.request("slave")))
+        self.add_wb_slave(self.mem_map["wifi"], self.com.bus, 4)
+        self.add_memory_region("wifi", self.mem_map["wifi"], 4, type='io')
+        self.add_csr("com")
+        self.add_interrupt("com")
 
 
 
 def generate_top():
     platform = Platform()
     soc = SimpleSim(platform)
-    builder = Builder(soc, output_dir="./run", csr_csv="test/csr.csv")
+    builder = Builder(soc, output_dir="./run", csr_csv="test/csr.csv", compile_software=True, compile_gateware=False)
     builder.software_packages = [
-        ("libcompiler_rt", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libcompiler_rt"))),
+#        ("libcompiler_rt", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libcompiler_rt"))),
         ("libbase", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libbase"))),
         ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios")))
     ]
-    vns = builder.build(run=False)
+    vns = builder.build()
     soc.do_exit(vns)
-#    platform.build(soc, build_dir="./run", run=False)  # run=False prevents synthesis from happening, but a top.v file gets kicked out
 
 # this generates a test bench wrapper verilog file, needed by the xilinx tools
 def generate_top_tb():
@@ -217,7 +197,8 @@ def run_sim(gui=False):
     os.system(call_cmd + "cd run && xvlog ../../glbl.v")
     os.system(call_cmd + "cd run && xvlog top.v -sv")
     os.system(call_cmd + "cd run && xvlog top_tb.v -sv ")
-    os.system(call_cmd + "cd run && xvlog /home/bunnie/code/betrusted-soc/deps/litex/litex/soc/cores/cpu/vexriscv/verilog/VexRiscv.v")
+    #os.system(call_cmd + "cd run && xvlog ../../../deps/litex/litex/soc/cores/cpu/vexriscv/verilog/VexRiscv.v")
+    os.system(call_cmd + "cd run && xvlog ../../../gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
     os.system(call_cmd + "cd run && xelab -debug typical top_tb glbl -s top_tb_sim -L unisims_ver -L unimacro_ver -L SIMPRIM_VER -L secureip -L $xsimdir/xil_defaultlib -timescale 1ns/1ps")
     if gui:
         os.system(call_cmd + "cd run && xsim top_tb_sim -gui")
@@ -227,6 +208,7 @@ def run_sim(gui=False):
 
 def main():
     import subprocess
+
     subprocess.Popen(['cp', '../bios/linker_rom.ld', '../bios/linker.ld'])
 
     generate_top()

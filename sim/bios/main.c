@@ -1136,6 +1136,7 @@ int main(int i, char **c)
     }
 #endif
 
+
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
