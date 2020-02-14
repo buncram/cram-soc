@@ -743,7 +743,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("messible")
 
         # Tick timer -------------------------------------------------------------------------------
-        self.submodules.ticktimer = ticktimer.TickTimer(sys_clk_freq/1000)
+        self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq, bits=64)
         self.add_csr("ticktimer")
 
         # Power control pins -----------------------------------------------------------------------
