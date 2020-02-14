@@ -20,10 +20,10 @@ libcompiler_rt.a: $(OBJECTS)
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
 
-mulsi3.o: $(SOC_DIRECTORY)/software/libcompiler_rt/mulsi3.c
+mulsi3.o: ../../../../bios/libcompiler_rt/mulsi3.c
 	$(compile)
 
-%.o: $(SOC_DIRECTORY)/software/compiler_rt/lib/builtins/%.c
+%.o: ../../../../bios/compiler_rt/lib/builtins/%.c
 	$(compile)
 
 .PHONY: all clean
