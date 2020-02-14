@@ -46,6 +46,12 @@ _io = [
      IOStandard("LVCMOS18"),
      ),
 
+    ("dbg", 0,
+     Subsignal("tx", Pins("dummytx")),
+     Subsignal("rx", Pins("dummyrx")),
+     IOStandard("LVCMOS18"),
+     ),
+
     # COM to UP5K (maste0)
     ("com", 0,
      Subsignal("csn", Pins("T15"), IOStandard("LVCMOS18")),
@@ -94,10 +100,13 @@ boot_offset    = 0x0 #0x500000 # enough space to hold 2x FPGA bitstreams before 
 
 
 class SimpleSim(SoCCore):
-    mem_map = {
+    SoCCore.mem_map = {
+        "rom" : 0x00000000,
+        "sram": 0x10000000,
         "wifi": 0xd0000000,
+        "csr" : 0xe0000000,
+        "vexriscv_debug": 0xf00f000,
     }
-    mem_map.update(SoCCore.mem_map)
 
     def __init__(self, platform, **kwargs):
         SoCCore.__init__(self, platform, sim_config["sys_clk_freq"],
@@ -105,7 +114,13 @@ class SimpleSim(SoCCore):
                          integrated_sram_size=0x20000,
                          ident="betrusted.io LiteX Base SoC",
                          cpu_type="vexriscv", csr_data_width=32,
+                         cpu_variant="minimal+debug",
                          **kwargs)
+
+        from litex.soc.cores.uart import UARTWishboneBridge
+        self.submodules.uart_bridge = UARTWishboneBridge(platform.request("dbg"), int(12e6), baudrate=115200)
+        self.add_wb_master(self.uart_bridge.wishbone)
+        self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
         self.add_constant("SIMULATION", 1)
         self.add_constant("SPIFIFO_SIMULATION", 1)
@@ -134,7 +149,7 @@ def generate_top():
     soc = SimpleSim(platform)
     builder = Builder(soc, output_dir="./run", csr_csv="test/csr.csv", compile_software=True, compile_gateware=False)
     builder.software_packages = [
-#        ("libcompiler_rt", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libcompiler_rt"))),
+        ("libcompiler_rt", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libcompiler_rt"))),
         ("libbase", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios/libbase"))),
         ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "../bios")))
     ]
@@ -197,8 +212,8 @@ def run_sim(gui=False):
     os.system(call_cmd + "cd run && xvlog ../../glbl.v")
     os.system(call_cmd + "cd run && xvlog top.v -sv")
     os.system(call_cmd + "cd run && xvlog top_tb.v -sv ")
-    #os.system(call_cmd + "cd run && xvlog ../../../deps/litex/litex/soc/cores/cpu/vexriscv/verilog/VexRiscv.v")
-    os.system(call_cmd + "cd run && xvlog ../../../gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
+    os.system(call_cmd + "cd run && xvlog ../../../deps/litex/litex/soc/cores/cpu/vexriscv/verilog/VexRiscv_MinDebug.v")
+    #os.system(call_cmd + "cd run && xvlog ../../../gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
     os.system(call_cmd + "cd run && xelab -debug typical top_tb glbl -s top_tb_sim -L unisims_ver -L unimacro_ver -L SIMPRIM_VER -L secureip -L $xsimdir/xil_defaultlib -timescale 1ns/1ps")
     if gui:
         os.system(call_cmd + "cd run && xsim top_tb_sim -gui")

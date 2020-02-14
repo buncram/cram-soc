@@ -1135,7 +1135,81 @@ int main(int i, char **c)
             break;
     }
 #endif
+#if SPIFIFO_SIMULATION
+	volatile unsigned int *mem;
+	volatile unsigned int *com;
+	mem = (volatile unsigned int *) 0x10010000;
+	com = (volatile unsigned int *) 0xd0000000;
 
+    *com = 0x0f0f;
+	spimaster_tx_write(0xf055);
+	spimaster_control_write(1 << CSR_SPIMASTER_CONTROL_GO_OFFSET);
+
+	while( (com_status_read() & (1 << CSR_COM_STATUS_RX_AVAIL_OFFSET)) == 0 )
+	  ;
+	mem[0] = spimaster_rx_read();
+	mem[1] = *com;
+
+    // split write
+    for(i = 0; i < 16; i++) {
+       *com = i + 0x6900;
+    }
+
+	// write performance benchmark
+	for(i = 0; i < 16; i++ ) {
+	  spimaster_tx_write(i + 0x4c00);
+
+	  spimaster_control_write(1 << CSR_SPIMASTER_CONTROL_GO_OFFSET);
+	  // simulations show the below is critical in poll loops for sysclk=100MHz, spclk=25MHz
+	  while( spimaster_status_read() & (1 << CSR_SPIMASTER_STATUS_TIP_OFFSET) )
+	    ;
+	}
+
+	// split read
+	for( i = 0; i < 16 ; i++ ) {
+	  mem[i+10] = *com;
+	}
+
+    // establish an out-of-phase condition: put 8 elements into the queue for Tx, but only take 4 out
+    for(i = 0; i < 8; i++) {
+       *com = i + 0xFAF0;
+    }
+	for(i = 0; i < 4; i++ ) {
+	  spimaster_tx_write(i + 0x6960);
+
+	  spimaster_control_write(1 << CSR_SPIMASTER_CONTROL_GO_OFFSET);
+	  // simulations show the below is critical in poll loops for sysclk=100MHz, spclk=25MHz
+	  while( spimaster_status_read() & (1 << CSR_SPIMASTER_STATUS_TIP_OFFSET) )
+	    ;
+	}
+	// drain read fifo
+	while( (com_status_read() & (1 << CSR_COM_STATUS_RX_AVAIL_OFFSET)) != 0) {
+	  mem[i+10] = *com;
+	  i++;
+	}
+
+	// whoops! we should have a few items left over
+	while( (com_status_read() & (1 << CSR_COM_STATUS_TX_EMPTY_OFFSET)) == 0) {
+	  com_control_write(1 << CSR_COM_CONTROL_PUMP_OFFSET);
+	}
+
+    // test what happens if we read an empty read fifo
+    mem[i+50] = *com;
+
+    // test what happens if we have a SPI transaction but no actual data
+    spimaster_tx_write(0xDEAD);
+	spimaster_control_write(1 << CSR_SPIMASTER_CONTROL_GO_OFFSET);
+
+
+	// quick post-amble so we can quickly recognize end of simulation staring at the waveforms
+	for( i = 0; i < 3; i++ ) {
+       mem[i+127] = *com;
+	}
+
+    // test error flag clearing
+	com_control_write(1 << CSR_COM_CONTROL_CLRERR_OFFSET);
+
+#endif
 
 	irq_setmask(0);
 	irq_setie(1);
