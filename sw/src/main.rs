@@ -386,11 +386,9 @@ impl Repl {
                 unsafe{ self.p.GPIO.output.write(|w| w.bits(0)); }
             } else if self.cmd.trim() == "blon" {
                 self.text.add_text(&mut String::from("Turning backlight on"));
-                com_txrx(&self.p, 0x6007); // turn on the keyboard backlight LEDs
                 com_txrx(&self.p, 0x681F); // turn on the backlight to full brightness (31)
             } else if self.cmd.trim() == "bloff" {
                 self.text.add_text(&mut String::from("Turning backlight off"));
-                com_txrx(&self.p, 0x6000);
                 com_txrx(&self.p, 0x6800);
             } else if self.cmd.trim() == "step" {
                 self.jtag.step(&mut self.jtagphy);
@@ -670,6 +668,8 @@ fn main() -> ! {
     xous_nommu::init();
 
     let p = betrusted_pac::Peripherals::take().unwrap();
+    com_txrx(&p, 0xFFFF as u16);  // reset the link
+    delay_ms(&p, 2); // give it 2 milliseconds to reset
     com_txrx(&p, 0x9003 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 1 means power SoC on
     unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3)); }
 
@@ -732,6 +732,9 @@ loop {
 
             unsafe{p.POWER.power.write(|w| w.self_().bit(false).state().bits(1));} // FIXME: figure out how to float the state bit while system is running...
             com_txrx(&p, 0x9005 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 2 set means fast discharge of FPGA domain
+            delay_ms(&p, 3); // don't DoS the EC
+            com_txrx(&p, 0xFFFF as u16);  // reset the link
+            delay_ms(&p, 3); // don't DoS the EC
 
             continue; // this creates the illusion of being powered off even if we're plugged in
         }
@@ -766,12 +769,14 @@ loop {
         circle.draw(&mut *display.lock());
         
         // ping the EC and update various records over time
-        if get_time_ms(&p) - cur_time > 250 {
+        if get_time_ms(&p) - cur_time > 50 {
             cur_time = get_time_ms(&p);
             if tx_index == 0 {
                 com_txrx(&p, 0x7000 as u16); // send the pointer reset command
             } else if tx_index < gg_array.len() + 1 {
-                gg_array[tx_index - 1] = com_txrx(&p, 0xDEAD) as u16; // the transmit is a dummy byte
+                gg_array[tx_index - 1] = com_txrx(&p, 0xF0F0) as u16; // the transmit is a dummy byte
+            } else {
+                com_txrx(&p, 0xFFFF); // send link reset command
             }
             tx_index += 1;
             tx_index = tx_index % (gg_array.len() + 2);

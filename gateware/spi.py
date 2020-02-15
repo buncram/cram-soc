@@ -138,9 +138,16 @@ class SPIMaster(Module, AutoCSR, AutoDoc):
             ).Else(
                 NextValue(self.csn_r, 1),
                 NextValue(self.tip_r, 0),
-                NextState("IDLE"),
-                setdone.eq(1),
+                NextValue(spicount, 5),
+                NextState("WAIT"),
             ),
+        )
+        fsm.act("WAIT",  # guarantee a minimum CS_N high time after the transaction so slave can capture
+            NextValue(spicount, spicount - 1),
+            If(spicount == 0,
+                setdone.eq(1),
+                NextState("IDLE"),
+            )
         )
 
 
