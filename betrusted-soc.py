@@ -12,6 +12,7 @@ import lxbuildenv
 import litex.soc.doc as lxsocdoc
 from pathlib import Path
 import subprocess
+import sys
 
 from random import SystemRandom
 import argparse
@@ -867,7 +868,7 @@ def main():
 
     if os.environ['PYTHONHASHSEED'] != "1":
         print( "PYTHONHASHEED must be set to 1 for consistent validation results. Failing to set this results in non-deterministic compilation results")
-        exit()
+        return 1
 
     parser = argparse.ArgumentParser(description="Build the Betrusted SoC")
     parser.add_argument(
@@ -923,5 +924,7 @@ def main():
             enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-kmy.nky', '-oencrypted'] + [keystore_args]
             subprocess.call(enc)
 
+    return 0
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
