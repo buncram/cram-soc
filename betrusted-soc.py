@@ -902,7 +902,7 @@ def main():
 
     # generate the rom-inject library code
     if ~args.document_only:
-        if not os.path.exits('sw/rom-inject/src'): # make rom-inject/src if it doesn't exist, e.g. on clean checkout
+        if not os.path.exists('sw/rom-inject/src'): # make rom-inject/src if it doesn't exist, e.g. on clean checkout
             os.mkdir('sw/rom-inject/src')
         with open('sw/rom-inject/src/lib.rs', 'w+') as libfile:
             subprocess.call(['./key2bits.py', '-c', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=libfile)
