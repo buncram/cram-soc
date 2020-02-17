@@ -23,8 +23,8 @@ pub fn delay_ms(p: &betrusted_pac::Peripherals, ms: u32) {
     let starttime: u32 = get_time_ms(p);
 
     loop {
-    if get_time_ms(p) > (starttime + ms * TICKS_PER_MS) {
-        break;
-    }
+        if get_time_ms(p) > (starttime + ms) {
+            break;
+        }
     }
 }
