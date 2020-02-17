@@ -638,6 +638,8 @@ class BetrustedSoC(SoCCore):
             integrated_sram_size = 0x20000,
             ident                = "betrusted.io LiteX Base SoC",
             cpu_type             = "vexriscv",
+            csr_paging           = 4096,  # increase paging to 1 page size
+            csr_address_width    = 15,    # incrase to accommodate larger page size
             #cpu_variant="linux+debug",  # this core doesn't work, but left for jogging my memory later on if I need to try it
             **kwargs)
 
