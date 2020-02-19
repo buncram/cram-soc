@@ -29,7 +29,7 @@ from litex.soc.interconnect.csr_eventmanager import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
-from litex.soc.cores.clock import S7MMCM
+from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
 from litex.soc.cores.i2s import S7I2SSlave
 from litex.soc.cores.spi_opi import S7SPIOPI
 
@@ -257,6 +257,9 @@ class Platform(XilinxPlatform):
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.programmer = programmer
 
+        self.toolchain.additional_commands += [
+            "report_timing -delay_type min_max -max_paths 10 -slack_less_than 0 -sort_by group -input_pins -routable_nets -name failures -file timing-failures.txt"
+        ]
         # this routine retained in case we have to re-explore the bitstream to find the location of the ROM LUTs
         if make_mod:
             # build a version of the bitstream with a different INIT value for the ROM lut, so the offset frame can
@@ -298,6 +301,7 @@ class CRG(Module, AutoCSR):
         self.clock_domains.cd_clk200 = ClockDomain()
 
         # # #
+
         sysclk_ns = 1e9 / sys_clk_freq
         # convert delay request in ns to degrees, where 360 degrees is one whole clock period
         phase_f = (spinor_edge_delay_ns / sysclk_ns) * 360
@@ -307,11 +311,15 @@ class CRG(Module, AutoCSR):
 
         clk32khz = platform.request("lpclk")
         self.specials += Instance("BUFG", i_I=clk32khz, o_O=self.cd_lpclk.clk)
-        platform.add_platform_command("create_clock -name lpclk -period {:0.3f} [get_nets lpclk]".format(1e9/32.768e3))
+        platform.add_platform_command("create_clock -name lpclk -period {:0.3f} [get_nets lpclk]".format(1e9 / 32.768e3))
 
         clk12 = platform.request("clk12")
-        # this constraint must strictly proceed the create_generated_clock constraints
-        platform.add_platform_command("create_clock -name clk12 -period {:0.3f} [get_nets clk12]".format(1e9/12e6))
+        # Note: below feature cannot be used because Litex appends this *after* platform commands! This causes the generated
+        # clock derived constraints immediately below to fail, because .xdc file is parsed in-order, and the main clock needs
+        # to be created before the derived clocks. Instead, we use the line afterwards.
+        # platform.add_period_constraint(clk12, 1e9 / 12e6)
+        platform.add_platform_command("create_clock -name clk12 -period {:0.3f} [get_nets clk12]".format(1e9 / 12e6))
+        # The above constraint must strictly proceed the below create_generated_clock constraints in the .XDC file
 
         # This allows PLLs/MMCMEs to be placed anywhere and reference the input clock
         self.clk12_bufg = Signal()
@@ -332,16 +340,7 @@ class CRG(Module, AutoCSR):
         mmcm.expose_drp()
 
         # Add an IDELAYCTRL primitive for the SpiOpi block
-        reset_counter = Signal(5, reset=31)  # 155ns @ 200MHz, min 59.28ns
-        ic_reset = Signal(reset=1)
-        self.sync.clk200 += \
-            If(reset_counter != 0,
-                reset_counter.eq(reset_counter - 1)
-            ).Else(
-                ic_reset.eq(0)
-            )
-        self.specials += Instance("IDELAYCTRL", i_REFCLK=self.cd_clk200.clk, i_RST=ic_reset)
-
+        self.submodules += S7IDELAYCTRL(self.cd_clk200, reset_cycles=32) # 155ns @ 200MHz, min 59.28ns
 
 # WarmBoot -----------------------------------------------------------------------------------------
 
