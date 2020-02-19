@@ -878,7 +878,7 @@ def main():
         "-u", "--uart-swap", default=False, action="store_true", help="swap UART pins (GDB debug bridge <-> console)"
     )
     parser.add_argument(
-        "-e", "--encrypt", default=False, action="store_true", help="Format output for encryption using the dummy key. Image is re-encrypted at sealing time with a secure key."
+        "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
     )
 
     args = parser.parse_args()
@@ -889,7 +889,12 @@ def main():
         compile_gateware = False
         compile_software = False
 
-    platform = Platform(encrypt=args.encrypt)
+    if args.encrypt == None:
+        encrypt = False
+    else:
+        encrypt = True
+
+    platform = Platform(encrypt=encrypt)
     if args.uart_swap:
         platform.add_extension(_io_uart_debug_swapped)
     else:
@@ -909,19 +914,19 @@ def main():
             subprocess.call(['./key2bits.py', '-c', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=libfile)
 
     # now re-encrypt the binary if needed
-    if args.encrypt:
+    if encrypt:
         # check if we need to re-encrypt to a set key
         # my.nky -- indicates the fuses have been burned on the target device, and needs re-encryption
         # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
-        if Path('my.nky').is_file():
-            print('Found my.nky, re-encrypting binary to the specified fuse settings.')
+        if Path(args.encrypt).is_file():
+            print('Found {}, re-encrypting binary to the specified fuse settings.'.format(args.encrypt))
             keystore_args = ''
             if Path('keystore.bin').is_file():
                 print('Found keystore.bin, patching bitstream to contain specified keystore values.')
                 with open('keystore.patch', 'w') as patchfile:
                     subprocess.call(['./key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                     keystore_args = '-pkeystore.patch'
-            enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-kmy.nky', '-oencrypted'] + [keystore_args]
+            enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-kmy.nky', '-obuild/gateware/encrypted'] + [keystore_args]
             subprocess.call(enc)
 
     return 0
