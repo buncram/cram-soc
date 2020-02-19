@@ -1,5 +1,10 @@
 # betrusted.io SoC
 
+This is the core secure-domain SoC for Betrusted. You can view the latest register set at
+https://ci.betrusted.io/job/betrusted-soc-doc/lastSuccessfulBuild/artifact/build/documentation/_build/html/index.html
+
+## Building ##
+
 1. Check out this repo with `git clone --recurse-submodules <repo>`.
 1. Ensure you have Python 3.5 or newer installed.
 1. Ensure you have `make` installed.
