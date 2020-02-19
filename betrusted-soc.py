@@ -933,4 +933,9 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    from datetime import datetime
+    start = datetime.now()
+    ret = main()
+    print("Run completed in {}".format(datetime.now()-start))
+
+    sys.exit(ret)
