@@ -759,8 +759,9 @@ class BetrustedSoC(SoCCore):
             sclk_instance_name="SCLK_ODDR"
             iddr_instance_name="SPI_IDDR"
             miso_instance_name="MISO_FDRE"
+            spiread=False
             self.submodules.spinor = S7SPIOPI(platform.request("spiflash_8x"),
-                    sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, miso_name=miso_instance_name)
+                    sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, miso_name=miso_instance_name, spiread=spiread)
             # reminder to self: the {{ and }} overloading is because Python treats these as special in strings, so {{ -> { in actual constraint
             # NOTE: ECSn is deliberately not constrained -- it's more or less async (0-10ns delay on the signal, only meant to line up with "block" region
 
@@ -783,8 +784,9 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_input_delay -clock [get_clocks spiclk_out] -clock_fall -min 1 [get_ports spiflash_8x_dq[1]]")
             # corresponding false path on MISO DDR input when clocking SDR data
             self.platform.add_platform_command("set_false_path -from [get_clocks spiclk_out] -to [get_pin {}/D ]".format(iddr_instance_name + "1"))
-            # corresponding false path on MISO SDR input from DQS strobe
-            self.platform.add_platform_command("set_false_path -from [get_clocks spidqs] -to [get_pin {}/D ]".format(miso_instance_name))
+            # corresponding false path on MISO SDR input from DQS strobe, only if the MISO path is used
+            if spiread:
+                self.platform.add_platform_command("set_false_path -from [get_clocks spidqs] -to [get_pin {}/D ]".format(miso_instance_name))
 
             # constrain CLK-to-DQ output DDR delays; MOSI uses the same rules
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports {{spiflash_8x_dq[*]}}]")
