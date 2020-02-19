@@ -2,7 +2,7 @@
 
 This is the core secure-domain SoC for Betrusted.
 
-Compiled documentation: https://ci.betrusted.io/job/betrusted-soc-doc/lastSuccessfulBuild/artifact/build/documentation/_build/html/index.html[latest register set], https://ci.betrusted.io/job/betrusted-soc-rustdoc/lastSuccessfulBuild/artifact/sw/betrusted-pac/target/riscv32imac-unknown-none-elf/doc/betrusted_pac/index.html[latest Rust API] documentation.
+Compiled documentation: https://ci.betrusted.io/betrusted-soc/doc/[latest register set], https://ci.betrusted.io/job/betrusted-soc-rustdoc/lastSuccessfulBuild/artifact/sw/betrusted-pac/target/riscv32imac-unknown-none-elf/doc/betrusted_pac/index.html[latest Rust API] documentation.
 
 ## Building ##
 
