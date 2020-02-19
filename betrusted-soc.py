@@ -877,9 +877,6 @@ def main():
         "-D", "--document-only", default=False, action="store_true", help="Build docs only"
     )
     parser.add_argument(
-        "-u", "--uart-swap", default=False, action="store_true", help="swap UART pins (GDB debug bridge <-> console)"
-    )
-    parser.add_argument(
         "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
     )
 
@@ -897,10 +894,9 @@ def main():
         encrypt = True
 
     platform = Platform(encrypt=encrypt)
-    if args.uart_swap:
-        platform.add_extension(_io_uart_debug_swapped)
-    else:
-        platform.add_extension(_io_uart_debug)
+
+    platform.add_extension(_io_uart_debug)  # specify the location of the UART pins, we can swap them to some reserved GPIOs
+
     soc = BetrustedSoC(platform)
     builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv", compile_software=compile_software, compile_gateware=compile_gateware)
     vns = builder.build()
