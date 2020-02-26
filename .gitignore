@@ -18,6 +18,7 @@ test/
 
 # betrusted-pac is auto-generated
 fw/betrusted-pac/
+xous/betrusted-pac/
 
 # this is an auto-generated library file by 'deps/rom-locate/key2bits.py -c'
 fw/rom-inject/src/lib.rs
