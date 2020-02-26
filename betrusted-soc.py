@@ -612,7 +612,7 @@ SPI_FLASH_SIZE = 128 * 1024 * 1024
 class BetrustedSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
-        "rom":             0x00000000, # required to keep litex happy
+        "rom":             0x00000000,
         "sram":            0x10000000,
         "spiflash":        0x20000000,
         "sram_ext":        0x40000000,
@@ -622,7 +622,7 @@ class BetrustedSoC(SoCCore):
         "csr":             0xf0000000,
     }
 
-    def __init__(self, platform, sys_clk_freq=int(100e6), legacy_spi=False, **kwargs):
+    def __init__(self, platform, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
 
         # CPU cluster
@@ -634,7 +634,7 @@ class BetrustedSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
-            integrated_rom_size  = 0,
+            integrated_rom_size  = bios_size,
             integrated_sram_size = 0x20000,
             ident                = "betrusted.io LiteX Base SoC",
             cpu_type             = "vexriscv",
@@ -647,8 +647,11 @@ class BetrustedSoC(SoCCore):
         # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
         self.cpu.add_debug()
-        self.add_memory_region("rom", 0, 0) # Required to keep litex happy
-        kwargs["cpu_reset_address"] = self.mem_map["spiflash"]+boot_offset
+        #self.add_memory_region("rom", 0, 0x8000)
+        if xous == False:  # raw firmware boots from SPINOR directly; xous boots from default Litex internal ROM
+            kwargs["cpu_reset_address"] = self.mem_map["spiflash"]+boot_offset
+        else:
+            kwargs["cpu_reset_address"] = self.mem_map["rom"]
         self.submodules.reboot = WarmBoot(self, reset_vector=kwargs["cpu_reset_address"])
         self.add_csr("reboot")
         warm_reset = Signal()
@@ -879,10 +882,14 @@ def main():
     parser.add_argument(
         "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
     )
+    parser.add_argument(
+        "-x", "--xous", help="Build for the Xous runtime environment. Defaults to `fw` validation image.", default=False, action="store_true"
+    )
 
+    ##### extract user arguments
     args = parser.parse_args()
     compile_gateware = True
-    compile_software = False
+    compile_software = True
 
     if args.document_only:
         compile_gateware = False
@@ -893,13 +900,21 @@ def main():
     else:
         encrypt = True
 
+    ##### setup platform
     platform = Platform(encrypt=encrypt)
-
     platform.add_extension(_io_uart_debug)  # specify the location of the UART pins, we can swap them to some reserved GPIOs
 
-    soc = BetrustedSoC(platform)
+    ##### define the soc
+    soc = BetrustedSoC(platform, xous=args.xous)
+
+    ##### setup the builder and run it
     builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv", compile_software=compile_software, compile_gateware=compile_gateware)
+    builder.software_packages = [
+        ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "loader")))
+    ]
     vns = builder.build()
+
+    ##### post-build routines
     soc.do_exit(vns)
     lxsocdoc.generate_docs(soc, "build/documentation", note_pulses=True)
     lxsocdoc.generate_svd(soc, "build/software", name="Betrusted SoC", description="Primary UI Core for Betrusted", filename="soc.svd", vendor="Betrusted-IO")

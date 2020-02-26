@@ -34,3 +34,8 @@ Cargo.lock
 
 # this is an auto-generated file
 keystore.patch
+
+# xous build files
+xous/xous.img
+xous/xous-stage1.bin
+xous/xous-kernel.bin

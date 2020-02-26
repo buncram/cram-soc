@@ -29,3 +29,12 @@
 [submodule "deps/opentitan"]
 	path = deps/opentitan
 	url = https://github.com/betrusted-io/opentitan.git
+[submodule "xous/xous-kernel"]
+	path = xous/xous-kernel
+	url = https://github.com/betrusted-io/xous-kernel.git
+[submodule "xous/xous-stage1"]
+	path = xous/xous-stage1
+	url = https://github.com/betrusted-io/xous-stage1.git
+[submodule "xous/xous-tools"]
+	path = xous/xous-tools
+	url = https://github.com/betrusted-io/xous-tools.git
