@@ -938,11 +938,13 @@ def main():
                 with open('keystore.patch', 'w') as patchfile:
                     subprocess.call(['./key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                     keystore_args = '-pkeystore.patch'
-                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-kmy.nky', '-obuild/gateware/encrypted'] + [keystore_args]
+                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
             else:
-                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky',
-                       '-kmy.nky', '-obuild/gateware/encrypted']
+                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
             subprocess.call(enc)
+        else:
+            print('Specified key file {} does not exist'.format(args.encrypt))
+            return 1
 
     return 0
 
