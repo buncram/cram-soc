@@ -19,8 +19,6 @@ extern "C" {
 #[macro_use]
 extern crate alloc;
 extern crate alloc_riscv;
-extern crate xous_nommu;
-use xous_nommu::syscalls::*;
 
 use alloc_riscv::RiscvHeap;
 

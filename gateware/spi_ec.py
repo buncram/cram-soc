@@ -8,27 +8,35 @@ from migen.genlib.cdc import MultiReg
 from migen.genlib.cdc import PulseSynchronizer
 
 class SpiMaster(Module, AutoCSR, AutoDoc):
-    def __init__(self, pads):
+    def __init__(self, pads, gpio_cs=False):
         self.intro = ModuleDoc("""Simple soft SPI master module optimized for Betrusted applications
 
         Requires a clock domain 'spi', which runs at the speed of the SPI bus. 
         
         Simulation benchmarks 16.5us to transfer 16x16 bit words including setup overhead (sysclk=100MHz, spiclk=25MHz)
         which is about 15Mbps system-level performance, assuming the receiver can keep up.
-        """)
+        
+        Note that for the ICE40 master, timing simulations indicate the clock rate could go higher than 24MHz, although
+        there is some question if setup/hold times to the external can be met after all delays are counted.
+        
+        The gpio_cs parameter when true turns CS into a GPIO to be managed by software; when false,
+        it is automatically asserted/de-asserted by the SpiMaster machine.
+        
+        gpio_cs is {} in this instance. 
+        """.format(gpio_cs))
 
         self.miso = pads.miso
         self.mosi = pads.mosi
-        self.sclk = pads.sclk
         self.csn = pads.csn
-
-        self.comb += self.sclk.eq(~ClockSignal("spi"))  # TODO: add clock gating to save power; note receiver reqs for CS pre-clocks
 
         self.tx = CSRStorage(16, name="tx", description="""Tx data, for MOSI""")
         self.rx = CSRStatus(16, name="rx", description="""Rx data, from MISO""")
+        if gpio_cs:
+            self.cs = CSRStorage(fields=[
+                CSRField("cs", description="Writing `1` to this asserts cs_n, that is, brings it low; writing `0`, brings it high")
+            ])
         self.control = CSRStorage(fields=[
             CSRField("go", description="Initiate a SPI cycle by writing a `1`. Does not automatically clear."),
-            CSRField("intena", description="Enable interrupt on transaction finished"),
         ])
         self.status = CSRStatus(fields=[
             CSRField("tip", description="Set when transaction is in progress"),
@@ -49,7 +57,7 @@ class SpiMaster(Module, AutoCSR, AutoDoc):
         self.ev.spi_int = EventSourceProcess(description="Triggered on conclusion of each transaction")  # falling edge triggered
         self.ev.wirq = EventSourceProcess(description="Interrupt request from wifi chip") # falling edge triggered
         self.ev.finalize()
-        self.comb += self.ev.spi_int.trigger.eq(self.control.fields.intena & self.status.fields.tip)
+        self.comb += self.ev.spi_int.trigger.eq(self.status.fields.tip)
         self.specials += MultiReg(pads.wirq, self.ev.wirq.trigger)
 
         # Replica CSR into "spi" clock domain
@@ -71,12 +79,16 @@ class SpiMaster(Module, AutoCSR, AutoDoc):
         self.comb += self.go_edge.eq(self.go_r & ~self.go_d)
 
         self.csn_r = Signal(reset=1)
-        self.comb += self.csn.eq(self.csn_r)
+        if gpio_cs:
+            self.comb += self.csn.eq(~self.cs.fields.cs)
+        else:
+            self.comb += self.csn.eq(self.csn_r)
         self.comb += self.rx.status.eq(self.rx_r) ## invalid while transaction is in progress
         fsm = FSM(reset_state="IDLE")
         fsm = ClockDomainsRenamer("spi")(fsm)
         self.submodules += fsm
         spicount = Signal(4)
+        spiclk_run = Signal()
         fsm.act("IDLE",
                 If(self.go_edge,
                    NextState("RUN"),
@@ -88,26 +100,48 @@ class SpiMaster(Module, AutoCSR, AutoDoc):
                    NextValue(self.csn_r, 0),
                    NextValue(self.mosi, self.tx.storage[15]),
                    NextValue(self.rx_r, Cat(self.miso, self.rx_r[:15])),
+                   NextValue(spiclk_run, 1),
                 ).Else(
+                    NextValue(spiclk_run, 0),
                     NextValue(self.tip_r, 0),
                     NextValue(self.csn_r, 1),
                     If(self.tx_written,
                        NextValue(self.txfull_r, 1),
                     ),
-                )
+                ),
         )
         fsm.act("RUN",
                 If(spicount > 0,
+                   NextValue(spiclk_run, 1),
                    NextValue(self.mosi, self.tx_r[15]),
                    NextValue(self.tx_r, Cat(0, self.tx_r[:15])),
                    NextValue(spicount, spicount - 1),
                    NextValue(self.rx_r, Cat(self.miso, self.rx_r[:15])),
                 ).Else(
+                    NextValue(spiclk_run, 0),
                     NextValue(self.csn_r, 1),
                     NextValue(self.tip_r, 0),
                     NextState("IDLE"),
                 ),
         )
+        # gate the spi clock so it only runs during a SPI transaction -- requirement of the wf200 block
+        self.specials += [
+            Instance("SB_IO",
+                p_PIN_TYPE=0b100000,   # define a DDR output type
+                p_IO_STANDARD="SB_LVCMOS",
+                p_PULLUP=0,
+                p_NEG_TRIGGER=0,
+                io_PACKAGE_PIN=pads.sclk,
+                i_LATCH_INPUT_VALUE=0,
+                i_CLOCK_ENABLE=1,
+                i_INPUT_CLK=0,
+                i_OUTPUT_CLK=ClockSignal("spi"),
+                i_OUTPUT_ENABLE=1,
+                i_D_OUT_0=0,           # rising clock edge
+                i_D_OUT_1=spiclk_run,  # falling clock edge
+            )
+        ]
+
 
 class StickyBit(Module):
     def __init__(self):
@@ -133,6 +167,20 @@ class SpiFifoSlave(Module, AutoCSR, AutoDoc):
 
         Assumes a free-running sclk and csn performs the function of framing bits
         Thus csn must go high between each frame, you cannot hold csn low for burst transfers.
+        
+        A free-running clock is necessitated because the FIFO primitive used here is synchronous
+        to the sysclk domain, not the SPICLK domain. An async FIFO would take too many gates; a sync
+        FIFO can use ICESTORM_RAMs efficiently. However, the price is that in order to synchronize from
+        spiclk->sysclk, we need some extra trailing spiclk signals to generate the latching pulse from
+        spiclk domain to sysclk domain (we run CS_N through a MultiReg synchronizer and then do a rising
+        edge detect on that in sysclk). This need is driven in part by the fact that we anticipate that
+        SPICLK may run (much) faster than sysclk -- it's constrained to 24MHz in the design but 
+        it looks like we could run it much, much faster. 
+        
+        Capturing the data with no sync overhead would require either a fancier state machine and/or
+        async fifos, both which burn gates. Thus the call here is to incur some packet-to-packet overhead on 
+        the SPI bus by imposing a sync penalty after each packet received, but on the upside the bus can
+        run much faster, and also the implementation is extremely small.     
         """)
 
         self.miso = pads.miso

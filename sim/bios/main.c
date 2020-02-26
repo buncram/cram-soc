@@ -1141,6 +1141,8 @@ int main(int i, char **c)
 	mem = (volatile unsigned int *) 0x10010000;
 	com = (volatile unsigned int *) 0xd0000000;
 
+    com_ev_enable_write(0x7); // enable interrupts
+
     *com = 0x0f0f;
 	spimaster_tx_write(0xf055);
 	spimaster_control_write(1 << CSR_SPIMASTER_CONTROL_GO_OFFSET);

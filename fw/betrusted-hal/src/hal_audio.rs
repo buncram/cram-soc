@@ -1,6 +1,8 @@
 use bitflags::*;
+use volatile::Volatile;
 use crate::hal_i2c::i2c_master;
 use crate::hal_time::delay_ms;
+use crate::hal_time::get_time_ms;
 use crate::hal_xadc::*;
 
 pub const LM49352_I2C_ADR: u8 = 0b001_1010;
@@ -535,7 +537,6 @@ impl BtAudio {
 
     /// this is a testing-only function which does a double-buffered audio loopback
     pub fn audio_loopback_poll(&mut self, buf_a: &mut [u32; AUDIO_FIFODEPTH], buf_b: &mut [u32; AUDIO_FIFODEPTH], toggle: bool) -> bool {
-        use volatile::Volatile;
         let audio_ptr = 0xE000_0000 as *mut u32;
         let volatile_audio = audio_ptr as *mut Volatile<u32>;
 
@@ -566,7 +567,6 @@ impl BtAudio {
 
     /// this is a testing-only function which does a double-buffered audio loopback
     pub fn audio_loopback_quick(&mut self) -> bool {
-        use volatile::Volatile;
         let audio_ptr = 0xE000_0000 as *mut u32;
         let volatile_audio = audio_ptr as *mut Volatile<u32>;
 
@@ -587,10 +587,7 @@ impl BtAudio {
         }
     }
     
-    pub fn audio_loopback_xadc(&mut self, xadc: &mut BtXadc) {
-        use crate::hal_time::get_time_ms;
-        
-        use volatile::Volatile;
+    pub fn audio_loopback_xadc(&mut self, xadc: &mut BtXadc) {        
         let audio_ptr = 0xE000_0000 as *mut u32;
         let volatile_audio = audio_ptr as *mut Volatile<u32>;
 
