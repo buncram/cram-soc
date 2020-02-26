@@ -933,13 +933,15 @@ def main():
         # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
         if Path(args.encrypt).is_file():
             print('Found {}, re-encrypting binary to the specified fuse settings.'.format(args.encrypt))
-            keystore_args = ''
             if Path('keystore.bin').is_file():
                 print('Found keystore.bin, patching bitstream to contain specified keystore values.')
                 with open('keystore.patch', 'w') as patchfile:
                     subprocess.call(['./key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                     keystore_args = '-pkeystore.patch'
-            enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-kmy.nky', '-obuild/gateware/encrypted'] + [keystore_args]
+                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-kmy.nky', '-obuild/gateware/encrypted'] + [keystore_args]
+            else:
+                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky',
+                       '-kmy.nky', '-obuild/gateware/encrypted']
             subprocess.call(enc)
 
     return 0
