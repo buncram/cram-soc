@@ -737,17 +737,19 @@ class Hmac(Module, AutoDoc, AutoCSR):
         self.ev.fifo_full = EventSourcePulse(description="FIFO is full")
         self.ev.hash_done = EventSourcePulse(description="Hash is done")
         self.ev.finalize()
-        err_valid=Signal(2)
-        fifo_full=Signal(2)
+        err_valid=Signal()
+        err_valid_r=Signal()
+        fifo_full=Signal()
+        fifo_full_r=Signal()
         hash_done=Signal()
         self.sync += [
-            err_valid[1].eq(err_valid[0]),
-            fifo_full[1].eq(fifo_full[0]),
+            err_valid_r.eq(err_valid),
+            fifo_full_r.eq(fifo_full),
             hash_done.eq(self.status.fields.done),
         ]
         self.comb += [
-            self.ev.err_valid.trigger.eq(~err_valid[1] & err_valid[0]),
-            self.ev.fifo_full.trigger.eq(~fifo_full[1] & fifo_full[0]),
+            self.ev.err_valid.trigger.eq(~err_valid_r & err_valid),
+            self.ev.fifo_full.trigger.eq(~fifo_full_r & fifo_full),
             self.ev.hash_done.trigger.eq(~hash_done & self.status.fields.done),
         ]
 
@@ -786,7 +788,7 @@ class Hmac(Module, AutoDoc, AutoCSR):
             o_WRCOUNT=self.fifo.fields.write_count,
             o_WRERR=self.fifo.fields.write_error,
             o_ALMOSTFULL=self.fifo.fields.almost_full,
-            o_ALMOST_EMPTY=self.fifo.fields.almost_empty,
+            o_ALMOSTEMPTY=self.fifo.fields.almost_empty,
         )
 
         self.specials += Instance("sha2_litex",
@@ -837,18 +839,19 @@ class Hmac(Module, AutoDoc, AutoCSR):
             o_local_fifo_rready=fifo_rready,
             i_local_fifo_rdata=fifo_rdata,
 
-            o_err_valid=err_valid[0],
-            o_fifo_full=fifo_full[0],
+            o_err_valid=err_valid,
+            i_err_valid_pending=self.ev.err_valid.pending,
+            o_fifo_full_event=fifo_full,
         )
 
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_pkg.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "sha2.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "sha2_pad.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_packer.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_core.sv"))
         platform.add_source(os.path.join("gateware", "sha2_litex.sv"))
 #        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_reg_pkg.sv"))
 #        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_core.sv"))
 #        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_fifo_sync.sv"))
 #        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "ttul", "rtl", "ttul_adapter_sram.sv"))
 #        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_intr_hw.sv"))
