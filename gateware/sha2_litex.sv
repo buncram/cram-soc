@@ -29,6 +29,10 @@ module sha2_litex
 
   output reg_hash_done,
 
+  input wipe_secret_re,
+  input [31:0] wipe_secret_v,
+
+
   output [31:0] digest_0,
   output [31:0] digest_1,
   output [31:0] digest_2,
@@ -64,9 +68,6 @@ module sha2_litex
 );
 
   logic [255:0] secret_key;
-
-  logic        wipe_secret;
-  logic [31:0] wipe_v;
 
   logic        fifo_rvalid;
   logic        fifo_rready;
@@ -107,18 +108,18 @@ module sha2_litex
   sha_fifo_t   shaf_rdata;
   logic        shaf_rready;
 
-  logic        sha_en;
-  logic        hmac_en;
-  logic        endian_swap;
-  logic        digest_swap;
+  //logic        sha_en;
+  //logic        hmac_en;
+  //logic        endian_swap;
+  //logic        digest_swap;
 
-  logic        reg_hash_start;
+  //logic        reg_hash_start;
   logic        sha_hash_start;
   logic        hash_start;      // Valid hash_start_signal
-  logic        reg_hash_process;
+  //logic        reg_hash_process;
   logic        sha_hash_process;
 
-  logic        reg_hash_done;
+  //logic        reg_hash_done;
   logic        sha_hash_done;
 
   logic [63:0] sha_message_length;
@@ -141,7 +142,9 @@ module sha2_litex
   assign msg_length = message_length;
 
   logic        wipe_secret;
+  assign wipe_secret = wipe_secret_re;
   logic [31:0] wipe_v;
+  assign wipe_v = wipe_secret_v;
 
   sha_word_t [7:0] key_adapter;
   assign key_adapter[0] = secret_key_0;
@@ -152,6 +155,10 @@ module sha2_litex
   assign key_adapter[5] = secret_key_5;
   assign key_adapter[6] = secret_key_6;
   assign key_adapter[7] = secret_key_7;
+
+  logic                 cfg_block;  // Prevent changing config
+  assign ctrl_freeze = cfg_block;
+
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       secret_key <= '0;
@@ -166,9 +173,6 @@ module sha2_litex
       end
     end
   end
-
-  logic                 cfg_block;  // Prevent changing config
-  assign ctrl_freeze = cfg_block;
 
   /////////////////////
   // Control signals //
@@ -194,7 +198,7 @@ module sha2_litex
     else fifo_full_q <= fifo_full;
   end
 
-  logic fifo_full_event;
+  //logic fifo_full_event;
   assign fifo_full_event = fifo_full & !fifo_full_q;
 
 
@@ -217,7 +221,7 @@ module sha2_litex
   /// monkey patch in a fifo at the upper level
   assign local_fifo_wvalid = fifo_wvalid & sha_en;
   assign fifo_wready = local_fifo_wready;
-  assign local_ffo_wdata = fifo_wdata;
+  assign local_fifo_wdata = fifo_wdata;
   assign fifo_rvalid = local_fifo_rvalid;
   assign local_fifo_rready = fifo_rready;
   assign rdata = local_fifo_rdata;

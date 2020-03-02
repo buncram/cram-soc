@@ -67,10 +67,10 @@ enough, the fix is to slow down the target_freq parameter.
             stage_delay = 1.7  # rough delay of each ring oscillator stage (incl routing) in ns
             fast_stages = 3  # this has a net period of ~5.6ns
 
-            x_min = 2  # 0   routing oscillator slightly through core logic adds more noise
-            x_max = 63 # 65
-            y_min = 0
-            y_max = 99  # 149 if you want to deal with the special case notch in the upper right
+            x_min = 0  # 0   routing oscillator slightly through core logic adds more noise
+            x_max = 56 # 65
+            y_min = 49
+            y_max = 149  # 99 for lower region; 149 if you limit x_max to below 56
         elif device_root == 'ice40up5k':
             stage_delay = 11  # rough delay of each ring oscillator stage (incl routing) in ns
             fast_stages = 1

@@ -707,9 +707,10 @@ class Hmac(Module, AutoDoc, AutoCSR):
             self.key_re[k].eq(getattr(self, "key" + str(k)).re)
 
         self.control = CSRStorage(description="Control register for the HMAC block", fields=[
-            CSRField("hmac_en", size=1, description="Enable the HMAC block"),
+            CSRField("sha_en", size=1, description="Enable the SHA block; disabling resets state"),
             CSRField("endian_swap", size=1, description="Swap the endianness on the input data"),
             CSRField("digest_swap", size=1, description="Swap the endianness on the output digest"),
+            CSRField("hmac_en", size=1, description="Latch configuration for HMAC block"),
             CSRField("hash_start", size=1, description="Writing a 1 indicates the beginning of hash data", pulse=True),
             CSRField("hash_process", size=1, description="Writing a 1 digests the hash data", pulse=True),
         ])
@@ -725,6 +726,8 @@ class Hmac(Module, AutoDoc, AutoCSR):
         self.status = CSRStatus(fields=[
             CSRField("done", size=1, description="Set when hash is done")
         ])
+
+        self.wipe = CSRStorage(32, description="wipe the secret key using the written value. Wipe happens upon write.")
 
         for k in range(0, 8):
             setattr(self, "digest" + str(k), CSRStatus(32, name="digest" + str(k), description="""digest word {}""".format(k)))
@@ -807,12 +810,17 @@ class Hmac(Module, AutoDoc, AutoCSR):
 
             i_reg_hash_start=self.control.fields.hash_start,
             i_reg_hash_process=self.control.fields.hash_process,
+
+            o_ctrl_freeze=ctrl_freeze,
             i_sha_en=control_latch[0],
             i_endian_swap=control_latch[1],
             i_digest_swap=control_latch[2],
-            o_ctrl_freeze=ctrl_freeze,
+            i_hmac_en=control_latch[3],
 
             o_reg_hash_done=self.status.fields.done,
+
+            i_wipe_secret_re=self.wipe.re,
+            i_wipe_secret_v=self.wipe.storage,
 
             o_digest_0=self.digest0.status,
             o_digest_1=self.digest1.status,
@@ -1070,9 +1078,9 @@ class BetrustedSoC(SoCCore):
         self.add_interrupt("keyboard")
 
         # GPIO module ------90f63ac2678aed36813c9ecb1de9a245b7ef137a------------------------------------------------------------------------
-        self.submodules.gpio = BtGpio(platform.request("gpio"))
-        self.add_csr("gpio")
-        self.add_interrupt("gpio")
+        # self.submodules.gpio = BtGpio(platform.request("gpio"))
+        # self.add_csr("gpio")
+        # self.add_interrupt("gpio")
 
         # Build seed -------------------------------------------------------------------------------
         self.submodules.seed = BtSeed()
@@ -1092,17 +1100,17 @@ class BetrustedSoC(SoCCore):
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
         # Ring Oscillator TRNG ---------------------------------------------------------------------
-        self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=1e6)
+        self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=4e6)
         self.add_csr("trng_osc")
         # ignore ring osc paths
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ena]")
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_ccw_0]")
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_cw_1]")
         # MEMO: diagnostic option, need to turn off GPIO
-        # gpio_pads = platform.request("gpio")
-        # self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)
-        # self.comb += gpio_pads[1].eq(self.trng_osc.trng_slow)
-        # self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
+        gpio_pads = platform.request("gpio")
+        self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)
+        self.comb += gpio_pads[1].eq(self.trng_osc.trng_slow)
+        self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
 
         # AES block --------------------------------------------------------------------------------
         self.submodules.aes = Aes(platform)
