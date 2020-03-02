@@ -69,7 +69,27 @@ module aes_reg_top (
   input 	data_out_2_re,
   output [31:0] data_out_3,
   input 	data_out_3_re,
-		    
+
+  // ctrl register
+  input ctrl_mode,
+  input [2:0] ctrl_key_len,
+  output [2:0] ctrl_key_len_rbk,
+  input ctrl_manual_start_trigger,
+  input ctrl_force_data_overwrite,
+  input ctrl_update,
+
+  // status
+  output idle,
+  output stall,
+  output output_valid,
+  output input_ready,
+
+  // trigger
+  input start,
+  input key_clear,
+  input data_in_clear,
+  input data_out_clear,
+
   // Config
   input 	devmode_i // If 1, explicit error return for unmapped register access
 );
@@ -168,7 +188,6 @@ module aes_reg_top (
 
   // Subregister 0 of Multireg key
   // R[key0]: V(True)
-
    assign key_0_d = hw2reg.key[0].d;
    assign reg2hw.key[0].q = key_0_q;
    assign reg2hw.key[0].qe = key_0_qe;
@@ -204,7 +223,6 @@ module aes_reg_top (
 
   // Subregister 0 of Multireg data_in
   // R[data_in0]: V(False)
-
    assign data_in_0_from_core = hw2reg.data_in[0].de;
    assign data_in_0_de_from_core = hw2reg.data_in[0].d;
    assign reg2hw.data_in[0].qe = data_in_0_qe_to_core;
@@ -225,6 +243,8 @@ module aes_reg_top (
    assign reg2hw.data_in[3].qe = data_in_3_qe_to_core;
    assign reg2hw.data_in[3].q = data_in_3_to_core;
 
+  // Subregister 0 of Multireg data_out
+  // R[data_out0]: V(True)
    assign data_out_0 = hw2reg.data_out[0].d;
    assign reg2hw.data_out[0].re = data_out_0_re;
    assign data_out_1 = hw2reg.data_out[1].d;
@@ -234,11 +254,8 @@ module aes_reg_top (
    assign data_out_3 = hw2reg.data_out[3].d;
    assign reg2hw.data_out[3].re = data_out_3_re;
    
-   
 
-  // Subregister 0 of Multireg data_out
-  // R[data_out0]: V(True)
-`ifdef FOO
+`ifdef CTRL_DEF
   // R[ctrl]: V(True)
 
   //   F[mode]: 0:0
@@ -299,8 +316,20 @@ module aes_reg_top (
     .q      (reg2hw.ctrl.force_data_overwrite.q ),
     .qs     (ctrl_force_data_overwrite_qs)
   );
+`endif
+
+  assign reg2hw.ctrl.mode.q = ctrl_mode;
+  assign reg2hw.ctrl.mode.qe = ctrl_update;
+  assign reg2hw.ctrl.key_len.q = ctrl_key_len;
+  assign reg2hw.ctrl.key_len.qe = ctrl_update;
+  assign ctrl_key_len_rbk = hw2reg.ctrl.key_len.d;
+  assign reg2hw.ctrl.manual_start_trigger.q = ctrl_manual_start_trigger;
+  assign reg2hw.ctrl.manual_start_trigger.qe = ctrl_update;
+  assign reg2hw.ctrl.force_data_overwrite.q = ctrl_force_data_overwrite;
+  assign reg2hw.ctrl.force_data_overwrite.qe = ctrl_update;
 
 
+`ifdef TRIGGER_DEF
   // R[trigger]: V(False)
 
   //   F[start]: 0:0
@@ -401,8 +430,14 @@ module aes_reg_top (
 
     .qs     ()
   );
+`endif
 
+  assign reg2hw.trigger.start.q=start;
+  assign reg2hw.trigger.key_clear.q=key_clear;
+  assign reg2hw.trigger.data_in_clear.q=data_in_clear;
+  assign reg2hw.trigger.data_out_clear.q=data_out_clear;
 
+`ifdef STATUS_DEF
   // R[status]: V(False)
 
   //   F[idle]: 0:0
@@ -504,7 +539,10 @@ module aes_reg_top (
     .qs     (status_input_ready_qs)
   );
 `endif
-
+  assign idle = hw2reg.status.idle.d;
+  assign stall = hw2reg.status.stall.d;
+  assign output_valid = hw2reg.status.output_valid.d;
+  assign input_ready = hw2reg.status.input_ready.d;
 
 
   logic [18:0] addr_hit;

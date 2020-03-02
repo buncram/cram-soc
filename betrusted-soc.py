@@ -556,36 +556,109 @@ class Aes(Module, AutoDoc, AutoCSR):
         self.dataout_3 = CSRStatus(fields=[
             CSRField("data", size=32, description="data output from cipher")
         ])
+
+        self.datain_0 = CSRStorage(fields=[
+            CSRField("data", size=32, description="data input")
+        ], write_from_dev=True)
+        self.datain_1 = CSRStorage(fields=[
+            CSRField("data", size=32, description="data input")
+        ], write_from_dev=True)
+        self.datain_2 = CSRStorage(fields=[
+            CSRField("data", size=32, description="data input")
+        ], write_from_dev=True)
+        self.datain_3 = CSRStorage(fields=[
+            CSRField("data", size=32, description="data input")
+        ], write_from_dev=True)
+        datain_clear = Signal(4)
+        self.comb += [
+            self.datain_0.dat_w.eq(0),
+            self.datain_1.dat_w.eq(0),
+            self.datain_2.dat_w.eq(0),
+            self.datain_3.dat_w.eq(0),
+            self.datain_0.we.eq(datain_clear[0]),
+            self.datain_1.we.eq(datain_clear[1]),
+            self.datain_2.we.eq(datain_clear[2]),
+            self.datain_3.we.eq(datain_clear[3]),
+        ]
+
+        self.ctrl = CSRStorage(fields=[
+            CSRField("mode", size=1, description="set to `0' for AES_ENC, `1` for AES_DEC"),
+            CSRField("key_len", size=3, description="`AES128`=001, `AES192`=010, `AES256`=100"),
+            CSRField("manual_start", size=1, description="If `0`, operation starts as soon as all data words are written"),
+            CSRField("force_data_overwrite", size=1, description="If `0`, output is not updated until it is read"),
+        ])
+        self.status = CSRStatus(fields=[
+            CSRField("idle", size=1, description="Core idle"),
+            CSRField("stall", size=1, description="Core stall"),
+            CSRField("output_valid", size=1, description="Data output valid"),
+            CSRField("input_ready", size=1, description="Input value has been latched and it is OK to update to a new value"),
+            CSRField("key_len_rbk", size=3, description="Actual key length selected by the hardware")
+        ])
+
+        self.trigger = CSRStorage(fields=[
+            CSRField("start", size=1, description="Triggers an AES computation if manual_start is selected"),
+            CSRField("key_clear", size=1, description="Clears the key"),
+            CSRField("data_in_clear", size=1, description="Clears data input"),
+            CSRField("data_out_clear", size=1, description="Clears the data output"),
+        ])
+
         self.specials += Instance("aes_reg_top",
-                                  i_clk_i = ClockSignal(),
-                                  i_rst_ni = ~ResetSignal(),
+            i_clk_i = ClockSignal(),
+            i_rst_ni = ~ResetSignal(),
 
-                                  i_key_0_q=self.key_0_q.fields.key_0,
-                                  i_key_0_qe=self.key_0_q.re,
-                                  i_key_1_q=self.key_1_q.fields.key_1,
-                                  i_key_1_qe=self.key_1_q.re,
-                                  i_key_2_q=self.key_2_q.fields.key_2,
-                                  i_key_2_qe=self.key_2_q.re,
-                                  i_key_3_q=self.key_3_q.fields.key_3,
-                                  i_key_3_qe=self.key_3_q.re,
-                                  i_key_4_q=self.key_4_q.fields.key_4,
-                                  i_key_4_qe=self.key_4_q.re,
-                                  i_key_5_q=self.key_5_q.fields.key_5,
-                                  i_key_5_qe=self.key_5_q.re,
-                                  i_key_6_q=self.key_6_q.fields.key_6,
-                                  i_key_6_qe=self.key_6_q.re,
-                                  i_key_7_q=self.key_7_q.fields.key_7,
-                                  i_key_7_qe=self.key_7_q.re,
+            # TODO implement key clearing?
+            i_key_0_q=self.key_0_q.fields.key_0,
+            i_key_0_qe=self.key_0_q.re,
+            i_key_1_q=self.key_1_q.fields.key_1,
+            i_key_1_qe=self.key_1_q.re,
+            i_key_2_q=self.key_2_q.fields.key_2,
+            i_key_2_qe=self.key_2_q.re,
+            i_key_3_q=self.key_3_q.fields.key_3,
+            i_key_3_qe=self.key_3_q.re,
+            i_key_4_q=self.key_4_q.fields.key_4,
+            i_key_4_qe=self.key_4_q.re,
+            i_key_5_q=self.key_5_q.fields.key_5,
+            i_key_5_qe=self.key_5_q.re,
+            i_key_6_q=self.key_6_q.fields.key_6,
+            i_key_6_qe=self.key_6_q.re,
+            i_key_7_q=self.key_7_q.fields.key_7,
+            i_key_7_qe=self.key_7_q.re,
 
-                                  o_data_out_0=self.dataout_0.fields.data,
-                                  i_data_out_0_re=self.dataout_0.we,
-                                  o_data_out_1=self.dataout_1.fields.data,
-                                  i_data_out_1_re=self.dataout_1.we,
-                                  o_data_out_2=self.dataout_2.fields.data,
-                                  i_data_out_2_re=self.dataout_2.we,
-                                  o_data_out_3=self.dataout_3.fields.data,
-                                  i_data_out_3_re=self.dataout_3.we,
-                                  )
+            o_data_out_0=self.dataout_0.fields.data,
+            i_data_out_0_re=self.dataout_0.we,
+            o_data_out_1=self.dataout_1.fields.data,
+            i_data_out_1_re=self.dataout_1.we,
+            o_data_out_2=self.dataout_2.fields.data,
+            i_data_out_2_re=self.dataout_2.we,
+            o_data_out_3=self.dataout_3.fields.data,
+            i_data_out_3_re=self.dataout_3.we,
+
+            i_data_in_0_to_core=self.datain_0.fields.data,
+            i_data_in_1_to_core=self.datain_1.fields.data,
+            i_data_in_2_to_core=self.datain_2.fields.data,
+            i_data_in_3_to_core=self.datain_3.fields.data,
+            o_data_in_0_de_from_core=datain_clear[0],
+            o_data_in_1_de_from_core=datain_clear[1],
+            o_data_in_2_de_from_core=datain_clear[2],
+            o_data_in_3_de_from_core=datain_clear[3],
+
+            i_ctrl_mode=self.ctrl.fields.mode,
+            i_ctrl_key_len=self.ctrl.fields.key_len,
+            o_ctrl_key_len_rbk=self.status.fields.key_len_rbk,
+            i_ctrl_manual_start_trigger=self.ctrl.fields.manual_start,
+            i_ctrl_force_data_overwrite=self.ctrl.fields.force_data_overwrite,
+            i_ctrl_update=self.ctrl.re,
+
+            o_idle=self.status.fields.idle,
+            o_stall=self.status.fields.stall,
+            o_output_valid=self.status.fields.output_valid,
+            o_input_ready=self.status.fields.input_ready,
+
+            i_start=self.trigger.fields.start,
+            i_key_clear=self.trigger.fields.key_clear,
+            i_data_in_clear=self.trigger.fields.data_in_clear,
+            i_data_out_clear=self.trigger.fields.data_out_clear,
+        )
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_reg_pkg.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_pkg.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_control.sv"))
@@ -600,6 +673,186 @@ class Aes(Module, AutoDoc, AutoCSR):
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_core.sv"))
         platform.add_source(os.path.join("gateware", "aes_reg_litex.sv"))
 
+
+from litex.soc.interconnect import wishbone
+class Hmac(Module, AutoDoc, AutoCSR):
+    def __init__(self, platform):
+        self.bus = bus = wishbone.Interface()
+        wdata=Signal(32)
+        wmask=Signal(4)
+        wdata_we=Signal()
+        wdata_avail=Signal()
+        wdata_ready=Signal()
+        self.sync += [
+            wdata_avail.eq(bus.cyc & bus.stb & bus.we),
+            If(bus.cyc & bus.stb & bus.we & ~bus.ack,
+                If(wdata_ready,
+                    wdata.eq(bus.dat_w),
+                    wmask.eq(bus.sel),
+                    wdata_we.eq(1),
+                    bus.ack.eq(1),
+                ).Else(
+                    wdata_we.eq(0),
+                    bus.ack.eq(0),
+                )
+               ).Else(
+                wdata_we.eq(0),
+                bus.ack.eq(0),
+            )
+        ]
+
+        self.key_re = Signal(8)
+        for k in range(0, 8):
+            setattr(self, "key" + str(k), CSRStorage(32, name="key" + str(k), description="""secret key word {}""".format(k)))
+            self.key_re[k].eq(getattr(self, "key" + str(k)).re)
+
+        self.control = CSRStorage(description="Control register for the HMAC block", fields=[
+            CSRField("hmac_en", size=1, description="Enable the HMAC block"),
+            CSRField("endian_swap", size=1, description="Swap the endianness on the input data"),
+            CSRField("digest_swap", size=1, description="Swap the endianness on the output digest"),
+            CSRField("hash_start", size=1, description="Writing a 1 indicates the beginning of hash data", pulse=True),
+            CSRField("hash_process", size=1, description="Writing a 1 digests the hash data", pulse=True),
+        ])
+        control_latch = Signal(self.control.size)
+        ctrl_freeze = Signal()
+        self.sync += [
+            If(ctrl_freeze,
+                control_latch.eq(control_latch)
+            ).Else(
+                control_latch.eq(self.control.storage)
+            )
+        ]
+        self.status = CSRStatus(fields=[
+            CSRField("done", size=1, description="Set when hash is done")
+        ])
+
+        for k in range(0, 8):
+            setattr(self, "digest" + str(k), CSRStatus(32, name="digest" + str(k), description="""digest word {}""".format(k)))
+
+        self.msg_length = CSRStatus(size=64, description="Length of digested message, in bits")
+        self.error_code = CSRStatus(size=32, description="Error code")
+
+        self.submodules.ev = EventManager()
+        self.ev.err_valid = EventSourcePulse(description="Error flag was generated")
+        self.ev.fifo_full = EventSourcePulse(description="FIFO is full")
+        self.ev.hash_done = EventSourcePulse(description="Hash is done")
+        self.ev.finalize()
+        err_valid=Signal(2)
+        fifo_full=Signal(2)
+        hash_done=Signal()
+        self.sync += [
+            err_valid[1].eq(err_valid[0]),
+            fifo_full[1].eq(fifo_full[0]),
+            hash_done.eq(self.status.fields.done),
+        ]
+        self.comb += [
+            self.ev.err_valid.trigger.eq(~err_valid[1] & err_valid[0]),
+            self.ev.fifo_full.trigger.eq(~fifo_full[1] & fifo_full[0]),
+            self.ev.hash_done.trigger.eq(~hash_done & self.status.fields.done),
+        ]
+
+        # At a width of 32 bits, an 36kiB fifo is 1024 entries deep
+        fifo_wvalid=Signal()
+        fifo_wready=Signal()
+        fifo_wdata=Signal(32)
+        fifo_rvalid=Signal()
+        fifo_rready=Signal()
+        fifo_rdata=Signal(32)
+        self.fifo = CSRStatus(description="FIFO status", fields=[
+            CSRField("read_count", size=10, description="read pointer"),
+            CSRField("write_count", size=10, description="write pointer"),
+            CSRField("read_error", size=1, description="read error occurred"),
+            CSRField("write_error", size=1, description="write error occurred"),
+            CSRField("almost_full", size=1, description="almost full"),
+            CSRField("almost_empty", size=1, description="almost empty"),
+        ])
+        self.specials += Instance("FIFO_SYNC_MACRO",
+            p_DEVICE="7SERIES",
+            p_FIFO_SIZE="36Kb",
+            p_DATA_WIDTH=32,
+            p_ALMOST_EMPTY_OFFSET=8,
+            p_ALMOST_FULL_OFFSET=(1024 - 8),
+            p_DO_REG=0,
+            i_CLK=ClockSignal(),
+            i_RST=ResetSignal(),
+            o_FULL=~fifo_wready,
+            i_WREN=fifo_wvalid,
+            i_DI=fifo_wdata,
+            o_EMPTY=~fifo_rvalid,
+            i_RDEN=fifo_rready & ~fifo_rvalid,
+            o_DO=fifo_rdata,
+            o_RDCOUNT=self.fifo.fields.read_count,
+            o_RDERR=self.fifo.fields.read_error,
+            o_WRCOUNT=self.fifo.fields.write_count,
+            o_WRERR=self.fifo.fields.write_error,
+            o_ALMOSTFULL=self.fifo.fields.almost_full,
+            o_ALMOST_EMPTY=self.fifo.fields.almost_empty,
+        )
+
+        self.specials += Instance("sha2_litex",
+            i_clk_i = ClockSignal(),
+            i_rst_ni = ~ResetSignal(),
+
+            i_secret_key_0=self.key0.storage,
+            i_secret_key_1=self.key1.storage,
+            i_secret_key_2=self.key2.storage,
+            i_secret_key_3=self.key3.storage,
+            i_secret_key_4=self.key4.storage,
+            i_secret_key_5=self.key5.storage,
+            i_secret_key_6=self.key6.storage,
+            i_secret_key_7=self.key7.storage,
+            i_secret_key_re=self.key_re,
+
+            i_reg_hash_start=self.control.fields.hash_start,
+            i_reg_hash_process=self.control.fields.hash_process,
+            i_sha_en=control_latch[0],
+            i_endian_swap=control_latch[1],
+            i_digest_swap=control_latch[2],
+            o_ctrl_freeze=ctrl_freeze,
+
+            o_reg_hash_done=self.status.fields.done,
+
+            o_digest_0=self.digest0.status,
+            o_digest_1=self.digest1.status,
+            o_digest_2=self.digest2.status,
+            o_digest_3=self.digest3.status,
+            o_digest_4=self.digest4.status,
+            o_digest_5=self.digest5.status,
+            o_digest_6=self.digest6.status,
+            o_digest_7=self.digest7.status,
+
+            o_msg_length=self.msg_length.status,
+            o_error_code=self.error_code.status,
+
+            i_msg_fifo_wdata=wdata,
+            i_msg_fifo_write_mask=wmask,
+            i_msg_fifo_we=wdata_we,
+            i_msg_fifo_req=wdata_avail,
+            o_msg_fifo_gnt=wdata_ready,
+
+            o_local_fifo_wvalid=fifo_wvalid,
+            i_local_fifo_wready=fifo_wready,
+            o_local_fifo_wdata=fifo_wdata,
+            i_local_fifo_rvalid=fifo_rvalid,
+            o_local_fifo_rready=fifo_rready,
+            i_local_fifo_rdata=fifo_rdata,
+
+            o_err_valid=err_valid[0],
+            o_fifo_full=fifo_full[0],
+        )
+
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_pkg.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "sha2.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "sha2_pad.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_packer.sv"))
+        platform.add_source(os.path.join("gateware", "sha2_litex.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_reg_pkg.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_core.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_fifo_sync.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "ttul", "rtl", "ttul_adapter_sram.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_intr_hw.sv"))
+#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_alert_sender.sv"))
 
 # System constants ---------------------------------------------------------------------------------
 
@@ -618,6 +871,7 @@ class BetrustedSoC(SoCCore):
         "sram_ext":        0x40000000,
         "memlcd":          0xb0000000,
         "audio":           0xe0000000,
+        "sha":             0xe0001000,
         "vexriscv_debug":  0xefff0000,
         "csr":             0xf0000000,
     }
@@ -848,8 +1102,15 @@ class BetrustedSoC(SoCCore):
         # self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
 
         # AES block --------------------------------------------------------------------------------
-        #self.submodules.aes = Aes(platform)
-        #self.add_csr("aes")
+        self.submodules.aes = Aes(platform)
+        self.add_csr("aes")
+
+        # SHA block --------------------------------------------------------------------------------
+        self.submodules.sha = Hmac(platform)
+        self.add_csr("sha")
+        self.add_interrupt("sha")
+        self.add_wb_slave(self.mem_map["sha"], self.sha.bus, 4)
+        self.add_memory_region("sha", self.mem_map["sha"], 4, type='io')
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
