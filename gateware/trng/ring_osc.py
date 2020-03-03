@@ -68,10 +68,10 @@ enough, the fix is to slow down the target_freq parameter.
             fast_stages = 1
 
             # routing oscillator slightly through core logic adds more noise, but can impact performance
-            x_min = 53 #2    # 0
-            x_max = 57 #7    # 65 for clock region X*Y0, X*Y1; 56 for clock region X*Y2
+            x_min = 53     # 0
+            x_max = 57     # 65 for clock region X*Y0, X*Y1; 56 for clock region X*Y2
             y_min = 0
-            y_max = 149  # <99 for lower region (Y0/Y1); 149 includes Y2 if you limit x_max to below 56
+            y_max = 149    # <99 for lower region (Y0/Y1); 149 includes Y2 if you limit x_max to below 56
         elif device_root == 'ice40up5k':
             stage_delay = 11  # rough delay of each ring oscillator stage (incl routing) in ns
             fast_stages = 1

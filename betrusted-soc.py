@@ -299,6 +299,7 @@ class CRG(Module, AutoCSR):
         self.clock_domains.cd_lpclk = ClockDomain()
         self.clock_domains.cd_spinor = ClockDomain()
         self.clock_domains.cd_clk200 = ClockDomain()
+        self.clock_domains.cd_clk50 = ClockDomain()
 
         # # #
 
@@ -337,6 +338,8 @@ class CRG(Module, AutoCSR):
         platform.add_platform_command("create_generated_clock -name spinor [get_pins MMCME2_ADV/CLKOUT2]")
         mmcm.create_clkout(self.cd_clk200, 200e6) # 200MHz required for IDELAYCTL
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
+        mmcm.create_clkout(self.cd_clk50, 50e6) # 50MHz for SHA-block
+        platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
         mmcm.expose_drp()
 
         # Add an IDELAYCTRL primitive for the SpiOpi block
@@ -681,6 +684,7 @@ class Aes(Module, AutoDoc, AutoCSR):
 
 
 from litex.soc.interconnect import wishbone
+from migen.genlib.cdc import BlindTransfer
 class Hmac(Module, AutoDoc, AutoCSR):
     def __init__(self, platform):
         self.bus = bus = wishbone.Interface()
@@ -689,14 +693,14 @@ class Hmac(Module, AutoDoc, AutoCSR):
         wdata_we=Signal()
         wdata_avail=Signal()
         wdata_ready=Signal()
-        self.sync += [
+        self.sync.clk50 += [
             wdata_avail.eq(bus.cyc & bus.stb & bus.we),
             If(bus.cyc & bus.stb & bus.we & ~bus.ack,
                 If(wdata_ready,
                     wdata.eq(bus.dat_w),
                     wmask.eq(bus.sel),
                     wdata_we.eq(1),
-                    bus.ack.eq(1),
+                    bus.ack.eq(1),  #### TODO check that this works with the clk50->clk100 domain crossing
                 ).Else(
                     wdata_we.eq(0),
                     bus.ack.eq(0),
@@ -784,8 +788,8 @@ class Hmac(Module, AutoDoc, AutoCSR):
             p_ALMOST_EMPTY_OFFSET=8,
             p_ALMOST_FULL_OFFSET=(1024 - 8),
             p_DO_REG=0,
-            i_CLK=ClockSignal(),
-            i_RST=ResetSignal(),
+            i_CLK=ClockSignal("clk50"),
+            i_RST=ResetSignal("clk50"),
             o_FULL=~fifo_wready,
             i_WREN=fifo_wvalid,
             i_DI=fifo_wdata,
@@ -800,9 +804,28 @@ class Hmac(Module, AutoDoc, AutoCSR):
             o_ALMOSTEMPTY=self.fifo.fields.almost_empty,
         )
 
+        key_re_50 = Signal()
+        self.submodules.keyre = BlindTransfer("sys", "clk50")
+        self.keyre.i.eq(self.key_re)
+        self.keyre.o.eq(key_re_50)
+
+        hash_start_50 = Signal()
+        self.submodules.hashstart = BlindTransfer("sys", "clk50")
+        self.hashstart.i.eq(self.control.fields.hash_start)
+        self.hashstart.o.eq(hash_start_50)
+
+        hash_proc_50 = Signal()
+        self.submodules.hashproc = BlindTransfer("sys", "clk50")
+        self.hashproc.i.eq(self.control.fields.hash_process)
+        self.hashproc.o.eq(hash_proc_50)
+
+        wipe_50 = Signal()
+        self.submodules.wipe50 = BlindTransfer("sys", "clk50")
+        self.wipe50.i.eq(self.wipe.re)
+        self.wipe50.o.eq(wipe_50)
         self.specials += Instance("sha2_litex",
-            i_clk_i = ClockSignal(),
-            i_rst_ni = ~ResetSignal(),
+            i_clk_i = ClockSignal("clk50"),
+            i_rst_ni = ~ResetSignal("clk50"),
 
             i_secret_key_0=self.key0.storage,
             i_secret_key_1=self.key1.storage,
@@ -812,10 +835,10 @@ class Hmac(Module, AutoDoc, AutoCSR):
             i_secret_key_5=self.key5.storage,
             i_secret_key_6=self.key6.storage,
             i_secret_key_7=self.key7.storage,
-            i_secret_key_re=self.key_re,
+            i_secret_key_re=key_re_50,
 
-            i_reg_hash_start=self.control.fields.hash_start,
-            i_reg_hash_process=self.control.fields.hash_process,
+            i_reg_hash_start=hash_start_50,
+            i_reg_hash_process=hash_proc_50,
 
             o_ctrl_freeze=ctrl_freeze,
             i_sha_en=control_latch[0],
@@ -825,7 +848,7 @@ class Hmac(Module, AutoDoc, AutoCSR):
 
             o_reg_hash_done=self.status.fields.done,
 
-            i_wipe_secret_re=self.wipe.re,
+            i_wipe_secret_re=wipe_50,
             i_wipe_secret_v=self.wipe.storage,
 
             o_digest_0=self.digest0.status,
