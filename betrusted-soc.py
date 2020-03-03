@@ -448,7 +448,7 @@ class BtSeed(Module, AutoDoc, AutoCSR):
         fixed locations within the FPGA.""")
 
         if reproduceable:
-          seed_reset = "4" # chosen by fair dice roll. guaranteed to be random.
+          seed_reset = int(4) # chosen by fair dice roll. guaranteed to be random.
         else:
           rng        = SystemRandom()
           seed_reset = rng.getrandbits(64)
@@ -516,6 +516,12 @@ class RomTest(Module, AutoDoc, AutoCSR):
                           self.data.status[bit].eq(lutsel[0]))
                     .Else(self.data.status[bit].eq(lutsel[1]))
                 ]
+
+        platform.add_platform_command("create_pblock keyrom")
+        platform.add_platform_command('resize_pblock [get_pblocks keyrom] -add ' + '{{SLICE_X36Y50:SLICE_X37Y65}}')
+        #platform.add_platform_command("set_property CONTAIN_ROUTING true [get_pblocks keyrom]")  # should be fine to mingle the routing for this pblock
+        platform.add_platform_command("add_cells_to_pblock [get_pblocks keyrom] [get_cells KEYROM*]")
+
 
 class Aes(Module, AutoDoc, AutoCSR):
     def __init__(self, platform):
@@ -858,12 +864,6 @@ class Hmac(Module, AutoDoc, AutoCSR):
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_packer.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_core.sv"))
         platform.add_source(os.path.join("gateware", "sha2_litex.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_reg_pkg.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_fifo_sync.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "ttul", "rtl", "ttul_adapter_sram.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_intr_hw.sv"))
-#        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_alert_sender.sv"))
 
 # System constants ---------------------------------------------------------------------------------
 
@@ -904,7 +904,7 @@ class BetrustedSoC(SoCCore):
             ident                = "betrusted.io LiteX Base SoC",
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
-            csr_address_width    = 15,    # incrase to accommodate larger page size
+            csr_address_width    = 16,    # increase to accommodate larger page size
             uart_name            = "crossover", # use UART-over-wishbone for debugging
             #cpu_variant="linux+debug",  # this core doesn't work, but left for jogging my memory later on if I need to try it
             **kwargs)
@@ -934,7 +934,6 @@ class BetrustedSoC(SoCCore):
         self.add_csr("crg")
         self.comb += self.crg.warm_reset.eq(warm_reset)
 
-        # Info -------------------------------------------------------------------------------------
         # XADC analog interface---------------------------------------------------------------------
 
         from litex.soc.cores.xadc import analog_layout
@@ -1083,7 +1082,7 @@ class BetrustedSoC(SoCCore):
         # self.add_interrupt("gpio")
 
         # Build seed -------------------------------------------------------------------------------
-        self.submodules.seed = BtSeed()
+        self.submodules.seed = BtSeed(reproduceable=True)
         self.add_csr("seed")
 
         # ROM test ---------------------------------------------------------------------------------
@@ -1100,17 +1099,17 @@ class BetrustedSoC(SoCCore):
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
         # Ring Oscillator TRNG ---------------------------------------------------------------------
-        self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=4e6)
+        self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=1e6, make_pblock=True)
         self.add_csr("trng_osc")
         # ignore ring osc paths
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ena]")
-        self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_ccw_0]")
+        self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_ccw_1]")
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_cw_1]")
         # MEMO: diagnostic option, need to turn off GPIO
-        gpio_pads = platform.request("gpio")
-        self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)
-        self.comb += gpio_pads[1].eq(self.trng_osc.trng_slow)
-        self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
+        # gpio_pads = platform.request("gpio")
+        #### self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)  # this one rarely needs probing
+        # self.comb += gpio_pads[1].eq(self.trng_osc.trng_slow)
+        # self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
 
         # AES block --------------------------------------------------------------------------------
         self.submodules.aes = Aes(platform)
