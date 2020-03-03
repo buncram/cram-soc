@@ -5,7 +5,7 @@ from litex.soc.interconnect.csr import *
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 class TrngRingOsc(Module, AutoCSR, AutoDoc):
-    def __init__(self, platform, target_freq=1e6, rng_shift_width=32):
+    def __init__(self, platform, target_freq=1e6, rng_shift_width=32, make_pblock=False):
         self.intro = ModuleDoc("""
 TrngRingOsc builds a pair of ring oscillators. One is the "slow" oscillator, which circumscribes
 the die, and attempts to hit the target_freq supplied as a parameter. The other is a "fast" oscillator,
@@ -67,10 +67,11 @@ enough, the fix is to slow down the target_freq parameter.
             stage_delay = 1.7  # rough delay of each ring oscillator stage (incl routing) in ns
             fast_stages = 3  # this has a net period of ~5.6ns
 
-            x_min = 0  # 0   routing oscillator slightly through core logic adds more noise
-            x_max = 56 # 65
-            y_min = 49
-            y_max = 149  # 99 for lower region; 149 if you limit x_max to below 56
+            # routing oscillator slightly through core logic adds more noise, but can impact performance
+            x_min = 53 #2    # 0
+            x_max = 57 #7    # 65 for clock region X*Y0, X*Y1; 56 for clock region X*Y2
+            y_min = 0
+            y_max = 149  # <99 for lower region (Y0/Y1); 149 includes Y2 if you limit x_max to below 56
         elif device_root == 'ice40up5k':
             stage_delay = 11  # rough delay of each ring oscillator stage (incl routing) in ns
             fast_stages = 1
@@ -83,8 +84,8 @@ enough, the fix is to slow down the target_freq parameter.
             print("TrngRingOsc: unsupported device " + device_root)
             return
 
-        x_mid = (x_max - x_min) // 2
-        y_mid = (y_max - y_min) // 2
+        x_mid = (x_max + x_min) // 2
+        y_mid = (y_max + y_min) // 2
         y_span = y_max - y_min
         x_span = x_max - x_min
 
@@ -96,6 +97,7 @@ enough, the fix is to slow down the target_freq parameter.
 
         x = x_min
         y = y_min
+
         for stage in range(stages):
             stagename = 'RINGOSC_CW' + str(stage)
 
@@ -109,15 +111,15 @@ enough, the fix is to slow down the target_freq parameter.
                                  attr=("KEEP", "DONT_TOUCH", stagename + 'LOCK')
                              )
                 if stage < fast_stages:
-                    stagename = 'RINGOSC_CCW' + str(stage)
-                    # initially, share the CLB -- but see if performance is better if the LUTs are spread farther apart
-                    platform.toolchain.attr_translate[stagename + 'LOCK'] = ("LOC", "SLICE_X" + str(x) + 'Y' + str(y))
+                    stagename = 'RO_CCW' + str(stage) # don't bind to pblock
+                    # don't lock the fast oscillator; this helps de-correlate it from the big oscillator
+                    #platform.toolchain.attr_translate[stagename + 'LOCK'] = ("LOC", "SLICE_X" + str(x) + 'Y' + str(y))
                     self.specials += Instance("LUT1",
                                      name=stagename,
                                      p_INIT=1,
                                      i_I0=ring_ccw[stage],
                                      o_O=ring_ccw[stage+1],
-                                     attr=("KEEP", "DONT_TOUCH", stagename + 'LOCK')
+                                     # attr=("KEEP", "DONT_TOUCH", stagename + 'LOCK')
                                  )
 
 
@@ -157,7 +159,7 @@ enough, the fix is to slow down the target_freq parameter.
                 if y <= y_mid:  # we hit the middle
                     x = x - 1
                     x_span = x_span - 2
-                    y = 0
+                    y = y_min
                     y_span = y_max - y_min
                 else:
                     y_span = y_span - 1
@@ -181,7 +183,7 @@ enough, the fix is to slow down the target_freq parameter.
 
         # instantiate the noise slicing flip flop explicitly, don't leave it up to synthesizer to pick a part
         if device_root == 'xc7s50':
-            self.specials += Instance("FDCE",
+            self.specials += Instance("FDCE", name="RO_FDCE", # name it so it doesn't get pulled into pblock, helps decorrelate noise
                          i_C=ring_cw[int(stages//2)],
                          i_D=ring_ccw[0],
                          i_CE=self.ctl.fields.ena,
@@ -205,4 +207,10 @@ enough, the fix is to slow down the target_freq parameter.
             self.trng_slow.eq(ring_cw[0]),
             self.trng_fast.eq(ring_ccw[0])
         ]
+
+        if make_pblock & (device_root == 'xc7s50'):
+            platform.add_platform_command("create_pblock ringosc")
+            platform.add_platform_command('resize_pblock [get_pblocks ringosc] -add ' + '{{' + 'SLICE_X{}Y{}'.format(x_min, y_min) + ':' + 'SLICE_X{}Y{}'.format(x_max, y_max) + '}}')
+            #platform.add_platform_command("set_property CONTAIN_ROUTING true [get_pblocks ringosc]") # don't contain routing -- we want coupling
+            platform.add_platform_command("add_cells_to_pblock [get_pblocks ringosc] [get_cells RINGOSC*]")
 
