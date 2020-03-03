@@ -375,13 +375,13 @@ impl Repl {
                 self.rtc.wakeup_alarm(5);
                 // power down
                 self.power = false;
-            } else if self.cmd.trim() == "buzz" {
+/*            } else if self.cmd.trim() == "buzz" {
                 self.text.add_text(&mut String::from("Making a buzz"));
                 unsafe{ self.p.GPIO.drive.write(|w| w.bits(4)); }
                 unsafe{ self.p.GPIO.output.write(|w| w.bits(4)); }
                 let time: u32 = get_time_ms(&self.p);
                 while get_time_ms(&self.p) - time < 250 { }
-                unsafe{ self.p.GPIO.output.write(|w| w.bits(0)); }
+                unsafe{ self.p.GPIO.output.write(|w| w.bits(0)); }*/
             } else if self.cmd.trim() == "blon" {
                 self.text.add_text(&mut String::from("Turning backlight on"));
                 com_txrx(&self.p, 0x681F); // turn on the backlight to full brightness (31)
@@ -605,7 +605,9 @@ impl Repl {
                 let len = self.ram_standby_init();
                 self.text.add_text(&mut format!("0x{:x} RAM states.", len));
             } else if self.cmd.trim() == "rtc" {
-                self.rtc.rtc_set(0, 26, 2, 5, 2, 20, Weekdays::WEDNESDAY);
+                self.rtc.rtc_set(0, 59, 22, 3, 3, 20, Weekdays::TUESDAY);
+            } else if self.cmd.trim() == "ro" {
+                self.p.TRNG_OSC.ctl.write(|w| w.ena().bit(true));
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
             }
@@ -691,8 +693,8 @@ fn main() -> ! {
     let mut keyboard: KeyManager = KeyManager::new();
 
     // initialize vibe motor patch
-    unsafe{ p.GPIO.drive.write(|w| w.bits(4)); }
-    unsafe{ p.GPIO.output.write(|w| w.bits(0)); }
+/*    unsafe{ p.GPIO.drive.write(|w| w.bits(4)); }
+    unsafe{ p.GPIO.output.write(|w| w.bits(0)); }*/
 
     let radius: u32 = 14;
     let size: Size = display.lock().size();
