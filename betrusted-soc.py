@@ -1103,7 +1103,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("trng_osc")
         # ignore ring osc paths
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ena]")
-        self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_ccw_1]")
+        # self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_ccw_0]") # eliminated
         self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_cw_1]")
         # MEMO: diagnostic option, need to turn off GPIO
         # gpio_pads = platform.request("gpio")

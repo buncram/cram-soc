@@ -65,7 +65,7 @@ enough, the fix is to slow down the target_freq parameter.
 
         if device_root == 'xc7s50':
             stage_delay = 1.7  # rough delay of each ring oscillator stage (incl routing) in ns
-            fast_stages = 3  # this has a net period of ~5.6ns
+            fast_stages = 1
 
             # routing oscillator slightly through core logic adds more noise, but can impact performance
             x_min = 53 #2    # 0
@@ -119,7 +119,7 @@ enough, the fix is to slow down the target_freq parameter.
                                      p_INIT=1,
                                      i_I0=ring_ccw[stage],
                                      o_O=ring_ccw[stage+1],
-                                     # attr=("KEEP", "DONT_TOUCH", stagename + 'LOCK')
+                                     # attr=("KEEP", "DONT_TOUCH")
                                  )
 
 
@@ -214,3 +214,6 @@ enough, the fix is to slow down the target_freq parameter.
             #platform.add_platform_command("set_property CONTAIN_ROUTING true [get_pblocks ringosc]") # don't contain routing -- we want coupling
             platform.add_platform_command("add_cells_to_pblock [get_pblocks ringosc] [get_cells RINGOSC*]")
 
+        if device_root == 'xc7s50':
+            platform.add_platform_command("set_disable_timing -from I0 -to O RINGOSC_CW2")
+            platform.add_platform_command("set_disable_timing -from I0 -to O RO_CCW0")
