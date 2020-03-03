@@ -805,24 +805,21 @@ class Hmac(Module, AutoDoc, AutoCSR):
         )
 
         key_re_50 = Signal()
-        self.submodules.keyre = BlindTransfer("sys", "clk50")
-        self.keyre.i.eq(self.key_re)
-        self.keyre.o.eq(key_re_50)
+        self.submodules.keyre = BlindTransfer("sys", "clk50", data_width=1)
+        self.comb += [ self.keyre.i.eq(self.key_re), key_re_50.eq(self.keyre.o) ]
 
         hash_start_50 = Signal()
-        self.submodules.hashstart = BlindTransfer("sys", "clk50")
-        self.hashstart.i.eq(self.control.fields.hash_start)
-        self.hashstart.o.eq(hash_start_50)
+        self.submodules.hashstart = BlindTransfer("sys", "clk50", data_width=1)
+        self.comb += [ self.hashstart.i.eq(self.control.fields.hash_start), hash_start_50.eq(self.hashstart.o) ]
 
         hash_proc_50 = Signal()
-        self.submodules.hashproc = BlindTransfer("sys", "clk50")
-        self.hashproc.i.eq(self.control.fields.hash_process)
-        self.hashproc.o.eq(hash_proc_50)
+        self.submodules.hashproc = BlindTransfer("sys", "clk50", data_width=1)
+        self.comb += [ self.hashproc.i.eq(self.control.fields.hash_process), hash_proc_50.eq(self.hashproc.o) ]
 
         wipe_50 = Signal()
-        self.submodules.wipe50 = BlindTransfer("sys", "clk50")
-        self.wipe50.i.eq(self.wipe.re)
-        self.wipe50.o.eq(wipe_50)
+        self.submodules.wipe50 = BlindTransfer("sys", "clk50", data_width=1)
+        self.comb += [ self.wipe50.i.eq(self.wipe.re), wipe_50.eq(self.wipe50.o) ]
+
         self.specials += Instance("sha2_litex",
             i_clk_i = ClockSignal("clk50"),
             i_rst_ni = ~ResetSignal("clk50"),
