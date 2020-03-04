@@ -38,3 +38,7 @@
 [submodule "xous/xous-tools"]
 	path = xous/xous-tools
 	url = https://github.com/betrusted-io/xous-tools.git
+[submodule "deps/gateware"]
+	path = deps/gateware
+	url = https://github.com/betrusted-io/gateware.git
+	branch = master

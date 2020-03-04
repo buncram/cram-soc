@@ -36,7 +36,7 @@ from litex.soc.cores.spi_opi import S7SPIOPI
 from gateware import info
 from gateware import sram_32
 from gateware import memlcd
-from gateware import spi
+from gateware import spi_7series as spi
 from gateware import messible
 from gateware import i2c
 from gateware import ticktimer
@@ -680,7 +680,7 @@ class Aes(Module, AutoDoc, AutoCSR):
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_shift_rows.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_sub_bytes.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_core.sv"))
-        platform.add_source(os.path.join("gateware", "aes_reg_litex.sv"))
+        platform.add_source(os.path.join("deps", "gateware", "gateware", "aes_reg_litex.sv"))
 
 
 from litex.soc.interconnect import wishbone
@@ -883,7 +883,7 @@ class Hmac(Module, AutoDoc, AutoCSR):
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "sha2_pad.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_packer.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "hmac", "rtl", "hmac_core.sv"))
-        platform.add_source(os.path.join("gateware", "sha2_litex.sv"))
+        platform.add_source(os.path.join("deps", "gateware", "gateware", "sha2_litex.sv"))
 
 # System constants ---------------------------------------------------------------------------------
 
@@ -930,7 +930,7 @@ class BetrustedSoC(SoCCore):
             **kwargs)
 
         # CPU --------------------------------------------------------------------------------------
-        self.cpu.use_external_variant("gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
+        self.cpu.use_external_variant("deps/gateware/gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
         self.cpu.add_debug()
         #self.add_memory_region("rom", 0, 0x8000)
         if xous == False:  # raw firmware boots from SPINOR directly; xous boots from default Litex internal ROM
