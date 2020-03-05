@@ -1102,7 +1102,7 @@ class BetrustedSoC(SoCCore):
         # self.add_interrupt("gpio")
 
         # Build seed -------------------------------------------------------------------------------
-        self.submodules.seed = BtSeed(reproduceable=True)
+        self.submodules.seed = BtSeed(reproduceable=False)
         self.add_csr("seed")
 
         # ROM test ---------------------------------------------------------------------------------
