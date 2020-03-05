@@ -897,7 +897,7 @@ class BetrustedSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
         "rom":             0x00000000,
-        "sram":            0x10000000,
+        "sram":            0x10000000, # Should this be 0x0100_0000 ???
         "spiflash":        0x20000000,
         "sram_ext":        0x40000000,
         "memlcd":          0xb0000000,

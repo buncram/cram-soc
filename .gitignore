@@ -14,7 +14,7 @@ pycharm.env
 run/
 target/
 /venv/*
-test/
+/test/
 
 # betrusted-pac is auto-generated
 fw/betrusted-pac/
