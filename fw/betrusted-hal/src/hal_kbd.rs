@@ -17,7 +17,7 @@ const KBD_COLS: usize = 10;
 /// the result is a vector where each bit corresponds to one row. Useful for debugging.
 #[allow(dead_code)]
 fn kbd_rowchange(p: &betrusted_pac::Peripherals) -> u16 {
-    (p.KEYBOARD.rowchange.read().bits() as u16)
+    p.KEYBOARD.rowchange.read().bits() as u16
 }
 
 /// get the column activation contents of the given row
