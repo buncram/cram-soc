@@ -909,6 +909,7 @@ class BetrustedSoC(SoCCore):
 
     def __init__(self, platform, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
+        global bios_size
 
         # CPU cluster
         ## For dev work, we're booting from SPI directly. However, for enhanced security
@@ -916,6 +917,12 @@ class BetrustedSoC(SoCCore):
         ## a signature verification of the external SPI code before running it. The theory is that
         ## a user will burn a random AES key into their FPGA and encrypt their bitstream to their
         ## unique AES key, creating a root of trust that offers a defense against trivial patch attacks.
+
+        if xous == False:  # raw firmware boots from SPINOR directly; xous boots from default Litex internal ROM
+            reset_address = self.mem_map["spiflash"]+boot_offset
+            bios_size = 0
+        else:
+            reset_address = self.mem_map["rom"]
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
@@ -926,18 +933,13 @@ class BetrustedSoC(SoCCore):
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
             uart_name            = "crossover", # use UART-over-wishbone for debugging
-            #cpu_variant="linux+debug",  # this core doesn't work, but left for jogging my memory later on if I need to try it
+            cpu_reset_address    = reset_address,
             **kwargs)
 
         # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("deps/gateware/gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
         self.cpu.add_debug()
-        #self.add_memory_region("rom", 0, 0x8000)
-        if xous == False:  # raw firmware boots from SPINOR directly; xous boots from default Litex internal ROM
-            kwargs["cpu_reset_address"] = self.mem_map["spiflash"]+boot_offset
-        else:
-            kwargs["cpu_reset_address"] = self.mem_map["rom"]
-        self.submodules.reboot = WarmBoot(self, reset_vector=kwargs["cpu_reset_address"])
+        self.submodules.reboot = WarmBoot(self, reset_address)
         self.add_csr("reboot")
         warm_reset = Signal()
         self.comb += warm_reset.eq(self.reboot.do_reset)
