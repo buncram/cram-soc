@@ -1199,7 +1199,7 @@ def main():
     soc = BetrustedSoC(platform, xous=args.xous)
 
     ##### setup the builder and run it
-    builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv", compile_software=compile_software, compile_gateware=compile_gateware)
+    builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=compile_software, compile_gateware=compile_gateware)
     builder.software_packages = [
         ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "loader")))
     ]
@@ -1208,7 +1208,6 @@ def main():
     ##### post-build routines
     soc.do_exit(vns)
     lxsocdoc.generate_docs(soc, "build/documentation", note_pulses=True)
-    lxsocdoc.generate_svd(soc, "build/software", name="Betrusted SoC", description="Primary UI Core for Betrusted", filename="soc.svd", vendor="Betrusted-IO")
 
     # generate the rom-inject library code
     if ~args.document_only:
