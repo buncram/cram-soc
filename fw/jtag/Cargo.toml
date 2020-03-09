@@ -10,3 +10,7 @@ edition = "2018"
 betrusted-hal = { path = "../betrusted-hal" }
 alloc-riscv = { path = "../alloc-riscv" }
 betrusted-pac = { path = "../betrusted-pac" }
+
+[features]
+evt = []
+dvt = []

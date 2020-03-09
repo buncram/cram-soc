@@ -87,6 +87,12 @@ use alloc::string::String;
 use jtag::*;
 use efuse_api::*;
 
+#[cfg(feature = "evt")]
+use jtag::JtagUartPhy as JtagPhy;
+
+#[cfg(feature = "dvt")]
+use jtag::JtagGpioPhy as JtagPhy;
+
 use rom_inject::*;
 
 pub struct Bounce {
@@ -172,7 +178,7 @@ pub struct Repl {
     /// JTAG state variable
     jtag: JtagMach,
     /// JTAG phy
-    jtagphy: JtagUartPhy,
+    jtagphy: JtagPhy,
     /// efuse API
     efuse: EfuseApi,
     /// xadc object
@@ -192,25 +198,25 @@ const NUM_LINES: usize = 6;
 impl Repl {
     pub fn new() -> Self {
         let mut r: Repl = 
-        unsafe {
-            Repl {
-                p: betrusted_pac::Peripherals::steal(),
-                input: String::from(PROMPT),
-                cmd: String::from(" "),
-                text: TextArea::new(NUM_LINES),
-                power: true,
-                jtag: JtagMach::new(),
-                jtagphy: JtagUartPhy::new(),
-                efuse: EfuseApi::new(),
-                xadc: BtXadc::new(),
-                noise0: [0; 300],
-                noise1: [0; 300],
-                update_noise: false,
-                audio: BtAudio::new(),
-                audio_run: false,
-                rtc: BtRtc::new(),
-            }
-        };
+            unsafe{
+                Repl {
+                    p: betrusted_pac::Peripherals::steal(),
+                    input: String::from(PROMPT),
+                    cmd: String::from(" "),
+                    text: TextArea::new(NUM_LINES),
+                    power: true,
+                    jtag: JtagMach::new(),
+                    jtagphy: JtagPhy::new(),
+                    efuse: EfuseApi::new(),
+                    xadc: BtXadc::new(),
+                    noise0: [0; 300],
+                    noise1: [0; 300],
+                    update_noise: false,
+                    audio: BtAudio::new(),
+                    audio_run: false,
+                    rtc: BtRtc::new(),
+                }
+            };
         r.text.add_text(&mut String::from("Awaiting input."));
 
         r

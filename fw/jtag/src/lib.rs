@@ -20,7 +20,9 @@
 extern crate alloc;
 extern crate alloc_riscv;
 
+#[cfg(feature = "evt")]
 use betrusted_hal::hal_uart::*;
+
 use betrusted_hal::hal_time::*;
 use alloc::vec::Vec;
 use alloc::string::String;
@@ -227,10 +229,12 @@ pub trait JtagPhy {
     fn pause(&mut self, us: u32);
 }
 
+#[cfg(feature = "evt")]
 pub struct JtagUartPhy {
     uart: BtUart,
 }
 
+#[cfg(feature = "evt")]
 impl JtagUartPhy {
     const SYNC_UART_CODE: u8 = 0x60;
     const ASYNC_UART_CODE: u8 = 0x40;
@@ -249,6 +253,7 @@ impl JtagUartPhy {
     }
 }
 
+#[cfg(feature = "evt")]
 impl JtagPhy for JtagUartPhy {
     /// pause for a given number of microseconds.
     fn pause(&mut self, us: u32) {
@@ -289,6 +294,50 @@ impl JtagPhy for JtagUartPhy {
         } else {
             false
         }
+    }
+}
+
+
+#[cfg(feature = "dvt")]
+pub struct JtagGpioPhy {
+    p: betrusted_pac::Peripherals,
+}
+
+#[cfg(feature = "dvt")]
+impl JtagGpioPhy {
+    pub fn new() -> Self {
+        unsafe {
+            JtagGpioPhy { 
+                p: betrusted_pac::Peripherals::steal(),
+            }
+        }
+    }
+}
+
+#[cfg(feature = "dvt")]
+impl JtagPhy for JtagGpioPhy {
+    /// pause for a given number of microseconds.
+    fn pause(&mut self, us: u32) {
+        let mut delay: u32 = us/1000;
+        if delay == 0 {
+            delay = 1;
+        }
+        delay_ms(&self.p, delay);
+}
+
+    /// given a tdi and tms value, pulse the clock, and then return the tdo that comes out 
+    fn sync(&mut self, tdi: bool, tms: bool) -> bool {
+
+        while !self.p.JTAG.tdo.read().ready().bit() { }  // make sure we are in a ready/tdo valid state
+        let ret = self.p.JTAG.tdo.read().tdo().bit(); // grab the tdo value /prior/ to clocking the new bit
+        self.p.JTAG.next.write(|w| w.tdi().bit(tdi).tms().bit(tms) ); // update tdi/tms, which automatically clocks tck
+
+        ret
+    }
+
+    fn nosync(&mut self, _tdi: bool, _tms: bool, _tck: bool) -> bool {
+        // we just don't offer this method for this PHY
+        unimplemented!();
     }
 }
 
