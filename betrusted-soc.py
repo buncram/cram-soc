@@ -46,6 +46,8 @@ from gateware import keyboard
 
 from gateware import trng
 
+from gateware import jtag_phy
+
 # IOs ----------------------------------------------------------------------------------------------
 
 
@@ -1296,6 +1298,11 @@ class BetrustedSoC(SoCCore):
         self.add_interrupt("sha")
         self.add_wb_slave(self.mem_map["sha"], self.sha.bus, 4)
         self.add_memory_region("sha", self.mem_map["sha"], 4, type='io')
+
+        # JTAG self-provisioning block -------------------------------------------------------------
+        if revision != 'evt': # these pins don't exist on EVT
+            self.submodules.jtag = jtag_phy.BtJtag(platform.request("jtag"))
+            self.add_csr("jtag")
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
