@@ -58,8 +58,8 @@ _io_dvt = [   # DVT-generation I/Os
         Subsignal("usbc_cc1",    Pins("C5"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("usbc_cc2",    Pins("A8"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("vbus_div",    Pins("C4"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise0",      Pins("B13"), IOStandard("LVCMOS33")), # DVT
-        Subsignal("noise1",      Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0",      Pins("A3"), IOStandard("LVCMOS33")), # DVT
+        Subsignal("noise1",      Pins("A5"), IOStandard("LVCMOS33")),  # DVT
         # diff grounds
         Subsignal("usbc_cc1_n",  Pins("B5"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("usbc_cc2_n",  Pins("A7"), IOStandard("LVCMOS33")),  # DVT
@@ -72,10 +72,10 @@ _io_dvt = [   # DVT-generation I/Os
      ),
 
     ("jtag", 0,
-         Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),
-         Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),
-         Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),
-         Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),
+         Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),  # DVT
+         Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),   # DVT
+         Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),   # DVT
+         Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),   # DVT
     ),
 
     ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
@@ -84,12 +84,14 @@ _io_dvt = [   # DVT-generation I/Os
     ("power", 0,
         Subsignal("audio_on",     Pins("G13"), IOStandard("LVCMOS33")),
         Subsignal("fpga_sys_on",  Pins("N13"), IOStandard("LVCMOS18")),
-        # Subsignal("noisebias_on", Pins("A13"), IOStandard("LVCMOS33")),  # PATCH
+        Subsignal("noisebias_on", Pins("A13"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("allow_up5k_n", Pins("U7"), IOStandard("LVCMOS18")),
         Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
-        # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # PATCH
+        Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT
         # Noise generator
-        Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+        Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
+        # vibe motor
+        Subsignal("vibe_on",      Pins("B13"), IOStandard("LVCMOS33")),  # DVT
         Misc("SLEW=SLOW"),
     ),
 
@@ -102,13 +104,6 @@ _io_dvt = [   # DVT-generation I/Os
        IOStandard("LVCMOS33"),
        Misc("SLEW=SLOW"), Misc("DRIVE=4"),
      ),
-    # ("i2s", 1,  # speaker
-    #    Subsignal("clk", Pins("F14")),
-    #    Subsignal("tx", Pins("A15")), # au_sdi2
-    #    Subsignal("sync", Pins("B17")),
-    #    IOStandard("LVCMOS33"),
-    #    Misc("SLEW=SLOW"), Misc("DRIVE=4"),
-    # ),
     ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
 
     # I2C1 bus -- to RTC and audio CODEC
@@ -529,7 +524,7 @@ class BtEvents(Module, AutoCSR, AutoDoc):
 # BtPower ------------------------------------------------------------------------------------------
 
 class BtPower(Module, AutoCSR, AutoDoc):
-    def __init__(self, pads):
+    def __init__(self, pads, revision='evt'):
         self.intro = ModuleDoc("""BtPower - power control pins
         """)
 
@@ -541,6 +536,10 @@ class BtPower(Module, AutoCSR, AutoDoc):
             CSRField("noisebias", size=1, description="Writing `1` enables the primary bias supply for the noise generator"),
             CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first.")
         ])
+        # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
+        self.vibe = CSRStatus(1, description="Vibration motor configuration register", fields=[
+            CSRField("vibe", size=1, description="Turn on vibration motor"),
+        ])
 
         self.comb += [
             pads.audio_on.eq(self.power.fields.audio),
@@ -549,10 +548,15 @@ class BtPower(Module, AutoCSR, AutoDoc):
             pads.allow_up5k_n.eq(~self.power.fields.ec_snoop),
             # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups)
             pads.pwr_s0.eq(self.power.fields.state[0] & ~ResetSignal()),
-            # pads.pwr_s1.eq(self.power.fields.state[1]),         # PATCH
-            # pads.noisebias_on.eq(self.power.fields.noisebias),  # PATCH
             pads.noise_on.eq(self.power.fields.noise),
         ]
+        if revision == 'dvt':
+            self.comb += [
+                pads.pwr_s1.eq(self.power.fields.state[1]),
+                pads.noisebias_on.eq(self.power.fields.noisebias),
+                pads.vibe_on.eq(self.vibe.fields.vibe)
+            ]
+
 
 # BtGpio -------------------------------------------------------------------------------------------
 
@@ -1117,19 +1121,41 @@ class BetrustedSoC(SoCCore):
         analog_pads = Record(analog_layout)
         analog = platform.request("analog")
         self.comb += [
+            analog_pads.vp.eq(analog.ana_vp),
+            analog_pads.vn.eq(analog.ana_vn),
+        ]
+        if revision == 'evt':
             # NOTE - if part is changed to XC7S25, the pin-to-channel mappings change
             analog_pads.vauxp.eq(Cat(analog.noise0,       # 0
                                      Signal(7, reset=0),  # 1,2,3,4,5,6,7
                                      analog.noise1, analog.vbus_div, analog.usbc_cc1, analog.usbc_cc2, # 8,9,10,11
                                      Signal(4, reset=0),  # 12,13,14,15
                                 )),
-            analog_pads.vauxn.eq(Cat(analog.noise0_n, Signal(15, reset=0))), # PATCH
-            analog_pads.vp.eq(analog.ana_vp),
-            analog_pads.vn.eq(analog.ana_vn),
-        ]
+            analog_pads.vauxn.eq(Cat(analog.noise0_n, Signal(15, reset=0))),  # PATCH
+        else:
+            # DVT is solidly an xc7s50-only build
+            analog_pads.vauxp.eq(Cat(Signal(3, reset=0),  # 0,1,2,3
+                                     analog.usbc_cc2,       # 4
+                                     Signal(1, reset=0),   # 5
+                                     analog.vbus_div, analog.noise1, # 6,7
+                                     Signal(4, reset=0),  # 8,9,10,11
+                                     analog.usbc_cc1,      # 12
+                                     Signal(2, reset=0),  # 13,14
+                                     analog.noise0
+                                )),
+            analog_pads.vauxn.eq(Cat(Signal(3, reset=0),  # 0,1,2,3
+                                     analog.usbc_cc2_n,     # 4
+                                     Signal(1, reset=0),   # 5
+                                     analog.vbus_div_n, analog.noise1_n, # 6,7
+                                     Signal(4, reset=0),  # 8,9,10,11
+                                     analog.usbc_cc1_n,    # 12
+                                     Signal(2, reset=0),  # 13,14
+                                     analog.noise0_n
+                                )),
+
         self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
         self.add_csr("info")
-        self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{betrustedsoc_dna_count_reg[0]/Q}}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
+        self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{dna_count_reg[0]/Q}}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
 
         # External SRAM ----------------------------------------------------------------------------
         # Note that page_rd_timing=2 works, but is a slight overclock on RAM. Cache fill time goes from 436ns to 368ns for 8 words.
@@ -1145,14 +1171,14 @@ class BetrustedSoC(SoCCore):
         # ODDR falling edge ignore
         self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_ports {{sram_d[*] sram_adr[*] sram_ce_n sram_oe_n sram_we_n sram_zz_n sram_dm_n[*]}}]")
         self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_ports {{sram_d[*]}}]")
-        self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets betrustedsoc_sram_ext_load]")
-        self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets betrustedsoc_sram_ext_load]")
+        self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets sram_ext_load]")
+        self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets sram_ext_load]")
         self.platform.add_platform_command("set_false_path -rise_from [get_clocks sys_clk] -fall_to [get_clocks sys_clk]")  # sort of a big hammer but should be OK
         # reset ignore
         self.platform.add_platform_command("set_false_path -through [get_nets sys_rst]")
         # relax OE driver constraint (it's OK if it is a bit late, and it's an async path from fabric to output so it will be late)
-        self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins betrustedsoc_sram_ext_sync_oe_n_reg/Q]")
-        self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins betrustedsoc_sram_ext_sync_oe_n_reg/Q]")
+        self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins sram_ext_sync_oe_n_reg/Q]")
+        self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins sram_ext_sync_oe_n_reg/Q]")
 
         # LCD interface ----------------------------------------------------------------------------
         self.submodules.memlcd = memlcd.MemLCD(platform.request("lcd"))
@@ -1194,7 +1220,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("ticktimer")
 
         # Power control pins -----------------------------------------------------------------------
-        self.submodules.power = BtPower(platform.request("power"))
+        self.submodules.power = BtPower(platform.request("power"), revision)
         self.add_csr("power")
 
         # SPI flash controller ---------------------------------------------------------------------
@@ -1242,8 +1268,8 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports spiflash_8x_cs_n]") # -3 in reality
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
             # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
-            self.platform.add_platform_command("set_false_path -through [ get_pins betrustedsoc_s7spiopi_dq_mosi_oe_reg/Q ]")
-            self.platform.add_platform_command("set_false_path -through [ get_pins betrustedsoc_s7spiopi_dq_oe_reg/Q ]")
+            self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_mosi_oe_reg/Q ]")
+            self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_oe_reg/Q ]")
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
@@ -1279,9 +1305,8 @@ class BetrustedSoC(SoCCore):
         self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=1e6, make_pblock=True)
         self.add_csr("trng_osc")
         # ignore ring osc paths
-        self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ena]")
-        # self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_ccw_0]") # eliminated
-        self.platform.add_platform_command("set_false_path -through [get_nets betrustedsoc_trng_osc_ring_cw_1]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ena]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_cw_1]")
         # MEMO: diagnostic option, need to turn off GPIO
         # gpio_pads = platform.request("gpio")
         #### self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)  # this one rarely needs probing
