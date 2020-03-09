@@ -48,7 +48,160 @@ from gateware import trng
 
 # IOs ----------------------------------------------------------------------------------------------
 
-_io = [
+
+_io_dvt = [   # DVT-generation I/Os
+    ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
+
+    ("analog", 0,
+        Subsignal("usbc_cc1",    Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbc_cc2",    Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("vbus_div",    Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0",      Pins("B13"), IOStandard("LVCMOS33")), # DVT
+        Subsignal("noise1",      Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+        # diff grounds
+        Subsignal("usbc_cc1_n",  Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbc_cc2_n",  Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("vbus_div_n",  Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0_n",    Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise1_n",    Pins("A4"), IOStandard("LVCMOS33")),  # DVT
+        # dedicated pins (no I/O standard applicable)
+        Subsignal("ana_vn", Pins("K9")),
+        Subsignal("ana_vp", Pins("J10")),
+     ),
+
+    ("jtag", 0,
+         Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),
+         Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),
+         Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),
+         Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),
+    ),
+
+    ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
+
+    # Power control signals
+    ("power", 0,
+        Subsignal("audio_on",     Pins("G13"), IOStandard("LVCMOS33")),
+        Subsignal("fpga_sys_on",  Pins("N13"), IOStandard("LVCMOS18")),
+        # Subsignal("noisebias_on", Pins("A13"), IOStandard("LVCMOS33")),  # PATCH
+        Subsignal("allow_up5k_n", Pins("U7"), IOStandard("LVCMOS18")),
+        Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
+        # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # PATCH
+        # Noise generator
+        Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+        Misc("SLEW=SLOW"),
+    ),
+
+    # Audio interface
+    ("i2s", 0,
+       Subsignal("clk", Pins("D14")),
+       Subsignal("tx", Pins("D12")), # au_sdi1
+       Subsignal("rx", Pins("C13")), # au_sdo1
+       Subsignal("sync", Pins("B15")),
+       IOStandard("LVCMOS33"),
+       Misc("SLEW=SLOW"), Misc("DRIVE=4"),
+     ),
+    # ("i2s", 1,  # speaker
+    #    Subsignal("clk", Pins("F14")),
+    #    Subsignal("tx", Pins("A15")), # au_sdi2
+    #    Subsignal("sync", Pins("B17")),
+    #    IOStandard("LVCMOS33"),
+    #    Misc("SLEW=SLOW"), Misc("DRIVE=4"),
+    # ),
+    ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
+
+    # I2C1 bus -- to RTC and audio CODEC
+    ("i2c", 0,
+        Subsignal("scl", Pins("C14"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("A14"), IOStandard("LVCMOS33")),
+        Misc("SLEW=SLOW"),
+    ),
+
+    # RTC interrupt
+    ("rtc_irq", 0, Pins("N5"), IOStandard("LVCMOS18")),
+
+    # COM interface to UP5K
+    ("com", 0,
+        Subsignal("csn",  Pins("T15"), IOStandard("LVCMOS18")),
+        Subsignal("miso", Pins("P16"), IOStandard("LVCMOS18")),
+        Subsignal("mosi", Pins("N18"), IOStandard("LVCMOS18")),
+        Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18")),
+     ),
+    ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
+
+    # Top-side internal FPC header (B18 and D15 are used by the serial bridge)
+    ("gpio", 0, Pins("A16 B16 D16"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),
+
+    # Keyboard scan matrix
+    ("kbd", 0,
+        # "key" 0-8 are rows, 9-18 are columns
+        # column scan with 1's, so PD to default 0
+        Subsignal("row", Pins("F15 E17 G17 E14 E15 H15 G15 H14 H16"), Misc("PULLDOWN True")),
+        Subsignal("col", Pins("H17 E18 F18 G18 E13 H18 F13 H13 J13 K13")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
+     ),
+
+    # LCD interface
+    ("lcd", 0,
+        Subsignal("sclk", Pins("A17")),
+        Subsignal("scs",  Pins("C18")),
+        Subsignal("si",   Pins("D17")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
+     ),
+
+    # SD card (TF) interface
+    ("sdcard", 0,
+        Subsignal("data", Pins("J15 J14 K16 K14"), Misc("PULLUP True")),
+        Subsignal("cmd",  Pins("J16"), Misc("PULLUP True")),
+        Subsignal("clk",  Pins("G16")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=SLOW")
+     ),
+
+    # SPI Flash
+    ("spiflash_1x", 0, # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("M13")),
+        Subsignal("mosi", Pins("K17")),
+        Subsignal("miso", Pins("K18")),
+        Subsignal("wp",   Pins("L14")), # provisional
+        Subsignal("hold", Pins("M15")), # provisional
+        IOStandard("LVCMOS18")
+    ),
+    ("spiflash_8x", 0, # clock needs a separate override to meet timing
+        Subsignal("cs_n", Pins("M13")),
+        Subsignal("dq",   Pins("K17 K18 L14 M15 L17 L18 M14 N14")),
+        Subsignal("dqs",  Pins("R14")),
+        Subsignal("ecs_n", Pins("L16")),
+        Subsignal("sclk", Pins("C12")),  # DVT
+        IOStandard("LVCMOS18"),
+        Misc("SLEW=SLOW"),
+     ),
+
+    # SRAM
+    ("sram", 0,
+        Subsignal("adr", Pins(
+            "V12 M5 P5 N4  V14 M3 R17 U15",
+            "M4  L6 K3 R18 U16 K1 R5  T2",
+            "U1  N1 L5 K2  M18 T6"),
+            IOStandard("LVCMOS18")),
+        Subsignal("ce_n", Pins("V5"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("we_n", Pins("K4"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("d", Pins(
+            "M2  R4  P2  L4  L1  M1  R1  P1",
+            "U3  V2  V4  U2  N2  T1  K6  J6",
+            "V16 V15 U17 U18 P17 T18 P18 M17",
+            "N3  T4  V13 P15 T14 R15 T3  R7"),
+            IOStandard("LVCMOS18")),
+        Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
+    ),
+]
+
+_io_evt = [
     ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
 
     ("analog", 0,
@@ -161,7 +314,7 @@ _io = [
         Subsignal("hold", Pins("M15")), # provisional
         IOStandard("LVCMOS18")
     ),
-    ("spiflash_8x", 0, # clock needs to be accessed through STARTUPE2
+    ("spiflash_8x", 0, # clock needs a separate override to meet timing
         Subsignal("cs_n", Pins("M13")),
         Subsignal("dq",   Pins("K17 K18 L14 M15 L17 L18 M14 N14")),
         Subsignal("dqs",  Pins("R14")),
@@ -225,9 +378,9 @@ _io_uart_debug_swapped = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    def __init__(self, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False):
+    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False):
         part = "xc7s" + part + "-csga324-1il"
-        XilinxPlatform.__init__(self, part, _io, toolchain=toolchain)
+        XilinxPlatform.__init__(self, part, io, toolchain=toolchain)
 
         # NOTE: to do quad-SPI mode, the QE bit has to be set in the SPINOR status register. OpenOCD
         # won't do this natively, have to find a work-around (like using iMPACT to set it once)
@@ -907,7 +1060,7 @@ class BetrustedSoC(SoCCore):
         "csr":             0xf0000000,
     }
 
-    def __init__(self, platform, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, **kwargs):
+    def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
 
@@ -1178,6 +1331,9 @@ def main():
     parser.add_argument(
         "-x", "--xous", help="Build for the Xous runtime environment. Defaults to `fw` validation image.", default=False, action="store_true"
     )
+    parser.add_argument(
+        "-r", "--revision", choices=['evt', 'dvt'], help="Build for a particular revision. Defaults to 'evt'", default='evt', type=str,
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1193,12 +1349,20 @@ def main():
     else:
         encrypt = True
 
+    if args.revision == 'evt':
+        io = _io_evt
+    elif args.revision == 'dvt':
+        io = _io_dvt
+    else:
+        print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
+        sys.exit(1)
+
     ##### setup platform
-    platform = Platform(encrypt=encrypt)
+    platform = Platform(io, encrypt=encrypt)
     platform.add_extension(_io_uart_debug)  # specify the location of the UART pins, we can swap them to some reserved GPIOs
 
     ##### define the soc
-    soc = BetrustedSoC(platform, xous=args.xous)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous)
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=compile_software, compile_gateware=compile_gateware)
