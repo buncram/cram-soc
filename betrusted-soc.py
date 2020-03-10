@@ -751,7 +751,11 @@ class Aes(Module, AutoDoc, AutoCSR):
 
         self.ctrl = CSRStorage(fields=[
             CSRField("mode", size=1, description="set to `0' for AES_ENC, `1` for AES_DEC"),
-            CSRField("key_len", size=3, description="`AES128`=001, `AES192`=010, `AES256`=100"),
+            CSRField("key_len", size=3, description="length of the aes block", values=[
+                    ("001", "AES128"),
+                    ("010", "AES192"),
+                    ("100", "AES256"),
+            ]),
             CSRField("manual_start", size=1, description="If `0`, operation starts as soon as all data words are written"),
             CSRField("force_data_overwrite", size=1, description="If `0`, output is not updated until it is read"),
         ])
