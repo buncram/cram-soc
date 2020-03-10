@@ -1415,7 +1415,7 @@ def main():
             subprocess.call([sys.executable, './key2bits.py', '-c', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=libfile)
 
     # now re-encrypt the binary if needed
-    if encrypt:
+    if encrypt and not args.document_only:
         # check if we need to re-encrypt to a set key
         # my.nky -- indicates the fuses have been burned on the target device, and needs re-encryption
         # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
