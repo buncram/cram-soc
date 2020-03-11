@@ -12,3 +12,7 @@ embedded-graphics = { path = "../embedded-graphics/embedded-graphics" }
 spin = "0.5.2"
 bitflags = "1.2.1"
 volatile = "0.2.6"
+
+[features]
+evt = []
+dvt = []
