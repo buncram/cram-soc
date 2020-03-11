@@ -48,6 +48,8 @@ from gateware import trng
 
 from gateware import jtag_phy
 
+from valentyusb.usbcore.cpu.eptri import TriEndpointInterface
+from valentyusb.usbcore.io import IoBuf
 # IOs ----------------------------------------------------------------------------------------------
 
 
@@ -55,17 +57,17 @@ _io_dvt = [   # DVT-generation I/Os
     ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
 
     ("analog", 0,
-        Subsignal("usbc_cc1",    Pins("C5"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("usbc_cc2",    Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbdet_p",    Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbdet_n",    Pins("A3"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("vbus_div",    Pins("C4"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise0",      Pins("A3"), IOStandard("LVCMOS33")), # DVT
-        Subsignal("noise1",      Pins("A5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0",      Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise1",      Pins("A8"), IOStandard("LVCMOS33")),  # DVT
         # diff grounds
-        Subsignal("usbc_cc1_n",  Pins("B5"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("usbc_cc2_n",  Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbdet_p_n",  Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbdet_n_n",  Pins("A2"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("vbus_div_n",  Pins("B4"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise0_n",    Pins("A2"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise1_n",    Pins("A4"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0_n",    Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise1_n",    Pins("A7"), IOStandard("LVCMOS33")),  # DVT
         # dedicated pins (no I/O standard applicable)
         Subsignal("ana_vn", Pins("K9")),
         Subsignal("ana_vp", Pins("J10")),
@@ -77,6 +79,13 @@ _io_dvt = [   # DVT-generation I/Os
          Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),   # DVT
          Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),   # DVT
     ),
+
+    ("usb", 0,
+         Subsignal("d_p", Pins("C1"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),      # DVT
+         Subsignal("d_n", Pins("B1"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),      # DVT
+         Subsignal("pullup_p", Pins("D1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),  # DVT
+         Misc("SLEW=SLOW"),
+     ),
 
     ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
 
@@ -92,7 +101,12 @@ _io_dvt = [   # DVT-generation I/Os
         Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
         # vibe motor
         Subsignal("vibe_on",      Pins("B13"), IOStandard("LVCMOS33")),  # DVT
+        # reset EC
+        Subsignal("reset_ec_n",   Pins("A11"), IOStandard("LVCMOS18")),  # DVT -- allow FPGA to recover crashed EC
+        # USB_CC DFP attach
+        Subsignal("cc_id",        Pins("J16"), IOStandard("LVCMOS33")),  # DVT
         Misc("SLEW=SLOW"),
+        Misc("DRIVE=8"),
     ),
 
     # Audio interface
@@ -126,7 +140,14 @@ _io_dvt = [   # DVT-generation I/Os
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
 
     # Top-side internal FPC header (B18 and D15 are used by the serial bridge)
-    ("gpio", 0, Pins("A16 B16 D16"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),
+    # Add USB PU/PD config to the GPIO cluster, see comment
+    ("gpio", 0, Pins("A16 B16 D16 C2 B2 A4"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # DVT
+    #("usb_alt", 0,
+    # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
+    # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
+    # Subsignal("pulldn_n", Pins("A4"), IOStandard("LVCMOS33")),  # DVT
+    # Misc("DRIVE=4"), Misc("SLEW=SLOW"),
+    # ),
 
     # Keyboard scan matrix
     ("kbd", 0,
@@ -450,6 +471,8 @@ class CRG(Module, AutoCSR):
         self.clock_domains.cd_spinor = ClockDomain()
         self.clock_domains.cd_clk200 = ClockDomain()
         self.clock_domains.cd_clk50 = ClockDomain()
+        self.clock_domains.cd_usb_48 = ClockDomain()
+        self.clock_domains.cd_usb_12 = ClockDomain()
 
         # # #
 
@@ -480,8 +503,8 @@ class CRG(Module, AutoCSR):
         self.comb += mmcm.reset.eq(self.warm_reset)
         mmcm.register_clkin(self.clk12_bufg, 12e6)
         # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
-        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0) # there should be a precise solution by design
-        platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT0]")
+        mmcm.create_clkout(self.cd_usb_48, 48e6) # 48 MHz for USB
+        platform.add_platform_command("create_generated_clock -name usb_48 [get_pins MMCME2_ADV/CLKOUT0]")
         mmcm.create_clkout(self.cd_spi, 20e6)
         platform.add_platform_command("create_generated_clock -name spi_clk [get_pins MMCME2_ADV/CLKOUT1]")
         mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase)  # delayed version for SPINOR cclk (different from COM SPI above)
@@ -490,6 +513,10 @@ class CRG(Module, AutoCSR):
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
         mmcm.create_clkout(self.cd_clk50, 50e6) # 50MHz for SHA-block
         platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
+        mmcm.create_clkout(self.cd_usb_12, 12e6) # 12 MHz for USB
+        platform.add_platform_command("create_generated_clock -name usb_12 [get_pins MMCME2_ADV/CLKOUT5]")
+        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0) # should be precise solution by design
+        platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT6]")
         mmcm.expose_drp()
 
         # Add an IDELAYCTRL primitive for the SpiOpi block
@@ -534,13 +561,13 @@ class BtPower(Module, AutoCSR, AutoDoc):
             CSRField("ec_snoop",  size=1, description="Writing `1` allows the insecure EC to snoop a couple keyboard pads for wakeup key sequence recognition"),
             CSRField("state",     size=2, description="Current SoC power state. 0x=off or not ready, 10=on and safe to shutdown, 11=on and not safe to shut down, resets to 01 to allow extSRAM access immediately during init", reset=1),
             CSRField("noisebias", size=1, description="Writing `1` enables the primary bias supply for the noise generator"),
-            CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first.")
+            CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first."),
+            CSRField("reset_ec",  size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
         ])
         # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
-        self.vibe = CSRStatus(1, description="Vibration motor configuration register", fields=[
+        self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
             CSRField("vibe", size=1, description="Turn on vibration motor"),
         ])
-
         self.comb += [
             pads.audio_on.eq(self.power.fields.audio),
             pads.fpga_sys_on.eq(self.power.fields.self),
@@ -549,14 +576,29 @@ class BtPower(Module, AutoCSR, AutoDoc):
             # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups)
             pads.pwr_s0.eq(self.power.fields.state[0] & ~ResetSignal()),
             pads.noise_on.eq(self.power.fields.noise),
+
         ]
         if revision == 'dvt':
+            self.reset_ec = TSTriple(1)
+            self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
             self.comb += [
                 pads.pwr_s1.eq(self.power.fields.state[1]),
                 pads.noisebias_on.eq(self.power.fields.noisebias),
-                pads.vibe_on.eq(self.vibe.fields.vibe)
-            ]
+                pads.vibe_on.eq(self.vibe.fields.vibe),
 
+                self.reset_ec.i.eq(0),  # reset is a low signal
+                self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
+            ]
+            self.submodules.ev = EventManager()
+            self.ev.usb_attach = EventSourcePulse(description="USB attach event")
+            self.ev.finalize()
+            usb_attach = Signal()
+            usb_attach_r = Signal()
+            self.specials += MultiReg(pads.cc_id, usb_attach)
+            self.sync += [
+                usb_attach_r.eq(usb_attach),
+                self.ev.usb_attach.trigger.eq(~usb_attach & usb_attach_r),  # falling edge trigger
+            ]
 
 # BtGpio -------------------------------------------------------------------------------------------
 
@@ -1134,23 +1176,25 @@ class BetrustedSoC(SoCCore):
             analog_pads.vauxn.eq(Cat(analog.noise0_n, Signal(15, reset=0))),  # PATCH
         else:
             # DVT is solidly an xc7s50-only build
-            analog_pads.vauxp.eq(Cat(Signal(3, reset=0),  # 0,1,2,3
-                                     analog.usbc_cc2,       # 4
+            analog_pads.vauxp.eq(Cat(Signal(3, reset=0),   # 0,1,2,3
+                                     analog.noise1,        # 4
                                      Signal(1, reset=0),   # 5
-                                     analog.vbus_div, analog.noise1, # 6,7
-                                     Signal(4, reset=0),  # 8,9,10,11
-                                     analog.usbc_cc1,      # 12
-                                     Signal(2, reset=0),  # 13,14
-                                     analog.noise0
+                                     analog.vbus_div,      # 6
+                                     Signal(5, reset=0),   # 7,8,9,10,11
+                                     analog.noise0,        # 12
+                                     Signal(2, reset=0),   # 13
+                                     analog.usbdet_p,      # 14
+                                     analog.usbdet_n,      # 15
                                 )),
-            analog_pads.vauxn.eq(Cat(Signal(3, reset=0),  # 0,1,2,3
-                                     analog.usbc_cc2_n,     # 4
+            analog_pads.vauxn.eq(Cat(Signal(3, reset=0),   # 0,1,2,3
+                                     analog.noise1_n,      # 4
                                      Signal(1, reset=0),   # 5
-                                     analog.vbus_div_n, analog.noise1_n, # 6,7
-                                     Signal(4, reset=0),  # 8,9,10,11
-                                     analog.usbc_cc1_n,    # 12
-                                     Signal(2, reset=0),  # 13,14
-                                     analog.noise0_n
+                                     analog.vbus_div_n,    # 6
+                                     Signal(5, reset=0),   # 7,8,9,10,11
+                                     analog.noise0_n,      # 12
+                                     Signal(2, reset=0),   # 13
+                                     analog.usbdet_p_n,    # 14
+                                     analog.usbdet_n_n,    # 15
                                 )),
 
         self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
@@ -1279,10 +1323,10 @@ class BetrustedSoC(SoCCore):
         self.add_csr("keyboard")
         self.add_interrupt("keyboard")
 
-        # GPIO module ------90f63ac2678aed36813c9ecb1de9a245b7ef137a------------------------------------------------------------------------
-        # self.submodules.gpio = BtGpio(platform.request("gpio"))
-        # self.add_csr("gpio")
-        # self.add_interrupt("gpio")
+        # GPIO module ------------------------------------------------------------------------------
+        self.submodules.gpio = BtGpio(platform.request("gpio"))
+        self.add_csr("gpio")
+        self.add_interrupt("gpio")
 
         # Build seed -------------------------------------------------------------------------------
         self.submodules.seed = BtSeed(reproduceable=False)
@@ -1328,6 +1372,15 @@ class BetrustedSoC(SoCCore):
         if revision != 'evt': # these pins don't exist on EVT
             self.submodules.jtag = jtag_phy.BtJtag(platform.request("jtag"))
             self.add_csr("jtag")
+
+        # USB FS block -----------------------------------------------------------------------------
+        if revision == 'dvt':
+            usb_pads = platform.request("usb")
+            usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
+            self.add_csr("usb")
+            self.add_interrupt("usb")
+
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
