@@ -394,6 +394,12 @@ impl Repl {
             } else if self.cmd.trim() == "bloff" {
                 self.text.add_text(&mut String::from("Turning backlight off"));
                 com_txrx(&self.p, 0x6800);
+            } else if self.cmd.trim() == "boo" {
+                self.text.add_text(&mut String::from("Going boost"));
+                com_txrx(&self.p, 0x5afe);
+            } else if self.cmd.trim() == "chg" {
+                self.text.add_text(&mut String::from("Going charge"));
+                com_txrx(&self.p, 0x5a00);
             } else if self.cmd.trim() == "step" {
                 self.jtag.step(&mut self.jtagphy);
             } else if self.cmd.trim() == "id" {
