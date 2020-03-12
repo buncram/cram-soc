@@ -793,7 +793,11 @@ class Aes(Module, AutoDoc, AutoCSR):
 
         self.ctrl = CSRStorage(fields=[
             CSRField("mode", size=1, description="set to `0' for AES_ENC, `1` for AES_DEC"),
-            CSRField("key_len", size=3, description="`AES128`=001, `AES192`=010, `AES256`=100"),
+            CSRField("key_len", size=3, description="length of the aes block", values=[
+                    ("001", "AES128"),
+                    ("010", "AES192"),
+                    ("100", "AES256"),
+            ]),
             CSRField("manual_start", size=1, description="If `0`, operation starts as soon as all data words are written"),
             CSRField("force_data_overwrite", size=1, description="If `0`, output is not updated until it is read"),
         ])
@@ -1465,10 +1469,10 @@ def main():
         if not os.path.exists('fw/rom-inject/src'): # make rom-inject/src if it doesn't exist, e.g. on clean checkout
             os.mkdir('fw/rom-inject/src')
         with open('fw/rom-inject/src/lib.rs', 'w+') as libfile:
-            subprocess.call(['./key2bits.py', '-c', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=libfile)
+            subprocess.call([sys.executable, './key2bits.py', '-c', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=libfile)
 
     # now re-encrypt the binary if needed
-    if encrypt:
+    if encrypt and not args.document_only:
         # check if we need to re-encrypt to a set key
         # my.nky -- indicates the fuses have been burned on the target device, and needs re-encryption
         # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
@@ -1477,7 +1481,7 @@ def main():
             if Path('keystore.bin').is_file():
                 print('Found keystore.bin, patching bitstream to contain specified keystore values.')
                 with open('keystore.patch', 'w') as patchfile:
-                    subprocess.call(['./key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
+                    subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                     keystore_args = '-pkeystore.patch'
                     enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
             else:
