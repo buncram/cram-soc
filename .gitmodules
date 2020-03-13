@@ -45,3 +45,4 @@
 [submodule "deps/valentyusb"]
 	path = deps/valentyusb
 	url = https://github.com/betrusted-io/valentyusb.git
+	branch = fastclk
