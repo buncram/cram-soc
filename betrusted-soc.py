@@ -1384,8 +1384,15 @@ class BetrustedSoC(SoCCore):
             self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
             self.add_csr("usb")
             self.add_interrupt("usb")
-
-
+            self.platform.add_platform_command("set_false_path -through [get_nets usb_usb_core_rx_o_reset]")
+            # all multiregs are false paths!
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
+            # async fifos should be async fifos
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
         # the ICAP block. An ICAP block can read out everything inside the FPGA, including key ROM,
