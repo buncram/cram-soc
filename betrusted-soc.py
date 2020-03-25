@@ -105,6 +105,8 @@ _io_dvt = [   # DVT-generation I/Os
         Subsignal("reset_ec_n",   Pins("A11"), IOStandard("LVCMOS18")),  # DVT -- allow FPGA to recover crashed EC
         # USB_CC DFP attach
         Subsignal("cc_id",        Pins("J16"), IOStandard("LVCMOS33")),  # DVT
+        # turn on the UP5K in case we are woken up by RTC
+        Subsignal("up5k_on",      Pins("B17"), IOStandard("LVCMOS33")),  # DVT
         Misc("SLEW=SLOW"),
         Misc("DRIVE=8"),
     ),
@@ -563,6 +565,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
             CSRField("noisebias", size=1, description="Writing `1` enables the primary bias supply for the noise generator"),
             CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first."),
             CSRField("reset_ec",  size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
+            CSRField("up5k_on",   size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
         ])
         # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
@@ -599,6 +602,23 @@ class BtPower(Module, AutoCSR, AutoDoc):
                 usb_attach_r.eq(usb_attach),
                 self.ev.usb_attach.trigger.eq(~usb_attach & usb_attach_r),  # falling edge trigger
             ]
+            up5k_on_pulse = 0.20  # pulse up5k for 200ms to turn it on and have it keep itself on
+            up5k_on_count = Signal(26, reset=int(up5k_on_pulse * 100e6))
+            self.sync += [
+                If(up5k_on_count > 0,
+                    pads.up5k_on.eq(1),
+                ).Else(
+                    pads.up5k_on.eq(0)
+                ),
+                If(self.power.fields.up5k_on,
+                    up5k_on_count.eq(int(up5k_on_pulse * 100e6))
+                ).Elif( up5k_on_count > 0,
+                    up5k_on_count.eq(up5k_on_count - 1),
+                ).Else(
+                    up5k_on_count.eq(0)
+                )
+            ]
+
 
 # BtGpio -------------------------------------------------------------------------------------------
 
