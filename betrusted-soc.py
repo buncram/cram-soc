@@ -91,42 +91,42 @@ _io_dvt = [   # DVT-generation I/Os
 
     # Power control signals
     ("power", 0,
-        Subsignal("audio_on",     Pins("G13"), IOStandard("LVCMOS33")),
+        Subsignal("audio_on",     Pins("B7"),  IOStandard("LVCMOS33")),  # DVT
         Subsignal("fpga_sys_on",  Pins("N13"), IOStandard("LVCMOS18")),
-        Subsignal("noisebias_on", Pins("A13"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("allow_up5k_n", Pins("U7"), IOStandard("LVCMOS18")),
+        Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
         Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
         Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT
         # Noise generator
         Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
         # vibe motor
-        Subsignal("vibe_on",      Pins("B13"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("vibe_on",      Pins("H15"), IOStandard("LVCMOS33")),  # DVT
         # reset EC
-        Subsignal("reset_ec_n",   Pins("A11"), IOStandard("LVCMOS18")),  # DVT -- allow FPGA to recover crashed EC
+        Subsignal("reset_ec_n",   Pins("M6"), IOStandard("LVCMOS18")),   # DVT -- allow FPGA to recover crashed EC
         # USB_CC DFP attach
-        Subsignal("cc_id",        Pins("J16"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("cc_id",        Pins("D18"), IOStandard("LVCMOS33")),  # DVT
         # turn on the UP5K in case we are woken up by RTC
-        Subsignal("up5k_on",      Pins("B17"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("up5k_on",      Pins("E18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
         Misc("SLEW=SLOW"),
-        Misc("DRIVE=8"),
+        Misc("DRIVE=4"),
     ),
 
     # Audio interface
     ("i2s", 0,
-       Subsignal("clk", Pins("D14")),
-       Subsignal("tx", Pins("D12")), # au_sdi1
+       Subsignal("clk", Pins("D12")),
+       Subsignal("tx", Pins("E13")), # au_sdi1
        Subsignal("rx", Pins("C13")), # au_sdo1
-       Subsignal("sync", Pins("B15")),
+       Subsignal("sync", Pins("D14")),
        IOStandard("LVCMOS33"),
        Misc("SLEW=SLOW"), Misc("DRIVE=4"),
      ),
-    ("au_mclk", 0, Pins("D18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
+    ("au_mclk", 0, Pins("E12"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
 
     # I2C1 bus -- to RTC and audio CODEC
     ("i2c", 0,
-        Subsignal("scl", Pins("C14"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("A14"), IOStandard("LVCMOS33")),
-        Misc("SLEW=SLOW"),
+        Subsignal("scl", Pins("G2"), IOStandard("LVCMOS33")), # DVT
+        Subsignal("sda", Pins("F2"), IOStandard("LVCMOS33")), # DVT
+        Misc("SLEW=SLOW"), Misc("DRIVE=4"),
     ),
 
     # RTC interrupt
@@ -141,9 +141,9 @@ _io_dvt = [   # DVT-generation I/Os
      ),
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
 
-    # Top-side internal FPC header (B18 and D15 are used by the serial bridge)
+    # Top-side internal FPC header
     # Add USB PU/PD config to the GPIO cluster, see comment
-    ("gpio", 0, Pins("A16 B16 D16 C2 B2 A4"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # DVT
+    ("gpio", 0, Pins("F14 F15 E16 G15 G16 G13"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # DVT
     #("usb_alt", 0,
     # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
     # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
@@ -155,8 +155,8 @@ _io_dvt = [   # DVT-generation I/Os
     ("kbd", 0,
         # "key" 0-8 are rows, 9-18 are columns
         # column scan with 1's, so PD to default 0
-        Subsignal("row", Pins("F15 E17 G17 E14 E15 H15 G15 H14 H16"), Misc("PULLDOWN True")),
-        Subsignal("col", Pins("H17 E18 F18 G18 E13 H18 F13 H13 J13 K13")),
+        Subsignal("row", Pins("A15 A17 A16 A14 C17 B16 B17 C14 B15"), Misc("PULLDOWN True")), # DVT
+        Subsignal("col", Pins("B13 C18 E14 D15 B18 D16 D17 F13 E15 A13")),                    # DVT
         IOStandard("LVCMOS33"),
         Misc("SLEW=SLOW"),
         Misc("DRIVE=4"),
@@ -164,21 +164,12 @@ _io_dvt = [   # DVT-generation I/Os
 
     # LCD interface
     ("lcd", 0,
-        Subsignal("sclk", Pins("A17")),
-        Subsignal("scs",  Pins("C18")),
-        Subsignal("si",   Pins("D17")),
+        Subsignal("sclk", Pins("H17")), # DVT
+        Subsignal("scs",  Pins("G17")), # DVT
+        Subsignal("si",   Pins("H18")), # DVT
         IOStandard("LVCMOS33"),
         Misc("SLEW=SLOW"),
         Misc("DRIVE=4"),
-     ),
-
-    # SD card (TF) interface
-    ("sdcard", 0,
-        Subsignal("data", Pins("J15 J14 K16 K14"), Misc("PULLUP True")),
-        Subsignal("cmd",  Pins("J16"), Misc("PULLUP True")),
-        Subsignal("clk",  Pins("G16")),
-        IOStandard("LVCMOS33"),
-        Misc("SLEW=SLOW")
      ),
 
     # SPI Flash
