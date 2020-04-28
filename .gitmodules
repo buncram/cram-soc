@@ -46,3 +46,6 @@
 	path = deps/valentyusb
 	url = https://github.com/betrusted-io/valentyusb.git
 	branch = fastclk
+[submodule "deps/pythondata-cpu-vexriscv"]
+	path = deps/pythondata-cpu-vexriscv
+	url = https://github.com/litex-hub/pythondata-cpu-vexriscv.git

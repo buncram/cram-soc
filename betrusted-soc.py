@@ -92,7 +92,7 @@ _io_dvt = [   # DVT-generation I/Os
     # Power control signals
     ("power", 0,
         Subsignal("audio_on",     Pins("B7"),  IOStandard("LVCMOS33")),  # DVT
-        Subsignal("fpga_sys_on",  Pins("N13"), IOStandard("LVCMOS18")),
+        Subsignal("fpga_sys_on",  Pins("A5"), IOStandard("LVCMOS33")),   # DVT
         Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
         Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
