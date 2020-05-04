@@ -825,6 +825,7 @@ class Aes(Module, AutoDoc, AutoCSR):
             CSRField("key_clear", size=1, description="Clears the key"),
             CSRField("data_in_clear", size=1, description="Clears data input"),
             CSRField("data_out_clear", size=1, description="Clears the data output"),
+            CSRField("prng_reseed", size=1, description="Reseed PRNG"),
         ])
 
         self.specials += Instance("aes_reg_top",
@@ -883,7 +884,9 @@ class Aes(Module, AutoDoc, AutoCSR):
             i_key_clear=self.trigger.fields.key_clear,
             i_data_in_clear=self.trigger.fields.data_in_clear,
             i_data_out_clear=self.trigger.fields.data_out_clear,
+            i_prng_reseed=self.trigger.fields.prng_reseed,
         )
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_assert.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_reg_pkg.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_pkg.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_control.sv"))
@@ -896,6 +899,9 @@ class Aes(Module, AutoDoc, AutoCSR):
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_shift_rows.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_sub_bytes.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_core.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_ctr.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_cipher_core.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_cipher_control.sv"))
         platform.add_source(os.path.join("deps", "gateware", "gateware", "aes_reg_litex.sv"))
 
 
