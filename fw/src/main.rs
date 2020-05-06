@@ -73,6 +73,7 @@ use betrusted_hal::hal_kbd::*;
 use betrusted_hal::hal_xadc::*;
 use betrusted_hal::hal_audio::*;
 use betrusted_hal::hal_rtc::*;
+use betrusted_hal::hal_aes::*;
 use embedded_graphics::prelude::*;
 use embedded_graphics::egcircle;
 use embedded_graphics::pixelcolor::BinaryColor;
@@ -94,6 +95,9 @@ use jtag::JtagUartPhy as JtagPhy;
 use jtag::JtagGpioPhy as JtagPhy;
 
 use rom_inject::*;
+
+mod aes_test;
+use aes_test::*;
 
 pub struct Bounce {
     vector: Point,
@@ -190,6 +194,7 @@ pub struct Repl {
     audio: BtAudio,
     audio_run: bool,
     rtc: BtRtc,
+    aes: BtAes,
 }
 
 const PROMPT: &str = "bt> ";
@@ -215,6 +220,7 @@ impl Repl {
                     audio: BtAudio::new(),
                     audio_run: false,
                     rtc: BtRtc::new(),
+                    aes: BtAes::new(),
                 }
             };
         r.text.add_text(&mut String::from("Awaiting input."));
@@ -620,6 +626,26 @@ impl Repl {
                 self.rtc.rtc_set(0, 59, 22, 3, 3, 20, Weekdays::TUESDAY);
             } else if self.cmd.trim() == "ro" {
                 self.p.TRNG_OSC.ctl.write(|w| w.ena().bit(true));
+            } else if self.cmd.trim() == "ae" {
+                let (pass, data) = test_aes_enc(&mut self.aes);
+                if pass {
+                    self.text.add_text(&mut format!("AES Encrypt passed"));
+                } else {
+                    self.text.add_text(&mut format!("AES Encrypt failed"));
+                }
+                for i in 0..4 {
+                    self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
+                }
+            } else if self.cmd.trim() == "ad" {
+                let (pass, data) = test_aes_dec(&mut self.aes);
+                if pass {
+                    self.text.add_text(&mut format!("AES Decrypt passed"));
+                } else {
+                    self.text.add_text(&mut format!("AES Decrypt failed"));
+                }
+                for i in 0..4 {
+                    self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
+                }
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
             }

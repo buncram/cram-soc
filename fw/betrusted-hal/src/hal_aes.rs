@@ -43,7 +43,7 @@ bitflags! {
 
 pub struct BtAes {
     p: betrusted_pac::Peripherals,
-    control: AesCtrl,
+    pub control: AesCtrl,
 }
 
 impl BtAes {
@@ -140,7 +140,7 @@ impl BtAes {
         self.aes_data_put(data)
     }
 
-    pub fn aes_data_get(&mut self, data: &mut [u8; 32]) -> bool {
+    pub fn aes_data_get(&mut self, data: &mut [u8; 16]) -> bool {
         for reg in 0..4 {
             let dword: u32 = match reg {
                 0 => self.p.AES.dataout_0.read().bits(),
@@ -158,7 +158,7 @@ impl BtAes {
         true
     }
 
-    pub fn aes_data_get_wait(&mut self, data: &mut [u8; 32]) -> bool {
+    pub fn aes_data_get_wait(&mut self, data: &mut [u8; 16]) -> bool {
         while !self.p.AES.status.read().output_valid().bit() {}
 
         self.aes_data_get(data)
