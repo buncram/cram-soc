@@ -124,9 +124,9 @@ impl Bounce {
         x = self.loc.x + self.vector.x; y = self.loc.y + self.vector.y;
 
         let r: i32 = self.radius as i32;
-        if (x >= (self.bounds.bottom_right().x as i32 - r)) || 
-           (x <= (self.bounds.top_left().x + r)) ||   
-           (y >= (self.bounds.bottom_right().y as i32 - r)) || 
+        if (x >= (self.bounds.bottom_right().x as i32 - r)) ||
+           (x <= (self.bounds.top_left().x + r)) ||
+           (y >= (self.bounds.bottom_right().y as i32 - r)) ||
            (y <= (self.bounds.top_left().y + r)) {
             if x >= (self.bounds.bottom_right().x as i32 - r - 1) {
                 self.vector.x = -self.rand[self.rand_index];
@@ -197,7 +197,7 @@ const NUM_LINES: usize = 6;
 
 impl Repl {
     pub fn new() -> Self {
-        let mut r: Repl = 
+        let mut r: Repl =
             unsafe{
                 Repl {
                     p: betrusted_pac::Peripherals::steal(),
@@ -279,7 +279,7 @@ impl Repl {
     pub fn spi_perftest(&mut self) {
         const SPI_MEM: *const [u32; 0x100_0000] = 0x20000000 as *const [u32; 0x100_0000];
         let time: u32 = readpac32!(self, TICKTIMER, time0);
-    
+
         let mut sum: u32 = 0;
         for i in 0x0..0x4_0000 {  // 256k words, or 1 megabyte
             unsafe{ sum += (*SPI_MEM)[i]; }
@@ -482,7 +482,7 @@ impl Repl {
             } else if self.cmd.trim() == "loop" {
                 unsafe { self.p.UART.ev_pending.write(|w| w.bits(self.p.UART.ev_pending.read().bits())); }
                 unsafe { self.p.UART.ev_enable.write(|w| w.bits(3)); }
-                
+
                 // send 0-9 as a test
                 for _ in 0..10 {
                     for i in 0..10 {
@@ -507,10 +507,10 @@ impl Repl {
             } else if self.cmd.trim() == "sense" {
                 self.xadc.wait_update();
                 self.text.add_text(&mut format!("int:  {:.3}V  aux: {:.3}V", (self.xadc.vccint() as f64) / 1365.0, (self.xadc.vccaux() as f64) / 1365.0));
-                self.text.add_text(&mut format!("bram: {:.3}V temp: {:.2}C", 
-                                                (self.xadc.vccbram() as f64) / 1365.0, 
+                self.text.add_text(&mut format!("bram: {:.3}V temp: {:.2}C",
+                                                (self.xadc.vccbram() as f64) / 1365.0,
                                                 ((self.xadc.temp() as f64) * 0.12304) - 273.15 ));
-                self.text.add_text(&mut format!("vbus: {:4}mV cc1: {:4}mV cc2: {:4}mV", 
+                self.text.add_text(&mut format!("vbus: {:4}mV cc1: {:4}mV cc2: {:4}mV",
                                                 self.xadc.vbus_mv(),
                                                 self.xadc.cc1_mv(),
                                                 self.xadc.cc2_mv()  ));
@@ -654,7 +654,7 @@ impl TextArea {
             if let Some(line) = self.text.get(line) {
                 line.clone()
             } else {
-                String::from("")   
+                String::from("")
             }
         }
     }
@@ -757,7 +757,7 @@ loop {
                 repl.text.add_text(&mut format!("{} samples", samples));
             }
         }
-    
+
         let mut cur_line: i32 = 5;
 
         let uptime = format!{"Uptime {}s", (get_time_ms(&p) / 1000) as u32};
@@ -776,10 +776,10 @@ loop {
         */
 
         bouncy_ball.update();
-        let circle = egcircle!(bouncy_ball.loc, bouncy_ball.radius, 
+        let circle = egcircle!(bouncy_ball.loc, bouncy_ball.radius,
                                stroke_color = Some(BinaryColor::Off), fill_color = Some(BinaryColor::On));
         circle.draw(&mut *display.lock());
-        
+
         // ping the EC and update various records over time
         if get_time_ms(&p) - cur_time > 50 {
             cur_time = get_time_ms(&p);
@@ -824,10 +824,10 @@ loop {
         .draw(&mut *display.lock());
 
         let (keydown, keyup) = keyboard.update();
-        if keydown.is_some() { 
+        if keydown.is_some() {
             let mut keyvect = keydown.unwrap();
             nd = keyvect.len() as u8;
-            
+
             if nd >= 1 {
                 let (r, c) = keyvect.pop().unwrap();
                 let scancode = map_dvorak((r,c));
@@ -851,10 +851,10 @@ loop {
             }
         }
 
-        if keyup.is_some() { 
+        if keyup.is_some() {
             let mut keyvect = keyup.unwrap();
             nu = keyvect.len() as u8;
-            
+
             if nu >= 1 {
                 let (r, c) = keyvect.pop().unwrap();
                 let scancode = map_dvorak((r,c));
@@ -900,10 +900,10 @@ loop {
             .translate(Point::new(left_margin, cur_line))
             .draw(&mut *display.lock());
         }
-        
+
         // draw a demarcation line
         cur_line += line_height + 2;
-        Line::<BinaryColor>::new(Point::new(left_margin, cur_line), 
+        Line::<BinaryColor>::new(Point::new(left_margin, cur_line),
         Point::new(size.width as i32 - left_margin, cur_line))
         .stroke_color(Some(BinaryColor::On))
         .draw(&mut *display.lock());
