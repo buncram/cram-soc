@@ -802,15 +802,32 @@ class Aes(Module, AutoDoc, AutoCSR):
             self.datain_3.we.eq(datain_clear[3]),
         ]
 
+        self.iv_0 = CSRStorage(fields=[
+            CSRField("iv", size=32, description="iv")
+        ])
+        self.iv_1 = CSRStorage(fields=[
+            CSRField("iv", size=32, description="iv")
+        ])
+        self.iv_2 = CSRStorage(fields=[
+            CSRField("iv", size=32, description="iv")
+        ])
+        self.iv_3 = CSRStorage(fields=[
+            CSRField("iv", size=32, description="iv")
+        ])
+
         self.ctrl = CSRStorage(fields=[
-            CSRField("mode", size=1, description="set to `0' for AES_ENC, `1` for AES_DEC"),
-            CSRField("key_len", size=3, description="length of the aes block", values=[
+            CSRField("mode", size=3, description="set cipher mode. Illegal values mapped to `AES_ECB`", values=[
+                ("001", "AES_ECB"),
+                ("010", "AES_CBC"),
+                ("100", "AES_CTR"),
+            ]),
+            CSRField("key_len", size=3, description="length of the aes block. Illegal values mapped to `AES128`", values=[
                     ("001", "AES128"),
                     ("010", "AES192"),
                     ("100", "AES256"),
             ]),
-            CSRField("manual_start", size=1, description="If `0`, operation starts as soon as all data words are written"),
-            CSRField("force_data_overwrite", size=1, description="If `0`, output is not updated until it is read"),
+            CSRField("manual_operation", size=1, description="If `1`, operation starts when `trigger` bit `start` is written, otherwise automatically on data and IV ready"),
+            CSRField("operation", size=1, description="Sets encrypt/decrypt operation. `0` = encrypt, `1` = decrypt"),
         ])
         self.status = CSRStatus(fields=[
             CSRField("idle", size=1, description="Core idle"),
@@ -823,6 +840,7 @@ class Aes(Module, AutoDoc, AutoCSR):
         self.trigger = CSRStorage(fields=[
             CSRField("start", size=1, description="Triggers an AES computation if manual_start is selected"),
             CSRField("key_clear", size=1, description="Clears the key"),
+            CSRField("iv_clear", size=1, description="Clears the IV"),
             CSRField("data_in_clear", size=1, description="Clears data input"),
             CSRField("data_out_clear", size=1, description="Clears the data output"),
             CSRField("prng_reseed", size=1, description="Reseed PRNG"),
@@ -859,6 +877,15 @@ class Aes(Module, AutoDoc, AutoCSR):
             o_data_out_3=self.dataout_3.fields.data,
             i_data_out_3_re=self.dataout_3.we,
 
+            i_iv_0_q=self.iv_0.fields.iv,
+            i_iv_0_qe=self.iv_0.re,
+            i_iv_1_q=self.iv_1.fields.iv,
+            i_iv_1_qe=self.iv_1.re,
+            i_iv_2_q=self.iv_2.fields.iv,
+            i_iv_2_qe=self.iv_2.re,
+            i_iv_3_q=self.iv_3.fields.iv,
+            i_iv_3_qe=self.iv_3.re,
+
             i_data_in_0_to_core=self.datain_0.fields.data,
             i_data_in_1_to_core=self.datain_1.fields.data,
             i_data_in_2_to_core=self.datain_2.fields.data,
@@ -871,8 +898,8 @@ class Aes(Module, AutoDoc, AutoCSR):
             i_ctrl_mode=self.ctrl.fields.mode,
             i_ctrl_key_len=self.ctrl.fields.key_len,
             o_ctrl_key_len_rbk=self.status.fields.key_len_rbk,
-            i_ctrl_manual_start_trigger=self.ctrl.fields.manual_start,
-            i_ctrl_force_data_overwrite=self.ctrl.fields.force_data_overwrite,
+            i_ctrl_manual_operation=self.ctrl.fields.manual_operation,
+            i_ctrl_operation=self.ctrl.fields.operation,
             i_ctrl_update=self.ctrl.re,
 
             o_idle=self.status.fields.idle,
@@ -882,6 +909,7 @@ class Aes(Module, AutoDoc, AutoCSR):
 
             i_start=self.trigger.fields.start,
             i_key_clear=self.trigger.fields.key_clear,
+            i_iv_clear=self.trigger.fields.iv_clear,
             i_data_in_clear=self.trigger.fields.data_in_clear,
             i_data_out_clear=self.trigger.fields.data_out_clear,
             i_prng_reseed=self.trigger.fields.prng_reseed,

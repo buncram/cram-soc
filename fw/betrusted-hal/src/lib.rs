@@ -13,6 +13,7 @@ pub mod hal_uart;
 pub mod hal_xadc;
 pub mod hal_audio;
 pub mod hal_rtc;
+pub mod hal_aes;
 
 #[cfg(test)]
 mod tests {
