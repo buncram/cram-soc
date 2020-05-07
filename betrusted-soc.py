@@ -740,6 +740,7 @@ class RomTest(Module, AutoDoc, AutoCSR):
 
 class Aes(Module, AutoDoc, AutoCSR):
     def __init__(self, platform):
+        # TODO: add ResetInserter() to key and data in fields
         self.key_0_q = CSRStorage(fields=[
             CSRField("key_0", size=32, description="least significant key word")
         ])
@@ -766,53 +767,42 @@ class Aes(Module, AutoDoc, AutoCSR):
         ])
 
         self.dataout_0 = CSRStatus(fields=[
-            CSRField("data", size=32, description="data output from cipher")
+            CSRField("data_0", size=32, description="data output from cipher")
         ])
         self.dataout_1 = CSRStatus(fields=[
-            CSRField("data", size=32, description="data output from cipher")
+            CSRField("data_1", size=32, description="data output from cipher")
         ])
         self.dataout_2 = CSRStatus(fields=[
-            CSRField("data", size=32, description="data output from cipher")
+            CSRField("data_2", size=32, description="data output from cipher")
         ])
         self.dataout_3 = CSRStatus(fields=[
-            CSRField("data", size=32, description="data output from cipher")
+            CSRField("data_3", size=32, description="data output from cipher")
         ])
 
         self.datain_0 = CSRStorage(fields=[
-            CSRField("data", size=32, description="data input")
-        ], write_from_dev=True)
+            CSRField("data_0", size=32, description="data input")
+        ])
         self.datain_1 = CSRStorage(fields=[
-            CSRField("data", size=32, description="data input")
-        ], write_from_dev=True)
+            CSRField("data_1", size=32, description="data input")
+        ])
         self.datain_2 = CSRStorage(fields=[
-            CSRField("data", size=32, description="data input")
-        ], write_from_dev=True)
+            CSRField("data_2", size=32, description="data input")
+        ])
         self.datain_3 = CSRStorage(fields=[
-            CSRField("data", size=32, description="data input")
-        ], write_from_dev=True)
-        datain_clear = Signal(4)
-        self.comb += [
-            self.datain_0.dat_w.eq(0),
-            self.datain_1.dat_w.eq(0),
-            self.datain_2.dat_w.eq(0),
-            self.datain_3.dat_w.eq(0),
-            self.datain_0.we.eq(datain_clear[0]),
-            self.datain_1.we.eq(datain_clear[1]),
-            self.datain_2.we.eq(datain_clear[2]),
-            self.datain_3.we.eq(datain_clear[3]),
-        ]
+            CSRField("data_3", size=32, description="data input")
+        ])
 
         self.iv_0 = CSRStorage(fields=[
-            CSRField("iv", size=32, description="iv")
+            CSRField("iv_0", size=32, description="iv")
         ])
         self.iv_1 = CSRStorage(fields=[
-            CSRField("iv", size=32, description="iv")
+            CSRField("iv_1", size=32, description="iv")
         ])
         self.iv_2 = CSRStorage(fields=[
-            CSRField("iv", size=32, description="iv")
+            CSRField("iv_2", size=32, description="iv")
         ])
         self.iv_3 = CSRStorage(fields=[
-            CSRField("iv", size=32, description="iv")
+            CSRField("iv_3", size=32, description="iv")
         ])
 
         self.ctrl = CSRStorage(fields=[
@@ -830,20 +820,23 @@ class Aes(Module, AutoDoc, AutoCSR):
             CSRField("operation", size=1, description="Sets encrypt/decrypt operation. `0` = encrypt, `1` = decrypt"),
         ])
         self.status = CSRStatus(fields=[
-            CSRField("idle", size=1, description="Core idle"),
+            CSRField("idle", size=1, description="Core idle", reset=1),
             CSRField("stall", size=1, description="Core stall"),
             CSRField("output_valid", size=1, description="Data output valid"),
-            CSRField("input_ready", size=1, description="Input value has been latched and it is OK to update to a new value"),
-            CSRField("key_len_rbk", size=3, description="Actual key length selected by the hardware")
+            CSRField("input_ready", size=1, description="Input value has been latched and it is OK to update to a new value", reset=1),
+            CSRField("operation_rbk", size=1, description="Operation readback"),
+            CSRField("mode_rbk", size=3, description="Actual mode selected by hardware readback"),
+            CSRField("key_len_rbk", size=3, description="Actual key length selected by the hardware readback"),
+            CSRField("manual_operation_rbk", size=1, description="Manual operation readback")
         ])
 
         self.trigger = CSRStorage(fields=[
             CSRField("start", size=1, description="Triggers an AES computation if manual_start is selected"),
-            CSRField("key_clear", size=1, description="Clears the key"),
-            CSRField("iv_clear", size=1, description="Clears the IV"),
-            CSRField("data_in_clear", size=1, description="Clears data input"),
-            CSRField("data_out_clear", size=1, description="Clears the data output"),
-            CSRField("prng_reseed", size=1, description="Reseed PRNG"),
+            CSRField("key_clear", size=1, description="Clears the key", reset=1),
+            CSRField("iv_clear", size=1, description="Clears the IV", reset=1),
+            CSRField("data_in_clear", size=1, description="Clears data input", reset=1),
+            CSRField("data_out_clear", size=1, description="Clears the data output", reset=1),
+            CSRField("prng_reseed", size=1, description="Reseed PRNG", reset=1),
         ])
         key0re50 = Signal()
         self.submodules.key0re = BlindTransfer("sys", "clk50")
@@ -870,19 +863,6 @@ class Aes(Module, AutoDoc, AutoCSR):
         self.submodules.key7re = BlindTransfer("sys", "clk50")
         self.comb += [self.key7re.i.eq(self.key_7_q.re), key0re50.eq(self.key7re.o)]
 
-        dataout0_50 = Signal()
-        self.submodules.dataout0_50 = BlindTransfer("sys", "clk50")
-        self.comb += [self.dataout0_50.i.eq(self.dataout_0.we), dataout0_50.eq(self.dataout0_50.o)]
-        dataout1_50 = Signal()
-        self.submodules.dataout1_50 = BlindTransfer("sys", "clk50")
-        self.comb += [self.dataout1_50.i.eq(self.dataout_1.we), dataout1_50.eq(self.dataout1_50.o)]
-        dataout2_50 = Signal()
-        self.submodules.dataout2_50 = BlindTransfer("sys", "clk50")
-        self.comb += [self.dataout2_50.i.eq(self.dataout_2.we), dataout2_50.eq(self.dataout2_50.o)]
-        dataout3_50 = Signal()
-        self.submodules.dataout3_50 = BlindTransfer("sys", "clk50")
-        self.comb += [self.dataout3_50.i.eq(self.dataout_3.we), dataout3_50.eq(self.dataout3_50.o)]
-
         iv0_50 = Signal()
         self.submodules.iv0_50 = BlindTransfer("sys", "clk50")
         self.comb += [self.iv0_50.i.eq(self.iv_0.re), iv0_50.eq(self.iv0_50.o)]
@@ -899,6 +879,32 @@ class Aes(Module, AutoDoc, AutoCSR):
         ctrlre50 = Signal()
         self.submodules.ctrl50re = BlindTransfer("sys", "clk50")
         self.comb += [self.ctrl50re.i.eq(self.ctrl.re), ctrlre50.eq(self.ctrl50re.o)]
+
+        di0_50 = Signal()
+        self.submodules.di0_50 = BlindTransfer("sys", "clk50")
+        self.comb += [self.di0_50.i.eq(self.datain_0.re), di0_50.eq(self.di0_50.o)]
+        di1_50 = Signal()
+        self.submodules.di1_50 = BlindTransfer("sys", "clk50")
+        self.comb += [self.di1_50.i.eq(self.datain_1.re), di1_50.eq(self.di1_50.o)]
+        di2_50 = Signal()
+        self.submodules.di2_50 = BlindTransfer("sys", "clk50")
+        self.comb += [self.di2_50.i.eq(self.datain_2.re), di2_50.eq(self.di2_50.o)]
+        di3_50 = Signal()
+        self.submodules.di3_50 = BlindTransfer("sys", "clk50")
+        self.comb += [self.di3_50.i.eq(self.datain_3.re), di3_50.eq(self.di3_50.o)]
+
+        trigger_start = Signal()
+        trigger_key_clear = Signal()
+        trigger_iv_clear = Signal()
+        trigger_data_in_clear = Signal()
+        trigger_data_out_clear = Signal()
+        trigger_prng_reseed = Signal()
+        self.specials += MultiReg(self.trigger.fields.start, trigger_start, odomain="clk50")
+        self.specials += MultiReg(self.trigger.fields.key_clear, trigger_key_clear, odomain="clk50")
+        self.specials += MultiReg(self.trigger.fields.iv_clear, trigger_iv_clear, odomain="clk50")
+        self.specials += MultiReg(self.trigger.fields.data_in_clear, trigger_data_in_clear, odomain="clk50")
+        self.specials += MultiReg(self.trigger.fields.data_out_clear, trigger_data_out_clear, odomain="clk50")
+        self.specials += MultiReg(self.trigger.fields.prng_reseed, trigger_prng_reseed, odomain="clk50")
 
         self.specials += Instance("aes_reg_top",
             i_clk_i = ClockSignal("clk50"),
@@ -921,36 +927,31 @@ class Aes(Module, AutoDoc, AutoCSR):
             i_key_7_q=self.key_7_q.fields.key_7,
             i_key_7_qe=key7re50,
 
-            o_data_out_0=self.dataout_0.fields.data,
-            i_data_out_0_re=dataout0_50,
-            o_data_out_1=self.dataout_1.fields.data,
-            i_data_out_1_re=dataout1_50,
-            o_data_out_2=self.dataout_2.fields.data,
-            i_data_out_2_re=dataout2_50,
-            o_data_out_3=self.dataout_3.fields.data,
-            i_data_out_3_re=dataout3_50,
+            o_data_out_0=self.dataout_0.fields.data_0,
+            o_data_out_1=self.dataout_1.fields.data_1,
+            o_data_out_2=self.dataout_2.fields.data_2,
+            o_data_out_3=self.dataout_3.fields.data_3,
 
-            i_iv_0_q=self.iv_0.fields.iv,
+            i_iv_0_q=self.iv_0.fields.iv_0,
             i_iv_0_qe=iv0_50,
-            i_iv_1_q=self.iv_1.fields.iv,
+            i_iv_1_q=self.iv_1.fields.iv_1,
             i_iv_1_qe=iv1_50,
-            i_iv_2_q=self.iv_2.fields.iv,
+            i_iv_2_q=self.iv_2.fields.iv_2,
             i_iv_2_qe=iv2_50,
-            i_iv_3_q=self.iv_3.fields.iv,
+            i_iv_3_q=self.iv_3.fields.iv_3,
             i_iv_3_qe=iv3_50,
 
-            i_data_in_0_to_core=self.datain_0.fields.data,
-            i_data_in_1_to_core=self.datain_1.fields.data,
-            i_data_in_2_to_core=self.datain_2.fields.data,
-            i_data_in_3_to_core=self.datain_3.fields.data,
-            o_data_in_0_de_from_core=datain_clear[0],
-            o_data_in_1_de_from_core=datain_clear[1],
-            o_data_in_2_de_from_core=datain_clear[2],
-            o_data_in_3_de_from_core=datain_clear[3],
+            i_data_in_0=self.datain_0.fields.data_0,
+            i_data_in_1=self.datain_1.fields.data_1,
+            i_data_in_2=self.datain_2.fields.data_2,
+            i_data_in_3=self.datain_3.fields.data_3,
+            i_data_in_0_qe=di0_50,
+            i_data_in_1_qe=di1_50,
+            i_data_in_2_qe=di2_50,
+            i_data_in_3_qe=di3_50,
 
             i_ctrl_mode=self.ctrl.fields.mode,
             i_ctrl_key_len=self.ctrl.fields.key_len,
-            o_ctrl_key_len_rbk=self.status.fields.key_len_rbk,
             i_ctrl_manual_operation=self.ctrl.fields.manual_operation,
             i_ctrl_operation=self.ctrl.fields.operation,
             i_ctrl_update=ctrlre50,
@@ -959,13 +960,17 @@ class Aes(Module, AutoDoc, AutoCSR):
             o_stall=self.status.fields.stall,
             o_output_valid=self.status.fields.output_valid,
             o_input_ready=self.status.fields.input_ready,
+            o_ctrl_key_len_rbk=self.status.fields.key_len_rbk,
+            o_operation_rbk=self.status.fields.operation_rbk,
+            o_mode_rbk=self.status.fields.mode_rbk,
+            o_manual_operation_rbk=self.status.fields.manual_operation_rbk,
 
-            i_start=self.trigger.fields.start,
-            i_key_clear=self.trigger.fields.key_clear,
-            i_iv_clear=self.trigger.fields.iv_clear,
-            i_data_in_clear=self.trigger.fields.data_in_clear,
-            i_data_out_clear=self.trigger.fields.data_out_clear,
-            i_prng_reseed=self.trigger.fields.prng_reseed,
+            i_start=trigger_start,
+            i_key_clear=trigger_key_clear,
+            i_iv_clear=trigger_iv_clear,
+            i_data_in_clear=trigger_data_in_clear,
+            i_data_out_clear=trigger_data_out_clear,
+            i_prng_reseed=trigger_prng_reseed,
         )
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_assert.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_reg_pkg.sv"))

@@ -22,10 +22,13 @@ bitflags! {
         const STALL        = 0b0000_0010;
         const OUTPUT_VALID = 0b0000_0100;
         const INPUT_READY  = 0b0000_1000;
-        const LEN_READBACK_MASK = 0b0111_0000;
-        const LEN_READBACK_128  = 0b0001_0000;
-        const LEN_READBACK_192  = 0b0010_0000;
-        const LEN_READBACK_256  = 0b0100_0000;
+        const OPER_RBK     = 0b0001_0000;
+        const MODE_RBK     = 0b0010_0000;
+        const LEN_READBACK_MASK = 0b1_1100_0000;
+        const LEN_READBACK_128  = 0b0_0100_0000;
+        const LEN_READBACK_192  = 0b0_1000_0000;
+        const LEN_READBACK_256  = 0b1_0000_0000;
+        const MANUAL_OP_RBK = 0b10_0000_0000;
     }
 }
 
