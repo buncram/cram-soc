@@ -983,6 +983,9 @@ class Aes(Module, AutoDoc, AutoCSR):
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_ctr.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_cipher_core.sv"))
         platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_cipher_control.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_cipher_pkg.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "prim", "rtl", "prim_lfsr.sv"))
+        platform.add_source(os.path.join("deps", "opentitan", "hw", "ip", "aes", "rtl", "aes_prng.sv"))
         platform.add_source(os.path.join("deps", "gateware", "gateware", "aes_reg_litex.sv"))
 
 
