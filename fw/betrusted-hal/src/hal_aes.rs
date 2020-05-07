@@ -1,5 +1,4 @@
 use bitflags::*;
-use core::mem;
 
 bitflags! {
     pub struct AesCtrl: u32 {
@@ -68,7 +67,9 @@ impl BtAes {
 
         let mut reg: usize = 0;
         for (reg, chunk) in key.chunks(4).enumerate() {
-            let keyword = u32::from_be_bytes(unsafe{ mem::transmute(chunk.as_ptr() )});
+            let mut temp: [u8; 4] = Default::default();
+            temp.copy_from_slice(chunk);
+            let keyword = u32::from_be_bytes();
             match reg {
                 0 => unsafe{ self.p.AES.key_0_q.write(|w|{ w.bits(keyword) }); },
                 1 => unsafe{ self.p.AES.key_1_q.write(|w|{ w.bits(keyword) }); },
@@ -101,7 +102,9 @@ impl BtAes {
 
     pub fn iv_put(&mut self, iv: &mut &[u8] ) -> bool {
         for (reg, chunk) in iv.chunks(4).enumerate() {
-            let ivword: u32 = u32::from_be_bytes( unsafe{ mem::transmute(chunk.as_ptr() )});
+            let mut temp: [u8; 4] = Default::default();
+            temp.copy_from_slice(chunk);
+            let ivword: u32 = u32::from_be_bytes(temp);
             match reg {
                 0 => unsafe{ self.p.AES.iv_0.write(|w|{ w.bits(ivword)}); },
                 1 => unsafe{ self.p.AES.iv_1.write(|w|{ w.bits(ivword)}); },
@@ -122,7 +125,9 @@ impl BtAes {
 
     pub fn aes_data_put(&mut self, data: &mut &[u8]) -> bool {
         for( reg, chunk) in data.chunks(4).enumerate() {
-            let dword: u32 = u32::from_be_bytes( unsafe{ mem::transmute(chunk.as_ptr() )});
+            let mut temp: [u8; 4] = Default::default();
+            temp.copy_from_slice(chunk);
+            let dword: u32 = u32::from_be_bytes(temp);
             match reg {
                 0 => unsafe{ self.p.AES.datain_0.write(|w|{ w.bits(dword)}); },
                 1 => unsafe{ self.p.AES.datain_1.write(|w|{ w.bits(dword)}); },
