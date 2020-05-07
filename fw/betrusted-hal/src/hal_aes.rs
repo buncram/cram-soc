@@ -69,7 +69,7 @@ impl BtAes {
         for (reg, chunk) in key.chunks(4).enumerate() {
             let mut temp: [u8; 4] = Default::default();
             temp.copy_from_slice(chunk);
-            let keyword = u32::from_be_bytes();
+            let keyword = u32::from_be_bytes(temp);
             match reg {
                 0 => unsafe{ self.p.AES.key_0_q.write(|w|{ w.bits(keyword) }); },
                 1 => unsafe{ self.p.AES.key_1_q.write(|w|{ w.bits(keyword) }); },
