@@ -16,15 +16,17 @@ const CIPHERTEXT_1: [u8; 16] =
 use betrusted_hal::hal_aes::*;
 
 pub fn test_aes_enc(aes: &mut BtAes) -> (bool, [u8; 16]) {
+    aes.aes_reset();
     while !aes.aes_idle() {}
 
     let mut data: [u8; 16] = [0; 16];
     return (true, data);
 
-    aes.key_put(&mut &KEY_1[0..16]);
-
     aes.control = AesCtrl::MODE_ECB | AesCtrl::KEY_LEN_256 | AesCtrl::ENC_OPER;
     aes.aes_init(aes.control);
+
+    aes.key_put(&mut &KEY_1[0..32]);
+
     aes.aes_data_put_wait(&mut &PLAINTEXT_1[0..16]);
     aes.aes_data_get_wait(&mut data);
 
@@ -38,14 +40,15 @@ pub fn test_aes_enc(aes: &mut BtAes) -> (bool, [u8; 16]) {
 }
 
 pub fn test_aes_dec(aes: &mut BtAes) -> (bool, [u8; 16]) {
+    aes.aes_reset();
     while !aes.aes_idle() {}
 
     let mut data: [u8; 16] = [0; 16];
 
-    aes.key_put(&mut &KEY_1[0..16]);
-
     aes.control = AesCtrl::MODE_ECB | AesCtrl::KEY_LEN_256 | AesCtrl::DEC_OPER;
     aes.aes_init(aes.control);
+    aes.key_put(&mut &KEY_1[0..32]);
+
     aes.aes_data_put_wait(&mut &CIPHERTEXT_1[0..16]);
     aes.aes_data_get_wait(&mut data);
 
