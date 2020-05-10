@@ -20,7 +20,7 @@ pub fn test_aes_enc(aes: &mut BtAes) -> (bool, [u8; 16]) {
     while !aes.aes_idle() {}
 
     let mut data: [u8; 16] = [0; 16];
-    return (true, data);
+    //return (true, data);
 
     aes.control = AesCtrl::MODE_ECB | AesCtrl::KEY_LEN_256 | AesCtrl::ENC_OPER;
     aes.aes_init(aes.control);
