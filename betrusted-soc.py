@@ -756,7 +756,7 @@ class BetrustedSoC(SoCCore):
         "sram_ext":        0x40000000,
         "memlcd":          0xb0000000,
         "audio":           0xe0000000,
-        "sha":             0xe0001000,
+        "sha2":            0xe0001000,
         "vexriscv_debug":  0xefff0000,
         "csr":             0xf0000000,
     }
@@ -1015,11 +1015,11 @@ class BetrustedSoC(SoCCore):
         self.add_csr("aes")
 
         # SHA block --------------------------------------------------------------------------------
-        self.submodules.sha = sha2.Hmac(platform)
-        self.add_csr("sha")
-        self.add_interrupt("sha")
-        self.add_wb_slave(self.mem_map["sha"], self.sha.bus, 4)
-        self.add_memory_region("sha", self.mem_map["sha"], 4, type='io')
+        self.submodules.sha2 = sha2.Hmac(platform)
+        self.add_csr("sha2")
+        self.add_interrupt("sha2")
+        self.add_wb_slave(self.mem_map["sha2"], self.sha2.bus, 4)
+        self.add_memory_region("sha2", self.mem_map["sha2"], 4, type='io')
 
         # JTAG self-provisioning block -------------------------------------------------------------
         if revision != 'evt': # these pins don't exist on EVT
