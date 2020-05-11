@@ -14,6 +14,7 @@ pub mod hal_xadc;
 pub mod hal_audio;
 pub mod hal_rtc;
 pub mod hal_aes;
+pub mod hal_sha2;
 
 #[cfg(test)]
 mod tests {

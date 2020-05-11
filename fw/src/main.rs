@@ -74,6 +74,7 @@ use betrusted_hal::hal_xadc::*;
 use betrusted_hal::hal_audio::*;
 use betrusted_hal::hal_rtc::*;
 use betrusted_hal::hal_aes::*;
+use betrusted_hal::hal_sha2::*;
 use embedded_graphics::prelude::*;
 use embedded_graphics::egcircle;
 use embedded_graphics::pixelcolor::BinaryColor;
@@ -98,6 +99,8 @@ use rom_inject::*;
 
 mod aes_test;
 use aes_test::*;
+const SHA_DATA: &[u8; 142] = b"Every one suspects himself of at least one of the cardinal virtues, and this is mine: I am one of the few honest people that I have ever known";
+const SHA_DIGEST: [u32; 8] = [0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2, 0xb8a8379d, 0x426dc745, 0x19f5cff7, 0x4ec9c6d6];
 
 pub struct Bounce {
     vector: Point,
@@ -195,6 +198,7 @@ pub struct Repl {
     audio_run: bool,
     rtc: BtRtc,
     aes: BtAes,
+    sha2: BtSha2,
 }
 
 const PROMPT: &str = "bt> ";
@@ -221,6 +225,7 @@ impl Repl {
                     audio_run: false,
                     rtc: BtRtc::new(),
                     aes: BtAes::new(),
+                    sha2: BtSha2::new(),
                 }
             };
         r.text.add_text(&mut String::from("Awaiting input."));
@@ -645,6 +650,27 @@ impl Repl {
                 }
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
+                }
+            } else if self.cmd.trim() == "sh" {
+                self.sha2.config = Sha2Config::ENDIAN_SWAP | Sha2Config::DIGEST_SWAP | Sha2Config::SHA256_EN; // Sha2Config::HMAC_EN; // Sha2Config::SHA256_EN;
+                self.sha2.keys = [0; 8];
+                self.sha2.init();
+                self.sha2.update(SHA_DATA);
+                let mut digest: [u32; 8] = [0; 8];
+                self.sha2.digest(&mut digest);
+                let mut pass: bool = true;
+                for i in 0..8 {
+                    if digest[i] != SHA_DIGEST[i] {
+                        pass = false;
+                    }
+                }
+                if pass {
+                    self.text.add_text(&mut format!("SHA test passed"));
+                } else {
+                    self.text.add_text(&mut format!("SHA test failed"));
+                }
+                for i in 0..4 {
+                    self.text.add_text(&mut format!("0x{:x} 0x{:x}", digest[0 + i*2], digest[1 + i*2]));
                 }
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
