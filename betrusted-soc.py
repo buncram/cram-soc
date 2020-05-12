@@ -47,6 +47,7 @@ from gateware import keyboard
 from gateware import trng
 from gateware import aes_opentitan as aes
 from gateware import sha2_opentitan as sha2
+from gateware import sha512_opentitan as sha512
 
 from gateware import jtag_phy
 
@@ -757,6 +758,7 @@ class BetrustedSoC(SoCCore):
         "memlcd":          0xb0000000,
         "audio":           0xe0000000,
         "sha2":            0xe0001000,
+        "sha512":          0xe0002000,
         "vexriscv_debug":  0xefff0000,
         "csr":             0xf0000000,
     }
@@ -806,7 +808,7 @@ class BetrustedSoC(SoCCore):
         self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
 
         # Clockgen cluster -------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.2)
+        self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
         self.add_csr("crg")
         self.comb += self.crg.warm_reset.eq(warm_reset)
 
@@ -1014,12 +1016,19 @@ class BetrustedSoC(SoCCore):
         self.submodules.aes = aes.Aes(platform)
         self.add_csr("aes")
 
-        # SHA block --------------------------------------------------------------------------------
+        # SHA-256 block ----------------------------------------------------------------------------
         self.submodules.sha2 = sha2.Hmac(platform)
         self.add_csr("sha2")
         self.add_interrupt("sha2")
         self.add_wb_slave(self.mem_map["sha2"], self.sha2.bus, 4)
         self.add_memory_region("sha2", self.mem_map["sha2"], 4, type='io')
+
+        # SHA-512 block ----------------------------------------------------------------------------
+        self.submodules.sha512 = sha512.Hmac(platform)
+        self.add_csr("sha512")
+        self.add_interrupt("sha512")
+        self.add_wb_slave(self.mem_map["sha512"], self.sha512.bus, 8)
+        self.add_memory_region("sha512", self.mem_map["sha512"], 8, type='io')
 
         # JTAG self-provisioning block -------------------------------------------------------------
         if revision != 'evt': # these pins don't exist on EVT
