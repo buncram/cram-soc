@@ -122,7 +122,7 @@ bitflags! {
         const DAC_CLK_SEL_P1RX= 0b0001_0000;
         const DAC_CLK_SEL_P2RX= 0b0010_0000;
         const DAC_CLK_SEL_PLL1= 0b0011_0000;
-        const DAC_CLK_SEL_PLL2= 0b0100_0000;        
+        const DAC_CLK_SEL_PLL2= 0b0100_0000;
     }
 }
 
@@ -278,7 +278,7 @@ bitflags! {
 pub const LM49352_MIC_INPUT: u8 = 0x16;
 bitflags! {
     pub struct MicInput: u8 {
-        const MIC_LEVEL_6DB     = 0b0000_0000;  // zero value 
+        const MIC_LEVEL_6DB     = 0b0000_0000;  // zero value
         const MIC_LEVEL_2DB_LSB = 0b0000_0001;  // scale factor for each LSB
         const MIC_LEVEL_MAX     = 0b0000_1111;  // also the bit mask
 
@@ -300,7 +300,7 @@ bitflags! {
         const R_SEL_ADC_R      = 0b0000_0100;
         const R_SEL_PORTLOOP_R = 0b0000_1000;
         const R_SEL_INTERP_R   = 0b0000_1100;
-        
+
         const LR_SWAP          = 0b0001_0000;
         const MONO             = 0b0010_0000; // left channel becomes (L+R)/2
     }
@@ -325,8 +325,8 @@ pub struct BtAudio {
 }
 
 /// hal_audio is a quick testing API for the audio interface
-/// 
-/// 
+///
+///
 
 const I2C_TIMEOUT: u32 = 5;
 impl BtAudio {
@@ -340,19 +340,19 @@ impl BtAudio {
     }
 
     /// audio_clocks() sets up the default clocks for 8kHz sampling rate, assuming a 12MHz MCLK input
-    /// 
+    ///
     /// fIN = 12 MHz
     /// M = 2.5
     /// N = 32   (PLL freq = 153.6MHz)
     /// N_MOD = 0
     /// P = 12.5
     /// fOUT = 12_288_000 Hz
-    /// 
+    ///
     /// sample rate = 8_000
     /// oversampling rate (OSR) = 128
     /// local divider = 12
     /// 8_000 * 128 * 12 = 12_288_000 Hz
-    /// 
+    ///
     pub fn audio_clocks(&mut self) {
         let mut txbuf: [u8; 2];
 
@@ -368,7 +368,7 @@ impl BtAudio {
         // select divider for PMC - divide by 40.5 (0x50) ~300kHz
         txbuf = [LM49352_PMC_CLK_DIV, 0x50];
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
-        
+
         // PLL setup
         // setup PLL clock source - MCLK
         txbuf = [LM49352_PLL_CLK_SOURCE, PllClkSource::PLL_CLK_SEL_MCLK.bits()];
@@ -381,11 +381,11 @@ impl BtAudio {
         // setup N to 32
         txbuf = [LM49352_PLL_N, 32];
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
-        
+
         // setup N_MOD to 0
         txbuf = [LM49352_PLL_N_MOD, 0];
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
-        
+
         // setup P to 12.5
         txbuf = [LM49352_PLL_P1, 24]; // 12.5 * 2 -1 = 24
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
@@ -412,25 +412,25 @@ impl BtAudio {
     }
 
     /// audio_ports() sets up the digital port bitwidths, modes, and syncs
-    /// 
+    ///
     /// From the hardware i2s block as implemented on betrusted-soc:
     /// 16 bits per sample, 24 bit word width, stero, master mode, left-justified, MSB first
     pub fn audio_ports(&mut self) {
         let mut txbuf: [u8; 2];
 
         // P1 is a duplex audio port
-        txbuf = [LM49352_BASIC_SETUP_P1, (BasicSetup::STEREO | BasicSetup::RX_ENABLE | BasicSetup::TX_ENABLE | 
+        txbuf = [LM49352_BASIC_SETUP_P1, (BasicSetup::STEREO | BasicSetup::RX_ENABLE | BasicSetup::TX_ENABLE |
                                           BasicSetup::CLOCK_MS | BasicSetup::SYNC_MS).bits()];
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // Revision: P2 is strictly unused, could eliminate P2 setup code
         // P2 is the speaker-only port, only receives data from betrusted
-        // txbuf = [LM49352_BASIC_SETUP_P2, (BasicSetup::STEREO | BasicSetup::RX_ENABLE | 
+        // txbuf = [LM49352_BASIC_SETUP_P2, (BasicSetup::STEREO | BasicSetup::RX_ENABLE |
         //                                  BasicSetup::CLOCK_MS | BasicSetup::SYNC_MS).bits()];
         // i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // input clock at points "A" and "B" in figure 57 (page 34) of the datasheet is 12.288 MHz
-        // this needs to be divided down to the basic MCLK rate of: 
+        // this needs to be divided down to the basic MCLK rate of:
         // 24 bits/word * 2 channels * 8000 samples/s = 384_000
         // 12_288_000 / 384_000 = 32
         txbuf = [LM49352_CLK_GEN1_P1, 63]; // divide by 32, using the DAC clock as the source
@@ -442,7 +442,7 @@ impl BtAudio {
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_CLK_GEN2_P2, 0]; // 1:1 fractional (disable fractional division)
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
-        
+
         // set a sync rate of 48 clock cycles stereo to get 24 bits/word
         txbuf = [LM49352_SYNC_GEN_P1, (SyncGen::SYNC_RATE_STEREO_48).bits()];
         i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
@@ -586,8 +586,8 @@ impl BtAudio {
             false
         }
     }
-    
-    pub fn audio_loopback_xadc(&mut self, xadc: &mut BtXadc) {        
+
+    pub fn audio_loopback_xadc(&mut self, xadc: &mut BtXadc) {
         let audio_ptr = 0xE000_0000 as *mut u32;
         let volatile_audio = audio_ptr as *mut Volatile<u32>;
 
