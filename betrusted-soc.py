@@ -821,36 +821,44 @@ class BetrustedSoC(SoCCore):
             analog_pads.vp.eq(analog.ana_vp),
             analog_pads.vn.eq(analog.ana_vn),
         ]
+        # use explicit dummies to tie the analog inputs, otherwise the name space during finalization changes
+        # (e.g. FHDL adds 'betrustedsoc_' to the beginning of every netlist name to give a prefix to unnamed signals)
+        # notet that the added prefix messes up the .XDC constraints
+        dummy7 = Signal(7, reset=0)
+        dummy4 = Signal(4, reset=0)
+        dummy5 = Signal(5, reset=0)
+        dummy1 = Signal(1, reset=0)
+        dummy15 = Signal(15, reset=0)
         if revision == 'evt':
             # NOTE - if part is changed to XC7S25, the pin-to-channel mappings change
-            analog_pads.vauxp.eq(Cat(analog.noise0,       # 0
-                                     Signal(7, reset=0),  # 1,2,3,4,5,6,7
-                                     analog.noise1, analog.vbus_div, analog.usbc_cc1, analog.usbc_cc2, # 8,9,10,11
-                                     Signal(4, reset=0),  # 12,13,14,15
-                                )),
-            analog_pads.vauxn.eq(Cat(analog.noise0_n, Signal(15, reset=0))),  # PATCH
+            self.comb += analog_pads.vauxp.eq(Cat(analog.noise0,       # 0
+                                              dummy7,              # 1,2,3,4,5,6,7
+                                              analog.noise1, analog.vbus_div, analog.usbc_cc1, analog.usbc_cc2, # 8,9,10,11
+                                              dummy4,              # 12,13,14,15
+                                             )),
+            self.comb += analog_pads.vauxn.eq(Cat(analog.noise0_n, dummy15)),  # PATCH
         else:
             # DVT is solidly an xc7s50-only build
-            analog_pads.vauxp.eq(Cat(Signal(3, reset=0),   # 0,1,2,3
-                                     analog.noise1,        # 4
-                                     Signal(1, reset=0),   # 5
-                                     analog.vbus_div,      # 6
-                                     Signal(5, reset=0),   # 7,8,9,10,11
-                                     analog.noise0,        # 12
-                                     Signal(2, reset=0),   # 13
-                                     analog.usbdet_p,      # 14
-                                     analog.usbdet_n,      # 15
-                                )),
-            analog_pads.vauxn.eq(Cat(Signal(3, reset=0),   # 0,1,2,3
-                                     analog.noise1_n,      # 4
-                                     Signal(1, reset=0),   # 5
-                                     analog.vbus_div_n,    # 6
-                                     Signal(5, reset=0),   # 7,8,9,10,11
-                                     analog.noise0_n,      # 12
-                                     Signal(2, reset=0),   # 13
-                                     analog.usbdet_p_n,    # 14
-                                     analog.usbdet_n_n,    # 15
-                                )),
+            self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
+                                             analog.noise1,        # 4
+                                             dummy1,               # 5
+                                             analog.vbus_div,      # 6
+                                             dummy5,               # 7,8,9,10,11
+                                             analog.noise0,        # 12
+                                             dummy1,               # 13
+                                             analog.usbdet_p,      # 14
+                                             analog.usbdet_n,      # 15
+                                        )),
+            self.comb += analog_pads.vauxn.eq(Cat(dummy4,          # 0,1,2,3
+                                             analog.noise1_n,      # 4
+                                             dummy1,               # 5
+                                             analog.vbus_div_n,    # 6
+                                             dummy5,               # 7,8,9,10,11
+                                             analog.noise0_n,      # 12
+                                             dummy1,               # 13
+                                             analog.usbdet_p_n,    # 14
+                                             analog.usbdet_n_n,    # 15
+                                        )),
 
         self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
         self.add_csr("info")

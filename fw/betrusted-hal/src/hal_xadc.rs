@@ -88,9 +88,9 @@ fn xadc_read(p: &betrusted_pac::Peripherals, adr: XadcRegs) -> u16 {
 #[allow(dead_code)]
 fn xadc_enable(p: &betrusted_pac::Peripherals, enable: bool) {
     if enable {
-        unsafe{ p.INFO.xadc_drp_enable.write(|w| w.bits(1)); } 
+        unsafe{ p.INFO.xadc_drp_enable.write(|w| w.bits(1)); }
     } else {
-        unsafe{ p.INFO.xadc_drp_enable.write(|w| w.bits(0)); } 
+        unsafe{ p.INFO.xadc_drp_enable.write(|w| w.bits(0)); }
     }
 }
 
@@ -149,6 +149,7 @@ pub enum XadcSeq0Mask {
     VrefN = 0x2000,
     VccBram = 0x4000,
 }
+#[derive(Copy, Clone)]
 pub enum XadcSeq1Mask {
     Vaux0 = 0x0001,
     Vaux1 = 0x0002,
@@ -194,11 +195,29 @@ pub struct BtXadc {
 
 impl BtXadc {
     pub fn new() -> Self {
-        const NOISE0: XadcSeq1Mask = XadcSeq1Mask::Vaux0;
-        const NOISE1: XadcSeq1Mask = XadcSeq1Mask::Vaux8;
-        const CC1: XadcSeq1Mask = XadcSeq1Mask::Vaux10;
-        const CC2: XadcSeq1Mask = XadcSeq1Mask::Vaux11;
-        const VBUS: XadcSeq1Mask = XadcSeq1Mask::Vaux9;
+        #[allow(non_snake_case)]
+        let NOISE0: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let NOISE1: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let CC1: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let CC2: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let VBUS: XadcSeq1Mask;
+        if cfg!(feature = "evt") {
+            NOISE0 = XadcSeq1Mask::Vaux0;
+            NOISE1 = XadcSeq1Mask::Vaux8;
+            CC1 = XadcSeq1Mask::Vaux10;
+            CC2 = XadcSeq1Mask::Vaux11;
+            VBUS = XadcSeq1Mask::Vaux9;
+        } else {
+            NOISE0 = XadcSeq1Mask::Vaux12;
+            NOISE1 = XadcSeq1Mask::Vaux4;
+            CC1 = XadcSeq1Mask::Vaux14;
+            CC2 = XadcSeq1Mask::Vaux15;
+            VBUS = XadcSeq1Mask::Vaux6;
+        }
 
         let ret: BtXadc;
         unsafe {
@@ -221,11 +240,11 @@ impl BtXadc {
             CC1    as u16 | CC2 as u16 |
             VBUS   as u16 );
 
-        xadc_write(&ret.p, XadcRegs::SeqAvg0, 
+        xadc_write(&ret.p, XadcRegs::SeqAvg0,
             XadcSeq0Mask::VccBram as u16 | XadcSeq0Mask::Dedicated as u16 |
             XadcSeq0Mask::VccAux as u16  | XadcSeq0Mask::VccInt as u16 |
-            XadcSeq0Mask::Temperature as u16); 
-        xadc_write(&ret.p, XadcRegs::SeqAvg1, 
+            XadcSeq0Mask::Temperature as u16);
+        xadc_write(&ret.p, XadcRegs::SeqAvg1,
             CC1    as u16 | CC2 as u16 |
             VBUS   as u16 );
         // set the VP/VN input to differential input
@@ -240,18 +259,36 @@ impl BtXadc {
         // 0x8000 is constant -- disables averaging of cal bit
         xadc_write(&ret.p, XadcRegs::Config0, 0x8000 | (XadcFilter::Avg16 as u16) << 12);
         // 0x0400 is constant -- sets DCLK to SYSCLK/4 = 25MHz
-        xadc_write(&ret.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4); 
+        xadc_write(&ret.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4);
 
         ret
     }
 
     pub fn noise_only(&mut self, noise_on: bool) {
-        const NOISE0: XadcSeq1Mask = XadcSeq1Mask::Vaux0;
-        const NOISE1: XadcSeq1Mask = XadcSeq1Mask::Vaux8;
-        const CC1: XadcSeq1Mask = XadcSeq1Mask::Vaux10;
-        const CC2: XadcSeq1Mask = XadcSeq1Mask::Vaux11;
-        const VBUS: XadcSeq1Mask = XadcSeq1Mask::Vaux9;
-    
+        #[allow(non_snake_case)]
+        let NOISE0: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let NOISE1: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let CC1: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let CC2: XadcSeq1Mask;
+        #[allow(non_snake_case)]
+        let VBUS: XadcSeq1Mask;
+        if cfg!(feature = "evt") {
+            NOISE0 = XadcSeq1Mask::Vaux0;
+            NOISE1 = XadcSeq1Mask::Vaux8;
+            CC1 = XadcSeq1Mask::Vaux10;
+            CC2 = XadcSeq1Mask::Vaux11;
+            VBUS = XadcSeq1Mask::Vaux9;
+        } else {
+            NOISE0 = XadcSeq1Mask::Vaux12;
+            NOISE1 = XadcSeq1Mask::Vaux4;
+            CC1 = XadcSeq1Mask::Vaux14;
+            CC2 = XadcSeq1Mask::Vaux15;
+            VBUS = XadcSeq1Mask::Vaux6;
+        }
+
         // 0x0EF0 is constant -- disables alarms not present on this chip, enables calibration, enables all other alarms
         // set to default before updating the sequence table
         xadc_write(&self.p, XadcRegs::Config1, ((XadcSeq::Default_ as u16) << 12) | 0x0EF0 );
@@ -260,48 +297,48 @@ impl BtXadc {
         if noise_on {
             xadc_write(&self.p, XadcRegs::Seq0, 0 );
             xadc_write(&self.p, XadcRegs::Seq1, NOISE0 as u16 | NOISE1 as u16 );
-    
+
             // once sequence is set, move to continuous mode. XADC is reset upon changing sequence mode
             // 0x0EF0 is constant -- disables alarms not present on this chip, enables calibration, enables all other alarms
             xadc_write(&self.p, XadcRegs::Config1, ((XadcSeq::Continuous as u16) << 12) | 0x0EF0 );
             // 0x8000 is constant -- disables averaging of cal bit
             xadc_write(&self.p, XadcRegs::Config0, 0x8000 | (XadcFilter::Avg16 as u16) << 12);
             // 0x0400 is constant -- sets DCLK to SYSCLK/4 = 25MHz
-            xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4); 
+            xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4);
         } else {
             xadc_write(&self.p, XadcRegs::Seq0, XadcSeq0Mask::VccBram as u16 | XadcSeq0Mask::Dedicated as u16 |
                 XadcSeq0Mask::VccAux as u16  | XadcSeq0Mask::VccInt as u16 |
                 XadcSeq0Mask::Temperature as u16 | XadcSeq0Mask::Calibration as u16 );
             xadc_write(&self.p, XadcRegs::Seq1, NOISE0 as u16 | NOISE1 as u16 |
-                CC1    as u16 | CC2 as u16 |
+                CC1 as u16 | CC2 as u16 |
                 VBUS   as u16 );
-    
-            xadc_write(&self.p, XadcRegs::SeqAvg0, 
+
+            xadc_write(&self.p, XadcRegs::SeqAvg0,
                 XadcSeq0Mask::VccBram as u16 | XadcSeq0Mask::Dedicated as u16 |
                 XadcSeq0Mask::VccAux as u16  | XadcSeq0Mask::VccInt as u16 |
-                XadcSeq0Mask::Temperature as u16); 
-            xadc_write(&self.p, XadcRegs::SeqAvg1, 
+                XadcSeq0Mask::Temperature as u16);
+            xadc_write(&self.p, XadcRegs::SeqAvg1,
                 CC1    as u16 | CC2 as u16 |
                 VBUS   as u16 );
             // set the VP/VN input to differential input
             xadc_write(&self.p, XadcRegs::SeqMode0, XadcSeq0Mask::Dedicated as u16);
-    
+
             xadc_write(&self.p, XadcRegs::SeqSettling0, 0);
             xadc_write(&self.p, XadcRegs::SeqSettling1, 0);
-    
+
             // once sequence is set, move to continuous mode. XADC is reset upon changing sequence mode
             // 0x0EF0 is constant -- disables alarms not present on this chip, enables calibration, enables all other alarms
             xadc_write(&self.p, XadcRegs::Config1, ((XadcSeq::Continuous as u16) << 12) | 0x0EF0 );
             // 0x8000 is constant -- disables averaging of cal bit
             xadc_write(&self.p, XadcRegs::Config0, 0x8000 | (XadcFilter::Avg16 as u16) << 12);
             // 0x0400 is constant -- sets DCLK to SYSCLK/4 = 25MHz
-            xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4); 
+            xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4);
         }
     }
 
     pub fn audio_only(&mut self) {
         const AUDIO: XadcSeq0Mask = XadcSeq0Mask::Dedicated;
-    
+
         // 0x0EF0 is constant -- disables alarms not present on this chip, enables calibration, enables all other alarms
         // set to default before updating the sequence table
         xadc_write(&self.p, XadcRegs::Config1, ((XadcSeq::Default_ as u16) << 12) | 0x0EF0 );
@@ -316,7 +353,7 @@ impl BtXadc {
         // 0x8000 is constant -- disables averaging of cal bit
         xadc_write(&self.p, XadcRegs::Config0, 0x8000 | (XadcFilter::Avg16 as u16) << 12);
         // 0x0400 is constant -- sets DCLK to SYSCLK/4 = 25MHz
-        xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4); 
+        xadc_write(&self.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4);
     }
 
     pub fn audio(&mut self) -> u16 {
@@ -333,28 +370,52 @@ impl BtXadc {
     }
 
     pub fn noise0(&mut self) -> u16 {
-        xadc_read(&self.p, XadcRegs::Vaux0) >> 4
+        if cfg!(feature = "evt") {
+            xadc_read(&self.p, XadcRegs::Vaux0) >> 4
+        } else {
+            xadc_read(&self.p, XadcRegs::Vaux12) >> 4
+        }
     }
     pub fn noise1(&mut self) -> u16 {
-        xadc_read(&self.p, XadcRegs::Vaux8) >> 4
+        if cfg!(feature = "evt") {
+            xadc_read(&self.p, XadcRegs::Vaux8) >> 4
+        } else {
+            xadc_read(&self.p, XadcRegs::Vaux4) >> 4
+        }
     }
+
     pub fn vbus_mv(&mut self) -> u16 {
         // voltage is 0.0485 * VBUS
         // ADC code is 1/4096 of a volt
-        let code: u32 = xadc_read(&self.p, XadcRegs::Vaux9) as u32 >> 4;
+        let code: u32;
+        if cfg!(feature = "evt") {
+            code = xadc_read(&self.p, XadcRegs::Vaux9) as u32 >> 4;
+        } else {
+            code = xadc_read(&self.p, XadcRegs::Vaux6) as u32 >> 4;
+        }
 
         // e.g., code of 993 = 5V will return 4997mV
         ((code * 5033) / 1000) as u16
     }
     pub fn cc1_mv(&mut self) -> u16 {
-        let code: u32 = xadc_read(&self.p, XadcRegs::Vaux10) as u32 >> 4;
+        let code: u32;
+        if cfg!(feature = "evt") {
+            code = xadc_read(&self.p, XadcRegs::Vaux10) as u32 >> 4;
+        } else {
+            code = xadc_read(&self.p, XadcRegs::Vaux14) as u32 >> 4;
+        }
 
         // voltage is 1.0 * CC level (safely saturates due to HW protection above 1.0V)
         // ADC code is 1/4096 of a volt
         (code * 1000 / 4096) as u16
     }
     pub fn cc2_mv(&mut self) -> u16 {
-        let code: u32 = xadc_read(&self.p, XadcRegs::Vaux11) as u32 >> 4;
+        let code: u32;
+        if cfg!(feature = "evt") {
+            code = xadc_read(&self.p, XadcRegs::Vaux11) as u32 >> 4;
+        } else {
+            code = xadc_read(&self.p, XadcRegs::Vaux15) as u32 >> 4;
+        }
 
         // voltage is 1.0 * CC level (safely saturates due to HW protection above 1.0V)
         // ADC code is 1/4096 of a volt
