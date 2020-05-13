@@ -28,4 +28,4 @@ lto = true # better optimizations
 [features]
 dvt = ["jtag/dvt", "betrusted-hal/dvt"]
 evt = ["jtag/evt", "betrusted-hal/evt"]
-default = ["evt"]
+default = ["dvt"]
