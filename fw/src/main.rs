@@ -733,7 +733,7 @@ fn main() -> ! {
 
     let p = betrusted_pac::Peripherals::take().unwrap();
     com_txrx(&p, 0xFFFF as u16);  // reset the link
-    delay_ms(&p, 2); // give it 2 milliseconds to reset
+    delay_ms(&p, 5); // give it time to reset
     com_txrx(&p, 0x9003 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 1 means power SoC on
     unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3)); }
 
@@ -779,7 +779,10 @@ fn main() -> ! {
     let mut u2: char = ' ';
 
     let mut samples: u32 = 0;
-loop {
+
+    let mut loopstate: u16 = 0;
+    let mut loopdelay: u32 = 50;
+    loop {
         display.lock().clear();
         if repl.power == false {
             Font12x16::render_str("Betrusted in Standby")
@@ -796,9 +799,9 @@ loop {
 
             unsafe{p.POWER.power.write(|w| w.self_().bit(false).state().bits(1));} // FIXME: figure out how to float the state bit while system is running...
             com_txrx(&p, 0x9005 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 2 set means fast discharge of FPGA domain
-            delay_ms(&p, 3); // don't DoS the EC
+            delay_ms(&p, 100); // don't DoS the EC
             com_txrx(&p, 0xFFFF as u16);  // reset the link
-            delay_ms(&p, 3); // don't DoS the EC
+            delay_ms(&p, 100); // don't DoS the EC
 
             continue; // this creates the illusion of being powered off even if we're plugged in
         }
@@ -833,17 +836,41 @@ loop {
         circle.draw(&mut *display.lock());
 
         // ping the EC and update various records over time
-        if get_time_ms(&p) - cur_time > 50 {
+        if get_time_ms(&p) - cur_time > loopdelay {
             cur_time = get_time_ms(&p);
-            if tx_index == 0 {
-                com_txrx(&p, 0x7000 as u16); // send the pointer reset command
-            } else if tx_index < gg_array.len() + 1 {
-                gg_array[tx_index - 1] = com_txrx(&p, 0xF0F0) as u16; // the transmit is a dummy byte
+            if false {
+                if tx_index % 32  == 0 {
+                    gg_array[0] = 0xFACE;
+                    com_txrx(&p, 0xFFFF); // send link reset command
+                    delay_ms(&p, 100);
+                    com_txrx(&p, 0x4000 as u16); // restart the link test
+                    loopdelay = 1000;
+                    tx_index = 0;
+                    loopstate = 0;
+                } else {
+                    let value: u16 = com_txrx(&p, 0xf0f0) as u16;
+                    if ((value - loopstate) > 0) && ((value & 0xFF) == 0xf0) {
+                        gg_array[0] = value - loopstate;
+                        gg_array[1] = value;
+                        loopdelay = 50;
+                    } else {
+                        gg_array[0] = value;
+                        loopdelay = 1000;
+                    }
+                    loopstate = value;
+                }
+                tx_index += 1;
             } else {
-                com_txrx(&p, 0xFFFF); // send link reset command
+                if tx_index == 0 {
+                    com_txrx(&p, 0x7000 as u16); // send the pointer reset command
+                } else if tx_index < gg_array.len() + 1 {
+                    gg_array[tx_index - 1] = com_txrx(&p, 0xF0F0) as u16; // the transmit is a dummy byte
+                } else {
+                    com_txrx(&p, 0xFFFF); // send link reset command
+                }
+                tx_index += 1;
+                tx_index = tx_index % (gg_array.len() + 2);
             }
-            tx_index += 1;
-            tx_index = tx_index % (gg_array.len() + 2);
         }
         /*
         for i in 0..4 {
@@ -855,14 +882,8 @@ loop {
             .draw(&mut *display.lock());
             cur_line += line_height;
         }*/
-        let dbg = format!{"voltage: {}mV", gg_array[2]};
-        Font12x16::render_str(&dbg)
-        .stroke_color(Some(BinaryColor::On))
-        .translate(Point::new(left_margin, cur_line))
-        .draw(&mut *display.lock());
-
-        cur_line += line_height;
         let dbg = format!{"avg current: {}mA", (gg_array[0] as i16)};
+        //let dbg = format!{"Looptest: 0x{:04x}", (gg_array[0] as i16)};
         Font12x16::render_str(&dbg)
         .stroke_color(Some(BinaryColor::On))
         .translate(Point::new(left_margin, cur_line))
@@ -870,6 +891,14 @@ loop {
 
         cur_line += line_height;
         let dbg = format!{"sby current: {}mA", (gg_array[1] as i16)};
+        //let dbg = format!{"Looptest: 0x{:04x}", (gg_array[1] as i16)};
+        Font12x16::render_str(&dbg)
+        .stroke_color(Some(BinaryColor::On))
+        .translate(Point::new(left_margin, cur_line))
+        .draw(&mut *display.lock());
+
+        cur_line += line_height;
+        let dbg = format!{"voltage: {}mV", gg_array[2]};
         Font12x16::render_str(&dbg)
         .stroke_color(Some(BinaryColor::On))
         .translate(Point::new(left_margin, cur_line))

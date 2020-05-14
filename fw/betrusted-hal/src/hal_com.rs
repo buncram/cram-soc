@@ -9,8 +9,8 @@ pub fn com_txrx(p: &betrusted_pac::Peripherals, tx: u16) -> u16 {
     // load the TX register
     unsafe{ p.COM.tx.write(|w| w.bits(tx as u32)); } // transaction is automatically iniated on write
 
-    // wait until the done register is set
-    while !p.COM.status.read().tip().bit_is_set() { }
+    // wait while transaction is in progress
+    while p.COM.status.read().tip().bit() { }
 
     // grab the RX value and return it
     let rx: u16 = p.COM.rx.read().bits() as u16;
