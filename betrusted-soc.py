@@ -137,10 +137,10 @@ _io_dvt = [   # DVT-generation I/Os
 
     # COM interface to UP5K
     ("com", 0,
-        Subsignal("csn",  Pins("T15"), IOStandard("LVCMOS18")),
+        Subsignal("csn",  Pins("T15"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
         Subsignal("miso", Pins("P16"), IOStandard("LVCMOS18")),
-        Subsignal("mosi", Pins("N18"), IOStandard("LVCMOS18")),
-        Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18")),
+        Subsignal("mosi", Pins("N18"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
+        Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
      ),
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
 
