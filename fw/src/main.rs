@@ -807,9 +807,9 @@ fn main() -> ! {
                     .translate(Point::new(50, 250))
                     .draw(&mut *display.lock());
 
-                    Font12x16::render_str("Press '0' to power on")
+                    Font12x16::render_str("Press F1 and F4 to power on")
                     .stroke_color(Some(BinaryColor::On))
-                    .translate(Point::new(40, 270))
+                    .translate(Point::new(7, 270))
                     .draw(&mut *display.lock());
 
                     display.lock().blocking_flush();
