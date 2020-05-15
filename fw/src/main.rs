@@ -838,7 +838,7 @@ fn main() -> ! {
         // ping the EC and update various records over time
         if get_time_ms(&p) - cur_time > loopdelay {
             cur_time = get_time_ms(&p);
-            if false {
+            if false {  // set to true to debug com bus
                 if tx_index % 32  == 0 {
                     gg_array[0] = 0xFACE;
                     com_txrx(&p, 0xFFFF); // send link reset command
