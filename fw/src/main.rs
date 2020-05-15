@@ -785,24 +785,45 @@ fn main() -> ! {
     loop {
         display.lock().clear();
         if repl.power == false {
-            Font12x16::render_str("Betrusted in Standby")
-            .stroke_color(Some(BinaryColor::On))
-            .translate(Point::new(50, 250))
-            .draw(&mut *display.lock());
+            p.POWER.power.write(|w| w.ec_snoop().bit(true));
+            if get_time_ms(&p) - cur_time > 50 {
+                cur_time = get_time_ms(&p);
+                repl.xadc.wait_update();
+                if repl.xadc.vbus_mv() > 1500 {
+                    Font12x16::render_str("Remove charger")
+                    .stroke_color(Some(BinaryColor::On))
+                    .translate(Point::new(85, 250))
+                    .draw(&mut *display.lock());
 
-            Font12x16::render_str("Press '0' to power on")
-            .stroke_color(Some(BinaryColor::On))
-            .translate(Point::new(40, 270))
-            .draw(&mut *display.lock());
+                    Font12x16::render_str("to enter standby")
+                    .stroke_color(Some(BinaryColor::On))
+                    .translate(Point::new(70, 270))
+                    .draw(&mut *display.lock());
 
-            display.lock().blocking_flush();
+                    display.lock().blocking_flush();
+                } else {
+                    Font12x16::render_str("Betrusted in Standby")
+                    .stroke_color(Some(BinaryColor::On))
+                    .translate(Point::new(50, 250))
+                    .draw(&mut *display.lock());
 
-            unsafe{p.POWER.power.write(|w| w.self_().bit(false).state().bits(1));} // FIXME: figure out how to float the state bit while system is running...
-            com_txrx(&p, 0x9005 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 2 set means fast discharge of FPGA domain
-            delay_ms(&p, 100); // don't DoS the EC
-            com_txrx(&p, 0xFFFF as u16);  // reset the link
-            delay_ms(&p, 100); // don't DoS the EC
+                    Font12x16::render_str("Press '0' to power on")
+                    .stroke_color(Some(BinaryColor::On))
+                    .translate(Point::new(40, 270))
+                    .draw(&mut *display.lock());
 
+                    display.lock().blocking_flush();
+
+                    unsafe{p.POWER.power.write(|w| w
+                        .self_().bit(false)
+                        .state().bits(1));} // FIXME: figure out how to float the state bit while system is running...
+                    com_txrx(&p, 0x9000 as u16);  // 0x9000 code instructs EC to do a powerdown
+                    delay_ms(&p, 100); // don't DoS the EC
+                    com_txrx(&p, 0xFFFF as u16);  // reset the link
+                    delay_ms(&p, 100); // don't DoS the EC
+
+                }
+            }
             continue; // this creates the illusion of being powered off even if we're plugged in
         }
 
@@ -862,14 +883,23 @@ fn main() -> ! {
                 tx_index += 1;
             } else {
                 if tx_index == 0 {
-                    com_txrx(&p, 0x7000 as u16); // send the pointer reset command
+                    loopdelay = 50;
+                    if com_txrx(&p, 0x7000 as u16) == 0xDDDD { // send the pointer reset command
+                        continue;
+                    }
                 } else if tx_index < gg_array.len() + 1 {
                     gg_array[tx_index - 1] = com_txrx(&p, 0xF0F0) as u16; // the transmit is a dummy byte
+                    if gg_array[tx_index -1] == 0xDDDD {  // 0xDDDD is actually non-physical for any gas gauge reading
+                        continue;
+                    }
                 } else {
-                    com_txrx(&p, 0xFFFF); // send link reset command
+                    loopdelay = 200;
+                    if com_txrx(&p, 0xFFFF) == 0xDDDD { ; // send link reset command
+                        continue;
+                    }
                 }
                 tx_index += 1;
-                tx_index = tx_index % (gg_array.len() + 2);
+                tx_index = tx_index % (gg_array.len() + 3);
             }
         }
         /*
