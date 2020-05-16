@@ -786,7 +786,7 @@ fn main() -> ! {
     let mut loopdelay: u32 = 50;
     let mut testdelay: u32 = get_time_ms(&p);
     loop {
-        if get_time_ms(&p) - testdelay > 10_000 {
+        if get_time_ms(&p) - testdelay > 10_000 && false {  // change to true to test RTC self-wakeup loop
             testdelay = get_time_ms(&p);
             repl.rtc.wakeup_alarm(5);
             // power down
