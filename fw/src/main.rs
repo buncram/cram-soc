@@ -732,10 +732,11 @@ fn main() -> ! {
     xous_nommu::init();
 
     let p = betrusted_pac::Peripherals::take().unwrap();
+    unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3)); }
+
     com_txrx(&p, 0xFFFF as u16);  // reset the link
     delay_ms(&p, 5); // give it time to reset
     com_txrx(&p, 0x9003 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 1 means power SoC on
-    unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3)); }
 
     p.SRAM_EXT.read_config.write( |w| w.trigger().bit(true) );  // check SRAM config
     i2c_init(&p, CONFIG_CLOCK_FREQUENCY / 1_000_000);
@@ -770,6 +771,7 @@ fn main() -> ! {
     let mut bouncy_ball: Bounce = Bounce::new(radius, Rectangle::new(Point::new(0, line_height * 21), Point::new(size.width as i32, size.height as i32 - 1)));
     let mut tx_index: usize = 0;
     let mut repl: Repl = Repl::new();
+    repl.rtc.clear_alarm(); // clear any RTC wake-up alarm, in case it was set previously
 
     let mut nd: u8 = 0;
     let mut d1: char = ' ';
@@ -782,7 +784,14 @@ fn main() -> ! {
 
     let mut loopstate: u16 = 0;
     let mut loopdelay: u32 = 50;
+    let mut testdelay: u32 = get_time_ms(&p);
     loop {
+        if get_time_ms(&p) - testdelay > 10_000 {
+            testdelay = get_time_ms(&p);
+            repl.rtc.wakeup_alarm(5);
+            // power down
+            repl.power = false;
+        }
         display.lock().clear();
         if repl.power == false {
             p.POWER.power.write(|w| w.ec_snoop().bit(true));
