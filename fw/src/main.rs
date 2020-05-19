@@ -7,6 +7,7 @@
 
 use core::panic::PanicInfo;
 use betrusted_rt::entry;
+use core::str;
 
 // pull in external symbols to define heap start and stop
 // defined in memory.x
@@ -118,6 +119,8 @@ const COM_POWERDOWN: u16 = 0x9000;
 const COM_LINK_TEST: u16 = 0x4000;
 const COM_ERR_UNDERFLOW: u16 = 0xDDDD;
 const COM_CHARGER_REGDUMP: u16 = 0x8000;
+const COM_SSID_CHECK: u16 = 0x2000;
+const COM_SSID_FETCH: u16 = 0x2100;
 
 pub struct Bounce {
     vector: Point,
@@ -836,6 +839,9 @@ fn main() -> ! {
     let mut loopdelay: u32 = 50;
     let mut testdelay: u32 = get_time_ms(&p);
     let mut com_function: u16 = COM_GASGAUGE;
+
+    let mut ssid_list: [[u8; 32]; 6] = [[0; 32]; 6]; // index as ssid_list[6][32]
+
     loop {
         if get_time_ms(&p) - testdelay > 10_000 && false {  // change to true to test RTC self-wakeup loop
             testdelay = get_time_ms(&p);
@@ -978,8 +984,8 @@ fn main() -> ! {
                             repl.text.add_text(&mut format!("USBCC error 0x{:4x}", value));
                             com_function = COM_GASGAUGE;
                             tx_index = 0;
-                        } else {
-                            com_function = COM_GASGAUGE;
+                        } else { // value was 0, pass to next function
+                            com_function = COM_SSID_CHECK;
                             tx_index = 0;
                         }
                     } else if tx_index >= 2 && tx_index <= 4 {
@@ -989,6 +995,49 @@ fn main() -> ! {
                     } else {
                         com_function = COM_GASGAUGE;
                         tx_index = 0;
+                    }
+                } else if com_function == COM_SSID_CHECK {
+                    if tx_index == 0 {
+                        com_txrx(&p, COM_SSID_CHECK);
+                        tx_index += 1;
+                    } else if tx_index == 1 {
+                        if com_txrx(&p, COM_NEXT_DATA) == 1 {
+                            delay_ms(&p, 5);
+                            com_txrx(&p, COM_SSID_FETCH); // pre-prime the pipe, so the next result is what we want
+                            loopdelay = 100;
+                            com_function = COM_SSID_FETCH;
+                            tx_index = 0;
+                        } else {
+                            com_function = COM_GASGAUGE;
+                            tx_index = 0;
+                        }
+                    } else {
+                        com_function = COM_GASGAUGE;
+                        tx_index = 0;
+                    }
+                } else if com_function == COM_SSID_FETCH {
+                    // ASSUME: entering this state, the previous caller issued a COM_SSID_FETCH command
+                    if tx_index < (16 * 6) {
+                        loopdelay = 0;
+                        let data = com_txrx(&p, COM_NEXT_DATA);
+                        let mut lsb : u8 = (data & 0xff) as u8;
+                        let mut msb : u8 = ((data >> 8) & 0xff) as u8;
+                        if lsb == 0 { lsb = 0x20; }
+                        if msb == 0 { msb = 0x20; }
+                        ssid_list[tx_index / 16][(tx_index % 16) * 2] = lsb;
+                        ssid_list[tx_index / 16][(tx_index % 16) * 2 + 1] = msb;
+                        tx_index += 1;
+                    } else {
+                        for i in 0..6 {
+                            let ssid = str::from_utf8(&ssid_list[i]).expect("unable to parse ssid");
+                            repl.text.add_text(&mut format!("{}: {}", i, ssid));
+                        }
+                        tx_index = 0;
+                        loopdelay = 200;
+                        if com_txrx(&p, COM_RESET_LINK) == COM_ERR_UNDERFLOW { ; // send link reset command
+                            continue;
+                        }
+                        com_function = COM_GASGAUGE;
                     }
                 } else {
                     com_function = COM_GASGAUGE;
