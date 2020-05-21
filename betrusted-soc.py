@@ -1045,7 +1045,7 @@ class BetrustedSoC(SoCCore):
 
         # USB FS block -----------------------------------------------------------------------------
         if revision == 'dvt':
-            if False:
+            if True:
                 usb_pads = platform.request("usb")
                 usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
                 self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
@@ -1059,14 +1059,14 @@ class BetrustedSoC(SoCCore):
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
             else:
                 from valentyusb.usbcore import io as usbio
                 from valentyusb.usbcore.cpu import dummyusb
                 usb_pads = platform.request("usb")
                 usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-                self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, cdc=True)
+                self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, cdc=True) # , relax_timing=True
                 self.add_wb_master(self.usb.debug_bridge.wishbone)
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
