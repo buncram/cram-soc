@@ -1085,7 +1085,7 @@ fn main() -> ! {
 
             if nd >= 1 {
                 let (r, c) = keyvect.pop().unwrap();
-                let scancode = map_dvorak((r,c));
+                let scancode = map_qwerty((r,c));
                 let c: char;
                 match scancode.key {
                     None => c = ' ',
@@ -1096,7 +1096,7 @@ fn main() -> ! {
             }
             if nd >= 2 {
                 let (r, c) = keyvect.pop().unwrap();
-                let scancode = map_dvorak((r,c));
+                let scancode = map_qwerty((r,c));
                 let c: char;
                 match scancode.key {
                     None => c = ' ',
@@ -1112,7 +1112,7 @@ fn main() -> ! {
 
             if nu >= 1 {
                 let (r, c) = keyvect.pop().unwrap();
-                let scancode = map_dvorak((r,c));
+                let scancode = map_qwerty((r,c));
                 let c: char;
                 match scancode.key {
                     None => c = ' ',
@@ -1122,7 +1122,7 @@ fn main() -> ! {
             }
             if nu >= 2 {
                 let (r, c) = keyvect.pop().unwrap();
-                let scancode = map_dvorak((r,c));
+                let scancode = map_qwerty((r,c));
                 let c: char;
                 match scancode.key {
                     None => c = ' ',
