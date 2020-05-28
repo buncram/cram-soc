@@ -412,13 +412,12 @@ impl Repl {
                 self.rtc.wakeup_alarm(5);
                 // power down
                 self.power = false;
-/*            } else if self.cmd.trim() == "buzz" {
+            } else if self.cmd.trim() == "buzz" {
                 self.text.add_text(&mut String::from("Making a buzz"));
-                unsafe{ self.p.GPIO.drive.write(|w| w.bits(4)); }
-                unsafe{ self.p.GPIO.output.write(|w| w.bits(4)); }
+                self.p.POWER.vibe.modify(|r, w| w.vibe().set_bit());
                 let time: u32 = get_time_ms(&self.p);
-                while get_time_ms(&self.p) - time < 250 { }
-                unsafe{ self.p.GPIO.output.write(|w| w.bits(0)); }*/
+                while get_time_ms(&self.p) - time < 500 { }
+                self.p.POWER.vibe.modify(|r, w| w.vibe().clear_bit());
             } else if self.cmd.trim() == "blon" {
                 self.text.add_text(&mut String::from("Turning backlight on"));
                 com_txrx(&self.p, COM_BL_FULLON); // turn on all the backlight to full brightness (31)
