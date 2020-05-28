@@ -39,7 +39,7 @@ fn kbd_getrow(p: &betrusted_pac::Peripherals, row: u8) -> u16 {
 }
 
 /// scan the entire key matrix and return the list of keys that are currently
-/// pressed as key codes. Return format is an option-wrapped vector of u8, 
+/// pressed as key codes. Return format is an option-wrapped vector of u8,
 /// which is structured as (row : col), where each of row and col are a u8.
 /// Option "none" means no keys were pressed during this scan.
 fn kbd_getcodes(p: &betrusted_pac::Peripherals) -> Option<Vec<(usize,usize)>> {
@@ -64,13 +64,13 @@ fn kbd_getcodes(p: &betrusted_pac::Peripherals) -> Option<Vec<(usize,usize)>> {
 /// holds the four basic possible values of a key location
 pub struct ScanCode {
     /// base key value
-    pub key: Option<char>,    
+    pub key: Option<char>,
     /// tap blue shift key, then key
-    pub shift: Option<char>,  
+    pub shift: Option<char>,
     /// hold blue shift key, then key
-    pub hold: Option<char>,    
+    pub hold: Option<char>,
     /// hold orange shift key, then key
-    pub alt: Option<char>,    
+    pub alt: Option<char>,
 }
 
 /// This is the main keyboard manager construct.
@@ -89,7 +89,7 @@ pub struct KeyManager {
 
 impl KeyManager {
     pub fn new() -> Self {
-        unsafe{ 
+        unsafe{
             KeyManager{
                 p: betrusted_pac::Peripherals::steal(),
                 debounce: [[0; KBD_COLS]; KBD_ROWS],
@@ -101,7 +101,7 @@ impl KeyManager {
     }
 
     /// returns the current set of codes from the keyboard matrix
-    /// note that the hardware returns a signal that indicates if any keys have changed 
+    /// note that the hardware returns a signal that indicates if any keys have changed
     /// so when using getcodes() as part of a debounce loop it's recommended to check
     /// the change signal and short-circuit the call if no keys have changed since the
     /// last check. This check is not hard-coded into this call because there are instances
@@ -114,7 +114,7 @@ impl KeyManager {
     /// update() is designed to be called at regular intervals (not based on keyboard interrupt)
     /// it will automatically fetch new keycodes if a change event has happened, otherwise
     /// the regular calls to update() are necessary to update the debouncer state
-    /// 
+    ///
     /// returns a tuple of (keydown, keyup) scan codes, each of which are an Option-wrapped vector
     pub fn update(&mut self) -> (Option<Vec<(usize, usize)>>, Option<Vec<(usize,usize)>>) {
         let mut downs: [[bool; KBD_COLS]; KBD_ROWS] = [[false; KBD_COLS]; KBD_ROWS];
@@ -155,7 +155,7 @@ impl KeyManager {
                     let (row, col) = key;
                     if self.debounce[row][col] < self.threshold {
                         self.debounce[row][col] += increment;
-                        // now check if we've passed the debounce threshold, and report a keydown                        
+                        // now check if we've passed the debounce threshold, and report a keydown
                         if self.debounce[row][col] >= self.threshold {
                             keydowns.push((row,col));
                         }
@@ -165,7 +165,7 @@ impl KeyManager {
                 }
                 self.lastcode = Some(newcode);
             }
-            
+
             // now decrement debounce couter for all elements that don't have a press
             for r in 0..KBD_ROWS {
                 for c in 0..KBD_COLS {
