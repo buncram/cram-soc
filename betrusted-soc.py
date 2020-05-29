@@ -763,7 +763,7 @@ class BetrustedSoC(SoCCore):
         "csr":             0xf0000000,
     }
 
-    def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, **kwargs):
+    def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, usb_type='debug', **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
 
@@ -1045,7 +1045,7 @@ class BetrustedSoC(SoCCore):
 
         # USB FS block -----------------------------------------------------------------------------
         if revision == 'dvt':
-            if True:
+            if usb_type == 'device':
                 usb_pads = platform.request("usb")
                 usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
                 self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
@@ -1061,7 +1061,7 @@ class BetrustedSoC(SoCCore):
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
-            else:
+            elif usb_type=='debug':
                 from valentyusb.usbcore import io as usbio
                 from valentyusb.usbcore.cpu import dummyusb
                 usb_pads = platform.request("usb")
@@ -1106,6 +1106,9 @@ def main():
     parser.add_argument(
         "-r", "--revision", choices=['evt', 'dvt'], help="Build for a particular revision. Defaults to 'evt'", default='evt', type=str,
     )
+    parser.add_argument(
+        "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1134,7 +1137,7 @@ def main():
     platform.add_extension(_io_uart_debug)  # specify the location of the UART pins, we can swap them to some reserved GPIOs
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type)
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=compile_software, compile_gateware=compile_gateware)
