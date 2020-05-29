@@ -400,31 +400,34 @@ impl Repl {
     pub fn parse_cmd(&mut self) {
         let rom: [u32; 256] = [0; 256];
 
-        if self.cmd.len() == 0 {
+        let tokens: Vec<&str> = self.cmd.split(' ').collect();
+        let command = tokens[0];
+
+        if command.len() == 0 {
             return;
         } else {
-            if self.cmd.trim() == "shutdown" || self.cmd.trim() == "shut" {
+            if command.trim() == "shutdown" || command.trim() == "shut" {
                 self.text.add_text(&mut String::from("Shutting down system"));
                 self.power = false; // the main UI loop needs to pick this up and render the display accordingly
-            } else if self.cmd.trim() == "reboot" || self.cmd.trim() == "reb" {
+            } else if command.trim() == "reboot" || command.trim() == "reb" {
                 self.text.add_text(&mut String::from("Rebooting in 5 seconds")); // can't see the message actually :P
                 // set the wakeup alarm
                 self.rtc.wakeup_alarm(5);
                 // power down
                 self.power = false;
-            } else if self.cmd.trim() == "buzz" {
+            } else if command.trim() == "buzz" {
                 self.text.add_text(&mut String::from("Making a buzz"));
-                self.p.POWER.vibe.modify(|r, w| w.vibe().set_bit());
+                self.p.POWER.vibe.modify(|_r, w| w.vibe().set_bit());
                 let time: u32 = get_time_ms(&self.p);
                 while get_time_ms(&self.p) - time < 500 { }
-                self.p.POWER.vibe.modify(|r, w| w.vibe().clear_bit());
-            } else if self.cmd.trim() == "blon" {
+                self.p.POWER.vibe.modify(|_r, w| w.vibe().clear_bit());
+            } else if command.trim() == "blon" {
                 self.text.add_text(&mut String::from("Turning backlight on"));
                 com_txrx(&self.p, COM_BL_FULLON); // turn on all the backlight to full brightness (31)
-            } else if self.cmd.trim() == "bloff" {
+            } else if command.trim() == "bloff" {
                 self.text.add_text(&mut String::from("Turning backlight off"));
                 com_txrx(&self.p, COM_BL_OFF);
-            } else if self.cmd.trim() == "bon" {
+            } else if command.trim() == "bon" {
                 self.text.add_text(&mut String::from("Going boost"));
                 com_txrx(&self.p, COM_RESET_LINK as u16);  // reset the link
                 delay_ms(&self.p, 5); // give it time to reset
@@ -444,12 +447,12 @@ impl Repl {
                     }
                 }
 
-            } else if self.cmd.trim() == "boff" {
+            } else if command.trim() == "boff" {
                 self.text.add_text(&mut String::from("Boost off"));
                 com_txrx(&self.p, COM_BOOST_OFF);
-            } else if self.cmd.trim() == "step" {
+            } else if command.trim() == "step" {
                 self.jtag.step(&mut self.jtagphy);
-            } else if self.cmd.trim() == "id" {
+            } else if command.trim() == "id" {
                 self.jtag.reset(&mut self.jtagphy);
                 let mut id_leg: JtagLeg = JtagLeg::new(JtagChain::IR, "idcode");
                 id_leg.push_u32(0b001001, 6, JtagEndian::Little);
@@ -472,7 +475,7 @@ impl Repl {
                 } else {
                     self.text.add_text(&mut format!("ID data not in get queue!"));
                 }
-            } else if self.cmd.trim() == "fk" { // crypto fuse
+                } else if command.trim() == "fk" { // crypto fuse
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 let key: [u8; 32] = self.efuse.phy_key();
                 self.text.add_text(&mut String::from("Key, in hex:"));
@@ -486,13 +489,14 @@ impl Repl {
                     line = line + &format!("{:02x}", key[i]);
                 }
                 self.text.add_text(&mut line);
-            } else if self.cmd.trim() == "fu" {
+            } else if command.trim() == "fu" {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 self.text.add_text(&mut format!("user: 0x{:08x}", self.efuse.phy_user()));
-            } else if self.cmd.trim() == "fc" {
+            } else if command.trim() == "fc" {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 self.text.add_text(&mut format!("cntl: 0x{:02x}", self.efuse.phy_cntl()));
-            }  else if self.cmd.trim() == "test1" {
+                // comment out burning routines for now
+            /* }  else if command.trim() == "test1" {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 let mut key: [u8; 32] = self.efuse.phy_key();
                 key[26] = 0xA0;
@@ -504,8 +508,8 @@ impl Repl {
                 } else {
                     self.text.add_text(&mut format!("Patch is not valid."));
                 }
-                self.efuse.burn(&mut self.jtag, &mut self.jtagphy);
-            }  else if self.cmd.trim() == "dna" { // dna
+                self.efuse.burn(&mut self.jtag, &mut self.jtagphy); */
+            }  else if command.trim() == "dna" { // dna
                 self.jtag.reset(&mut self.jtagphy);
                 let mut ir_leg: JtagLeg = JtagLeg::new(JtagChain::IR, "cmd");
                 ir_leg.push_u32(0b110010, 6, JtagEndian::Little);
@@ -526,7 +530,7 @@ impl Repl {
                 } else {
                     self.text.add_text(&mut format!("dna data not in queue!"));
                 }
-            } else if self.cmd.trim() == "loop" {
+            } else if command.trim() == "loop" {
                 unsafe { self.p.UART.ev_pending.write(|w| w.bits(self.p.UART.ev_pending.read().bits())); }
                 unsafe { self.p.UART.ev_enable.write(|w| w.bits(3)); }
 
@@ -541,7 +545,7 @@ impl Repl {
                     unsafe { self.p.UART.rxtx.write(|w| w.bits(0xa as u32)); }
                     unsafe { self.p.UART.rxtx.write(|w| w.bits(0xd as u32)); }
                 }
-            } else if self.cmd.trim() == "xadc" {
+            } else if command.trim() == "xadc" {
                 let vccint: u32 = self.p.INFO.xadc_vccint.read().bits() as u32;
                 let vccaux: u32 = self.p.INFO.xadc_vccaux.read().bits() as u32;
                 let vccbram: u32 = self.p.INFO.xadc_vccbram.read().bits() as u32;
@@ -551,7 +555,7 @@ impl Repl {
                 self.text.add_text(&mut format!("vccaux: {:.3}V", (vccaux as f64) / 1365.0));
                 self.text.add_text(&mut format!("vccbram: {:.3}V", (vccbram as f64) / 1365.0));
                 self.text.add_text(&mut format!("temp: {:.2}C", ((temp as f64) * 0.12304) - 273.15));
-            } else if self.cmd.trim() == "sense" {
+            } else if command.trim() == "sense" {
                 self.xadc.wait_update();
                 self.text.add_text(&mut format!("int:  {:.3}V  aux: {:.3}V", (self.xadc.vccint() as f64) / 1365.0, (self.xadc.vccaux() as f64) / 1365.0));
                 self.text.add_text(&mut format!("bram: {:.3}V temp: {:.2}C",
@@ -563,15 +567,15 @@ impl Repl {
                                                 self.xadc.cc2_mv()  ));
                 self.text.add_text(&mut format!("noise0: {:4} noise1: {:4}", self.xadc.noise0(), self.xadc.noise1()));
                 self.text.add_text(&mut format!("audio: 0x{:04x}", self.xadc.audio_sample() ));
-            } else if self.cmd.trim() == "non" {
+            } else if command.trim() == "non" {
                 unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
                 self.update_noise = true;
-            } else if self.cmd.trim() == "noff" {
+            } else if command.trim() == "noff" {
                 unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(false).noise().bits(0).self_().bit(true).state().bits(3) ); }
                 self.update_noise = false;
-            } else if self.cmd.trim() == "flag" {
+            } else if command.trim() == "flag" {
                 self.text.add_text(&mut format!("xadc flags: 0x{:04x}", self.xadc.flags()));
-            } else if self.cmd.trim() == "rom" || self.cmd.trim() == "r" {
+            } else if command.trim() == "rom" || command.trim() == "r" {
                 let mut line: [u32; 3] = [0; 3];
                 for adr in 0..3 {
                     line[adr] = self.rom_read(adr as u8);
@@ -589,18 +593,18 @@ impl Repl {
                     line[adr] = self.rom_read((adr + 0xFC) as u8);
                 }
                 self.text.add_text(&mut format!("0xFC: 0x{:08x} 0x{:08x} 0x{:08x}", line[0], line[1], line[2] ));
-            } else if self.cmd.trim() == "inject" {
+            } else if command.trim() == "inject" {
                 let (val, inv) = patch_frame(0x35e, 0, rom);
                 self.text.add_text(&mut format!("inject: 0x35e, 0, ROM: 0x{:08x}/0x{:08x}", val.unwrap(), inv.unwrap() ));
-            } else if self.cmd.trim() == "dn" { // dump noise
+            } else if command.trim() == "dn" { // dump noise
                 unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
                 delay_ms(&self.p, 200); // let the noise source stabilize
                 self.dump_noise();
                 unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(false).noise().bits(0).self_().bit(true).state().bits(3) ); }
-            } else if self.cmd.trim() == "spi" {
+            } else if command.trim() == "spi" {
                 // spi performance test
                 self.spi_perftest();
-            } else if self.cmd.trim() == "au" {
+            } else if command.trim() == "au" {
                 // start sampling
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
@@ -609,12 +613,12 @@ impl Repl {
 
                 self.audio.audio_i2s_start();
                 self.audio_run = true;
-            } else if self.cmd.trim() == "ao" {
+            } else if command.trim() == "ao" {
                 // stop sampling
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
-            } else if self.cmd.trim() == "aut" { // sample for 10 seconds and report # of samples seen -- for benchmarking sample rate
+            } else if command.trim() == "aut" { // sample for 10 seconds and report # of samples seen -- for benchmarking sample rate
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
                 self.audio.audio_ports();
@@ -643,7 +647,7 @@ impl Repl {
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
-            } else if self.cmd.trim() == "aux" { // xadc audio source
+            } else if command.trim() == "aux" { // xadc audio source
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
                 self.audio.audio_ports();
@@ -654,20 +658,62 @@ impl Repl {
                 self.audio.audio_loopback_xadc(&mut self.xadc);
 
                 self.audio.audio_i2s_stop();
-            } else if self.cmd.trim() == "ramc" {
+            } else if command.trim() == "ramc" {
                 self.ram_clear();
                 self.text.add_text(&mut format!("RAM cleared."));
-            } else if self.cmd.trim() == "ramx" {
+            } else if command.trim() == "ramx" {
                 let errors = self.ram_check();
                 self.text.add_text(&mut format!("0x{:x} RAM errors.", errors));
-            } else if self.cmd.trim() == "rami" {
+            } else if command.trim() == "rami" {
                 let len = self.ram_standby_init();
                 self.text.add_text(&mut format!("0x{:x} RAM states.", len));
-            } else if self.cmd.trim() == "rtc" {
-                self.rtc.rtc_set(0, 59, 22, 3, 3, 20, Weekdays::TUESDAY);
-            } else if self.cmd.trim() == "ro" {
+            } else if command.trim() == "rtcinit" {
+                self.rtc.rtc_set(0, 0, 0, 29, 5, 20, Weekdays::FRIDAY);
+            } else if command.trim() == "rtcset" {
+                if tokens.len() != 8 {
+                    self.text.add_text(&mut format!("rtcset: WWW DD MM YY hh mm ss"));
+                    self.text.add_text(&mut format!("hh is 24-hr, WWW is day (mon, tue...)"));
+                } else {
+                    let secs: u32 = match tokens[7].trim().parse::<u32>() {
+                        Ok(input) => input,
+                        Err(_e) => {self.text.add_text(&mut format!("Can't parse {}", tokens[7])); return;}
+                    };
+                    let mins: u32 = match tokens[6].trim().parse::<u32>() {
+                        Ok(input) => input,
+                        Err(_e) => {self.text.add_text(&mut format!("Can't parse {}", tokens[6])); return;}
+                    };
+                    let hours: u32 = match tokens[5].trim().parse::<u32>() {
+                        Ok(input) => input,
+                        Err(_e) => {self.text.add_text(&mut format!("Can't parse {}", tokens[5])); return;}
+                    };
+                    let days: u32 = match tokens[2].trim().parse::<u32>() {
+                        Ok(input) => input,
+                        Err(_e) => {self.text.add_text(&mut format!("Can't parse {}", tokens[2])); return;}
+                    };
+                    let months: u32 = match tokens[3].trim().parse::<u32>() {
+                        Ok(input) => input,
+                        Err(_e) => {self.text.add_text(&mut format!("Can't parse {}", tokens[3])); return;}
+                    };
+                    let years: u32 = match tokens[4].trim().parse::<u32>() {
+                        Ok(input) => input,
+                        Err(_e) => {self.text.add_text(&mut format!("Can't parse {}", tokens[4])); return;}
+                    };
+                    let weekday: Weekdays = match tokens[1].trim().to_ascii_lowercase().as_str() {
+                        "mon" => Weekdays::MONDAY,
+                        "tue" => Weekdays::TUESDAY,
+                        "wed" => Weekdays::WEDNESDAY,
+                        "thu" => Weekdays::THURSDAY,
+                        "fri" => Weekdays::FRIDAY,
+                        "sat" => Weekdays::SATURDAY,
+                        "sun" => Weekdays::SUNDAY,
+                        _ => {self.text.add_text(&mut format!("Can't parse {}", tokens[1])); return;}
+                    };
+
+                    self.rtc.rtc_set(secs as u8, mins as u8, hours as u8, days as u8, months as u8, years as u8, weekday);
+                }
+            } else if command.trim() == "ro" {
                 self.p.TRNG_OSC.ctl.write(|w| w.ena().bit(true));
-            } else if self.cmd.trim() == "ae" {
+            } else if command.trim() == "ae" {
                 let (pass, data) = test_aes_enc(&mut self.aes);
                 if pass {
                     self.text.add_text(&mut format!("AES Encrypt passed"));
@@ -677,7 +723,7 @@ impl Repl {
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
                 }
-            } else if self.cmd.trim() == "ad" {
+            } else if command.trim() == "ad" {
                 let (pass, data) = test_aes_dec(&mut self.aes);
                 if pass {
                     self.text.add_text(&mut format!("AES Decrypt passed"));
@@ -687,7 +733,7 @@ impl Repl {
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
                 }
-            } else if self.cmd.trim() == "sh" {
+            } else if command.trim() == "sh" {
                 self.sha2.config = Sha2Config::ENDIAN_SWAP | Sha2Config::DIGEST_SWAP | Sha2Config::SHA256_EN; // Sha2Config::HMAC_EN; // Sha2Config::SHA256_EN;
                 self.sha2.keys = [0; 8];
                 self.sha2.init();
@@ -708,10 +754,10 @@ impl Repl {
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x}", digest[0 + i*2], digest[1 + i*2]));
                 }
-            } else if self.cmd.trim() == "sp" {
+            } else if command.trim() == "sp" {
                 com_txrx(&self.p, COM_SHIPMODE);  // send the shipmode command
                 self.power = false;
-            } else if self.cmd.trim() == "acc" {
+            } else if command.trim() == "acc" {
                 com_txrx(&self.p, COM_ACCEL_UPDATE);  // update acceleration
                 delay_ms(&self.p, 3);
                 com_txrx(&self.p, COM_ACCEL_FETCH);  // now fetch it
@@ -725,7 +771,7 @@ impl Repl {
                 let id = com_txrx(&self.p, COM_NEXT_DATA);
                 self.text.add_text(&mut format!("x: {}, y: {}, z: {}, id: 0x{:02x}", x, y, z, id));
             } else {
-                self.text.add_text(&mut format!("{}: not recognized.", self.cmd.trim()));
+                self.text.add_text(&mut format!("{}: not recognized.", command.trim()));
             }
         }
     }
