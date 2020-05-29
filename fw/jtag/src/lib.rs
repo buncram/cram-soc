@@ -307,7 +307,7 @@ pub struct JtagGpioPhy {
 impl JtagGpioPhy {
     pub fn new() -> Self {
         unsafe {
-            JtagGpioPhy { 
+            JtagGpioPhy {
                 p: betrusted_pac::Peripherals::steal(),
             }
         }
@@ -325,12 +325,14 @@ impl JtagPhy for JtagGpioPhy {
         delay_ms(&self.p, delay);
 }
 
-    /// given a tdi and tms value, pulse the clock, and then return the tdo that comes out 
+    /// given a tdi and tms value, pulse the clock, and then return the tdo that comes out
     fn sync(&mut self, tdi: bool, tms: bool) -> bool {
 
-        while !self.p.JTAG.tdo.read().ready().bit() { }  // make sure we are in a ready/tdo valid state
-        let ret = self.p.JTAG.tdo.read().tdo().bit(); // grab the tdo value /prior/ to clocking the new bit
         self.p.JTAG.next.write(|w| w.tdi().bit(tdi).tms().bit(tms) ); // update tdi/tms, which automatically clocks tck
+        while !self.p.JTAG.tdo.read().ready().bit() { }  // make sure we are in a ready/tdo valid state
+        let ret = self.p.JTAG.tdo.read().tdo().bit(); // this is the TDO value from /prior/ to the TCK rise
+        // note: the hardware already guarantees TDO sample timing relative to TCK edge: in other words,
+        // TDO is sampled before the TCK edge is allowed to rise
 
         ret
     }
