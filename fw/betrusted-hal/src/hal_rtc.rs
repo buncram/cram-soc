@@ -233,6 +233,10 @@ impl BtRtc {
     pub fn rtc_set(&mut self, secs: u8, mins: u8, hours: u8, days: u8, months: u8, years: u8, d: Weekdays) -> bool {
         let mut txbuf: [u8; 2];
 
+        // make sure battery switchover is enabled, otherwise we won't keep time when power goes off
+        txbuf = [ABRTCMC_CONTROL3, (Control3::BATT_STD_BL_EN).bits()];
+        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+
         txbuf = [ABRTCMC_SECONDS, to_bcd(secs)];
         i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.updated_ticks = get_ticks(&self.p);
