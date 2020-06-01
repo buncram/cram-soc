@@ -1066,7 +1066,7 @@ class BetrustedSoC(SoCCore):
                 from valentyusb.usbcore.cpu import dummyusb
                 usb_pads = platform.request("usb")
                 usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-                self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, cdc=True) # , relax_timing=True
+                self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, cdc=True, relax_timing=True)
                 self.add_wb_master(self.usb.debug_bridge.wishbone)
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
