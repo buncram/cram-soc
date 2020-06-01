@@ -10,5 +10,5 @@ fi
 if grep -q "VIOLATED" build/gateware/timing-failures.txt
 then
     echo "Design did not meet simple timing analysis!"
-    exit 1
+    exit 2
 fi
