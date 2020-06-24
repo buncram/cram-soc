@@ -122,6 +122,9 @@ const COM_CHARGER_REGDUMP: u16 = 0x8000;
 const COM_SSID_CHECK: u16 = 0x2000;
 const COM_SSID_FETCH: u16 = 0x2100;
 
+//extern crate double_ratchet;
+//use double_ratchet::ratchet::*;
+
 pub struct Bounce {
     vector: Point,
     radius: u32,
