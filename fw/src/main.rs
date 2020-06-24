@@ -76,6 +76,7 @@ use betrusted_hal::hal_audio::*;
 use betrusted_hal::hal_rtc::*;
 use betrusted_hal::hal_aes::*;
 use betrusted_hal::hal_sha2::*;
+use betrusted_hal::hal_shittyrng::*;
 use embedded_graphics::prelude::*;
 use embedded_graphics::egcircle;
 use embedded_graphics::pixelcolor::BinaryColor;
@@ -122,8 +123,17 @@ const COM_CHARGER_REGDUMP: u16 = 0x8000;
 const COM_SSID_CHECK: u16 = 0x2000;
 const COM_SSID_FETCH: u16 = 0x2100;
 
-//extern crate double_ratchet;
-//use double_ratchet::ratchet::*;
+extern crate double_ratchet;
+use double_ratchet::ratchet::*;
+extern crate signal_common;
+use signal_common::keys::{
+    ChainKey,
+    RatchetKeyPair,
+    MessageKey,
+//    RatchetKeyPublic,
+//    RatchetKeySecret,
+//    SessionKey,
+};
 
 pub struct Bounce {
     vector: Point,
@@ -773,6 +783,122 @@ impl Repl {
                 delay_ms(&self.p, 1);
                 let id = com_txrx(&self.p, COM_NEXT_DATA);
                 self.text.add_text(&mut format!("x: {}, y: {}, z: {}, id: 0x{:02x}", x, y, z, id));
+            } else if command.trim() == "dr" {
+                fn get_rk() -> ChainKey {
+                    let key = core::iter::repeat(0x42).take(32).collect::<Vec<u8>>();
+                    ChainKey::from(key.as_slice())
+                }
+
+                self.text.add_text(&mut format!("Starting double-ratchet test"));
+                // double-ratchet test
+                unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
+                delay_ms(&self.p, 100); // give it time to power up
+                let mut csprng = ShittyRng::new();
+
+                let time: u32 = readpac32!(self, TICKTIMER, time0);
+                let info = b"foobar!";
+                let bob_keys = RatchetKeyPair::generate(&mut csprng);
+                let mut alice = DoubleRatchet::with_peer(
+                    &info[..], get_rk(), &mut csprng, &bob_keys.public
+                );
+                let mut bob = DoubleRatchet::with_keypair(
+                    &info[..], get_rk(), bob_keys
+                );
+
+                let m1_a = alice.next_sending_key();
+                let m2_a = alice.next_sending_key();
+                bob.ratchet(&mut csprng, alice.public());
+                let m1_b = bob.next_receiving_key();
+                let m2_b = bob.next_receiving_key();
+
+                let m3_b = bob.next_sending_key();
+                let m4_b = bob.next_sending_key();
+                alice.ratchet(&mut csprng, bob.public());
+                let m3_a = alice.next_receiving_key();
+                let m4_a = alice.next_receiving_key();
+
+                // Note: TRNG is left on, fwiw
+
+                if m1_a != m1_b {
+                    self.text.add_text(&mut format!("m1_a error"));
+                }
+                if m2_a != m2_b {
+                    self.text.add_text(&mut format!("m2_a error"));
+                }
+                if m3_a != m3_b {
+                    self.text.add_text(&mut format!("m3_a error"));
+                }
+                if m4_a != m4_b {
+                    self.text.add_text(&mut format!("m4_a error"));
+                }
+
+                if m1_a.0 != 0 {
+                    self.text.add_text(&mut format!("m1_a.0 error"));
+                }
+                if m2_a.0 != 1 {
+                    self.text.add_text(&mut format!("m2_a.0 error"));
+                }
+                if m3_a.0 != 0 {
+                    self.text.add_text(&mut format!("m3_a.0 error"));
+                }
+                if m4_a.0 != 1 {
+                    self.text.add_text(&mut format!("m4_a.0 error"));
+                }
+
+                if m1_a.1 == MessageKey::from(&[0; 32][..]) {
+                    self.text.add_text(&mut format!("m1_a.1 error"));
+                }
+                if m2_a.1 == MessageKey::from(&[0; 32][..]) {
+                    self.text.add_text(&mut format!("m2_a.1 error"));
+                }
+                if m3_a.1 == MessageKey::from(&[0; 32][..]) {
+                    self.text.add_text(&mut format!("m3_a.1 error"));
+                }
+                if m4_a.1 == MessageKey::from(&[0; 32][..]) {
+                    self.text.add_text(&mut format!("m4_a.1 error"));
+                }
+
+                if m1_a.1 == m2_a.1 {
+                    self.text.add_text(&mut format!("m1_a.1 != m2_a.1 error"));
+                }
+                if m1_a.1 == m3_a.1 {
+                    self.text.add_text(&mut format!("m1_a.1 != m3_a.1 error"));
+                }
+                if m1_a.1 == m4_a.1 {
+                    self.text.add_text(&mut format!("m1_a.1 != m4_a.1 error"));
+                }
+
+                if m2_a.1 == m1_a.1 {
+                    self.text.add_text(&mut format!("m2_a.1 != m1_a.1 error"));
+                }
+                if m2_a.1 == m3_a.1 {
+                    self.text.add_text(&mut format!("m2_a.1 != m3_a.1 error"));
+                }
+                if m2_a.1 == m4_a.1 {
+                    self.text.add_text(&mut format!("m2_a.1 != m4_a.1 error"));
+                }
+
+                if m3_a.1 == m1_a.1 {
+                    self.text.add_text(&mut format!("m3_a.1 != m1_a.1 error"));
+                }
+                if m3_a.1 == m2_a.1 {
+                    self.text.add_text(&mut format!("m3_a.1 != m2_a.1 error"));
+                }
+                if m3_a.1 == m4_a.1 {
+                    self.text.add_text(&mut format!("m3_a.1 != m4_a.1 error"));
+                }
+
+                if m4_a.1 == m1_a.1 {
+                    self.text.add_text(&mut format!("m4_a.1 != m1_a.1 error"));
+                }
+                if m4_a.1 == m2_a.1 {
+                    self.text.add_text(&mut format!("m4_a.1 != m2_a.1 error"));
+                }
+                if m4_a.1 == m3_a.1 {
+                    self.text.add_text(&mut format!("m4_a.1 != m43a.1 error"));
+                }
+                let endtime: u32 = readpac32!(self, TICKTIMER, time0);
+                self.text.add_text(&mut format!("Finish time: {}", endtime - time));
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", command.trim()));
             }

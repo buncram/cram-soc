@@ -19,6 +19,7 @@ efuse-api = { path = "efuse-api" }
 jtag = { path = "jtag" }
 xous-nommu = { path = "xous-nommu" }
 rom-inject = { path = "rom-inject" }
+signal-common = { path = "signal-rs/signal-common" }
 
 [dependencies.double-ratchet]
 path = "signal-rs/double-ratchet"
