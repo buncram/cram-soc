@@ -1068,6 +1068,9 @@ class BetrustedSoC(SoCCore):
                 usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
                 self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, cdc=True, relax_timing=True)
                 self.add_wb_master(self.usb.debug_bridge.wishbone)
+                # debug bridge data and address settle multiple cycles before being accessed
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "usb_debug_bridge_address*"}}]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "usb_debug_bridge_data*"}}]')
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
@@ -1169,9 +1172,9 @@ def main():
                 with open('keystore.patch', 'w') as patchfile:
                     subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                     keystore_args = '-pkeystore.patch'
-                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
+                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/__main__.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
             else:
-                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/top.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
+                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/__main__.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
             subprocess.call(enc)
         else:
             print('Specified key file {} does not exist'.format(args.encrypt))
