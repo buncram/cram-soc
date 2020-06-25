@@ -4,6 +4,7 @@ extern crate alloc;
 extern crate bitflags;
 extern crate volatile;
 extern crate rand_core;
+extern crate digest;
 
 pub mod hal_i2c;
 pub mod hal_time;
