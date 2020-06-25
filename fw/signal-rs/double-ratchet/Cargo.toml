@@ -13,9 +13,10 @@ hashbrown = "0.8"
 
 signal-common = { path = "../signal-common" }
 
-[dependencies.sha2]
-version = "0.9"
-default-features = false
+#[dependencies.sha2]
+#version = "0.9"
+#default-features = false
+betrusted-hal = { path = "../../betrusted-hal" }
 
 [dependencies.orion]
 version = "0.15.2"

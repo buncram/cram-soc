@@ -20,7 +20,7 @@ extern crate orion;
 extern crate hashbrown;
 extern crate rand;
 extern crate rand_core;
-extern crate sha2;
+extern crate betrusted_hal;
 extern crate x25519_dalek;
 
 extern crate signal_common;
