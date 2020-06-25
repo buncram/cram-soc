@@ -1,6 +1,6 @@
 use bitflags::*;
 use volatile::Volatile;
-use crate::hal_i2c::i2c_master;
+use crate::hal_i2c::i2c_controller;
 use crate::hal_time::delay_ms;
 use crate::hal_time::get_time_ms;
 use crate::hal_xadc::*;
@@ -359,56 +359,56 @@ impl BtAudio {
         // power management controller setup
         // power on the chip
         txbuf = [LM49352_PMC_SETUP, (PmcSetup::CHIP_ENABLE | PmcSetup::PLL_ENABLE).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // select MCLK source for the power management controller
         txbuf = [LM49352_PMC_CLOCKS, (PmcClocks::PMC_CLK_SEL_MCLK).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // select divider for PMC - divide by 40.5 (0x50) ~300kHz
         txbuf = [LM49352_PMC_CLK_DIV, 0x50];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // PLL setup
         // setup PLL clock source - MCLK
         txbuf = [LM49352_PLL_CLK_SOURCE, PllClkSource::PLL_CLK_SEL_MCLK.bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // setup M to 2.5
         txbuf = [LM49352_PLL_M, 4]; // 2.5 * 2 -1 = 4
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // setup N to 32
         txbuf = [LM49352_PLL_N, 32];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // setup N_MOD to 0
         txbuf = [LM49352_PLL_N_MOD, 0];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // setup P to 12.5
         txbuf = [LM49352_PLL_P1, 24]; // 12.5 * 2 -1 = 24
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_PLL_P2, 24]; // mirror setting here to create a sane value, but P2 is not used
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // setup ADC clock basics
         txbuf = [LM49352_ADC_BASIC, (AdcBasic::OSR | AdcBasic::ADC_CLK_SEL_PLL1).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // local divider = 12
         txbuf = [LM49352_ADC_CLK_DIV, 23]; // 12 * 2 - 1 = 23
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // not setting ADC_MIXER; leaves default at 0dB levels
 
         // setup DAC clock basics
         txbuf = [LM49352_DAC_BASIC, (DacBasic::MODE_128 | DacBasic::DAC_CLK_SEL_PLL1).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // local divider = 12
         txbuf = [LM49352_DAC_CLK_DIV, 23]; // 12 * 2 - 1 = 23
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
     }
 
     /// audio_ports() sets up the digital port bitwidths, modes, and syncs
@@ -421,57 +421,57 @@ impl BtAudio {
         // P1 is a duplex audio port
         txbuf = [LM49352_BASIC_SETUP_P1, (BasicSetup::STEREO | BasicSetup::RX_ENABLE | BasicSetup::TX_ENABLE |
                                           BasicSetup::CLOCK_MS | BasicSetup::SYNC_MS).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // Revision: P2 is strictly unused, could eliminate P2 setup code
         // P2 is the speaker-only port, only receives data from betrusted
         // txbuf = [LM49352_BASIC_SETUP_P2, (BasicSetup::STEREO | BasicSetup::RX_ENABLE |
         //                                  BasicSetup::CLOCK_MS | BasicSetup::SYNC_MS).bits()];
-        // i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        // i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // input clock at points "A" and "B" in figure 57 (page 34) of the datasheet is 12.288 MHz
         // this needs to be divided down to the basic MCLK rate of:
         // 24 bits/word * 2 channels * 8000 samples/s = 384_000
         // 12_288_000 / 384_000 = 32
         txbuf = [LM49352_CLK_GEN1_P1, 63]; // divide by 32, using the DAC clock as the source
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_CLK_GEN1_P2, 63]; // divide by 32, using the DAC clock as the source
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         txbuf = [LM49352_CLK_GEN2_P1, 0]; // 1:1 fractional (disable fractional division)
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_CLK_GEN2_P2, 0]; // 1:1 fractional (disable fractional division)
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // set a sync rate of 48 clock cycles stereo to get 24 bits/word
         txbuf = [LM49352_SYNC_GEN_P1, (SyncGen::SYNC_RATE_STEREO_48).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_SYNC_GEN_P2, (SyncGen::SYNC_RATE_STEREO_48).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // set bit widths to 16 bits
         txbuf = [LM49352_DATA_WIDTH_P1, (DataWidth::RX_WIDTH_16 | DataWidth::TX_WIDTH_16 | DataWidth::TX_EXTRA_BITS_0).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_DATA_WIDTH_P2, (DataWidth::RX_WIDTH_16 | DataWidth::TX_WIDTH_16 | DataWidth::TX_EXTRA_BITS_0).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // MSB justified, no offset
         txbuf = [LM49352_RX_MODE_P1, (TxRxMode::MSB_JUSTIFIED | TxRxMode::MSB_POSITION_0).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_RX_MODE_P2, (TxRxMode::MSB_JUSTIFIED | TxRxMode::MSB_POSITION_0).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_TX_MODE_P1, (TxRxMode::MSB_JUSTIFIED | TxRxMode::MSB_POSITION_0).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         txbuf = [LM49352_TX_MODE_P2, (TxRxMode::MSB_JUSTIFIED | TxRxMode::MSB_POSITION_0).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // enable hp sensing on port2_sdo (gpio1)
         txbuf = [LM49352_GPIO1, (Gpio1::GPIO_MODE_HP_SENSE).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         // automatically power on the headphone amplifier, but leave the speaker on if the headphone is in
         // use HpSense::HP_SENSE_D if you want to have the speaker turn off autmatically when the headphone is inserted!
         txbuf = [LM49352_HP_SENSE, (HpSense::HP_SENSE).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
     }
 
     /// set up the audio mixer to sane defaults
@@ -480,35 +480,35 @@ impl BtAudio {
 
         // route DAC L+R to class-d speaker amp
         txbuf = [LM49352_AMIX_CLASSD, (Amix::DACR | Amix::DACL).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // route DAC L to HP L
         txbuf = [LM49352_AMIX_HP_L, (Amix::DACL).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // route DAC R to HP R
         txbuf = [LM49352_AMIX_HP_R, (Amix::DACR).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // route mic to ADC L+R
         txbuf = [LM49352_AMIX_ADC, (Amix::MIC_ADC_L | Amix::MIC_ADC_R).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // set output options
         txbuf = [LM49352_OUTPUT_OPTIONS, (OutputOptions::LR_HP_LEVEL_N6DB | OutputOptions::LS_LEVEL_4DB).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // crank up the gain on the microphone
         txbuf = [LM49352_MIC_INPUT, (MicInput::MIC_LEVEL_MAX).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // route ADC to port 1
         txbuf = [LM49352_DMIX_PORT1, (DmixPort::L_SEL_ADC_L | DmixPort::R_SEL_ADC_R).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // port 1 to DAC
         txbuf = [LM49352_DMIX_DAC, (DmixDac::PORT1_L | DmixDac::PORT1_R).bits()];
-        i2c_master(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, LM49352_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
     }
 
     /// set up the betrusted-side signals

@@ -30,7 +30,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
-from litex.soc.cores.i2s import S7I2S as S7I2SSlave
+from litex.soc.cores.i2s import S7I2S
 from litex.soc.cores.spi_opi import S7SPIOPI
 
 from gateware import info
@@ -138,8 +138,8 @@ _io_dvt = [   # DVT-generation I/Os
     # COM interface to UP5K
     ("com", 0,
         Subsignal("csn",  Pins("T15"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
-        Subsignal("miso", Pins("P16"), IOStandard("LVCMOS18")),
-        Subsignal("mosi", Pins("N18"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
+        Subsignal("cipo", Pins("P16"), IOStandard("LVCMOS18")),
+        Subsignal("copi", Pins("N18"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
         Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
      ),
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
@@ -178,8 +178,8 @@ _io_dvt = [   # DVT-generation I/Os
     # SPI Flash
     ("spiflash_1x", 0, # clock needs to be accessed through STARTUPE2
         Subsignal("cs_n", Pins("M13")),
-        Subsignal("mosi", Pins("K17")),
-        Subsignal("miso", Pins("K18")),
+        Subsignal("copi", Pins("K17")),
+        Subsignal("cipo", Pins("K18")),
         Subsignal("wp",   Pins("L14")), # provisional
         Subsignal("hold", Pins("M15")), # provisional
         IOStandard("LVCMOS18")
@@ -275,8 +275,8 @@ _io_evt = [
     # COM interface to UP5K
     ("com", 0,
         Subsignal("csn",  Pins("T15"), IOStandard("LVCMOS18")),
-        Subsignal("miso", Pins("P16"), IOStandard("LVCMOS18")),
-        Subsignal("mosi", Pins("N18"), IOStandard("LVCMOS18")),
+        Subsignal("cipo", Pins("P16"), IOStandard("LVCMOS18")),
+        Subsignal("copi", Pins("N18"), IOStandard("LVCMOS18")),
         Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18")),
      ),
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
@@ -322,8 +322,8 @@ _io_evt = [
     ),
     ("spiflash_1x", 0, # clock needs to be accessed through STARTUPE2
         Subsignal("cs_n", Pins("M13")),
-        Subsignal("mosi", Pins("K17")),
-        Subsignal("miso", Pins("K18")),
+        Subsignal("copi", Pins("K17")),
+        Subsignal("cipo", Pins("K18")),
         Subsignal("wp",   Pins("L14")), # provisional
         Subsignal("hold", Pins("M15")), # provisional
         IOStandard("LVCMOS18")
@@ -893,17 +893,17 @@ class BetrustedSoC(SoCCore):
         self.register_mem("memlcd", self.mem_map["memlcd"], self.memlcd.bus, size=self.memlcd.fb_depth*4)
 
         # COM SPI interface ------------------------------------------------------------------------
-        self.submodules.com = spi.SPIMaster(platform.request("com"))
+        self.submodules.com = spi.SPIController(platform.request("com"))
         self.add_csr("com")
         # 20.83ns = 1/2 of 24MHz clock, we are doing falling-to-rising timing
         # up5k tsu = -0.5ns, th = 5.55ns, tpdmax = 10ns
         # in reality, we are measuring a Tpd from the UP5K of 17ns. Routed input delay is ~3.9ns, which means
         # the fastest clock period supported would be 23.9MHz - just shy of 24MHz, with no margin to spare.
         # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_miso}}]") # could be as low as -0.5ns but why not
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 17.5 [get_ports {{com_miso}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 6.0 [get_ports {{com_mosi com_csn}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 16.0 [get_ports {{com_mosi com_csn}}]")  # could be as large as 21ns but why not
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # could be as low as -0.5ns but why not
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 17.5 [get_ports {{com_cipo}}]")
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 6.0 [get_ports {{com_copi com_csn}}]")
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 16.0 [get_ports {{com_copi com_csn}}]")  # could be as large as 21ns but why not
         # cross domain clocking is handled with explicit software barrires, or with multiregs
         self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
         self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
@@ -936,10 +936,10 @@ class BetrustedSoC(SoCCore):
         else:
             sclk_instance_name="SCLK_ODDR"
             iddr_instance_name="SPI_IDDR"
-            miso_instance_name="MISO_FDRE"
+            cipo_instance_name="CIPO_FDRE"
             spiread=False
             self.submodules.spinor = S7SPIOPI(platform.request("spiflash_8x"),
-                    sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, miso_name=miso_instance_name, spiread=spiread)
+                    sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, cipo_name=cipo_instance_name, spiread=spiread)
             # reminder to self: the {{ and }} overloading is because Python treats these as special in strings, so {{ -> { in actual constraint
             # NOTE: ECSn is deliberately not constrained -- it's more or less async (0-10ns delay on the signal, only meant to line up with "block" region
 
@@ -957,16 +957,16 @@ class BetrustedSoC(SoCCore):
             #self.platform.add_platform_command("set_clock_latency -min 0.5 [get_clocks spiclk_out]")  # define the min/max delay of the STARTUPE2 buffer
             #self.platform.add_platform_command("set_clock_latency -max 7.5 [get_clocks spiclk_out]")
 
-            # constrain MISO SDR delay -- WARNING: -max is 'actually' 5.0ns, but design can't meet timing @ 5.0 tPD from SPIROM. There is some margin in the timing closure tho, so 4.5ns is probably going to work....
+            # constrain CIPO SDR delay -- WARNING: -max is 'actually' 5.0ns, but design can't meet timing @ 5.0 tPD from SPIROM. There is some margin in the timing closure tho, so 4.5ns is probably going to work....
             self.platform.add_platform_command("set_input_delay -clock [get_clocks spiclk_out] -clock_fall -max 4.5 [get_ports spiflash_8x_dq[1]]")
             self.platform.add_platform_command("set_input_delay -clock [get_clocks spiclk_out] -clock_fall -min 1 [get_ports spiflash_8x_dq[1]]")
-            # corresponding false path on MISO DDR input when clocking SDR data
+            # corresponding false path on CIPO DDR input when clocking SDR data
             self.platform.add_platform_command("set_false_path -from [get_clocks spiclk_out] -to [get_pin {}/D ]".format(iddr_instance_name + "1"))
-            # corresponding false path on MISO SDR input from DQS strobe, only if the MISO path is used
+            # corresponding false path on CIPO SDR input from DQS strobe, only if the cipo path is used
             if spiread:
-                self.platform.add_platform_command("set_false_path -from [get_clocks spidqs] -to [get_pin {}/D ]".format(miso_instance_name))
+                self.platform.add_platform_command("set_false_path -from [get_clocks spidqs] -to [get_pin {}/D ]".format(cipo_instance_name))
 
-            # constrain CLK-to-DQ output DDR delays; MOSI uses the same rules
+            # constrain CLK-to-DQ output DDR delays; copi uses the same rules
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports {{spiflash_8x_dq[*]}}]")
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports {{spiflash_8x_dq[*]}}]")
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports {{spiflash_8x_dq[*]}}] -clock_fall -add_delay")
@@ -975,7 +975,7 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports spiflash_8x_cs_n]") # -3 in reality
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
             # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
-            self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_mosi_oe_reg/Q ]")
+            self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_copi_oe_reg/Q ]")
             self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_oe_reg/Q ]")
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
@@ -1000,7 +1000,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("romtest")
 
         # Audio interfaces -------------------------------------------------------------------------
-        self.submodules.audio = S7I2SSlave(platform.request("i2s", 0))
+        self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False)
         self.add_wb_slave(self.mem_map["audio"], self.audio.bus, 4)
         self.add_memory_region("audio", self.mem_map["audio"], 4, type='io')
         self.add_csr("audio")

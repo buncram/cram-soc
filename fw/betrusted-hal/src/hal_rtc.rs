@@ -1,5 +1,5 @@
 use bitflags::*;
-use crate::hal_i2c::i2c_master;
+use crate::hal_i2c::i2c_controller;
 use crate::hal_time::get_ticks;
 
 pub const ABRTCMC_I2C_ADR: u8 = 0x68;
@@ -235,35 +235,35 @@ impl BtRtc {
 
         // make sure battery switchover is enabled, otherwise we won't keep time when power goes off
         txbuf = [ABRTCMC_CONTROL3, (Control3::BATT_STD_BL_EN).bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         txbuf = [ABRTCMC_SECONDS, to_bcd(secs)];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.updated_ticks = get_ticks(&self.p);
         self.seconds = secs;
 
         txbuf = [ABRTCMC_MINUTES, to_bcd(mins)];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.minutes = mins;
 
         txbuf = [ABRTCMC_HOURS, to_bcd(hours)];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.hours = hours;
 
         txbuf = [ABRTCMC_DAYS, to_bcd(days)];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.days = days;
 
         txbuf = [ABRTCMC_MONTHS, to_bcd(months)];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.months = months;
 
         txbuf = [ABRTCMC_YEARS, to_bcd(years)];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.years = years;
 
         txbuf = [ABRTCMC_WEEKDAYS, d.bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
         self.weekday = d;
 
         true  // sanity check args would return false on fail
@@ -277,7 +277,7 @@ impl BtRtc {
         if get_ticks(&self.p) - self.updated_ticks > 1000 {
             // read as a single block to make the time readout atomic
             txbuf = [ABRTCMC_SECONDS];
-            i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
+            i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), Some(&mut rxbuf), I2C_TIMEOUT);
 
             self.seconds = to_binary(rxbuf[0] & 0x7f);
             self.minutes = to_binary(rxbuf[1] & 0x7f);
@@ -297,32 +297,32 @@ impl BtRtc {
 
         // make sure battery switchover is enabled
         txbuf = [ABRTCMC_CONTROL3, (Control3::BATT_STD_BL_EN).bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // set clock units to 1 second, output pulse length to ~218ms
         txbuf = [ABRTCMC_TIMERB_CLK, (TimerClk::CLK_1_S | TimerClk::PULSE_218_MS).bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // program elapsed time
         txbuf = [ABRTCMC_TIMERB, seconds];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // enable timerb countdown interrupt, also clears any prior interrupt flag
         txbuf = [ABRTCMC_CONTROL2, (Control2::COUNTDOWN_B_INT).bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // turn on the timer proper -- the system will restart in 5...4..3....
         txbuf = [ABRTCMC_CONFIG, (Config::TIMER_B_ENABLE | Config::CLKOUT_DISABLE).bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
     }
 
     pub fn clear_alarm(&mut self) {
         // turn off RTC wakeup timer, in case previously set
         let mut txbuf : [u8; 2] = [ABRTCMC_CONFIG, (Config::CLKOUT_DISABLE).bits()];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
 
         // clear all interrupts and flags
         txbuf = [ABRTCMC_CONTROL2, 0];
-        i2c_master(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, ABRTCMC_I2C_ADR, Some(&txbuf), None, I2C_TIMEOUT);
     }
 }
