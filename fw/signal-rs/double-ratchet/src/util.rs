@@ -9,6 +9,7 @@ use signal_common::error::{Error, Result};
 use hkdf::*;
 use hmac::{Hmac, Mac, NewMac};
 use betrusted_hal::hal_sha512::{Sha512, Sha512Trunc256};
+//use sha2::{Sha512, Sha512Trunc256};
 
 pub fn hkdf(
     salt: &[u8],

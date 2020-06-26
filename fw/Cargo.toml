@@ -20,6 +20,7 @@ jtag = { path = "jtag" }
 xous-nommu = { path = "xous-nommu" }
 rom-inject = { path = "rom-inject" }
 signal-common = { path = "signal-rs/signal-common" }
+digest = "0.9"
 
 [dependencies.double-ratchet]
 path = "signal-rs/double-ratchet"

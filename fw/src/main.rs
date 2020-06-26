@@ -123,6 +123,7 @@ const COM_CHARGER_REGDUMP: u16 = 0x8000;
 const COM_SSID_CHECK: u16 = 0x2000;
 const COM_SSID_FETCH: u16 = 0x2100;
 
+extern crate digest;
 extern crate double_ratchet;
 use double_ratchet::ratchet::*;
 extern crate signal_common;
@@ -895,10 +896,45 @@ impl Repl {
                     self.text.add_text(&mut format!("m4_a.1 != m2_a.1 error"));
                 }
                 if m4_a.1 == m3_a.1 {
-                    self.text.add_text(&mut format!("m4_a.1 != m43a.1 error"));
+                    self.text.add_text(&mut format!("m4_a.1 != m4_a.1 error"));
                 }
                 let endtime: u32 = readpac32!(self, TICKTIMER, time0);
                 self.text.add_text(&mut format!("Finish time: {}", endtime - time));
+            } else if command.trim() == "h5" {
+                use digest::Digest;
+                use betrusted_hal::hal_sha512::Sha512;
+
+                const K_DATA: &'static [u8; 142] = b"Every one suspects himself of at least one of the cardinal virtues, and this is mine: I am one of the few honest people that I have ever known";
+                const K_EXPECTED_DIGEST: [u64; 8] =    [0x02fc78c0d16b727a, 0x18570a3279e6c97b, 0x113b8871b2e92051, 0x4c0947b20169fedf, 0x1a67094ad04ad031, 0xab5f8cc340125001, 0xffbd7d7af36d3a3a, 0xf7e8465d73bbd86d];
+                let mut pass: bool = true;
+
+                let mut hasher = Sha512::new();
+                for (_reg, chunk) in K_DATA.chunks(16).enumerate() {
+                    let mut temp: [u8; 16] = Default::default();
+                    if chunk.len() == 16 {
+                        temp.copy_from_slice(chunk);
+                        hasher.update(temp);
+                    } else {
+                        for index in 0..chunk.len() {
+                            let lone_value: [u8; 1] = [chunk[index]];
+                            hasher.update(&lone_value);
+                        }
+                    }
+                }
+
+                let digest = hasher.finalize();
+
+                for i in 0..64 {
+                    let byte: u8 = (((K_EXPECTED_DIGEST[i / 8]) >> ((7 - (i % 8)) * 8)) & 0xff) as u8;
+                    if digest[i] != byte {
+                        pass = false;
+                    }
+                }
+                if pass {
+                    self.text.add_text(&mut format!("Sha512 passed."));
+                } else {
+                    self.text.add_text(&mut format!("Sha512 failed."));
+                }
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", command.trim()));
             }

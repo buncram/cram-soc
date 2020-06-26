@@ -21,6 +21,7 @@ extern crate hashbrown;
 extern crate rand;
 extern crate rand_core;
 extern crate betrusted_hal;
+//extern crate sha2;
 extern crate x25519_dalek;
 
 extern crate signal_common;
