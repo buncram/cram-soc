@@ -8,7 +8,7 @@ fi
 
 if [ "$#" -eq 2 ]; then
     ITERATIONS=$2
-    echo "Running $ITERATIONS of dump..."
+    echo "Running $ITERATIONS iterations of dump..."
 else
     ITERATIONS=1
 fi
