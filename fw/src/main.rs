@@ -383,6 +383,46 @@ impl Repl {
         }
     }
 
+    pub fn ram_fill_ringosc(&mut self) {
+        self.ram_clear();
+        const TEST_SIZE: usize = 1024 * 1024 * 8 / 4;
+        let ram_ptr = 0x4008_0000 as *mut [u32; TEST_SIZE];
+
+        // start loading the ring osc trng
+        self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(true)});
+
+        for i in 0..TEST_SIZE {
+            while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+            unsafe{ (*ram_ptr)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+        }
+    }
+
+    pub fn ram_fill_avalanche(&mut self) {
+        use volatile::Volatile;
+
+        self.ram_clear();
+        const TEST_SIZE: usize = 1024 * 1024 * 8 / 2;
+        let ram_ptr: *mut u16 = 0x4008_0000 as *mut u16;
+        let ram = ram_ptr as *mut Volatile<u16>;
+
+        // make sure the noise bias is on for the avalanche TRNG
+        unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
+
+        delay_ms(&self.p, 100); // definitely wait until stabilized; stabilization test is separate
+
+        self.xadc.noise_only(true);
+        for i in 0..TEST_SIZE {
+            let mut r: u16 = 0;
+            for _ in 0..4 {
+                r <<= 4; // ~4 bits of entropy at a time, concentrated in the LSBs
+                self.xadc.wait_update();
+                r ^= self.xadc.noise0() ^ self.xadc.noise1();
+            }
+            unsafe{ (*(ram.add(i))).write(r); }
+        }
+        self.xadc.noise_only(false);
+    }
+
     pub fn uart_tx_u8(&mut self, c: u8) {
         while self.p.UART.txfull.read().bits() != 0 {}
         unsafe { self.p.UART.rxtx.write(|w| w.bits(c as u32)); }
@@ -675,6 +715,18 @@ impl Repl {
             } else if command.trim() == "ramc" {
                 self.ram_clear();
                 self.text.add_text(&mut format!("RAM cleared."));
+            } else if command.trim() == "rno" {
+                self.ram_clear();
+                let time: u32 = readpac32!(self, TICKTIMER, time0);
+                self.ram_fill_ringosc();
+                let endtime: u32 = readpac32!(self, TICKTIMER, time0);
+                self.text.add_text(&mut format!("8MiB ring osc done: {}ms", endtime - time));
+            } else if command.trim() == "rna" {
+                self.ram_clear();
+                let time: u32 = readpac32!(self, TICKTIMER, time0);
+                self.ram_fill_avalanche();
+                let endtime: u32 = readpac32!(self, TICKTIMER, time0);
+                self.text.add_text(&mut format!("8MiB avalanche done: {}ms", endtime - time));
             } else if command.trim() == "ramx" {
                 let errors = self.ram_check();
                 self.text.add_text(&mut format!("0x{:x} RAM errors.", errors));
@@ -1052,6 +1104,7 @@ fn main() -> ! {
 
     let mut ssid_list: [[u8; 32]; 6] = [[0; 32]; 6]; // index as ssid_list[6][32]
 
+    let mut first_time: bool = true;
     loop {
         if get_time_ms(&p) - testdelay > 10_000 && false {  // change to true to test RTC self-wakeup loop
             testdelay = get_time_ms(&p);
@@ -1447,5 +1500,10 @@ fn main() -> ! {
         }
 
         display.lock().flush().unwrap();
+
+        if first_time {
+            repl.ram_fill_avalanche();
+            first_time = false;
+        }
     }
 }
