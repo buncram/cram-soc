@@ -9,11 +9,18 @@ pub struct ShittyRng {
     p: betrusted_pac::Peripherals,
     xadc: BtXadc,
     bucket: u64,
+    count: u64,  // count of bits of randomness generated since created
 }
 
 impl ShittyRng {
     pub fn new() -> Self {
-        unsafe { ShittyRng { p: betrusted_pac::Peripherals::steal(), xadc: BtXadc::new(), bucket: 0 }}
+        unsafe { ShittyRng { p: betrusted_pac::Peripherals::steal(), xadc: BtXadc::new(), bucket: 0, count: 0 }}
+    }
+}
+
+impl ShittyRng {
+    pub fn get_bits_generated(&mut self) -> u64 {
+        self.count
     }
 }
 
@@ -50,6 +57,8 @@ impl RngCore for ShittyRng {
             }
         }
         self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(false)});
+
+        self.count += 64;
 
         self.bucket
     }
