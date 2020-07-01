@@ -850,6 +850,7 @@ impl Repl {
 
                 let time: u32 = readpac32!(self, TICKTIMER, time0);
                 let info = b"foobar!";
+                let bits_start = csprng.get_bits_generated();
                 let bob_keys = RatchetKeyPair::generate(&mut csprng);
                 let mut alice = DoubleRatchet::with_peer(
                     &info[..], get_rk(), &mut csprng, &bob_keys.public
@@ -951,7 +952,8 @@ impl Repl {
                     self.text.add_text(&mut format!("m4_a.1 != m4_a.1 error"));
                 }
                 let endtime: u32 = readpac32!(self, TICKTIMER, time0);
-                self.text.add_text(&mut format!("Finish time: {}", endtime - time));
+                self.text.add_text(&mut format!("Finish time: {} ms", endtime - time));
+                self.text.add_text(&mut format!("Entropy used: {} bits", csprng.get_bits_generated() - bits_start ));
             } else if command.trim() == "h5" {
                 use digest::Digest;
                 use betrusted_hal::hal_sha512::Sha512;
@@ -1502,7 +1504,8 @@ fn main() -> ! {
         display.lock().flush().unwrap();
 
         if first_time {
-            repl.ram_fill_avalanche();
+        //    repl.ram_fill_avalanche();
+            repl.ram_fill_ringosc();
             first_time = false;
         }
     }
