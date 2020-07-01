@@ -1014,6 +1014,14 @@ class BetrustedSoC(SoCCore):
         # ignore ring osc paths
         self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ena]")
         self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_cw_1]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_ccw_0]") # ring proper
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_aux1r_1]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_aux2r_1]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_aux3r_1]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_aux1r]") # ring-to-FF
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_aux2r]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_aux3r]")
+        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_raw]")
         # MEMO: diagnostic option, need to turn off GPIO
         # gpio_pads = platform.request("gpio")
         #### self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)  # this one rarely needs probing
