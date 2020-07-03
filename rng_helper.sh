@@ -23,8 +23,8 @@ while [ $i -le $ITERATIONS ]
 	     yes | riscv64-unknown-elf-gdb -ex 'file /home/bunnie/code/betrusted-soc/fw/target/riscv32imac-unknown-none-elf/release/betrusted-soc' -ex 'target remote 10.0.245.90:3333' -ex 'mon reset' -ex 'quit'
 	     # takes 36 seconds to run the avalanche generator on boot
 	     # sleep 40
-	     # takes 97 seconds to run the ring oscillator generator on boot
-	     sleep 120  # a bit longer because ro timing is variable with temperature
+	     # takes 80 seconds to run the ring oscillator generator on boot
+	     sleep 90 
 	     # sleep 4
 	     yes | riscv64-unknown-elf-gdb -ex 'file /home/bunnie/code/betrusted-soc/fw/target/riscv32imac-unknown-none-elf/release/betrusted-soc' -ex 'target remote 10.0.245.90:3333' -ex "dump memory $NAME 0x40080000 0x40880000" -ex 'quit'
 	     ((i++))

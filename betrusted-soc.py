@@ -44,7 +44,7 @@ from gateware import ticktimer
 from gateware import spinor
 from gateware import keyboard
 
-from gateware import trng
+from gateware.trng.ring_osc_v2 import TrngRingOscV2
 from gateware import aes_opentitan as aes
 from gateware import sha2_opentitan as sha2
 from gateware import sha512_opentitan as sha512
@@ -1009,19 +1009,8 @@ class BetrustedSoC(SoCCore):
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
         # Ring Oscillator TRNG ---------------------------------------------------------------------
-        self.submodules.trng_osc = trng.TrngRingOsc(platform, target_freq=1e6, make_pblock=True)
+        self.submodules.trng_osc = TrngRingOscV2(platform)
         self.add_csr("trng_osc")
-        # ignore ring osc paths
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ena]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_cw_1]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_ccw_0]") # ring proper
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_aux1r_1]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_aux2r_1]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_ring_aux3r_1]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_aux1r]") # ring-to-FF
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_aux2r]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_aux3r]")
-        self.platform.add_platform_command("set_false_path -through [get_nets trng_osc_trng_raw]")
         # MEMO: diagnostic option, need to turn off GPIO
         # gpio_pads = platform.request("gpio")
         #### self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)  # this one rarely needs probing

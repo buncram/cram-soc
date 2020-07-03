@@ -389,7 +389,11 @@ impl Repl {
         let ram_ptr = 0x4008_0000 as *mut [u32; TEST_SIZE];
 
         // start loading the ring osc trng
-        self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(true)});
+        unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w
+            .ena().bit(true)
+            .delay().bits(8)
+            .dwell().bits(100)
+            .gang().bit(true)}); }
 
         for i in 0..TEST_SIZE {
             while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
@@ -778,7 +782,9 @@ impl Repl {
                     self.rtc.rtc_set(secs as u8, mins as u8, hours as u8, days as u8, months as u8, years as u8, weekday);
                 }
             } else if command.trim() == "ro" {
-                self.p.TRNG_OSC.ctl.write(|w| w.ena().bit(true));
+                unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(true).delay().bits(8).dwell().bits(100).gang().bit(true)}); }
+                while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                self.text.add_text(&mut format!("ro: {:x}", self.p.TRNG_OSC.rand.read().rand().bits()));
             } else if command.trim() == "ae" {
                 let (pass, data) = test_aes_enc(&mut self.aes);
                 if pass {
