@@ -15,3 +15,11 @@ REGION_ALIAS("REGION_STACK", RAM);
 
 _lcdfb = ORIGIN(MEMLCD);
 _heap_size = LENGTH(RAM) - 1M;
+
+SECTIONS
+{
+    /DISCARD/ :
+    {
+       *(.eh_frame_hdr)
+    }
+}
