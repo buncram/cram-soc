@@ -497,6 +497,10 @@ impl Repl {
                 delay_ms(&self.p, 8);
                 com_txrx(&self.p, COM_NEXT_DATA); // first value is a pass (wait cycle)
                 delay_ms(&self.p, 5);
+                unsafe {
+                    self.p.GPIO.drive.write(|w| w.bits(0b00_1000));
+                    self.p.GPIO.output.write(|w| w.bits(0b00_1000));
+                }
             for i in 0 .. 0xC {
                     let data = com_txrx(&self.p, COM_NEXT_DATA);
                     delay_ms(&self.p, 5);
@@ -506,6 +510,10 @@ impl Repl {
                 }
 
             } else if command.trim() == "boff" {
+                unsafe {
+                    self.p.GPIO.drive.write(|w| w.bits(0b00_1000));
+                    self.p.GPIO.output.write(|w| w.bits(0b00_0000));
+                }
                 self.text.add_text(&mut String::from("Boost off"));
                 com_txrx(&self.p, COM_BOOST_OFF);
             } else if command.trim() == "step" {
