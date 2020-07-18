@@ -32,6 +32,7 @@ from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
 from litex.soc.cores.i2s import S7I2S
 from litex.soc.cores.spi_opi import S7SPIOPI
+from litex.soc.integration.soc import SoCRegion
 
 from gateware import info
 from gateware import sram_32
@@ -1001,8 +1002,7 @@ class BetrustedSoC(SoCCore):
 
         # Audio interfaces -------------------------------------------------------------------------
         self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False)
-        self.add_wb_slave(self.mem_map["audio"], self.audio.bus, 4)
-        self.add_memory_region("audio", self.mem_map["audio"], 4, type='io')
+        self.bus.add_slave("audio", self.audio.bus, SoCRegion(origin=self.mem_map["audio"], size=0x4, cached=False))
         self.add_csr("audio")
         self.add_interrupt("audio")
 
@@ -1025,15 +1025,13 @@ class BetrustedSoC(SoCCore):
         self.submodules.sha2 = sha2.Hmac(platform)
         self.add_csr("sha2")
         self.add_interrupt("sha2")
-        self.add_wb_slave(self.mem_map["sha2"], self.sha2.bus, 4)
-        self.add_memory_region("sha2", self.mem_map["sha2"], 4, type='io')
+        self.bus.add_slave("sha2", self.sha2.bus, SoCRegion(origin=self.mem_map["sha2"], size=0x4, cached=False))
 
         # SHA-512 block ----------------------------------------------------------------------------
         self.submodules.sha512 = sha512.Hmac(platform)
         self.add_csr("sha512")
         self.add_interrupt("sha512")
-        self.add_wb_slave(self.mem_map["sha512"], self.sha512.bus, 8)
-        self.add_memory_region("sha512", self.mem_map["sha512"], 8, type='io')
+        self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
 
         # JTAG self-provisioning block -------------------------------------------------------------
         if revision != 'evt': # these pins don't exist on EVT
