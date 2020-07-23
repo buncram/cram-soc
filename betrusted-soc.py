@@ -49,6 +49,7 @@ from gateware.trng.ring_osc_v2 import TrngRingOscV2
 from gateware import aes_opentitan as aes
 from gateware import sha2_opentitan as sha2
 from gateware import sha512_opentitan as sha512
+from gateware.curve25519.engine import Engine
 
 from gateware import jtag_phy
 
@@ -760,6 +761,7 @@ class BetrustedSoC(SoCCore):
         "audio":           0xe0000000,
         "sha2":            0xe0001000,
         "sha512":          0xe0002000,
+        "engine":          0xe0020000,
         "vexriscv_debug":  0xefff0000,
         "csr":             0xf0000000,
     }
@@ -1032,6 +1034,12 @@ class BetrustedSoC(SoCCore):
         self.add_csr("sha512")
         self.add_interrupt("sha512")
         self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
+
+        # Curve25519 engine ------------------------------------------------------------------------
+        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"sys"})(Engine(platform, self.mem_map["engine"]))
+        self.add_csr("engine")
+        self.add_interrupt("engine")
+        self.bus.add_slave("engine", self.engine.bus, SoCRegion(origin=self.mem_map["engine"], size=0x2_0000, cached=False))
 
         # JTAG self-provisioning block -------------------------------------------------------------
         if revision != 'evt': # these pins don't exist on EVT
