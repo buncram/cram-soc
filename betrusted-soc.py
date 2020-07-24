@@ -1154,7 +1154,14 @@ def main():
 
     ##### post-build routines
     soc.do_exit(vns)
-    lxsocdoc.generate_docs(soc, "build/documentation", note_pulses=True)
+    lxsocdoc.generate_docs(soc, "build/documentation", note_pulses=True, sphinx_extensions=['sphinx_math_dollar', 'sphinx.ext.mathjax'],
+            sphinx_extra_config=r"""
+mathjax_config = {
+   'tex2jax': {
+       'inlineMath': [ ["\\(","\\)"] ],
+       'displayMath': [["\\[","\\]"] ],
+   },
+}""")
 
     # generate the rom-inject library code
     if ~args.document_only:
