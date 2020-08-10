@@ -1036,7 +1036,7 @@ class BetrustedSoC(SoCCore):
         self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
 
         # Curve25519 engine ------------------------------------------------------------------------
-        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"sys"})(Engine(platform, self.mem_map["engine"]))
+        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200", "mul_clk":"sys"})(Engine(platform, self.mem_map["engine"]))
         self.add_csr("engine")
         self.add_interrupt("engine")
         self.bus.add_slave("engine", self.engine.bus, SoCRegion(origin=self.mem_map["engine"], size=0x2_0000, cached=False))
@@ -1064,6 +1064,8 @@ class BetrustedSoC(SoCCore):
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
+                # rd_data_sys is basically static, there are 100's of ns from stabilization to use, so make it a false path
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_sys*]')
             elif usb_type=='debug':
                 from valentyusb.usbcore import io as usbio
                 from valentyusb.usbcore.cpu import dummyusb
