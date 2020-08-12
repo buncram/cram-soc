@@ -1065,7 +1065,13 @@ class BetrustedSoC(SoCCore):
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
                 # rd_data_sys is basically static, there are 100's of ns from stabilization to use, so make it a false path
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_sys*]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_sys*]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_reg*]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_reg*]')
+                # these CDCs are a false path
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd_sync')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd')
             elif usb_type=='debug':
                 from valentyusb.usbcore import io as usbio
                 from valentyusb.usbcore.cpu import dummyusb
