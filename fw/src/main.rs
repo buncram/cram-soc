@@ -5,6 +5,10 @@
 
 #![no_std]
 
+#[export_name = "engine_vectors"]
+pub const ENGINE_VECTORS: &[u8; 13220] = include_bytes!("test_vectors.bin");
+use volatile::Volatile;
+
 use core::panic::PanicInfo;
 use betrusted_rt::entry;
 use core::str;
@@ -1002,6 +1006,96 @@ impl Repl {
                     self.text.add_text(&mut format!("Sha512 passed."));
                 } else {
                     self.text.add_text(&mut format!("Sha512 failed."));
+                }
+            } else if command.trim() == "e2" {
+                fn vector_read(word_offset: usize) -> u32 {
+                    let mut bytes: [u8; 4] = [0; 4];
+                    for i in 0..4 {
+                        bytes[i] = ENGINE_VECTORS[word_offset*4 + i];
+                    }
+                    u32::from_le_bytes(bytes)
+                }
+
+                ///////////////  APPLY AND RUN ARITHMETIC TEST VECTORS
+                let microcode_ptr: *mut u32 = 0xe002_0000 as *mut u32;
+                let microcode = microcode_ptr as *mut Volatile<u32>;
+                let rf_ptr: *mut u32 = 0xe003_0000 as *mut u32;
+                let rf = rf_ptr as *mut Volatile<u32>;
+
+                let mut test_offset: usize = 0x0;
+                let mut magic_number: u32;
+                let mut passes: Vec<usize> = Vec::new();
+                let mut fails: Vec<usize> = Vec::new();
+                loop {
+                    magic_number = vector_read(test_offset);
+                    if magic_number != 0x5645_4354 {
+                        break;
+                    }
+                    test_offset += 1;
+                    unsafe {
+                        let load_addr = (vector_read(test_offset) >> 16) & 0xFFFF;
+                        let code_len = vector_read(test_offset) & 0xFFFF;
+                        test_offset += 1;
+                        let num_args = (vector_read(test_offset) >> 27) & 0x1F;
+                        let window = (vector_read(test_offset) >> 23) & 0xF;
+                        let num_vectors = (vector_read(test_offset) >> 0) & 0x3F_FFFF;
+                        test_offset += 1;
+                        for i in 0..code_len as usize {
+                            (*(microcode.add(i))).write( vector_read(test_offset) );
+                            test_offset += 1;
+                        }
+
+                        test_offset = test_offset + (8 - (test_offset % 8)); // skip over padding
+
+                        // copy in the arguments
+                        for _vector in 0..num_vectors {
+                            for argcnt in 0..num_args {
+                                for word in 0..8 {
+                                (*( rf.add( (window * 32 * 8 + argcnt * 8 + word) as usize )) ).write( vector_read(test_offset) );
+                                test_offset += 1;
+                                }
+                            }
+
+                            // setup the engine to run
+                            self.p.ENGINE.window.write(|w| w.bits(window));
+                            self.p.ENGINE.mpstart.write(|w| w.bits(load_addr));
+                            self.p.ENGINE.mplen.write(|w| w.bits(code_len));
+                            // start the run
+                            self.p.ENGINE.control.write(|w| w.go().set_bit());
+                            loop {
+                                let status = self.p.ENGINE.status.read().bits();
+                                if (status & 1) == 0 {
+                                    break;
+                                }
+                            }
+
+                            // check result
+                            let mut vect_pass = true;
+                            for word in 0..8 {
+                                let expect = vector_read(test_offset);
+                                test_offset += 1;
+                                let actual = (*( rf.add( (window * 32 * 8 + 31 * 8 + word) as usize ))).read();
+                                if expect != actual {
+                                    vect_pass = false;
+                                }
+                            }
+                            if vect_pass {
+                                passes.push(test_offset);
+                            } else {
+                                fails.push(test_offset);
+
+                            }
+                        }
+                    }
+                }
+                if fails.len() > 0 {
+                    self.text.add_text(&mut format!("Engine25519 passed {} out of {} tests.", passes.len(), passes.len() + fails.len()));
+                    self.text.add_text(&mut format!("Engine25519 test failed at offsets:"));
+                    while fails.len() > 0 {
+                        self.text.add_text(&mut format!(" 0x{:04x}", fails.pop().unwrap() as u32 * 4));
+                    }
+                } else {
+                    self.text.add_text(&mut format!("Engine25519 passed {} tests.", passes.len()));
                 }
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", command.trim()));
