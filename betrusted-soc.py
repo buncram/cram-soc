@@ -866,6 +866,9 @@ class BetrustedSoC(SoCCore):
         self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
         self.add_csr("info")
         self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{dna_count_reg[0]/Q}}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
+        # reset ignore - we should not be relying on any _rst signals to clear state in a single cycle!
+        self.platform.add_platform_command('set_false_path -through [get_nets *_rst]')
+        self.platform.add_platform_command('set_false_path -through [get_nets crg_reset]')
 
         # External SRAM ----------------------------------------------------------------------------
         # Note that page_rd_timing=2 works, but is a slight overclock on RAM. Cache fill time goes from 436ns to 368ns for 8 words.
@@ -884,8 +887,7 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets sram_ext_load]")
         self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets sram_ext_load]")
         self.platform.add_platform_command("set_false_path -rise_from [get_clocks sys_clk] -fall_to [get_clocks sys_clk]")  # sort of a big hammer but should be OK
-        # reset ignore
-        self.platform.add_platform_command("set_false_path -through [get_nets sys_rst]")
+
         # relax OE driver constraint (it's OK if it is a bit late, and it's an async path from fabric to output so it will be late)
         self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins sram_ext_sync_oe_n_reg/Q]")
         self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins sram_ext_sync_oe_n_reg/Q]")
@@ -1064,14 +1066,6 @@ class BetrustedSoC(SoCCore):
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
-                # rd_data_sys is basically static, there are 100's of ns from stabilization to use, so make it a false path
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_sys*]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_sys*]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_reg*]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_reg*]')
-                # these CDCs are a false path
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd_sync')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd')
             elif usb_type=='debug':
                 from valentyusb.usbcore import io as usbio
                 from valentyusb.usbcore.cpu import dummyusb
@@ -1082,6 +1076,14 @@ class BetrustedSoC(SoCCore):
                 # debug bridge data and address settle multiple cycles before being accessed
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "usb_debug_bridge_address*"}}]')
                 self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "usb_debug_bridge_data*"}}]')
+                # rd_data_sys is basically static, there are 100's of ns from stabilization to use, so make it a false path
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_sys*]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_sys*]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_reg*]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_reg*]')
+                # these CDCs are a false path
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd_sync')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd')
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
