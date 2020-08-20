@@ -55,3 +55,9 @@
 [submodule "fw/curve25519-dalek"]
 	path = fw/curve25519-dalek
 	url = https://github.com/betrusted-io/curve25519-dalek.git
+[submodule "fw/engine25519-as"]
+	path = fw/engine25519-as
+	url = https://github.com/betrusted-io/engine25519-as.git
+[submodule "fw/x25519-dalek"]
+	path = fw/x25519-dalek
+	url = https://github.com/betrusted-io/x25519-dalek.git
