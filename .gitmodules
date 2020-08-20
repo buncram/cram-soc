@@ -52,3 +52,6 @@
 [submodule "deps/compiler_rt"]
 	path = deps/compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt.git
+[submodule "fw/curve25519-dalek"]
+	path = fw/curve25519-dalek
+	url = https://github.com/betrusted-io/curve25519-dalek.git
