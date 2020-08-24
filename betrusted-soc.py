@@ -57,6 +57,166 @@ from valentyusb.usbcore.cpu.eptri import TriEndpointInterface
 from valentyusb.usbcore.io import IoBuf
 # IOs ----------------------------------------------------------------------------------------------
 
+_io_pvt = [   # PVT-generation I/Os
+    ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
+
+    ("analog", 0,
+        Subsignal("usbdet_p",    Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbdet_n",    Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("vbus_div",    Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0",      Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise1",      Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+        # diff grounds
+        Subsignal("usbdet_p_n",  Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("usbdet_n_n",  Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("vbus_div_n",  Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise0_n",    Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("noise1_n",    Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+        # dedicated pins (no I/O standard applicable)
+        Subsignal("ana_vn", Pins("K9")),
+        Subsignal("ana_vp", Pins("J10")),
+     ),
+
+    ("jtag", 0,
+         Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),  # DVT
+         Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),   # DVT
+         Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),   # DVT
+         Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),   # DVT
+    ),
+
+    ("usb", 0,
+         Subsignal("d_p", Pins("C1"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),      # DVT
+         Subsignal("d_n", Pins("B1"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),      # DVT
+         Subsignal("pullup_p", Pins("D1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),  # DVT
+         Misc("SLEW=SLOW"),
+     ),
+
+    ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
+
+    # Power control signals
+    ("power", 0,
+        Subsignal("audio_on",     Pins("B7"),  IOStandard("LVCMOS33")),  # DVT
+        Subsignal("fpga_sys_on",  Pins("A5"), IOStandard("LVCMOS33")),   # DVT
+        Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
+        Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
+        Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT
+        # Noise generator
+        Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
+        # vibe motor
+        Subsignal("vibe_on",      Pins("H15"), IOStandard("LVCMOS33")),  # DVT
+        # reset EC
+        Subsignal("reset_ec_n",   Pins("M6"), IOStandard("LVCMOS18")),   # DVT -- allow FPGA to recover crashed EC
+        # USB_CC DFP attach
+        Subsignal("cc_id",        Pins("D18"), IOStandard("LVCMOS33")),  # DVT
+        # turn on the UP5K in case we are woken up by RTC
+        Subsignal("up5k_on",      Pins("E18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+        Subsignal("boostmode",    Pins("F18"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
+    ),
+
+    # Audio interface
+    ("i2s", 0,
+       Subsignal("clk", Pins("D12")),
+       Subsignal("tx", Pins("E13")), # au_sdi1
+       Subsignal("rx", Pins("C13")), # au_sdo1
+       Subsignal("sync", Pins("D14")),
+       IOStandard("LVCMOS33"),
+       Misc("SLEW=SLOW"), Misc("DRIVE=4"),
+     ),
+    ("au_mclk", 0, Pins("E12"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
+
+    # I2C1 bus -- to RTC and audio CODEC
+    ("i2c", 0,
+        Subsignal("scl", Pins("G2"), IOStandard("LVCMOS33")), # DVT
+        Subsignal("sda", Pins("F2"), IOStandard("LVCMOS33")), # DVT
+        Misc("SLEW=SLOW"), Misc("DRIVE=4"),
+    ),
+
+    # RTC interrupt
+    ("rtc_irq", 0, Pins("N5"), IOStandard("LVCMOS18")),
+
+    # COM interface to UP5K
+    ("com", 0,
+        Subsignal("csn",  Pins("T15"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
+        Subsignal("cipo", Pins("P16"), IOStandard("LVCMOS18")),
+        Subsignal("copi", Pins("N18"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
+        Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
+     ),
+    ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
+
+    # Top-side internal FPC header
+    # Add USB PU/PD config to the GPIO cluster, see comment
+    ("gpio", 0, Pins("F14 F15 E16 G15 G16 G13"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # DVT
+    #("usb_alt", 0,
+    # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
+    # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
+    # Subsignal("pulldn_n", Pins("A4"), IOStandard("LVCMOS33")),  # DVT
+    # Misc("DRIVE=4"), Misc("SLEW=SLOW"),
+    # ),
+
+    # Keyboard scan matrix
+    ("kbd", 0,
+        # "key" 0-8 are rows, 9-18 are columns
+        # column scan with 1's, so PD to default 0
+        Subsignal("row", Pins("A15 A17 A16 A14 C17 B16 B17 C14 B15"), Misc("PULLDOWN True")), # DVT
+        Subsignal("col", Pins("B13 C18 E14 D15 B18 D16 D17 F13 E15 A13")),                    # DVT
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
+     ),
+
+    # LCD interface
+    ("lcd", 0,
+        Subsignal("sclk", Pins("H17")), # DVT
+        Subsignal("scs",  Pins("G17")), # DVT
+        Subsignal("si",   Pins("H18")), # DVT
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=SLOW"),
+        Misc("DRIVE=4"),
+     ),
+
+    # SPI Flash
+    ("spiflash_1x", 0, # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("M13")),
+        Subsignal("copi", Pins("K17")),
+        Subsignal("cipo", Pins("K18")),
+        Subsignal("wp",   Pins("L14")), # provisional
+        Subsignal("hold", Pins("M15")), # provisional
+        IOStandard("LVCMOS18")
+    ),
+    ("spiflash_8x", 0, # clock needs a separate override to meet timing
+        Subsignal("cs_n", Pins("M13")),
+        Subsignal("dq",   Pins("K17 K18 L14 M15 L17 L18 M14 N14")),
+        Subsignal("dqs",  Pins("R14")),
+        Subsignal("ecs_n", Pins("L16")),
+        Subsignal("sclk", Pins("C12")),  # DVT
+        IOStandard("LVCMOS18"),
+        Misc("SLEW=SLOW"),
+     ),
+
+    # SRAM
+    ("sram", 0,
+        Subsignal("adr", Pins(
+            "V12 M5 P5 N4  V14 M3 R17 U15",
+            "M4  L6 K3 R18 U16 K1 R5  T2",
+            "U1  N1 L5 K2  M18 T6"),
+            IOStandard("LVCMOS18")),
+        Subsignal("ce_n", Pins("V5"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("we_n", Pins("K4"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("d", Pins(
+            "M2  R4  P2  L4  L1  M1  R1  P1",
+            "U3  V2  V4  U2  N2  T1  K6  J6",
+            "V16 V15 U17 U18 P17 T18 P18 M17",
+            "N3  T4  V13 P15 T14 R15 T3  R7"),
+            IOStandard("LVCMOS18")),
+        Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
+    ),
+]
+
 
 _io_dvt = [   # DVT-generation I/Os
     ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
@@ -562,6 +722,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
             CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first."),
             CSRField("reset_ec",  size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
             CSRField("up5k_on",   size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
+            CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role.")
         ])
         # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
@@ -577,7 +738,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
             pads.noise_on.eq(self.power.fields.noise),
 
         ]
-        if revision == 'dvt':
+        if revision == 'dvt' or revision == 'pvt':
             self.reset_ec = TSTriple(1)
             self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
             self.comb += [
@@ -614,6 +775,8 @@ class BtPower(Module, AutoCSR, AutoDoc):
                     up5k_on_count.eq(0)
                 )
             ]
+        if revision == 'pvt':
+            self.comb += pads.boostmode.eq(self.power.fields.boostmode)
 
 
 # BtGpio -------------------------------------------------------------------------------------------
@@ -1049,7 +1212,7 @@ class BetrustedSoC(SoCCore):
             self.add_csr("jtag")
 
         # USB FS block -----------------------------------------------------------------------------
-        if revision == 'dvt':
+        if revision == 'dvt' or revision == 'pvt':
             if usb_type == 'device':
                 usb_pads = platform.request("usb")
                 usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
@@ -1120,7 +1283,7 @@ def main():
         "-x", "--xous", help="Build for the Xous runtime environment. Defaults to `fw` validation image.", default=False, action="store_true"
     )
     parser.add_argument(
-        "-r", "--revision", choices=['evt', 'dvt'], help="Build for a particular revision. Defaults to 'evt'", default='evt', type=str,
+        "-r", "--revision", choices=['evt', 'dvt', 'pvt'], help="Build for a particular revision. Defaults to 'dvt'", default='dvt', type=str,
     )
     parser.add_argument(
         "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
@@ -1144,6 +1307,8 @@ def main():
         io = _io_evt
     elif args.revision == 'dvt':
         io = _io_dvt
+    elif args.revision == 'pvt':
+        io = _io_pvt
     else:
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
