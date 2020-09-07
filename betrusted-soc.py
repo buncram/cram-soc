@@ -104,14 +104,14 @@ _io_pvt = [   # PVT-generation I/Os
         # Noise generator
         Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
         # vibe motor
-        Subsignal("vibe_on",      Pins("H15"), IOStandard("LVCMOS33")),  # DVT
+        Subsignal("vibe_on",      Pins("G13"), IOStandard("LVCMOS33")),  # PVT
         # reset EC
-        Subsignal("reset_ec_n",   Pins("M6"), IOStandard("LVCMOS18")),   # DVT -- allow FPGA to recover crashed EC
+        Subsignal("reset_ec",   Pins("M6"), IOStandard("LVCMOS18")),   # PVT -- allow FPGA to recover crashed EC (invert polarity)
         # USB_CC DFP attach
         Subsignal("cc_id",        Pins("D18"), IOStandard("LVCMOS33")),  # DVT
         # turn on the UP5K in case we are woken up by RTC
-        Subsignal("up5k_on",      Pins("E18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
-        Subsignal("boostmode",    Pins("F18"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+        Subsignal("up5k_on",      Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+        Subsignal("boostmode",    Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
         Misc("SLEW=SLOW"),
         Misc("DRIVE=4"),
     ),
@@ -148,7 +148,7 @@ _io_pvt = [   # PVT-generation I/Os
 
     # Top-side internal FPC header
     # Add USB PU/PD config to the GPIO cluster, see comment
-    ("gpio", 0, Pins("F14 F15 E16 G15 G16 G13"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # DVT
+    ("gpio", 0, Pins("F14 F15 E16 G15 H15 G16 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # PVT
     #("usb_alt", 0,
     # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
     # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
@@ -554,7 +554,7 @@ _io_uart_debug_swapped = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False):
+    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False, bbram=False):
         part = "xc7s" + part + "-csga324-1il"
         XilinxPlatform.__init__(self, part, io, toolchain=toolchain)
 
@@ -575,9 +575,12 @@ class Platform(XilinxPlatform):
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
         ]
         if encrypt:
+            type = 'eFUSE'
+            if bbram:
+                type = 'BBRAM'
             self.toolchain.bitstream_commands += [
                 "set_property BITSTREAM.ENCRYPTION.ENCRYPT YES [current_design]",
-                "set_property BITSTREAM.ENCRYPTION.ENCRYPTKEYSELECT eFUSE [current_design]",
+                "set_property BITSTREAM.ENCRYPTION.ENCRYPTKEYSELECT {} [current_design]".format(type),
                 "set_property BITSTREAM.ENCRYPTION.KEYFILE ../../dummy.nky [current_design]"
             ]
 
@@ -740,13 +743,17 @@ class BtPower(Module, AutoCSR, AutoDoc):
         ]
         if revision == 'dvt' or revision == 'pvt':
             self.reset_ec = TSTriple(1)
-            self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
+            if revision == 'dvt':
+                self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
+                self.comb += self.reset_ec.i.eq(0)  # reset is an active low signal
+            else:
+                self.specials += self.reset_ec.get_tristate(pads.reset_ec)
+                self.comb += self.reset_ec.i.eq(1)  # reset is an active high signal
             self.comb += [
                 pads.pwr_s1.eq(self.power.fields.state[1]),
                 pads.noisebias_on.eq(self.power.fields.noisebias),
                 pads.vibe_on.eq(self.vibe.fields.vibe),
 
-                self.reset_ec.i.eq(0),  # reset is a low signal
                 self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
             ]
             self.submodules.ev = EventManager()
@@ -1288,6 +1295,9 @@ def main():
     parser.add_argument(
         "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
     )
+    parser.add_argument(
+        "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1298,10 +1308,13 @@ def main():
         compile_gateware = False
         compile_software = False
 
+    bbram = False
     if args.encrypt == None:
         encrypt = False
     else:
         encrypt = True
+        if args.bbram:
+            bbram = True
 
     if args.revision == 'evt':
         io = _io_evt
@@ -1314,7 +1327,7 @@ def main():
         sys.exit(1)
 
     ##### setup platform
-    platform = Platform(io, encrypt=encrypt)
+    platform = Platform(io, encrypt=encrypt, bbram=bbram)
     platform.add_extension(_io_uart_debug)  # specify the location of the UART pins, we can swap them to some reserved GPIOs
 
     ##### define the soc
