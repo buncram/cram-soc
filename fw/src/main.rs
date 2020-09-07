@@ -566,19 +566,19 @@ impl Repl {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 self.text.add_text(&mut format!("cntl: 0x{:02x}", self.efuse.phy_cntl()));
                 // comment out burning routines for now
-            /* }  else if command.trim() == "test1" {
+            }  else if command.trim() == "burnkey" {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
-                let mut key: [u8; 32] = self.efuse.phy_key();
-                key[26] = 0xA0;
-                key[25] = 0x03;
-                key[24] = 0x81;
+                let mut key: [u8; 32] = [0xab, 0x89, 0xaa, 0xaa, 0x9a, 0x78, 0xaa, 0xaa,
+                                        0x89, 0x67, 0xaa, 0xaa, 0x78, 0x56, 0xaa, 0xaa,
+                                        0x67, 0x45, 0xaa, 0xaa, 0x56, 0x34, 0xaa, 0xaa,
+                                        0x45, 0x23, 0xaa, 0xaa, 0x34, 0x12, 0xaa, 0xaa];
                 self.efuse.set_key(key);
                 if self.efuse.is_valid() {
                     self.text.add_text(&mut format!("Patch is valid."));
                 } else {
                     self.text.add_text(&mut format!("Patch is not valid."));
                 }
-                self.efuse.burn(&mut self.jtag, &mut self.jtagphy); */
+                self.efuse.burn(&mut self.jtag, &mut self.jtagphy);
             }  else if command.trim() == "dna" { // dna
                 self.jtag.reset(&mut self.jtagphy);
                 let mut ir_leg: JtagLeg = JtagLeg::new(JtagChain::IR, "cmd");
