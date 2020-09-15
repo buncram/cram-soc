@@ -76,7 +76,6 @@ use betrusted_hal::hal_lcd::*;
 use betrusted_hal::hal_com::*;
 use betrusted_hal::hal_kbd::*;
 use betrusted_hal::hal_xadc::*;
-use betrusted_hal::hal_audio::*;
 use betrusted_hal::hal_rtc::*;
 use betrusted_hal::hal_aes::*;
 use betrusted_hal::hal_sha2::*;
@@ -92,6 +91,13 @@ use embedded_graphics::primitives::Line;
 use alloc::vec::Vec;
 use alloc::string::String;
 
+#[cfg(feature = "evt")]
+#[cfg(feature = "dvt")]
+use betrusted_hal::hal_audio::*;
+
+#[cfg(feature = "pvt")]
+use betrusted_hal::hal_tlv320aic3100::*;
+
 use jtag::*;
 use efuse_api::*;
 
@@ -99,6 +105,7 @@ use efuse_api::*;
 use jtag::JtagUartPhy as JtagPhy;
 
 #[cfg(feature = "dvt")]
+#[cfg(feature = "pvt")]
 use jtag::JtagGpioPhy as JtagPhy;
 
 use rom_inject::*;

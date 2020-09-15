@@ -299,11 +299,13 @@ impl JtagPhy for JtagUartPhy {
 
 
 #[cfg(feature = "dvt")]
+#[cfg(feature = "pvt")]
 pub struct JtagGpioPhy {
     p: betrusted_pac::Peripherals,
 }
 
 #[cfg(feature = "dvt")]
+#[cfg(feature = "pvt")]
 impl JtagGpioPhy {
     pub fn new() -> Self {
         unsafe {
@@ -315,6 +317,7 @@ impl JtagGpioPhy {
 }
 
 #[cfg(feature = "dvt")]
+#[cfg(feature = "pvt")]
 impl JtagPhy for JtagGpioPhy {
     /// pause for a given number of microseconds.
     fn pause(&mut self, us: u32) {
@@ -380,7 +383,7 @@ impl JtagMach {
         } else {
             None
         }
-    }   
+    }
 
     /// has_pending() -- tells if the jtag machine has a pending leg to traverse. Returns the tag of the pending item, or None.
     pub fn has_pending(&self) -> bool {
@@ -457,7 +460,7 @@ impl JtagMach {
             JtagState::Select => {
                 phy.sync(false, false);
                 JtagState::Capture
-            }, 
+            },
             JtagState::Capture => {
                 // always move to shift, because leg structures always have data
                 phy.sync(false, false);
@@ -471,7 +474,7 @@ impl JtagMach {
                             let tdo: bool = phy.sync(tdi, false);
                             cur.o.push(tdo);
                             self.current = Some(cur.clone());
-                            JtagState::Shift 
+                            JtagState::Shift
                         } else {
                             // last element should leave the state
                             let tdo: bool = phy.sync(tdi, true);
@@ -502,7 +505,7 @@ impl JtagMach {
             },
             JtagState::Update => {
                 phy.sync(false, false);
-                
+
                 self.pending.remove(0); // remove the oldest entry
                 if let Some(next) = self.current.take() {
                     self.done.push(next);

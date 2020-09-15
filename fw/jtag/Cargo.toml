@@ -12,5 +12,6 @@ alloc-riscv = { path = "../alloc-riscv" }
 betrusted-pac = { path = "../betrusted-pac" }
 
 [features]
-evt = []
+#evt = []
 dvt = []
+pvt = []

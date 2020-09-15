@@ -33,6 +33,7 @@ debug = true # symbols are nice and they don't increase the size on Flash
 lto = true # better optimizations
 
 [features]
+pvt = ["jtag/pvt", "betrusted-hal/pvt"]
 dvt = ["jtag/dvt", "betrusted-hal/dvt"]
 evt = ["jtag/evt", "betrusted-hal/evt"]
-default = ["dvt"]
+default = ["pvt"]
