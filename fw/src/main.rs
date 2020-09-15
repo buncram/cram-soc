@@ -91,8 +91,7 @@ use embedded_graphics::primitives::Line;
 use alloc::vec::Vec;
 use alloc::string::String;
 
-#[cfg(feature = "evt")]
-#[cfg(feature = "dvt")]
+#[cfg(any(feature = "dvt", feature = "evt"))]
 use betrusted_hal::hal_audio::*;
 
 #[cfg(feature = "pvt")]
@@ -104,8 +103,7 @@ use efuse_api::*;
 #[cfg(feature = "evt")]
 use jtag::JtagUartPhy as JtagPhy;
 
-#[cfg(feature = "dvt")]
-#[cfg(feature = "pvt")]
+#[cfg(any(feature = "dvt", feature = "pvt"))]
 use jtag::JtagGpioPhy as JtagPhy;
 
 use rom_inject::*;
@@ -724,7 +722,7 @@ impl Repl {
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
-            } else if command.trim() == "aux" { // xadc audio source
+            } /* else if command.trim() == "aux" { // xadc audio source
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
                 self.audio.audio_ports();
@@ -735,7 +733,7 @@ impl Repl {
                 self.audio.audio_loopback_xadc(&mut self.xadc);
 
                 self.audio.audio_i2s_stop();
-            } else if command.trim() == "ramc" {
+            } */ else if command.trim() == "ramc" {
                 self.ram_clear();
                 self.text.add_text(&mut format!("RAM cleared."));
             } else if command.trim() == "rno" {

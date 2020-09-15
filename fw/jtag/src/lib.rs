@@ -298,14 +298,12 @@ impl JtagPhy for JtagUartPhy {
 }
 
 
-#[cfg(feature = "dvt")]
-#[cfg(feature = "pvt")]
+#[cfg(any(feature = "dvt", feature = "pvt"))]
 pub struct JtagGpioPhy {
     p: betrusted_pac::Peripherals,
 }
 
-#[cfg(feature = "dvt")]
-#[cfg(feature = "pvt")]
+#[cfg(any(feature = "dvt", feature = "pvt"))]
 impl JtagGpioPhy {
     pub fn new() -> Self {
         unsafe {
@@ -316,8 +314,7 @@ impl JtagGpioPhy {
     }
 }
 
-#[cfg(feature = "dvt")]
-#[cfg(feature = "pvt")]
+#[cfg(any(feature = "dvt", feature = "pvt"))]
 impl JtagPhy for JtagGpioPhy {
     /// pause for a given number of microseconds.
     fn pause(&mut self, us: u32) {
