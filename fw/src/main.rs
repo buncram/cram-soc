@@ -6,7 +6,7 @@
 #![no_std]
 
 #[export_name = "engine_vectors"]
-pub const ENGINE_VECTORS: &[u8; 15652] = include_bytes!("test_vectors.bin");
+pub static ENGINE_VECTORS: &[u8; 15652] = include_bytes!("test_vectors.bin");
 use volatile::Volatile;
 
 use core::panic::PanicInfo;
