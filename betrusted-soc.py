@@ -689,6 +689,7 @@ _io_evt = [
     ),
 ]
 
+# use this config to wire the debug bridge UART to the Rpi
 _io_uart_debug = [
     ("debug", 0,  # wired to the Rpi
         Subsignal("tx", Pins("V6")),
@@ -705,6 +706,7 @@ _io_uart_debug = [
      ),
 ]
 
+# use this config to wire the console UART to the Rpi, and debug bridge to GPIOs
 _io_uart_debug_swapped = [
     ("serial", 0, # wired to the RPi
      Subsignal("tx", Pins("V6")),
@@ -1236,7 +1238,9 @@ class BetrustedSoC(SoCCore):
         "csr":             0xf0000000,
     }
 
-    def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False, xous=False, usb_type='debug', **kwargs):
+    def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
+                 xous=False, usb_type='debug', uart_name="crossover",
+                 **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
 
@@ -1261,7 +1265,7 @@ class BetrustedSoC(SoCCore):
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
-            uart_name            = "crossover", # use UART-over-wishbone for debugging
+            uart_name            = uart_name,
             cpu_reset_address    = reset_address,
             **kwargs)
 
@@ -1275,9 +1279,10 @@ class BetrustedSoC(SoCCore):
         self.cpu.cpu_params.update(i_externalResetVector=self.reboot.addr.storage)
 
         # Debug cluster ----------------------------------------------------------------------------
-        from litex.soc.cores.uart import UARTWishboneBridge
-        self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
-        self.add_wb_master(self.uart_bridge.wishbone)
+        if usb_type != 'debug':  # wire up the debug UART automatically if we don't have USB debugging capability
+           from litex.soc.cores.uart import UARTWishboneBridge
+           self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
+           self.add_wb_master(self.uart_bridge.wishbone)
         self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
 
         # Clockgen cluster -------------------------------------------------------------------------
@@ -1627,6 +1632,9 @@ def main():
     parser.add_argument(
         "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
     )
+    parser.add_argument(
+        "-p", "--physical-uart", help="Use physical UART. Disables console UART tunelling over wishbone-tool and uses physical pins instead.", default=False, action="store_true"
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1657,12 +1665,18 @@ def main():
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
 
+    if args.physical_uart:
+        uart_name="serial"
+    else:
+        uart_name="crossover"
+
     ##### setup platform
     platform = Platform(io, encrypt=encrypt, bbram=bbram)
-    platform.add_extension(_io_uart_debug)  # specify the location of the UART pins, we can swap them to some reserved GPIOs
+    # _io_uart_debug wires debug bridge to Rpi; _io_uart_debug_swapped wires console to Rpi
+    platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name)
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=compile_software, compile_gateware=compile_gateware)
