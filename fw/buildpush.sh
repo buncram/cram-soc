@@ -6,7 +6,7 @@ if [ -z "$1" ]
 then
     echo "Usage: $0 ssh-target [privatekey]"
     echo "Missing ssh-target argument."
-    echo "Assumes betrusted-scripts repo is cloned on repository at ~/code/betrused-scripts/"
+    echo "Assumes betrusted-scripts repo is cloned on ssh-target at ~/code/betrused-scripts/"
     exit 0
 fi
 
