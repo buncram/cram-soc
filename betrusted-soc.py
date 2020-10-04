@@ -1371,6 +1371,10 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command('set_false_path -through [get_nets *_rst]')
         self.platform.add_platform_command('set_false_path -through [get_nets {}crg_reset]'.format(prefix))
 
+        # all multiregs are false paths by definition. Make it explicit.
+        self.platform.add_platform_command('set_false_path -through [get_nets *xilinxmultiregimpl*_regs0]') # covers sys-to-other
+        self.platform.add_platform_command('set_false_path -through [get_pins *xilinxmultiregimpl*_regs0_reg/D]') # covers other-to-sys
+
         # External SRAM ----------------------------------------------------------------------------
         # Note that page_rd_timing=2 works, but is a slight overclock on RAM. Cache fill time goes from 436ns to 368ns for 8 words.
         self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=6, page_rd_timing=53)  # this works with 2:nbits page length with Rust firmware...
