@@ -1270,7 +1270,7 @@ class BetrustedSoC(SoCCore):
             **kwargs)
 
         # CPU --------------------------------------------------------------------------------------
-        self.cpu.use_external_variant("deps/gateware/gateware/cpu/VexRiscv_BetrustedSoC_Debug.v")
+        self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_BetrustedSoC_Debug.v")
         self.cpu.add_debug()
         self.submodules.reboot = WarmBoot(self, reset_address)
         self.add_csr("reboot")
