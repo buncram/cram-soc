@@ -1219,6 +1219,8 @@ class RomTest(Module, AutoDoc, AutoCSR):
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
 bios_size      = 0x8000
 SPI_FLASH_SIZE = 128 * 1024 * 1024
+prefix = "soc_"  # sometimes 'soc_', sometimes '' prefix Litex is attaching to net names
+# changes randomly depending on how the build system feels (currently problems with Chisel doing weird things to net names when CPU core is regenerated)
 
 # BetrustedSoC -------------------------------------------------------------------------------------
 
@@ -1364,10 +1366,10 @@ class BetrustedSoC(SoCCore):
 
         self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
         self.add_csr("info")
-        self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{dna_count_reg[0]/Q}}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
+        self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {{' + prefix + 'dna_count_reg[0]/Q }}] -divide_by 2 [get_pins {{DNA_PORT/CLK}}]')
         # reset ignore - we should not be relying on any _rst signals to clear state in a single cycle!
         self.platform.add_platform_command('set_false_path -through [get_nets *_rst]')
-        self.platform.add_platform_command('set_false_path -through [get_nets crg_reset]')
+        self.platform.add_platform_command('set_false_path -through [get_nets {}crg_reset]'.format(prefix))
 
         # External SRAM ----------------------------------------------------------------------------
         # Note that page_rd_timing=2 works, but is a slight overclock on RAM. Cache fill time goes from 436ns to 368ns for 8 words.
@@ -1383,13 +1385,13 @@ class BetrustedSoC(SoCCore):
         # ODDR falling edge ignore
         self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_ports {{sram_d[*] sram_adr[*] sram_ce_n sram_oe_n sram_we_n sram_zz_n sram_dm_n[*]}}]")
         self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_ports {{sram_d[*]}}]")
-        self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets sram_ext_load]")
-        self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets sram_ext_load]")
+        self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets {}sram_ext_load]".format(prefix))
+        self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets {}sram_ext_load]".format(prefix))
         self.platform.add_platform_command("set_false_path -rise_from [get_clocks sys_clk] -fall_to [get_clocks sys_clk]")  # sort of a big hammer but should be OK
 
         # relax OE driver constraint (it's OK if it is a bit late, and it's an async path from fabric to output so it will be late)
-        self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins sram_ext_sync_oe_n_reg/Q]")
-        self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins sram_ext_sync_oe_n_reg/Q]")
+        self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins {}sram_ext_sync_oe_n_reg/Q]".format(prefix))
+        self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins {}sram_ext_sync_oe_n_reg/Q]".format(prefix))
 
         # LCD interface ----------------------------------------------------------------------------
         self.submodules.memlcd = memlcd.MemLCD(platform.request("lcd"))
@@ -1479,8 +1481,8 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports spiflash_8x_cs_n]") # -3 in reality
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
             # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
-            self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_copi_oe_reg/Q ]")
-            self.platform.add_platform_command("set_false_path -through [ get_pins s7spiopi_dq_oe_reg/Q ]")
+            self.platform.add_platform_command("set_false_path -through [ get_pins {}s7spiopi_dq_copi_oe_reg/Q ]".format(prefix))
+            self.platform.add_platform_command("set_false_path -through [ get_pins {}s7spiopi_dq_oe_reg/Q ]".format(prefix))
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
@@ -1542,7 +1544,7 @@ class BetrustedSoC(SoCCore):
         self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
 
         # Curve25519 engine ------------------------------------------------------------------------
-        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200", "mul_clk":"sys"})(Engine(platform, self.mem_map["engine"]))
+        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200", "mul_clk":"sys"})(Engine(platform, self.mem_map["engine"], build_prefix=prefix))
         self.add_csr("engine")
         self.add_interrupt("engine")
         self.bus.add_slave("engine", self.engine.bus, SoCRegion(origin=self.mem_map["engine"], size=0x2_0000, cached=False))
@@ -1560,7 +1562,7 @@ class BetrustedSoC(SoCCore):
                 self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
                 self.add_csr("usb")
                 self.add_interrupt("usb")
-                self.platform.add_platform_command("set_false_path -through [get_nets usb_usb_core_rx_o_reset]")
+                self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
                 # all multiregs are false paths!
                 self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
                 self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
@@ -1577,17 +1579,21 @@ class BetrustedSoC(SoCCore):
                 usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
                 self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, cdc=True, relax_timing=True)
                 self.add_wb_master(self.usb.debug_bridge.wishbone)
+                if prefix != '':
+                    usb_prefix='usb_'  # is 'usb_' if an extra debug bridge (e.g. serial UART) is added, is '' if this is the only debug bridge
+                else:
+                    usb_prefix=''
                 # debug bridge data and address settle multiple cycles before being accessed
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "usb_debug_bridge_address*"}}]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "usb_debug_bridge_data*"}}]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "'+prefix+usb_prefix+'debug_bridge_address*"}}]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "'+prefix+usb_prefix+'debug_bridge_data*"}}]')
                 # rd_data_sys is basically static, there are 100's of ns from stabilization to use, so make it a false path
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_sys*]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_sys*]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets usb_debug_bridge_rd_data_reg*]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_rd_data_reg*]')
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets {}{}debug_bridge_rd_data_sys*]'.format(prefix, usb_prefix))
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets {}{}debug_bridge_rd_data_sys*]'.format(prefix, usb_prefix))
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_nets {}{}debug_bridge_rd_data_reg*]'.format(prefix, usb_prefix))
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets {}{}debug_bridge_rd_data_reg*]'.format(prefix, usb_prefix))
                 # these CDCs are a false path
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd_sync')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets usb_debug_bridge_cmd')
+                #self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets {}{}debug_bridge_cmd_sync]'.format(prefix, usb_prefix))
+                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_nets {}{}debug_bridge_cmd]'.format(prefix, usb_prefix))
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
