@@ -113,6 +113,9 @@ use aes_test::*;
 const SHA_DATA: &[u8; 142] = b"Every one suspects himself of at least one of the cardinal virtues, and this is mine: I am one of the few honest people that I have ever known";
 const SHA_DIGEST: [u32; 8] = [0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2, 0xb8a8379d, 0x426dc745, 0x19f5cff7, 0x4ec9c6d6];
 
+mod logo;
+use logo::*;
+
 const COM_GASGAUGE: u16 = 0x7000;
 const COM_USBCC: u16 = 0xB000;
 const COM_BL_FULLON: u16 = 0x6BFF;
@@ -242,6 +245,7 @@ pub struct Repl {
     rtc: BtRtc,
     aes: BtAes,
     sha2: BtSha2,
+    ssid_print: bool,
 }
 
 const PROMPT: &str = "bt> ";
@@ -269,11 +273,19 @@ impl Repl {
                     rtc: BtRtc::new(),
                     aes: BtAes::new(),
                     sha2: BtSha2::new(),
+                    ssid_print: true,
                 }
             };
         r.text.add_text(&mut String::from("Awaiting input."));
 
         r
+    }
+
+    pub fn get_ssid_print(&self) -> bool {
+        self.ssid_print
+    }
+    pub fn set_ssid_print(&mut self, state: bool) {
+        self.ssid_print = state;
     }
 
     pub fn input_char(&mut self, c: char) {
@@ -473,7 +485,7 @@ impl Repl {
         if command.len() == 0 {
             return;
         } else {
-            if command.trim() == "shutdown" || command.trim() == "shut" {
+            if command.trim() == "shutdown" || command.trim() == "shut" || command.trim() == "sleep" {
                 self.text.add_text(&mut String::from("Shutting down system"));
                 self.power = false; // the main UI loop needs to pick this up and render the display accordingly
             } else if command.trim() == "reboot" || command.trim() == "reb" {
@@ -571,7 +583,7 @@ impl Repl {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 self.text.add_text(&mut format!("cntl: 0x{:02x}", self.efuse.phy_cntl()));
                 // comment out burning routines for now
-            }  else if command.trim() == "burnkey" {
+            }  /*else if command.trim() == "burnkey" {
                 self.efuse.fetch(&mut self.jtag, &mut self.jtagphy);
                 let mut key: [u8; 32] = [0xab, 0x89, 0xaa, 0xaa, 0x9a, 0x78, 0xaa, 0xaa,
                                         0x89, 0x67, 0xaa, 0xaa, 0x78, 0x56, 0xaa, 0xaa,
@@ -584,7 +596,7 @@ impl Repl {
                     self.text.add_text(&mut format!("Patch is not valid."));
                 }
                 self.efuse.burn(&mut self.jtag, &mut self.jtagphy);
-            }  else if command.trim() == "dna" { // dna
+            }  */ else if command.trim() == "dna" { // dna
                 self.jtag.reset(&mut self.jtagphy);
                 let mut ir_leg: JtagLeg = JtagLeg::new(JtagChain::IR, "cmd");
                 ir_leg.push_u32(0b110010, 6, JtagEndian::Little);
@@ -859,6 +871,10 @@ impl Repl {
                 delay_ms(&self.p, 1);
                 let id = com_txrx(&self.p, COM_NEXT_DATA);
                 self.text.add_text(&mut format!("x: {}, y: {}, z: {}, id: 0x{:02x}", x, y, z, id));
+            } else if command.trim() == "scanon" {
+                self.ssid_print = true;
+            } else if command.trim() == "scanoff" {
+                self.ssid_print = false;
             } else if command.trim() == "dr" {
                 fn get_rk() -> ChainKey {
                     let key = core::iter::repeat(0x42).take(32).collect::<Vec<u8>>();
@@ -1246,17 +1262,22 @@ fn main() -> ! {
 
                     display.lock().blocking_flush();
                 } else {
-                    Font12x16::render_str("Betrusted in Standby")
-                    .stroke_color(Some(BinaryColor::On))
-                    .translate(Point::new(50, 250))
-                    .draw(&mut *display.lock());
+                    if false {
+                        Font12x16::render_str("Betrusted in Standby")
+                        .stroke_color(Some(BinaryColor::On))
+                        .translate(Point::new(50, 250))
+                        .draw(&mut *display.lock());
 
-                    Font12x16::render_str("Press F1 and F4 to power on")
-                    .stroke_color(Some(BinaryColor::On))
-                    .translate(Point::new(7, 270))
-                    .draw(&mut *display.lock());
+                        Font12x16::render_str("Press F1 and F4 to power on")
+                        .stroke_color(Some(BinaryColor::On))
+                        .translate(Point::new(7, 270))
+                        .draw(&mut *display.lock());
 
-                    display.lock().blocking_flush();
+                        display.lock().blocking_flush();
+                    } else {
+                        display.lock().blocking_flush();
+                        display.lock().display_bitmap(logo::LOGO_MAP);
+                    }
 
                     unsafe{p.POWER.power.write(|w| w
                         .self_().bit(false)
@@ -1406,9 +1427,11 @@ fn main() -> ! {
                         ssid_list[tx_index / 16][(tx_index % 16) * 2 + 1] = msb;
                         tx_index += 1;
                     } else {
-                        for i in 0..6 {
-                            let ssid = str::from_utf8(&ssid_list[i]).expect("unable to parse ssid");
-                            repl.text.add_text(&mut format!("{}: {}", i, ssid));
+                        if repl.get_ssid_print() {
+                            for i in 0..6 {
+                                let ssid = str::from_utf8(&ssid_list[i]).expect("unable to parse ssid");
+                                repl.text.add_text(&mut format!("{}: {}", i, ssid));
+                            }
                         }
                         tx_index = 0;
                         loopdelay = 200;

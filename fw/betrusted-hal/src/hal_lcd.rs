@@ -36,7 +36,7 @@ const FB_WIDTH_WORDS: usize = 11;
 const FB_WIDTH_PIXELS: usize = 336;
 const FB_LINES: usize = 536;
 const FB_SIZE: usize = FB_WIDTH_WORDS * FB_LINES; // 44 bytes by 536 lines
-    
+
 /// BtDisplay abstraction for embedded-graphics library
 /// See LockedBtDisplay for API docs
 pub struct BtDisplay {
@@ -48,12 +48,12 @@ pub struct BtDisplay {
 impl BtDisplay {
     pub fn new() -> Self {
         let mut ret: BtDisplay =
-        unsafe{ 
-            BtDisplay{ 
-                interface: betrusted_pac::Peripherals::steal(), 
+        unsafe{
+            BtDisplay{
+                interface: betrusted_pac::Peripherals::steal(),
                 fb: [0xFFFF_FFFF; FB_SIZE],
                 timestamp: 0,
-            } 
+            }
         };
         // unset the dirty bits in the local fb array copy
         for words in 0..FB_SIZE {
@@ -62,7 +62,7 @@ impl BtDisplay {
             }
         }
         ret.timestamp = get_time_ms(&ret.interface);
-    
+
         ret
     }
 
@@ -110,7 +110,24 @@ impl BtDisplay {
 
         while lcd_busy(&self.interface) {}  // wait until the last flush is done
     }
-    
+
+    pub fn display_bitmap(&mut self, bmp: [u32; FB_SIZE]) {
+        for words  in 0..FB_SIZE {
+            self.fb[words] = bmp[words];
+            // keep fb and hardware buffer in sync
+            unsafe {
+                (*LCD_FB)[words] = bmp[words];
+            }
+        }
+        lcd_update_all(&self.interface);
+        // clear dirty bits in case there's more to come
+        for lines in 0..FB_LINES {
+            self.fb[lines * FB_WIDTH_WORDS + (FB_WIDTH_WORDS - 1)] &= 0x0000_FFFF;
+        }
+
+        while lcd_busy(&self.interface) {}  // wait until the last flush is done
+    }
+
     pub fn clear(&mut self) {
         let mut line_dirty: bool = false;
         for words in 0..FB_SIZE {
