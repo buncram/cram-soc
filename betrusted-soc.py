@@ -1116,6 +1116,8 @@ class BtGpio(Module, AutoDoc, AutoCSR):
         self.intena = CSRStatus(pads.nbits,  name="intena", description="Enable interrupts when a respective bit is set")
         self.intpol = CSRStatus(pads.nbits,  name="intpol", description="When a bit is `1`, falling-edges cause interrupts. Otherwise, rising edges cause interrupts.")
 
+        self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others undefined")
+
         self.specials += MultiReg(gpio_in, self.input.status)
         self.comb += [
             gpio_out.eq(self.output.storage),
@@ -1270,6 +1272,7 @@ class BetrustedSoC(SoCCore):
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
+            with_uart            = False, # implemented manually to allow for UART mux
             uart_name            = uart_name,
             cpu_reset_address    = reset_address,
             **kwargs)
@@ -1294,6 +1297,53 @@ class BetrustedSoC(SoCCore):
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
         self.add_csr("crg")
         self.comb += self.crg.warm_reset.eq(warm_reset)
+
+        # GPIO module ------------------------------------------------------------------------------
+        self.submodules.gpio = BtGpio(platform.request("gpio"))
+        self.add_csr("gpio")
+        self.add_interrupt("gpio")
+
+        # UART mux ---------------------------------------------------------------------------------
+        from litex.soc.cores import uart
+        if uart_name == "crossover":
+            self.submodules.uart = uart.UARTCrossover()
+        elif uart_name == "serial":
+            uart_pins = platform.request("serial")
+            serial_layout = [("tx", 1), ("rx", 1)]
+            kernel_pads = Record(serial_layout)
+            console_pads = Record(serial_layout)
+            self.comb += [
+                If(self.gpio.uartsel.storage == 0,
+                    uart_pins.tx.eq(kernel_pads.tx),
+                    kernel_pads.rx.eq(uart_pins.rx),
+                ).Elif(self.gpio.uartsel.storage == 1,
+                    uart_pins.tx.eq(console_pads.tx),
+                    console_pads.rx.eq(uart_pins.rx),
+                )
+            ]
+            self.submodules.uart_phy = uart.UARTPHY(
+                pads=kernel_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+            self.submodules.uart = ResetInserter()(uart.UART(self.uart_phy,
+                tx_fifo_depth=16,
+                rx_fifo_depth=16))
+
+            self.add_csr("uart_phy")
+            self.add_csr("uart")
+            self.add_interrupt("uart")
+
+            self.submodules.console_phy = uart.UARTPHY(
+                pads=console_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+            self.submodules.console = ResetInserter()(uart.UART(self.console_phy,
+                tx_fifo_depth=16,
+                rx_fifo_depth=16))
+
+            self.add_csr("console_phy")
+            self.add_csr("console")
+            self.add_interrupt("console")
 
         # XADC analog interface---------------------------------------------------------------------
 
@@ -1502,8 +1552,8 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
             # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
             if NEW_XDC:
-                self.platform.add_signal_command("set_false_path -through [ get_nets @ ]", self.spinor.dq_copi_oe_xdc)
-                self.platform.add_signal_command("set_false_path -through [ get_nets @ ]", self.spinor.dq_oe_xdc)
+                self.platform.add_signal_command("set_false_path -through [ get_pins @_reg/Q ]", self.spinor.dq_copi_oe_xdc)
+                self.platform.add_signal_command("set_false_path -through [ get_pins @_reg/Q ]", self.spinor.dq_oe_xdc)
             else:
                 self.platform.add_platform_command("set_false_path -through [ get_pins {}s7spiopi_dq_copi_oe_reg/Q ]".format(prefix))
                 self.platform.add_platform_command("set_false_path -through [ get_pins {}s7spiopi_dq_oe_reg/Q ]".format(prefix))
@@ -1515,11 +1565,6 @@ class BetrustedSoC(SoCCore):
         self.submodules.keyboard = ClockDomainsRenamer(cd_remapping={"kbd":"lpclk"})(keyboard.KeyScan(platform.request("kbd")))
         self.add_csr("keyboard")
         self.add_interrupt("keyboard")
-
-        # GPIO module ------------------------------------------------------------------------------
-        self.submodules.gpio = BtGpio(platform.request("gpio"))
-        self.add_csr("gpio")
-        self.add_interrupt("gpio")
 
         # Modular noise generator ------------------------------------------------------------------
         if revision == 'modnoise':
