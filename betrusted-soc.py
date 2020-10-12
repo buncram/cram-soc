@@ -1307,6 +1307,9 @@ class BetrustedSoC(SoCCore):
         from litex.soc.cores import uart
         if uart_name == "crossover":
             self.submodules.uart = uart.UARTCrossover()
+            self.add_csr("uart_phy")
+            self.add_csr("uart")
+            self.add_interrupt("uart")
         elif uart_name == "serial":
             uart_pins = platform.request("serial")
             serial_layout = [("tx", 1), ("rx", 1)]
