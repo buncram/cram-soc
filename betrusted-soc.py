@@ -1315,6 +1315,8 @@ class BetrustedSoC(SoCCore):
             serial_layout = [("tx", 1), ("rx", 1)]
             kernel_pads = Record(serial_layout)
             console_pads = Record(serial_layout)
+            server0_pads = Record(serial_layout)
+            server1_pads = Record(serial_layout)
             self.comb += [
                 If(self.gpio.uartsel.storage == 0,
                     uart_pins.tx.eq(kernel_pads.tx),
@@ -1322,6 +1324,12 @@ class BetrustedSoC(SoCCore):
                 ).Elif(self.gpio.uartsel.storage == 1,
                     uart_pins.tx.eq(console_pads.tx),
                     console_pads.rx.eq(uart_pins.rx),
+                ).Elif(self.gpio.uartsel.storage == 2,
+                    uart_pins.tx.eq(server0_pads.tx),
+                    server0_pads.rx.eq(uart_pins.rx),
+                ).Elif(self.gpio.uartsel.storage == 3,
+                    uart_pins.tx.eq(server1_pads.tx),
+                    server1_pads.rx.eq(uart_pins.rx),
                 )
             ]
             self.submodules.uart_phy = uart.UARTPHY(
@@ -1347,6 +1355,31 @@ class BetrustedSoC(SoCCore):
             self.add_csr("console_phy")
             self.add_csr("console")
             self.add_interrupt("console")
+
+            self.submodules.server0_phy = uart.UARTPHY(
+                pads=server0_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+            self.submodules.server0 = ResetInserter()(uart.UART(self.server0_phy,
+                tx_fifo_depth=16,
+                rx_fifo_depth=16))
+
+            self.add_csr("server0_phy")
+            self.add_csr("server0")
+            self.add_interrupt("server0")
+
+            self.submodules.server1_phy = uart.UARTPHY(
+                pads=server1_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+            self.submodules.server1 = ResetInserter()(uart.UART(self.server1_phy,
+                tx_fifo_depth=16,
+                rx_fifo_depth=16))
+
+            self.add_csr("server1_phy")
+            self.add_csr("server1")
+            self.add_interrupt("server1")
+
 
         # XADC analog interface---------------------------------------------------------------------
 
