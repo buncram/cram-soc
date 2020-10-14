@@ -1573,8 +1573,8 @@ class BetrustedSoC(SoCCore):
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports spiflash_8x_cs_n]") # -3 in reality
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
             # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
-            self.platform.add_platform_command("set_false_path -through [ get_pins {net}_reg/Q ]", net=self.spinor.dq_copi_oe_xdc)
-            self.platform.add_platform_command("set_false_path -through [ get_pins {net}_reg/Q ]", net=self.spinor.dq_oe_xdc)
+            self.platform.add_platform_command("set_false_path -through [ get_pins {net}_reg/Q ]", net=self.spinor.dq.oe)
+            self.platform.add_platform_command("set_false_path -through [ get_pins {net}_reg/Q ]", net=self.spinor.dq_copi.oe)
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
