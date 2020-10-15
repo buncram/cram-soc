@@ -10,6 +10,8 @@ then
     exit 0
 fi
 
+./rebuild-pac.sh
+
 DESTDIR=code/bin
 
 # case of no private key specified
