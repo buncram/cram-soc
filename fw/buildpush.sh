@@ -12,7 +12,7 @@ fi
 
 ./rebuild-pac.sh
 
-DESTDIR=code/bin
+DESTDIR=code/precursors
 
 # case of no private key specified
 if [ -z "$2" ]

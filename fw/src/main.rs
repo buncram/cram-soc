@@ -751,13 +751,25 @@ impl Repl {
             } else if command.trim() == "aloop" {
                 if tokens.len() != 2 {
                     self.text.add_text(&mut format!("usage: aloop [on/off]"));
+                    return;
                 }
                 if tokens[1].trim() == "on" {
                     self.audio.audio_loopback(true);
                 } else {
                     self.audio.audio_loopback(false);
                 }
-            }/* else if command.trim() == "aux" { // xadc audio source
+            } else if command.trim() == "resetec" {
+                if tokens.len() != 2 {
+                    self.text.add_text(&mut format!("usage: resetec [on/off]"));
+                    return;
+                }
+                self.text.add_text(&mut format!("Resetting EC to {}", tokens[1].trim()));
+                if tokens[1].trim() == "on" {
+                    unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3).reset_ec().bit(true)); }
+                } else {
+                    unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3).reset_ec().bit(false)); }
+                }
+            } /* else if command.trim() == "aux" { // xadc audio source
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
                 self.audio.audio_ports();

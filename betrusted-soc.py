@@ -761,7 +761,7 @@ class Platform(XilinxPlatform):
         self.programmer = programmer
 
         self.toolchain.additional_commands += [
-            "report_timing -delay_type min_max -max_paths 10 -slack_less_than 0 -sort_by group -input_pins -routable_nets -name failures -file timing-failures.txt"
+            "report_timing -delay_type min_max -max_paths 100 -slack_less_than 0 -sort_by group -input_pins -routable_nets -name failures -file timing-failures.txt"
         ]
         # this routine retained in case we have to re-explore the bitstream to find the location of the ROM LUTs
         if make_mod:
@@ -918,10 +918,10 @@ class BtPower(Module, AutoCSR, AutoDoc):
             self.reset_ec = TSTriple(1)
             if revision == 'dvt':
                 self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
-                self.comb += self.reset_ec.i.eq(0)  # reset is an active low signal
+                self.comb += self.reset_ec.o.eq(0)  # reset is an active low signal
             else:
                 self.specials += self.reset_ec.get_tristate(pads.reset_ec)
-                self.comb += self.reset_ec.i.eq(1)  # reset is an active high signal
+                self.comb += self.reset_ec.o.eq(1)  # reset is an active high signal
             self.comb += [
                 pads.pwr_s1.eq(self.power.fields.state[1]),
                 pads.noisebias_on.eq(self.power.fields.noisebias),
@@ -1716,7 +1716,7 @@ def main():
         "-x", "--xous", help="Build for the Xous runtime environment. Defaults to `fw` validation image.", default=False, action="store_true"
     )
     parser.add_argument(
-        "-r", "--revision", choices=['evt', 'dvt', 'modnoise', 'pvt'], help="Build for a particular revision. Defaults to 'dvt'", default='dvt', type=str,
+        "-r", "--revision", choices=['evt', 'dvt', 'modnoise', 'pvt'], help="Build for a particular revision. Defaults to 'pvt'", default='pvt', type=str,
     )
     parser.add_argument(
         "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
