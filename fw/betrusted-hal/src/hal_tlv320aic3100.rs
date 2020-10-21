@@ -3,7 +3,7 @@ use volatile::Volatile;
 use crate::hal_i2c::i2c_controller;
 use crate::hal_time::delay_ms;
 
-pub const TLV320AIC3100_I2C_ADR: u8 = 0b001_1000;
+pub const TLV320AIC3100_I2C_ADR: u8 = 0b0011_000;
 pub const AUDIO_FIFODEPTH: usize = 256; // consider replacing this with the property read from the Rx stat register
 
 pub struct BtAudio {
@@ -26,12 +26,40 @@ impl BtAudio {
     fn w(&mut self, adr: u8, data: &[u8]) {
         let mut tx = vec![adr];
         tx.extend_from_slice(&data);
-        i2c_controller(&self.p, TLV320AIC3100_I2C_ADR, Some(&data[..]), None, I2C_TIMEOUT);
+        i2c_controller(&self.p, TLV320AIC3100_I2C_ADR, Some(&tx), None, I2C_TIMEOUT);
     }
     #[allow(dead_code)]
     fn r(&mut self, adr: u8, data: &mut[u8]) {
         let tx: [u8; 1] = [adr];
         i2c_controller(&self.p, TLV320AIC3100_I2C_ADR, Some(&tx), Some(&mut data[..]), I2C_TIMEOUT);
+    }
+
+    pub fn get_headset_code(&mut self) -> u8 {
+        self.w(0, &[0]);
+        let mut code: [u8; 1] = [0; 1];
+        self.r(67, &mut code);
+        code[0]
+    }
+
+    pub fn get_dacflag_code(&mut self) -> u8 {
+        self.w(0, &[0]);
+        let mut code: [u8; 1] = [0; 1];
+        self.r(37, &mut code);
+        code[0]
+    }
+
+    pub fn get_hp_status(&mut self) -> u8 {
+        self.w(0, &[1]);
+        let mut code: [u8; 1] = [0; 1];
+        self.r(31, &mut code);
+        code[0]
+    }
+
+    pub fn get_i2s_config(&mut self) -> [u8; 4] {
+        self.w(0, &[0]);
+        let mut code: [u8; 4] = [0; 4];
+        self.r(27, &mut code);
+        code
     }
 
     /// audio_clocks() sets up the default clocks for 8kHz sampling rate, assuming a 12MHz MCLK input
@@ -53,6 +81,8 @@ impl BtAudio {
         self.w(1, &[1]);  // software reset
         delay_ms(&self.p, 2); // reset happens in 1 ms; +1 ms due to timing jitter uncertainty
 
+        self.w(0, &[0]);  // select page 0
+
         // select PLL_CLKIN = MCLK; CODEC_CLKIN = PLL_CLK
         self.w(4, &[0b0000_0011]);
 
@@ -68,15 +98,15 @@ impl BtAudio {
             ]);
 
         self.w(11, &[
-            12,  // NADC = 12 (set to 2 for 48kHz)
-            7,   // MDAC = 7
+            0x80 | 12,  // NADC = 12 (set to 2 for 48kHz)
+            0x80 | 7,   // MDAC = 7
             0,   // DOSR = MSB of 128
             128, // DOSR = LSB of 128
         ]);
 
         self.w(18, &[
-            42,  // NADC = 42 (set to 7 for 48kHz)
-            2,   // MADC = 2
+            0x80 | 42,  // NADC = 42 (set to 7 for 48kHz)
+            0x80 | 2,   // MADC = 2
             128, // AOSR = 128
         ]);
     }
@@ -90,66 +120,79 @@ impl BtAudio {
 
         // 32 bits/word * 2 channels * 8000 samples/s = 512_000 = BCLK
         // pick off of DAC_MOD_CLK = 1.024MHz
-        self.w(29, &[
-            0b0000_0001,   // BDIV_CLKIN = DAC_MOD_CLK
-            0b1000_0010]); // BCLK_N_VAL = 2, N divider is powered up
+        self.w(27, &[
+            0b00_00_1_1_0_1, // I2S standard, 16 bits per sample, BCLK output, WCLK output, DOUT is Hi-Z when unused
+            0b0,           // no offset on left justification
+            0b0000_0_1_01, // BDIV_CLKIN = DAC_MOD_CLK, BCLK active even when powered down
+            0b1000_0010    // BCLK_N_VAL = 2, N divider is powered up
+            ]);
 
-        // Left justified, 16 bits per sample, BCLK output, WCLK output, DOUT is not Hi-Z when unused
-        self.w(27, &[0b11_00_1_1_0_0]);
-
-        // I'm guessing that "word width" (WCLK) timing is implied based on the DAC fs computed
+        // "word width" (WCLK) timing is implied based on the DAC fs computed
         // at the end of the clock tree, and WCLK simply toggles every other sample, so there is no
         // explicit WCLK divider
 
         // turn on headset detection
-        // setup timer clock selection to create a 1MHz internal clock for internal interval timers
-        self.w(0, &[3]); // select page 3
-        self.w(16, &[0b1_000_1100]); // external MCLK = 12 MHz, divide by 12 = 1MHz MCLK
-
         self.w(0, &[0]); // select page 0
         // detection enabled, 64ms glitch reject, 8ms button glitch reject
         self.w(67, &[0b1_00_010_01] );
 
         // use auto volume control -- DO WE WANT THIS???
-        self.w(116, &[0b1_1_01_0_001] );
+        //self.w(116, &[0b1_1_01_0_001] );
+    }
+
+    pub fn audio_loopback(&mut self, do_loop:bool) {
+        self.w(0, &[1]); // select page 1
+
+        // DAC routing -- route DAC to mixer channel, don't loopback MIC
+        if do_loop {
+            self.w(35, &[0b01_0_0_01_0_0]);
+        } else {
+            self.w(35, &[0b01_0_1_01_1_0]);
+        }
     }
 
     /// set up the audio mixer to sane defaults
     pub fn audio_mixer(&mut self) {
+        ////////// SETUP DAC -- this is on page 0
+        self.w(0, &[0]); // select page 0
+        // DAC setup - both channels on, soft-stepping enabled, left-to-left, right-to-right
+        self.w(63, &[0b1_1_01_01_00]);
+        // DAC volume - neither DACs muted, independent volume controls
+        self.w(64, &[0b0000_0_0_00]);
+        // DAC left volume control
+        self.w(65, &[0b1]); // +0.5dB
+        // DAC right volume control
+        self.w(66, &[0b1]); // +0.5dB
+
         ///////// VOLUME, PGA CONTROLS -- PAGE 1
         self.w(0, &[1]); // select page 1
 
-        // HPL on, HPR on, OCM = 1.65V, PD on short circuit
-        self.w(31, &[0b1_1_0_10_1_1_0]);
-
-        // class D amp is powered on
-        self.w(32, &[0b1_0_00011_0]);
-
         // DAC routing -- route DAC to mixer channel, don't loopback MIC
         self.w(35, &[0b01_0_0_01_0_0]);
+        //self.w(35, &[0b01_0_1_01_1_0]);
 
         // internal volume control
         self.w(36, &[
-            0b1_000_1100, // HPL channel control on, 12 = -6dB
-            0b1_000_1100, // HPR channel control on, 12 = -6dB
-            0b1_000_1100, // SPK control on, 12 = -6dB
+            0b1_001_0010, // HPL channel control on, -9dB
+            0b1_001_0010, // HPR channel control on, -9dB
+            0b1_000_1100, // SPK control on, -6dB
             ]);
 
         // driver PGA control
         self.w(40, &[
-            0b0_0011_110, // HPL driver PGA = 3dB, not muted
-            0b0_0011_110, // HPR driver PGA = 3dB, not muted
-            0b000_00_1_0_0, // SPK gain = 6 dB, driver not muted
+            0b0_0000_111, // HPL driver PGA = 0dB, not muted, all gains applied
+            0b0_0000_111, // HPR driver PGA = 0dB, not muted, all gains applied
+            0b000_00_1_0_1, // SPK gain = 6 dB, driver not muted, all gains applied
             ]);
 
-        // HP driver control -- 16us short circuit debounce, best DAC performance, HPL/HPR as headphone drivers
+            // HP driver control -- 16us short circuit debounce, best DAC performance, HPL/HPR as headphone drivers
         self.w(44, &[0b010_11_0_0_0]);
 
         // MICBIAS control -- micbias always on, set to 2.5V
         self.w(46, &[0b0_000_1_0_10]);
 
-        // MIC PGA -- 59.5 dB (maximum)
-        self.w(47, &[0b0_111_0111]);
+        // MIC PGA
+        self.w(47, &[60]); // target 30dB, code is (target * 2)dB
 
         // fine-gain input selection for P_terminal -- only MIC1RP selected, with RIN=10kohm
         self.w(48, &[0b00_01_00_00]);
@@ -158,18 +201,14 @@ impl BtAudio {
         // CM settincgs - MIC1LP/MIC1LM connected to CM; MIC1RP is floating
         self.w(50, &[0b1_0_1_00000]);
 
+        // don't change power control bits on SC
+        self.w(30, &[0b1_1]);
 
-        ////////// SETUP DAC -- this is on page 0
-        self.w(0, &[0]); // select page 0
-        // DAC setup - both channels on, soft-stepping enabled, left-to-left, right-to-right
-        self.w(63, &[0b1_1_01_01_00]);
-        // DAC volume - neither DACs muted, independent volume controls
-        self.w(64, &[0b0000_0_0_00]);
-        // DAC left volume control
-        self.w(65, &[0x1]); // +0.5 dB
-        // DAC right volume control
-        self.w(66, &[0x1]); // +0.5 dB
+        // class D amp is powered on
+        self.w(32, &[0b1_0_00011_0]);
 
+        // HPL on, HPR on, OCM = 1.65V, limit on short circuit
+        self.w(31, &[0b1_1_0_10_1_0_0]);
 
         ////////// SETUP ADC & AGC -- this is on page 0
         self.w(0, &[0]); // select page 0
@@ -178,36 +217,53 @@ impl BtAudio {
         // ADC digital volume conrol -- not muted, 0dB gain
         self.w(82, &[0b0_000_0000]);
         // ADC digital volume control coarse adjust
-        self.w(83, &[0x1]); // +0.5 dB
+        self.w(83, &[0b0]); // +0.0 dB
 
         self.w(86, &[
-            0b1_010_0000, // AGC enabled, target level = -10dB
-            0b11_11100_0, // hysteresis disabled, noise threshold = -84dB
-            0b0_111_0111, // max gain = 59.5dB
-            0b01101_000, // attack time 864/Fs
-            0xA8, // decay time 22016/Fs
-            0x00, // noise debounce time 0ms
-            0x00, // signal debounce time 0ms
+            0b1_011_0000, // AGC enabled, target level = -12dB
+            0b00_10001_0, // hysteresis 1dB, noise threshold = -((value-1)*2 + 30), 17 => -64dB
+            100, // max gain = code/2 dB
+            0b_00101_000, // attack time = 0b_acode_mul = (acode*32*mul)/Fs
+            0b_01101_000, // decay time  = 0b_dcode_mul = (dcode*32*mul)/Fs
+            0x01, // noise debounce time = code*4 / fs
+            0x01, // signal debounce time = code*4 / fs
             ]);
+
     }
 
-    /// set up the betrusted-side signals
-    pub fn audio_i2s_start(&mut self) {
-        const AUDIO_FIFO: *mut u32 = 0xE000_0000 as *mut u32;
+    pub fn reset_fifos(&mut self) {
+        unsafe {
+        self.p.AUDIO.rx_ctl.write(|w| {w.bits(0)} );
+        self.p.AUDIO.tx_ctl.write(|w| {w.bits(0)} );
 
         self.p.AUDIO.tx_ctl.write(|w| {w.reset().bit(true)} );
         self.p.AUDIO.rx_ctl.write(|w| {w.reset().bit(true)} );
 
-        // let the FIFOs reset
-        delay_ms(&self.p, 2);
+        delay_ms(&self.p, 1);
 
-        for _ in 0..(AUDIO_FIFODEPTH * 2) {
-            unsafe{ (*AUDIO_FIFO) = 0; } // prefill TX fifo with zero's
+        self.p.AUDIO.rx_ctl.write(|w| {w.bits(0)} );
+        self.p.AUDIO.tx_ctl.write(|w| {w.bits(0)} );
+        }
+    }
+
+    /// set up the betrusted-side signals
+    pub fn audio_i2s_start(&mut self) {
+        let audio_ptr = 0xE000_0000 as *mut u32;
+        let volatile_audio = audio_ptr as *mut Volatile<u32>;
+
+        self.p.AUDIO.tx_ctl.write(|w| {w.reset().bit(true).enable().bit(false)} );
+        self.p.AUDIO.rx_ctl.write(|w| {w.reset().bit(true).enable().bit(false)} );
+
+        // let the FIFOs reset
+        delay_ms(&self.p, 1);
+
+        for _ in 0..256 { // 512 is the absolute total size of the fifo, fifodepth is just a high-water-mark off of this
+            unsafe { (*volatile_audio).write(0); }  // prefill TX fifo with zero's
         }
 
         // this sets everything running
-        self.p.AUDIO.rx_ctl.write(|w| {w.enable().bit(true)} );
-        self.p.AUDIO.tx_ctl.write(|w| {w.enable().bit(true)} );
+        self.p.AUDIO.tx_ctl.write(|w| {w.enable().bit(true).reset().bit(false)} );
+        self.p.AUDIO.rx_ctl.write(|w| {w.enable().bit(true).reset().bit(false)} );
     }
 
     pub fn audio_i2s_stop(&mut self) {
@@ -224,6 +280,16 @@ impl BtAudio {
             for i in 0..AUDIO_FIFODEPTH {
                 if toggle {
                     unsafe{ buf_a[i] = (*volatile_audio).read(); }
+                    unsafe { (*volatile_audio).write(buf_b[i]); }
+                } else {
+                    unsafe{ buf_b[i] = (*volatile_audio).read(); }
+                    unsafe { (*volatile_audio).write(buf_a[i]); }
+                }
+            }
+/*
+            for i in 0..AUDIO_FIFODEPTH {
+                if toggle {
+                    unsafe{ buf_a[i] = (*volatile_audio).read(); }
                 } else {
                     unsafe{ buf_b[i] = (*volatile_audio).read(); }
                 }
@@ -235,6 +301,7 @@ impl BtAudio {
                     unsafe { (*volatile_audio).write(buf_a[i]); }
                 }
             }
+            */
             // wait for the done flags to clear; with an interrupt-driven system, this isn't necessary
             while self.p.AUDIO.tx_stat.read().free().bit() & self.p.AUDIO.rx_stat.read().dataready().bit()
             {}

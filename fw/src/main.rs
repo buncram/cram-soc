@@ -518,10 +518,12 @@ impl Repl {
                 delay_ms(&self.p, 8);
                 com_txrx(&self.p, COM_NEXT_DATA); // first value is a pass (wait cycle)
                 delay_ms(&self.p, 5);
+                /*
                 unsafe {
                     self.p.GPIO.drive.write(|w| w.bits(0b00_1000));
                     self.p.GPIO.output.write(|w| w.bits(0b00_1000));
-                }
+                }*/
+                self.p.POWER.power.modify(|_r, w| w.boostmode().set_bit());
             for i in 0 .. 0xC {
                     let data = com_txrx(&self.p, COM_NEXT_DATA);
                     delay_ms(&self.p, 5);
@@ -531,12 +533,19 @@ impl Repl {
                 }
 
             } else if command.trim() == "boff" {
+                /*
                 unsafe {
                     self.p.GPIO.drive.write(|w| w.bits(0b00_1000));
                     self.p.GPIO.output.write(|w| w.bits(0b00_0000));
-                }
+                }*/
+                self.p.POWER.power.modify(|_r, w| w.boostmode().clear_bit());
                 self.text.add_text(&mut String::from("Boost off"));
                 com_txrx(&self.p, COM_BOOST_OFF);
+            } else if command.trim() == "kill" {
+                if cfg!(feature = "pvt") {
+                   self.text.add_text(&mut String::from("Self destructing in 3..2..1.."));
+                   self.p.POWER.power.modify(|_r,w| w.selfdestruct().set_bit());
+                }
             } else if command.trim() == "step" {
                 self.jtag.step(&mut self.jtagphy);
             } else if command.trim() == "id" {
@@ -706,7 +715,12 @@ impl Repl {
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
             } else if command.trim() == "aut" { // sample for 10 seconds and report # of samples seen -- for benchmarking sample rate
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+                delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
+                self.audio.reset_fifos();
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
+                delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
+
                 self.audio.audio_clocks();
                 self.audio.audio_ports();
                 self.audio.audio_mixer();
@@ -734,7 +748,16 @@ impl Repl {
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
-            } /* else if command.trim() == "aux" { // xadc audio source
+            } else if command.trim() == "aloop" {
+                if tokens.len() != 2 {
+                    self.text.add_text(&mut format!("usage: aloop [on/off]"));
+                }
+                if tokens[1].trim() == "on" {
+                    self.audio.audio_loopback(true);
+                } else {
+                    self.audio.audio_loopback(false);
+                }
+            }/* else if command.trim() == "aux" { // xadc audio source
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
                 self.audio.audio_ports();
@@ -875,6 +898,16 @@ impl Repl {
                 self.ssid_print = true;
             } else if command.trim() == "scanoff" {
                 self.ssid_print = false;
+            } else if command.trim() == "rev" {
+                if cfg!(feature = "evt") {
+                    self.text.add_text(&mut format!("Rev EVT"));
+                }
+                if cfg!(feature = "dvt") {
+                    self.text.add_text(&mut format!("Rev DVT"));
+                }
+                if cfg!(feature = "pvt") {
+                    self.text.add_text(&mut format!("Rev PVT"));
+                }
             } else if command.trim() == "dr" {
                 fn get_rk() -> ChainKey {
                     let key = core::iter::repeat(0x42).take(32).collect::<Vec<u8>>();
@@ -1127,6 +1160,67 @@ impl Repl {
     pub fn get_line(&self, line: usize)-> String {
         self.text.get_line(line)
     }
+
+    // standalone call to debug when the keyboard isn't available to type commands (e.g. oscilloscope probe access required)
+    pub fn audio_standalone(&mut self) {
+        self.set_ssid_print(false);
+        unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+        delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
+        self.audio.reset_fifos();
+        unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
+        delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
+
+        self.text.add_text(&mut format!("Running audio stand-alone test"));
+
+        self.audio.audio_clocks();
+        self.audio.audio_ports();
+        self.audio.audio_mixer();
+
+        let code: [u8; 4] = self.audio.get_i2s_config();
+        self.text.add_text(&mut format!("I2S code: {:02x} {:02x} {:02x} {:02x} ", code[0], code[1], code[2], code[3]));
+        self.text.add_text(&mut format!("Headset code: 0x{:02x}", self.audio.get_headset_code()) );
+        //self.text.add_text(&mut format!("Dacflag code: 0x{:02x}", self.audio.get_dacflag_code()) );
+        //self.text.add_text(&mut format!("HP pwr code: 0x{:02x}", self.audio.get_hp_status()) );
+
+        let mut samples: u32 = 0;
+        let mut toggle: bool = false;
+        let mut buf_a: [u32; AUDIO_FIFODEPTH] = [0; AUDIO_FIFODEPTH];
+        let mut buf_b: [u32; AUDIO_FIFODEPTH] = [0; AUDIO_FIFODEPTH];
+
+        let start: u32 = get_time_ms(&self.p);
+        self.audio.audio_i2s_start();
+        self.audio_run = true;
+        let mut had_overflow = false;
+        let mut rx_error = false;
+        loop {
+            if self.audio.audio_loopback_poll(&mut buf_a, &mut buf_b, toggle) {
+                samples = samples + 1;
+                toggle = !toggle;
+            } else {
+                for i in 0..AUDIO_FIFODEPTH {
+                    if buf_a[i] == 0xdeadbeef {
+                        had_overflow = true;
+                    }
+                    if buf_b[i] == 0xdeadbeef {
+                        had_overflow = true
+                    }
+                }
+            }
+            if (self.p.AUDIO.rx_stat.read().bits() & 0x3) != 0 {
+                rx_error = true;
+            }
+            if get_time_ms(&self.p) - start > 10_000 {
+                break;
+            }
+        }
+
+        self.text.add_text(&mut format!("{} samples", samples));
+        self.text.add_text(&mut format!("Overflow flag: {}", had_overflow));
+        self.text.add_text(&mut format!("{}, {:08x}, {:08x}", rx_error, self.p.AUDIO.rx_stat.read().bits(), self.p.AUDIO.tx_stat.read().bits()));
+
+        self.audio.audio_i2s_stop();
+        self.audio_run = false;
+    }
 }
 
 pub struct TextArea {
@@ -1178,7 +1272,8 @@ fn main() -> ! {
     xous_nommu::init();
 
     let p = betrusted_pac::Peripherals::take().unwrap();
-    unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3)); }
+    // note -- leaving audio on for testing, should not be on by default in "normal" systems to save power
+    unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3).audio().bit(true)); }
 
     com_txrx(&p, COM_RESET_LINK as u16);  // reset the link
     delay_ms(&p, 5); // give it time to reset
@@ -1642,6 +1737,7 @@ fn main() -> ! {
         if first_time {
         //    repl.ram_fill_avalanche();
         //    repl.ram_fill_ringosc();
+        //    repl.audio_standalone();
             first_time = false;
         }
     }

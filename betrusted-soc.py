@@ -1266,7 +1266,7 @@ class BetrustedSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
             integrated_rom_size  = bios_size,
             integrated_sram_size = 0x20000,
-            ident                = "betrusted.io LiteX Base SoC",
+            ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
@@ -1598,7 +1598,12 @@ class BetrustedSoC(SoCCore):
         self.add_csr("romtest")
 
         # Audio interfaces -------------------------------------------------------------------------
-        self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False)
+        from litex.soc.cores.i2s import I2S_FORMAT
+        if revision == 'pvt':
+            self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False,
+                frame_format=I2S_FORMAT.I2S_STANDARD)
+        else:
+            self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False)
         self.bus.add_slave("audio", self.audio.bus, SoCRegion(origin=self.mem_map["audio"], size=0x4, cached=False))
         self.add_csr("audio")
         self.add_interrupt("audio")
