@@ -663,7 +663,8 @@ impl Repl {
                                                 self.xadc.cc2_mv()  ));
                 self.text.add_text(&mut format!("noise0: {:4} noise1: {:4}", self.xadc.noise0(), self.xadc.noise1()));
                 self.text.add_text(&mut format!("audio: 0x{:04x}", self.xadc.audio_sample() ));
-            } else if command.trim() == "non" {
+            } else if command.trim() == "non" || command.trim() == "noiseon" {
+                self.text.add_text(&mut format!("TRNG diagnostic display on" ));
                 unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
                 self.update_noise = true;
             } else if command.trim() == "noff" {
