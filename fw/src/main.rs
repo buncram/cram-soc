@@ -406,8 +406,14 @@ impl Repl {
 
     pub fn ram_fill_ringosc(&mut self) {
         self.ram_clear();
-        const TEST_SIZE: usize = 1024 * 1024 * 8 / 4;
-        let ram_ptr = 0x4008_0000 as *mut [u32; TEST_SIZE];
+        const TEST_SIZE: usize = 512 * 1024 / 4;
+        let ram_ptr_a = 0x4008_0000 as *mut [u32; TEST_SIZE];
+        let ram_ptr_b = 0x4010_0000 as *mut [u32; TEST_SIZE];
+        let read_sync = 0x4007_0000 as *mut [u32; 1];
+        let mut phase: u32 = 0x40; // '@'
+        // initialize messible: phase = '@' is unitialized
+        unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+        //unsafe{ (*read_sync)[0] = 1; }
 
         // start loading the ring osc trng
         unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w
@@ -416,14 +422,44 @@ impl Repl {
             .dwell().bits(100)
             .gang().bit(true)}); }
 
-        for i in 0..TEST_SIZE {
-            while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
-            unsafe{ (*ram_ptr)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+        loop {
+            for i in 0..TEST_SIZE {
+                while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+            }
         }
+        /* skip the read sync, it doesn't work because caching
+        phase = 0x41; // 'A'
+        loop {
+            while unsafe{ (*read_sync)[0] == 0 } {
+                // wait until the read has been acknowledged by writing anything other than 0 in
+            }
+            unsafe{ (*read_sync)[0] = 0; }
+            if phase == 0x41 {
+                for i in 0..TEST_SIZE {
+                    while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                    unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                }
+                // so when messible-out goes to A, read buffer A
+                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+                phase = 0x42;
+            } else {
+                for i in 0..TEST_SIZE {
+                    while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                    unsafe{ (*ram_ptr_b)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                }
+                // so when messible-out goes to B, read buffer B
+                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+                phase = 0x41;
+            }
+        }
+        */
     }
 
     pub fn ram_fill_avalanche(&mut self) {
         use volatile::Volatile;
+
+        // note to future self: this needs updating to match ring osc test
 
         self.ram_clear();
         const TEST_SIZE: usize = 1024 * 1024 * 8 / 2;
@@ -1749,7 +1785,7 @@ fn main() -> ! {
 
         if first_time {
         //    repl.ram_fill_avalanche();
-        //    repl.ram_fill_ringosc();
+            repl.ram_fill_ringosc();
         //    repl.audio_standalone();
             first_time = false;
         }
