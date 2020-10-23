@@ -1785,7 +1785,7 @@ fn main() -> ! {
 
         if first_time {
         //    repl.ram_fill_avalanche();
-            repl.ram_fill_ringosc();
+        //    repl.ram_fill_ringosc();
         //    repl.audio_standalone();
             first_time = false;
         }
