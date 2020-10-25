@@ -1519,6 +1519,8 @@ class BetrustedSoC(SoCCore):
         # Messible for debug -----------------------------------------------------------------------
         self.submodules.messible = messible.Messible()
         self.add_csr("messible")
+        self.submodules.messible2 = messible.Messible()
+        self.add_csr("messible2")
 
         # Tick timer -------------------------------------------------------------------------------
         self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq, bits=64)
