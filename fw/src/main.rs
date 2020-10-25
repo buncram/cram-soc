@@ -404,56 +404,61 @@ impl Repl {
         }
     }
 
-    pub fn ram_fill_ringosc(&mut self) {
-        self.ram_clear();
+    pub fn ram_fill_ringosc(&mut self, do_init: bool, phase: u32) -> u32 {
         const TEST_SIZE: usize = 512 * 1024 / 4;
         let ram_ptr_a = 0x4008_0000 as *mut [u32; TEST_SIZE];
         let ram_ptr_b = 0x4010_0000 as *mut [u32; TEST_SIZE];
-        let read_sync = 0x4007_0000 as *mut [u32; 1];
-        let mut phase: u32 = 0x40; // '@'
-        // initialize messible: phase = '@' is unitialized
-        unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
-        //unsafe{ (*read_sync)[0] = 1; }
 
-        // start loading the ring osc trng
-        unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w
-            .ena().bit(true)
-            .delay().bits(8)
-            .dwell().bits(100)
-            .gang().bit(true)}); }
+        if do_init {
+            self.ram_clear();
+            let mut phase: u32 = 1;
+            unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+            // start loading the ring osc trng
+            unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w
+                .ena().bit(true)
+                .delay().bits(8)
+                .dwell().bits(100)
+                .gang().bit(true)}); }
 
-        loop {
-            for i in 0..TEST_SIZE {
-                while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
-                unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
-            }
-        }
-        /* skip the read sync, it doesn't work because caching
-        phase = 0x41; // 'A'
-        loop {
-            while unsafe{ (*read_sync)[0] == 0 } {
-                // wait until the read has been acknowledged by writing anything other than 0 in
-            }
-            unsafe{ (*read_sync)[0] = 0; }
-            if phase == 0x41 {
+                /*
+            loop {
                 for i in 0..TEST_SIZE {
                     while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
                     unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
                 }
-                // so when messible-out goes to A, read buffer A
-                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
-                phase = 0x42;
+            }*/
+            for i in 0..TEST_SIZE {
+                while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+            }
+            for i in 0..TEST_SIZE {
+                while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                unsafe{ (*ram_ptr_b)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+            }
+            phase = 2;
+            unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+            return phase;
+        } else {
+            while phase != self.p.MESSIBLE2.out.read().bits() {
+            }
+            if phase == 1 {
+                for i in 0..TEST_SIZE {
+                    while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                    unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                }
+                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(1)); }
+                return 2;
             } else {
                 for i in 0..TEST_SIZE {
                     while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
                     unsafe{ (*ram_ptr_b)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
                 }
                 // so when messible-out goes to B, read buffer B
-                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
-                phase = 0x41;
+                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(2)); }
+                return 1;
             }
         }
-        */
+
     }
 
     pub fn ram_fill_avalanche(&mut self) {
@@ -822,8 +827,9 @@ impl Repl {
                 self.text.add_text(&mut format!("RAM cleared."));
             } else if command.trim() == "rno" {
                 self.ram_clear();
+                self.ram_fill_ringosc(true, 0);
                 let time: u32 = readpac32!(self, TICKTIMER, time0);
-                self.ram_fill_ringosc();
+                self.ram_fill_ringosc(false, 0);
                 let endtime: u32 = readpac32!(self, TICKTIMER, time0);
                 self.text.add_text(&mut format!("8MiB ring osc done: {}ms", endtime - time));
             } else if command.trim() == "rna" {
@@ -1380,6 +1386,7 @@ fn main() -> ! {
     let mut ssid_list: [[u8; 32]; 6] = [[0; 32]; 6]; // index as ssid_list[6][32]
 
     let mut first_time: bool = true;
+    let mut phase: u32 = 0;
     loop {
         if get_time_ms(&p) - testdelay > 10_000 && false {  // change to true to test RTC self-wakeup loop
             testdelay = get_time_ms(&p);
@@ -1784,10 +1791,12 @@ fn main() -> ! {
         display.lock().flush().unwrap();
 
         if first_time {
-        //    repl.ram_fill_avalanche();
-        //    repl.ram_fill_ringosc();
-        //    repl.audio_standalone();
+            phase = repl.ram_fill_ringosc(true, phase);
+            //    repl.ram_fill_avalanche();
+            //    repl.audio_standalone();
             first_time = false;
+        } else {
+            phase = repl.ram_fill_ringosc(false, phase);
         }
     }
 }
