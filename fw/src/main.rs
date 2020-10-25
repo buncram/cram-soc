@@ -1791,12 +1791,12 @@ fn main() -> ! {
         display.lock().flush().unwrap();
 
         if first_time {
-            phase = repl.ram_fill_ringosc(true, phase);
+            //phase = repl.ram_fill_ringosc(true, phase);
             //    repl.ram_fill_avalanche();
             //    repl.audio_standalone();
             first_time = false;
         } else {
-            phase = repl.ram_fill_ringosc(false, phase);
+            //phase = repl.ram_fill_ringosc(false, phase);
         }
     }
 }
