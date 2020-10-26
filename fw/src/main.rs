@@ -78,8 +78,10 @@ use betrusted_hal::hal_kbd::*;
 use betrusted_hal::hal_xadc::*;
 use betrusted_hal::hal_rtc::*;
 use betrusted_hal::hal_aes::*;
-use betrusted_hal::hal_sha2::*;
 use betrusted_hal::hal_shittyrng::*;
+
+//use betrusted_hal::hal_sha2::*;
+
 use embedded_graphics::prelude::*;
 use embedded_graphics::egcircle;
 use embedded_graphics::pixelcolor::BinaryColor;
@@ -244,7 +246,7 @@ pub struct Repl {
     audio_run: bool,
     rtc: BtRtc,
     aes: BtAes,
-    sha2: BtSha2,
+    //sha2: BtSha2,
     ssid_print: bool,
 }
 
@@ -272,7 +274,7 @@ impl Repl {
                     audio_run: false,
                     rtc: BtRtc::new(),
                     aes: BtAes::new(),
-                    sha2: BtSha2::new(),
+                    //sha2: BtSha2::new(),
                     ssid_print: true,
                 }
             };
@@ -912,7 +914,7 @@ impl Repl {
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
                 }
-            } else if command.trim() == "sh" {
+            } /*else if command.trim() == "sh" {
                 self.sha2.config = Sha2Config::ENDIAN_SWAP | Sha2Config::DIGEST_SWAP | Sha2Config::SHA256_EN; // Sha2Config::HMAC_EN; // Sha2Config::SHA256_EN;
                 self.sha2.keys = [0; 8];
                 self.sha2.init();
@@ -933,7 +935,7 @@ impl Repl {
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x}", digest[0 + i*2], digest[1 + i*2]));
                 }
-            } else if command.trim() == "sp" {
+            } */ else if command.trim() == "sp" {
                 com_txrx(&self.p, COM_SHIPMODE);  // send the shipmode command
                 self.power = false;
             } else if command.trim() == "acc" {
