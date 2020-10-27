@@ -1248,7 +1248,7 @@ class BetrustedSoC(SoCCore):
     }
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
-                 xous=False, usb_type='debug', uart_name="crossover"
+                 xous=False, usb_type='debug', uart_name="crossover",
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
