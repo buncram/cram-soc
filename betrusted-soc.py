@@ -725,9 +725,13 @@ _io_uart_debug_swapped = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False, bbram=False):
+    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False, bbram=False, strategy='default'):
         part = "xc7s" + part + "-csga324-1il"
         XilinxPlatform.__init__(self, part, io, toolchain=toolchain)
+
+        if strategy != 'default':
+            self.toolchain.vivado_route_directive = strategy
+            self.toolchain.vivado_post_route_phys_opt_directive = "Explore"  # always explore if we're in a non-default strategy
 
         # NOTE: to do quad-SPI mode, the QE bit has to be set in the SPINOR status register. OpenOCD
         # won't do this natively, have to find a work-around (like using iMPACT to set it once)
@@ -1244,7 +1248,7 @@ class BetrustedSoC(SoCCore):
     }
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
-                 xous=False, usb_type='debug', uart_name="crossover",
+                 xous=False, usb_type='debug', uart_name="crossover"
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -1725,6 +1729,9 @@ def main():
     parser.add_argument(
         "-p", "--physical-uart", help="Use physical UART. Disables console UART tunelling over wishbone-tool and uses physical pins instead.", default=False, action="store_true"
     )
+    parser.add_argument(
+        "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy", default='default', type=str
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1761,7 +1768,7 @@ def main():
         uart_name="crossover"
 
     ##### setup platform
-    platform = Platform(io, encrypt=encrypt, bbram=bbram)
+    platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
     # _io_uart_debug wires debug bridge to Rpi; _io_uart_debug_swapped wires console to Rpi
     platform.add_extension(_io_uart_debug_swapped)
 
