@@ -1541,45 +1541,8 @@ class BetrustedSoC(SoCCore):
             iddr_instance_name="SPI_IDDR"
             cipo_instance_name="CIPO_FDRE"
             spiread=False
-            self.submodules.spinor = S7SPIOPI(platform.request("spiflash_8x"),
+            self.submodules.spinor = S7SPIOPI(platform, "spiflash_8x",
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, cipo_name=cipo_instance_name, spiread=spiread)
-            # reminder to self: the {{ and }} overloading is because Python treats these as special in strings, so {{ -> { in actual constraint
-            # NOTE: ECSn is deliberately not constrained -- it's more or less async (0-10ns delay on the signal, only meant to line up with "block" region
-
-            # constrain DQS-to-DQ input DDR delays
-            self.platform.add_platform_command("create_clock -name spidqs -period 10 [get_ports spiflash_8x_dqs]")
-            self.platform.add_platform_command("set_input_delay -clock spidqs -max 0.6 [get_ports {{spiflash_8x_dq[*]}}]")
-            self.platform.add_platform_command("set_input_delay -clock spidqs -min -0.6 [get_ports {{spiflash_8x_dq[*]}}]")
-            self.platform.add_platform_command("set_input_delay -clock spidqs -max 0.6 [get_ports {{spiflash_8x_dq[*]}}] -clock_fall -add_delay")
-            self.platform.add_platform_command("set_input_delay -clock spidqs -min -0.6 [get_ports {{spiflash_8x_dq[*]}}] -clock_fall -add_delay")
-
-            # derive clock for SCLK - clock-forwarded from DDR see Xilinx answer 62488 use case #4
-            self.platform.add_platform_command("create_generated_clock -name spiclk_out -multiply_by 1 -source [get_pins {}/Q] [get_ports spiflash_8x_sclk]".format(sclk_instance_name))
-            # if using CCLK output and not DDR forwarded clock, these are the commands used to define the clock
-            #self.platform.add_platform_command("create_generated_clock -name spiclk_out -source [get_pins STARTUPE2/USRCCLKO] -combinational [get_pins STARTUPE2/USRCCLKO]")
-            #self.platform.add_platform_command("set_clock_latency -min 0.5 [get_clocks spiclk_out]")  # define the min/max delay of the STARTUPE2 buffer
-            #self.platform.add_platform_command("set_clock_latency -max 7.5 [get_clocks spiclk_out]")
-
-            # constrain CIPO SDR delay -- WARNING: -max is 'actually' 5.0ns, but design can't meet timing @ 5.0 tPD from SPIROM. There is some margin in the timing closure tho, so 4.5ns is probably going to work....
-            self.platform.add_platform_command("set_input_delay -clock [get_clocks spiclk_out] -clock_fall -max 4.5 [get_ports spiflash_8x_dq[1]]")
-            self.platform.add_platform_command("set_input_delay -clock [get_clocks spiclk_out] -clock_fall -min 1 [get_ports spiflash_8x_dq[1]]")
-            # corresponding false path on CIPO DDR input when clocking SDR data
-            self.platform.add_platform_command("set_false_path -from [get_clocks spiclk_out] -to [get_pin {}/D ]".format(iddr_instance_name + "1"))
-            # corresponding false path on CIPO SDR input from DQS strobe, only if the cipo path is used
-            if spiread:
-                self.platform.add_platform_command("set_false_path -from [get_clocks spidqs] -to [get_pin {}/D ]".format(cipo_instance_name))
-
-            # constrain CLK-to-DQ output DDR delays; copi uses the same rules
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports {{spiflash_8x_dq[*]}}]")
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports {{spiflash_8x_dq[*]}}]")
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports {{spiflash_8x_dq[*]}}] -clock_fall -add_delay")
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports {{spiflash_8x_dq[*]}}] -clock_fall -add_delay")
-            # constrain CLK-to-CS output delay. NOTE: timings require one dummy cycle insertion between CS and SCLK (de)activations. Not possible to meet timing for DQ & single-cycle CS due to longer tS/tH reqs for CS
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -min -1 [get_ports spiflash_8x_cs_n]") # -3 in reality
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spiclk_out] -max 1 [get_ports spiflash_8x_cs_n]")  # 4.5 in reality
-            # unconstrain OE path - we have like 10+ dummy cycles to turn the bus on wr->rd, and 2+ cycles to turn on end of read
-            self.platform.add_platform_command("set_false_path -through [ get_pins {net}_reg/Q ]", net=self.spinor.dq.oe)
-            self.platform.add_platform_command("set_false_path -through [ get_pins {net}_reg/Q ]", net=self.spinor.dq_copi.oe)
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
