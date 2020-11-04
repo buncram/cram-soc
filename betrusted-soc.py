@@ -1528,6 +1528,7 @@ class BetrustedSoC(SoCCore):
         # Tick timer -------------------------------------------------------------------------------
         self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq, bits=64)
         self.add_csr("ticktimer")
+        self.add_interrupt("ticktimer")
 
         # Power control pins -----------------------------------------------------------------------
         self.submodules.power = BtPower(platform.request("power"), revision)
