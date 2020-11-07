@@ -248,6 +248,7 @@ pub struct Repl {
     aes: BtAes,
     //sha2: BtSha2,
     ssid_print: bool,
+    lock: bool,
 }
 
 const PROMPT: &str = "bt> ";
@@ -276,12 +277,19 @@ impl Repl {
                     aes: BtAes::new(),
                     //sha2: BtSha2::new(),
                     ssid_print: true,
+                    lock: false,
                 }
             };
         r.text.add_text(&mut String::from("Awaiting input."));
 
         r
     }
+
+    pub fn unlock(&mut self) {
+        self.text.add_text(&mut String::from("System unlocked."));
+        self.lock = false;
+    }
+    pub fn is_locked(&self) -> bool { self.lock }
 
     pub fn get_ssid_print(&self) -> bool {
         self.ssid_print
@@ -589,6 +597,9 @@ impl Repl {
                    self.text.add_text(&mut String::from("Self destructing in 3..2..1.."));
                    self.p.POWER.power.modify(|_r,w| w.selfdestruct().set_bit());
                 }
+            } else if command.trim() == "lock" {
+                self.lock = true;
+                self.text.add_text(&mut String::from("System locked, ready for updates."));
             } else if command.trim() == "step" {
                 self.jtag.step(&mut self.jtagphy);
             } else if command.trim() == "id" {
@@ -1632,6 +1643,24 @@ fn main() -> ! {
         .translate(Point::new(left_margin, cur_line))
         .draw(&mut *display.lock());
 
+        if repl.is_locked() {
+            delay_ms(&p, 500); // give some time for the key hit to go up
+            // clear the key up event
+            loop {
+                if p.KEYBOARD.ev_pending.read().bits() != 0 {
+                    unsafe{ &p.KEYBOARD.ev_pending.write(|w| w.bits(1)); }
+                    break;
+                }
+            }
+            // now wait for a keydown event
+            loop {
+                if p.KEYBOARD.ev_pending.read().bits() != 0 {
+                    unsafe{ &p.KEYBOARD.ev_pending.write(|w| w.bits(1)); }
+                    repl.unlock();
+                    break;
+                }
+            }
+        }
         let (keydown, keyup) = keyboard.update();
         if keydown.is_some() {
             let mut keyvect = keydown.unwrap();
