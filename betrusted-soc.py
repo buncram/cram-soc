@@ -1542,8 +1542,10 @@ class BetrustedSoC(SoCCore):
             iddr_instance_name="SPI_IDDR"
             cipo_instance_name="CIPO_FDRE"
             spiread=False
-            self.submodules.spinor = S7SPIOPI(platform, "spiflash_8x",
+            spipads = platform.request("spiflash_8x")
+            self.submodules.spinor = S7SPIOPI(spipads,
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, cipo_name=cipo_instance_name, spiread=spiread)
+            self.spinor.add_timing_constraints(platform, "spiflash_8x")
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
