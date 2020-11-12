@@ -101,7 +101,7 @@ _io_pvt = [   # PVT-generation I/Os
         Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
         Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
         Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
-        Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT
+        #Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
         # Noise generator
         Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
         # vibe motor
@@ -145,6 +145,7 @@ _io_pvt = [   # PVT-generation I/Os
         Subsignal("cipo", Pins("P16"), IOStandard("LVCMOS18")),
         Subsignal("copi", Pins("N18"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
         Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
+        Subsignal("hold", Pins("L13"), IOStandard("LVCMOS18")),
      ),
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
 
@@ -923,11 +924,11 @@ class BtPower(Module, AutoCSR, AutoDoc):
             if revision == 'dvt':
                 self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
                 self.comb += self.reset_ec.o.eq(0)  # reset is an active low signal
+                self.comb += pads.pwr_s1.eq(self.power.fields.state[1]) # no pwr_s1 on PVT
             else:
                 self.specials += self.reset_ec.get_tristate(pads.reset_ec)
                 self.comb += self.reset_ec.o.eq(1)  # reset is an active high signal
             self.comb += [
-                pads.pwr_s1.eq(self.power.fields.state[1]),
                 pads.noisebias_on.eq(self.power.fields.noisebias),
                 pads.vibe_on.eq(self.vibe.fields.vibe),
 
