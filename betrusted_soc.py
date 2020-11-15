@@ -1779,9 +1779,9 @@ mathjax_config = {
                 with open('keystore.patch', 'w') as patchfile:
                     subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                     keystore_args = '-pkeystore.patch'
-                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/__main__.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
+                    enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
             else:
-                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/__main__.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
+                enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
             subprocess.call(enc)
         else:
             print('Specified key file {} does not exist'.format(args.encrypt))
