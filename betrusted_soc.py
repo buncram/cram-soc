@@ -873,7 +873,7 @@ class WarmBoot(Module, AutoCSR):
 
 class BtEvents(Module, AutoCSR, AutoDoc):
     def __init__(self, com, rtc):
-        self.submodules.ev = EventManager()
+        self.submodules.ev = EventManager(document_fields=True)
         self.ev.com_int    = EventSourcePulse()   # rising edge triggered
         self.ev.rtc_int    = EventSourceProcess() # falling edge triggered
         self.ev.finalize()
@@ -934,7 +934,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
 
                 self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
             ]
-            self.submodules.ev = EventManager()
+            self.submodules.ev = EventManager(document_fields=True)
             self.ev.usb_attach = EventSourcePulse(description="USB attach event")
             self.ev.finalize()
             usb_attach = Signal()
@@ -1127,7 +1127,7 @@ class BtGpio(Module, AutoDoc, AutoCSR):
             gpio_oe.eq(self.drive.storage),
         ]
 
-        self.submodules.ev = EventManager()
+        self.submodules.ev = EventManager(document_fields=True)
 
         for i in range(0, pads.nbits):
             setattr(self.ev, "gpioint" + str(i), EventSourcePulse() ) # pulse => rising edge
@@ -1573,9 +1573,9 @@ class BetrustedSoC(SoCCore):
         from litex.soc.cores.i2s import I2S_FORMAT
         if revision == 'pvt':
             self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False,
-                frame_format=I2S_FORMAT.I2S_STANDARD)
+                frame_format=I2S_FORMAT.I2S_STANDARD, document_interrupts=True)
         else:
-            self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False)
+            self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False, document_interrupts=True)
         self.bus.add_slave("audio", self.audio.bus, SoCRegion(origin=self.mem_map["audio"], size=0x4, cached=False))
         self.add_csr("audio")
         self.add_interrupt("audio")
