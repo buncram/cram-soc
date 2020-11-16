@@ -118,25 +118,6 @@ const SHA_DIGEST: [u32; 8] = [0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2, 0x
 mod logo;
 use logo::*;
 
-const COM_GASGAUGE: u16 = 0x7000;
-const COM_USBCC: u16 = 0xB000;
-const COM_BL_FULLON: u16 = 0x6BFF;
-const COM_BL_OFF: u16 = 0x6800;
-const COM_BOOST_ON: u16 = 0x5ABB;
-const COM_BOOST_OFF: u16 = 0x5AFE;
-const COM_CHARGE_START: u16 = 0x5A00;
-const COM_SHIPMODE: u16 = 0x9200;
-const COM_ACCEL_UPDATE: u16 = 0xA000;
-const COM_ACCEL_FETCH: u16 = 0xA100;
-const COM_NEXT_DATA: u16 = 0xF0F0;
-const COM_RESET_LINK: u16 = 0xFFFF;
-const COM_POWERDOWN: u16 = 0x9000;
-const COM_LINK_TEST: u16 = 0x4000;
-const COM_ERR_UNDERFLOW: u16 = 0xDDDD;
-const COM_CHARGER_REGDUMP: u16 = 0x8000;
-const COM_SSID_CHECK: u16 = 0x2000;
-const COM_SSID_FETCH: u16 = 0x2100;
-
 extern crate digest;
 extern crate double_ratchet;
 use double_ratchet::ratchet::*;
@@ -553,22 +534,20 @@ impl Repl {
                 self.p.POWER.vibe.modify(|_r, w| w.vibe().clear_bit());
             } else if command.trim() == "blon" {
                 self.text.add_text(&mut String::from("Turning backlight on"));
-                com_txrx(&self.p, COM_BL_FULLON); // turn on all the backlight to full brightness (31)
+                com_txrx(&self.p, COM_BL_FULLON, true); // turn on all the backlight to full brightness (31)
             } else if command.trim() == "bloff" {
                 self.text.add_text(&mut String::from("Turning backlight off"));
-                com_txrx(&self.p, COM_BL_OFF);
+                com_txrx(&self.p, COM_BL_OFF, true);
             } else if command.trim() == "bon" {
                 self.text.add_text(&mut String::from("Going boost"));
-                com_txrx(&self.p, COM_RESET_LINK as u16);  // reset the link
+                com_txrx(&self.p, COM_RESET_LINK as u16, true);  // reset the link
                 delay_ms(&self.p, 5); // give it time to reset
-                com_txrx(&self.p, COM_BOOST_ON);
+                com_txrx(&self.p, COM_BOOST_ON, true);
                 delay_ms(&self.p, 8);
-                com_txrx(&self.p, COM_RESET_LINK as u16);  // reset the link
+                com_txrx(&self.p, COM_RESET_LINK as u16, true);  // reset the link
                 delay_ms(&self.p, 5); // give it time to reset
-                com_txrx(&self.p, COM_CHARGER_REGDUMP);
-                delay_ms(&self.p, 8);
-                com_txrx(&self.p, COM_NEXT_DATA); // first value is a pass (wait cycle)
-                delay_ms(&self.p, 5);
+                com_txrx(&self.p, COM_CHARGER_REGDUMP, true);
+                com_txrx(&self.p, COM_NEXT_DATA, true); // first value is a pass (wait cycle)
                 /*
                 unsafe {
                     self.p.GPIO.drive.write(|w| w.bits(0b00_1000));
@@ -576,7 +555,7 @@ impl Repl {
                 }*/
                 self.p.POWER.power.modify(|_r, w| w.boostmode().set_bit());
             for i in 0 .. 0xC {
-                    let data = com_txrx(&self.p, COM_NEXT_DATA);
+                    let data = com_txrx(&self.p, COM_NEXT_DATA, true);
                     delay_ms(&self.p, 5);
                     if i == 1 || i == 4 || i == 6 || i == 7 || i == 8 || i == 10 {
                         self.text.add_text(&mut format!("Stat {}: 0x{:2x}", i, data));
@@ -591,7 +570,7 @@ impl Repl {
                 }*/
                 self.p.POWER.power.modify(|_r, w| w.boostmode().clear_bit());
                 self.text.add_text(&mut String::from("Boost off"));
-                com_txrx(&self.p, COM_BOOST_OFF);
+                com_txrx(&self.p, COM_BOOST_OFF, true);
             } else if command.trim() == "kill" {
                 if cfg!(feature = "pvt") {
                    self.text.add_text(&mut String::from("Self destructing in 3..2..1.."));
@@ -947,20 +926,15 @@ impl Repl {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x}", digest[0 + i*2], digest[1 + i*2]));
                 }
             } */ else if command.trim() == "sp" {
-                com_txrx(&self.p, COM_SHIPMODE);  // send the shipmode command
+                com_txrx(&self.p, COM_SHIPMODE, true);  // send the shipmode command
                 self.power = false;
             } else if command.trim() == "acc" {
-                com_txrx(&self.p, COM_ACCEL_UPDATE);  // update acceleration
-                delay_ms(&self.p, 3);
-                com_txrx(&self.p, COM_ACCEL_FETCH);  // now fetch it
-                delay_ms(&self.p, 1);
-                let x = com_txrx(&self.p, COM_NEXT_DATA);
-                delay_ms(&self.p, 1);
-                let y = com_txrx(&self.p, COM_NEXT_DATA);
-                delay_ms(&self.p, 1);
-                let z = com_txrx(&self.p, COM_NEXT_DATA);
-                delay_ms(&self.p, 1);
-                let id = com_txrx(&self.p, COM_NEXT_DATA);
+                com_txrx(&self.p, COM_ACCEL_UPDATE, true);  // update acceleration
+                com_txrx(&self.p, COM_ACCEL_FETCH, true);  // now fetch it
+                let x = com_txrx(&self.p, COM_NEXT_DATA, true);
+                let y = com_txrx(&self.p, COM_NEXT_DATA, true);
+                let z = com_txrx(&self.p, COM_NEXT_DATA, true);
+                let id = com_txrx(&self.p, COM_NEXT_DATA, true);
                 self.text.add_text(&mut format!("x: {}, y: {}, z: {}, id: 0x{:02x}", x, y, z, id));
             } else if command.trim() == "scanon" {
                 self.ssid_print = true;
@@ -1343,7 +1317,7 @@ fn main() -> ! {
     // note -- leaving audio on for testing, should not be on by default in "normal" systems to save power
     unsafe{ p.POWER.power.write(|w| w.self_().bit(true).state().bits(3).audio().bit(true)); }
 
-    com_txrx(&p, COM_RESET_LINK as u16);  // reset the link
+    com_txrx(&p, COM_RESET_LINK as u16, false);  // reset the link
     delay_ms(&p, 5); // give it time to reset
     // depracated: com_txrx(&p, 0x9003 as u16);  // 0x90cc specifies power set command. bit 0 set means EC stays on; bit 1 means power SoC on
 
@@ -1446,9 +1420,8 @@ fn main() -> ! {
                     unsafe{p.POWER.power.write(|w| w
                         .self_().bit(false)
                         .state().bits(1));} // FIXME: figure out how to float the state bit while system is running...
-                    com_txrx(&p, COM_POWERDOWN as u16);  // 0x9000 code instructs EC to do a powerdown
-                    delay_ms(&p, 100); // don't DoS the EC
-                    com_txrx(&p, COM_RESET_LINK as u16);  // reset the link
+                    com_txrx(&p, COM_POWERDOWN as u16, true);  // 0x9000 code instructs EC to do a powerdown
+                    com_txrx(&p, COM_RESET_LINK as u16, true);  // reset the link
                     delay_ms(&p, 100); // don't DoS the EC
 
                 }
@@ -1491,14 +1464,14 @@ fn main() -> ! {
             if false {  // set to true to debug com bus
                 if tx_index % 32  == 0 {
                     gg_array[0] = 0xFACE;
-                    com_txrx(&p, 0xFFFF); // send link reset command
+                    com_txrx(&p, 0xFFFF, false); // send link reset command
                     delay_ms(&p, 100);
-                    com_txrx(&p, COM_LINK_TEST as u16); // restart the link test
+                    com_txrx(&p, COM_LINK_TEST as u16, true); // restart the link test
                     loopdelay = 1000;
                     tx_index = 0;
                     loopstate = 0;
                 } else {
-                    let value: u16 = com_txrx(&p, COM_NEXT_DATA) as u16;
+                    let value: u16 = com_txrx(&p, COM_NEXT_DATA, true) as u16;
                     if ((value - loopstate) > 0) && ((value & 0xFF) == 0xf0) {
                         gg_array[0] = value - loopstate;
                         gg_array[1] = value;
@@ -1511,15 +1484,19 @@ fn main() -> ! {
                 }
                 tx_index += 1;
             } else {
+                // don't try to communicate if COM is indicating business
+                if com_hold_active(&p) {
+                    continue;
+                }
                 if com_function == COM_GASGAUGE {
                     if tx_index == 0 {
                         loopdelay = 50;
-                        if com_txrx(&p, COM_GASGAUGE as u16) == COM_ERR_UNDERFLOW { // send the pointer reset command
+                        if com_txrx(&p, COM_GASGAUGE as u16, true) == COM_ERR_UNDERFLOW { // send the pointer reset command
                             continue;
                         }
                         tx_index += 1;
                     } else if tx_index < gg_array.len() + 1 {
-                        gg_array[tx_index - 1] = com_txrx(&p, COM_NEXT_DATA) as u16; // the transmit is a dummy byte
+                        gg_array[tx_index - 1] = com_txrx(&p, COM_NEXT_DATA, true) as u16; // the transmit is a dummy byte
                         if gg_array[tx_index -1] == COM_ERR_UNDERFLOW {  // 0xDDDD is actually non-physical for any gas gauge reading
                             continue;
                         }
@@ -1527,7 +1504,7 @@ fn main() -> ! {
                         tx_index = tx_index % (gg_array.len() + 3);
                     } else {
                         loopdelay = 200;
-                        if com_txrx(&p, COM_RESET_LINK) == COM_ERR_UNDERFLOW { ; // send link reset command
+                        if com_txrx(&p, COM_RESET_LINK, true) == COM_ERR_UNDERFLOW { ; // send link reset command
                             continue;
                         }
                         com_function = COM_USBCC;
@@ -1536,10 +1513,10 @@ fn main() -> ! {
                 } else if com_function == COM_USBCC {
                     if tx_index == 0 {
                         loopdelay = 50;
-                        com_txrx(&p, COM_USBCC as u16);
+                        com_txrx(&p, COM_USBCC as u16, true);
                         tx_index += 1;
                     } else if tx_index == 1 {
-                        let value = com_txrx(&p, COM_NEXT_DATA);
+                        let value = com_txrx(&p, COM_NEXT_DATA, true);
                         if value == 1 {
                             repl.text.add_text(&mut format!("Got USB CC event"));
                             tx_index += 1;
@@ -1552,7 +1529,7 @@ fn main() -> ! {
                             tx_index = 0;
                         }
                     } else if tx_index >= 2 && tx_index <= 4 {
-                        let value = com_txrx(&p, COM_NEXT_DATA);
+                        let value = com_txrx(&p, COM_NEXT_DATA, true);
                         repl.text.add_text(&mut format!("status {}: 0x{:2x}", tx_index - 2, value));
                         tx_index += 1;
                     } else {
@@ -1561,12 +1538,12 @@ fn main() -> ! {
                     }
                 } else if com_function == COM_SSID_CHECK {
                     if tx_index == 0 {
-                        com_txrx(&p, COM_SSID_CHECK);
+                        com_txrx(&p, COM_SSID_CHECK, true);
                         tx_index += 1;
                     } else if tx_index == 1 {
-                        if com_txrx(&p, COM_NEXT_DATA) == 1 {
+                        if com_txrx(&p, COM_NEXT_DATA, true) == 1 {
                             delay_ms(&p, 5);
-                            com_txrx(&p, COM_SSID_FETCH); // pre-prime the pipe, so the next result is what we want
+                            com_txrx(&p, COM_SSID_FETCH, true); // pre-prime the pipe, so the next result is what we want
                             loopdelay = 100;
                             com_function = COM_SSID_FETCH;
                             tx_index = 0;
@@ -1582,7 +1559,7 @@ fn main() -> ! {
                     // ASSUME: entering this state, the previous caller issued a COM_SSID_FETCH command
                     if tx_index < (16 * 6) {
                         loopdelay = 0;
-                        let data = com_txrx(&p, COM_NEXT_DATA);
+                        let data = com_txrx(&p, COM_NEXT_DATA, true);
                         let mut lsb : u8 = (data & 0xff) as u8;
                         let mut msb : u8 = ((data >> 8) & 0xff) as u8;
                         if lsb == 0 { lsb = 0x20; }
@@ -1593,13 +1570,16 @@ fn main() -> ! {
                     } else {
                         if repl.get_ssid_print() {
                             for i in 0..6 {
-                                let ssid = str::from_utf8(&ssid_list[i]).expect("unable to parse ssid");
-                                repl.text.add_text(&mut format!("{}: {}", i, ssid));
+                                let ssid = str::from_utf8(&ssid_list[i]);
+                                match ssid {
+                                    Ok(textid) => repl.text.add_text(&mut format!("{}: {}", i, textid)),
+                                    _ => repl.text.add_text(&mut format!("-> SSID parse error")),
+                                }
                             }
                         }
                         tx_index = 0;
                         loopdelay = 200;
-                        if com_txrx(&p, COM_RESET_LINK) == COM_ERR_UNDERFLOW { ; // send link reset command
+                        if com_txrx(&p, COM_RESET_LINK, true) == COM_ERR_UNDERFLOW { ; // send link reset command
                             continue;
                         }
                         com_function = COM_GASGAUGE;
