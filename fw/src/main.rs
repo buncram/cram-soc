@@ -115,6 +115,11 @@ use aes_test::*;
 const SHA_DATA: &[u8; 142] = b"Every one suspects himself of at least one of the cardinal virtues, and this is mine: I am one of the few honest people that I have ever known";
 const SHA_DIGEST: [u32; 8] = [0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2, 0xb8a8379d, 0x426dc745, 0x19f5cff7, 0x4ec9c6d6];
 
+const EC_FLASH_LEN: u32 = 159744;
+const EC_FLASH_SRC: u32 = 0x4008_0000;
+const EC_GATEWARE_LEN: u32 = 0x1_a000;
+const EC_FIRMWARE_LEN: u32 = 48 * 1024;
+
 mod logo;
 use logo::*;
 
@@ -230,6 +235,10 @@ pub struct Repl {
     //sha2: BtSha2,
     ssid_print: bool,
     lock: bool,
+    flash_wip: u32,
+    flash_prog: bool,
+    flash_prog_addr: u32,
+    flash_prog_len: u32,
 }
 
 const PROMPT: &str = "bt> ";
@@ -259,12 +268,23 @@ impl Repl {
                     //sha2: BtSha2::new(),
                     ssid_print: true,
                     lock: false,
+                    flash_wip: 0,
+                    flash_prog: false,
+                    flash_prog_addr: 0x0,
+                    flash_prog_len: EC_FLASH_LEN,
                 }
             };
         r.text.add_text(&mut String::from("Awaiting input."));
 
         r
     }
+
+    pub fn get_flash_wip(&self) -> u32 { self.flash_wip }
+    pub fn set_flash_wip(&mut self, wip: u32) { self.flash_wip = wip; }
+    pub fn get_flash_prog(&self) -> bool { self.flash_prog }
+    pub fn set_flash_prog(&mut self, state: bool) { self.flash_prog = state; }
+    pub fn get_flash_prog_addr(&self) -> u32 { self.flash_prog_addr }
+    pub fn get_flash_prog_len(&self) -> u32 { self.flash_prog_len }
 
     pub fn unlock(&mut self) {
         self.text.add_text(&mut String::from("System unlocked."));
@@ -803,6 +823,10 @@ impl Repl {
                 } else {
                     unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3).reset_ec().bit(false)); }
                 }
+            } else if command.trim() == "ecreset" {
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3).reset_ec().bit(true)); }
+                delay_ms(&self.p, 50);
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3).reset_ec().bit(false)); }
             } /* else if command.trim() == "aux" { // xadc audio source
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
                 self.audio.audio_clocks();
@@ -1193,6 +1217,74 @@ impl Repl {
                 } else {
                     self.text.add_text(&mut format!("Engine25519 passed {} tests.", passes.len()));
                 }
+            } else if command.trim() == "ecerase" {
+                let len: u32 = EC_FLASH_LEN;
+                let addr: u32 = 0x0_0000;
+                self.text.add_text(&mut format!("EC: Erasing {} bytes at 0x{:08x}", len, addr));
+                com_txrx(&self.p, COM_FLASH_ERASE, false);
+                com_txrx(&self.p, (addr >> 16) as u16, false);
+                com_txrx(&self.p, addr as u16, false);
+                com_txrx(&self.p, (len >> 16) as u16, false);
+                com_txrx(&self.p, len as u16, false);
+                self.flash_wip = 1;
+            } else if command.trim() == "ecergw" {
+                let len: u32 = EC_GATEWARE_LEN;
+                let addr: u32 = 0x0_0000;
+                self.text.add_text(&mut format!("EC: Erasing {} bytes at 0x{:08x}", len, addr));
+                com_txrx(&self.p, COM_FLASH_ERASE, false);
+                com_txrx(&self.p, (addr >> 16) as u16, false);
+                com_txrx(&self.p, addr as u16, false);
+                com_txrx(&self.p, (len >> 16) as u16, false);
+                com_txrx(&self.p, len as u16, false);
+                self.flash_wip = 1;
+            } else if command.trim() == "ecerfw" {
+                let len: u32 = EC_FIRMWARE_LEN;
+                let addr: u32 = EC_GATEWARE_LEN;
+                self.text.add_text(&mut format!("EC: Erasing {} bytes at 0x{:08x}", len, addr));
+                com_txrx(&self.p, COM_FLASH_ERASE, false);
+                com_txrx(&self.p, (addr >> 16) as u16, false);
+                com_txrx(&self.p, addr as u16, false);
+                com_txrx(&self.p, (len >> 16) as u16, false);
+                com_txrx(&self.p, len as u16, false);
+                self.flash_wip = 1;
+            } else if command.trim() == "ecprog" {
+                self.flash_prog_addr = 0;
+                self.flash_prog_len = EC_FLASH_LEN;
+                self.text.add_text(&mut format!("EC: Prog {} bytes at 0x{:08x}", self.flash_prog_len, self.flash_prog_addr));
+                self.flash_prog = true; // because this is a long running process, we fold it into the main loop
+                self.flash_wip = 1;
+                com_txrx(&self.p, COM_FLASHLOCK, false); // stop most EC activity while updating
+            } else if command.trim() == "ecprgw" {
+                self.flash_prog_addr = 0;
+                self.flash_prog_len = EC_GATEWARE_LEN;
+                self.text.add_text(&mut format!("EC: Prog {} bytes at 0x{:08x}", self.flash_prog_len, self.flash_prog_addr));
+                self.flash_prog = true; // because this is a long running process, we fold it into the main loop
+                self.flash_wip = 1;
+                com_txrx(&self.p, COM_FLASHLOCK, false); // stop most EC activity while updating
+            } else if command.trim() == "ecprfw" {
+                self.flash_prog_addr = EC_GATEWARE_LEN;
+                self.flash_prog_len = EC_FIRMWARE_LEN;
+                self.text.add_text(&mut format!("EC: Prog {} bytes at 0x{:08x}", self.flash_prog_len, self.flash_prog_addr));
+                self.flash_prog = true; // because this is a long running process, we fold it into the main loop
+                self.flash_wip = 1;
+                com_txrx(&self.p, COM_FLASHLOCK, false); // stop most EC activity while updating
+            } else if command.trim() == "ecprogtest" {
+                let addr: u32 = 0x8_0000;
+                self.text.add_text(&mut format!("EC: Prog 256 bytes at 0x{:08x}", addr));
+                const TEST_SIZE: usize = 256;
+                let test_ptr = EC_FLASH_SRC as *mut [u8; TEST_SIZE];
+                for i in 0..256 {
+                    unsafe{(*test_ptr)[i] = i as u8;}
+                }
+
+                let ram_ptr = EC_FLASH_SRC as *mut [u16; TEST_SIZE/2];
+                com_txrx(&self.p, COM_FLASH_PP, false);
+                com_txrx(&self.p, (addr >> 16) as u16, false);
+                com_txrx(&self.p, addr as u16, false);
+                for i in 0..128 {
+                    com_txrx(&self.p, unsafe{(*ram_ptr)[i as usize]}, false);
+                }
+                self.flash_wip = 1;
             } else {
                 self.text.add_text(&mut format!("{}: not recognized.", command.trim()));
             }
@@ -1367,6 +1459,8 @@ fn main() -> ! {
     let mut loopdelay: u32 = 50;
     let mut testdelay: u32 = get_time_ms(&p);
     let mut com_function: u16 = COM_GASGAUGE;
+    let mut flash_wip = false;
+    let mut flash_prog_ptr: u32 = 0xFFFF_FFFF;
 
     let mut ssid_list: [[u8; 32]; 6] = [[0; 32]; 6]; // index as ssid_list[6][32]
 
@@ -1458,96 +1552,137 @@ fn main() -> ! {
 
         // ping the EC and update various records over time
         if get_time_ms(&p) - cur_time > loopdelay {
-            if false {  // set to true to debug com bus
-                let mut tx_index: usize = 0;
-                if tx_index % 32  == 0 {
-                    gg_array[0] = 0xFACE;
-                    com_txrx(&p, 0xFFFF, false); // send link reset command
-                    delay_ms(&p, 100);
-                    com_txrx(&p, COM_LINK_TEST as u16, true); // restart the link test
-                    loopdelay = 1000;
-                    tx_index = 0;
-                    loopstate = 0;
-                } else {
-                    let value: u16 = com_txrx(&p, COM_NEXT_DATA, true) as u16;
-                    if ((value - loopstate) > 0) && ((value & 0xFF) == 0xf0) {
-                        gg_array[0] = value - loopstate;
-                        gg_array[1] = value;
+            if repl.get_flash_wip() != 0 {
+                if repl.get_flash_prog() {
+                    if flash_prog_ptr > repl.get_flash_prog_len() + repl.get_flash_prog_addr() {
+                        flash_prog_ptr = repl.get_flash_prog_addr();
+                    }
+                    loopdelay = 0;
+                    repl.text.add_text(&mut format!("EC prog 0x{:06x}", flash_prog_ptr));
+                    let addr = flash_prog_ptr;
+                    let ram_ptr = (EC_FLASH_SRC + flash_prog_ptr) as *mut [u16; 128];
+                    com_txrx(&p, COM_FLASH_PP, false);
+                    com_txrx(&p, (addr >> 16) as u16, false);
+                    com_txrx(&p, addr as u16, false);
+                    for i in 0..128 {
+                        com_txrx(&p, unsafe{(*ram_ptr)[i as usize]}, false);
+                    }
+                    flash_prog_ptr += 256;
+                    loop {
+                        let ack = com_txrx(&p, COM_FLASH_WAITACK, true);
+                        if ack == COM_FLASHACK {
+                            break;
+                        }
+                    }
+                    if flash_prog_ptr > repl.get_flash_prog_len() + repl.get_flash_prog_addr() {
+                        repl.set_flash_wip(0);
+                        repl.set_flash_prog(false);
+                        flash_prog_ptr = 0xFFFF_FFFF;
+                        com_txrx(&p, COM_FLASHUNLOCK, false);
                         loopdelay = 50;
-                    } else {
-                        gg_array[0] = value;
-                        loopdelay = 1000;
                     }
-                    loopstate = value;
+                } else {
+                    loopdelay = 50;
+                    repl.text.add_text(&mut format!("EC flash op pending seq# {}", repl.get_flash_wip()));
+                    repl.set_flash_wip(repl.get_flash_wip() + 1);
+                    let ack = com_txrx(&p, COM_FLASH_WAITACK, true);
+                    if ack == COM_FLASHACK {
+                        repl.set_flash_wip(0);
+                        repl.text.add_text(&mut format!("Flash op done."));
+                    }
                 }
-                tx_index += 1;
             } else {
-                // repl.text.add_text(&mut format!("COM: {:04x}", com_function));
-                if com_function == COM_GASGAUGE {
-                    com_txrx(&p, COM_GASGAUGE as u16, false);
-                    for i in 0..gg_array.len() {
-                        gg_array[i] = com_txrx(&p, COM_NEXT_DATA, true) as u16;
-                    }
-                    loopdelay = 100;
-                    com_function = COM_USBCC;
-                } else if com_function == COM_USBCC {
-                    com_txrx(&p, COM_USBCC as u16, false);
-                    let value = com_txrx(&p, COM_NEXT_DATA, true);
-                    if value == 1 {
-                        repl.text.add_text(&mut format!("USB CC event:"));
-                        for i in 0..3 {
-                            let value = com_txrx(&p, COM_NEXT_DATA, true);
-                           repl.text.add_text(&mut format!("status {}: 0x{:2x}", i, value));
-                        }
-                    } else if value != 0 { // the link was empty or resetting
-                        repl.text.add_text(&mut format!("USBCC error 0x{:4x}", value));
-                        com_function = COM_GASGAUGE;
-                    } else { // value was 0, pass to next function
-                        // regardless, clear the returned data
-                        for i in 0..3 {
-                            com_txrx(&p, COM_NEXT_DATA, true);
-                        }
-                        com_function = COM_SSID_CHECK;
-                    }
-                    loopdelay = 100;
-                } else if com_function == COM_SSID_CHECK {
-                    com_txrx(&p, COM_SSID_CHECK, false);
-                    if com_txrx(&p, COM_NEXT_DATA, true) == 1 {
-                        com_txrx(&p, COM_SSID_FETCH, false); // pre-prime the pipe, so the next result is what we want
-                        loopdelay = 500; // give a bit of extra time for the next fetch to happen
-                        com_function = COM_SSID_FETCH;
+                if false {  // set to true to debug com bus
+                    let mut tx_index: usize = 0;
+                    if tx_index % 32  == 0 {
+                        gg_array[0] = 0xFACE;
+                        com_txrx(&p, 0xFFFF, false); // send link reset command
+                        delay_ms(&p, 100);
+                        com_txrx(&p, COM_LINK_TEST as u16, true); // restart the link test
+                        loopdelay = 1000;
+                        tx_index = 0;
+                        loopstate = 0;
                     } else {
+                        let value: u16 = com_txrx(&p, COM_NEXT_DATA, true) as u16;
+                        if ((value - loopstate) > 0) && ((value & 0xFF) == 0xf0) {
+                            gg_array[0] = value - loopstate;
+                            gg_array[1] = value;
+                            loopdelay = 50;
+                        } else {
+                            gg_array[0] = value;
+                            loopdelay = 1000;
+                        }
+                        loopstate = value;
+                    }
+                    tx_index += 1;
+                } else {
+                    // repl.text.add_text(&mut format!("COM: {:04x}", com_function));
+                    if com_function == COM_GASGAUGE {
+                        com_txrx(&p, COM_GASGAUGE as u16, false);
+                        for i in 0..gg_array.len() {
+                            gg_array[i] = com_txrx(&p, COM_NEXT_DATA, true) as u16;
+                        }
                         loopdelay = 100;
-                        com_function = COM_GASGAUGE;
-                    }
-                } else if com_function == COM_SSID_FETCH {
-                    // ASSUME: entering this state, the previous caller issued a COM_SSID_FETCH command
-                    for i in 0..16 * 6 {
-                        let data = com_txrx(&p, COM_NEXT_DATA, true);
-                        let mut lsb : u8 = (data & 0xff) as u8;
-                        let mut msb : u8 = ((data >> 8) & 0xff) as u8;
-                        if lsb == 0 { lsb = 0x20; }
-                        if msb == 0 { msb = 0x20; }
-                        ssid_list[i / 16][(i % 16) * 2] = lsb;
-                        ssid_list[i / 16][(i % 16) * 2 + 1] = msb;
-                    }
-                    if repl.get_ssid_print() {
-                        for i in 0..6 {
-                            let ssid = str::from_utf8(&ssid_list[i]);
-                            match ssid {
-                                Ok(textid) => repl.text.add_text(&mut format!("{}: {}", i, textid)),
-                                _ => repl.text.add_text(&mut format!("-> SSID parse error")),
+                        com_function = COM_USBCC;
+                    } else if com_function == COM_USBCC {
+                        com_txrx(&p, COM_USBCC as u16, false);
+                        let value = com_txrx(&p, COM_NEXT_DATA, true);
+                        if value == 1 {
+                            repl.text.add_text(&mut format!("USB CC event:"));
+                            for i in 0..3 {
+                                let value = com_txrx(&p, COM_NEXT_DATA, true);
+                            repl.text.add_text(&mut format!("status {}: 0x{:2x}", i, value));
+                            }
+                        } else if value != 0 { // the link was empty or resetting
+                            repl.text.add_text(&mut format!("USBCC error 0x{:4x}", value));
+                            com_function = COM_GASGAUGE;
+                        } else { // value was 0, pass to next function
+                            // regardless, clear the returned data
+                            for i in 0..3 {
+                                com_txrx(&p, COM_NEXT_DATA, true);
+                            }
+                            com_function = COM_SSID_CHECK;
+                        }
+                        loopdelay = 100;
+                    } else if com_function == COM_SSID_CHECK {
+                        com_txrx(&p, COM_SSID_CHECK, false);
+                        if com_txrx(&p, COM_NEXT_DATA, true) == 1 {
+                            com_txrx(&p, COM_SSID_FETCH, false); // pre-prime the pipe, so the next result is what we want
+                            loopdelay = 500; // give a bit of extra time for the next fetch to happen
+                            com_function = COM_SSID_FETCH;
+                        } else {
+                            loopdelay = 100;
+                            com_function = COM_GASGAUGE;
+                        }
+                    } else if com_function == COM_SSID_FETCH {
+                        // ASSUME: entering this state, the previous caller issued a COM_SSID_FETCH command
+                        for i in 0..16 * 6 {
+                            let data = com_txrx(&p, COM_NEXT_DATA, true);
+                            let mut lsb : u8 = (data & 0xff) as u8;
+                            let mut msb : u8 = ((data >> 8) & 0xff) as u8;
+                            if lsb == 0 { lsb = 0x20; }
+                            if msb == 0 { msb = 0x20; }
+                            ssid_list[i / 16][(i % 16) * 2] = lsb;
+                            ssid_list[i / 16][(i % 16) * 2 + 1] = msb;
+                        }
+                        if repl.get_ssid_print() {
+                            for i in 0..6 {
+                                let ssid = str::from_utf8(&ssid_list[i]);
+                                match ssid {
+                                    Ok(textid) => repl.text.add_text(&mut format!("{}: {}", i, textid)),
+                                    _ => repl.text.add_text(&mut format!("-> SSID parse error")),
+                                }
                             }
                         }
-                    }
-                    loopdelay = 100;
+                        loopdelay = 100;
 
-                    com_txrx(&p, COM_RESET_LINK, false); // send link reset command
-                    delay_ms(&p, 5); // give it time to reset
-                    com_function = COM_GASGAUGE;
-                } else {
-                    com_function = COM_GASGAUGE;
-                    loopdelay = 100;
+                        com_txrx(&p, COM_RESET_LINK, false); // send link reset command
+                        delay_ms(&p, 5); // give it time to reset
+                        com_function = COM_GASGAUGE;
+                    } else {
+                        com_function = COM_GASGAUGE;
+                        loopdelay = 100;
+                    }
                 }
             }
             cur_time = get_time_ms(&p);

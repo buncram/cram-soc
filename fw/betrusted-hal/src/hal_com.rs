@@ -22,6 +22,13 @@ pub const COM_SSID_CHECK: u16 = 0x2000;
 pub const COM_SSID_FETCH: u16 = 0x2100;
 pub const COM_IDLE: u16 = 0x07E4; // 2020 decimal
 
+pub const COM_FLASH_ERASE: u16 = 0x3200;
+pub const COM_FLASH_WAITACK: u16 = 0x3000;
+pub const COM_FLASH_PP: u16 = 0x3300;
+pub const COM_FLASHACK: u16 = 0x3CC3;
+pub const COM_FLASHLOCK: u16 = 0x3400;
+pub const COM_FLASHUNLOCK: u16 = 0x3434;
+
 /// com_txrx is a polled-implementation of an atomic TX/RX swap operation
 /// assumes that transaction is *not* in progress on entry to this function
 /// this invariant is enforced by the function itself, but if another routine
