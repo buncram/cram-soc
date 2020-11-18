@@ -20,6 +20,7 @@ pub const COM_ERR_UNDERFLOW: u16 = 0xDDDD;
 pub const COM_CHARGER_REGDUMP: u16 = 0x8000;
 pub const COM_SSID_CHECK: u16 = 0x2000;
 pub const COM_SSID_FETCH: u16 = 0x2100;
+pub const COM_IDLE: u16 = 0x07E4; // 2020 decimal
 
 /// com_txrx is a polled-implementation of an atomic TX/RX swap operation
 /// assumes that transaction is *not* in progress on entry to this function
