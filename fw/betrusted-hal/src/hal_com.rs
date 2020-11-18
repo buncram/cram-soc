@@ -31,9 +31,9 @@ pub fn com_txrx(p: &betrusted_pac::Peripherals, tx: u16, waithold: bool) -> u16 
     if waithold {
         let curtime = get_time_ms(p);
         let mut timeout = false;
-        // timeout after 1 second to avoid hangs on concurrency issues
+        // timeout after 0.25 second to avoid hangs in case of a bug in the protocol
         while com_hold_active(p) & !timeout {
-            if (get_time_ms(p) - curtime) > 1000 {
+            if (get_time_ms(p) - curtime) > 250 {
                 timeout = true;
             }
         }

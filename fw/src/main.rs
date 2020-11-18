@@ -926,7 +926,7 @@ impl Repl {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x}", digest[0 + i*2], digest[1 + i*2]));
                 }
             } */ else if command.trim() == "sp" {
-                com_txrx(&self.p, COM_SHIPMODE, true);  // send the shipmode command
+                com_txrx(&self.p, COM_SHIPMODE, false);  // send the shipmode command
                 self.power = false;
             } else if command.trim() == "acc" {
                 com_txrx(&self.p, COM_ACCEL_UPDATE, false);  // update acceleration
