@@ -1217,6 +1217,69 @@ impl Repl {
                 } else {
                     self.text.add_text(&mut format!("Engine25519 passed {} tests.", passes.len()));
                 }
+            } else if command.trim() == "ecup" {
+                if tokens.len() != 2 {
+                    self.text.add_text(&mut format!("ecup [all/fw/gw]"));
+                    self.text.add_text(&mut format!("Update EC all/firmware/gateware"));
+                    self.text.add_text(&mut format!("Requires pre-load RAM image via USB"));
+                    return;
+                }
+                if tokens[1].trim() == "all" {
+                    let len: u32 = EC_FLASH_LEN;
+                    let addr: u32 = 0x0_0000;
+                    self.text.add_text(&mut format!("EC: Erasing {} bytes at 0x{:08x}", len, addr));
+                    com_txrx(&self.p, COM_FLASH_ERASE, false);
+                    com_txrx(&self.p, (addr >> 16) as u16, false);
+                    com_txrx(&self.p, addr as u16, false);
+                    com_txrx(&self.p, (len >> 16) as u16, false);
+                    com_txrx(&self.p, len as u16, false);
+
+                    while COM_FLASHACK != com_txrx(&self.p, COM_FLASH_WAITACK, true) { }
+                    self.flash_prog_addr = 0;
+                    self.flash_prog_len = EC_FLASH_LEN;
+                    self.text.add_text(&mut format!("EC: Prog {} bytes at 0x{:08x}", self.flash_prog_len, self.flash_prog_addr));
+                    self.flash_prog = true; // because this is a long running process, we fold it into the main loop
+                    self.flash_wip = 1;
+                    com_txrx(&self.p, COM_FLASHLOCK, false); // stop most EC activity while updating
+                } else if tokens[1].trim() == "fw" {
+                    let len: u32 = EC_FIRMWARE_LEN;
+                    let addr: u32 = EC_GATEWARE_LEN;
+                    self.text.add_text(&mut format!("EC: Erasing {} bytes at 0x{:08x}", len, addr));
+                    com_txrx(&self.p, COM_FLASH_ERASE, false);
+                    com_txrx(&self.p, (addr >> 16) as u16, false);
+                    com_txrx(&self.p, addr as u16, false);
+                    com_txrx(&self.p, (len >> 16) as u16, false);
+                    com_txrx(&self.p, len as u16, false);
+                    self.flash_wip = 1;
+                    while COM_FLASHACK != com_txrx(&self.p, COM_FLASH_WAITACK, true) { }
+
+                    self.flash_prog_addr = EC_GATEWARE_LEN;
+                    self.flash_prog_len = EC_FIRMWARE_LEN;
+                    self.text.add_text(&mut format!("EC: Prog {} bytes at 0x{:08x}", self.flash_prog_len, self.flash_prog_addr));
+                    self.flash_prog = true; // because this is a long running process, we fold it into the main loop
+                    self.flash_wip = 1;
+                    com_txrx(&self.p, COM_FLASHLOCK, false); // stop most EC activity while updating
+                } else if tokens[1].trim() == "gw" {
+                    let len: u32 = EC_GATEWARE_LEN;
+                    let addr: u32 = 0x0_0000;
+                    self.text.add_text(&mut format!("EC: Erasing {} bytes at 0x{:08x}", len, addr));
+                    com_txrx(&self.p, COM_FLASH_ERASE, false);
+                    com_txrx(&self.p, (addr >> 16) as u16, false);
+                    com_txrx(&self.p, addr as u16, false);
+                    com_txrx(&self.p, (len >> 16) as u16, false);
+                    com_txrx(&self.p, len as u16, false);
+                    self.flash_wip = 1;
+                    while COM_FLASHACK != com_txrx(&self.p, COM_FLASH_WAITACK, true) { }
+
+                    self.flash_prog_addr = 0;
+                    self.flash_prog_len = EC_GATEWARE_LEN;
+                    self.text.add_text(&mut format!("EC: Prog {} bytes at 0x{:08x}", self.flash_prog_len, self.flash_prog_addr));
+                    self.flash_prog = true; // because this is a long running process, we fold it into the main loop
+                    self.flash_wip = 1;
+                    com_txrx(&self.p, COM_FLASHLOCK, false); // stop most EC activity while updating
+                } else {
+                    self.text.add_text(&mut format!("Unrecognized action."));
+                }
             } else if command.trim() == "ecerase" {
                 let len: u32 = EC_FLASH_LEN;
                 let addr: u32 = 0x0_0000;
@@ -1586,6 +1649,8 @@ fn main() -> ! {
                         flash_prog_ptr = 0xFFFF_FFFF;
                         com_txrx(&p, COM_FLASHUNLOCK, false);
                         loopdelay = 50;
+                        repl.text.add_text(&mut format!("Imaging done!"));
+                        repl.text.add_text(&mut format!("Type 'ecreset' to load image into EC"));
                     }
                 } else {
                     loopdelay = 50;
