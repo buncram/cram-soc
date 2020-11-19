@@ -1559,22 +1559,28 @@ fn main() -> ! {
                     }
                     loopdelay = 0;
                     repl.text.add_text(&mut format!("EC prog 0x{:06x}", flash_prog_ptr));
-                    let addr = flash_prog_ptr;
-                    let ram_ptr = (EC_FLASH_SRC + flash_prog_ptr) as *mut [u16; 128];
-                    com_txrx(&p, COM_FLASH_PP, false);
-                    com_txrx(&p, (addr >> 16) as u16, false);
-                    com_txrx(&p, addr as u16, false);
-                    for i in 0..128 {
-                        com_txrx(&p, unsafe{(*ram_ptr)[i as usize]}, false);
-                    }
-                    flash_prog_ptr += 256;
-                    loop {
-                        let ack = com_txrx(&p, COM_FLASH_WAITACK, true);
-                        if ack == COM_FLASHACK {
-                            break;
+                    for _ in 0..4 { // fill in 4k chunks, a compromise between UI updates and fast programming
+                        for _ in 0..4 { // FIFO is 1280 deep, so fill it up with 1k of programming data to reduce sync overheads
+                            if flash_prog_ptr < repl.get_flash_prog_len() + repl.get_flash_prog_addr() {
+                                let addr = flash_prog_ptr;
+                                let ram_ptr = (EC_FLASH_SRC + flash_prog_ptr) as *mut [u16; 128];
+                                com_txrx(&p, COM_FLASH_PP, false);
+                                com_txrx(&p, (addr >> 16) as u16, false);
+                                com_txrx(&p, addr as u16, false);
+                                for i in 0..128 {
+                                    com_txrx(&p, unsafe{(*ram_ptr)[i as usize]}, false);
+                                }
+                                flash_prog_ptr += 256;
+                            }
+                        }
+                        loop {
+                            let ack = com_txrx(&p, COM_FLASH_WAITACK, true);
+                            if ack == COM_FLASHACK {
+                                break;
+                            }
                         }
                     }
-                    if flash_prog_ptr > repl.get_flash_prog_len() + repl.get_flash_prog_addr() {
+                    if flash_prog_ptr >= repl.get_flash_prog_len() + repl.get_flash_prog_addr() {
                         repl.set_flash_wip(0);
                         repl.set_flash_prog(false);
                         flash_prog_ptr = 0xFFFF_FFFF;
