@@ -801,7 +801,8 @@ impl Repl {
 
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
-                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+                // don't reset the audio
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
             } else if command.trim() == "aloop" {
                 if tokens.len() != 2 {
                     self.text.add_text(&mut format!("usage: aloop [on/off]"));

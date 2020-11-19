@@ -873,7 +873,7 @@ class WarmBoot(Module, AutoCSR):
 
 class BtEvents(Module, AutoCSR, AutoDoc):
     def __init__(self, com, rtc):
-        self.submodules.ev = EventManager(document_fields=True)
+        self.submodules.ev = EventManager()
         self.ev.com_int    = EventSourcePulse()   # rising edge triggered
         self.ev.rtc_int    = EventSourceProcess() # falling edge triggered
         self.ev.finalize()
@@ -934,7 +934,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
 
                 self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
             ]
-            self.submodules.ev = EventManager(document_fields=True)
+            self.submodules.ev = EventManager()
             self.ev.usb_attach = EventSourcePulse(description="USB attach event")
             self.ev.finalize()
             usb_attach = Signal()
@@ -1127,7 +1127,7 @@ class BtGpio(Module, AutoDoc, AutoCSR):
             gpio_oe.eq(self.drive.storage),
         ]
 
-        self.submodules.ev = EventManager(document_fields=True)
+        self.submodules.ev = EventManager()
 
         for i in range(0, pads.nbits):
             setattr(self.ev, "gpioint" + str(i), EventSourcePulse() ) # pulse => rising edge
