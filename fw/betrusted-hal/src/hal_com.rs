@@ -23,6 +23,8 @@ pub const COM_SSID_FETCH: u16 = 0x2100;
 pub const COM_IDLE: u16 = 0x07E4; // 2020 decimal
 pub const COM_POWER_SOC: u16 = 0x9300;
 pub const COM_POWER_REMAINING: u16 = 0x9400;
+pub const COM_GG_FACTORY_CAPACITY: u16 = 0x7676;
+pub const COM_GG_GET_CAPACITY: u16 = 0x7600;
 
 pub const COM_FLASH_ERASE: u16 = 0x3200;
 pub const COM_FLASH_WAITACK: u16 = 0x3000;

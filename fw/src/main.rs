@@ -957,6 +957,15 @@ impl Repl {
             } */ else if command.trim() == "sp" {
                 com_txrx(&self.p, COM_SHIPMODE, false);  // send the shipmode command
                 self.power = false;
+            } else if command.trim() == "gginit" {
+                com_txrx(&self.p, COM_GG_FACTORY_CAPACITY, false);
+                com_txrx(&self.p, 1100, false); // new capacity argument
+                let prev_cap = com_txrx(&self.p, COM_NEXT_DATA, true);
+                self.text.add_text(&mut format!("GG capacity set. Old cap: {}mAh", prev_cap));
+            } else if command.trim() == "ggcap" {
+                com_txrx(&self.p, COM_GG_GET_CAPACITY, false);
+                let prev_cap = com_txrx(&self.p, COM_NEXT_DATA, true);
+                self.text.add_text(&mut format!("GG capacity: {}mAh", prev_cap));
             } else if command.trim() == "acc" {
                 com_txrx(&self.p, COM_ACCEL_UPDATE, false);  // update acceleration
                 com_txrx(&self.p, COM_ACCEL_FETCH, false);  // now fetch it
