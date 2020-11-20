@@ -113,7 +113,7 @@ _io_pvt = [   # PVT-generation I/Os
         # turn on the UP5K in case we are woken up by RTC
         Subsignal("up5k_on",      Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
         Subsignal("boostmode",    Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
-        Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33")),  # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
+        Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),  # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
         Misc("SLEW=SLOW"),
         Misc("DRIVE=4"),
     ),
@@ -962,7 +962,13 @@ class BtPower(Module, AutoCSR, AutoDoc):
             ]
         if revision == 'pvt':
             self.comb += pads.boostmode.eq(self.power.fields.boostmode)
-            self.comb += pads.selfdestruct.eq(self.power.fields.selfdestruct)
+            # Hi-Z driver is less glitchy and less likely to trigger the self destruct mechanism on power glitches
+            self.sd_ts = TSTriple(1)
+            self.specials += self.sd_ts.get_tristate(pads.selfdestruct)
+            self.comb += [
+                self.sd_ts.oe.eq(self.power.fields.selfdestruct),
+                self.sd_ts.o.eq(1)
+            ]
 
 # ModNoise ------------------------------------------------------------------------------------------
 

@@ -768,6 +768,8 @@ impl Repl {
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+                delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
             } else if command.trim() == "aut" { // sample for 10 seconds and report # of samples seen -- for benchmarking sample rate
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
                 delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
@@ -801,7 +803,9 @@ impl Repl {
 
                 self.audio.audio_i2s_stop();
                 self.audio_run = false;
-                // don't reset the audio
+
+                unsafe{ self.p.POWER.power.write(|w| w.audio().bit(false).self_().bit(true).state().bits(3)); }
+                delay_ms(&self.p, 50); // give it a moment to power on and initialize before blasting data in
                 unsafe{ self.p.POWER.power.write(|w| w.audio().bit(true).self_().bit(true).state().bits(3)); }
             } else if command.trim() == "aloop" {
                 if tokens.len() != 2 {
