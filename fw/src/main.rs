@@ -1508,6 +1508,8 @@ fn main() -> ! {
     let mut cur_time: u32 = get_time_ms(&p);
     let mut _stat_array: [u16; 10] = [0; 10];
     let mut gg_array: [u16; 4] = [0; 4];
+    let mut state_of_charge: i16 = 100;
+    let mut remaining_capacity: i16 = 1000;
     let mut line_height: i32 = 18;
     let left_margin: i32 = 10;
     let mut bouncy_ball: Bounce = Bounce::new(radius, Rectangle::new(Point::new(0, line_height * 21), Point::new(size.width as i32, size.height as i32 - 1)));
@@ -1699,7 +1701,17 @@ fn main() -> ! {
                             gg_array[i] = com_txrx(&p, COM_NEXT_DATA, true) as u16;
                         }
                         loopdelay = 100;
+                        com_function = COM_POWER_SOC;
+                    } else if com_function == COM_POWER_SOC {
+                        com_txrx(&p, COM_POWER_SOC, false);
+                        state_of_charge = com_txrx(&p, COM_NEXT_DATA, true) as i16;
+                        com_function = COM_POWER_REMAINING;
+                        loopdelay = 100;
+                    } else if com_function == COM_POWER_REMAINING {
+                        com_txrx(&p, COM_POWER_REMAINING, false);
+                        remaining_capacity = com_txrx(&p, COM_NEXT_DATA, true) as i16;
                         com_function = COM_USBCC;
+                        loopdelay = 100;
                     } else if com_function == COM_USBCC {
                         com_txrx(&p, COM_USBCC as u16, false);
                         let value = com_txrx(&p, COM_NEXT_DATA, true);
@@ -1789,7 +1801,7 @@ fn main() -> ! {
         .draw(&mut *display.lock());
 
         cur_line += line_height;
-        let dbg = format!{"voltage: {}mV", gg_array[2]};
+        let dbg = format!{"{}mV / {}mA / {}%", gg_array[2], remaining_capacity, state_of_charge};
         Font12x16::render_str(&dbg)
         .stroke_color(Some(BinaryColor::On))
         .translate(Point::new(left_margin, cur_line))

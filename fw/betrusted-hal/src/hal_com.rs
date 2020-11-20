@@ -21,6 +21,8 @@ pub const COM_CHARGER_REGDUMP: u16 = 0x8000;
 pub const COM_SSID_CHECK: u16 = 0x2000;
 pub const COM_SSID_FETCH: u16 = 0x2100;
 pub const COM_IDLE: u16 = 0x07E4; // 2020 decimal
+pub const COM_POWER_SOC: u16 = 0x9300;
+pub const COM_POWER_REMAINING: u16 = 0x9400;
 
 pub const COM_FLASH_ERASE: u16 = 0x3200;
 pub const COM_FLASH_WAITACK: u16 = 0x3000;
