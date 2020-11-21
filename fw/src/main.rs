@@ -121,7 +121,6 @@ const EC_GATEWARE_LEN: u32 = 0x1_a000;
 const EC_FIRMWARE_LEN: u32 = 48 * 1024;
 
 mod logo;
-use logo::*;
 
 extern crate digest;
 extern crate double_ratchet;
@@ -135,6 +134,12 @@ use signal_common::keys::{
 //    RatchetKeySecret,
 //    SessionKey,
 };
+
+#[derive(PartialEq)]
+pub enum RngType {
+    RingOsc,
+    Avalanche,
+}
 
 pub struct Bounce {
     vector: Point,
@@ -412,6 +417,107 @@ impl Repl {
 
         for i in 0..TEST_SIZE {
             unsafe{ (*ram_ptr)[i as usize] = 0; }
+        }
+    }
+
+    pub fn get_avalanche_u32(&mut self) -> u32 {
+        let mut r: u16 = 0;
+        for _ in 0..4 {
+            r <<= 4; // ~4 bits of entropy at a time, concentrated in the LSBs
+            self.xadc.wait_update();
+            r ^= self.xadc.noise0() ^ self.xadc.noise1();
+        }
+        let mut ret = r as u32;
+        r = 0;
+        for _ in 0..4 {
+            r <<= 4; // ~4 bits of entropy at a time, concentrated in the LSBs
+            self.xadc.wait_update();
+            r ^= self.xadc.noise0() ^ self.xadc.noise1();
+        }
+        ret |= (r as u32) << 16;
+
+        ret
+    }
+
+    pub fn ram_fill_trng(&mut self, do_init: bool, phase: u32, rng_type: RngType) -> u32 {
+        const TEST_SIZE: usize = 512 * 1024 / 4;
+        let ram_ptr_a = 0x4008_0000 as *mut [u32; TEST_SIZE];
+        let ram_ptr_b = 0x4010_0000 as *mut [u32; TEST_SIZE];
+
+        if do_init {
+            self.ram_clear();
+            let mut phase: u32 = 1;
+            unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+
+            if rng_type == RngType::RingOsc {
+                // start loading the ring osc trng
+                unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w
+                    .ena().bit(true)
+                    .delay().bits(8)
+                    .dwell().bits(100)
+                    .gang().bit(true)}); }
+            } else {
+                    // make sure the noise bias is on for the avalanche TRNG
+                    unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
+                    delay_ms(&self.p, 100); // definitely wait until stabilized; stabilization test is separate
+            }
+
+            self.xadc.noise_only(true);
+            for i in 0..TEST_SIZE {
+                if rng_type == RngType::RingOsc {
+                    while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                    unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                } else {
+                    unsafe{ (*ram_ptr_a)[i as usize] = self.get_avalanche_u32(); }
+                }
+            }
+            for i in 0..TEST_SIZE {
+                if rng_type == RngType::RingOsc {
+                    while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                    unsafe{ (*ram_ptr_b)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                } else {
+                    unsafe{ (*ram_ptr_b)[i as usize] = self.get_avalanche_u32(); }
+                }
+            }
+            self.xadc.noise_only(false);
+            phase = 2;
+            unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(phase)); }
+            return phase;
+        } else {
+            while phase != self.p.MESSIBLE2.out.read().bits() {
+            }
+            if phase == 1 {
+                if rng_type == RngType::RingOsc {
+                    for i in 0..TEST_SIZE {
+                        while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                        unsafe{ (*ram_ptr_a)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                    }
+                } else {
+                    self.xadc.noise_only(true);
+                    for i in 0..TEST_SIZE {
+                        unsafe{ (*ram_ptr_a)[i as usize] = self.get_avalanche_u32(); }
+                    }
+                    self.xadc.noise_only(false);
+                }
+                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(1)); }
+                return 2;
+            } else {
+                if rng_type == RngType::RingOsc {
+                    for i in 0..TEST_SIZE {
+                        while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
+                        unsafe{ (*ram_ptr_b)[i as usize] = self.p.TRNG_OSC.rand.read().rand().bits(); }
+                    }
+                } else {
+                    self.xadc.noise_only(true);
+                    for i in 0..TEST_SIZE {
+                        unsafe{ (*ram_ptr_b)[i as usize] = self.get_avalanche_u32(); }
+                    }
+                    self.xadc.noise_only(false);
+                }
+                // so when messible-out goes to B, read buffer B
+                unsafe{ self.p.MESSIBLE.in_.write(|w| w.bits(2)); }
+                return 1;
+            }
         }
     }
 
@@ -848,15 +954,16 @@ impl Repl {
                 self.text.add_text(&mut format!("RAM cleared."));
             } else if command.trim() == "rno" {
                 self.ram_clear();
-                self.ram_fill_ringosc(true, 0);
+                self.ram_fill_trng(true, 0, RngType::RingOsc);
                 let time: u32 = readpac32!(self, TICKTIMER, time0);
-                self.ram_fill_ringosc(false, 0);
+                self.ram_fill_trng(false, 0, RngType::RingOsc);
                 let endtime: u32 = readpac32!(self, TICKTIMER, time0);
                 self.text.add_text(&mut format!("8MiB ring osc done: {}ms", endtime - time));
             } else if command.trim() == "rna" {
                 self.ram_clear();
+                self.ram_fill_trng(true, 0, RngType::Avalanche);
                 let time: u32 = readpac32!(self, TICKTIMER, time0);
-                self.ram_fill_avalanche();
+                self.ram_fill_trng(false, 0, RngType::Avalanche);
                 let endtime: u32 = readpac32!(self, TICKTIMER, time0);
                 self.text.add_text(&mut format!("8MiB avalanche done: {}ms", endtime - time));
             } else if command.trim() == "ramx" {
@@ -1538,7 +1645,6 @@ fn main() -> ! {
     let mut loopdelay: u32 = 50;
     let mut testdelay: u32 = get_time_ms(&p);
     let mut com_function: u16 = COM_GASGAUGE;
-    let mut flash_wip = false;
     let mut flash_prog_ptr: u32 = 0xFFFF_FFFF;
 
     let mut ssid_list: [[u8; 32]; 6] = [[0; 32]; 6]; // index as ssid_list[6][32]
@@ -1735,7 +1841,7 @@ fn main() -> ! {
                             com_function = COM_GASGAUGE;
                         } else { // value was 0, pass to next function
                             // regardless, clear the returned data
-                            for i in 0..3 {
+                            for _ in 0..3 {
                                 com_txrx(&p, COM_NEXT_DATA, true);
                             }
                             com_function = COM_SSID_CHECK;
@@ -1995,12 +2101,10 @@ fn main() -> ! {
         display.lock().flush().unwrap();
 
         if first_time {
-            //phase = repl.ram_fill_ringosc(true, phase);
-            //    repl.ram_fill_avalanche();
-            //    repl.audio_standalone();
+            //phase = repl.ram_fill_trng(true, phase, RngType::Avalanche);
             first_time = false;
         } else {
-            //phase = repl.ram_fill_ringosc(false, phase);
+            //phase = repl.ram_fill_ringosc(false, phase, RngType::Avalanche);
         }
     }
 }
