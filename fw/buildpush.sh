@@ -65,17 +65,17 @@ md5sum $CSR_CSV
 # case of no private key specified
 if [ $USE_USB -eq 1 ]
 then
-    if [ $UPDATE_KERNEL -eq 1 ]
-    then
-      echo "Burning firmware"
-      sudo wishbone-tool --csr-csv $CSR_CSV --load-name $KERNEL_IMAGE --load-address 0x500000 --load-flash
-    fi
     if [ $UPDATE_FPGA -eq 1 ]
     then
       echo "Burning FPGA image"
       sudo wishbone-tool --csr-csv $CSR_CSV --load-name $FPGA_IMAGE --load-address 0x0 --load-flash
       echo "*** Manual power cycle required to reload SoC FPGA configuration ***"
       echo " -> Either issue a power cycle command, or insert paper clip in the hole on the right hand side!"
+    fi
+    if [ $UPDATE_KERNEL -eq 1 ]
+    then
+      echo "Burning firmware"
+      sudo wishbone-tool --csr-csv $CSR_CSV --load-name $KERNEL_IMAGE --load-address 0x500000 --load-flash
     fi
 else
   if [ $USE_IDENTITY -eq 1 ]
