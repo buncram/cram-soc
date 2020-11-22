@@ -988,6 +988,14 @@ impl Repl {
                 com_txrx(&self.p, COM_GG_GET_CAPACITY, false);
                 let prev_cap = com_txrx(&self.p, COM_NEXT_DATA, true);
                 self.text.add_text(&mut format!("GG capacity: {}mAh", prev_cap));
+            } else if command.trim() == "ggfull" {
+                com_txrx(&self.p, COM_GG_FULL_CAPACITY, false);
+                let full_cap = com_txrx(&self.p, COM_NEXT_DATA, true);
+                self.text.add_text(&mut format!("Full capacity: {}mAh", full_cap));
+            } else if command.trim() == "ggdebug" {
+                com_txrx(&self.p, COM_GG_DEBUG, false);
+                let dbg = com_txrx(&self.p, COM_NEXT_DATA, true);
+                self.text.add_text(&mut format!("GG debug: {}", dbg));
             } else if command.trim() == "acc" {
                 com_txrx(&self.p, COM_ACCEL_UPDATE, false);  // update acceleration
                 com_txrx(&self.p, COM_ACCEL_FETCH, false);  // now fetch it
