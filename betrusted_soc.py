@@ -1314,7 +1314,7 @@ class BetrustedSoC(SoCCore):
 
         # UART mux ---------------------------------------------------------------------------------
         from litex.soc.cores import uart
-        if uart_name == "crossover":
+        if uart_name == "crossover": # note -- crossover UART is *much* slower than a physical UART.
             self.submodules.uart = uart.UARTCrossover()
             self.csr.add("uart_phy", use_loc_if_exists=True)
             self.csr.add("uart", use_loc_if_exists=True)
