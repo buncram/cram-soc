@@ -1314,11 +1314,23 @@ class BetrustedSoC(SoCCore):
 
         # UART mux ---------------------------------------------------------------------------------
         from litex.soc.cores import uart
-        if uart_name == "crossover":
+        if uart_name == "crossover": # note -- crossover UART is *much* slower than a physical UART.
             self.submodules.uart = uart.UARTCrossover()
             self.csr.add("uart_phy", use_loc_if_exists=True)
             self.csr.add("uart", use_loc_if_exists=True)
             self.add_interrupt("uart", use_loc_if_exists=True)
+
+            self.submodules.console = uart.UARTCrossover()
+            self.csr.add("console")
+            self.add_interrupt("console")
+
+            self.submodules.server0 = uart.UARTCrossover()
+            self.csr.add("server0")
+            self.add_interrupt("server0")
+
+            self.submodules.server1 = uart.UARTCrossover()
+            self.csr.add("server1")
+            self.add_interrupt("server1")
         elif uart_name == "serial":
             uart_pins = platform.request("serial")
             serial_layout = [("tx", 1), ("rx", 1)]
