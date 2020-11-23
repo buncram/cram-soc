@@ -561,11 +561,12 @@ class CRG(Module, AutoCSR):
 
 class WarmBoot(Module, AutoCSR):
     def __init__(self, parent, reset_vector=0):
-        self.ctrl = CSRStorage(size=8)
-        self.addr = CSRStorage(size=32, reset=reset_vector)
+        self.soc_reset = CSRStorage(size=8, description="Writing 0xAC to this register will do a full SoC reset, including CRGs and peripherals")
+        self.addr = CSRStorage(size=32, reset=reset_vector, description="The address written here will be used as the next reset vector")
+        self.cpu_reset = CSRStorage(size=1, description="Writing anything to this register resets the CPU, and the CPU only; does not affect CRG or peripherals")
         self.do_reset = Signal()
         # "Reset Key" is 0xac (0b101011xx)
-        self.comb += self.do_reset.eq((self.ctrl.storage & 0xfc) == 0xac)
+        self.comb += self.do_reset.eq((self.soc_reset.storage & 0xfc) == 0xac)
 
 # BtEvents -----------------------------------------------------------------------------------------
 
@@ -982,6 +983,7 @@ class BetrustedSoC(SoCCore):
             with_uart            = False, # implemented manually to allow for UART mux
             uart_name            = uart_name,
             cpu_reset_address    = reset_address,
+            with_ctrl            = False,
             **kwargs)
 
         # CPU --------------------------------------------------------------------------------------
@@ -992,6 +994,22 @@ class BetrustedSoC(SoCCore):
         warm_reset = Signal()
         self.comb += warm_reset.eq(self.reboot.do_reset)
         self.cpu.cpu_params.update(i_externalResetVector=self.reboot.addr.storage)
+        # override the default CPU reset so there's more margin on the signal
+        # we do *not* patch this into the system reset because it also kicks the Wishbone USB debug bridge, which complicates firmware updates!
+        reset_cycles = 16
+        cpu_res_ctr = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
+        cpu_reset = Signal(reset=1)
+        self.sync += [
+            If(self.reboot.cpu_reset.re,
+                cpu_reset.eq(1),
+                cpu_res_ctr.eq(reset_cycles - 1),
+            ).Elif(cpu_res_ctr != 0,
+                cpu_res_ctr.eq(cpu_res_ctr - 1)
+            ).Else(
+                cpu_reset.eq(0)
+            ),
+        ]
+        self.comb += self.cpu.reset.eq(cpu_reset)
 
         # Debug cluster ----------------------------------------------------------------------------
         if usb_type != 'debug':  # wire up the debug UART automatically if we don't have USB debugging capability
@@ -1005,7 +1023,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("crg")
         self.submodules.reset_syncer = BlindTransfer("sys", "raw_12")
         self.comb += [
-            self.reset_syncer.i.eq(warm_reset | self.ctrl.reset),
+            self.reset_syncer.i.eq(warm_reset),
             self.crg.warm_reset.eq(self.reset_syncer.o)
         ]
 
@@ -1174,7 +1192,6 @@ class BetrustedSoC(SoCCore):
 
         # reset ignore - we should not be relying on any _rst signals to clear state in a single cycle!
         self.platform.add_platform_command('set_false_path -through [get_nets *_rst]')
-        self.platform.add_platform_command('set_false_path -through [get_nets *crg_reset]')
 
         # all multiregs are false paths by definition. Make it explicit.
         self.platform.add_platform_command('set_false_path -through [get_nets *xilinxmultiregimpl*_regs0]') # covers sys-to-other
