@@ -586,7 +586,7 @@ class BtEvents(Module, AutoCSR, AutoDoc):
 # BtPower ------------------------------------------------------------------------------------------
 
 class BtPower(Module, AutoCSR, AutoDoc):
-    def __init__(self, pads, revision='evt'):
+    def __init__(self, pads, revision='pvt'):
         self.intro = ModuleDoc("""BtPower - power control pins
         """)
 
@@ -1121,15 +1121,7 @@ class BetrustedSoC(SoCCore):
         dummy5 = Signal(5, reset=0)
         dummy1 = Signal(1, reset=0)
         dummy15 = Signal(15, reset=0)
-        if revision == 'evt':
-            # NOTE - if part is changed to XC7S25, the pin-to-channel mappings change
-            self.comb += analog_pads.vauxp.eq(Cat(analog.noise0,       # 0
-                                              dummy7,              # 1,2,3,4,5,6,7
-                                              analog.noise1, analog.vbus_div, analog.usbc_cc1, analog.usbc_cc2, # 8,9,10,11
-                                              dummy4,              # 12,13,14,15
-                                             )),
-            self.comb += analog_pads.vauxn.eq(Cat(analog.noise0_n, dummy15)),  # PATCH
-        elif revision == 'dvt' or revision == 'pvt':
+        if revision == 'dvt' or revision == 'pvt':
             # DVT is solidly an xc7s50-only build
             self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
                                              analog.noise1,        # 4
@@ -1335,41 +1327,39 @@ class BetrustedSoC(SoCCore):
         self.bus.add_slave("engine", self.engine.bus, SoCRegion(origin=self.mem_map["engine"], size=0x2_0000, cached=False))
 
         # JTAG self-provisioning block -------------------------------------------------------------
-        if revision != 'evt': # these pins don't exist on EVT
-            self.submodules.jtag = jtag_phy.BtJtag(platform.request("jtag"))
-            self.add_csr("jtag")
+        self.submodules.jtag = jtag_phy.BtJtag(platform.request("jtag"))
+        self.add_csr("jtag")
 
         # USB FS block -----------------------------------------------------------------------------
-        if revision == 'dvt' or revision == 'pvt':
-            if usb_type == 'device':
-                usb_pads = platform.request("usb")
-                usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-                self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
-                self.add_csr("usb")
-                self.add_interrupt("usb")
-                self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
-                # all multiregs are false paths!
-                self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
-                self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
-                # async fifos should be async fifos
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
-                self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
-            elif usb_type=='debug':
-                from valentyusb.usbcore import io as usbio
-                from valentyusb.usbcore.cpu import dummyusb
-                usb_pads = platform.request("usb")
-                usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-                self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
-                self.add_wb_master(self.usb.debug_bridge.wishbone)
-                self.platform.add_platform_command(
-                    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
-                    net=self.usb.debug_bridge.write_fifo.dout)
-                self.platform.add_platform_command(
-                    'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
-                    net=self.usb.debug_bridge.read_fifo.dout)
+        if usb_type == 'device':
+            usb_pads = platform.request("usb")
+            usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
+            self.add_csr("usb")
+            self.add_interrupt("usb")
+            self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
+            # all multiregs are false paths!
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
+            # async fifos should be async fifos
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
+        elif usb_type=='debug':
+            from valentyusb.usbcore import io as usbio
+            from valentyusb.usbcore.cpu import dummyusb
+            usb_pads = platform.request("usb")
+            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+                net=self.usb.debug_bridge.write_fifo.dout)
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+                net=self.usb.debug_bridge.read_fifo.dout)
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
