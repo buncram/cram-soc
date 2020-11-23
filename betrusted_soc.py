@@ -1226,6 +1226,7 @@ class BetrustedSoC(SoCCore):
         # COM SPI interface ------------------------------------------------------------------------
         self.submodules.com = spi.SPIController(platform.request("com"))
         self.add_csr("com")
+        self.add_interrupt("com")
         # 20.83ns = 1/2 of 24MHz clock, we are doing falling-to-rising timing
         # up5k tsu = -0.5ns, th = 5.55ns, tpdmax = 10ns
         # in reality, we are measuring a Tpd from the UP5K of 17ns. Routed input delay is ~3.9ns, which means
