@@ -824,7 +824,7 @@ class BtGpio(Module, AutoDoc, AutoCSR):
         self.intena = CSRStatus(pads.nbits,  name="intena", description="Enable interrupts when a respective bit is set")
         self.intpol = CSRStatus(pads.nbits,  name="intpol", description="When a bit is `1`, falling-edges cause interrupts. Otherwise, rising edges cause interrupts.")
 
-        self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others undefined")
+        self.uartsel = CSRStorage(1, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others undefined")
 
         self.specials += MultiReg(gpio_in, self.input.status)
         self.comb += [
@@ -1044,20 +1044,11 @@ class BetrustedSoC(SoCCore):
             self.csr.add("console")
             self.add_interrupt("console")
 
-            self.submodules.server0 = uart.UARTCrossover(tx_fifo_depth=16, rx_fifo_depth=16)
-            self.csr.add("server0")
-            self.add_interrupt("server0")
-
-            self.submodules.server1 = uart.UARTCrossover(tx_fifo_depth=16, rx_fifo_depth=16)
-            self.csr.add("server1")
-            self.add_interrupt("server1")
         elif uart_name == "serial":
             uart_pins = platform.request("serial")
             serial_layout = [("tx", 1), ("rx", 1)]
             kernel_pads = Record(serial_layout)
             console_pads = Record(serial_layout)
-            server0_pads = Record(serial_layout)
-            server1_pads = Record(serial_layout)
             self.comb += [
                 If(self.gpio.uartsel.storage == 0,
                     uart_pins.tx.eq(kernel_pads.tx),
@@ -1065,12 +1056,6 @@ class BetrustedSoC(SoCCore):
                 ).Elif(self.gpio.uartsel.storage == 1,
                     uart_pins.tx.eq(console_pads.tx),
                     console_pads.rx.eq(uart_pins.rx),
-                ).Elif(self.gpio.uartsel.storage == 2,
-                    uart_pins.tx.eq(server0_pads.tx),
-                    server0_pads.rx.eq(uart_pins.rx),
-                ).Elif(self.gpio.uartsel.storage == 3,
-                    uart_pins.tx.eq(server1_pads.tx),
-                    server1_pads.rx.eq(uart_pins.rx),
                 )
             ]
             self.submodules.uart_phy = uart.UARTPHY(
@@ -1096,30 +1081,6 @@ class BetrustedSoC(SoCCore):
             self.add_csr("console_phy")
             self.add_csr("console")
             self.add_interrupt("console")
-
-            self.submodules.server0_phy = uart.UARTPHY(
-                pads=server0_pads,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
-            self.submodules.server0 = ResetInserter()(uart.UART(self.server0_phy,
-                tx_fifo_depth=16,
-                rx_fifo_depth=16))
-
-            self.add_csr("server0_phy")
-            self.add_csr("server0")
-            self.add_interrupt("server0")
-
-            self.submodules.server1_phy = uart.UARTPHY(
-                pads=server1_pads,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
-            self.submodules.server1 = ResetInserter()(uart.UART(self.server1_phy,
-                tx_fifo_depth=16,
-                rx_fifo_depth=16))
-
-            self.add_csr("server1_phy")
-            self.add_csr("server1")
-            self.add_interrupt("server1")
 
 
         # XADC analog interface---------------------------------------------------------------------
