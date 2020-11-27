@@ -63,9 +63,9 @@ md5sum $KERNEL_IMAGE
 md5sum $CSR_CSV
 
 # case of no private key specified
-if [ $USE_USB -eq 1 ]
+if [[ $USE_USB -eq 1 ]]
 then
-    if [ $UPDATE_FPGA -eq 1 ]
+    if [[ $UPDATE_FPGA -eq 1 ]]
     then
       echo "Burning FPGA image"
       sudo wishbone-tool --csr-csv $CSR_CSV --load-name $FPGA_IMAGE --load-address 0x0 --load-flash
@@ -78,7 +78,7 @@ then
       sudo wishbone-tool --csr-csv $CSR_CSV --load-name $KERNEL_IMAGE --load-address 0x500000 --load-flash
     fi
 else
-  if [ $USE_IDENTITY -eq 1 ]
+  if [[ $USE_IDENTITY -eq 1 ]]
   then
     # there is a private key
       scp -i $IDENTITY $KERNEL_IMAGE $FPGA_IMAGE $DEST_HOST:$DESTDIR/
