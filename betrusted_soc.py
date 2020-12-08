@@ -1147,7 +1147,10 @@ class BetrustedSoC(SoCCore):
         else:
             print("Revision not supported, can't place analog pins")
 
-        self.submodules.info = info.Info(platform, self.__class__.__name__, analog_pads)
+        if xous:
+            self.submodules.info = info.Info(platform, self.__class__.__name__, use_xadc=False) # xadc is managed by TRNG
+        else:
+            self.submodules.info = info.Info(platform, self.__class__.__name__, use_xadc=True, analog_pads=analog_pads)
         self.add_csr("info")
         self.platform.add_platform_command('create_generated_clock -name dna_cnt -source [get_pins {net}_reg[0]/Q] -divide_by 2 [get_pins DNA_PORT/CLK]', net=self.info.dna.count)
 
@@ -1274,14 +1277,26 @@ class BetrustedSoC(SoCCore):
 
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
-        # Ring Oscillator TRNG ---------------------------------------------------------------------
-        self.submodules.trng_osc = TrngRingOscV2(platform)
-        self.add_csr("trng_osc")
-        # MEMO: diagnostic option, need to turn off GPIO
-        # gpio_pads = platform.request("gpio")
-        #### self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)  # this one rarely needs probing
-        # self.comb += gpio_pads[1].eq(self.trng_osc.trng_slow)
-        # self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
+        if xous:
+            # Managed TRNG Interface -------------------------------------------------------------------
+            from gateware.trng.trng_managed import TrngManaged, TrngManagedPriv, TrngManagedUser
+            self.submodules.trng_user = TrngManagedUser()
+            self.add_csr("trng_user")
+            self.add_interrupt("trng_user")
+            self.submodules.trng_priv = TrngManagedPriv()
+            self.add_csr("trng_priv")
+            self.add_interrupt("trng_priv")
+            self.submodules.trng = TrngManaged(platform, analog_pads, priv=self.trng_priv, user=self.trng_user)
+            self.add_csr("trng")
+        else:
+            # Ring Oscillator TRNG ---------------------------------------------------------------------
+            self.submodules.trng_osc = TrngRingOscV2(platform)
+            self.add_csr("trng_osc")
+            # MEMO: diagnostic option, need to turn off GPIO
+            # gpio_pads = platform.request("gpio")
+            #### self.comb += gpio_pads[0].eq(self.trng_osc.trng_fast)  # this one rarely needs probing
+            # self.comb += gpio_pads[1].eq(self.trng_osc.trng_slow)
+            # self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
 
         # AES block --------------------------------------------------------------------------------
         self.submodules.aes = aes.Aes(platform)
