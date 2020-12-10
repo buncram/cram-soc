@@ -93,30 +93,6 @@ _io_pvt = [   # PVT-generation I/Os
 
     ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
 
-    # Power control signals
-    ("power", 0,
-        Subsignal("audio_on",     Pins("B7"),  IOStandard("LVCMOS33")),  # DVT
-        Subsignal("fpga_sys_on",  Pins("A5"), IOStandard("LVCMOS33")),   # DVT
-        Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
-        Subsignal("pwr_s0",       Pins("U6"), IOStandard("LVCMOS18")),
-        #Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
-        # Noise generator
-        Subsignal("noise_on",     Pins("P14 R13"), IOStandard("LVCMOS18")),
-        # vibe motor
-        Subsignal("vibe_on",      Pins("G13"), IOStandard("LVCMOS33")),  # PVT
-        # reset EC
-        Subsignal("reset_ec",   Pins("M6"), IOStandard("LVCMOS18")),   # PVT -- allow FPGA to recover crashed EC (invert polarity)
-        # USB_CC DFP attach
-        Subsignal("cc_id",        Pins("D18"), IOStandard("LVCMOS33")),  # DVT
-        # turn on the UP5K in case we are woken up by RTC
-        Subsignal("up5k_on",      Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
-        Subsignal("boostmode",    Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
-        Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),  # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
-        Misc("SLEW=SLOW"),
-        Misc("DRIVE=4"),
-    ),
-
     # Audio interface
     ("i2s", 0,
        Subsignal("clk", Pins("D12")),
@@ -217,6 +193,65 @@ _io_pvt = [   # PVT-generation I/Os
             IOStandard("LVCMOS18")),
         Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
     ),
+]
+
+_io_xous = [
+    ("noise", 0,
+     Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
+     # Noise generator
+     Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+     ),
+    # Power control signals
+    ("power", 0,
+     Subsignal("audio_on", Pins("B7"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("fpga_sys_on", Pins("A5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
+     Subsignal("pwr_s0", Pins("U6"), IOStandard("LVCMOS18")),
+     # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
+     # vibe motor
+     Subsignal("vibe_on", Pins("G13"), IOStandard("LVCMOS33")),  # PVT
+     # reset EC
+     Subsignal("reset_ec", Pins("M6"), IOStandard("LVCMOS18")),
+     # PVT -- allow FPGA to recover crashed EC (invert polarity)
+     # USB_CC DFP attach
+     Subsignal("cc_id", Pins("D18"), IOStandard("LVCMOS33")),  # DVT
+     # turn on the UP5K in case we are woken up by RTC
+     Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+     Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),
+     # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
+     Misc("SLEW=SLOW"),
+     Misc("DRIVE=4"),
+     ),
+]
+
+_io_fw = [
+    # Power control signals
+    ("power", 0,
+     Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
+     # Noise generator
+     Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+
+     Subsignal("audio_on", Pins("B7"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("fpga_sys_on", Pins("A5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
+     Subsignal("pwr_s0", Pins("U6"), IOStandard("LVCMOS18")),
+     # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
+     # vibe motor
+     Subsignal("vibe_on", Pins("G13"), IOStandard("LVCMOS33")),  # PVT
+     # reset EC
+     Subsignal("reset_ec", Pins("M6"), IOStandard("LVCMOS18")),
+     # PVT -- allow FPGA to recover crashed EC (invert polarity)
+     # USB_CC DFP attach
+     Subsignal("cc_id", Pins("D18"), IOStandard("LVCMOS33")),  # DVT
+     # turn on the UP5K in case we are woken up by RTC
+     Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+     Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),
+     # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
+     Misc("SLEW=SLOW"),
+     Misc("DRIVE=4"),
+     ),
 ]
 
 _io_dvt_modnoise = [  # DVT-generation I/Os for noise modulator test
@@ -587,22 +622,34 @@ class BtEvents(Module, AutoCSR, AutoDoc):
 # BtPower ------------------------------------------------------------------------------------------
 
 class BtPower(Module, AutoCSR, AutoDoc):
-    def __init__(self, pads, revision='pvt'):
+    def __init__(self, pads, revision='pvt', xous=True):
         self.intro = ModuleDoc("""BtPower - power control pins
         """)
 
-        self.power = CSRStorage(8, fields=[
-            CSRField("audio",     size=1, description="Write `1` to power on the audio subsystem"),
-            CSRField("self",      size=1, description="Writing `1` forces self power-on (overrides the EC's ability to power me down)", reset=1),
-            CSRField("ec_snoop",  size=1, description="Writing `1` allows the insecure EC to snoop a couple keyboard pads for wakeup key sequence recognition"),
-            CSRField("state",     size=2, description="Current SoC power state. 0x=off or not ready, 10=on and safe to shutdown, 11=on and not safe to shut down, resets to 01 to allow extSRAM access immediately during init", reset=1),
-            CSRField("noisebias", size=1, description="Writing `1` enables the primary bias supply for the noise generator"),
-            CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first."),
-            CSRField("reset_ec",  size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
-            CSRField("up5k_on",   size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
-            CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
-            CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion")
-        ])
+        if xous == True:
+            self.power = CSRStorage(8, fields=[
+                CSRField("audio", size=1, description="Write `1` to power on the audio subsystem"),
+                CSRField("self", size=1, description="Writing `1` forces self power-on (overrides the EC's ability to power me down)", reset=1),
+                CSRField("ec_snoop", size=1, description="Writing `1` allows the insecure EC to snoop a couple keyboard pads for wakeup key sequence recognition"),
+                CSRField("state", size=2, description="Current SoC power state. 0x=off or not ready, 10=on and safe to shutdown, 11=on and not safe to shut down, resets to 01 to allow extSRAM access immediately during init", reset=1),
+                CSRField("reset_ec", size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
+                CSRField("up5k_on", size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
+                CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
+                CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion")
+            ])
+        else:
+            self.power = CSRStorage(8, fields=[
+                CSRField("audio",     size=1, description="Write `1` to power on the audio subsystem"),
+                CSRField("self",      size=1, description="Writing `1` forces self power-on (overrides the EC's ability to power me down)", reset=1),
+                CSRField("ec_snoop",  size=1, description="Writing `1` allows the insecure EC to snoop a couple keyboard pads for wakeup key sequence recognition"),
+                CSRField("state",     size=2, description="Current SoC power state. 0x=off or not ready, 10=on and safe to shutdown, 11=on and not safe to shut down, resets to 01 to allow extSRAM access immediately during init", reset=1),
+                CSRField("noisebias", size=1, description="Writing `1` enables the primary bias supply for the noise generator"),
+                CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first."),
+                CSRField("reset_ec",  size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
+                CSRField("up5k_on",   size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
+                CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
+                CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion")
+            ])
         # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
             CSRField("vibe", size=1, description="Turn on vibration motor"),
@@ -615,7 +662,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
             # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups)
             pads.pwr_s0.eq(self.power.fields.state[0] & ~ResetSignal()),
         ]
-        if revision != 'modnoise':
+        if (revision != 'modnoise') and (xous == False):
             self.comb += pads.noise_on.eq(self.power.fields.noise),
 
         if revision == 'dvt' or revision == 'pvt':
@@ -627,10 +674,10 @@ class BtPower(Module, AutoCSR, AutoDoc):
             else:
                 self.specials += self.reset_ec.get_tristate(pads.reset_ec)
                 self.comb += self.reset_ec.o.eq(1)  # reset is an active high signal
+            if xous == False:
+                self.comb += pads.noisebias_on.eq(self.power.fields.noisebias)
             self.comb += [
-                pads.noisebias_on.eq(self.power.fields.noisebias),
                 pads.vibe_on.eq(self.vibe.fields.vibe),
-
                 self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
             ]
             self.submodules.ev = EventManager()
@@ -1147,7 +1194,7 @@ class BetrustedSoC(SoCCore):
         else:
             print("Revision not supported, can't place analog pins")
 
-        if xous:
+        if xous == True:
             self.submodules.info = info.Info(platform, self.__class__.__name__, use_xadc=False) # xadc is managed by TRNG
         else:
             self.submodules.info = info.Info(platform, self.__class__.__name__, use_xadc=True, analog_pads=analog_pads)
@@ -1226,7 +1273,7 @@ class BetrustedSoC(SoCCore):
         self.add_interrupt("ticktimer")
 
         # Power control pins -----------------------------------------------------------------------
-        self.submodules.power = BtPower(platform.request("power"), revision)
+        self.submodules.power = BtPower(platform.request("power"), revision, xous)
         self.add_csr("power")
 
         # SPI flash controller ---------------------------------------------------------------------
@@ -1277,16 +1324,16 @@ class BetrustedSoC(SoCCore):
 
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
-        if xous:
+        if xous == True:
             # Managed TRNG Interface -------------------------------------------------------------------
-            from gateware.trng.trng_managed import TrngManaged, TrngManagedPriv, TrngManagedUser
-            self.submodules.trng_user = TrngManagedUser()
-            self.add_csr("trng_user")
-            self.add_interrupt("trng_user")
-            self.submodules.trng_priv = TrngManagedPriv()
-            self.add_csr("trng_priv")
-            self.add_interrupt("trng_priv")
-            self.submodules.trng = TrngManaged(platform, analog_pads, priv=self.trng_priv, user=self.trng_user)
+            from gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
+            self.submodules.trng_kernel = TrngManagedKernel()
+            self.add_csr("trng_kernel")
+            self.add_interrupt("trng_kernel")
+            self.submodules.trng_server = TrngManagedServer()
+            self.add_csr("trng_server")
+            self.add_interrupt("trng_server")
+            self.submodules.trng = TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel)
             self.add_csr("trng")
         else:
             # Ring Oscillator TRNG ---------------------------------------------------------------------
@@ -1429,6 +1476,11 @@ def main():
     else:
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
+
+    if args.xous:
+        io += _io_xous
+    else:
+        io += _io_fw
 
     if args.physical_uart:
         uart_name="serial"
