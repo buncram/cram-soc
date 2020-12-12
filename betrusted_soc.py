@@ -40,6 +40,7 @@ from gateware import spi_7series as spi
 from gateware import messible
 from gateware import i2c
 from gateware import ticktimer
+from gateware.wdt import WDT
 
 from gateware import spinor
 from gateware import keyboard
@@ -1039,7 +1040,8 @@ class BetrustedSoC(SoCCore):
         self.submodules.reboot = WarmBoot(self, reset_address)
         self.add_csr("reboot")
         warm_reset = Signal()
-        self.comb += warm_reset.eq(self.reboot.do_reset)
+        wdt_reset = Signal()
+        self.comb += warm_reset.eq(self.reboot.do_reset | wdt_reset)
         self.cpu.cpu_params.update(i_externalResetVector=self.reboot.addr.storage)
         # override the default CPU reset so there's more margin on the signal
         # we do *not* patch this into the system reset because it also kicks the Wishbone USB debug bridge, which complicates firmware updates!
@@ -1415,6 +1417,15 @@ class BetrustedSoC(SoCCore):
             Instance("ICAPE2", i_I=0, i_CLK=0, i_CSIB=1, i_RDWRB=1,
                      attr={"KEEP", "DONT_TOUCH", "icap1"}
                      ),
+        ]
+
+        # Watchdog Timer -----------------------------------------------------------------------------
+        self.submodules.wdt = WDT(platform)
+        self.add_csr("wdt")
+        self.comb += [
+            # the STARTUPE2 block is in the SPINOR module, have to reach in and monkey patch these signals...
+            wdt_reset.eq(self.wdt.gsr),
+            self.wdt.cfgmclk.eq(self.spinor.cfgmclk),
         ]
 
 # Build --------------------------------------------------------------------------------------------
