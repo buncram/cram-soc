@@ -61,23 +61,6 @@ from valentyusb.usbcore.io import IoBuf
 _io_pvt = [   # PVT-generation I/Os
     ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
 
-    ("analog", 0,
-        Subsignal("usbdet_p",    Pins("C3"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("usbdet_n",    Pins("A3"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("vbus_div",    Pins("C4"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise0",      Pins("C5"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise1",      Pins("A8"), IOStandard("LVCMOS33")),  # DVT
-        # diff grounds
-        Subsignal("usbdet_p_n",  Pins("B3"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("usbdet_n_n",  Pins("A2"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("vbus_div_n",  Pins("B4"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise0_n",    Pins("B5"), IOStandard("LVCMOS33")),  # DVT
-        Subsignal("noise1_n",    Pins("A7"), IOStandard("LVCMOS33")),  # DVT
-        # dedicated pins (no I/O standard applicable)
-        Subsignal("ana_vn", Pins("K9")),
-        Subsignal("ana_vp", Pins("J10")),
-     ),
-
     ("jtag", 0,
          Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),  # DVT
          Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),   # DVT
@@ -197,6 +180,23 @@ _io_pvt = [   # PVT-generation I/Os
 ]
 
 _io_xous = [
+    ("analog", 0,
+     Subsignal("usbdet_p", Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n", Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+     # diff grounds
+     Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div_n", Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0_n", Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1_n", Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+     # dedicated pins (no I/O standard applicable)
+     Subsignal("ana_vn", Pins("K9")),
+     Subsignal("ana_vp", Pins("J10")),
+     ),
+
     ("noise", 0,
      Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
      # Noise generator
@@ -227,6 +227,23 @@ _io_xous = [
 ]
 
 _io_fw = [
+    ("analog", 0,
+     Subsignal("usbdet_p", Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n", Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+     # diff grounds
+     Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div_n", Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0_n", Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1_n", Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+     # dedicated pins (no I/O standard applicable)
+     Subsignal("ana_vn", Pins("K9")),
+     Subsignal("ana_vp", Pins("J10")),
+     ),
+
     # Power control signals
     ("power", 0,
      Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
@@ -255,15 +272,13 @@ _io_fw = [
      ),
 ]
 
-_io_dvt_modnoise = [  # DVT-generation I/Os for noise modulator test
-    ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
-
+_io_xous_modnoise = [
     ("analog", 0,
      Subsignal("usbdet_p", Pins("C3"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("usbdet_n", Pins("A3"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
-     #Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT  rerouted for test
-     #Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT  rerouted for test
+     #Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+     #Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
      # diff grounds
      Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
@@ -275,151 +290,35 @@ _io_dvt_modnoise = [  # DVT-generation I/Os for noise modulator test
      Subsignal("ana_vp", Pins("J10")),
      ),
 
-    ("jtag", 0,
-     Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),  # DVT
-     Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),  # DVT
-     Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),  # DVT
-     Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),  # DVT
+    # Modular noise generator
+    ("noise", 0,
+     Subsignal("noise_on", Pins("R13"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),
+     Subsignal("noise_in", Pins("P14"), IOStandard("LVCMOS18")),
+     Subsignal("phase0", Pins("C5"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),
+     Subsignal("phase1", Pins("A8"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),
      ),
-
-    ("usb", 0,
-     Subsignal("d_p", Pins("C1"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),  # DVT
-     Subsignal("d_n", Pins("B1"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),  # DVT
-     Subsignal("pullup_p", Pins("D1"), IOStandard("LVCMOS33"), Misc("DRIVE=4")),  # DVT
-     Misc("SLEW=SLOW"),
-     ),
-
-    ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
 
     # Power control signals
     ("power", 0,
      Subsignal("audio_on", Pins("B7"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("fpga_sys_on", Pins("A5"), IOStandard("LVCMOS33")),  # DVT
-     Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
      Subsignal("pwr_s0", Pins("U6"), IOStandard("LVCMOS18")),
-     Subsignal("pwr_s1", Pins("L13"), IOStandard("LVCMOS18")),  # DVT
-     # Noise generator
-     # Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")), ## rerouted for test
+     # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
      # vibe motor
-     Subsignal("vibe_on", Pins("H15"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vibe_on", Pins("G13"), IOStandard("LVCMOS33")),  # PVT
      # reset EC
-     Subsignal("reset_ec_n", Pins("M6"), IOStandard("LVCMOS18")),  # DVT -- allow FPGA to recover crashed EC
+     Subsignal("reset_ec", Pins("M6"), IOStandard("LVCMOS18")),
+     # PVT -- allow FPGA to recover crashed EC (invert polarity)
      # USB_CC DFP attach
      Subsignal("cc_id", Pins("D18"), IOStandard("LVCMOS33")),  # DVT
      # turn on the UP5K in case we are woken up by RTC
-     Subsignal("up5k_on", Pins("E18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+     Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+     Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),
+     # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
      Misc("SLEW=SLOW"),
      Misc("DRIVE=4"),
-     ),
-
-    # Audio interface
-    ("i2s", 0,
-     Subsignal("clk", Pins("D12")),
-     Subsignal("tx", Pins("E13")),  # au_sdi1
-     Subsignal("rx", Pins("C13")),  # au_sdo1
-     Subsignal("sync", Pins("D14")),
-     IOStandard("LVCMOS33"),
-     Misc("SLEW=SLOW"), Misc("DRIVE=4"),
-     ),
-    ("au_mclk", 0, Pins("E12"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"), Misc("DRIVE=8")),
-
-    # I2C1 bus -- to RTC and audio CODEC
-    ("i2c", 0,
-     Subsignal("scl", Pins("G2"), IOStandard("LVCMOS33")),  # DVT
-     Subsignal("sda", Pins("F2"), IOStandard("LVCMOS33")),  # DVT
-     Misc("SLEW=SLOW"), Misc("DRIVE=4"),
-     ),
-
-    # RTC interrupt
-    ("rtc_irq", 0, Pins("N5"), IOStandard("LVCMOS18")),
-
-    # COM interface to UP5K
-    ("com", 0,
-     Subsignal("csn", Pins("T15"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
-     Subsignal("cipo", Pins("P16"), IOStandard("LVCMOS18")),
-     Subsignal("copi", Pins("N18"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
-     Subsignal("sclk", Pins("R16"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=4")),
-     ),
-    ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
-
-    # Top-side internal FPC header
-    # Add USB PU/PD config to the GPIO cluster, see comment
-    ("gpio", 0, Pins("F14 F15 E16 G15 G16 G13"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # DVT
-
-    # Noise generator
-    ("modnoise", 0,
-       Subsignal("noise_on", Pins("R13"), IOStandard("LVCMOS18"), Misc("SLEW=SLOW"), Misc("DRIVE=12")),
-       Subsignal("noise_in", Pins("P14"), IOStandard("LVCMOS18")),
-       Subsignal("phase0", Pins("C5"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),
-       Subsignal("phase1", Pins("A8"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),
-    ),
-
-    # ("usb_alt", 0,
-    # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
-    # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
-    # Subsignal("pulldn_n", Pins("A4"), IOStandard("LVCMOS33")),  # DVT
-    # Misc("DRIVE=4"), Misc("SLEW=SLOW"),
-    # ),
-
-    # Keyboard scan matrix
-    ("kbd", 0,
-     # "key" 0-8 are rows, 9-18 are columns
-     # column scan with 1's, so PD to default 0
-     Subsignal("row", Pins("A15 A17 A16 A14 C17 B16 B17 C14 B15"), Misc("PULLDOWN True")),  # DVT
-     Subsignal("col", Pins("B13 C18 E14 D15 B18 D16 D17 F13 E15 A13")),  # DVT
-     IOStandard("LVCMOS33"),
-     Misc("SLEW=SLOW"),
-     Misc("DRIVE=4"),
-     ),
-
-    # LCD interface
-    ("lcd", 0,
-     Subsignal("sclk", Pins("H17")),  # DVT
-     Subsignal("scs", Pins("G17")),  # DVT
-     Subsignal("si", Pins("H18")),  # DVT
-     IOStandard("LVCMOS33"),
-     Misc("SLEW=SLOW"),
-     Misc("DRIVE=4"),
-     ),
-
-    # SPI Flash
-    ("spiflash_1x", 0,  # clock needs to be accessed through STARTUPE2
-     Subsignal("cs_n", Pins("M13")),
-     Subsignal("copi", Pins("K17")),
-     Subsignal("cipo", Pins("K18")),
-     Subsignal("wp", Pins("L14")),  # provisional
-     Subsignal("hold", Pins("M15")),  # provisional
-     IOStandard("LVCMOS18")
-     ),
-    ("spiflash_8x", 0,  # clock needs a separate override to meet timing
-     Subsignal("cs_n", Pins("M13")),
-     Subsignal("dq", Pins("K17 K18 L14 M15 L17 L18 M14 N14")),
-     Subsignal("dqs", Pins("R14")),
-     Subsignal("ecs_n", Pins("L16")),
-     Subsignal("sclk", Pins("C12")),  # DVT
-     IOStandard("LVCMOS18"),
-     Misc("SLEW=SLOW"),
-     ),
-
-    # SRAM
-    ("sram", 0,
-     Subsignal("adr", Pins(
-         "V12 M5 P5 N4  V14 M3 R17 U15",
-         "M4  L6 K3 R18 U16 K1 R5  T2",
-         "U1  N1 L5 K2  M18 T6"),
-         IOStandard("LVCMOS18")),
-     Subsignal("ce_n", Pins("V5"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
-     Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
-     Subsignal("we_n", Pins("K4"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
-     Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
-     Subsignal("d", Pins(
-         "M2  R4  P2  L4  L1  M1  R1  P1",
-         "U3  V2  V4  U2  N2  T1  K6  J6",
-         "V16 V15 U17 U18 P17 T18 P18 M17",
-         "N3  T4  V13 P15 T14 R15 T3  R7"),
-         IOStandard("LVCMOS18")),
-     Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
      ),
 ]
 
@@ -666,186 +565,50 @@ class BtPower(Module, AutoCSR, AutoDoc):
         if (revision != 'modnoise') and (xous == False):
             self.comb += pads.noise_on.eq(self.power.fields.noise),
 
-        if revision == 'dvt' or revision == 'pvt':
-            self.reset_ec = TSTriple(1)
-            if revision == 'dvt':
-                self.specials += self.reset_ec.get_tristate(pads.reset_ec_n)
-                self.comb += self.reset_ec.o.eq(0)  # reset is an active low signal
-                self.comb += pads.pwr_s1.eq(self.power.fields.state[1]) # no pwr_s1 on PVT
-            else:
-                self.specials += self.reset_ec.get_tristate(pads.reset_ec)
-                self.comb += self.reset_ec.o.eq(1)  # reset is an active high signal
-            if xous == False:
-                self.comb += pads.noisebias_on.eq(self.power.fields.noisebias)
-            self.comb += [
-                pads.vibe_on.eq(self.vibe.fields.vibe),
-                self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
-            ]
-            self.submodules.ev = EventManager()
-            self.ev.usb_attach = EventSourcePulse(description="USB attach event")
-            self.ev.finalize()
-            usb_attach = Signal()
-            usb_attach_r = Signal()
-            self.specials += MultiReg(pads.cc_id, usb_attach)
-            self.sync += [
-                usb_attach_r.eq(usb_attach),
-                self.ev.usb_attach.trigger.eq(~usb_attach & usb_attach_r),  # falling edge trigger
-            ]
-            up5k_on_pulse = 0.20  # pulse up5k for 200ms to turn it on and have it keep itself on
-            up5k_on_count = Signal(26, reset=int(up5k_on_pulse * 100e6))
-            self.sync += [
-                If(up5k_on_count > 0,
-                    pads.up5k_on.eq(1),
-                ).Else(
-                    pads.up5k_on.eq(0)
-                ),
-                If(self.power.fields.up5k_on,
-                    up5k_on_count.eq(int(up5k_on_pulse * 100e6))
-                ).Elif( up5k_on_count > 0,
-                    up5k_on_count.eq(up5k_on_count - 1),
-                ).Else(
-                    up5k_on_count.eq(0)
-                )
-            ]
-        if revision == 'pvt':
-            self.comb += pads.boostmode.eq(self.power.fields.boostmode)
-            # Hi-Z driver is less glitchy and less likely to trigger the self destruct mechanism on power glitches
-            self.sd_ts = TSTriple(1)
-            self.specials += self.sd_ts.get_tristate(pads.selfdestruct)
-            self.comb += [
-                self.sd_ts.oe.eq(self.power.fields.selfdestruct),
-                self.sd_ts.o.eq(1)
-            ]
-
-# ModNoise ------------------------------------------------------------------------------------------
-
-class ModNoise(Module, AutoCSR, AutoDoc):
-    def __init__(self, pads):
-        self.intro = ModuleDoc("""Modular Noise generator
-        
-        Modular noise generator driver. Generates non-overlapping clocks, and aggregates
-        incoming noise.
-        
-        Op-amp bandwidth is 1MHz, slew rate of 2V/us. Cap settling time is probably around
-        3-4us per phase. Target 4.95us/phase, with a dead time of 50ns between phases. This 
-        should yield around 100kbps raw noise generation rate, which roughly matches the
-        maximum rate at which 256-bit DH key exchanges can be done using the Curve25519 engine.
-        """)
-        self.phase0 = Signal()
-        self.phase1 = Signal()
-        self.noiseon = Signal()
-        self.noisein = Signal()
+        self.reset_ec = TSTriple(1)
+        self.specials += self.reset_ec.get_tristate(pads.reset_ec)
+        self.comb += self.reset_ec.o.eq(1)  # reset is an active high signal
+        if xous == False:
+            self.comb += pads.noisebias_on.eq(self.power.fields.noisebias)
         self.comb += [
-            pads.phase0.eq(self.phase0),
-            pads.phase1.eq(self.phase1),
-            pads.noise_on.eq(self.noiseon),
-            self.noisein.eq(pads.noise_in),
+            pads.vibe_on.eq(self.vibe.fields.vibe),
+            self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
         ]
-        noisesync = Signal()
-        self.specials += MultiReg(self.noisein, noisesync)
-
-        self.ctl = CSRStorage(fields=[
-            CSRField("ena", size=1, description="Power on and enable TRNG.", reset=0),
-            CSRField("period", size=20, description="Duration of one phase in sysclk periods", reset=495),
-            CSRField("deadtime", size=10, description="Duration of deadtime between nonoverlaps in sysclk periods", reset=5),
-        ])
-        self.comb += self.noiseon.eq(self.ctl.fields.ena)
-        self.rand = CSRStatus(fields=[
-            CSRField("rand", size=32, description="Random data shifted into a register for easier collection", reset=0xDEADBEEF),
-        ])
-        self.status = CSRStatus(fields=[
-            CSRField("fresh", size=1, description="WHen set, the rand register contains a fresh set of bits to read; cleared by reading the `rand` register")
-        ])
-
-        shift_rand = Signal()
-        rand_cnt = Signal(max=self.rand.size+1)
-        rand = Signal(32)
-        # keep track of how many bits have been shifted in since the last read-out
+        self.submodules.ev = EventManager()
+        self.ev.usb_attach = EventSourcePulse(description="USB attach event")
+        self.ev.finalize()
+        usb_attach = Signal()
+        usb_attach_r = Signal()
+        self.specials += MultiReg(pads.cc_id, usb_attach)
         self.sync += [
-            If(self.rand.we | ~self.ctl.fields.ena,
-               self.status.fields.fresh.eq(0),
-               self.rand.fields.rand.eq(0xDEADBEEF),
+            usb_attach_r.eq(usb_attach),
+            self.ev.usb_attach.trigger.eq(~usb_attach & usb_attach_r),  # falling edge trigger
+        ]
+        up5k_on_pulse = 0.20  # pulse up5k for 200ms to turn it on and have it keep itself on
+        up5k_on_count = Signal(26, reset=int(up5k_on_pulse * 100e6))
+        self.sync += [
+            If(up5k_on_count > 0,
+                pads.up5k_on.eq(1),
             ).Else(
-                If(shift_rand,
-                    If(rand_cnt < self.rand.size+1,
-                        rand_cnt.eq(rand_cnt + 1),
-                        rand.eq(Cat(noisesync, rand[:-1])),
-                    ).Else(
-                       self.rand.fields.rand.eq(rand),
-                       self.status.fields.fresh.eq(1),
-                       rand_cnt.eq(0),
-                    )
-                ).Else(
-                    self.status.fields.fresh.eq(self.status.fields.fresh),
-                    self.rand.fields.rand.eq(self.rand.fields.rand),
-                ),
+                pads.up5k_on.eq(0)
+            ),
+            If(self.power.fields.up5k_on,
+                up5k_on_count.eq(int(up5k_on_pulse * 100e6))
+            ).Elif( up5k_on_count > 0,
+                up5k_on_count.eq(up5k_on_count - 1),
+            ).Else(
+                up5k_on_count.eq(0)
             )
         ]
 
-        counter = Signal(self.ctl.fields.period.nbits)
-        fsm = FSM(reset_state="RESET")
-        self.submodules += fsm
-        fsm.act("RESET",
-            NextValue(self.phase0, 0),
-            NextValue(self.phase1, 0),
-            If(self.ctl.fields.ena,
-               NextValue(counter, self.ctl.fields.deadtime),
-               NextState("DEADTIME0"),
-            ).Else(
-                NextState("RESET")
-            )
-        )
-        fsm.act("DEADTIME0",
-            NextValue(self.phase0, 0),
-            NextValue(self.phase1, 0),
-            If(counter > 0,
-                NextValue(counter, counter - 1),
-                NextState("DEADTIME0"),
-            ).Else(
-                NextValue(counter, self.ctl.fields.period),
-                NextState("PHASE0"),
-            )
-        )
-        fsm.act("PHASE0",
-            NextValue(self.phase0, 1),
-            NextValue(self.phase1, 0),
-            If(counter > 0,
-                NextValue(counter, counter - 1),
-                NextState("PHASE0"),
-            ).Else(
-                NextValue(counter, self.ctl.fields.deadtime),
-                NextState("DEADTIME1"),
-            )
-        )
-        fsm.act("DEADTIME1",
-            NextValue(self.phase0, 0),
-            NextValue(self.phase1, 0),
-            If(counter > 0,
-                NextValue(counter, counter - 1),
-                NextState("DEADTIME1"),
-            ).Else(
-                NextValue(counter, self.ctl.fields.period),
-                NextState("PHASE1"),
-            )
-        )
-        fsm.act("PHASE1",
-            NextValue(self.phase0, 0),
-            NextValue(self.phase1, 1),
-            If(counter > 0,
-                NextValue(counter, counter - 1),
-                NextState("PHASE1"),
-            ).Else(
-                If(self.ctl.fields.ena,
-                    NextValue(counter, self.ctl.fields.deadtime),
-                    NextState("DEADTIME0"),
-                    shift_rand.eq(1),
-                ).Else(
-                    NextState("RESET")
-                )
-            )
-        )
-
-
+        self.comb += pads.boostmode.eq(self.power.fields.boostmode)
+        # Hi-Z driver is less glitchy and less likely to trigger the self destruct mechanism on power glitches
+        self.sd_ts = TSTriple(1)
+        self.specials += self.sd_ts.get_tristate(pads.selfdestruct)
+        self.comb += [
+            self.sd_ts.oe.eq(self.power.fields.selfdestruct),
+            self.sd_ts.o.eq(1)
+        ]
 
 # BtGpio -------------------------------------------------------------------------------------------
 
@@ -1144,13 +907,10 @@ class BetrustedSoC(SoCCore):
         # use explicit dummies to tie the analog inputs, otherwise the name space during finalization changes
         # (e.g. FHDL adds 'betrustedsoc_' to the beginning of every netlist name to give a prefix to unnamed signals)
         # notet that the added prefix messes up the .XDC constraints
-        dummy7 = Signal(7, reset=0)
         dummy4 = Signal(4, reset=0)
         dummy5 = Signal(5, reset=0)
         dummy1 = Signal(1, reset=0)
-        dummy15 = Signal(15, reset=0)
         if revision == 'dvt' or revision == 'pvt':
-            # DVT is solidly an xc7s50-only build
             self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
                                              analog.noise1,        # 4
                                              dummy1,               # 5
@@ -1172,7 +932,6 @@ class BetrustedSoC(SoCCore):
                                              analog.usbdet_n_n,    # 15
                                         )),
         elif revision == 'modnoise':
-            # DVT is solidly an xc7s50-only build
             self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
                                              dummy1,               # 4  was noise1
                                              dummy1,               # 5
@@ -1300,11 +1059,6 @@ class BetrustedSoC(SoCCore):
         self.add_csr("keyboard")
         self.add_interrupt("keyboard")
 
-        # Modular noise generator ------------------------------------------------------------------
-        if revision == 'modnoise':
-            self.submodules.modnoise = ModNoise(platform.request("modnoise"))
-            self.add_csr("modnoise")
-
         # Build seed -------------------------------------------------------------------------------
         self.submodules.seed = BtSeed(reproduceable=False)
         self.add_csr("seed")
@@ -1315,7 +1069,7 @@ class BetrustedSoC(SoCCore):
 
         # Audio interfaces -------------------------------------------------------------------------
         from litex.soc.cores.i2s import I2S_FORMAT
-        if revision == 'pvt':
+        if (revision == 'pvt') or (revision == 'modnoise'):
             self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False,
                 frame_format=I2S_FORMAT.I2S_STANDARD, document_interrupts=True)
         else:
@@ -1335,8 +1089,9 @@ class BetrustedSoC(SoCCore):
             self.submodules.trng_server = TrngManagedServer()
             self.add_csr("trng_server")
             self.add_interrupt("trng_server")
-            self.submodules.trng = TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel)
+            self.submodules.trng = TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision=revision)
             self.add_csr("trng")
+
         else:
             # Ring Oscillator TRNG ---------------------------------------------------------------------
             self.submodules.trng_osc = TrngRingOscV2(platform)
@@ -1480,16 +1235,17 @@ def main():
         if args.bbram:
             bbram = True
 
-    if args.revision == 'pvt':
+    if (args.revision == 'pvt') or (args.revision == 'modnoise'):
         io = _io_pvt
-    elif args.revision == 'modnoise':
-        io = _io_dvt_modnoise
     else:
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
 
-    if args.xous:
+
+    if args.xous and (args.revision != 'modnoise'):
         io += _io_xous
+    elif args.xous and (args.revision == 'modnoise'):
+        io += _io_xous_modnoise
     else:
         io += _io_fw
 
