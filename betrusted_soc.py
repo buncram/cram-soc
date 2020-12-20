@@ -971,7 +971,7 @@ class BetrustedSoC(SoCCore):
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~436ns for 8 words.
-        self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=6, page_rd_timing=6)
+        self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=6, page_rd_timing=7)
         self.add_csr("sram_ext")
         self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
         # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits
@@ -1203,7 +1203,7 @@ def main():
         "-x", "--xous", help="Build for the Xous runtime environment. Defaults to `fw` validation image.", default=False, action="store_true"
     )
     parser.add_argument(
-        "-r", "--revision", choices=['modnoise', 'pvt'], help="Build for a particular revision. Defaults to 'pvt'", default='pvt', type=str,
+        "-r", "--revision", choices=['modnoise', 'pvt', 'pvt2'], help="Build for a particular revision. Defaults to 'pvt'", default='pvt', type=str,
     )
     parser.add_argument(
         "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
