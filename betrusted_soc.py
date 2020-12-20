@@ -219,6 +219,54 @@ _io_xous = [
      # turn on the UP5K in case we are woken up by RTC
      Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
      Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+     Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True"), Misc("DRIVE=16"),),
+     # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
+     Misc("SLEW=SLOW"),
+     Misc("DRIVE=4"),
+     ),
+]
+
+_io_xous_pvt2 = [
+    ("analog", 0,
+     Subsignal("usbdet_p", Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n", Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+     # diff grounds
+     Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div_n", Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0_n", Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1_n", Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+     # dedicated pins (no I/O standard applicable)
+     Subsignal("ana_vn", Pins("K9")),
+     Subsignal("ana_vp", Pins("J10")),
+     ),
+
+    ("noise", 0,
+     Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
+     # Noise generator
+     Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+     ),
+    # Power control signals
+    ("power", 0,
+     Subsignal("audio_on", Pins("B7"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("fpga_sys_on", Pins("A5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
+     Subsignal("pwr_s0", Pins("U6"), IOStandard("LVCMOS18")),
+     Subsignal("pwr_s0_replica", Pins("U7"), IOStandard("LVCMOS18")),
+     # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
+     # vibe motor
+     Subsignal("vibe_on", Pins("G13"), IOStandard("LVCMOS33")),  # PVT
+     # reset EC
+     Subsignal("reset_ec", Pins("M6"), IOStandard("LVCMOS18")),
+     # PVT -- allow FPGA to recover crashed EC (invert polarity)
+     # USB_CC DFP attach
+     Subsignal("cc_id", Pins("D18"), IOStandard("LVCMOS33")),  # DVT
+     # turn on the UP5K in case we are woken up by RTC
+     Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
+     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
      Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),
      # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
      Misc("SLEW=SLOW"),
@@ -562,6 +610,10 @@ class BtPower(Module, AutoCSR, AutoDoc):
             # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups)
             pads.pwr_s0.eq(self.power.fields.state[0] & ~ResetSignal()),
         ]
+        if (revision == 'pvt2'):
+            # replica version to firewall off u-domain manipulation of SRAM CE lines
+            self.comb += pads.pwr_s0_replica.eq(pads.pwr_s0)
+
         if (revision != 'modnoise') and (xous == False):
             self.comb += pads.noise_on.eq(self.power.fields.noise),
 
@@ -1069,7 +1121,7 @@ class BetrustedSoC(SoCCore):
 
         # Audio interfaces -------------------------------------------------------------------------
         from litex.soc.cores.i2s import I2S_FORMAT
-        if (revision == 'pvt') or (revision == 'modnoise'):
+        if (revision == 'pvt') or (revision == 'modnoise') or (revision == 'pvt2'):
             self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False,
                 frame_format=I2S_FORMAT.I2S_STANDARD, document_interrupts=True)
         else:
@@ -1235,15 +1287,17 @@ def main():
         if args.bbram:
             bbram = True
 
-    if (args.revision == 'pvt') or (args.revision == 'modnoise'):
+    if (args.revision == 'pvt') or (args.revision == 'modnoise') or (args.revision == 'pvt2'):
         io = _io_pvt
     else:
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
 
 
-    if args.xous and (args.revision != 'modnoise'):
+    if args.xous and (args.revision == 'pvt'):
         io += _io_xous
+    elif args.xous and (args.revision == 'pvt2'):
+        io += _io_xous_pvt2
     elif args.xous and (args.revision == 'modnoise'):
         io += _io_xous_modnoise
     else:
