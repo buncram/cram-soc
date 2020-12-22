@@ -75,6 +75,14 @@ _io_pvt = [   # PVT-generation I/Os
          Misc("SLEW=SLOW"),
      ),
 
+    # USB PU/PD options are also available, but not wired up
+    # ("usb_alt", 0,
+    # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
+    # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
+    # Subsignal("pulldn_n", Pins("A4"), IOStandard("LVCMOS33")),  # DVT
+    # Misc("DRIVE=4"), Misc("SLEW=SLOW"),
+    # ),
+
     ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),  # wifi_lpclk
 
     # Audio interface
@@ -107,16 +115,6 @@ _io_pvt = [   # PVT-generation I/Os
         Subsignal("hold", Pins("L13"), IOStandard("LVCMOS18")),
      ),
     ("com_irq", 0, Pins("M16"), IOStandard("LVCMOS18")),
-
-    # Top-side internal FPC header
-    # Add USB PU/PD config to the GPIO cluster, see comment
-    ("gpio", 0, Pins("F14 F15 E16 G15 H15 G16 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")), # PVT
-    #("usb_alt", 0,
-    # Subsignal("pulldn_p", Pins("C2"), IOStandard("LVCMOS33")),  # DVT
-    # Subsignal("pullup_n", Pins("B2"), IOStandard("LVCMOS33")),  # DVT
-    # Subsignal("pulldn_n", Pins("A4"), IOStandard("LVCMOS33")),  # DVT
-    # Misc("DRIVE=4"), Misc("SLEW=SLOW"),
-    # ),
 
     # Keyboard scan matrix
     ("kbd", 0,
@@ -224,6 +222,9 @@ _io_xous = [
      Misc("SLEW=SLOW"),
      Misc("DRIVE=4"),
      ),
+
+    # Top-side internal FPC header
+     ("gpio", 0, Pins("F14 F15 E16 G15 H15 G16 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT
 ]
 
 _io_xous_pvt2 = [
@@ -233,19 +234,23 @@ _io_xous_pvt2 = [
      Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("gpio2", Pins("E16"), IOStandard("LVCMOS33")), # PVT2
+     Subsignal("gpio5", Pins("D7"), IOStandard("LVCMOS33")),  # PVT2
      # diff grounds
      Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("vbus_div_n", Pins("B4"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("noise0_n", Pins("B5"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("noise1_n", Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("gpio2_n", Pins("E17"), IOStandard("LVCMOS33")), # PVT2
+     Subsignal("gpio5_n", Pins("C7"), IOStandard("LVCMOS33")),  # PVT2
      # dedicated pins (no I/O standard applicable)
      Subsignal("ana_vn", Pins("K9")),
      Subsignal("ana_vp", Pins("J10")),
      ),
 
     ("noise", 0,
-     Subsignal("noisebias_on", Pins("E17"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noisebias_on", Pins("H14"), IOStandard("LVCMOS33")),  # PVT2
      # Noise generator
      Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
      ),
@@ -255,7 +260,7 @@ _io_xous_pvt2 = [
      Subsignal("fpga_sys_on", Pins("A5"), IOStandard("LVCMOS33")),  # DVT
      Subsignal("allow_up5k_n", Pins("B14"), IOStandard("LVCMOS33")),
      Subsignal("pwr_s0", Pins("U6"), IOStandard("LVCMOS18")),
-     Subsignal("pwr_s0_replica", Pins("U7"), IOStandard("LVCMOS18")),
+     Subsignal("pwr_s0_replica", Pins("U7"), IOStandard("LVCMOS18")), # PVT2
      # Subsignal("pwr_s1",       Pins("L13"), IOStandard("LVCMOS18")),  # DVT # PVT convert to "com hold"
      # vibe motor
      Subsignal("vibe_on", Pins("G13"), IOStandard("LVCMOS33")),  # PVT
@@ -267,11 +272,17 @@ _io_xous_pvt2 = [
      # turn on the UP5K in case we are woken up by RTC
      Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
      Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
-     Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True")),
+     Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True"), Misc("DRIVE=16"),),
      # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
      Misc("SLEW=SLOW"),
      Misc("DRIVE=4"),
      ),
+
+    # Top-side internal FPC header
+    # digital-only pinout for GPIOs
+    # ("gpio", 0, Pins("F14 F15 E16 G15 H15 D7 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+    # mixed digital/analog: gpio2 and gpio5 are mapped to bogus, non-connected pins (E6/D6)
+    ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
 ]
 
 _io_fw = [
@@ -318,6 +329,9 @@ _io_fw = [
      Misc("SLEW=SLOW"),
      Misc("DRIVE=4"),
      ),
+
+    # Top-side internal FPC header
+    ("gpio", 0, Pins("F14 F15 E16 G15 H15 G16 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT
 ]
 
 _io_xous_modnoise = [
@@ -368,6 +382,9 @@ _io_xous_modnoise = [
      Misc("SLEW=SLOW"),
      Misc("DRIVE=4"),
      ),
+
+    # Top-side internal FPC header
+    ("gpio", 0, Pins("F14 F15 E16 G15 H15 G16 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT
 ]
 
 # use this config to wire the debug bridge UART to the Rpi
@@ -962,7 +979,7 @@ class BetrustedSoC(SoCCore):
         dummy4 = Signal(4, reset=0)
         dummy5 = Signal(5, reset=0)
         dummy1 = Signal(1, reset=0)
-        if revision == 'dvt' or revision == 'pvt':
+        if (revision == 'dvt') or (revision == 'pvt'):
             self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
                                              analog.noise1,        # 4
                                              dummy1,               # 5
@@ -1000,6 +1017,29 @@ class BetrustedSoC(SoCCore):
                                              analog.vbus_div_n,    # 6
                                              dummy5,               # 7,8,9,10,11
                                              dummy1,               # 12  was noise0_n
+                                             dummy1,               # 13
+                                             analog.usbdet_p_n,    # 14
+                                             analog.usbdet_n_n,    # 15
+                                        )),
+        elif revision == 'pvt2':
+            self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
+                                             analog.noise1,        # 4
+                                             analog.gpio5,         # 5
+                                             analog.vbus_div,      # 6
+                                             dummy4,               # 7,8,9,10
+                                             analog.gpio2,         # 11
+                                             analog.noise0,        # 12
+                                             dummy1,               # 13
+                                             analog.usbdet_p,      # 14
+                                             analog.usbdet_n,      # 15
+                                        )),
+            self.comb += analog_pads.vauxn.eq(Cat(dummy4,          # 0,1,2,3
+                                             analog.noise1_n,      # 4
+                                             analog.gpio5_n,       # 5
+                                             analog.vbus_div_n,    # 6
+                                             dummy4,               # 7,8,9,10
+                                             analog.gpio2_n,       # 11
+                                             analog.noise0_n,      # 12
                                              dummy1,               # 13
                                              analog.usbdet_p_n,    # 14
                                              analog.usbdet_n_n,    # 15
