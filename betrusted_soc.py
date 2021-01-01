@@ -704,7 +704,7 @@ class BtGpio(Module, AutoDoc, AutoCSR):
         self.intena = CSRStatus(pads.nbits,  name="intena", description="Enable interrupts when a respective bit is set")
         self.intpol = CSRStatus(pads.nbits,  name="intpol", description="When a bit is `1`, falling-edges cause interrupts. Otherwise, rising edges cause interrupts.")
 
-        self.uartsel = CSRStorage(1, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others undefined")
+        self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others reserved based on build")
 
         self.specials += MultiReg(gpio_in, self.input.status)
         self.comb += [
@@ -930,6 +930,7 @@ class BetrustedSoC(SoCCore):
             serial_layout = [("tx", 1), ("rx", 1)]
             kernel_pads = Record(serial_layout)
             console_pads = Record(serial_layout)
+            app_uart_pads = Record(serial_layout)
             self.comb += [
                 If(self.gpio.uartsel.storage == 0,
                     uart_pins.tx.eq(kernel_pads.tx),
@@ -937,6 +938,9 @@ class BetrustedSoC(SoCCore):
                 ).Elif(self.gpio.uartsel.storage == 1,
                     uart_pins.tx.eq(console_pads.tx),
                     console_pads.rx.eq(uart_pins.rx),
+                ).Else(
+                    uart_pins.tx.eq(app_uart_pads.tx),
+                    app_uart_pads.rx.eq(uart_pins.rx),
                 )
             ]
             self.submodules.uart_phy = uart.UARTPHY(
@@ -962,6 +966,19 @@ class BetrustedSoC(SoCCore):
             self.add_csr("console_phy")
             self.add_csr("console")
             self.add_interrupt("console")
+
+            # extra PHY for "application" uses -- mainly things like the FCC testing agent
+            self.submodules.app_uart_phy = uart.UARTPHY(
+                pads=app_uart_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+            self.submodules.app_uart = ResetInserter()(uart.UART(self.app_uart_phy,
+                tx_fifo_depth=16,
+                rx_fifo_depth=16))
+
+            self.add_csr("app_uart_phy")
+            self.add_csr("app_uart")
+            self.add_interrupt("app_uart")
 
 
         # XADC analog interface---------------------------------------------------------------------
