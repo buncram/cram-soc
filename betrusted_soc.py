@@ -1212,8 +1212,22 @@ class BetrustedSoC(SoCCore):
             # self.comb += gpio_pads[2].eq(self.trng_osc.trng_raw)
 
         # AES block --------------------------------------------------------------------------------
-        self.submodules.aes = aes.Aes(platform)
-        self.add_csr("aes")
+        # Note: AES instructions have been inserted into the VexriscV CPU, this is more logic-efficient
+        # AES block + regular Vex => 21461 Slice LUTs (65.83%) overall; VexRiscv     has 4936 LUTs, 2327 FFs
+        # AES block + AES Vex     => 22626 Slice LUTs (69.40%) overall; VexRiscv+AES has 5164 LUTs, 2398 FFs + 3.57% area
+        # no AES block + AES Vex  => 16091 Slice LUTs (49.36%) overall; VexRiscv+AES has 4774 LUTs, 2398 FFs -20.04% area
+        # seems moving AES into the CPU is a net 17% area savings. Note that the increased size of the Vex
+        # "core" with the AES block is due to the large number of CSRs it requires, which expands the amount of logic
+        # in the core as well.
+        # AES inside the CPU core should also run faster; iirc the instructions run one round per clock,
+        # and the CPU is clocked at 100MHz; the AES core only runs at 50MHz, and also runs one round per clock.
+        # Not sure about key scheduling overheads, that could potentially be worse for the in-Vex core.
+        # There could also be downsides in terms of sidechannels and correctness; the OpenTitan core is supposedly
+        # heavily audited, but so far the AES plugin for Vexriscv has only been lightly tested.
+        #
+        # Thus, we remind ourselves of the availability of this core option with this comment.
+        #self.submodules.aes = aes.Aes(platform)
+        #self.add_csr("aes")
 
         # SHA-256 block ----------------------------------------------------------------------------
         #self.submodules.sha2 = sha2.Hmac(platform)
