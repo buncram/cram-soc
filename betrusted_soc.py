@@ -739,11 +739,11 @@ class BtSeed(Module, AutoDoc, AutoCSR):
           seed_reset = rng.getrandbits(64)
         self.seed = CSRStatus(64, name="seed", description="Seed used for the build", reset=seed_reset)
 
-# RomTest -----------------------------------------------------------------------------------------
+# KeyRom ------------------------------------------------------------------------------------------
 
-class RomTest(Module, AutoDoc, AutoCSR):
+class KeyRom(Module, AutoDoc, AutoCSR):
     def __init__(self, platform):
-        self.intro = ModuleDoc("""Test for bitstream insertion of BRAM initialization contents""")
+        self.intro = ModuleDoc("""Bitstream-patchable key ROM set for keys that are "baked in" to the FPGA image""")
         platform.toolchain.attr_translate["KEEP"] = ("KEEP", "TRUE")
         platform.toolchain.attr_translate["DONT_TOUCH"] = ("DONT_TOUCH", "TRUE")
 
@@ -1173,8 +1173,8 @@ class BetrustedSoC(SoCCore):
         self.add_csr("seed")
 
         # ROM test ---------------------------------------------------------------------------------
-        self.submodules.romtest = RomTest(platform)
-        self.add_csr("romtest")
+        self.submodules.keyrom = KeyRom(platform)
+        self.add_csr("keyrom")
 
         # Audio interfaces -------------------------------------------------------------------------
         from litex.soc.cores.i2s import I2S_FORMAT
