@@ -544,9 +544,9 @@ impl Repl {
     }
 
     pub fn rom_read(&mut self, adr: u8) -> u32 {
-        unsafe{ self.p.ROMTEST.address.write(|w| w.bits(adr as u32)); }
+        unsafe{ self.p.KEYROM.address.write(|w| w.bits(adr as u32)); }
 
-        self.p.ROMTEST.data.read().bits()
+        self.p.KEYROM.data.read().bits()
     }
 
     pub fn parse_cmd(&mut self) {
