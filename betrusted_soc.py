@@ -1226,8 +1226,9 @@ class BetrustedSoC(SoCCore):
         # heavily audited, but so far the AES plugin for Vexriscv has only been lightly tested.
         #
         # Thus, we remind ourselves of the availability of this core option with this comment.
-        #self.submodules.aes = aes.Aes(platform)
-        #self.add_csr("aes")
+        if xous == False:
+            self.submodules.aes = aes.Aes(platform)
+            self.add_csr("aes")
 
         # SHA-256 block ----------------------------------------------------------------------------
         #self.submodules.sha2 = sha2.Hmac(platform)
