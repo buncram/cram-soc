@@ -77,7 +77,7 @@ use betrusted_hal::hal_com::*;
 use betrusted_hal::hal_kbd::*;
 use betrusted_hal::hal_xadc::*;
 use betrusted_hal::hal_rtc::*;
-use betrusted_hal::hal_aes::*;
+// use betrusted_hal::hal_aes::*;
 use betrusted_hal::hal_shittyrng::*;
 
 //use betrusted_hal::hal_sha2::*;
@@ -110,8 +110,8 @@ use jtag::JtagGpioPhy as JtagPhy;
 
 use rom_inject::*;
 
-mod aes_test;
-use aes_test::*;
+//mod aes_test;
+//use aes_test::*;
 const SHA_DATA: &[u8; 142] = b"Every one suspects himself of at least one of the cardinal virtues, and this is mine: I am one of the few honest people that I have ever known";
 const SHA_DIGEST: [u32; 8] = [0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2, 0xb8a8379d, 0x426dc745, 0x19f5cff7, 0x4ec9c6d6];
 
@@ -236,7 +236,7 @@ pub struct Repl {
     audio: BtAudio,
     audio_run: bool,
     rtc: BtRtc,
-    aes: BtAes,
+    //aes: BtAes,
     //sha2: BtSha2,
     ssid_print: bool,
     lock: bool,
@@ -269,7 +269,7 @@ impl Repl {
                     audio: BtAudio::new(),
                     audio_run: false,
                     rtc: BtRtc::new(),
-                    aes: BtAes::new(),
+                    //aes: BtAes::new(),
                     //sha2: BtSha2::new(),
                     ssid_print: true,
                     lock: false,
@@ -439,6 +439,7 @@ impl Repl {
         ret
     }
 
+    /*
     pub fn ram_fill_trng(&mut self, do_init: bool, phase: u32, rng_type: RngType) -> u32 {
         const TEST_SIZE: usize = 512 * 1024 / 4;
         let ram_ptr_a = 0x4008_0000 as *mut [u32; TEST_SIZE];
@@ -519,7 +520,7 @@ impl Repl {
                 return 1;
             }
         }
-    }
+    }*/
 
     pub fn uart_tx_u8(&mut self, c: u8) {
         while self.p.UART.txfull.read().bits() != 0 {}
@@ -716,10 +717,10 @@ impl Repl {
                     unsafe { self.p.UART.rxtx.write(|w| w.bits(0xd as u32)); }
                 }
             } else if command.trim() == "xadc" {
-                let vccint: u32 = self.p.INFO.xadc_vccint.read().bits() as u32;
-                let vccaux: u32 = self.p.INFO.xadc_vccaux.read().bits() as u32;
-                let vccbram: u32 = self.p.INFO.xadc_vccbram.read().bits() as u32;
-                let temp: u32 = self.p.INFO.xadc_temperature.read().bits() as u32;
+                let vccint: u32 = self.p.TRNG.xadc_vccint.read().bits() as u32;
+                let vccaux: u32 = self.p.TRNG.xadc_vccaux.read().bits() as u32;
+                let vccbram: u32 = self.p.TRNG.xadc_vccbram.read().bits() as u32;
+                let temp: u32 = self.p.TRNG.xadc_temperature.read().bits() as u32;
 
                 self.text.add_text(&mut format!("vccint: {:.3}V", (vccint as f64) / 1365.0));
                 self.text.add_text(&mut format!("vccaux: {:.3}V", (vccaux as f64) / 1365.0));
@@ -739,10 +740,10 @@ impl Repl {
                 self.text.add_text(&mut format!("audio: 0x{:04x}", self.xadc.audio_sample() ));
             } else if command.trim() == "non" || command.trim() == "noiseon" {
                 self.text.add_text(&mut format!("TRNG diagnostic display on" ));
-                unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
+                unsafe{ self.p.TRNG_SERVER.control.write(|w| w.powersave().bit(false) ); }
                 self.update_noise = true;
             } else if command.trim() == "noff" {
-                unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(false).noise().bits(0).self_().bit(true).state().bits(3) ); }
+                unsafe{ self.p.TRNG_SERVER.control.write(|w| w.powersave().bit(true) ); }
                 self.update_noise = false;
             } else if command.trim() == "flag" {
                 self.text.add_text(&mut format!("xadc flags: 0x{:04x}", self.xadc.flags()));
@@ -768,10 +769,10 @@ impl Repl {
                 let (val, inv) = patch_frame(0x35e, 0, rom);
                 self.text.add_text(&mut format!("inject: 0x35e, 0, ROM: 0x{:08x}/0x{:08x}", val.unwrap(), inv.unwrap() ));
             } else if command.trim() == "dn" { // dump noise
-                unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
+                unsafe{ self.p.TRNG_SERVER.control.write(|w| w.powersave().bit(false) ); }
                 delay_ms(&self.p, 200); // let the noise source stabilize
                 self.dump_noise();
-                unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(false).noise().bits(0).self_().bit(true).state().bits(3) ); }
+                unsafe{ self.p.TRNG_SERVER.control.write(|w| w.powersave().bit(true) ); }
             } else if command.trim() == "spi" {
                 // spi performance test
                 self.spi_perftest();
@@ -867,7 +868,7 @@ impl Repl {
             } */ else if command.trim() == "ramc" {
                 self.ram_clear();
                 self.text.add_text(&mut format!("RAM cleared."));
-            } else if command.trim() == "rno" {
+            } /* else if command.trim() == "rno" {
                 self.ram_clear();
                 self.ram_fill_trng(true, 0, RngType::RingOsc);
                 let time: u32 = readpac32!(self, TICKTIMER, time0);
@@ -881,7 +882,7 @@ impl Repl {
                 self.ram_fill_trng(false, 0, RngType::Avalanche);
                 let endtime: u32 = readpac32!(self, TICKTIMER, time0);
                 self.text.add_text(&mut format!("8MiB avalanche done: {}ms", endtime - time));
-            } else if command.trim() == "ramx" {
+            } */ else if command.trim() == "ramx" {
                 let errors = self.ram_check();
                 self.text.add_text(&mut format!("0x{:x} RAM errors.", errors));
             } else if command.trim() == "rami" {
@@ -931,11 +932,10 @@ impl Repl {
 
                     self.rtc.rtc_set(secs as u8, mins as u8, hours as u8, days as u8, months as u8, years as u8, weekday);
                 }
-            } else if command.trim() == "ro" {
-                unsafe{ self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(true).delay().bits(8).dwell().bits(100).gang().bit(true)}); }
-                while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
-                self.text.add_text(&mut format!("ro: {:x}", self.p.TRNG_OSC.rand.read().rand().bits()));
-            } else if command.trim() == "ae" {
+            } else if command.trim() == "rng" {
+                while self.p.TRNG_KERNEL.status.read().avail().bit_is_clear() {}
+                self.text.add_text(&mut format!("rng: {:x}", self.p.TRNG_KERNEL.data.read().bits()));
+            } /*else if command.trim() == "ae" {
                 let (pass, data) = test_aes_enc(&mut self.aes);
                 if pass {
                     self.text.add_text(&mut format!("AES Encrypt passed"));
@@ -955,7 +955,7 @@ impl Repl {
                 for i in 0..4 {
                     self.text.add_text(&mut format!("0x{:x} 0x{:x} 0x{:x} 0x{:x}", data[0 + i*4], data[1 + i*4], data[2 + i*4], data[3 + i*4]));
                 }
-            } /*else if command.trim() == "sh" {
+            } */  /*else if command.trim() == "sh" {
                 self.sha2.config = Sha2Config::ENDIAN_SWAP | Sha2Config::DIGEST_SWAP | Sha2Config::SHA256_EN; // Sha2Config::HMAC_EN; // Sha2Config::SHA256_EN;
                 self.sha2.keys = [0; 8];
                 self.sha2.init();
@@ -1026,8 +1026,6 @@ impl Repl {
 
                 self.text.add_text(&mut format!("Starting double-ratchet test"));
                 // double-ratchet test
-                unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
-                delay_ms(&self.p, 100); // give it time to power up
                 let mut csprng = ShittyRng::new();
 
                 let time: u32 = readpac32!(self, TICKTIMER, time0);

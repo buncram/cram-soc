@@ -65,22 +65,22 @@ pub enum XadcRegs {
 
 #[allow(dead_code)]
 fn xadc_write(p: &betrusted_pac::Peripherals, adr: XadcRegs, data: u16) {
-    unsafe{ p.INFO.xadc_drp_adr.write(|w| w.bits(adr as u32)); }
-    unsafe{ p.INFO.xadc_drp_dat_w.write(|w| w.bits((data & 0xffff) as u32)); }
-    unsafe{ p.INFO.xadc_drp_write.write(|w| w.bits(1)); } // commit the write
+    unsafe{ p.TRNG.xadc_drp_adr.write(|w| w.bits(adr as u32)); }
+    unsafe{ p.TRNG.xadc_drp_dat_w.write(|w| w.bits((data & 0xffff) as u32)); }
+    unsafe{ p.TRNG.xadc_drp_write.write(|w| w.bits(1)); } // commit the write
 
-    while p.INFO.xadc_drp_drdy.read().bits() == 0 {} // wait for the write to complete
+    while p.TRNG.xadc_drp_drdy.read().bits() == 0 {} // wait for the write to complete
 }
 
 #[allow(dead_code)]
 fn xadc_read(p: &betrusted_pac::Peripherals, adr: XadcRegs) -> u16 {
     let ret: u16;
-    unsafe{ p.INFO.xadc_drp_adr.write(|w| w.bits(adr as u32)); }
-    unsafe{ p.INFO.xadc_drp_read.write(|w| w.bits(1)); } // trigger the read
+    unsafe{ p.TRNG.xadc_drp_adr.write(|w| w.bits(adr as u32)); }
+    unsafe{ p.TRNG.xadc_drp_read.write(|w| w.bits(1)); } // trigger the read
 
-    while p.INFO.xadc_drp_drdy.read().bits() == 0 {} // wait for the read to complete
+    while p.TRNG.xadc_drp_drdy.read().bits() == 0 {} // wait for the read to complete
 
-    ret = p.INFO.xadc_drp_dat_r.read().bits() as u16;
+    ret = p.TRNG.xadc_drp_dat_r.read().bits() as u16;
 
     ret
 }
@@ -88,9 +88,9 @@ fn xadc_read(p: &betrusted_pac::Peripherals, adr: XadcRegs) -> u16 {
 #[allow(dead_code)]
 fn xadc_enable(p: &betrusted_pac::Peripherals, enable: bool) {
     if enable {
-        unsafe{ p.INFO.xadc_drp_enable.write(|w| w.bits(1)); }
+        unsafe{ p.TRNG.xadc_drp_enable.write(|w| w.bits(1)); }
     } else {
-        unsafe{ p.INFO.xadc_drp_enable.write(|w| w.bits(0)); }
+        unsafe{ p.TRNG.xadc_drp_enable.write(|w| w.bits(0)); }
     }
 }
 
@@ -233,12 +233,12 @@ impl BtXadc {
         xadc_write(&ret.p, XadcRegs::Config1, ((XadcSeq::Default_ as u16) << 12) | 0x0EF0 );
 
         // do a calibration
-        ret.p.INFO.xadc_eoc.read().bits(); // clear eoc
+        ret.p.TRNG.xadc_eoc.read().bits(); // clear eoc
         xadc_write(&ret.p, XadcRegs::Config0, 0x8000 | (XadcFilter::Avg16 as u16) << 12 | (XadcChannel::Calibrate as u16));
         xadc_write(&ret.p, XadcRegs::Config2, 0x0400 | (XadcPower::AdcbOff as u16) << 4);
         xadc_write(&ret.p, XadcRegs::Config1, ((XadcSeq::SinglePass as u16) << 12) | 0x0EF0 );
 
-        while ret.p.INFO.xadc_eoc.read().bits() == 0 {}
+        while ret.p.TRNG.xadc_eoc.read().bits() == 0 {}
 
         // setup the sequencing registers
         xadc_write(&ret.p, XadcRegs::Seq0, XadcSeq0Mask::VccBram as u16 | XadcSeq0Mask::Dedicated as u16 |
@@ -377,7 +377,7 @@ impl BtXadc {
 
     /// blocks until the latest sequence finishes, guarantees the values have been updated
     pub fn wait_update(&mut self) {
-        while self.p.INFO.xadc_eos.read().bits() == 0 {}
+        while self.p.TRNG.xadc_eos.read().bits() == 0 {}
     }
 
     pub fn noise0(&mut self) -> u16 {

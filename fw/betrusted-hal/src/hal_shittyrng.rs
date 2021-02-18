@@ -33,30 +33,11 @@ impl RngCore for ShittyRng {
     }
 
     fn next_u64(&mut self) -> u64 {
-        // make sure the noise bias is on for the avalanche TRNG
-        unsafe{ self.p.POWER.power.write(|w| w.noisebias().bit(true).noise().bits(3).self_().bit(true).state().bits(3) ); }
-        // TODO: need to add some mechanism to confirm when the TRNG has powered on
+        while self.p.TRNG_KERNEL.status.read().avail().bit_is_clear() {}
+        self.bucket ^= self.p.TRNG_KERNEL.data.read().bits() as u64;
 
-        // start loading the ring osc trng
-        self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(true)});
-
-        self.xadc.noise_only(true); // cut out other round-robin sensor readings
-        for _ in 0..8 {
-            self.xadc.wait_update();
-            self.bucket <<= 8;
-            self.bucket ^= (self.xadc.noise0() ^ self.xadc.noise1()) as u64;
-        }
-        self.xadc.noise_only(false); // bring them back
-
-        for i in 0..1 {
-            while self.p.TRNG_OSC.status.read().fresh().bit_is_clear() {}
-            if i == 0 {
-                self.bucket ^= self.p.TRNG_OSC.rand.read().rand().bits() as u64;
-            } else {
-                self.bucket ^= (self.p.TRNG_OSC.rand.read().rand().bits() as u64) << 32;
-            }
-        }
-        self.p.TRNG_OSC.ctl.write(|w|{ w.ena().bit(false)});
+        while self.p.TRNG_KERNEL.status.read().avail().bit_is_clear() {}
+        self.bucket ^= (self.p.TRNG_KERNEL.data.read().bits() as u64) << 32;
 
         self.count += 64;
 

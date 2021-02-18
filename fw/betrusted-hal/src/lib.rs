@@ -21,7 +21,7 @@ pub mod hal_tlv320aic3100;
 pub mod hal_audio;
 
 pub mod hal_rtc;
-pub mod hal_aes;
+//pub mod hal_aes;
 //pub mod hal_sha2;
 pub mod hal_shittyrng;
 pub mod hal_sha512;
