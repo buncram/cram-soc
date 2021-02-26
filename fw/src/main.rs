@@ -1753,7 +1753,7 @@ fn main() -> ! {
                         let value = com_txrx(&p, COM_NEXT_DATA, true);
                         if value == 1 {
                             repl.text.add_text(&mut format!("USB CC event:"));
-                            for i in 0..3 {
+                            for i in 0..4 {
                                 let value = com_txrx(&p, COM_NEXT_DATA, true);
                             repl.text.add_text(&mut format!("status {}: 0x{:2x}", i, value));
                             }
@@ -1762,7 +1762,7 @@ fn main() -> ! {
                             com_function = COM_GASGAUGE;
                         } else { // value was 0, pass to next function
                             // regardless, clear the returned data
-                            for _ in 0..3 {
+                            for _ in 0..4 {
                                 com_txrx(&p, COM_NEXT_DATA, true);
                             }
                             com_function = COM_SSID_CHECK;
