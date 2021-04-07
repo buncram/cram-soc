@@ -1145,6 +1145,7 @@ class BetrustedSoC(SoCCore):
         # Power control pins -----------------------------------------------------------------------
         self.submodules.power = BtPower(platform.request("power"), revision, xous)
         self.add_csr("power")
+        self.add_interrupt("power")
 
         # SPI flash controller ---------------------------------------------------------------------
         if legacy_spi:
