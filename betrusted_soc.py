@@ -634,14 +634,11 @@ class BtPower(Module, AutoCSR, AutoDoc):
         if (revision != 'modnoise') and (xous == False):
             self.comb += pads.noise_on.eq(self.power.fields.noise),
 
-        self.reset_ec = TSTriple(1)
-        self.specials += self.reset_ec.get_tristate(pads.reset_ec)
-        self.comb += self.reset_ec.o.eq(1)  # reset is an active high signal
         if xous == False:
             self.comb += pads.noisebias_on.eq(self.power.fields.noisebias)
         self.comb += [
             pads.vibe_on.eq(self.vibe.fields.vibe),
-            self.reset_ec.oe.eq(self.power.fields.reset_ec),  # drive reset low only when reset_ec is asserted, otherwise, Hi-Z
+            pads.reset_ec.eq(self.power.fields.reset_ec),
         ]
         self.submodules.ev = EventManager()
         self.ev.usb_attach = EventSourcePulse(description="USB attach event")
