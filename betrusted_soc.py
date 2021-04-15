@@ -736,6 +736,45 @@ class BtSeed(Module, AutoDoc, AutoCSR):
           seed_reset = rng.getrandbits(64)
         self.seed = CSRStatus(64, name="seed", description="Seed used for the build", reset=seed_reset)
 
+# Keyboard Injector -------------------------------------------------------------------------------
+
+class KeyInject(Module, AutoDoc, AutoCSR):
+    def __init__(self):
+        self.intro = ModuleDoc("""Used by developers to pass a key from the UART to the keyboard block.
+        This is necessary because memory space partitioning plus Rust dependency architecture does
+        not allow the logger block to access either the keyboard memory space or any of the facilities
+        that would normally allow a message to be passed to the keyboard interface. In particular,
+        every package depends upon the logger block; in order for the logger block to talk to the
+        keyboard interface, it would need to add the keyboard to its dependencies, which in turn
+        depends upon the logger, which creates a circular, unresolvable dependency in Rust. This block
+        allows us to break this dependency by creating a separate memory page for a CSR that we can
+        map into the logger's memory space, which is capable of raising an interrupt in the Keyboard's
+        memory space.""")
+
+        # this is used to permanently disable this backdoor, should a user desire to
+        disable = Signal(reset=0)
+        self.uart_char = CSRStorage(9, fields = [
+            CSRField("char", size=8, description="character value to inject. Automatically raises an interrupt upon write. There is no interlock or FIFO buffering on this, so you can lose characters if you inject too fast."),
+            CSRField("disable", size=1, description="writing a 1 permanently disables the block, until the next cold boot", reset=0),
+        ])
+        self.char = Signal(8)
+        self.stb = Signal()
+        self.sync += [
+            If(self.uart_char.fields.disable,
+                disable.eq(1)
+            ).Else(
+                disable.eq(disable)
+            ),
+            If(disable == 0,
+                self.stb.eq(self.uart_char.re),
+                self.char.eq(self.uart_char.fields.char),
+            ).Else(
+                self.stb.eq(0),
+                self.char.eq(0),
+            ),
+        ]
+
+
 # KeyRom ------------------------------------------------------------------------------------------
 
 class KeyRom(Module, AutoDoc, AutoCSR):
@@ -1165,6 +1204,12 @@ class BetrustedSoC(SoCCore):
         self.submodules.keyboard = ClockDomainsRenamer(cd_remapping={"kbd":"lpclk"})(keyboard.KeyScan(platform.request("kbd")))
         self.add_csr("keyboard")
         self.add_interrupt("keyboard")
+        self.submodules.keyinject = KeyInject()
+        self.add_csr("keyinject")
+        self.comb += [
+            self.keyboard.uart_inject.eq(self.keyinject.char),
+            self.keyboard.inject_strobe.eq(self.keyinject.stb),
+        ]
 
         # Build seed -------------------------------------------------------------------------------
         self.submodules.seed = BtSeed(reproduceable=False)
