@@ -1474,6 +1474,9 @@ mathjax_config = {
             else:
                 enc = ['deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
             subprocess.call(enc)
+
+            pad = ['./append_csr.py', '-bbuild/gateware/encrypted.bin', '-cbuild/csr.csv', '-obuild/gateware/soc_csr.bin']
+            subprocess.call(pad)
         else:
             print('Specified key file {} does not exist'.format(args.encrypt))
             return 1

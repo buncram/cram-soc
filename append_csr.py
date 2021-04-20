@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+
+import argparse
+import hashlib
+
+def main():
+    parser = argparse.ArgumentParser(description="Pad and append CSV file to FPGA bitstream")
+    parser.add_argument(
+        "-b", "--bitstream", required=True, help="file containing FPGA bitstream", type=str
+    )
+    parser.add_argument(
+        "-c", "--csv-file", required=True, help="file containing CSV input", type=str
+    )
+    parser.add_argument(
+        "-o", "--output-file", required=True, help="destination file for binary data", type=str
+    )
+    args = parser.parse_args()
+
+    bitstream_pad_to = 0x278000
+    pad_to = 0x7FC0
+    with open(args.bitstream, "rb") as bitstream:
+        with open(args.csv_file, "rb") as ifile:
+            with open(args.output_file, "wb") as ofile:
+                # create the CSV appendix
+                data = ifile.read() # read in the whole block of CSV data
+
+                odata = bytearray()
+                odata += len(data).to_bytes(4, 'little')
+                odata += data
+                padding = bytes([0xff]) * (pad_to - len(data) - 4)
+                odata += padding
+
+                hasher = hashlib.sha512()
+                hasher.update(odata)
+                digest = hasher.digest()
+                odata += digest
+                # odata now contains the csv appendix
+
+                # assemble the final output file
+                bits = bitstream.read() # read in all the bitstream
+                ofile.write(bits)
+                # pad it, so the CSR data is in the right place
+                bs_padding = bytes([0xff]) * (bitstream_pad_to - len(bits))
+                ofile.write(bs_padding)
+
+                # add the CSR data
+                ofile.write(odata)
+            
+
+if __name__ == "__main__":
+    main()
