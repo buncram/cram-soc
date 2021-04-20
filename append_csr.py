@@ -38,9 +38,18 @@ def main():
 
                 # assemble the final output file
                 bits = bitstream.read() # read in all the bitstream
-                ofile.write(bits)
+                position = 0
+                # seek past the preamble junk that's ignored
+                while position < len(bits):
+                   sync = int.from_bytes(bits[position:position + 4], 'big')
+                   if sync == 0xaa995566:
+                      break
+                   position = position + 1
+                program_data = bits[position:]
+                                                                    
+                ofile.write(program_data)
                 # pad it, so the CSR data is in the right place
-                bs_padding = bytes([0xff]) * (bitstream_pad_to - len(bits))
+                bs_padding = bytes([0xff]) * (bitstream_pad_to - len(program_data))
                 ofile.write(bs_padding)
 
                 # add the CSR data
