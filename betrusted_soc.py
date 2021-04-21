@@ -774,6 +774,42 @@ class KeyInject(Module, AutoDoc, AutoCSR):
             ),
         ]
 
+# Suspend/Resume ---------------------------------------------------------------------------------
+
+class SusRes(Module, AutoDoc, AutoCSR):
+    def __init__(self, bits=64):
+        self.intro = ModuleDoc("""This module is a utility module that assists with suspend and
+        resume functions. It has the ability to 'reach into' the Ticktimer space to help coordinate
+        a clean, monatomic shut down from a suspend/resume manager that exists in a different,
+        isolated process space from the TickTimer.
+        
+        It also contains a register which tracks the current resume state. The bootloader controls
+        the kernel's behavior by setting this bit prior to resuming operation. 
+        """)
+
+        self.control = CSRStorage(2, fields=[
+            CSRField("reset", description="Write a `1` to this bit to reset the count to 0. This bit has priority over all other requests.", pulse=True),
+            CSRField("pause", description="Write a `1` to this field to request a pause to counting, 0 for free-run. Count pauses on the next tick quanta."),
+            CSRField("load", description="If paused, write a `1` to this bit to load a resume value to the timer. If not paused, this bit is ignored.", pulse=True),
+        ])
+        self.resume_time = CSRStorage(bits, name="resume_time", description="Elapsed time to load. Loaded upon writing `1` to the load bit in the control regsiter. This will immediately affect the msleep extension.")
+        self.time = CSRStatus(bits, name="time", description="""Cycle-accurate mirror copy of time in systicks, from the TickTimer""")
+        self.status = CSRStatus(1, fields=[
+            CSRField("paused", description="When set, indicates that the counter has been paused")
+        ])
+        self.state = CSRStorage(1, fields=[
+            CSRField("resume", description="Used to transfer the resume state information from the loader to Xous. If set, indicates we are on the resume half of a suspend/resume.")
+        ])
+
+        self.interrupt = CSRStorage(1, fields=[
+            CSRField("interrupt", size = 1, pulse=True,
+                description="Writing this causes an interrupt to fire. Used by Xous to initiate suspend/resume from an interrupt context."
+            )
+        ])
+        self.submodules.ev = EventManager()
+        self.ev.soft_int = EventSourceProcess()
+        self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt)
+
 
 # KeyRom ------------------------------------------------------------------------------------------
 
@@ -1177,6 +1213,21 @@ class BetrustedSoC(SoCCore):
         self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq, bits=64)
         self.add_csr("ticktimer")
         self.add_interrupt("ticktimer")
+
+        # Suspend/resume ---------------------------------------------------------------------------
+        self.submodules.susres = SusRes(bits=64)
+        self.add_csr("susres")
+        self.add_interrupt("susres")
+        # wire up signals that cross from the ticktimer's CSR space to the susres CSR space. Allows for virtual memory process isolation
+        # between the ticktimer and the suspend resume server, while allowing for cycle-accurate timing on suspend and resume.
+        self.comb += [
+            self.susres.time.status.eq(self.ticktimer.timer),
+            self.susres.status.fields.paused.eq(self.ticktimer.paused),
+            self.ticktimer.resume_time.eq(self.susres.resume_time.storage),
+            self.ticktimer.pause.eq(self.susres.control.fields.pause),
+            self.ticktimer.load.eq(self.susres.control.fields.load),
+            self.ticktimer.reset.eq(self.susres.control.fields.reset),
+        ]
 
         # Power control pins -----------------------------------------------------------------------
         self.submodules.power = BtPower(platform.request("power"), revision, xous)
