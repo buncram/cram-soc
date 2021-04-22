@@ -391,14 +391,14 @@ _io_xous_modnoise = [
 _io_uart_debug = [
     ("debug", 0,  # wired to the Rpi
         Subsignal("tx", Pins("V6")),
-        Subsignal("rx", Pins("V7")),
+        Subsignal("rx", Pins("V7"), Misc("PULLUP True")),
         IOStandard("LVCMOS18"),
         Misc("SLEW=SLOW"),
     ),
 
     ("serial", 0, # wired to the internal flex
         Subsignal("tx", Pins("B18")), # debug0 breakout
-        Subsignal("rx", Pins("D15")), # debug1
+        Subsignal("rx", Pins("D15"), Misc("PULLUP True")), # debug1
         IOStandard("LVCMOS33"),
         Misc("SLEW=SLOW"),
      ),
@@ -408,14 +408,16 @@ _io_uart_debug = [
 _io_uart_debug_swapped = [
     ("serial", 0, # wired to the RPi
      Subsignal("tx", Pins("V6")),
-     Subsignal("rx", Pins("V7")),
+     Subsignal("rx", Pins("V7"), Misc("PULLUP True")),
      IOStandard("LVCMOS18"),
+     Misc("SLEW=SLOW"),
      ),
 
     ("debug", 0, # wired to the internal flex
      Subsignal("tx", Pins("B18")), # debug0 breakout
-     Subsignal("rx", Pins("D15")), # debug1
+     Subsignal("rx", Pins("D15"), Misc("PULLUP True")), # debug1
      IOStandard("LVCMOS33"),
+     Misc("SLEW=SLOW"),
      ),
 ]
 
