@@ -216,7 +216,7 @@ _io_xous = [
      Subsignal("cc_id", Pins("D18"), IOStandard("LVCMOS33")),  # DVT
      # turn on the UP5K in case we are woken up by RTC
      Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
-     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33"), Misc("PULLDOWN True"), Misc("DRIVE=4")),  # PVT - for sourcing power in USB host mode
      Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True"), Misc("DRIVE=16"),),
      # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
      Misc("SLEW=SLOW"),
@@ -271,7 +271,7 @@ _io_xous_pvt2 = [
      Subsignal("cc_id", Pins("D18"), IOStandard("LVCMOS33")),  # DVT
      # turn on the UP5K in case we are woken up by RTC
      Subsignal("up5k_on", Pins("G18"), IOStandard("LVCMOS33")),  # DVT -- T_TO_U_ON
-     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33")),  # PVT - for sourcing power in USB host mode
+     Subsignal("boostmode", Pins("H16"), IOStandard("LVCMOS33"), Misc("PULLDOWN True"), Misc("DRIVE=4")),  # PVT - for sourcing power in USB host mode
      Subsignal("selfdestruct", Pins("J14"), IOStandard("LVCMOS33"), Misc("PULLDOWN True"), Misc("DRIVE=16"),),
      # PVT - cut power to BBRAM key and unit in an annoying-to-reset fashion
      Misc("SLEW=SLOW"),
@@ -621,17 +621,16 @@ class BtPower(Module, AutoCSR, AutoDoc):
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
             CSRField("vibe", size=1, description="Turn on vibration motor"),
         ])
+        s0 = Signal()
         self.comb += [
             pads.audio_on.eq(self.power.fields.audio),
-            pads.fpga_sys_on.eq(self.power.fields.self),
             # This signal automatically enables snoop when SoC is powered down
             pads.allow_up5k_n.eq(~self.power.fields.ec_snoop),
-            # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups)
-            pads.pwr_s0.eq(self.power.fields.state[0] & ~ResetSignal()),
+            s0.eq(self.power.fields.state[0] & ~ResetSignal()),
         ]
         if (revision == 'pvt2'):
             # replica version to firewall off u-domain manipulation of SRAM CE lines
-            self.comb += pads.pwr_s0_replica.eq(pads.pwr_s0)
+            self.comb += pads.pwr_s0_replica.eq(s0)
 
         if (revision != 'modnoise') and (xous == False):
             self.comb += pads.noise_on.eq(self.power.fields.noise),
@@ -669,13 +668,36 @@ class BtPower(Module, AutoCSR, AutoDoc):
             )
         ]
 
-        self.comb += pads.boostmode.eq(self.power.fields.boostmode)
+        # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups). Use Hi-Z driver for less glitches.
+        self.pwr_s0_ts = TSTriple(1)
+        self.specials += self.pwr_s0_ts.get_tristate(pads.pwr_s0)
+        self.comb += [
+            self.pwr_s0_ts.oe.eq(s0),
+            self.pwr_s0_ts.o.eq(s0)
+        ]
+
+        # Hi-Z driver is less glitchy during power transients
+        self.sys_on_ts = TSTriple(1)
+        self.specials += self.sys_on_ts.get_tristate(pads.fpga_sys_on)
+        self.comb += [
+            self.sys_on_ts.oe.eq(self.power.fields.self),
+            self.sys_on_ts.o.eq(self.power.fields.self),
+        ]
+
+        # Hi-Z driver is less glitchy, prevents boost mode power from re-glitching the power on during power off transitions
+        self.boost_ts = TSTriple(1)
+        self.specials += self.boost_ts.get_tristate(pads.boostmode)
+        self.comb += [
+            self.boost_ts.oe.eq(self.power.fields.boostmode),
+            self.boost_ts.o.eq(self.power.fields.boostmode)
+        ]
+
         # Hi-Z driver is less glitchy and less likely to trigger the self destruct mechanism on power glitches
         self.sd_ts = TSTriple(1)
         self.specials += self.sd_ts.get_tristate(pads.selfdestruct)
         self.comb += [
             self.sd_ts.oe.eq(self.power.fields.selfdestruct),
-            self.sd_ts.o.eq(1)
+            self.sd_ts.o.eq(self.power.fields.selfdestruct)
         ]
 
 # BtGpio -------------------------------------------------------------------------------------------
