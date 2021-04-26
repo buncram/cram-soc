@@ -18,7 +18,7 @@ from random import SystemRandom
 import argparse
 
 from migen import *
-from migen.genlib.cdc import MultiReg, BlindTransfer
+from migen.genlib.cdc import MultiReg, BlindTransfer, BusSynchronizer
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
@@ -802,7 +802,8 @@ class KeyInject(Module, AutoDoc, AutoCSR):
 
 class SusRes(Module, AutoDoc, AutoCSR):
     def __init__(self, bits=64):
-        self.intro = ModuleDoc("""This module is a utility module that assists with suspend and
+        self.intro = ModuleDoc("""Suspend/Resume Helper
+        This module is a utility module that assists with suspend and
         resume functions. It has the ability to 'reach into' the Ticktimer space to help coordinate
         a clean, monatomic shut down from a suspend/resume manager that exists in a different,
         isolated process space from the TickTimer.
@@ -833,6 +834,54 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.submodules.ev = EventManager()
         self.ev.soft_int = EventSourceProcess()
         self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt)
+
+
+# Deterministic timeout ---------------------------------------------------------------------------
+
+class D11cTime(Module, AutoDoc, AutoCSR):
+    def __init__(self, count=1638):
+        self.intro = ModuleDoc("""Deterministic Timeout
+        This module creates a heartbeat that is deterministic. If used correctly, it can help reduce 
+        timing side channels on secure processes by giving them an independent, coarse source of
+        time. The idea is that a secure process may handle a request, and then wait for a heartbeat
+        from the D11cTime module to change polarity, which occurs at a regular interval, 
+        before returning the result.
+        
+        There is a trade-off on how frequent the heartbeat is versus information leakage versus
+        overall throughput of the secure module's responses. If the heartbeat is faster than the
+        maximum time to complete a computation, then information leakage will occur; if it is much
+        slower than the maximum time to complete a computation, then performance is reduced. Deterministic
+        timeout is not the end-all solution; adding noise and computational confounders are also 
+        countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
+        hardware-efficient.
+        
+        This block has been configured to default to {}ms timeout, assuming LPCLK is 32768Hz.
+        """.format( (count / 32768.0) * 1000.0 ))
+
+        self.control = CSRStorage(15, fields = [
+            CSRField("count", size=15, description="Number of 1/32768 second ticks before creating a heart beat", reset=count),
+        ])
+        self.heartbeat = CSRStatus(1, fields = [
+            CSRField("beat", description="Set to `1` at the next `count` interval rollover since `clear` was set."),
+        ])
+
+        slowcnt = Signal(15, reset=count)
+        self.submodules.cnt_sync = BusSynchronizer(15, "sys", "lpclk")
+        self.comb += [
+            self.cnt_sync.i.eq(self.control.fields.count),
+            slowcnt.eq(self.cnt_sync.o),
+        ]
+        counter = Signal(15, reset=count)
+        heartbeat = Signal(reset=0)
+        self.sync.lpclk += [
+            If(counter == 0,
+                counter.eq(slowcnt),
+                heartbeat.eq(~heartbeat),
+            ).Else(
+                counter.eq(counter - 1),
+            )
+        ]
+        self.specials += MultiReg(heartbeat, self.heartbeat.fields.beat)
 
 
 # KeyRom ------------------------------------------------------------------------------------------
@@ -1425,6 +1474,10 @@ class BetrustedSoC(SoCCore):
             wdt_reset.eq(self.wdt.gsr),
             self.wdt.cfgmclk.eq(self.spinor.cfgmclk),
         ]
+
+        # Deterministic timeout helper ---------------------------------------------------------------
+        self.submodules.d11ctime = D11cTime(count=1638)
+        self.add_csr("d11ctime")
 
 # Build --------------------------------------------------------------------------------------------
 
