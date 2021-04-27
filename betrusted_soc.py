@@ -677,11 +677,12 @@ class BtPower(Module, AutoCSR, AutoDoc):
         ]
 
         # Hi-Z driver is less glitchy during power transients
+        self.powerdown_override = Signal()
         self.sys_on_ts = TSTriple(1)
         self.specials += self.sys_on_ts.get_tristate(pads.fpga_sys_on)
         self.comb += [
-            self.sys_on_ts.oe.eq(self.power.fields.self),
-            self.sys_on_ts.o.eq(self.power.fields.self),
+            self.sys_on_ts.oe.eq(self.power.fields.self & ~self.powerdown_override),
+            self.sys_on_ts.o.eq(self.power.fields.self & ~self.powerdown_override),
         ]
 
         # Hi-Z driver is less glitchy, prevents boost mode power from re-glitching the power on during power off transitions
@@ -825,6 +826,11 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.state = CSRStorage(1, fields=[
             CSRField("resume", description="Used to transfer the resume state information from the loader to Xous. If set, indicates we are on the resume half of a suspend/resume.")
         ])
+        self.powerdown = CSRStorage(1, fields=[
+            CSRField("powerdown", description="Write a `1` to force an immediate powerdown. Use with care.", reset=0)
+        ])
+        self.powerdown_override = Signal()
+        self.comb += self.powerdown_override.eq(self.powerdown.fields.powerdown)
 
         self.interrupt = CSRStorage(1, fields=[
             CSRField("interrupt", size = 1, pulse=True,
@@ -1306,6 +1312,7 @@ class BetrustedSoC(SoCCore):
         self.submodules.power = BtPower(platform.request("power"), revision, xous)
         self.add_csr("power")
         self.add_interrupt("power")
+        self.comb += self.power.powerdown_override.eq(self.susres.powerdown_override)
 
         # SPI flash controller ---------------------------------------------------------------------
         if legacy_spi:
