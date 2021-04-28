@@ -823,8 +823,9 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.status = CSRStatus(1, fields=[
             CSRField("paused", description="When set, indicates that the counter has been paused")
         ])
-        self.state = CSRStorage(1, fields=[
-            CSRField("resume", description="Used to transfer the resume state information from the loader to Xous. If set, indicates we are on the resume half of a suspend/resume.")
+        self.state = CSRStorage(2, fields=[
+            CSRField("resume", description="Used to transfer the resume state information from the loader to Xous. If set, indicates we are on the resume half of a suspend/resume."),
+            CSRField("was_forced", description="Used by the bootloader to indicate to the kernel if the current resume was from a forced suspend (e.g. a timeout happened and a server may be unclean."),
         ])
         self.resume = Signal()
         self.comb += self.resume.eq(self.state.fields.resume)
