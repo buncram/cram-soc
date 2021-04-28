@@ -826,6 +826,8 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.state = CSRStorage(1, fields=[
             CSRField("resume", description="Used to transfer the resume state information from the loader to Xous. If set, indicates we are on the resume half of a suspend/resume.")
         ])
+        self.resume = Signal()
+        self.comb += self.resume.eq(self.state.fields.resume)
         self.powerdown = CSRStorage(1, fields=[
             CSRField("powerdown", description="Write a `1` to force an immediate powerdown. Use with care.", reset=0)
         ])
@@ -839,8 +841,27 @@ class SusRes(Module, AutoDoc, AutoCSR):
         ])
         self.submodules.ev = EventManager()
         self.ev.soft_int = EventSourceProcess()
-        self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt)
+        self.kernel_resume_interrupt = Signal()
+        self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt | self.kernel_resume_interrupt)
 
+class ResumeKicker(Module, AutoDoc, AutoCSR):
+    def __init__(self):
+        self.intro = ModuleDoc("""Resume Kicker
+        Used by the kernel to bootstrap the system into an interrupt context that allows resume
+        processing to happen.
+        """)
+        self.kicker = CSRStorage(1, fields=[
+            CSRField("kick", description="Write a `1` to trigger the SusRes software interrupt", pulse=True)
+        ])
+        self.state = CSRStorage(1, fields=[
+            CSRField("resume", description="A replica of the `resume` field in SusRes")
+        ])
+        self.kick = Signal()
+        self.resume = Signal()
+        self.comb += [
+            self.state.fields.resume.eq(self.resume),
+            self.kick.eq(self.kicker.fields.kick),
+        ]
 
 # Deterministic timeout ---------------------------------------------------------------------------
 
@@ -1306,6 +1327,16 @@ class BetrustedSoC(SoCCore):
             self.ticktimer.pause.eq(self.susres.control.fields.pause),
             self.ticktimer.load.eq(self.susres.control.fields.load),
             self.ticktimer.reset.eq(self.susres.control.fields.reset),
+        ]
+        # the ResumeKicker is a port that the kernel can map and exclusively own in early boot to coordinate the Resume process
+        # it provides a single bit that determines if a Resume should be done, and a signal that's passed to the interrupt
+        # that is OR'd with the software interrupt in the SusRes block, allowing the system to re-enter the interrupt context
+        # which actually coordinates all the resume activity in userspace.
+        self.submodules.resumekicker = ResumeKicker()
+        self.add_csr("resumekicker")
+        self.comb += [
+            self.susres.kernel_resume_interrupt.eq(self.resumekicker.kick),
+            self.resumekicker.resume.eq(self.susres.resume),
         ]
 
         # Power control pins -----------------------------------------------------------------------
