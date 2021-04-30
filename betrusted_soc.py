@@ -845,6 +845,7 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.kernel_resume_interrupt = Signal()
         self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt | self.kernel_resume_interrupt)
 
+# delete this unused class once we are confident we don't need it anymore for suspend/resume
 class ResumeKicker(Module, AutoDoc, AutoCSR):
     def __init__(self):
         self.intro = ModuleDoc("""Resume Kicker
@@ -1329,16 +1330,17 @@ class BetrustedSoC(SoCCore):
             self.ticktimer.load.eq(self.susres.control.fields.load),
             self.ticktimer.reset.eq(self.susres.control.fields.reset),
         ]
+        # We seem to be able to do suspend/resume without the Resume Kicker, so comment it out as a historical note; delete once the susres path is really well tested.
         # the ResumeKicker is a port that the kernel can map and exclusively own in early boot to coordinate the Resume process
         # it provides a single bit that determines if a Resume should be done, and a signal that's passed to the interrupt
         # that is OR'd with the software interrupt in the SusRes block, allowing the system to re-enter the interrupt context
         # which actually coordinates all the resume activity in userspace.
-        self.submodules.resumekicker = ResumeKicker()
-        self.add_csr("resumekicker")
-        self.comb += [
-            self.susres.kernel_resume_interrupt.eq(self.resumekicker.kick),
-            self.resumekicker.resume.eq(self.susres.resume),
-        ]
+        #self.submodules.resumekicker = ResumeKicker()
+        #self.add_csr("resumekicker")
+        #self.comb += [
+        #    self.susres.kernel_resume_interrupt.eq(self.resumekicker.kick),
+        #    self.resumekicker.resume.eq(self.susres.resume),
+        #]
 
         # Power control pins -----------------------------------------------------------------------
         self.submodules.power = BtPower(platform.request("power"), revision, xous)
