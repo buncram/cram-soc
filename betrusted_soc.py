@@ -814,11 +814,10 @@ class SusRes(Module, AutoDoc, AutoCSR):
         """)
 
         self.control = CSRStorage(2, fields=[
-            CSRField("reset", description="Write a `1` to this bit to reset the count to 0. This bit has priority over all other requests.", pulse=True),
             CSRField("pause", description="Write a `1` to this field to request a pause to counting, 0 for free-run. Count pauses on the next tick quanta."),
             CSRField("load", description="If paused, write a `1` to this bit to load a resume value to the timer. If not paused, this bit is ignored.", pulse=True),
         ])
-        self.resume_time = CSRStorage(bits, name="resume_time", description="Elapsed time to load. Loaded upon writing `1` to the load bit in the control regsiter. This will immediately affect the msleep extension.")
+        self.resume_time = CSRStorage(bits, name="resume_time", description="Elapsed time to load. Loaded upon writing `1` to the load bit in the control register. This will immediately affect the msleep extension.")
         self.time = CSRStatus(bits, name="time", description="""Cycle-accurate mirror copy of time in systicks, from the TickTimer""")
         self.status = CSRStatus(1, fields=[
             CSRField("paused", description="When set, indicates that the counter has been paused")
@@ -1328,7 +1327,6 @@ class BetrustedSoC(SoCCore):
             self.ticktimer.resume_time.eq(self.susres.resume_time.storage),
             self.ticktimer.pause.eq(self.susres.control.fields.pause),
             self.ticktimer.load.eq(self.susres.control.fields.load),
-            self.ticktimer.reset.eq(self.susres.control.fields.reset),
         ]
         # We seem to be able to do suspend/resume without the Resume Kicker, so comment it out as a historical note; delete once the susres path is really well tested.
         # the ResumeKicker is a port that the kernel can map and exclusively own in early boot to coordinate the Resume process
