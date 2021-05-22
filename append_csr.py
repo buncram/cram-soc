@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import subprocess
 
 def main():
     parser = argparse.ArgumentParser(description="Pad and append CSV file to FPGA bitstream")
@@ -24,9 +25,17 @@ def main():
                 # create the CSV appendix
                 data = ifile.read() # read in the whole block of CSV data
 
+                git_rev = subprocess.Popen(["git", "describe", "--long", "--always"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                (rev, err) = git_rev.communicate()
+                data += b"git_rev,"
+                data += rev
+
                 odata = bytearray()
                 odata += len(data).to_bytes(4, 'little')
                 odata += data
+
                 padding = bytes([0xff]) * (pad_to - len(data) - 4)
                 odata += padding
 
