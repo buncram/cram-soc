@@ -1050,7 +1050,7 @@ class BetrustedSoC(SoCCore):
         self.cpu.cpu_params.update(i_externalResetVector=self.reboot.addr.storage)
         # override the default CPU reset so there's more margin on the signal
         # we do *not* patch this into the system reset because it also kicks the Wishbone USB debug bridge, which complicates firmware updates!
-        reset_cycles = 16
+        reset_cycles = 32
         cpu_res_ctr = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
         cpu_reset = Signal(reset=1)
         self.sync += [
