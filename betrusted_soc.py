@@ -19,6 +19,7 @@ import argparse
 
 from migen import *
 from migen.genlib.cdc import MultiReg, BlindTransfer, BusSynchronizer
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
@@ -510,6 +511,9 @@ class CRG(Module, AutoCSR):
         self.clock_domains.cd_usb_12 = ClockDomain()
         self.clock_domains.cd_raw_12 = ClockDomain()
 
+        self.clock_domains.cd_clk200_gated = ClockDomain()
+        self.clock_domains.cd_sys_gated = ClockDomain()
+
         # # #
 
         sysclk_ns = 1e9 / sys_clk_freq
@@ -536,25 +540,42 @@ class CRG(Module, AutoCSR):
         self.specials += Instance("BUFG", i_I=clk12, o_O=self.clk12_bufg)
         self.comb += self.cd_raw_12.clk.eq(self.clk12_bufg)
 
+        self.crypto_off = Signal()
+        self.ignore_locked = Signal()
         self.submodules.mmcm = mmcm = S7MMCM(speedgrade=-1)
         self.comb += mmcm.reset.eq(self.warm_reset)
         mmcm.register_clkin(self.clk12_bufg, 12e6)
         # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
-        mmcm.create_clkout(self.cd_usb_48, 48e6) # 48 MHz for USB
+        mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB
         platform.add_platform_command("create_generated_clock -name usb_48 [get_pins MMCME2_ADV/CLKOUT0]")
-        mmcm.create_clkout(self.cd_spi, 20e6)
+        mmcm.create_clkout(self.cd_spi, 20e6, with_reset=False, buf="bufgce", ce=mmcm.locked)
         platform.add_platform_command("create_generated_clock -name spi_clk [get_pins MMCME2_ADV/CLKOUT1]")
-        mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase)  # delayed version for SPINOR cclk (different from COM SPI above)
+        mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase, with_reset=False, buf="bufgce", ce=mmcm.locked)  # delayed version for SPINOR cclk (different from COM SPI above)
         platform.add_platform_command("create_generated_clock -name spinor [get_pins MMCME2_ADV/CLKOUT2]")
-        mmcm.create_clkout(self.cd_clk200, 200e6) # 200MHz required for IDELAYCTL
+        mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, gated_replica_cd=self.cd_clk200_gated, ce=(~self.crypto_off & mmcm.locked)) # 200MHz required for IDELAYCTL
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
-        mmcm.create_clkout(self.cd_clk50, 50e6) # 50MHz for SHA-block
+        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.crypto_off & mmcm.locked)) # 50MHz for SHA-block
         platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
-        mmcm.create_clkout(self.cd_usb_12, 12e6) # 12 MHz for USB
+        mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB
         platform.add_platform_command("create_generated_clock -name usb_12 [get_pins MMCME2_ADV/CLKOUT5]")
-        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0) # should be precise solution by design
+        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, gated_replica_cd=self.cd_sys_gated, ce=(~self.crypto_off & mmcm.locked)) # should be precise solution by design
         platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT6]")
         mmcm.expose_drp()
+
+        reset_combo = Signal()
+        self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked))
+        self.specials += [
+            AsyncResetSynchronizer(self.cd_usb_48, reset_combo),
+            AsyncResetSynchronizer(self.cd_spi, reset_combo),
+            AsyncResetSynchronizer(self.cd_spinor, reset_combo),
+            AsyncResetSynchronizer(self.cd_clk200, reset_combo),
+            AsyncResetSynchronizer(self.cd_clk50, reset_combo),
+            AsyncResetSynchronizer(self.cd_usb_12, reset_combo),
+            AsyncResetSynchronizer(self.cd_sys, reset_combo),
+
+            AsyncResetSynchronizer(self.cd_clk200_gated, reset_combo),
+            AsyncResetSynchronizer(self.cd_sys_gated, reset_combo),
+        ]
 
         # Add an IDELAYCTRL primitive for the SpiOpi block
         self.submodules += S7IDELAYCTRL(self.cd_clk200, reset_cycles=32) # 155ns @ 200MHz, min 59.28ns
@@ -594,7 +615,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
         """)
 
         if xous == True:
-            self.power = CSRStorage(8, fields=[
+            self.power = CSRStorage(fields=[
                 CSRField("audio", size=1, description="Write `1` to power on the audio subsystem"),
                 CSRField("self", size=1, description="Writing `1` forces self power-on (overrides the EC's ability to power me down)", reset=1),
                 CSRField("ec_snoop", size=1, description="Writing `1` allows the insecure EC to snoop a couple keyboard pads for wakeup key sequence recognition"),
@@ -602,7 +623,9 @@ class BtPower(Module, AutoCSR, AutoDoc):
                 CSRField("reset_ec", size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
                 CSRField("up5k_on", size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
                 CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
-                CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion")
+                CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion"),
+                CSRField("crypto_off", size=1, description="Writing a `1` to this bit turns the clock off to the crypto accelerators"),
+                CSRField("ignore_locked", size=1, description="Writing a `1` to this bit causes the reset to ignore the PLL lock status")
             ])
         else:
             self.power = CSRStorage(8, fields=[
@@ -1345,6 +1368,8 @@ class BetrustedSoC(SoCCore):
         self.add_csr("power")
         self.add_interrupt("power")
         self.comb += self.power.powerdown_override.eq(self.susres.powerdown_override)
+        self.comb += self.crg.crypto_off.eq(self.power.power.fields.crypto_off)
+        self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked)
 
         # SPI flash controller ---------------------------------------------------------------------
         if legacy_spi:
@@ -1449,7 +1474,7 @@ class BetrustedSoC(SoCCore):
         self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
 
         # Curve25519 engine ------------------------------------------------------------------------
-        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200", "mul_clk":"sys"})(Engine(platform, self.mem_map["engine"], build_prefix=prefix))
+        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200_gated", "mul_clk":"sys_gated"})(Engine(platform, self.mem_map["engine"], build_prefix=prefix))
         self.add_csr("engine")
         self.add_interrupt("engine")
         self.bus.add_slave("engine", self.engine.bus, SoCRegion(origin=self.mem_map["engine"], size=0x2_0000, cached=False))
