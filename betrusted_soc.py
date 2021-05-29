@@ -624,7 +624,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
                 CSRField("up5k_on", size=1, description="Writing a `1` pulses the UP5K domain to turn on", pulse=True),
                 CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
                 CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion"),
-                CSRField("crypto_off", size=1, description="Writing a `1` to this bit turns the clock off to the crypto accelerators"),
+                CSRField("crypto_on", size=1, description="Writing a `1` to this bit turns the clock on to the crypto accelerators. Configured to currently override power to `on` at boot to ease system setup.", reset=1),
                 CSRField("ignore_locked", size=1, description="Writing a `1` to this bit causes the reset to ignore the PLL lock status")
             ])
         else:
@@ -640,6 +640,13 @@ class BtPower(Module, AutoCSR, AutoDoc):
                 CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
                 CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion")
             ])
+
+        self.clk_status = CSRStatus(fields=[
+            CSRField("crypto_on", size=1, description="The actual crypto clock power on signal, after OR'ing between three separate sources (power, sha512, and engine25519)"),
+            CSRField("sha_on", size=1, description="Readback of SHA block power setting"),
+            CSRField("engine_on", size=1, description="Readback of Engine25519 block power setting"),
+            CSRField("btpower_on", size=1, description="Readback of this block's override-on power setting"),
+        ])
         # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
             CSRField("vibe", size=1, description="Turn on vibration motor"),
@@ -1368,8 +1375,6 @@ class BetrustedSoC(SoCCore):
         self.add_csr("power")
         self.add_interrupt("power")
         self.comb += self.power.powerdown_override.eq(self.susres.powerdown_override)
-        self.comb += self.crg.crypto_off.eq(self.power.power.fields.crypto_off)
-        self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked)
 
         # SPI flash controller ---------------------------------------------------------------------
         if legacy_spi:
@@ -1542,6 +1547,19 @@ class BetrustedSoC(SoCCore):
         # Deterministic timeout helper ---------------------------------------------------------------
         self.submodules.d11ctime = D11cTime(count=1638)
         self.add_csr("d11ctime")
+
+        # Global, cross-domain power management signals go at the bottom -----------------------------
+        self.comb += [
+            # if any crypto block wants its power to be on, it gets it. for it to be off, all blocks have to agree to turn it off
+            self.crg.crypto_off.eq(~(self.power.power.fields.crypto_on | self.sha512.power.fields.on | self.engine.power.fields.on)),
+            # these status field helps debug which blocks are wedging power on
+            self.power.clk_status.fields.crypto_on.eq(~self.crg.crypto_off),
+            self.power.clk_status.fields.sha_on.eq(self.sha512.power.fields.on),
+            self.power.clk_status.fields.engine_on.eq(self.engine.power.fields.on),
+            self.power.clk_status.fields.btpower_on.eq(self.power.power.fields.crypto_on),
+            # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
+            self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked),
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 
