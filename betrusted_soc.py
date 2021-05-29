@@ -51,6 +51,7 @@ from gateware import aes_opentitan as aes
 from gateware import sha2_opentitan as sha2
 from gateware import sha512_opentitan as sha512
 from gateware.curve25519.engine import Engine
+from gateware.timer_alwayson import TimerAlwaysOn
 
 from gateware import jtag_phy
 
@@ -1067,6 +1068,7 @@ class BetrustedSoC(SoCCore):
             uart_name            = uart_name,
             cpu_reset_address    = reset_address,
             with_ctrl            = False,
+            with_timer           = False, # override default timer with a timer that operates in a low-power clock domain
             **kwargs)
 
         # CPU --------------------------------------------------------------------------------------
@@ -1094,6 +1096,10 @@ class BetrustedSoC(SoCCore):
             ),
         ]
         self.comb += self.cpu.reset.eq(cpu_reset)
+        # make a custom version of the timer0 core that's in the "always on" domain
+        self.submodules.timer0 = ClockDomainsRenamer(cd_remapping={"always_on":"raw_12"})(TimerAlwaysOn())
+        self.add_csr("timer0")
+        self.add_interrupt("timer0")
 
         # Debug cluster ----------------------------------------------------------------------------
         if usb_type != 'debug':  # wire up the debug UART automatically if we don't have USB debugging capability
@@ -1341,7 +1347,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("messible2")
 
         # Tick timer -------------------------------------------------------------------------------
-        self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq, bits=64)
+        self.submodules.ticktimer = ClockDomainsRenamer(cd_remapping={"always_on":"raw_12"})(ticktimer.TickTimer(1000, 12e6, bits=64))
         self.add_csr("ticktimer")
         self.add_interrupt("ticktimer")
 
