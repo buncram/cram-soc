@@ -284,7 +284,11 @@ _io_xous_pvt2 = [
     # digital-only pinout for GPIOs
     # ("gpio", 0, Pins("F14 F15 E16 G15 H15 D7 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
     # mixed digital/analog: gpio2 and gpio5 are mapped to bogus, non-connected pins (E6/D6)
-    ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+    # ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+
+    # debugging: gpio 0/1 bogus pins
+    ("gpio", 0, Pins("E4 E1 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+    ("temp", 0, Pins("F14 F15"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"))
 ]
 
 _io_fw = [
@@ -502,6 +506,7 @@ class CRG(Module, AutoCSR):
     def __init__(self, platform, sys_clk_freq, spinor_edge_delay_ns=2.5):
         self.warm_reset = Signal()
         self.power_down = Signal()
+        self.crypto_off = Signal()
 
         self.clock_domains.cd_sys   = ClockDomain()
         self.clock_domains.cd_spi   = ClockDomain()
@@ -542,31 +547,41 @@ class CRG(Module, AutoCSR):
         self.specials += Instance("BUFG", i_I=clk12, o_O=self.clk12_bufg)
         self.comb += self.cd_raw_12.clk.eq(self.clk12_bufg)
 
-        self.crypto_off = Signal()
-        self.ignore_locked = Signal()
         self.submodules.mmcm = mmcm = S7MMCM(speedgrade=-1)
-        self.comb += mmcm.reset.eq(self.warm_reset)
-        self.comb += mmcm.power_down.eq(self.power_down)
         mmcm.register_clkin(self.clk12_bufg, 12e6)
         # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
         mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB
         platform.add_platform_command("create_generated_clock -name usb_48 [get_pins MMCME2_ADV/CLKOUT0]")
-        mmcm.create_clkout(self.cd_spi, 20e6, with_reset=False, buf="bufgce", ce=mmcm.locked)
+        mmcm.create_clkout(self.cd_spi, 20e6, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)
         platform.add_platform_command("create_generated_clock -name spi_clk [get_pins MMCME2_ADV/CLKOUT1]")
-        mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase, with_reset=False, buf="bufgce", ce=mmcm.locked)  # delayed version for SPINOR cclk (different from COM SPI above)
+        mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)  # delayed version for SPINOR cclk (different from COM SPI above)
         platform.add_platform_command("create_generated_clock -name spinor [get_pins MMCME2_ADV/CLKOUT2]")
-        mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, gated_replica_cd=self.cd_clk200_gated, ce=(~self.crypto_off & mmcm.locked)) # 200MHz required for IDELAYCTL
+        # clk200 does not gate off because we want to keep the IDELAYCTRL block "warm"
+        mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, buf="bufg", gated_replica_cd=self.cd_clk200_gated,
+            replica_ce=(mmcm.locked & ~self.power_down & ~self.crypto_off)) # 200MHz required for IDELAYCTL
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
-        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.crypto_off & mmcm.locked)) # 50MHz for SHA-block
+        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked)) # 50MHz for SHA-block
         platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
         mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB
         platform.add_platform_command("create_generated_clock -name usb_12 [get_pins MMCME2_ADV/CLKOUT5]")
-        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, gated_replica_cd=self.cd_sys_gated, ce=(~self.crypto_off & mmcm.locked)) # should be precise solution by design
+        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, buf="bufgce", gated_replica_cd=self.cd_sys_gated,
+            ce=(~self.power_down & mmcm.locked), replica_ce=(mmcm.locked & ~self.crypto_off & ~self.power_down)) # should be precise solution by design
         platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT6]")
         mmcm.expose_drp()
 
+        self.ignore_locked = Signal()
         reset_combo = Signal()
         self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked))
+        # See https://forums.xilinx.com/t5/Other-FPGA-Architecture/MMCM-Behavior-After-Its-PWRDWN-Port-Is-Asserted-and-Then/td-p/792324
+        # "The DRP functional logic itself does not behave differently for PWRDWN or RST.
+        # The "registers" programmed previously through the DRP (or any other once) are not affected either
+        # way because they are configuration cells and are only overwritten if you re-program the part or
+        # by another DRP operation. Typically, from an application perspective, PWRDWN and RST are identical.
+        # The difference is obviously that in the PWRDWN case the MMCM completely shuts down for an extended period
+        # of time even if asserted only briefly. Takes a while to bring back the regulators vs simply reset.
+        # In addition, since power is turned of, it takes longer to reacquire LOCK vs RST because the VCO starts from scratch."
+        #self.comb += mmcm.reset.eq(self.power_down)
+        #self.comb += mmcm.power_down.eq(self.power_down)
         self.specials += [
             AsyncResetSynchronizer(self.cd_usb_48, reset_combo),
             AsyncResetSynchronizer(self.cd_spi, reset_combo),
@@ -1094,7 +1109,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("reboot")
         warm_reset = Signal()
         wdt_reset = Signal()
-        self.comb += warm_reset.eq(self.reboot.do_reset | wdt_reset)
+        self.comb += warm_reset.eq(self.reboot.do_reset | wdt_reset) # this is patched into the GSR via the SPINOR block (because that's where the STARTUPE2 block lives)
         self.cpu.cpu_params.update(i_externalResetVector=self.reboot.addr.storage)
         # override the default CPU reset so there's more margin on the signal
         # we do *not* patch this into the system reset because it also kicks the Wishbone USB debug bridge, which complicates firmware updates!
@@ -1127,11 +1142,7 @@ class BetrustedSoC(SoCCore):
         # Clockgen cluster -------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
         self.add_csr("crg")
-        self.submodules.reset_syncer = BlindTransfer("sys", "raw_12")
-        self.comb += [
-            self.reset_syncer.i.eq(warm_reset),
-            self.crg.warm_reset.eq(self.reset_syncer.o)
-        ]
+        self.comb += self.crg.warm_reset.eq(warm_reset) # mirror signal here to hit the Async reset injectors
 
         # GPIO module ------------------------------------------------------------------------------
         self.submodules.gpio = BtGpio(platform.request("gpio"))
@@ -1410,7 +1421,7 @@ class BetrustedSoC(SoCCore):
             self.submodules.spinor = S7SPIOPI(spipads,
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, cipo_name=cipo_instance_name, spiread=spiread)
             self.spinor.add_timing_constraints(platform, "spiflash_8x")
-            self.specials += MultiReg(self.reset_syncer.o, self.spinor.gsr)
+            self.specials += MultiReg(warm_reset, self.spinor.gsr)
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
@@ -1586,6 +1597,12 @@ class BetrustedSoC(SoCCore):
         self.submodules.wfi_sync = BlindTransfer("sys", "raw_12")
         self.comb += self.wfi_sync.i.eq(self.wfi.wfi.fields.wfi)
         self.comb += wfi_always_on.eq(self.wfi_sync.o)
+        wfi_always_on_r = Signal()
+        wfi_falling_pulse = Signal()
+        self.sync.raw_12 += [
+            wfi_always_on_r.eq(wfi_always_on),
+            wfi_falling_pulse.eq(~wfi_always_on & wfi_always_on_r)
+        ]
         # external interrupts: COM (hold+irq), uarts, i2c, gpio, keyboard, power, ticktimer, timer0
         kbd_wakeup = Signal()
         self.specials += MultiReg(self.keyboard.kbd_wakeup, kbd_wakeup, "raw_12")
@@ -1600,7 +1617,7 @@ class BetrustedSoC(SoCCore):
             self.crg.power_down.eq(wfi_engaged),
             If(any_wakeup,
                 wfi_engaged.eq(0)
-            ).Elif(wfi_always_on,
+            ).Elif(wfi_falling_pulse & self.crg.mmcm.locked,
                 wfi_engaged.eq(1)
             ).Else(
                 wfi_engaged.eq(wfi_engaged)
@@ -1608,6 +1625,13 @@ class BetrustedSoC(SoCCore):
         ]
         # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
         self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
+
+        # debugging outputs for WFI
+        temp_pads = platform.request("temp")
+        self.comb += [
+            temp_pads[0].eq(self.crg.power_down),
+            temp_pads[1].eq(any_wakeup),
+        ]
 
 
 # Build --------------------------------------------------------------------------------------------
