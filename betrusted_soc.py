@@ -501,6 +501,7 @@ class Platform(XilinxPlatform):
 class CRG(Module, AutoCSR):
     def __init__(self, platform, sys_clk_freq, spinor_edge_delay_ns=2.5):
         self.warm_reset = Signal()
+        self.power_down = Signal()
 
         self.clock_domains.cd_sys   = ClockDomain()
         self.clock_domains.cd_spi   = ClockDomain()
@@ -545,6 +546,7 @@ class CRG(Module, AutoCSR):
         self.ignore_locked = Signal()
         self.submodules.mmcm = mmcm = S7MMCM(speedgrade=-1)
         self.comb += mmcm.reset.eq(self.warm_reset)
+        self.comb += mmcm.power_down.eq(self.power_down)
         mmcm.register_clkin(self.clk12_bufg, 12e6)
         # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
         mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB
@@ -942,6 +944,20 @@ class D11cTime(Module, AutoDoc, AutoCSR):
         ]
         self.specials += MultiReg(heartbeat, self.heartbeat.fields.beat)
 
+# WFI ---------------------------------------------------------------------------------------------
+
+class Wfi(Module, AutoDoc, AutoCSR):
+    def __init__(self):
+        self.intro = ModuleDoc("""WFI: wait for interrupt
+        Registers to allow the kernel to tell the hardware to throttle clocks until an event happens.
+        """)
+
+        self.wfi = CSRStorage(fields=[
+            CSRField("wfi", description="Writing a `1` triggers an attempt to sleep clocks until an event happens", pulse=True)
+        ])
+        self.ignore_locked = CSRStorage(fields = [
+            CSRField("ignore_locked", description="Writing a `1` causes the reset condition for the SoC to ignore the locked state of the PLL")
+        ])
 
 # KeyRom ------------------------------------------------------------------------------------------
 
@@ -1563,9 +1579,36 @@ class BetrustedSoC(SoCCore):
             self.power.clk_status.fields.sha_on.eq(self.sha512.power.fields.on),
             self.power.clk_status.fields.engine_on.eq(self.engine.power.fields.on),
             self.power.clk_status.fields.btpower_on.eq(self.power.power.fields.crypto_on),
-            # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
-            self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked),
         ]
+        self.submodules.wfi = Wfi()
+        self.add_csr("wfi")
+        wfi_always_on = Signal()
+        self.submodules.wfi_sync = BlindTransfer("sys", "raw_12")
+        self.comb += self.wfi_sync.i.eq(self.wfi.wfi.fields.wfi)
+        self.comb += wfi_always_on.eq(self.wfi_sync.o)
+        # external interrupts: COM (hold+irq), uarts, i2c, gpio, keyboard, power, ticktimer, timer0
+        kbd_wakeup = Signal()
+        self.specials += MultiReg(self.keyboard.kbd_wakeup, kbd_wakeup, "raw_12")
+        ticktimer_wakeup = Signal()
+        self.comb += ticktimer_wakeup.eq(self.ticktimer.alarm_always_on)
+        timer0_wakeup = Signal()
+        self.comb += timer0_wakeup.eq(self.timer0.trigger_always_on)
+        any_wakeup = Signal()
+        self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup)
+        wfi_engaged = Signal()
+        self.sync.raw_12 += [
+            self.crg.power_down.eq(wfi_engaged),
+            If(any_wakeup,
+                wfi_engaged.eq(0)
+            ).Elif(wfi_always_on,
+                wfi_engaged.eq(1)
+            ).Else(
+                wfi_engaged.eq(wfi_engaged)
+            )
+        ]
+        # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
+        self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
+
 
 # Build --------------------------------------------------------------------------------------------
 
