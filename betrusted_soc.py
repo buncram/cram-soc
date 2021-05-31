@@ -520,6 +520,7 @@ class CRG(Module, AutoCSR):
 
         self.clock_domains.cd_clk200_gated = ClockDomain()
         self.clock_domains.cd_sys_gated = ClockDomain()
+        self.clock_domains.cd_sys_always_on = ClockDomain()
 
         # # #
 
@@ -550,24 +551,36 @@ class CRG(Module, AutoCSR):
         self.submodules.mmcm = mmcm = S7MMCM(speedgrade=-1)
         mmcm.register_clkin(self.clk12_bufg, 12e6)
         # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
-        mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB
+        mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB; always-on
         platform.add_platform_command("create_generated_clock -name usb_48 [get_pins MMCME2_ADV/CLKOUT0]")
+
         mmcm.create_clkout(self.cd_spi, 20e6, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)
         platform.add_platform_command("create_generated_clock -name spi_clk [get_pins MMCME2_ADV/CLKOUT1]")
+
         mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)  # delayed version for SPINOR cclk (different from COM SPI above)
         platform.add_platform_command("create_generated_clock -name spinor [get_pins MMCME2_ADV/CLKOUT2]")
+
         # clk200 does not gate off because we want to keep the IDELAYCTRL block "warm"
-        mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, buf="bufg", gated_replica_cd=self.cd_clk200_gated,
-            replica_ce=(mmcm.locked & ~self.power_down & ~self.crypto_off)) # 200MHz required for IDELAYCTL
+        mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, buf="bufg",
+            gated_replicas={self.cd_clk200_gated : (mmcm.locked & ~self.power_down & ~self.crypto_off)}) # 200MHz always-on required for IDELAYCTL
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
+
         mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked)) # 50MHz for SHA-block
         platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
-        mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB
+
+        mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB; always-on
         platform.add_platform_command("create_generated_clock -name usb_12 [get_pins MMCME2_ADV/CLKOUT5]")
-        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, buf="bufgce", gated_replica_cd=self.cd_sys_gated,
-            ce=(~self.power_down & mmcm.locked), replica_ce=(mmcm.locked & ~self.crypto_off & ~self.power_down)) # should be precise solution by design
+
+        # needs to be exactly 100MHz hence margin=0
+        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked),
+            gated_replicas={self.cd_sys_gated : (mmcm.locked & ~self.crypto_off & ~self.power_down), self.cd_sys_always_on : mmcm.locked})
         platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT6]")
+
         mmcm.expose_drp()
+
+        # timing to the "S" pins is not sensitive because we don't care if there is an extra clock pulse relative
+        # to the gating. Glitch-free operation is guaranteed regardless!
+        platform.add_platform_command('set_false_path -through [get_pins BUFGCTRL*/S*]')
 
         self.ignore_locked = Signal()
         reset_combo = Signal()
@@ -1191,10 +1204,10 @@ class BetrustedSoC(SoCCore):
             self.add_csr("uart")
             self.add_interrupt("uart")
 
-            self.submodules.console_phy = uart.UARTPHY(
+            self.submodules.console_phy = ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UARTPHY(
                 pads=console_pads,
                 clk_freq=sys_clk_freq,
-                baudrate=115200)
+                baudrate=115200))
             self.submodules.console = ResetInserter()(uart.UART(self.console_phy,
                 tx_fifo_depth=16,
                 rx_fifo_depth=16))
@@ -1336,7 +1349,7 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins {net}_reg/Q]", net=self.sram_ext.sync_oe_n)
 
         # LCD interface ----------------------------------------------------------------------------
-        self.submodules.memlcd = memlcd.MemLCD(platform.request("lcd"))
+        self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd")))
         self.add_csr("memlcd")
         self.register_mem("memlcd", self.mem_map["memlcd"], self.memlcd.bus, size=self.memlcd.fb_depth*4)
 
@@ -1427,7 +1440,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("spinor")
 
         # Keyboard module --------------------------------------------------------------------------
-        self.submodules.keyboard = ClockDomainsRenamer(cd_remapping={"kbd":"lpclk"})(keyboard.KeyScan(platform.request("kbd")))
+        self.submodules.keyboard = ClockDomainsRenamer(cd_remapping={"kbd":"lpclk", "sys":"sys_always_on"})(keyboard.KeyScan(platform.request("kbd")))
         self.add_csr("keyboard")
         self.add_interrupt("keyboard")
         self.submodules.keyinject = KeyInject()
@@ -1448,8 +1461,8 @@ class BetrustedSoC(SoCCore):
         # Audio interfaces -------------------------------------------------------------------------
         from litex.soc.cores.i2s import I2S_FORMAT
         if (revision == 'pvt') or (revision == 'modnoise') or (revision == 'pvt2'):
-            self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False,
-                frame_format=I2S_FORMAT.I2S_STANDARD, document_interrupts=True)
+            self.submodules.audio = ClockDomainsRenamer({"sys":"sys_always_on"})(S7I2S(platform.request("i2s", 0), controller=False,
+                frame_format=I2S_FORMAT.I2S_STANDARD, document_interrupts=True))
         else:
             self.submodules.audio = S7I2S(platform.request("i2s", 0), controller=False, document_interrupts=True)
         self.bus.add_slave("audio", self.audio.bus, SoCRegion(origin=self.mem_map["audio"], size=0x4, cached=False))
@@ -1610,8 +1623,18 @@ class BetrustedSoC(SoCCore):
         self.comb += ticktimer_wakeup.eq(self.ticktimer.alarm_always_on)
         timer0_wakeup = Signal()
         self.comb += timer0_wakeup.eq(self.timer0.trigger_always_on)
+        usb_k = Signal()
+        self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
         any_wakeup = Signal()
-        self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup)
+        audio_wakeup = Signal()
+        self.specials += MultiReg(self.audio.ev.rx_ready.trigger, audio_wakeup, "raw_12")
+        if uart_name == "serial":
+            console_wakeup = Signal()
+            self.specials += MultiReg(~uart_pins.rx, console_wakeup, "raw_12")
+            self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup | usb_k | console_wakeup | audio_wakeup)
+        else:
+            self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup | usb_k | audio_wakeup)
+        # other sources: COM, and give the screen its own free-running clock so it can update while cpu sleeps
         wfi_engaged = Signal()
         self.sync.raw_12 += [
             self.crg.power_down.eq(wfi_engaged),
