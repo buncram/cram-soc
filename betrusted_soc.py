@@ -635,6 +635,12 @@ class BtEvents(Module, AutoCSR, AutoDoc):
         self.specials += MultiReg(rtc, rtc_int)
         self.comb += self.ev.com_int.trigger.eq(com_int)
         self.comb += self.ev.rtc_int.trigger.eq(rtc_int)
+        self.com_pad = Signal()
+        self.rtc_pad = Signal()
+        self.comb += [
+            self.com_pad.eq(com),
+            self.rtc_pad.eq(rtc),
+        ]
 
 # BtPower ------------------------------------------------------------------------------------------
 
@@ -677,6 +683,89 @@ class BtPower(Module, AutoCSR, AutoDoc):
             CSRField("engine_on", size=1, description="Readback of Engine25519 block power setting"),
             CSRField("btpower_on", size=1, description="Readback of this block's override-on power setting"),
         ])
+        self.wakeup_source = CSRStorage(size=8, fields=[
+            CSRField("kbd", size=1, reset=1, description="Use the keyboard as wakeup source"),
+            CSRField("ticktimer", size=1, reset=1, description="Use the ticktimer as wakeup source"),
+            CSRField("timer0", size=1, reset=1, description="Use timer0 (os timer) as wakeup source"),
+            CSRField("usb", size=1, reset=1, description="Use USB k-transition as wakeup source"),
+            CSRField("audio", size=1, reset=1, description="Use audio FIFO empty as wakeup source"),
+            CSRField("com", size=1, reset=1, description="Use COM hold falling as wakeup source"),
+            CSRField("rtc", size=1, reset=1, description="Use RTC external interrupt as wakeup source"),
+            CSRField("console", size=1, reset=1, description="Use the console UART RX line dropping as wakeup source"),
+        ])
+        self.kbd_wakeup = Signal()
+        self.ticktimer_wakeup = Signal()
+        self.timer0_wakeup = Signal()
+        self.usb_wakeup = Signal()
+        self.audio_wakeup = Signal()
+        self.com_wakeup = Signal()
+        self.rtc_wakeup = Signal()
+        self.console_wakeup = Signal()
+        self.specials += MultiReg(self.wakeup_source.fields.kbd, self.kbd_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.ticktimer, self.ticktimer_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.timer0, self.timer0_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.usb, self.usb_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.audio, self.audio_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.com, self.com_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.rtc, self.rtc_wakeup, "raw_12")
+        self.specials += MultiReg(self.wakeup_source.fields.console, self.console_wakeup, "raw_12")
+
+        count_bits=31
+        count=Signal(count_bits)
+        active=Signal(count_bits)
+        self.power_down = Signal()
+        self.activity_rate = CSRStatus(fields=[
+            CSRField("counts_awake", size=count_bits, description="number of counts in the last sample interval that we were active")
+        ])
+        self.sampling_period = CSRStorage(fields=[
+            CSRField("sample_period", size=count_bits, description="Sampling period for counts awake, in 12MHz cycles"),
+            CSRField("kill_sampler", size=1, description="When set, permanently disable reporting (in case you don't want the high-resolutionn timing sidechannel)")
+        ])
+        self.submodules.period_sync = BusSynchronizer(count_bits, "sys", "raw_12")
+        self.submodules.period_update = BlindTransfer("sys", "raw_12")
+        self.submodules.activity_update_sys = BlindTransfer("raw_12", "sys")
+        self.submodules.activity_sync = BusSynchronizer(count_bits, "raw_12", "sys")
+        sampler_killed=Signal(reset=0)
+        self.sync += [ # one-way door for kill_sampler
+            If(self.sampling_period.fields.kill_sampler,
+                sampler_killed.eq(1)
+            ).Else(
+                sampler_killed.eq(sampler_killed)
+            )
+        ]
+        self.comb += [
+            If(~sampler_killed,
+                self.activity_rate.fields.counts_awake.eq(self.activity_sync.o)
+            ).Else(
+                self.activity_rate.fields.counts_awake.eq(0xdead)
+            )
+        ]
+        activity_update = Signal()
+        self.comb += [
+            self.period_sync.i.eq(self.sampling_period.fields.sample_period),
+            self.period_update.i.eq(self.sampling_period.re),
+            activity_update.eq(self.activity_update_sys.o),
+        ]
+        self.sync.raw_12 += [
+            If((count == 0) | self.period_update.o,
+                count.eq(self.period_sync.o),
+            ).Else(
+                count.eq(count - 1)
+            ),
+            If(count == 0,
+                self.activity_sync.i.eq(active),
+                self.activity_update_sys.i.eq(1),
+                active.eq(0),
+            ).Else(
+                self.activity_update_sys.i.eq(0),
+                self.activity_sync.i.eq(self.activity_sync.i),
+                If(~self.power_down,
+                    active.eq(active + 1)
+                ).Else(
+                    active.eq(active)
+                )
+            )
+        ]
         # future-proofing this: we might want to add e.g. PWM levels and so forth, so give it its own register
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
             CSRField("vibe", size=1, description="Turn on vibration motor"),
@@ -703,7 +792,9 @@ class BtPower(Module, AutoCSR, AutoDoc):
         ]
         self.submodules.ev = EventManager()
         self.ev.usb_attach = EventSourcePulse(description="USB attach event")
+        self.ev.activity_update = EventSourcePulse(description="update available to activity register")
         self.ev.finalize()
+        self.comb += self.ev.activity_update.trigger.eq(activity_update) # this is actually about 9 cycles wide, not strictly a single-cycle pulse, but interrupt latency should be >>9 cycles
         usb_attach = Signal()
         usb_attach_r = Signal()
         self.specials += MultiReg(pads.cc_id, usb_attach)
@@ -921,26 +1012,6 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.ev.soft_int = EventSourceProcess()
         self.kernel_resume_interrupt = Signal()
         self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt | self.kernel_resume_interrupt)
-
-# delete this unused class once we are confident we don't need it anymore for suspend/resume
-class ResumeKicker(Module, AutoDoc, AutoCSR):
-    def __init__(self):
-        self.intro = ModuleDoc("""Resume Kicker
-        Used by the kernel to bootstrap the system into an interrupt context that allows resume
-        processing to happen.
-        """)
-        self.kicker = CSRStorage(1, fields=[
-            CSRField("kick", description="Write a `1` to trigger the SusRes software interrupt", pulse=True)
-        ])
-        self.state = CSRStorage(1, fields=[
-            CSRField("resume", description="A replica of the `resume` field in SusRes")
-        ])
-        self.kick = Signal()
-        self.resume = Signal()
-        self.comb += [
-            self.state.fields.resume.eq(self.resume),
-            self.kick.eq(self.kicker.fields.kick),
-        ]
 
 # Deterministic timeout ---------------------------------------------------------------------------
 
@@ -1181,6 +1252,7 @@ class BetrustedSoC(SoCCore):
 
         # UART mux ---------------------------------------------------------------------------------
         from litex.soc.cores import uart
+        uart_pins = platform.request("serial")
         if uart_name == "crossover": # note -- crossover UART is *much* slower than a physical UART.
             self.submodules.uart = uart.UARTCrossover()
             self.csr.add("uart_phy", use_loc_if_exists=True)
@@ -1192,7 +1264,6 @@ class BetrustedSoC(SoCCore):
             self.add_interrupt("console")
 
         elif uart_name == "serial":
-            uart_pins = platform.request("serial")
             serial_layout = [("tx", 1), ("rx", 1)]
             kernel_pads = Record(serial_layout)
             console_pads = Record(serial_layout)
@@ -1466,6 +1537,8 @@ class BetrustedSoC(SoCCore):
             self.keyboard.uart_inject.eq(self.keyinject.char),
             self.keyboard.inject_strobe.eq(self.keyinject.stb),
         ]
+        # don't worry about timing path of LPCLK to sysclk because the values are explicitly synchronized out of band
+        self.platform.add_platform_command('set_false_path -rise_from [get_clocks lpclk] -rise_to [get_clocks sys_clk] -through [get_pins *keyscan*_reg*/D]')
 
         # Build seed -------------------------------------------------------------------------------
         self.submodules.seed = BtSeed(reproduceable=False)
@@ -1633,7 +1706,7 @@ class BetrustedSoC(SoCCore):
             wfi_always_on_r.eq(wfi_always_on),
             wfi_falling_pulse.eq(~wfi_always_on & wfi_always_on_r)
         ]
-        # external interrupts: COM (hold+irq), uarts, i2c, gpio, keyboard, power, ticktimer, timer0
+        # external wakeup interrupts: COM (hold+irq), console uart, keyboard, power, ticktimer, timer0. not wired up (yet?): i2c, gpio, other UARTs
         kbd_wakeup = Signal()
         self.specials += MultiReg(self.keyboard.kbd_wakeup, kbd_wakeup, "raw_12")
         ticktimer_wakeup = Signal()
@@ -1642,15 +1715,44 @@ class BetrustedSoC(SoCCore):
         self.comb += timer0_wakeup.eq(self.timer0.trigger_always_on)
         usb_k = Signal()
         self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
+        usb_extender = Signal(32)
+        usb_wakeup = Signal()
+        self.sync.raw_12 += [
+            If(usb_k,
+                usb_extender.eq( int(12e6) ) # set extender to 1s; should be much more than necessary.
+            ).Else(
+                If(usb_extender > 0,
+                    usb_extender.eq(usb_extender - 1)
+                ).Else(
+                    usb_extender.eq(usb_extender)
+                )
+            ),
+            usb_wakeup.eq(usb_extender != 0)  # stretch any USB "K" signals out to 1s so that firmware updates can work
+        ]
         any_wakeup = Signal()
         audio_wakeup = Signal()
         self.specials += MultiReg(self.audio.ev.rx_ready.trigger, audio_wakeup, "raw_12")
-        if uart_name == "serial":
-            console_wakeup = Signal()
-            self.specials += MultiReg(~uart_pins.rx, console_wakeup, "raw_12")
-            self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup | usb_k | console_wakeup | audio_wakeup)
-        else:
-            self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup | usb_k | audio_wakeup)
+        com_wakeup = Signal()
+        self.specials += MultiReg(self.btevents.com_pad, com_wakeup, "raw_12") # com_irq is active high
+        rtc_wakeup = Signal()
+        self.specials += MultiReg(~self.btevents.rtc_pad, rtc_wakeup, "raw_12") # rtc interrupt is active low
+        com_hold = Signal()
+        com_hold_r = Signal()
+        com_hold_wakeup = Signal()
+        self.specials += MultiReg(self.com.hold, com_hold, "raw_12")
+        self.sync.raw_12 += com_hold_r.eq(com_hold)
+        self.comb += com_hold_wakeup.eq(com_hold_r & ~com_hold) # falling edge of hold, wakeup system
+        console_wakeup = Signal()
+        self.specials += MultiReg(~uart_pins.rx, console_wakeup, "raw_12")
+        self.comb += any_wakeup.eq(
+            kbd_wakeup & self.power.kbd_wakeup |
+            ticktimer_wakeup & self.power.ticktimer_wakeup |
+            timer0_wakeup  & self.power.timer0_wakeup |
+            usb_wakeup  & self.power.usb_wakeup |
+            audio_wakeup  & self.power.audio_wakeup |
+            com_hold_wakeup  & self.power.com_wakeup |
+            rtc_wakeup  & self.power.rtc_wakeup |
+            console_wakeup  & self.power.console_wakeup)
         allow_wfi = Signal()
         self.specials += MultiReg(~self.power.power.fields.disable_wfi, allow_wfi, "raw_12")
         # other sources: COM, and give the screen its own free-running clock so it can update while cpu sleeps
@@ -1665,6 +1767,7 @@ class BetrustedSoC(SoCCore):
                 wfi_engaged.eq(wfi_engaged)
             )
         ]
+        self.comb += self.power.power_down.eq(wfi_engaged)
         # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
         self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
 
