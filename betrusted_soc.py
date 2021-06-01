@@ -280,12 +280,17 @@ _io_xous_pvt2 = [
      Misc("DRIVE=4"),
      ),
 
+]
+_io_gpio_digital_only = [ # todo - add a command line config option + mod the analog_pads record to accommodate digital-only mode
     # Top-side internal FPC header
     # digital-only pinout for GPIOs
-    # ("gpio", 0, Pins("F14 F15 E16 G15 H15 D7 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+    ("gpio", 0, Pins("F14 F15 E16 G15 H15 D7 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+]
+_io_gpio_analog = [
     # mixed digital/analog: gpio2 and gpio5 are mapped to bogus, non-connected pins (E6/D6)
-    # ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
-
+    ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
+]
+_io_gpio_analog_wfi = [
     # debugging: gpio 0/1 bogus pins
     ("gpio", 0, Pins("E4 E1 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
     ("temp", 0, Pins("F14 F15"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"))
@@ -1082,7 +1087,7 @@ class BetrustedSoC(SoCCore):
     }
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
-                 xous=False, usb_type='debug', uart_name="crossover",
+                 xous=False, usb_type='debug', uart_name="crossover", wfi_debug=False,
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -1649,12 +1654,13 @@ class BetrustedSoC(SoCCore):
         # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
         self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
 
-        # debugging outputs for WFI
-        temp_pads = platform.request("temp")
-        self.comb += [
-            temp_pads[0].eq(self.crg.power_down),
-            temp_pads[1].eq(any_wakeup),
-        ]
+        if wfi_debug:
+            # debugging outputs for WFI
+            temp_pads = platform.request("temp")
+            self.comb += [
+                temp_pads[0].eq(self.crg.power_down),
+                temp_pads[1].eq(any_wakeup),
+            ]
 
 
 # Build --------------------------------------------------------------------------------------------
@@ -1691,6 +1697,9 @@ def main():
     parser.add_argument(
         "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy", default='default', type=str
     )
+    parser.add_argument(
+        "-w", "--wfi-debug", help="Patch out GPIO to debug WFI", default=False, action="store_true"
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1715,6 +1724,10 @@ def main():
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
 
+    if args.wfi_debug:
+        io += _io_gpio_analog_wfi
+    else:
+        io += _io_gpio_analog
 
     if args.xous and (args.revision == 'pvt'):
         io += _io_xous
@@ -1736,7 +1749,7 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, wfi_debug=args.wfi_debug)
 
     ##### setup the builder and run it
     subprocess.call(['cp', 'build/csr.csv', 'build/csr.csv.1']) # make a backup copy of the csr.csv -- the old one is needed to do the USB update!
