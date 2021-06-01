@@ -280,20 +280,13 @@ _io_xous_pvt2 = [
      Misc("DRIVE=4"),
      ),
 
+    # mixed digital/analog: gpio2 and gpio5 are mapped to bogus, non-connected pins (E6/D6)
+    ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
 ]
 _io_gpio_digital_only = [ # todo - add a command line config option + mod the analog_pads record to accommodate digital-only mode
     # Top-side internal FPC header
     # digital-only pinout for GPIOs
     ("gpio", 0, Pins("F14 F15 E16 G15 H15 D7 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
-]
-_io_gpio_analog = [
-    # mixed digital/analog: gpio2 and gpio5 are mapped to bogus, non-connected pins (E6/D6)
-    ("gpio", 0, Pins("F14 F15 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
-]
-_io_gpio_analog_wfi = [
-    # debugging: gpio 0/1 bogus pins
-    ("gpio", 0, Pins("E4 E1 E6 G15 H15 D6 F18 E18"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW")),  # PVT2
-    ("temp", 0, Pins("F14 F15"), IOStandard("LVCMOS33"), Misc("SLEW=SLOW"))
 ]
 
 _io_fw = [
@@ -661,7 +654,8 @@ class BtPower(Module, AutoCSR, AutoDoc):
                 CSRField("boostmode", size=1, description="Writing a `1` causes the USB port to source 5V. To be active only when playing the host role."),
                 CSRField("selfdestruct", size=1, description="Set this bit to clear BBRAM AES key (if used) and cut power in an annoying-to-reset fashion"),
                 CSRField("crypto_on", size=1, description="Writing a `1` to this bit turns the clock on to the crypto accelerators. Configured to currently override power to `on` at boot to ease system setup.", reset=1),
-                CSRField("ignore_locked", size=1, description="Writing a `1` to this bit causes the reset to ignore the PLL lock status")
+                CSRField("ignore_locked", size=1, description="Writing a `1` to this bit causes the reset to ignore the PLL lock status"),
+                CSRField("disable_wfi", size=1, description="Writing a `1` to this bit causes WFI throttling to be disabled")
             ])
         else:
             self.power = CSRStorage(8, fields=[
@@ -793,11 +787,29 @@ class BtGpio(Module, AutoDoc, AutoCSR):
         self.intpol = CSRStatus(pads.nbits,  name="intpol", description="When a bit is `1`, falling-edges cause interrupts. Otherwise, rising edges cause interrupts.")
 
         self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others reserved based on build")
+        self.debug = CSRStorage(description="Various debugging configurations", fields = [
+            CSRField(name="wfi", size=1,
+                description="Whet set, patches CRG powerdown into GPIO0 instead of the usual data line. Must configure as output for the value to appear on the pin"),
+            CSRField(name="wakeup", size=1,
+                description="Whet set, patches wakeup signal into GPIO1 instead of the usual data line. Must configure as output for the value to appear on the pin"),
+        ])
 
+        self.debug_wakeup = Signal()
+        self.debug_wfi = Signal()
         self.specials += MultiReg(gpio_in, self.input.status)
         self.comb += [
-            gpio_out.eq(self.output.storage),
+            gpio_out[2:].eq(self.output.storage[2:]),
             gpio_oe.eq(self.drive.storage),
+            If(self.debug.fields.wfi,
+                gpio_out[0].eq(self.debug_wfi)
+            ).Else(
+                gpio_out[0].eq(self.output.storage[0])
+            ),
+            If(self.debug.fields.wakeup,
+                gpio_out[1].eq(self.debug_wakeup)
+            ).Else(
+                gpio_out[1].eq(self.output.storage[1])
+            )
         ]
 
         self.submodules.ev = EventManager()
@@ -1087,7 +1099,7 @@ class BetrustedSoC(SoCCore):
     }
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
-                 xous=False, usb_type='debug', uart_name="crossover", wfi_debug=False,
+                 xous=False, usb_type='debug', uart_name="crossover",
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -1639,10 +1651,12 @@ class BetrustedSoC(SoCCore):
             self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup | usb_k | console_wakeup | audio_wakeup)
         else:
             self.comb += any_wakeup.eq(kbd_wakeup | ticktimer_wakeup | timer0_wakeup | usb_k | audio_wakeup)
+        allow_wfi = Signal()
+        self.specials += MultiReg(~self.power.power.fields.disable_wfi, allow_wfi, "raw_12")
         # other sources: COM, and give the screen its own free-running clock so it can update while cpu sleeps
         wfi_engaged = Signal()
         self.sync.raw_12 += [
-            self.crg.power_down.eq(wfi_engaged),
+            self.crg.power_down.eq(wfi_engaged & allow_wfi),
             If(any_wakeup,
                 wfi_engaged.eq(0)
             ).Elif(wfi_falling_pulse & self.crg.mmcm.locked,
@@ -1654,14 +1668,10 @@ class BetrustedSoC(SoCCore):
         # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
         self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
 
-        if wfi_debug:
-            # debugging outputs for WFI
-            temp_pads = platform.request("temp")
-            self.comb += [
-                temp_pads[0].eq(self.crg.power_down),
-                temp_pads[1].eq(any_wakeup),
-            ]
-
+        self.comb += [
+            self.gpio.debug_wfi.eq(self.crg.power_down),
+            self.gpio.debug_wakeup.eq(any_wakeup),
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -1697,9 +1707,6 @@ def main():
     parser.add_argument(
         "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy", default='default', type=str
     )
-    parser.add_argument(
-        "-w", "--wfi-debug", help="Patch out GPIO to debug WFI", default=False, action="store_true"
-    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1724,11 +1731,6 @@ def main():
         print("Invalid hardware revision specified: {}; aborting.".format(args.revision))
         sys.exit(1)
 
-    if args.wfi_debug:
-        io += _io_gpio_analog_wfi
-    else:
-        io += _io_gpio_analog
-
     if args.xous and (args.revision == 'pvt'):
         io += _io_xous
     elif args.xous and (args.revision == 'pvt2'):
@@ -1749,7 +1751,7 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, wfi_debug=args.wfi_debug)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name)
 
     ##### setup the builder and run it
     subprocess.call(['cp', 'build/csr.csv', 'build/csr.csv.1']) # make a backup copy of the csr.csv -- the old one is needed to do the USB update!
