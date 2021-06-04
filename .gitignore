@@ -15,6 +15,7 @@ run/
 target/
 /venv/*
 /test/
+/env/
 
 # betrusted-pac is auto-generated
 fw/betrusted-pac/
