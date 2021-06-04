@@ -13,9 +13,6 @@
 [submodule "deps/litedram"]
 	path = deps/litedram
 	url = https://github.com/enjoy-digital/litedram.git
-[submodule "deps/lxsocdoc"]
-	path = deps/lxsocdoc
-	url = https://github.com/xobs/lxsocdoc.git
 [submodule "fw/embedded-graphics"]
 	path = fw/embedded-graphics
 	url = https://github.com/betrusted-io/embedded-graphics.git
