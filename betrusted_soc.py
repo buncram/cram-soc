@@ -1857,7 +1857,6 @@ def main():
     soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name)
 
     ##### setup the builder and run it
-    subprocess.call(['cp', 'build/csr.csv', 'build/csr.csv.1']) # make a backup copy of the csr.csv -- the old one is needed to do the USB update!
     builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=compile_software, compile_gateware=compile_gateware)
     builder.software_packages = [
         ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "loader")))
