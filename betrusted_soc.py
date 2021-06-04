@@ -1412,8 +1412,9 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command('set_false_path -through [get_nets *_rst]')
 
         # all multiregs are false paths by definition. Make it explicit.
-        self.platform.add_platform_command('set_false_path -through [get_nets *xilinxmultiregimpl*_regs0]') # covers sys-to-other
-        self.platform.add_platform_command('set_false_path -through [get_pins *xilinxmultiregimpl*_regs0_reg*/D]') # covers other-to-sys
+        self.platform.add_platform_command('set_false_path -through [get_nets *xilinxmultiregimpl*0]') # covers sys-to-other
+        self.platform.add_platform_command('set_false_path -through [get_pins *xilinxmultiregimpl*0_reg/D]') # covers other-to-sys
+        self.platform.add_platform_command('set_false_path -through [get_pins *xilinxmultiregimpl*0_reg[*]/D]') # covers other-to-sys
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~436ns for 8 words.
