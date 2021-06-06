@@ -145,6 +145,11 @@ Visual Studio Code needs to know where modules are.  These are specified in envi
 $ python ./betrusted-soc.py --lx-print-env > .env
 ```
 
+The analyzer will also need to know where your imports are. This would involve editing your `settings.json` file and adding a record that looks a bit like this:
+```json
+    "python.analysis.extraPaths": ["C:\\PATH-TO-PROJECT\\betrusted-soc\\deps\\litex", "C:\\PATH-TO-PROJECT\\betrusted-soc\\deps\\migen", "C:\\PATH-TO-PROJECT\\betrusted-soc\\deps\\gateware", "C:\\PATH-TO-PROJECT\\betrusted-soc\\deps\\valentyusb"]
+```
+
 ## Contribution Guidelines
 
 image::https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg[Contributor Covenant]
