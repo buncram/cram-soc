@@ -1568,12 +1568,13 @@ class BetrustedSoC(SoCCore):
             self.submodules.trng_kernel = TrngManagedKernel()
             self.add_csr("trng_kernel")
             self.add_interrupt("trng_kernel")
-            self.submodules.trng_server = TrngManagedServer()
+            self.submodules.trng_server = TrngManagedServer(ro_cores=4)
             self.add_csr("trng_server")
             self.add_interrupt("trng_server")
             # put the TRNG proper into an always on domain. It has its own power manager and health tests.
             # The TRNG adds about an 8.5mW power burden when it is in standby mode but clocks on
-            self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision=revision))
+            self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on"})(
+                TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision=revision, ro_cores=4))
             self.add_csr("trng")
 
         else:
