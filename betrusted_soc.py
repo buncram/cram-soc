@@ -579,6 +579,7 @@ class CRG(Module, AutoCSR):
         # timing to the "S" pins is not sensitive because we don't care if there is an extra clock pulse relative
         # to the gating. Glitch-free operation is guaranteed regardless!
         platform.add_platform_command('set_false_path -through [get_pins BUFGCTRL*/S*]')
+        platform.add_platform_command('set_false_path -through [get_nets vns_rst_meta*]') # fixes for a later version of vivado
 
         self.ignore_locked = Signal()
         reset_combo = Signal()
@@ -1565,10 +1566,10 @@ class BetrustedSoC(SoCCore):
         if xous == True:
             # Managed TRNG Interface -------------------------------------------------------------------
             from gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
-            self.submodules.trng_kernel = TrngManagedKernel()
+            self.submodules.trng_kernel = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedKernel())
             self.add_csr("trng_kernel")
             self.add_interrupt("trng_kernel")
-            self.submodules.trng_server = TrngManagedServer(ro_cores=4)
+            self.submodules.trng_server = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedServer(ro_cores=4))
             self.add_csr("trng_server")
             self.add_interrupt("trng_server")
             # put the TRNG proper into an always on domain. It has its own power manager and health tests.
