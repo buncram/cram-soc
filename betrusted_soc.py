@@ -852,7 +852,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
         self.specials += self.sd_ts.get_tristate(pads.selfdestruct)
         self.comb += [
             self.sd_ts.oe.eq(self.power.fields.selfdestruct),
-            self.sd_ts.o.eq(self.power.fields.selfdestruct)
+            self.sd_ts.o.eq(self.power.fields.selfdestruct),
         ]
 
 # BtGpio -------------------------------------------------------------------------------------------
@@ -1527,6 +1527,7 @@ class BetrustedSoC(SoCCore):
                     sclk_name=sclk_instance_name, iddr_name=iddr_instance_name, cipo_name=cipo_instance_name, spiread=spiread)
             self.spinor.add_timing_constraints(platform, "spiflash_8x")
             self.specials += MultiReg(warm_reset, self.spinor.gsr)
+            self.comb += self.spinor.keyclearb.eq(~self.power.power.fields.selfdestruct),
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
