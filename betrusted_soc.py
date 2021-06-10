@@ -519,6 +519,7 @@ class CRG(Module, AutoCSR):
         self.clock_domains.cd_clk200_gated = ClockDomain()
         self.clock_domains.cd_sys_gated = ClockDomain()
         self.clock_domains.cd_sys_always_on = ClockDomain()
+        self.clock_domains.cd_clk50_always_on = ClockDomain()
 
         # # #
 
@@ -563,7 +564,8 @@ class CRG(Module, AutoCSR):
             gated_replicas={self.cd_clk200_gated : (mmcm.locked & ~self.power_down & ~self.crypto_off)}) # 200MHz always-on required for IDELAYCTL
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
 
-        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked)) # 50MHz for SHA-block
+        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked),
+            gated_replicas={self.cd_clk50_always_on: mmcm.locked}) # 50MHz for SHA-block and ChaCha conditioner
         platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
 
         mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB; always-on
@@ -1574,7 +1576,7 @@ class BetrustedSoC(SoCCore):
             self.add_interrupt("trng_server")
             # put the TRNG proper into an always on domain. It has its own power manager and health tests.
             # The TRNG adds about an 8.5mW power burden when it is in standby mode but clocks on
-            self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on"})(
+            self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on", "clk50":"clk50_always_on"})(
                 TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision=revision, ro_cores=4))
             self.add_csr("trng")
 
