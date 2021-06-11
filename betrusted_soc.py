@@ -607,6 +607,9 @@ class CRG(Module, AutoCSR):
 
             AsyncResetSynchronizer(self.cd_clk200_gated, reset_combo),
             AsyncResetSynchronizer(self.cd_sys_gated, reset_combo),
+
+            AsyncResetSynchronizer(self.cd_sys_always_on, reset_combo),
+            AsyncResetSynchronizer(self.cd_clk50_always_on, reset_combo),
         ]
 
         # Add an IDELAYCTRL primitive for the SpiOpi block
