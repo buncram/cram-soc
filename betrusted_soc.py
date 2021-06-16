@@ -1197,6 +1197,7 @@ class BetrustedSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
             integrated_rom_size  = bios_size,
+            integrated_rom_init  = 'loader/bios.bin',
             integrated_sram_size = 0x20000,
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
@@ -1859,6 +1860,11 @@ def main():
     else:
         uart_name="crossover"
 
+    ##### build the "bios"
+    if compile_software:
+        os.system("riscv64-unknown-elf-as -fpic loader{}loader.S -o loader{}loader.elf".format(os.path.sep, os.path.sep))
+        os.system("riscv64-unknown-elf-objcopy -O binary loader{}loader.elf loader{}bios.bin".format(os.path.sep, os.path.sep))
+
     ##### setup platform
     platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
     # _io_uart_debug wires debug bridge to Rpi; _io_uart_debug_swapped wires console to Rpi
@@ -1868,10 +1874,7 @@ def main():
     soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name)
 
     ##### setup the builder and run it
-    builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=compile_software, compile_gateware=compile_gateware)
-    builder.software_packages = [
-        ("bios", os.path.abspath(os.path.join(os.path.dirname(__file__), "loader")))
-    ]
+    builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=False, compile_gateware=compile_gateware)
     vns = builder.build()
 
     ##### post-build routines
