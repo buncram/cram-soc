@@ -29,7 +29,7 @@
 [submodule "deps/gateware"]
 	path = deps/gateware
 	url = https://github.com/betrusted-io/gateware.git
-	branch = master
+	branch = main
 [submodule "deps/valentyusb"]
 	path = deps/valentyusb
 	url = https://github.com/betrusted-io/valentyusb.git
