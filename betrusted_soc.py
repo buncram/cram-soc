@@ -504,7 +504,7 @@ class CRG(Module, AutoCSR):
     def __init__(self, platform, sys_clk_freq, spinor_edge_delay_ns=2.5):
         self.warm_reset = Signal()
         self.power_down = Signal()
-        self.crypto_off = Signal()
+        self.crypto_on = Signal()
 
         self.clock_domains.cd_sys   = ClockDomain()
         self.clock_domains.cd_spi   = ClockDomain()
@@ -516,8 +516,8 @@ class CRG(Module, AutoCSR):
         self.clock_domains.cd_usb_12 = ClockDomain()
         self.clock_domains.cd_raw_12 = ClockDomain()
 
-        self.clock_domains.cd_clk200_gated = ClockDomain()
-        self.clock_domains.cd_sys_gated = ClockDomain()
+        self.clock_domains.cd_clk200_crypto = ClockDomain()
+        self.clock_domains.cd_sys_crypto = ClockDomain()
         self.clock_domains.cd_sys_always_on = ClockDomain()
         self.clock_domains.cd_clk50_always_on = ClockDomain()
 
@@ -561,11 +561,12 @@ class CRG(Module, AutoCSR):
 
         # clk200 does not gate off because we want to keep the IDELAYCTRL block "warm"
         mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, buf="bufg",
-            gated_replicas={self.cd_clk200_gated : (mmcm.locked & ~self.power_down & ~self.crypto_off)}) # 200MHz always-on required for IDELAYCTL
+            gated_replicas={self.cd_clk200_crypto : (mmcm.locked & (~self.power_down | self.crypto_on))}) # 200MHz always-on required for IDELAYCTL
         platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
 
-        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked),
-            gated_replicas={self.cd_clk50_always_on: mmcm.locked}) # 50MHz for SHA-block and ChaCha conditioner
+        # clk50 is explicitly for the crypto unit, so it doesn't have the _crypto suffix, consfusingly...
+        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(mmcm.locked & (~self.power_down | self.crypto_on)),
+            gated_replicas={self.cd_clk50_always_on: mmcm.locked}) # 50MHz for ChaCha conditioner, attached to the always-on TRNG
         platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
 
         mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB; always-on
@@ -573,7 +574,7 @@ class CRG(Module, AutoCSR):
 
         # needs to be exactly 100MHz hence margin=0
         mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked),
-            gated_replicas={self.cd_sys_gated : (mmcm.locked & ~self.crypto_off & ~self.power_down), self.cd_sys_always_on : mmcm.locked})
+            gated_replicas={self.cd_sys_crypto : (mmcm.locked & (~self.power_down | self.crypto_on)), self.cd_sys_always_on : mmcm.locked})
         platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT6]")
 
         mmcm.expose_drp()
@@ -605,8 +606,8 @@ class CRG(Module, AutoCSR):
             AsyncResetSynchronizer(self.cd_usb_12, reset_combo),
             AsyncResetSynchronizer(self.cd_sys, reset_combo),
 
-            AsyncResetSynchronizer(self.cd_clk200_gated, reset_combo),
-            AsyncResetSynchronizer(self.cd_sys_gated, reset_combo),
+            AsyncResetSynchronizer(self.cd_clk200_crypto, reset_combo),
+            AsyncResetSynchronizer(self.cd_sys_crypto, reset_combo),
 
             AsyncResetSynchronizer(self.cd_sys_always_on, reset_combo),
             AsyncResetSynchronizer(self.cd_clk50_always_on, reset_combo),
@@ -1621,13 +1622,13 @@ class BetrustedSoC(SoCCore):
         #self.bus.add_slave("sha2", self.sha2.bus, SoCRegion(origin=self.mem_map["sha2"], size=0x4, cached=False))
 
         # SHA-512 block ----------------------------------------------------------------------------
-        self.submodules.sha512 = sha512.Hmac(platform)
+        self.submodules.sha512 = sha512.Hmac(platform) # clk50 is only for crypto, so even though it doesn't have the _crypto suffix, it is gated with the _crypto clocks
         self.add_csr("sha512")
         self.add_interrupt("sha512")
         self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
 
         # Curve25519 engine ------------------------------------------------------------------------
-        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200_gated", "mul_clk":"sys_gated"})(Engine(platform, self.mem_map["engine"], build_prefix=prefix))
+        self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200_crypto", "mul_clk":"sys_crypto"})(Engine(platform, self.mem_map["engine"], build_prefix=prefix))
         self.add_csr("engine")
         self.add_interrupt("engine")
         self.bus.add_slave("engine", self.engine.bus, SoCRegion(origin=self.mem_map["engine"], size=0x2_0000, cached=False))
@@ -1699,9 +1700,9 @@ class BetrustedSoC(SoCCore):
         # Global, cross-domain power management signals go at the bottom -----------------------------
         self.comb += [
             # if any crypto block wants its power to be on, it gets it. for it to be off, all blocks have to agree to turn it off
-            self.crg.crypto_off.eq(~(self.power.power.fields.crypto_on | self.sha512.power.fields.on | self.engine.power.fields.on)),
+            self.crg.crypto_on.eq(self.power.power.fields.crypto_on | self.sha512.power.fields.on | self.engine.power.fields.on),
             # these status field helps debug which blocks are wedging power on
-            self.power.clk_status.fields.crypto_on.eq(~self.crg.crypto_off),
+            self.power.clk_status.fields.crypto_on.eq(self.crg.crypto_on),
             self.power.clk_status.fields.sha_on.eq(self.sha512.power.fields.on),
             self.power.clk_status.fields.engine_on.eq(self.engine.power.fields.on),
             self.power.clk_status.fields.btpower_on.eq(self.power.power.fields.crypto_on),
@@ -1758,6 +1759,8 @@ class BetrustedSoC(SoCCore):
         self.comb += com_hold_wakeup.eq(com_hold_r & ~com_hold) # falling edge of hold, wakeup system
         console_wakeup = Signal()
         self.specials += MultiReg(~uart_pins.rx, console_wakeup, "raw_12")
+        engine_wakeup = Signal()
+        self.specials += MultiReg(self.engine.power.fields.on, engine_wakeup, "raw_12")
         self.comb += any_wakeup.eq(
             kbd_wakeup & self.power.kbd_wakeup |
             ticktimer_wakeup & self.power.ticktimer_wakeup |
@@ -1766,7 +1769,9 @@ class BetrustedSoC(SoCCore):
             audio_wakeup  & self.power.audio_wakeup |
             com_hold_wakeup  & self.power.com_wakeup |
             rtc_wakeup  & self.power.rtc_wakeup |
-            console_wakeup  & self.power.console_wakeup)
+            console_wakeup  & self.power.console_wakeup |
+            engine_wakeup
+        )
         allow_wfi = Signal()
         self.specials += MultiReg(~self.power.power.fields.disable_wfi, allow_wfi, "raw_12")
         # other sources: COM, and give the screen its own free-running clock so it can update while cpu sleeps
@@ -1782,7 +1787,7 @@ class BetrustedSoC(SoCCore):
                 wfi_engaged.eq(wfi_engaged)
             )
         ]
-        self.comb += self.power.power_down.eq(wfi_engaged)
+        self.comb += self.power.power_down.eq(self.crg.power_down)
         # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
         self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
 
