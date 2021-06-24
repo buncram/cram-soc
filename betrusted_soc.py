@@ -983,9 +983,9 @@ class SusRes(Module, AutoDoc, AutoCSR):
         resume functions. It has the ability to 'reach into' the Ticktimer space to help coordinate
         a clean, monatomic shut down from a suspend/resume manager that exists in a different,
         isolated process space from the TickTimer.
-        
+
         It also contains a register which tracks the current resume state. The bootloader controls
-        the kernel's behavior by setting this bit prior to resuming operation. 
+        the kernel's behavior by setting this bit prior to resuming operation.
         """)
 
         self.control = CSRStorage(2, fields=[
@@ -1024,20 +1024,20 @@ class SusRes(Module, AutoDoc, AutoCSR):
 class D11cTime(Module, AutoDoc, AutoCSR):
     def __init__(self, count=1638):
         self.intro = ModuleDoc("""Deterministic Timeout
-        This module creates a heartbeat that is deterministic. If used correctly, it can help reduce 
+        This module creates a heartbeat that is deterministic. If used correctly, it can help reduce
         timing side channels on secure processes by giving them an independent, coarse source of
         time. The idea is that a secure process may handle a request, and then wait for a heartbeat
-        from the D11cTime module to change polarity, which occurs at a regular interval, 
+        from the D11cTime module to change polarity, which occurs at a regular interval,
         before returning the result.
-        
+
         There is a trade-off on how frequent the heartbeat is versus information leakage versus
         overall throughput of the secure module's responses. If the heartbeat is faster than the
         maximum time to complete a computation, then information leakage will occur; if it is much
         slower than the maximum time to complete a computation, then performance is reduced. Deterministic
-        timeout is not the end-all solution; adding noise and computational confounders are also 
+        timeout is not the end-all solution; adding noise and computational confounders are also
         countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
         hardware-efficient.
-        
+
         This block has been configured to default to {}ms timeout, assuming LPCLK is 32768Hz.
         """.format( (count / 32768.0) * 1000.0 ))
 
@@ -1287,10 +1287,10 @@ class BetrustedSoC(SoCCore):
                     app_uart_pads.rx.eq(uart_pins.rx),
                 )
             ]
-            self.submodules.uart_phy = uart.UARTPHY(
+            self.submodules.uart_phy = ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UARTPHY(
                 pads=kernel_pads,
                 clk_freq=sys_clk_freq,
-                baudrate=115200)
+                baudrate=115200))
             self.submodules.uart = ResetInserter()(uart.UART(self.uart_phy,
                 tx_fifo_depth=16,
                 rx_fifo_depth=16))
@@ -1706,11 +1706,13 @@ class BetrustedSoC(SoCCore):
             self.power.clk_status.fields.engine_on.eq(self.engine.power.fields.on),
             self.power.clk_status.fields.btpower_on.eq(self.power.power.fields.crypto_on),
         ]
+        # the WFI module takes a WFI cue from the kernel and turns it into a pulse that can trigger
+        # a clock gating event
         self.submodules.wfi = Wfi()
         self.add_csr("wfi")
         wfi_always_on = Signal()
         self.submodules.wfi_sync = BlindTransfer("sys", "raw_12")
-        self.comb += self.wfi_sync.i.eq(self.wfi.wfi.fields.wfi)
+        self.comb += self.wfi_sync.i.eq(self.wfi.wfi.fields.wfi) # wfi.fields.wfi is a pulsed=True CSR
         self.comb += wfi_always_on.eq(self.wfi_sync.o)
         wfi_always_on_r = Signal()
         wfi_falling_pulse = Signal()
@@ -1771,9 +1773,10 @@ class BetrustedSoC(SoCCore):
         wfi_engaged = Signal()
         self.sync.raw_12 += [
             self.crg.power_down.eq(wfi_engaged & allow_wfi),
-            If(any_wakeup,
+            # compute the WFI state
+            If(any_wakeup, # any wakeup source will bring us out of WFI
                 wfi_engaged.eq(0)
-            ).Elif(wfi_falling_pulse & self.crg.mmcm.locked,
+            ).Elif(wfi_falling_pulse & self.crg.mmcm.locked, # if the WFI pulse was seen, or we lose MMCM lock, stop the clocks
                 wfi_engaged.eq(1)
             ).Else(
                 wfi_engaged.eq(wfi_engaged)
