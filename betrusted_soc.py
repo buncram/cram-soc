@@ -1759,8 +1759,6 @@ class BetrustedSoC(SoCCore):
         self.comb += com_hold_wakeup.eq(com_hold_r & ~com_hold) # falling edge of hold, wakeup system
         console_wakeup = Signal()
         self.specials += MultiReg(~uart_pins.rx, console_wakeup, "raw_12")
-        engine_wakeup = Signal()
-        self.specials += MultiReg(self.engine.power.fields.on, engine_wakeup, "raw_12")
         self.comb += any_wakeup.eq(
             kbd_wakeup & self.power.kbd_wakeup |
             ticktimer_wakeup & self.power.ticktimer_wakeup |
@@ -1769,8 +1767,7 @@ class BetrustedSoC(SoCCore):
             audio_wakeup  & self.power.audio_wakeup |
             com_hold_wakeup  & self.power.com_wakeup |
             rtc_wakeup  & self.power.rtc_wakeup |
-            console_wakeup  & self.power.console_wakeup |
-            engine_wakeup # keep the CPU on whenever engine25519 is on, maybe helps some gating subtleties
+            console_wakeup  & self.power.console_wakeup
         )
         allow_wfi = Signal()
         self.specials += MultiReg(~self.power.power.fields.disable_wfi, allow_wfi, "raw_12")
