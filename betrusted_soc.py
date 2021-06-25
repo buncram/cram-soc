@@ -1770,7 +1770,7 @@ class BetrustedSoC(SoCCore):
             com_hold_wakeup  & self.power.com_wakeup |
             rtc_wakeup  & self.power.rtc_wakeup |
             console_wakeup  & self.power.console_wakeup |
-            engine_wakeup
+            engine_wakeup # keep the CPU on whenever engine25519 is on, maybe helps some gating subtleties
         )
         allow_wfi = Signal()
         self.specials += MultiReg(~self.power.power.fields.disable_wfi, allow_wfi, "raw_12")
