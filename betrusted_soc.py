@@ -52,6 +52,7 @@ from gateware import sha2_opentitan as sha2
 from gateware import sha512_opentitan as sha512
 from gateware.curve25519.engine import Engine
 from gateware.timer_alwayson import TimerAlwaysOn
+from gateware.keyrom import KeyRom
 
 from gateware import jtag_phy
 
@@ -1081,74 +1082,6 @@ class Wfi(Module, AutoDoc, AutoCSR):
         self.ignore_locked = CSRStorage(fields = [
             CSRField("ignore_locked", description="Writing a `1` causes the reset condition for the SoC to ignore the locked state of the PLL")
         ])
-
-# KeyRom ------------------------------------------------------------------------------------------
-
-class KeyRom(Module, AutoDoc, AutoCSR):
-    def __init__(self, platform):
-        self.intro = ModuleDoc("""Bitstream-patchable key ROM set for keys that are "baked in" to the FPGA image""")
-        platform.toolchain.attr_translate["KEEP"] = ("KEEP", "TRUE")
-        platform.toolchain.attr_translate["DONT_TOUCH"] = ("DONT_TOUCH", "TRUE")
-
-        import binascii
-        self.address = CSRStorage(8, name="address", description="address for ROM")
-        self.data = CSRStatus(32, name="data", description="data from ROM")
-
-        rng = SystemRandom()
-        with open("rom.db", "w") as f:
-            for bit in range(0,32):
-                lutsel = Signal(4)
-                for lut in range(4):
-                    if lut == 0:
-                        lutname = 'A'
-                    elif lut == 1:
-                        lutname = 'B'
-                    elif lut == 2:
-                        lutname = 'C'
-                    else:
-                        lutname = 'D'
-                    romval = rng.getrandbits(64)
-                    # print("rom bit ", str(bit), lutname, ": ", binascii.hexlify(romval.to_bytes(8, byteorder='big')))
-                    rom_name = "KEYROM" + str(bit) + lutname
-                    # X36Y99 and counting down
-                    if bit % 2 == 0:
-                        platform.toolchain.attr_translate[rom_name] = ("LOC", "SLICE_X36Y" + str(50 + bit // 2))
-                    else:
-                        platform.toolchain.attr_translate[rom_name] = ("LOC", "SLICE_X37Y" + str(50 + bit // 2))
-                    platform.toolchain.attr_translate[rom_name + 'BEL'] = ("BEL", lutname + '6LUT')
-                    platform.toolchain.attr_translate[rom_name + 'LOCK'] = ( "LOCK_PINS", "I5:A6, I4:A5, I3:A4, I2:A3, I1:A2, I0:A1" )
-                    self.specials += [
-                        Instance( "LUT6",
-                                  name=rom_name,
-                                  # p_INIT=0x0000000000000000000000000000000000000000000000000000000000000000,
-                                  p_INIT=romval,
-                                  i_I0= self.address.storage[0],
-                                  i_I1= self.address.storage[1],
-                                  i_I2= self.address.storage[2],
-                                  i_I3= self.address.storage[3],
-                                  i_I4= self.address.storage[4],
-                                  i_I5= self.address.storage[5],
-                                  o_O= lutsel[lut],
-                                  attr=("KEEP", "DONT_TOUCH", rom_name, rom_name + 'BEL', rom_name + 'LOCK')
-                                  )
-                    ]
-                    # record the ROM LUT locations in a DB and annotate the initial random value given
-                    f.write("KEYROM " + str(bit) + ' ' + lutname + ' ' + platform.toolchain.attr_translate[rom_name][1] +
-                            ' ' + str(binascii.hexlify(romval.to_bytes(8, byteorder='big'))) + '\n')
-                self.comb += [
-                    If( self.address.storage[6:] == 0,
-                        self.data.status[bit].eq(lutsel[2]))
-                    .Elif(self.address.storage[6:] == 1,
-                          self.data.status[bit].eq(lutsel[3]))
-                    .Elif(self.address.storage[6:] == 2,
-                          self.data.status[bit].eq(lutsel[0]))
-                    .Else(self.data.status[bit].eq(lutsel[1]))
-                ]
-
-        platform.add_platform_command("create_pblock keyrom")
-        platform.add_platform_command('resize_pblock [get_pblocks keyrom] -add ' + '{{SLICE_X36Y50:SLICE_X37Y65}}')
-        #platform.add_platform_command("set_property CONTAIN_ROUTING true [get_pblocks keyrom]")  # should be fine to mingle the routing for this pblock
-        platform.add_platform_command("add_cells_to_pblock [get_pblocks keyrom] [get_cells KEYROM*]")
 
 # System constants ---------------------------------------------------------------------------------
 
