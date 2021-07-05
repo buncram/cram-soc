@@ -35,7 +35,7 @@ from litex.soc.cores.spi_opi import S7SPIOPI
 from litex.soc.integration.soc import SoCRegion
 
 from gateware import info
-from gateware import sram_32
+from gateware import sram_32_cached
 from gateware import memlcd
 from gateware import spi_7series as spi
 from gateware import messible
@@ -165,17 +165,21 @@ _io_pvt = [   # PVT-generation I/Os
             "V12 M5 P5 N4  V14 M3 R17 U15",
             "M4  L6 K3 R18 U16 K1 R5  T2",
             "U1  N1 L5 K2  M18 T6"),
-            IOStandard("LVCMOS18")),
+            IOStandard("LVCMOS18"),
+            Misc("SLEW=SLOW"),
+        ),
         Subsignal("ce_n", Pins("V5"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
         Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
         Subsignal("we_n", Pins("K4"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
-        Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
+        Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18"), Misc("PULLUP True"), Misc("SLEW=SLOW")),
         Subsignal("d", Pins(
             "M2  R4  P2  L4  L1  M1  R1  P1",
             "U3  V2  V4  U2  N2  T1  K6  J6",
             "V16 V15 U17 U18 P17 T18 P18 M17",
             "N3  T4  V13 P15 T14 R15 T3  R7"),
-            IOStandard("LVCMOS18")),
+            IOStandard("LVCMOS18"),
+            Misc("SLEW=SLOW"),
+        ),
         Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
     ),
 ]
@@ -1132,7 +1136,7 @@ class BetrustedSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
             integrated_rom_size  = bios_size,
             integrated_rom_init  = 'loader/bios.bin',
-            integrated_sram_size = 0x20000,
+            integrated_sram_size = 0x4000, # 16k for bios to do signature verifications
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
@@ -1358,11 +1362,11 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command('set_false_path -through [get_pins *xilinxmultiregimpl*0_reg[*]/D]') # covers other-to-sys
 
         # External SRAM ----------------------------------------------------------------------------
-        # Cache fill time is ~436ns for 8 words.
-        self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=6, page_rd_timing=7)
+        # Cache fill time is ~320ns for 8 words.
+        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x2_0000)
         self.add_csr("sram_ext")
         self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
-        # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits
+        # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits (PS I'm not even sure this works...)
         self.platform.add_platform_command("set_input_delay -clock [get_clocks sys_clk] -min -add_delay 4.0 [get_ports {{sram_d[*]}}]")
         self.platform.add_platform_command("set_input_delay -clock [get_clocks sys_clk] -max -add_delay 9.0 [get_ports {{sram_d[*]}}]")
         self.platform.add_platform_command("set_output_delay -clock [get_clocks sys_clk] -min -add_delay 0.0 [get_ports {{sram_adr[*] sram_d[*] sram_ce_n sram_oe_n sram_we_n sram_zz_n sram_dm_n[*]}}]")
@@ -1370,11 +1374,11 @@ class BetrustedSoC(SoCCore):
         # ODDR falling edge ignore
         self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_ports {{sram_d[*] sram_adr[*] sram_ce_n sram_oe_n sram_we_n sram_zz_n sram_dm_n[*]}}]")
         self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_ports {{sram_d[*]}}]")
-        self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets {net}]", net=self.sram_ext.load)
-        self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets {net}]", net=self.sram_ext.load)
+        #self.platform.add_platform_command("set_false_path -fall_from [get_clocks sys_clk] -through [get_nets {net}]", net=self.sram_ext.load)
+        #self.platform.add_platform_command("set_false_path -fall_to [get_clocks sys_clk] -through [get_nets {net}]", net=self.sram_ext.load)
         self.platform.add_platform_command("set_false_path -rise_from [get_clocks sys_clk] -fall_to [get_clocks sys_clk]")  # sort of a big hammer but should be OK
 
-        # relax OE driver constraint (it's OK if it is a bit late, and it's an async path from fabric to output so it will be late)
+        # relax OE driver constraint (setup time of data to write enable edge is 23ns only, 70ns total cycle time given)
         self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins {net}_reg/Q]", net=self.sram_ext.sync_oe_n)
         self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins {net}_reg/Q]", net=self.sram_ext.sync_oe_n)
 
