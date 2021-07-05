@@ -1738,7 +1738,8 @@ def main():
     if os.environ['PYTHONHASHSEED'] != "1":
         print( "PYTHONHASHEED must be set to 1 for consistent validation results. Failing to set this results in non-deterministic compilation results")
         return 1
-
+    # used to be -e blank.nky -u debug -x -s NoTimingRelaxation -r pvt2 -p
+    # now is -e blank.nky
     parser = argparse.ArgumentParser(description="Build the Betrusted SoC")
     parser.add_argument(
         "-D", "--document-only", default=False, action="store_true", help="Build docs only"
@@ -1747,10 +1748,10 @@ def main():
         "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
     )
     parser.add_argument(
-        "-x", "--xous", help="Build for the Xous runtime environment. Defaults to `fw` validation image.", default=False, action="store_true"
+        "-x", "--xous", help="Build for the Xous runtime environment. Defaults to true. Setting the flag disables this.", default=True, action="store_false"
     )
     parser.add_argument(
-        "-r", "--revision", choices=['modnoise', 'pvt', 'pvt2'], help="Build for a particular revision. Defaults to 'pvt'", default='pvt', type=str,
+        "-r", "--revision", choices=['modnoise', 'pvt', 'pvt2'], help="Build for a particular revision. Defaults to 'pvt2'", default='pvt2', type=str,
     )
     parser.add_argument(
         "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
@@ -1759,10 +1760,10 @@ def main():
         "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
     )
     parser.add_argument(
-        "-p", "--physical-uart", help="Use physical UART. Disables console UART tunelling over wishbone-tool and uses physical pins instead.", default=False, action="store_true"
+        "-p", "--physical-uart", help="Disable physical UART. Enables console UART tunelling over wishbone-tool, deactivatces physical pins.", default=True, action="store_false"
     )
     parser.add_argument(
-        "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy", default='default', type=str
+        "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy. Defaults to NoTimingRelaxation.", default='NoTimingRelaxation', type=str
     )
 
     ##### extract user arguments
