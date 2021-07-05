@@ -1101,7 +1101,7 @@ class BetrustedSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
         "rom":             0x00000000,
-        "sram":            0x10000000, # Should this be 0x0100_0000 ???
+        "sram":            0x10000000, # update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
         "spiflash":        0x20000000,
         "sram_ext":        0x40000000,
         "memlcd":          0xb0000000,
@@ -1136,7 +1136,7 @@ class BetrustedSoC(SoCCore):
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
             integrated_rom_size  = bios_size,
             integrated_rom_init  = 'loader/bios.bin',
-            integrated_sram_size = 0x4000, # 16k for bios to do signature verifications
+            integrated_sram_size = 0x4000, # 16k for bios to do signature verifications; update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
