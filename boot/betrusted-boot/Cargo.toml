@@ -1,0 +1,16 @@
+[package]
+name = "betrusted-boot"
+version = "0.1.0"
+authors = ["bunnie <bunnie@kosagi.com>"]
+edition = "2018"
+
+[dependencies]
+utralib = {path = "../utralib"}
+
+[features]
+debug-print = []
+default = ["debug-print"]
+# default = []
+
+[target.'cfg(not(any(windows, unix)))'.dependencies]
+utralib = { path = "../utralib"}
