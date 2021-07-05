@@ -1114,7 +1114,7 @@ class BetrustedSoC(SoCCore):
     }
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
-                 xous=False, usb_type='debug', uart_name="crossover",
+                 xous=False, usb_type='debug', uart_name="crossover", bios_path='boot/boot.bin',
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -1135,7 +1135,7 @@ class BetrustedSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
             integrated_rom_size  = bios_size,
-            integrated_rom_init  = 'loader/bios.bin',
+            integrated_rom_init  = bios_path,
             integrated_sram_size = 0x4000, # 16k for bios to do signature verifications; update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
@@ -1765,6 +1765,9 @@ def main():
     parser.add_argument(
         "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy. Defaults to NoTimingRelaxation.", default='NoTimingRelaxation', type=str
     )
+    parser.add_argument(
+        "--simple-boot", help="Fall back to the simple, unsigned bootloader", default=False, action="store_true",
+    )
 
     ##### extract user arguments
     args = parser.parse_args()
@@ -1805,8 +1808,13 @@ def main():
 
     ##### build the "bios"
     if compile_software:
-        os.system("riscv64-unknown-elf-as -fpic loader{}loader.S -o loader{}loader.elf".format(os.path.sep, os.path.sep))
-        os.system("riscv64-unknown-elf-objcopy -O binary loader{}loader.elf loader{}bios.bin".format(os.path.sep, os.path.sep))
+        if args.simple_boot:
+            os.system("riscv64-unknown-elf-as -fpic loader{}loader.S -o loader{}loader.elf".format(os.path.sep, os.path.sep))
+            os.system("riscv64-unknown-elf-objcopy -O binary loader{}loader.elf loader{}bios.bin".format(os.path.sep, os.path.sep))
+            bios_path = 'loader{}bios.bin'.format(os.path.sep)
+        else:
+            os.system("cd boot && cargo xtask boot-image")
+            bios_path = 'boot{}boot.bin'.format(os.path.sep)
 
     ##### setup platform
     platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
@@ -1814,10 +1822,13 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=bios_path)
 
     ##### setup the builder and run it
-    builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd", compile_software=False, compile_gateware=compile_gateware)
+    builder = Builder(soc, output_dir="build",
+        csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
+        compile_software=False, compile_gateware=compile_gateware)
+
     vns = builder.build()
 
     ##### post-build routines
