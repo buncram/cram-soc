@@ -1,6 +1,6 @@
 use std::{
     env,
-    path::{Path, PathBuf, MAIN_SEPARATOR},
+    path::{Path, PathBuf},
     process::Command,
 };
 
@@ -10,6 +10,7 @@ const TARGET: &str = "riscv32imac-unknown-none-elf";
 
 #[derive(Debug)]
 enum BuildError {
+    #[allow(dead_code)]
     PathConversionError,
 }
 

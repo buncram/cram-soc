@@ -4,6 +4,23 @@ pub struct Uart {
 }
 
 impl Uart {
+    fn put_digit(&mut self, d: u8) {
+        let nyb = d & 0xF;
+        if nyb < 10 {
+            self.putc(nyb + 0x30);
+        } else {
+            self.putc(nyb + 0x61 - 10);
+        }
+    }
+    pub fn put_hex(&mut self, c: u8) {
+        self.put_digit(c >> 4);
+        self.put_digit(c & 0xF);
+    }
+    pub fn newline(&mut self) {
+        self.putc(0xa);
+        self.putc(0xd);
+    }
+
     pub fn putc(&self, c: u8) {
         let base = utra::uart::HW_UART_BASE as *mut u32;
         let mut uart = CSR::new(base);
@@ -11,6 +28,26 @@ impl Uart {
         while uart.r(utra::uart::TXFULL) != 0 {}
         uart.wo(utra::uart::RXTX, c as u32)
     }
+
+    pub fn getc(&self) -> Option<u8> {
+        let base = utra::uart::HW_UART_BASE as *mut u32;
+        let mut uart = CSR::new(base);
+        match uart.rf(utra::uart::EV_PENDING_RX) {
+            0 => None,
+            ack => {
+                let c = Some(uart.rf(utra::uart::RXTX_RXTX) as u8);
+                uart.wfo(utra::uart::EV_PENDING_RX, ack);
+                c
+            }
+        }
+    }
+
+    pub fn tiny_write_str(&mut self, s: &str) {
+        for c in s.bytes() {
+            self.putc(c);
+        }
+    }
+
 }
 
 use core::fmt::{Error, Write};

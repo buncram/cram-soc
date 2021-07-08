@@ -7,9 +7,20 @@ edition = "2018"
 [dependencies]
 utralib = {path = "../utralib"}
 
+[dependencies.curve25519-dalek]
+version = "3.1.0" # note this is patched to our fork in ./Cargo.toml
+default-features = false
+features = ["u32_backend"]
+
+[dependencies.ed25519-dalek]
+version="1.0.1"
+default-features = false
+features = ["u32_backend"]
+
 [features]
 debug-print = []
-default = ["debug-print"]
+small-soc = []
+default = ["debug-print", "small-soc"]
 # default = []
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
