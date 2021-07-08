@@ -1100,8 +1100,8 @@ prefix = ""  # sometimes 'soc_', sometimes '' prefix Litex is attaching to net n
 class BetrustedSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
-        "rom":             0x00000000,
-        "sram":            0x10000000, # update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
+        "rom":             0x80000000,
+        "sram":            0x90000000, # update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
         "spiflash":        0x20000000,
         "sram_ext":        0x40000000,
         "memlcd":          0xb0000000,
@@ -1134,9 +1134,9 @@ class BetrustedSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
-            integrated_rom_size  = bios_size,
-            integrated_rom_init  = bios_path,
-            integrated_sram_size = 0x4000, # 16k for bios to do signature verifications; update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
+            integrated_rom_size  = 0, #bios_size,
+            integrated_rom_init  = None, # bios_path,
+            integrated_sram_size = 0, # 0x4000, # 16k for bios to do signature verifications; update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
@@ -1147,6 +1147,12 @@ class BetrustedSoC(SoCCore):
             with_ctrl            = False,
             with_timer           = False, # override default timer with a timer that operates in a low-power clock domain
             **kwargs)
+        # move ROM and RAM to uncached regions - we only use these at boot, and they are already quite fast
+        # this helps remove their contribution from the cache tag critical path
+        if self.mem_map["rom"] == 0:
+            self.mem_map["rom"] += 0x80000000
+        if self.mem_map["sram"] == 0x10000000:
+            self.mem_map["sram"] += 0x80000000
 
         # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_BetrustedSoC_Debug.v")
@@ -1177,6 +1183,31 @@ class BetrustedSoC(SoCCore):
         self.submodules.timer0 = ClockDomainsRenamer(cd_remapping={"always_on":"raw_12"})(TimerAlwaysOn())
         self.add_csr("timer0")
         self.add_interrupt("timer0")
+
+        from litex.soc.interconnect import wishbone
+        from litex.soc.integration.soc import SoCRegion
+        from gateware.rom_block import BlockRom
+
+        rom_bus = wishbone.Interface(data_width=self.bus.data_width)
+        rom     = BlockRom(bus=rom_bus, init=bios_path)
+        self.bus.add_slave("rom", rom.bus, SoCRegion(origin=self.mem_map["rom"], size=bios_size, mode="r", cached=False))
+        self.check_if_exists("rom")
+        self.logger.info("Block ROM {} {} {}.".format(
+            "rom",
+            "added",
+            self.bus.regions["rom"]))
+        setattr(self.submodules, "rom", rom)
+
+        ram_size = 0x4000
+        ram_bus = wishbone.Interface(data_width=self.bus.data_width)
+        ram     = wishbone.SRAM(ram_size, bus=ram_bus, init=None, read_only=False)
+        self.bus.add_slave("sram", ram.bus, SoCRegion(origin=self.mem_map["sram"], size=ram_size, mode="rw", cached=False))
+        self.check_if_exists("sram")
+        self.logger.info("TCM RAM {} {} {}.".format(
+            "sram",
+            "added",
+            self.bus.regions["sram"]))
+        setattr(self.submodules, "sram", ram)
 
         # Debug cluster ----------------------------------------------------------------------------
         if usb_type != 'debug':  # wire up the debug UART automatically if we don't have USB debugging capability
@@ -1383,9 +1414,13 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins {net}_reg/Q]", net=self.sram_ext.sync_oe_n)
 
         # LCD interface ----------------------------------------------------------------------------
+        cached_lcd = False  # not caching LCD memory may lead to net improvement as stack & code are not displaced by use-once LCD entries in iterator routines
         self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd")))
         self.add_csr("memlcd")
-        self.register_mem("memlcd", self.mem_map["memlcd"], self.memlcd.bus, size=self.memlcd.fb_depth*4)
+        if cached_lcd:
+            self.register_mem("memlcd", self.mem_map["memlcd"], self.memlcd.bus, size=self.memlcd.fb_depth*4)
+        else:
+            self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=self.mem_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # COM SPI interface ------------------------------------------------------------------------
         self.submodules.com = spi.SPIController(platform.request("com"))
@@ -1814,7 +1849,13 @@ def main():
             bios_path = 'loader{}bios.bin'.format(os.path.sep)
         else:
             os.system("cd boot && cargo xtask boot-image")
-            bios_path = 'boot{}boot.bin'.format(os.path.sep)
+            #bios_path = 'boot{}boot.bin'.format(os.path.sep)
+            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            bios_path = '.{}fake.bin'.format(os.path.sep)
+            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     ##### setup platform
     platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
@@ -1856,14 +1897,15 @@ mathjax_config = {
         # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
         if Path(args.encrypt).is_file():
             print('Found {}, re-encrypting binary to the specified fuse settings.'.format(args.encrypt))
-            if Path('keystore.bin').is_file():
-                print('Found keystore.bin, patching bitstream to contain specified keystore values.')
-                with open('keystore.patch', 'w') as patchfile:
-                    subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
-                    keystore_args = '-pkeystore.patch'
-                    enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
-            else:
-                enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted']
+            if not Path('keystore.bin').is_file():
+                subprocess.call([sys.executable, './gen_keyrom.py', '--dev-pubkey', './devkey/dev-x509.crt', '--output', 'keystore.bin'])
+
+            print('Found keystore.bin, patching bitstream to contain specified keystore values.')
+            with open('keystore.patch', 'w') as patchfile:
+                subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
+                keystore_args = '-pkeystore.patch'
+                enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
+
             subprocess.call(enc)
 
             pad = [sys.executable, './append_csr.py', '-bbuild/gateware/encrypted.bin', '-cbuild/csr.csv', '-obuild/gateware/soc_csr.bin']
