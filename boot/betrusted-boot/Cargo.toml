@@ -15,7 +15,6 @@ features = ["u32_backend"]
 [dependencies.ed25519-dalek]
 version="1.0.1"
 default-features = false
-features = ["u32_backend"]
 
 [features]
 debug-print = []

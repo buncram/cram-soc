@@ -8,6 +8,7 @@ Compiled documentation: https://ci.betrusted.io/betrusted-soc/doc/[latest regist
 
 1. Check out this repo with `git clone --recurse-submodules <repo>`.
 1. Ensure you have Python 3.5 or newer installed.
+1. Ensure the following python packages are available in your environment: `pycryptodome` (signing - PEM read), `cryptography` (signind - x509 read), `pynacl` (signing - ed25519 signatures), `progressbar2` (updates), `pyusb` (updates).
 1. Ensure you have `make` installed.
 1. Download the Risc-V toolchain from https://www.sifive.com/products/tools/ and put it in your PATH.
 1. Go to https://www.xilinx.com/support/download.html and download `All OS installer Single-File Download`. Our CI system uses version 2019.2, but it has also been tested against 2020.2.
@@ -16,14 +17,20 @@ Compiled documentation: https://ci.betrusted.io/betrusted-soc/doc/[latest regist
 1. Run `./betrusted-soc.py` (or `python3 ./betrusted-soc.py`)
 
 There's a lot of options for betrusted-soc.py. The exact command line used to build a Betrusted SoC that is
-compatible with Xous as of April 2021 is:
+compatible with Xous as of July 2021 is:
 
-`./betrusted-soc.py -e blank.nky -u debug -x -s NoTimingRelaxation -r pvt2 -p`
+`./betrusted-soc.py -e blank.nky`
+
+The script will expect a file called `keystore.bin` to exist in the same directory. This is the initial
+keystore, documented at https://github.com/betrusted-io/betrusted-wiki/wiki/Secure-Boot-and-KEYROM-Layout.
+For brand new, "blank" devices, only the developer public key is necessary for boot.
 
 Explanation:
 * `-e blank.nky` forces the creation of an encrypted image using the blank key.
 This means we are always using the decryption pathway to configure an FPGA, even if
 we don't want to burn a key into the device.
+
+Legacy notes:
 * `-u debug` selects the debug USB PHY. You want this, so you can do firmware updates.
 * `-x` selects the Xous boot configuration
 * `-s NoTimingRelaxation` forces the compiler to exactly meet timing constraints. You can

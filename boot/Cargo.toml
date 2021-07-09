@@ -1,13 +1,27 @@
 [workspace]
 default-members = [
   "betrusted-boot",
+  "sha2",
 ]
 members = [
   "svd2utra",
   "xtask",
   "betrusted-boot",
+  "sha2",
 ]
 resolver = "2"
+
+[patch.crates-io.sha2]
+path = "./sha2"
+package = "sha2"
+default-features = false
+
+[patch.crates-io.ed25519-dalek]
+path = "../../ed25519-dalek"
+package = "ed25519-dalek"
+version = "1"
+default-features = false
+features = ["u32_backend"]
 
 [profile.release]
 codegen-units = 1 # 1 better optimizations
@@ -15,6 +29,3 @@ debug = false
 lto = "fat"
 opt-level = 'z'  # Optimize for size instead of performance
 #panic = "abort" # Remove panic output, which can reduce file size
-
-# prefer hardware-accelerated versions of services
-sha2 = {path = "./engine-sha512", package = "engine-sha512"}

@@ -34,6 +34,10 @@ from litex.soc.cores.i2s import S7I2S
 from litex.soc.cores.spi_opi import S7SPIOPI
 from litex.soc.integration.soc import SoCRegion
 
+from litex.soc.interconnect import wishbone
+from litex.soc.integration.soc import SoCRegion
+from gateware.rom_block import BlockRom
+
 from gateware import info
 from gateware import sram_32_cached
 from gateware import memlcd
@@ -42,9 +46,9 @@ from gateware import messible
 from gateware import i2c
 from gateware import ticktimer
 from gateware.wdt import WDT
-
 from gateware import spinor
 from gateware import keyboard
+from gateware import jtag_phy
 
 from gateware.trng.ring_osc_v2 import TrngRingOscV2
 from gateware import aes_opentitan as aes
@@ -53,8 +57,6 @@ from gateware import sha512_opentitan as sha512
 from gateware.curve25519.engine import Engine
 from gateware.timer_alwayson import TimerAlwaysOn
 from gateware.keyrom import KeyRom
-
-from gateware import jtag_phy
 
 from valentyusb.usbcore.cpu.eptri import TriEndpointInterface
 from valentyusb.usbcore.io import IoBuf
@@ -1090,7 +1092,7 @@ class Wfi(Module, AutoDoc, AutoCSR):
 # System constants ---------------------------------------------------------------------------------
 
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
-bios_size      = 0x8000
+bios_size      = 0x10000
 SPI_FLASH_SIZE = 128 * 1024 * 1024
 prefix = ""  # sometimes 'soc_', sometimes '' prefix Litex is attaching to net names
 # changes randomly depending on how the build system feels (currently problems with Chisel doing weird things to net names when CPU core is regenerated)
@@ -1100,8 +1102,7 @@ prefix = ""  # sometimes 'soc_', sometimes '' prefix Litex is attaching to net n
 class BetrustedSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
-        "rom":             0x80000000,
-        "sram":            0x90000000, # update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
+        "rom":             0x80000000, # uncached
         "spiflash":        0x20000000,
         "sram_ext":        0x40000000,
         "memlcd":          0xb0000000,
@@ -1134,9 +1135,9 @@ class BetrustedSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
-            integrated_rom_size  = 0, #bios_size,
+            integrated_rom_size  = 0, # don't use default ROM
             integrated_rom_init  = None, # bios_path,
-            integrated_sram_size = 0, # 0x4000, # 16k for bios to do signature verifications; update boot/betrusted-boot/src/asm.S & link.x if this changes, and manually re-run the assembler script
+            integrated_sram_size = 0, # Use external SRAM for boot code
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
@@ -1147,12 +1148,11 @@ class BetrustedSoC(SoCCore):
             with_ctrl            = False,
             with_timer           = False, # override default timer with a timer that operates in a low-power clock domain
             **kwargs)
-        # move ROM and RAM to uncached regions - we only use these at boot, and they are already quite fast
+        # Litex will always try to move the ROM back to 0.
+        # Move ROM and RAM to uncached regions - we only use these at boot, and they are already quite fast
         # this helps remove their contribution from the cache tag critical path
         if self.mem_map["rom"] == 0:
             self.mem_map["rom"] += 0x80000000
-        if self.mem_map["sram"] == 0x10000000:
-            self.mem_map["sram"] += 0x80000000
 
         # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_BetrustedSoC_Debug.v")
@@ -1184,10 +1184,8 @@ class BetrustedSoC(SoCCore):
         self.add_csr("timer0")
         self.add_interrupt("timer0")
 
-        from litex.soc.interconnect import wishbone
-        from litex.soc.integration.soc import SoCRegion
-        from gateware.rom_block import BlockRom
-
+        # Uncached boot ROM ---------------------------------------------------------------------
+        # this ROM prefers compact size over performance
         rom_bus = wishbone.Interface(data_width=self.bus.data_width)
         rom     = BlockRom(bus=rom_bus, init=bios_path)
         self.bus.add_slave("rom", rom.bus, SoCRegion(origin=self.mem_map["rom"], size=bios_size, mode="r", cached=False))
@@ -1197,17 +1195,6 @@ class BetrustedSoC(SoCCore):
             "added",
             self.bus.regions["rom"]))
         setattr(self.submodules, "rom", rom)
-
-        ram_size = 0x4000
-        ram_bus = wishbone.Interface(data_width=self.bus.data_width)
-        ram     = wishbone.SRAM(ram_size, bus=ram_bus, init=None, read_only=False)
-        self.bus.add_slave("sram", ram.bus, SoCRegion(origin=self.mem_map["sram"], size=ram_size, mode="rw", cached=False))
-        self.check_if_exists("sram")
-        self.logger.info("TCM RAM {} {} {}.".format(
-            "sram",
-            "added",
-            self.bus.regions["sram"]))
-        setattr(self.submodules, "sram", ram)
 
         # Debug cluster ----------------------------------------------------------------------------
         if usb_type != 'debug':  # wire up the debug UART automatically if we don't have USB debugging capability
@@ -1394,7 +1381,8 @@ class BetrustedSoC(SoCCore):
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~320ns for 8 words.
-        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x2_0000)
+        # note: cache size reduced from 0x2_0000 to 0x1_0000 to make space for secure boot ROM code
+        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
         self.add_csr("sram_ext")
         self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
         # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits (PS I'm not even sure this works...)
@@ -1848,15 +1836,18 @@ def main():
             os.system("riscv64-unknown-elf-objcopy -O binary loader{}loader.elf loader{}bios.bin".format(os.path.sep, os.path.sep))
             bios_path = 'loader{}bios.bin'.format(os.path.sep)
         else:
-            os.system("cd boot && cargo xtask boot-image")
-            #bios_path = 'boot{}boot.bin'.format(os.path.sep)
-            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            bios_path = '.{}fake.bin'.format(os.path.sep)
-            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("WARNINGWARNINGAWIRNG!!!!!!!! FAKE>BININUSE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            # do a first-pass to create the soc.svd file
+            platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
+            platform.add_extension(_io_uart_debug_swapped)
+            soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=None)
+            builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
+                compile_software=False, compile_gateware=False)
+            vns = builder.build(run=False)
 
+            os.system("cd boot && cargo xtask boot-image")
+            bios_path = 'boot{}boot.bin'.format(os.path.sep)
+
+    ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
     ##### setup platform
     platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
     # _io_uart_debug wires debug bridge to Rpi; _io_uart_debug_swapped wires console to Rpi

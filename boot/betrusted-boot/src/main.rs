@@ -1,9 +1,23 @@
 #![cfg_attr(target_os = "none", no_std)]
 #![cfg_attr(target_os = "none", no_main)]
 
+#![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
+
 const VERSION_STR: &'static str = "Bootloader v0.1.0\n\r";
 const LOADER_DATA_OFFSET: u32 = 0x2050_1000;
 const LOADER_SIG_OFFSET: u32 = 0x2050_0000;
+// changing the bootloader stack is very tricky. here's some places where it needs to be updated:
+// - here
+// - inside asm.S for stack guard
+// - loader - reserved pages (near bottom of file)
+// - loader - a second place for reserved placed (around line 1407)
+// - loader - clean suspend marker (around line 1318)
+// - susres - clean suspend marker location (around line 144)
+// - loader - backup args  (line 1250)
+// - loader - backup args  (line 1280)
+// should probably fix this to make it easier, except it's splattered across so many moving parts...
+const STACK_LEN: u32 = 8192 - (7 * 4); // 7 words for backup kernel args
+const STACK_TOP: u32 = 0x4100_0000 - STACK_LEN;
 
 use utralib::generated::*;
 
@@ -90,7 +104,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     // initial banner
     let mut uart = debug::Uart {};
-    uart.tiny_write_str("fix LiteX UART startup issue.");
+    uart.tiny_write_str("  ");
 
     // clear screen to all black
     let mut gfx = Gfx {
@@ -119,17 +133,32 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     if sig.version != 1 {
         uart.tiny_write_str("Warning: signature version mismatch!");
+        uart.newline();
     }
     let signed_len = sig.signed_len;
     let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
     let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
-    /*
+
     use ed25519_dalek::Verifier;
     if devkey.verify(image, &ed25519_signature).is_ok() {
         uart.tiny_write_str("Signature check passed");
     } else {
         uart.tiny_write_str("Signature check failed");
-    }*/
+    }
+    uart.newline();
+
+    // check the stack usage
+    let stack: &[u32] = core::slice::from_raw_parts(STACK_TOP as *const u32, (STACK_LEN as usize / core::mem::size_of::<u32>()) as usize);
+    let mut unused_stack_words = 0;
+    for &word in stack.iter() {
+        if word != 0xDEAD_C0DE {
+            break;
+        }
+        unused_stack_words += 1;
+    }
+    uart.tiny_write_str("Free stack: 0x");
+    uart.print_hex_word(unused_stack_words * 4);
+    uart.newline();
 
     let mut last_char: u8 = 0;
     loop {
@@ -144,13 +173,22 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             last_char = c;
         }
     }
+    uart.tiny_write_str("Jumping to loader...");
+    uart.newline();
 
-    // now jump to the loader if everything checks out.
+    let mut sha_csr = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
+    sha_csr.wfo(utra::sha512::POWER_ON, 0); // cut power to the SHA block; this is the expected default state after the bootloader is done.
+
+    // now jump to the loader once everything checks out.
     start_loader(
         0x2098_0000,  // start of kernel arguments
-        0x0,          // this is unsused
-        0x2051_0000,  // jump address of the loader itself
+        0x0,           // this is unused
+        0x2050_1000,  // jump address of the loader itself
     );
+    uart.tiny_write_str("Should have jumped to loader!");
+    uart.newline();
+    loop {
+    }
 }
 
 extern "C" {

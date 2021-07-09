@@ -34,8 +34,9 @@ rom.db
 # in general, we don't want this
 Cargo.lock
 
-# this is an auto-generated file
+# these are auto-generated files -- keys come from .crt files originally
 keystore.patch
+keystore.bin
 
 # xous build files
 xous/xous.img

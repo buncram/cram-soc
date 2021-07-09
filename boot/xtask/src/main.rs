@@ -70,6 +70,22 @@ fn build_hw_image(
     // Tools use this environment variable to know when to rebuild the UTRA crate.
     std::env::set_var("XOUS_SVD_FILE", path.canonicalize().unwrap());
 
+    // build the assembly binary
+    #[cfg(target_os = "windows")]
+    let status = Command::new("powershell")
+        .args(&["-Command", ".\\assemble.ps1"])
+        .current_dir(project_root().join("betrusted-boot"))
+        .status()?;
+    #[cfg(not(target_os = "windows"))]
+    let status = Command::new("assemble.sh")
+    .current_dir(project_root().join("betrusted-boot"))
+    .status()?;
+
+    if !status.success() {
+        return Err("assembly failed".into())
+    }
+
+
     // make the ELF file
     let mut boot = build(
         packages,

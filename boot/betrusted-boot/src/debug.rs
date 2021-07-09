@@ -20,6 +20,11 @@ impl Uart {
         self.putc(0xa);
         self.putc(0xd);
     }
+    pub fn print_hex_word(&mut self, word: u32) {
+        for &byte in word.to_be_bytes().iter() {
+            self.put_hex(byte);
+        }
+    }
 
     pub fn putc(&self, c: u8) {
         let base = utra::uart::HW_UART_BASE as *mut u32;
