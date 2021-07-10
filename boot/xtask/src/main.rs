@@ -77,7 +77,8 @@ fn build_hw_image(
         .current_dir(project_root().join("betrusted-boot"))
         .status()?;
     #[cfg(not(target_os = "windows"))]
-    let status = Command::new("assemble.sh")
+    let status = Command::new("sh")
+        .args(&["-c", "./assemble.sh"])
     .current_dir(project_root().join("betrusted-boot"))
     .status()?;
 
