@@ -1381,8 +1381,7 @@ class BetrustedSoC(SoCCore):
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~320ns for 8 words.
-        # note: cache size reduced from 0x2_0000 to 0x1_0000 to make space for secure boot ROM code
-        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
+        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x2_0000)
         self.add_csr("sram_ext")
         self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
         # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits (PS I'm not even sure this works...)
@@ -1834,6 +1833,7 @@ def main():
         if args.simple_boot:
             os.system("riscv64-unknown-elf-as -fpic loader{}loader.S -o loader{}loader.elf".format(os.path.sep, os.path.sep))
             os.system("riscv64-unknown-elf-objcopy -O binary loader{}loader.elf loader{}bios.bin".format(os.path.sep, os.path.sep))
+            print("**** WARNING: using 'simple boot' method -- no signature verification checks are done on boot! ****")
             bios_path = 'loader{}bios.bin'.format(os.path.sep)
         else:
             # do a first-pass to create the soc.svd file

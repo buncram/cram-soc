@@ -10,17 +10,18 @@ utralib = {path = "../utralib"}
 [dependencies.curve25519-dalek]
 version = "3.1.0" # note this is patched to our fork in ./Cargo.toml
 default-features = false
-features = ["u32_backend"]
+features = ["u32e_backend"]
 
 [dependencies.ed25519-dalek]
 version="1.0.1"
+#path = "../../../ed25519-dalek"
 default-features = false
 
 [features]
 debug-print = []
 small-soc = []
-default = ["debug-print", "small-soc"]
-# default = []
+# default = ["debug-print", "small-soc"]
+default = []
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

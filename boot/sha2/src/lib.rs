@@ -1,10 +1,7 @@
 #![cfg_attr(target_os = "none", no_std)]
 
 use digest::{BlockInput, FixedOutputDirty, Reset, Update};
-use digest::generic_array::GenericArray;
-use digest::consts::{U28, U32, U48, U64, U128};
-use block_buffer::BlockBuffer;
-use core::slice::from_ref;
+use digest::consts::{U64, U128};
 type BlockSize = U128;
 
 use utralib::generated::*;
@@ -94,7 +91,7 @@ impl FixedOutputDirty for Sha512 {
         }
         self.csr.wfo(utra::sha512::EV_PENDING_SHA512_DONE, 1);
 
-        let length_in_bits: u64 = (self.csr.r(utra::sha512::MSG_LENGTH0) as u64) | ((self.csr.r(utra::sha512::MSG_LENGTH1) as u64) << 32);
+        let _length_in_bits: u64 = (self.csr.r(utra::sha512::MSG_LENGTH0) as u64) | ((self.csr.r(utra::sha512::MSG_LENGTH1) as u64) << 32);
         let mut hash: [u8; 64] = [0; 64];
         let digest_regs: [utralib::Register; 16] = [
             utra::sha512::DIGEST00,
