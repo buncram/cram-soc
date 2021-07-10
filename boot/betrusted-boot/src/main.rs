@@ -3,7 +3,7 @@
 
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
-const VERSION_STR: &'static str = "Bootloader v0.1.0\n\r";
+const VERSION_STR: &'static str = "Bootloader v0.1.1e\n\r";
 const LOADER_DATA_OFFSET: u32 = 0x2050_1000;
 const LOADER_SIG_OFFSET: u32 = 0x2050_0000;
 // changing the bootloader stack is very tricky. here's some places where it needs to be updated:
@@ -92,9 +92,31 @@ impl Keyrom {
                 *dst_byte = src_byte;
             }
         }
+        println!("pk_bytes: {:?}", pk_bytes);
         ed25519_dalek::PublicKey::from_bytes(&pk_bytes).unwrap()
     }
 }
+
+/*
+Bootloader v0.1.1e
+Y: [28, 155, 234, 227, 42, 234, 200, 117, 7, 193, 128, 148, 56, 126, 255, 28, 116, 97, 66, 130, 175, 253, 129, 82, 216, 113, 53, 46, 223, 63, 88, 187]
+Z: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+YY: [154, 180, 250, 64, 35, 64, 104, 144, 32, 104, 151, 198, 217, 243, 39, 92, 185, 19, 97, 174, 19, 28, 33, 38, 133, 33, 204, 118, 61, 247, 167, 88]
+u: [64, 64, 64, 64, 144, 144, 144, 144, 198, 198, 198, 198, 92, 92, 92, 92, 174, 174, 174, 174, 38, 38, 38, 38, 118, 118, 118, 118, 88, 88, 88, 88]
+v: [93, 93, 93, 93, 189, 189, 189, 189, 50, 50, 50, 50, 179, 179, 179, 179, 179, 179, 179, 179, 222, 222, 222, 222, 26, 26, 26, 26, 52, 52, 52, 52]
+isvalid: Choice(0)
+unspecified panic!
+
+Bootloader v0.1.1e
+Y: [28, 155, 234, 227, 42, 234, 200, 117, 7, 193, 128, 148, 56, 126, 255, 28, 116, 97, 66, 130, 175, 253, 129, 82, 216, 113, 53, 46, 223, 63, 88, 59]
+Z: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+YY: [101, 137, 91, 248, 108, 169, 16, 111, 156, 124, 237, 118, 114, 34, 91, 239, 182, 179, 14, 79, 136, 33, 206, 80, 52, 227, 152, 34, 98, 136, 137, 109]
+u: [100, 137, 91, 248, 108, 169, 16, 111, 156, 124, 237, 118, 114, 34, 91, 239, 182, 179, 14, 79, 136, 33, 206, 80, 52, 227, 152, 34, 98, 136, 137, 109]
+v: [35, 9, 216, 132, 178, 48, 0, 68, 27, 126, 176, 192, 134, 154, 105, 74, 5, 175, 50, 103, 175, 248, 162, 91, 181, 103, 74, 52, 232, 90, 1, 62]
+isvalid: Choice(1)
+valid
+negate
+*/
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
@@ -122,8 +144,16 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     // now characters should actually be able to print
     uart.tiny_write_str(VERSION_STR);
 
+    // init the curve25519 engine
+    let mut engine = utralib::CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
+    engine.wfo(utra::engine::POWER_ON, 1);
+    engine.wfo(utra::engine::WINDOW_WINDOW, 0);
+    engine.wfo(utra::engine::MPSTART_MPSTART, 0);
+
+    // get the public key
     let mut keyrom = Keyrom::new();
     let devkey = keyrom.read_ed25519(0x18);
+    println!("key: {:?}", devkey);
 
     uart.tiny_write_str("Dev key: ");
     for &b in devkey.as_bytes().iter() {
