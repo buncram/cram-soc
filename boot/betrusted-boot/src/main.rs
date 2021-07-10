@@ -386,6 +386,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     let mut sha_csr = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
     sha_csr.wfo(utra::sha512::POWER_ON, 0); // cut power to the SHA block; this is the expected default state after the bootloader is done.
+    let mut engine_csr = CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
+    engine_csr.wfo(utra::engine::POWER_ON, 0); // cut power to the engine block; this is the expected default state after the bootloader is done.
+    // note that removing power does *not* clear the RF or microcode state -- data can leak from the bootloader
+    // into other areas because of this! (but I think it's OK because we just mess around with public keys here)
 
     // now jump to the loader once everything checks out.
     start_loader(
