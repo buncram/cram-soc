@@ -346,8 +346,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         gfx.msg("Signature check passed\n\r", &mut cursor);
         uart.tiny_write_str("Signature check passed\n\r");
     } else {
-        gfx.msg("Signature check failed\n\r", &mut cursor);
-        uart.tiny_write_str("Signature check failed\n\r");
+        gfx.msg("Signature check failed; stopping execution\n\r", &mut cursor);
+        uart.tiny_write_str("Signature check failed; stopping execution\n\r");
+        loop {
+            // just hang the system
+        }
     }
 
     // check the stack usage
