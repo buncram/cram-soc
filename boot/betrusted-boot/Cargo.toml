@@ -7,6 +7,10 @@ edition = "2018"
 [dependencies]
 utralib = {path = "../utralib"}
 
+[dependencies.com_rs]
+git="https://github.com/betrusted-io/com_rs"
+branch="main"
+
 [dependencies.curve25519-dalek]
 version = "3.1.0" # note this is patched to our fork in ./Cargo.toml
 default-features = false

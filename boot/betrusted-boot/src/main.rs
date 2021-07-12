@@ -346,10 +346,27 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         gfx.msg("Signature check passed\n\r", &mut cursor);
         uart.tiny_write_str("Signature check passed\n\r");
     } else {
-        gfx.msg("Signature check failed; stopping execution\n\r", &mut cursor);
-        uart.tiny_write_str("Signature check failed; stopping execution\n\r");
+        // display message, then try to power down
+        gfx.msg("Signature check failed; powering down\n\r", &mut cursor);
+        uart.tiny_write_str("Signature check failed; powering down\n\r");
+        let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+        let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
+        let mut com = CSR::new(utra::com::HW_COM_BASE as *mut u32);
+        let mut start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
         loop {
-            // just hang the system
+            // every 15 seconds, attempt to send a power down command
+            // any attempt to re-flash the system must halt the CPU before we time-out to this point!
+            if ticktimer.rf(utra::ticktimer::TIME0_TIME) - start > 15_000 {
+                power.rmwf(utra::power::POWER_STATE, 0);
+                power.rmwf(utra::power::POWER_SELF, 0);
+
+                // ship mode is the safest mode -- suitable for long-term storage (~years)
+                com.wfo(utra::com::TX_TX, com_rs::ComState::POWER_SHIPMODE.verb as u32);
+                while com.rf(utra::com::STATUS_TIP) == 1 {}
+                let _ = com.rf(utra::com::RX_RX); // discard the RX result
+
+                start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+            }
         }
     }
 
