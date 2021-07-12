@@ -898,6 +898,7 @@ class BtGpio(Module, AutoDoc, AutoCSR):
             CSRField(name="wakeup", size=1,
                 description="Whet set, patches wakeup signal into GPIO1 instead of the usual data line. Must configure as output for the value to appear on the pin"),
         ])
+        self.usbdisable = CSRStorage(1, name="usbdisable", description="When set to ``1``, USB debug is limited by remapping all wishbone request addresses to 0x8000_0000")
 
         self.debug_wakeup = Signal()
         self.debug_wfi = Signal()
@@ -1619,6 +1620,7 @@ class BetrustedSoC(SoCCore):
             usb_pads = platform.request("usb")
             usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
             self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
+            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
             self.add_wb_master(self.usb.debug_bridge.wishbone)
             self.platform.add_platform_command(
                 'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
@@ -1846,6 +1848,8 @@ def main():
 
             os.system("cd boot && cargo xtask boot-image")
             bios_path = 'boot{}boot.bin'.format(os.path.sep)
+    else:
+        bios_path=None
 
     ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
     ##### setup platform
