@@ -16,19 +16,20 @@ impl Sha512 {
     // use this function instead of default for more control over configuration of the hardware engine
     pub fn new() -> Self {
         let mut csr = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
+        let fifo = utralib::HW_SHA512_MEM as *mut u32;
         csr.wfo(utra::sha512::POWER_ON, 1);
-        // setup for sha512 operation
+
+        // now setup for sha512 operation
         csr.wo(utra::sha512::CONFIG,
             csr.ms(utra::sha512::CONFIG_DIGEST_SWAP, 1) |
             csr.ms(utra::sha512::CONFIG_ENDIAN_SWAP, 1) |
             csr.ms(utra::sha512::CONFIG_SHA_EN, 1)
         );
         csr.wfo(utra::sha512::COMMAND_HASH_START, 1);
-        // csr.wfo(utra::sha512::EV_ENABLE_SHA512_DONE, 1);
 
         Sha512 {
             csr,
-            fifo: utralib::HW_SHA512_MEM as *mut u32,
+            fifo,
         }
     }
     // call before exit, to cleanup from bootloader -- otherwise the unit might be stuck on as it's assumed to be off going into Xous

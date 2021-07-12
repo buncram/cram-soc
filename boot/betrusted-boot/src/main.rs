@@ -3,7 +3,10 @@
 
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
-const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.0\n\r";
+const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.1\n\r";
+// v0.2.0 -- intial version
+// v0.2.1 -- fix warmboot issue (SHA reset)
+
 const LOADER_DATA_OFFSET: u32 = 0x2050_1000;
 const LOADER_SIG_OFFSET: u32 = 0x2050_0000;
 // changing the bootloader stack is very tricky. here's some places where it needs to be updated:
@@ -269,6 +272,16 @@ impl Keyrom {
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
+    /////// hardware resets
+    let mut engine = utralib::CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
+    engine.wfo(utra::engine::POWER_ON, 0); // power off so as to force a re-sync of the clock domains, in case we entered with power on
+
+    // reset the SHA block, in case we're coming out of a warm reset
+    let mut sha = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
+    sha.wfo(utra::sha512::POWER_ON, 1);
+    sha.wfo(utra::sha512::CONFIG_RESET, 1); // this reset takes ~32 CPU cycles but we do plenty of other stuff
+    ///////// end hardware resets
+
     // conjure the signature struct directly out of memory. super unsafe.
     let sig_ptr = LOADER_SIG_OFFSET as *const SignatureInFlash;
     let sig: &SignatureInFlash = sig_ptr.as_ref().unwrap();
@@ -291,13 +304,14 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     gfx.update_all();
     while gfx.busy() { }
 
+    // power on the curve engine -- give it >16 cycles to sync up
+    engine.wfo(utra::engine::POWER_ON, 1);
+
     // now characters should actually be able to print
     uart.tiny_write_str(VERSION_STR);
     gfx.msg(VERSION_STR, &mut cursor);
 
     // init the curve25519 engine
-    let mut engine = utralib::CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
-    engine.wfo(utra::engine::POWER_ON, 1);
     engine.wfo(utra::engine::WINDOW_WINDOW, 0);
     engine.wfo(utra::engine::MPSTART_MPSTART, 0);
 
@@ -340,6 +354,22 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     let signed_len = sig.signed_len;
     let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
     let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
+
+    /* // some debug remnants that could be handy in the future
+    println!("pubkey: {:?}", pubkey);
+    println!("signature: {:?}", ed25519_signature);
+    println!("image bytes:");
+    for b in image[0..32].iter() {
+        print!("{:02x} ", b);
+    }
+    println!("");
+    println!("sha fifo status: 0x{:08x}", sha.r(utra::sha512::FIFO));
+    println!("sha config     : 0x{:08x}", sha.r(utra::sha512::CONFIG));
+    println!("sha command    : 0x{:08x}", sha.r(utra::sha512::COMMAND));
+    println!("sha msglen     : 0x{:08x}", sha.r(utra::sha512::MSG_LENGTH0));
+    println!("sha evstatus   : 0x{:08x}", sha.r(utra::sha512::EV_STATUS));
+    println!("sha evenable   : 0x{:08x}", sha.r(utra::sha512::EV_ENABLE));
+    */
 
     use ed25519_dalek::Verifier;
     if pubkey.verify(image, &ed25519_signature).is_ok() {

@@ -11,7 +11,7 @@ fillstack:
     addi        t0, t0, 4
     bltu        t0, t2, fillstack
 
-    // flush any stale pages/cache in case of WDT reset
+    // flush any stale pages/cache in case of WDT reset by reading data out of the ROM
     li          t0, 0x20500000
     li          t2, 0x20508000
 clearcache:
