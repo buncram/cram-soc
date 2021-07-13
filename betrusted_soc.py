@@ -1090,6 +1090,20 @@ class Wfi(Module, AutoDoc, AutoCSR):
             CSRField("ignore_locked", description="Writing a `1` causes the reset condition for the SoC to ignore the locked state of the PLL")
         ])
 
+# SPINOR soft int ----------------------------------------------------------------------------------
+
+class SpinorSoftInt(Module, AutoCSR, AutoDoc):
+    def __init__(self):
+        self.submodules.ev = EventManager()
+        self.ev.spinor_int = EventSourceProcess(description="Used by software to trigger an interrupt context switch for SPINOR handlers.")
+        self.ev.finalize()
+
+        self.softint = CSRStorage(fields=[
+            CSRField("softint", description="Writing a `1` here triggers a software interrupt for the SPINOR server.", pulse=True)
+        ])
+        self.comb += self.ev.spinor_int.trigger.eq(self.softint.fields.softint)
+
+
 # System constants ---------------------------------------------------------------------------------
 
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
@@ -1493,6 +1507,11 @@ class BetrustedSoC(SoCCore):
             self.spinor.add_timing_constraints(platform, "spiflash_8x")
             self.specials += MultiReg(warm_reset, self.spinor.gsr)
             self.comb += self.spinor.keyclearb.eq(~self.power.power.fields.selfdestruct),
+            # a CSR block for sourcing software interrupts in the spinor server. It's disintegrated because it's a bit
+            # painful to insert stuff into the S7SPIOPI block in the LiteX repo.
+            self.submodules.spinor_soft_int = SpinorSoftInt()
+            self.add_csr("spinor_soft_int")
+            self.add_interrupt("spinor_soft_int")
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
