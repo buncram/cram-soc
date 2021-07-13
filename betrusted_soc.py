@@ -1515,6 +1515,7 @@ class BetrustedSoC(SoCCore):
 
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spinor.bus, size=SPI_FLASH_SIZE)
         self.add_csr("spinor")
+        self.add_interrupt("spinor")
 
         # Keyboard module --------------------------------------------------------------------------
         self.submodules.keyboard = ClockDomainsRenamer(cd_remapping={"kbd":"lpclk", "sys":"sys_always_on"})(keyboard.KeyScan(platform.request("kbd")))
