@@ -18,7 +18,7 @@ signal-common = { path = "../signal-common" }
 #default-features = false
 betrusted-hal = { path = "../../betrusted-hal" }
 betrusted-pac = { path = "../../betrusted-pac" }
-pac = { package = "betrusted-pac" }
+pac = { package = "betrusted-pac", version = "0" }
 
 [dependencies.orion]
 version = "0.15.2"
