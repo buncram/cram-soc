@@ -1912,14 +1912,17 @@ mathjax_config = {
         # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
         if Path(args.encrypt).is_file():
             print('Found {}, re-encrypting binary to the specified fuse settings.'.format(args.encrypt))
-            if not Path('keystore.bin').is_file():
-                subprocess.call([sys.executable, './gen_keyrom.py', '--dev-pubkey', './devkey/dev-x509.crt', '--output', 'keystore.bin'])
+            #if not Path('keystore.bin').is_file():  # i think we always want to regenerate this file from source...
+            subprocess.call([sys.executable, './gen_keyrom.py', '--efuse-key', args.encrypt, '--dev-pubkey', './devkey/dev-x509.crt', '--output', 'keystore.bin'])
 
             print('Found keystore.bin, patching bitstream to contain specified keystore values.')
             with open('keystore.patch', 'w') as patchfile:
                 subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
                 keystore_args = '-pkeystore.patch'
-                enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
+                if bbram:
+                    enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '--bbram','-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
+                else:
+                    enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/betrusted_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
 
             subprocess.call(enc)
 

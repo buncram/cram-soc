@@ -8,6 +8,25 @@ from cryptography.hazmat.primitives.serialization import PublicFormat
 
 import binascii
 
+"""
+Reverse the order of bits in a word that is bitwidth bits wide
+"""
+def bitflip(data_block, bitwidth=32):
+    if bitwidth == 0:
+        return data_block
+
+    bytewidth = bitwidth // 8
+    bitswapped = bytearray()
+
+    i = 0
+    while i < len(data_block):
+        data = int.from_bytes(data_block[i:i+bytewidth], byteorder='big', signed=False)
+        b = '{:0{width}b}'.format(data, width=bitwidth)
+        bitswapped.extend(int(b[::-1], 2).to_bytes(bytewidth, byteorder='big'))
+        i = i + bytewidth
+
+    return bytes(bitswapped)
+
 def main():
     global DEVKEY_PATH
 
@@ -17,6 +36,9 @@ def main():
     )
     parser.add_argument(
         "--output", required=False, help="output name, defaults to keystore.bin", type=str, nargs='?', metavar=('output file'), const='keystore.bin'
+    )
+    parser.add_argument(
+        "--efuse-key", help="populates the FPGA AES key with a locally generated .nky file", type=str, nargs='?', metavar=('.nky file'), const='blank.nky'
     )
     args = parser.parse_args()
     if not len(sys.argv) > 1:
@@ -33,6 +55,16 @@ def main():
     else:
         dev_pubkey = args.dev_pubkey
 
+    if args.efuse_key:
+        with open(args.efuse_key, "r") as nky:
+            for lines in nky:
+                line = lines.split(' ')
+                if line[1] == '0':
+                    nky_key = line[2].rstrip().rstrip(';')
+        efuse_key = int(nky_key, 16).to_bytes(32, byteorder='big')
+    else:
+        efuse_key = bytes([0] * 32)
+
     with open(dev_pubkey, "rb") as dev_pubkey_f:
         cert_file = dev_pubkey_f.read()
         #print(cert_file)
@@ -42,7 +74,8 @@ def main():
 
         with open(output_file, "wb") as ofile:
             written = 0
-            written += ofile.write(bytes([0] * 0x18 * 4)) # pad to the public key
+            written += ofile.write(efuse_key)
+            written += ofile.write(bytes([0] * 0x10 * 4)) # pad to the public key
             written += ofile.write(pubkey)
             written += ofile.write(bytes([0] * ( (0xff * 4) - written)))
             written += ofile.write(bytes(int(0x0001).to_bytes(4, 'little'))) # version 00.01 plus all other fuses blank
