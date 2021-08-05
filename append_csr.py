@@ -56,11 +56,13 @@ def main():
                    position = position + 1
                 program_data = bits[position:]
 
-                ofile.write(bytes([0xff] * 8)) # insert padding so that AES blocks line up on erase block boundaries
+                aes_padding = 8 # insert padding so that AES blocks line up on erase block boundaries
+                # this may have to be adjusted if you change the bitstream header parameters
+                ofile.write(bytes([0xff] * aes_padding))
 
                 ofile.write(program_data)
                 # pad it, so the CSR data is in the right place
-                bs_padding = bytes([0xff]) * (bitstream_pad_to - len(program_data))
+                bs_padding = bytes([0xff]) * (bitstream_pad_to - (len(program_data) + aes_padding))
                 ofile.write(bs_padding)
 
                 # add the CSR data
