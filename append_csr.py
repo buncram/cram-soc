@@ -55,7 +55,9 @@ def main():
                       break
                    position = position + 1
                 program_data = bits[position:]
-                                                                    
+
+                ofile.write(bytes([0xff] * 8)) # insert padding so that AES blocks line up on erase block boundaries
+
                 ofile.write(program_data)
                 # pad it, so the CSR data is in the right place
                 bs_padding = bytes([0xff]) * (bitstream_pad_to - len(program_data))
@@ -63,7 +65,7 @@ def main():
 
                 # add the CSR data
                 ofile.write(odata)
-            
+
 
 if __name__ == "__main__":
     main()
