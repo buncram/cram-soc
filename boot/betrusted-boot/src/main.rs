@@ -317,85 +317,120 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     // select the public key
     let mut keyrom = Keyrom::new();
-    let keyloc =
-        if !keyrom.key_is_zero(KeyLoc::SelfSignPub) { // self-signing key takes priority
-            if keyrom.key_is_dev(KeyLoc::SelfSignPub) {
+    let mut keyloc = KeyLoc::SelfSignPub; // start from the self-sign key first, then work your way to less secure options
+    loop {
+        match keyloc {
+            KeyLoc::SelfSignPub => {
+                if !keyrom.key_is_zero(KeyLoc::SelfSignPub) { // self-signing key takes priority
+                    if keyrom.key_is_dev(KeyLoc::SelfSignPub) {
+                        // mainly to protect against devs who were debugging and just stuck a dev key in the secure slot, and forgot to remove it.
+                        gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
+                        gfx.set_devboot();
+                    }
+                } else {
+                    keyloc = KeyLoc::ThirdPartyPub;
+                    continue;
+                }
+            },
+            KeyLoc::ThirdPartyPub => {
+                // policy note: set the devboot flag also if we're doing a thirdparty pubkey boot
+                // reasoning: the purpose of the hash mark is to indicate if someone could have tampered
+                // with the device. Once an update is installed, it should always be self-signed, as it
+                // protects against the third party pubkey from being compromised and an alternate firmware
+                // being installed with no visible warning. Hence, even tho thirdparty pubkey boots could
+                // be more trusted, let's still flag it.
+                gfx.set_devboot();
+                if !keyrom.key_is_zero(KeyLoc::ThirdPartyPub) { // third party key is second in line
+                    if keyrom.key_is_dev(KeyLoc::ThirdPartyPub) {
+                        gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
+                    }
+                } else {
+                    keyloc = KeyLoc::DevPub;
+                    continue;
+                }
+            },
+            KeyLoc::DevPub => {
+                if keyrom.key_is_zero(KeyLoc::DevPub) {
+                    gfx.msg("Can't boot: No valid keys!", &mut cursor);
+                    loop {}
+                }
                 gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
                 gfx.set_devboot();
             }
-            KeyLoc::SelfSignPub
-        } else if !keyrom.key_is_zero(KeyLoc::ThirdPartyPub) { // third party key is second in line
-            if keyrom.key_is_dev(KeyLoc::ThirdPartyPub) {
-                gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
-                gfx.set_devboot();
-            }
-            KeyLoc::ThirdPartyPub
-        } else {
-            if keyrom.key_is_zero(KeyLoc::DevPub) {
-                gfx.msg("Can't boot: No valid keys!", &mut cursor);
-                loop {}
-            }
-            gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
-            gfx.set_devboot();
-            KeyLoc::DevPub
-        };
-    let pubkey = keyrom.read_ed25519(keyloc);
+        }
+        let pubkey = keyrom.read_ed25519(keyloc);
 
-    uart.tiny_write_str("Using public key: ");
-    for &b in pubkey.as_bytes().iter() {
-        uart.put_hex(b);
-    }
-    uart.newline();
-
-    if sig.version != 1 {
-        uart.tiny_write_str("Warning: version mismatch!");
+        uart.tiny_write_str("Using public key: ");
+        for &b in pubkey.as_bytes().iter() {
+            uart.put_hex(b);
+        }
         uart.newline();
-    }
-    let signed_len = sig.signed_len;
-    let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
-    let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
 
-    /* // some debug remnants that could be handy in the future
-    println!("pubkey: {:?}", pubkey);
-    println!("signature: {:?}", ed25519_signature);
-    println!("image bytes:");
-    for b in image[0..32].iter() {
-        print!("{:02x} ", b);
-    }
-    println!("");
-    println!("sha fifo status: 0x{:08x}", sha.r(utra::sha512::FIFO));
-    println!("sha config     : 0x{:08x}", sha.r(utra::sha512::CONFIG));
-    println!("sha command    : 0x{:08x}", sha.r(utra::sha512::COMMAND));
-    println!("sha msglen     : 0x{:08x}", sha.r(utra::sha512::MSG_LENGTH0));
-    println!("sha evstatus   : 0x{:08x}", sha.r(utra::sha512::EV_STATUS));
-    println!("sha evenable   : 0x{:08x}", sha.r(utra::sha512::EV_ENABLE));
-    */
+        if sig.version != 1 {
+            uart.tiny_write_str("Warning: version mismatch!");
+            uart.newline();
+        }
+        let signed_len = sig.signed_len;
+        let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
+        let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
 
-    use ed25519_dalek::Verifier;
-    if pubkey.verify(image, &ed25519_signature).is_ok() {
-        gfx.msg("Signature check passed\n\r", &mut cursor);
-        uart.tiny_write_str("Signature check passed\n\r");
-    } else {
-        // display message, then try to power down
-        gfx.msg("Signature check failed; powering down\n\r", &mut cursor);
-        uart.tiny_write_str("Signature check failed; powering down\n\r");
-        let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
-        let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
-        let mut com = CSR::new(utra::com::HW_COM_BASE as *mut u32);
-        let mut start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
-        loop {
-            // every 15 seconds, attempt to send a power down command
-            // any attempt to re-flash the system must halt the CPU before we time-out to this point!
-            if ticktimer.rf(utra::ticktimer::TIME0_TIME) - start > 15_000 {
-                power.rmwf(utra::power::POWER_STATE, 0);
-                power.rmwf(utra::power::POWER_SELF, 0);
+        /* // some debug remnants that could be handy in the future
+        println!("pubkey: {:?}", pubkey);
+        println!("signature: {:?}", ed25519_signature);
+        println!("image bytes:");
+        for b in image[0..32].iter() {
+            print!("{:02x} ", b);
+        }
+        println!("");
+        println!("sha fifo status: 0x{:08x}", sha.r(utra::sha512::FIFO));
+        println!("sha config     : 0x{:08x}", sha.r(utra::sha512::CONFIG));
+        println!("sha command    : 0x{:08x}", sha.r(utra::sha512::COMMAND));
+        println!("sha msglen     : 0x{:08x}", sha.r(utra::sha512::MSG_LENGTH0));
+        println!("sha evstatus   : 0x{:08x}", sha.r(utra::sha512::EV_STATUS));
+        println!("sha evenable   : 0x{:08x}", sha.r(utra::sha512::EV_ENABLE));
+        */
 
-                // ship mode is the safest mode -- suitable for long-term storage (~years)
-                com.wfo(utra::com::TX_TX, com_rs::ComState::POWER_SHIPMODE.verb as u32);
-                while com.rf(utra::com::STATUS_TIP) == 1 {}
-                let _ = com.rf(utra::com::RX_RX); // discard the RX result
+        use ed25519_dalek::Verifier;
+        if pubkey.verify(image, &ed25519_signature).is_ok() {
+            gfx.msg("Signature check passed\n\r", &mut cursor);
+            uart.tiny_write_str("Signature check passed\n\r");
+            break;
+        } else {
+            // signature didn't work out, setup the next key and try it
+            match keyloc {
+                KeyLoc::SelfSignPub => {
+                    keyloc = KeyLoc::ThirdPartyPub;
+                    continue;
+                }
+                KeyLoc::ThirdPartyPub => {
+                    // try another key and move on
+                    keyloc = KeyLoc::DevPub;
+                    continue;
+                }
+                KeyLoc::DevPub => {
+                    // we're out of keys...display message, then try to power down
+                    gfx.msg("Signature check failed; powering down\n\r", &mut cursor);
+                    uart.tiny_write_str("Signature check failed; powering down\n\r");
+                    let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+                    let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
+                    let mut com = CSR::new(utra::com::HW_COM_BASE as *mut u32);
+                    let mut start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+                    loop {
+                        // every 15 seconds, attempt to send a power down command
+                        // any attempt to re-flash the system must halt the CPU before we time-out to this point!
+                        if ticktimer.rf(utra::ticktimer::TIME0_TIME) - start > 15_000 {
+                            power.rmwf(utra::power::POWER_STATE, 0);
+                            power.rmwf(utra::power::POWER_SELF, 0);
 
-                start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+                            // ship mode is the safest mode -- suitable for long-term storage (~years)
+                            com.wfo(utra::com::TX_TX, com_rs::ComState::POWER_SHIPMODE.verb as u32);
+                            while com.rf(utra::com::STATUS_TIP) == 1 {}
+                            let _ = com.rf(utra::com::RX_RX); // discard the RX result
+
+                            start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+                        }
+                    }
+                }
             }
         }
     }
