@@ -45,8 +45,14 @@ def compute_metadata(checksum):
     maj = int(tag_fields[0])
     min = int(tag_fields[1])
     rev = int(tag_fields[2])
-    extra = int(tag_fields[3])
-    commit = int(tag_fields[4][1:], 16) # drop the 'g' prefix, it just means "git" (versus e.g. svn)
+    if len(tag_fields) > 3:
+        extra = int(tag_fields[3])
+    else:
+        extra = 0
+    if len(tag_fields) > 4:
+        commit = int(tag_fields[4][1:], 16) # drop the 'g' prefix, it just means "git" (versus e.g. svn)
+    else:
+        commit = 0
 
     # magic
     meta += int(0x61_74_65_6d).to_bytes(4, 'little')
