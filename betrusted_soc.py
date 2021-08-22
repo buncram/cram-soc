@@ -1667,7 +1667,6 @@ class BetrustedSoC(SoCCore):
         # Watchdog Timer -----------------------------------------------------------------------------
         self.submodules.wdt = WDT(platform)
         self.add_csr("wdt")
-        self.add_interrupt("wdt")
         self.comb += [
             # the STARTUPE2 block is in the SPINOR module, have to reach in and monkey patch these signals...
             wdt_reset.eq(self.wdt.gsr),
