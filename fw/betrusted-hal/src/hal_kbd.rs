@@ -13,13 +13,6 @@ const KBD_COLS: usize = 10;
 /// scan operation.
 
 
-/// returns the rows that have changed
-/// the result is a vector where each bit corresponds to one row. Useful for debugging.
-#[allow(dead_code)]
-fn kbd_rowchange(p: &betrusted_pac::Peripherals) -> u16 {
-    p.KEYBOARD.rowchange.read().bits() as u16
-}
-
 /// get the column activation contents of the given row
 /// row is coded as a binary number, so the result of kbd_rowchange has to be decoded from a binary
 /// vector of rows to a set of numbers prior to using this function
