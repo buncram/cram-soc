@@ -1737,8 +1737,23 @@ class BetrustedSoC(SoCCore):
         self.specials += MultiReg(self.com.hold, com_hold, "raw_12")
         self.sync.raw_12 += com_hold_r.eq(com_hold)
         self.comb += com_hold_wakeup.eq(com_hold_r & ~com_hold) # falling edge of hold, wakeup system
+
         console_wakeup = Signal()
-        self.specials += MultiReg(~uart_pins.rx, console_wakeup, "raw_12")
+        uart_trigger = Signal()
+        self.specials += MultiReg(~uart_pins.rx, uart_trigger, "raw_12")
+        # need to stretch out the wakeup signal from the UART: a UART frame is ~1041 12MHz clock cycles long
+        # which is long enough for the CPU to go back to sleep again. So keep the UART awake for 2047 cycles
+        # after getting a character, to ensure the interrupt handler fires.
+        uart_oneshot = Signal(11)
+        self.sync.raw_12 += [
+            If(uart_trigger,
+                uart_oneshot.eq( (2**uart_oneshot.nbits) - 1 )
+            ).Elif(uart_oneshot > 0,
+                uart_oneshot.eq(uart_oneshot - 1)
+            ),
+            console_wakeup.eq(uart_oneshot != 0)
+        ]
+
         self.comb += any_wakeup.eq(
             kbd_wakeup & self.power.kbd_wakeup |
             ticktimer_wakeup & self.power.ticktimer_wakeup |
