@@ -38,7 +38,13 @@ def compute_metadata(checksum):
     source_checksum = hashlib.md5(open('betrusted_soc.py', 'rb').read()).digest()
     tags = subprocess.check_output(["git", "describe", "--tags"])
     log = subprocess.check_output(["git", "log", "--name-status", "HEAD^..HEAD"])
-    status = subprocess.check_output(["git", "status"])
+    status_raw = subprocess.check_output(["git", "status"])
+    status = ""
+    for line in status_raw.decode('utf-8').split('\n'):
+        if "On branch" in line:
+            status += line
+        if "modified:" in line:
+            status += line
 
     tag_str = str(tags, encoding=sys.getdefaultencoding())
     tag_fields = tag_str[1:].strip().replace('-','.').split('.')
@@ -73,7 +79,7 @@ def compute_metadata(checksum):
     meta += bytestring_to_record(bytes(hostname, sys.getdefaultencoding()), 64)
     meta += bytestring_to_record(tags, 64)
     meta += bytestring_to_record(log, 512)
-    meta += bytestring_to_record(status, 1024)
+    meta += bytestring_to_record(bytes(status, sys.getdefaultencoding()), 1024)
 
     # pad to one page
     meta += bytes([0xff]) * (4096 - len(meta))
