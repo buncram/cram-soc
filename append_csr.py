@@ -40,11 +40,14 @@ def compute_metadata(checksum):
     log = subprocess.check_output(["git", "log", "--name-status", "HEAD^..HEAD"])
     status_raw = subprocess.check_output(["git", "status"])
     status = ""
-    for line in status_raw.decode('utf-8').split('\n'):
+    for line in status_raw.decode('utf-8').splitlines():
+        # use splitlines() because windows does \n\r, linux does \n only, and splitlines() handles both cases, removing all newline characters
         if "On branch" in line:
             status += line
+            status += '\n' # we only use '\n' on precursor
         if "modified:" in line:
             status += line
+            status += '\n'
 
     tag_str = str(tags, encoding=sys.getdefaultencoding())
     tag_fields = tag_str[1:].strip().replace('-','.').split('.')
