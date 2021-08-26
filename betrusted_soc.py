@@ -560,7 +560,7 @@ class CRG(Module, AutoCSR):
         mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB; always-on
         platform.add_platform_command("create_generated_clock -name usb_48 [get_pins MMCME2_ADV/CLKOUT0]")
 
-        mmcm.create_clkout(self.cd_spi, 18e6, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down, margin=0.05)
+        mmcm.create_clkout(self.cd_spi, 20e6, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)
         platform.add_platform_command("create_generated_clock -name spi_clk [get_pins MMCME2_ADV/CLKOUT1]")
 
         mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)  # delayed version for SPINOR cclk (different from COM SPI above)
@@ -1428,15 +1428,13 @@ class BetrustedSoC(SoCCore):
         self.submodules.com = spi.SPIController(platform.request("com"))
         self.add_csr("com")
         self.add_interrupt("com")
-        # 20.83ns = 1/2 of 24MHz clock, we are doing falling-to-rising timing
-        # up5k tsu = -0.5ns, th = 5.55ns, tpdmax = 10ns
-        # in reality, we are measuring a Tpd from the UP5K of 17ns. Routed input delay is ~3.9ns, which means
-        # the fastest clock period supported would be 23.9MHz - just shy of 24MHz, with no margin to spare.
         # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # could be as low as -0.5ns but why not
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 17.5 [get_ports {{com_cipo}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 6.0 [get_ports {{com_copi com_csn}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 16.0 [get_ports {{com_copi com_csn}}]")  # could be as large as 21ns but why not
+        # datasheet claims 10.0ns Tc-q max input delay
+        # measurement shows 14.1ns Tc-q. Set to 15ns for some safety margin.
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 19.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to 25.5ns...
         # cross domain clocking is handled with explicit software barrires, or with multiregs
         self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
         self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
