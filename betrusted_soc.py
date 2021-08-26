@@ -1425,16 +1425,18 @@ class BetrustedSoC(SoCCore):
             self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=self.mem_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # COM SPI interface ------------------------------------------------------------------------
-        self.submodules.com = spi.SPIController(platform.request("com"))
+        self.submodules.com = spi.SPIController(platform.request("com"), pipeline_cipo=True)
         self.add_csr("com")
         self.add_interrupt("com")
         # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
         # datasheet claims 10.0ns Tc-q max input delay
-        # measurement shows 14.1ns Tc-q. Set to 15ns for some safety margin.
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 19.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to 25.5ns...
+        # measurement shows 14.1ns Tc-q using SB_IO primitive on UP5K. Set to 15ns for some safety margin.
+        # measurement shows 21.8ns Tc-q using fabric SB_DFFS to pad on UP5K. This may not be robust at 20MHz.
+        self.platform.add_platform_command("create_clock -name spi_pin [get_ports com_sclk]")
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
         # cross domain clocking is handled with explicit software barrires, or with multiregs
         self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
         self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
