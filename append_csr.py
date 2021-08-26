@@ -43,10 +43,10 @@ def compute_metadata(checksum):
     for line in status_raw.decode('utf-8').splitlines():
         # use splitlines() because windows does \n\r, linux does \n only, and splitlines() handles both cases, removing all newline characters
         if "On branch" in line:
-            status += line
+            status += line.replace("\t", " ")
             status += '\n' # we only use '\n' on precursor
         if "modified:" in line:
-            status += line
+            status += line.replace("\t", " ")
             status += '\n'
 
     tag_str = str(tags, encoding=sys.getdefaultencoding())
@@ -81,7 +81,7 @@ def compute_metadata(checksum):
     meta += bytestring_to_record(bytes(date, sys.getdefaultencoding()), 64)
     meta += bytestring_to_record(bytes(hostname, sys.getdefaultencoding()), 64)
     meta += bytestring_to_record(tags, 64)
-    meta += bytestring_to_record(log, 512)
+    meta += bytestring_to_record(bytes(log.decode('utf8').replace('\t', ' '), sys.getdefaultencoding()), 512)
     meta += bytestring_to_record(bytes(status, sys.getdefaultencoding()), 1024)
 
     # pad to one page
