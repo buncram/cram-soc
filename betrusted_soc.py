@@ -784,16 +784,11 @@ class BtPower(Module, AutoCSR, AutoDoc):
         self.vibe = CSRStorage(1, description="Vibration motor configuration register", fields=[
             CSRField("vibe", size=1, description="Turn on vibration motor"),
         ])
-        s0 = Signal()
         self.comb += [
             pads.audio_on.eq(self.power.fields.audio),
             # This signal automatically enables snoop when SoC is powered down
             pads.allow_up5k_n.eq(~self.power.fields.ec_snoop),
-            s0.eq(self.power.fields.state[0] & ~ResetSignal()),
         ]
-        if (revision == 'pvt2'):
-            # replica version to firewall off u-domain manipulation of SRAM CE lines
-            self.comb += pads.pwr_s0_replica.eq(s0)
 
         if (revision != 'modnoise') and (xous == False):
             self.comb += pads.noise_on.eq(self.power.fields.noise),
@@ -833,22 +828,36 @@ class BtPower(Module, AutoCSR, AutoDoc):
             )
         ]
 
-        # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups). Use Hi-Z driver for less glitches.
-        self.pwr_s0_ts = TSTriple(1)
-        self.specials += self.pwr_s0_ts.get_tristate(pads.pwr_s0)
-        self.comb += [
-            self.pwr_s0_ts.oe.eq(s0),
-            self.pwr_s0_ts.o.eq(s0)
-        ]
-
-        # Hi-Z driver is less glitchy during power transients
+        # 4 cycles (40ns) delay between power-down, and CE & ZZ tri-state. This is to ensure that
+        # the CE & ZZ pins are definitely off before allowing the power to drop, or else we'll have RAM corruption
         self.powerdown_override = Signal()
+        pdo_delay = Signal(4, reset=0)
+        self.sync.sys_always_on += [
+            pdo_delay[3].eq(self.powerdown_override),
+            pdo_delay[2].eq(pdo_delay[3]),
+            pdo_delay[1].eq(pdo_delay[2]),
+            pdo_delay[0].eq(pdo_delay[1]),
+        ]
+        # Hi-Z driver is less glitchy during power transients
         self.sys_on_ts = TSTriple(1)
         self.specials += self.sys_on_ts.get_tristate(pads.fpga_sys_on)
         self.comb += [
-            self.sys_on_ts.oe.eq(self.power.fields.self & ~self.powerdown_override),
-            self.sys_on_ts.o.eq(self.power.fields.self & ~self.powerdown_override),
+            self.sys_on_ts.oe.eq(self.power.fields.self & ~pdo_delay[0]),
+            self.sys_on_ts.o.eq(self.power.fields.self & ~pdo_delay[1]),
         ]
+
+        # Ensure SRAM isolation during reset (CE & ZZ = 1 by pull-ups). Use Hi-Z driver for less glitches.
+        s0 = Signal()
+        self.pwr_s0_ts = TSTriple(1)
+        self.specials += self.pwr_s0_ts.get_tristate(pads.pwr_s0)
+        self.comb += [
+            s0.eq(self.power.fields.state[0] & ~ResetSignal()),
+            self.pwr_s0_ts.oe.eq(s0 & ~pdo_delay[0]),
+            self.pwr_s0_ts.o.eq(s0 & ~self.powerdown_override)
+        ]
+        if (revision == 'pvt2'):
+            # replica version to firewall off u-domain manipulation of SRAM CE lines
+            self.comb += pads.pwr_s0_replica.eq(s0 & ~self.powerdown_override)
 
         # Hi-Z driver is less glitchy, prevents boost mode power from re-glitching the power on during power off transitions
         self.boost_ts = TSTriple(1)
