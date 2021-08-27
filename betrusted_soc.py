@@ -831,9 +831,10 @@ class BtPower(Module, AutoCSR, AutoDoc):
         # 4 cycles (40ns) delay between power-down, and CE & ZZ tri-state. This is to ensure that
         # the CE & ZZ pins are definitely off before allowing the power to drop, or else we'll have RAM corruption
         self.powerdown_override = Signal()
+        self.l2_idle = Signal()
         pdo_delay = Signal(4, reset=0)
         self.sync.sys_always_on += [
-            pdo_delay[3].eq(self.powerdown_override),
+            pdo_delay[3].eq(self.powerdown_override & self.l2_idle),
             pdo_delay[2].eq(pdo_delay[3]),
             pdo_delay[1].eq(pdo_delay[2]),
             pdo_delay[0].eq(pdo_delay[1]),
@@ -1501,6 +1502,7 @@ class BetrustedSoC(SoCCore):
         self.add_csr("power")
         self.add_interrupt("power")
         self.comb += self.power.powerdown_override.eq(self.susres.powerdown_override)
+        self.comb += self.power.l2_idle.eq(self.sram_ext.cache_idle)
 
         # SPI flash controller ---------------------------------------------------------------------
         if legacy_spi:
