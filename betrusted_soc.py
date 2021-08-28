@@ -8,6 +8,7 @@
 LX_DEPENDENCIES = ["riscv", "vivado"]
 
 # Import lxbuildenv to integrate the deps/ directory
+from re import S
 import lxbuildenv
 import litex.soc.doc as lxsocdoc
 from pathlib import Path
@@ -682,7 +683,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
                 CSRField("audio",     size=1, description="Write `1` to power on the audio subsystem"),
                 CSRField("self",      size=1, description="Writing `1` forces self power-on (overrides the EC's ability to power me down)", reset=1),
                 CSRField("ec_snoop",  size=1, description="Writing `1` allows the insecure EC to snoop a couple keyboard pads for wakeup key sequence recognition"),
-                CSRField("state",     size=2, description="Current SoC power state. 0x=off or not ready, 10=on and safe to shutdown, 11=on and not safe to shut down, resets to 01 to allow extSRAM access immediately during init", reset=1),
+                CSRField("state",     size=2, description="Current SoC power state. 0=off or not ready, 1=on, resets to 1 to allow extSRAM access immediately during init", reset=1),
                 CSRField("noisebias", size=1, description="Writing `1` enables the primary bias supply for the noise generator"),
                 CSRField("noise",     size=2, description="Controls which of two noise channels are active; all combos valid. noisebias must be on first."),
                 CSRField("reset_ec",  size=1, description="Writing a `1` forces EC into reset. Requires write of `0` to release reset."),
@@ -1027,6 +1028,12 @@ class SusRes(Module, AutoDoc, AutoCSR):
         ])
         self.powerdown_override = Signal()
         self.comb += self.powerdown_override.eq(self.powerdown.fields.powerdown)
+
+        self.wfi = CSRStorage(1, fields=[
+            CSRField("override", description="Write a `1` to this register to disable WFI (used to make sure the suspend/resume is not interrupted by a CPU sleep cal)")
+        ])
+        self.wfi_override = Signal()
+        self.comb += self.wfi_override.eq(self.wfi.fields.override)
 
         self.interrupt = CSRStorage(1, fields=[
             CSRField("interrupt", size = 1, pulse=True,
@@ -1777,10 +1784,12 @@ class BetrustedSoC(SoCCore):
         )
         allow_wfi = Signal()
         self.specials += MultiReg(~self.power.power.fields.disable_wfi, allow_wfi, "raw_12")
+        suspend_pending = Signal()
+        self.specials += MultiReg(self.susres.wfi_override, suspend_pending, "raw_12")
         # other sources: COM, and give the screen its own free-running clock so it can update while cpu sleeps
         wfi_engaged = Signal()
         self.sync.raw_12 += [
-            self.crg.power_down.eq(wfi_engaged & allow_wfi),
+            self.crg.power_down.eq(wfi_engaged & allow_wfi & ~suspend_pending),
             # compute the WFI state
             If(any_wakeup, # any wakeup source will bring us out of WFI
                 wfi_engaged.eq(0)
