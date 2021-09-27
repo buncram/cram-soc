@@ -49,3 +49,6 @@
 [submodule "fw/x25519-dalek"]
 	path = fw/x25519-dalek
 	url = https://github.com/betrusted-io/x25519-dalek.git
+[submodule "deps/pythondata-software-picolibc"]
+	path = deps/pythondata-software-picolibc
+	url = https://github.com/litex-hub/pythondata-software-picolibc

@@ -17,6 +17,7 @@ DEFAULT_DEPS = {
     'litex':        'https://github.com/enjoy-digital/litex.git',
     'litedram':     'https://github.com/enjoy-digital/litedram.git',
     'litex_boards': 'https://github.com/litex-hub/litex-boards.git',
+    'pythondata_software_picolibc': 'https://github.com/litex-hub/pythondata-software-picolibc',
 }
 
 OPTIONAL_DEPS = {
