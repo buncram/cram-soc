@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# TODO: on 2021.12 release, remove picolibc and compiler_rt dependencies for the project.
+# See https://github.com/enjoy-digital/litex/issues/1045#issuecomment-928910870
+
 # This variable defines all the external programs that this module
 # relies on.  lxbuildenv reads this variable in order to ensure
 # the build will finish without exiting due to missing third-party
@@ -640,8 +643,8 @@ class WarmBoot(Module, AutoCSR):
 class BtEvents(Module, AutoCSR, AutoDoc):
     def __init__(self, com, rtc):
         self.submodules.ev = EventManager()
-        self.ev.com_int    = EventSourcePulse()   # rising edge triggered
-        self.ev.rtc_int    = EventSourceProcess() # falling edge triggered
+        self.ev.com_int    = EventSourceProcess(edge="rising")   # rising edge triggered
+        self.ev.rtc_int    = EventSourceProcess()                # falling edge triggered
         self.ev.finalize()
 
         com_int = Signal()
