@@ -707,7 +707,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
             CSRField("timer0", size=1, reset=1, description="Use timer0 (os timer) as wakeup source"),
             CSRField("usb", size=1, reset=1, description="Use USB k-transition as wakeup source"),
             CSRField("audio", size=1, reset=1, description="Use audio FIFO empty as wakeup source"),
-            CSRField("com", size=1, reset=1, description="Use COM hold falling as wakeup source"),
+            CSRField("com", size=1, reset=1, description="Use COM hold falling edge plus COM irq rising edge as wakeup source"),
             CSRField("rtc", size=1, reset=1, description="Use RTC external interrupt as wakeup source"),
             CSRField("console", size=1, reset=1, description="Use the console UART RX line dropping as wakeup source"),
         ])
@@ -1748,8 +1748,12 @@ class BetrustedSoC(SoCCore):
         any_wakeup = Signal()
         audio_wakeup = Signal()
         self.specials += MultiReg(self.audio.ev.rx_ready.trigger, audio_wakeup, "raw_12")
-        com_wakeup = Signal()
-        self.specials += MultiReg(self.btevents.com_pad, com_wakeup, "raw_12") # com_irq is active high
+        com_irq = Signal()
+        self.specials += MultiReg(self.btevents.com_pad, com_irq, "raw_12") # com_irq is rising edge triggered
+        com_irq_r = Signal()
+        com_irq_wakeup = Signal()
+        self.sync.raw_12 += com_irq_r.eq(com_irq)
+        self.comb += com_irq_wakeup.eq(~com_irq_r & com_irq) # rising edge trigger
         rtc_wakeup = Signal()
         self.specials += MultiReg(~self.btevents.rtc_pad, rtc_wakeup, "raw_12") # rtc interrupt is active low
         com_hold = Signal()
@@ -1782,6 +1786,7 @@ class BetrustedSoC(SoCCore):
             usb_wakeup  & self.power.usb_wakeup |
             audio_wakeup  & self.power.audio_wakeup |
             com_hold_wakeup  & self.power.com_wakeup |
+            com_irq_wakeup & self.power.com_wakeup |
             rtc_wakeup  & self.power.rtc_wakeup |
             console_wakeup  & self.power.console_wakeup
         )
