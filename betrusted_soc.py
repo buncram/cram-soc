@@ -1906,6 +1906,7 @@ def main():
             soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=None)
             builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
                 compile_software=False, compile_gateware=False)
+            builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
             vns = builder.build(run=False)
 
             os.system("cd boot && cargo xtask boot-image")
@@ -1926,6 +1927,7 @@ def main():
     builder = Builder(soc, output_dir="build",
         csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
         compile_software=False, compile_gateware=compile_gateware)
+    builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
 
     vns = builder.build()
 
