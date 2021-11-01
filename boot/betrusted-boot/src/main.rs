@@ -3,9 +3,10 @@
 
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
-const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.1\n\r";
+const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.2\n\r";
 // v0.2.0 -- intial version
 // v0.2.1 -- fix warmboot issue (SHA reset)
+// v0.2.2 -- check version & length in header against signed area
 
 const LOADER_DATA_OFFSET: u32 = 0x2050_1000;
 const LOADER_SIG_OFFSET: u32 = 0x2050_0000;
@@ -366,13 +367,25 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         }
         uart.newline();
 
-        if sig.version != 1 {
-            uart.tiny_write_str("Warning: version mismatch!");
-            uart.newline();
-        }
         let signed_len = sig.signed_len;
         let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
         let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
+
+        // extract the version and length from the signed region
+        use core::convert::TryInto;
+        let protected_version = u32::from_le_bytes(image[signed_len as usize - 8 .. signed_len as usize - 4].try_into().unwrap());
+        let protected_len = u32::from_le_bytes(image[signed_len as usize - 4 ..].try_into().unwrap());
+        // check that the signed versions match the version reported in the header
+        if sig.version != 1 || (sig.version != protected_version) {
+            gfx.msg("Sig version mismatch\n\r", &mut cursor);
+            uart.tiny_write_str("Sig version mismatch\n\r");
+            die();
+        }
+        if protected_len != signed_len - 4 {
+            gfx.msg("Sig length mismatch\n\r", &mut cursor);
+            uart.tiny_write_str("Sig length mismatch\n\r");
+            die();
+        }
 
         /* // some debug remnants that could be handy in the future
         println!("pubkey: {:?}", pubkey);
@@ -411,25 +424,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
                     // we're out of keys...display message, then try to power down
                     gfx.msg("Signature check failed; powering down\n\r", &mut cursor);
                     uart.tiny_write_str("Signature check failed; powering down\n\r");
-                    let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
-                    let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
-                    let mut com = CSR::new(utra::com::HW_COM_BASE as *mut u32);
-                    let mut start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
-                    loop {
-                        // every 15 seconds, attempt to send a power down command
-                        // any attempt to re-flash the system must halt the CPU before we time-out to this point!
-                        if ticktimer.rf(utra::ticktimer::TIME0_TIME) - start > 15_000 {
-                            power.rmwf(utra::power::POWER_STATE, 0);
-                            power.rmwf(utra::power::POWER_SELF, 0);
-
-                            // ship mode is the safest mode -- suitable for long-term storage (~years)
-                            com.wfo(utra::com::TX_TX, com_rs::ComState::POWER_SHIPMODE.verb as u32);
-                            while com.rf(utra::com::STATUS_TIP) == 1 {}
-                            let _ = com.rf(utra::com::RX_RX); // discard the RX result
-
-                            start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
-                        }
-                    }
+                    die();
                 }
             }
         }
@@ -485,6 +480,28 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     uart.tiny_write_str("Should have jumped to loader!");
     uart.newline();
     loop {
+    }
+}
+
+fn die() {
+    let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+    let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
+    let mut com = CSR::new(utra::com::HW_COM_BASE as *mut u32);
+    let mut start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+    loop {
+        // every 15 seconds, attempt to send a power down command
+        // any attempt to re-flash the system must halt the CPU before we time-out to this point!
+        if ticktimer.rf(utra::ticktimer::TIME0_TIME) - start > 15_000 {
+            power.rmwf(utra::power::POWER_STATE, 0);
+            power.rmwf(utra::power::POWER_SELF, 0);
+
+            // ship mode is the safest mode -- suitable for long-term storage (~years)
+            com.wfo(utra::com::TX_TX, com_rs::ComState::POWER_SHIPMODE.verb as u32);
+            while com.rf(utra::com::STATUS_TIP) == 1 {}
+            let _ = com.rf(utra::com::RX_RX); // discard the RX result
+
+            start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+        }
     }
 }
 
