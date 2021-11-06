@@ -1151,6 +1151,7 @@ class BetrustedSoC(SoCCore):
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
                  xous=False, usb_type='debug', uart_name="crossover", bios_path='boot/boot.bin',
+                 puppet=False,
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -1213,7 +1214,10 @@ class BetrustedSoC(SoCCore):
                 cpu_reset.eq(0)
             ),
         ]
-        self.comb += self.cpu.reset.eq(cpu_reset)
+        if puppet:
+            self.comb += self.cpu.reset.eq(1)
+        else:
+            self.comb += self.cpu.reset.eq(cpu_reset)
         # make a custom version of the timer0 core that's in the "always on" domain
         self.submodules.timer0 = ClockDomainsRenamer(cd_remapping={"always_on":"raw_12"})(TimerAlwaysOn())
         self.add_csr("timer0")
@@ -1236,7 +1240,8 @@ class BetrustedSoC(SoCCore):
            from litex.soc.cores.uart import UARTWishboneBridge
            self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
            self.add_wb_master(self.uart_bridge.wishbone)
-        self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
+        if puppet == False:
+            self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
 
         # Clockgen cluster -------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
@@ -1445,21 +1450,35 @@ class BetrustedSoC(SoCCore):
             self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=self.mem_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # COM SPI interface ------------------------------------------------------------------------
-        self.submodules.com = spi.SPIController(platform.request("com"), pipeline_cipo=True)
-        self.add_csr("com")
-        self.add_interrupt("com")
-        # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
-        # datasheet claims 10.0ns Tc-q max input delay
-        # measurement shows 14.1ns Tc-q using SB_IO primitive on UP5K. Set to 15ns for some safety margin.
-        # measurement shows 21.8ns Tc-q using fabric SB_DFFS to pad on UP5K. This may not be robust at 20MHz.
-        self.platform.add_platform_command("create_clock -name spi_pin [get_ports com_sclk]")
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
-        # cross domain clocking is handled with explicit software barrires, or with multiregs
-        self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
-        self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
+        if puppet:
+           from litex.soc.cores.uart import UARTWishboneBridge
+           com_pads = platform.request("com")
+           serial_layout = [("tx", 1), ("rx", 1)]
+           puppet_pads = Record(serial_layout)
+           self.comb += [
+               com_pads.copi.eq(puppet_pads.tx),
+               puppet_pads.rx.eq(com_pads.cipo)
+           ]
+           self.submodules.puppet_bridge = ClockDomainsRenamer({"sys":"sys_always_on"})(
+               UARTWishboneBridge(pads=puppet_pads, clk_freq=sys_clk_freq, baudrate=115200)
+           )
+           self.add_wb_master(self.puppet_bridge.wishbone)
+        else:
+            self.submodules.com = spi.SPIController(platform.request("com"), pipeline_cipo=True)
+            self.add_csr("com")
+            self.add_interrupt("com")
+            # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
+            # datasheet claims 10.0ns Tc-q max input delay
+            # measurement shows 14.1ns Tc-q using SB_IO primitive on UP5K. Set to 15ns for some safety margin.
+            # measurement shows 21.8ns Tc-q using fabric SB_DFFS to pad on UP5K. This may not be robust at 20MHz.
+            self.platform.add_platform_command("create_clock -name spi_pin [get_ports com_sclk]")
+            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
+            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
+            self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
+            self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
+            # cross domain clocking is handled with explicit software barrires, or with multiregs
+            self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
+            self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
 
         # I2C interface ----------------------------------------------------------------------------
         self.submodules.i2c = i2c.RTLI2C(platform, platform.request("i2c", 0))
@@ -1759,7 +1778,8 @@ class BetrustedSoC(SoCCore):
         com_hold = Signal()
         com_hold_r = Signal()
         com_hold_wakeup = Signal()
-        self.specials += MultiReg(self.com.hold, com_hold, "raw_12")
+        if puppet == False:
+            self.specials += MultiReg(self.com.hold, com_hold, "raw_12")
         self.sync.raw_12 += com_hold_r.eq(com_hold)
         self.comb += com_hold_wakeup.eq(com_hold_r & ~com_hold) # falling edge of hold, wakeup system
 
@@ -1796,17 +1816,24 @@ class BetrustedSoC(SoCCore):
         self.specials += MultiReg(self.susres.wfi_override, suspend_pending, "raw_12")
         # other sources: COM, and give the screen its own free-running clock so it can update while cpu sleeps
         wfi_engaged = Signal()
-        self.sync.raw_12 += [
-            self.crg.power_down.eq(wfi_engaged & allow_wfi & ~suspend_pending),
-            # compute the WFI state
-            If(any_wakeup, # any wakeup source will bring us out of WFI
-                wfi_engaged.eq(0)
-            ).Elif(wfi_falling_pulse & self.crg.mmcm.locked, # if the WFI pulse was seen, or we lose MMCM lock, stop the clocks
-                wfi_engaged.eq(1)
-            ).Else(
-                wfi_engaged.eq(wfi_engaged)
-            )
-        ]
+        if puppet:
+            # disable power management in puppet mode
+            self.sync.raw_12 += [
+                self.crg.power_down.eq(0),
+                wfi_engaged.eq(0),
+            ]
+        else:
+            self.sync.raw_12 += [
+                self.crg.power_down.eq(wfi_engaged & allow_wfi & ~suspend_pending),
+                # compute the WFI state
+                If(any_wakeup, # any wakeup source will bring us out of WFI
+                    wfi_engaged.eq(0)
+                ).Elif(wfi_falling_pulse & self.crg.mmcm.locked, # if the WFI pulse was seen, or we lose MMCM lock, stop the clocks
+                    wfi_engaged.eq(1)
+                ).Else(
+                    wfi_engaged.eq(wfi_engaged)
+                )
+            ]
         self.comb += self.power.power_down.eq(self.crg.power_down)
         # when set, this tells the CRG to ignore the "locked" output when computing a reset state from the PLL
         self.comb += self.crg.ignore_locked.eq(self.power.power.fields.ignore_locked | self.wfi.ignore_locked.fields.ignore_locked)
@@ -1841,6 +1868,9 @@ def main():
     )
     parser.add_argument(
         "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
+    )
+    parser.add_argument(
+        "--puppet", help="Builds a 'puppet' that can be controlled by the UP5K via a Wishbone UART. Replaces COM with the UART.", default=False, action="store_true",
     )
     parser.add_argument(
         "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
@@ -1921,7 +1951,7 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=bios_path)
+    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=bios_path, puppet=args.puppet)
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build",
