@@ -1287,9 +1287,10 @@ class BetrustedSoC(SoCCore):
                 pads=kernel_pads,
                 clk_freq=sys_clk_freq,
                 baudrate=115200))
-            self.submodules.uart = ResetInserter()(uart.UART(self.uart_phy,
-                tx_fifo_depth=16,
-                rx_fifo_depth=16))
+            self.submodules.uart = ResetInserter()(
+                ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UART(self.uart_phy,
+                    tx_fifo_depth=16, rx_fifo_depth=16)
+                ))
 
             self.add_csr("uart_phy")
             self.add_csr("uart")
@@ -1299,9 +1300,10 @@ class BetrustedSoC(SoCCore):
                 pads=console_pads,
                 clk_freq=sys_clk_freq,
                 baudrate=115200))
-            self.submodules.console = ResetInserter()(uart.UART(self.console_phy,
-                tx_fifo_depth=16,
-                rx_fifo_depth=16))
+            self.submodules.console = ResetInserter()(
+                ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UART(self.console_phy,
+                    tx_fifo_depth=16, rx_fifo_depth=16)
+                ))
 
             self.add_csr("console_phy")
             self.add_csr("console")
@@ -1312,9 +1314,10 @@ class BetrustedSoC(SoCCore):
                 pads=app_uart_pads,
                 clk_freq=sys_clk_freq,
                 baudrate=115200)
-            self.submodules.app_uart = ResetInserter()(uart.UART(self.app_uart_phy,
-                tx_fifo_depth=16,
-                rx_fifo_depth=16))
+            self.submodules.app_uart = ResetInserter()(
+                ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UART(self.app_uart_phy,
+                    tx_fifo_depth=16, rx_fifo_depth=16)
+                ))
 
             self.add_csr("app_uart_phy")
             self.add_csr("app_uart")
