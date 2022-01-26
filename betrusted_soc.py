@@ -1564,7 +1564,7 @@ class BetrustedSoC(SoCCore):
         self.submodules.keyboard = ClockDomainsRenamer(cd_remapping={"kbd":"lpclk", "sys":"sys_always_on"})(keyboard.KeyScan(platform.request("kbd")))
         self.add_csr("keyboard")
         self.add_interrupt("keyboard")
-        self.submodules.keyinject = KeyInject()
+        self.submodules.keyinject = ClockDomainsRenamer({"sys":"sys_always_on"})(KeyInject())
         self.add_csr("keyinject")
         self.comb += [
             self.keyboard.uart_inject.eq(self.keyinject.char),
