@@ -976,14 +976,16 @@ class KeyInject(Module, AutoDoc, AutoCSR):
 
         # this is used to permanently disable this backdoor, should a user desire to
         disable = Signal(reset=0)
-        self.uart_char = CSRStorage(9, fields = [
+        self.uart_char = CSRStorage(8, fields = [
             CSRField("char", size=8, description="character value to inject. Automatically raises an interrupt upon write. There is no interlock or FIFO buffering on this, so you can lose characters if you inject too fast."),
+        ])
+        self.disable = CSRStorage(1, fields = [
             CSRField("disable", size=1, description="writing a 1 permanently disables the block, until the next cold boot", reset=0),
         ])
         self.char = Signal(8)
         self.stb = Signal()
         self.sync += [
-            If(self.uart_char.fields.disable,
+            If(self.disable.fields.disable,
                 disable.eq(1)
             ).Else(
                 disable.eq(disable)
