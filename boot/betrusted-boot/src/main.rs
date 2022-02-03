@@ -3,10 +3,11 @@
 
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
-const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.2\n\r";
+const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.3\n\r";
 // v0.2.0 -- intial version
 // v0.2.1 -- fix warmboot issue (SHA reset)
 // v0.2.2 -- check version & length in header against signed area
+// v0.2.3 -- lock out key ROM on signature check failure
 
 const LOADER_DATA_OFFSET: u32 = 0x2050_1000;
 const LOADER_SIG_OFFSET: u32 = 0x2050_0000;
