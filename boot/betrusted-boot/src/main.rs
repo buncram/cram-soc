@@ -269,6 +269,12 @@ impl Keyrom {
         }
         ed25519_dalek::PublicKey::from_bytes(&pk_bytes).unwrap()
     }
+    /// locks all the keys from future read-out
+    pub fn lock(&mut self) {
+        for i in 0..256 {
+            self.csr.wfo(utra::keyrom::LOCKADDR_LOCKADDR, i);
+        }
+    }
 }
 
 #[export_name = "rust_entry"]
@@ -487,6 +493,8 @@ fn die() {
     let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
     let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
     let mut com = CSR::new(utra::com::HW_COM_BASE as *mut u32);
+    let mut keyrom = Keyrom::new();
+    keyrom.lock();
     let mut start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
     loop {
         // every 15 seconds, attempt to send a power down command
@@ -501,6 +509,7 @@ fn die() {
             let _ = com.rf(utra::com::RX_RX); // discard the RX result
 
             start = ticktimer.rf(utra::ticktimer::TIME0_TIME);
+            keyrom.lock();
         }
     }
 }
