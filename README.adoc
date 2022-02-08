@@ -4,6 +4,8 @@ This is the core secure-domain SoC for Betrusted.
 
 Compiled documentation: https://ci.betrusted.io/betrusted-soc/doc/[latest register set], https://ci.betrusted.io/betrusted-soc/rustdoc/betrusted_pac/[latest Rust API] documentation.
 
+image::soc_diagram.png[]
+
 ## Building ##
 
 1. Check out this repo with `git clone --recurse-submodules <repo>`.
