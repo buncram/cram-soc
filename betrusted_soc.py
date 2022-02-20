@@ -1243,7 +1243,8 @@ class BetrustedSoC(SoCCore):
            self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
            self.add_wb_master(self.uart_bridge.wishbone)
         if puppet == False:
-            self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
+            self.bus.add_slave("vexriscv_debug", self.cpu.debug_bus, SoCRegion(origin=0xefff0000, size=0x100, cached=False))
+            #self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
 
         # Clockgen cluster -------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
@@ -1476,11 +1477,11 @@ class BetrustedSoC(SoCCore):
             # datasheet claims 10.0ns Tc-q max input delay
             # measurement shows 14.1ns Tc-q using SB_IO primitive on UP5K. Set to 15ns for some safety margin.
             # measurement shows 21.8ns Tc-q using fabric SB_DFFS to pad on UP5K. This may not be robust at 20MHz.
-            self.platform.add_platform_command("create_clock -name spi_pin [get_ports com_sclk]")
-            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
-            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_pin] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
-            self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_pin] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
+            #self.platform.add_platform_command("create_clock -name spi_pin -period {:0.3f} [get_ports com_sclk]".format(1e9 / 20e6))
+            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
+            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
+            self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
+            self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
             # cross domain clocking is handled with explicit software barrires, or with multiregs
             self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
             self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
@@ -1687,12 +1688,17 @@ class BetrustedSoC(SoCCore):
             self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
             self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
             self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # self.platform.add_platform_command(
+            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.write_fifo.dout)
+            # self.platform.add_platform_command(
+            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.read_fifo.dout)
+            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
             self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
-                net=self.usb.debug_bridge.write_fifo.dout)
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
             self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
-                net=self.usb.debug_bridge.read_fifo.dout)
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
 
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
