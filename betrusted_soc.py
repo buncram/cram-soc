@@ -1474,12 +1474,13 @@ class BetrustedSoC(SoCCore):
             self.add_csr("com")
             self.add_interrupt("com")
             # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
-            # datasheet claims 10.0ns Tc-q max input delay
-            # measurement shows 14.1ns Tc-q using SB_IO primitive on UP5K. Set to 15ns for some safety margin.
-            # measurement shows 21.8ns Tc-q using fabric SB_DFFS to pad on UP5K. This may not be robust at 20MHz.
-            #self.platform.add_platform_command("create_clock -name spi_pin -period {:0.3f} [get_ports com_sclk]".format(1e9 / 20e6))
-            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # not specified, this is just a guess
-            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 15.0 [get_ports {{com_cipo}}]")
+            #   datasheet claims 10.0ns Tc-q max input delay
+            #   measurement shows 14.1ns Tc-q using SB_IO primitive on UP5K. Set to 15ns for some safety margin.
+            #   measurement shows 21.8ns Tc-q using fabric SB_DFFS to pad on UP5K. This may not be robust at 20MHz.
+            # min-delay is minimum Tck-q of EC: how fast can data change relative to spi_clk edge inside FPGA
+            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 14.1 [get_ports {{com_cipo}}]")
+            # max-delay is maximum Tck-q of EC: what's the longest it can take for data to settle relative to sp_clk edge inside FPGA
+            self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 21.8 [get_ports {{com_cipo}}]")
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
             self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
             # cross domain clocking is handled with explicit software barrires, or with multiregs
