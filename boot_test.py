@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+# boot_test.py is a stripped-down betrusted_soc.py that can be used for developing things
+# such as early boot ROM code that is burned into the SoC and USB cores. It includes only
+# the peripherals necessary to have Xous boot in the `base-pkgs` set, and it can also be built
+# without the crypto cores for a build that takes about 4-5 minutes to complete.
+
 # This variable defines all the external programs that this module
 # relies on.  lxbuildenv reads this variable in order to ensure
 # the build will finish without exiting due to missing third-party
 # programs.
-
 LX_DEPENDENCIES = ["riscv", "vivado"]
 
 # Import lxbuildenv to integrate the deps/ directory
@@ -35,8 +39,9 @@ from litex.soc.cores.spi_opi import S7SPIOPI
 from litex.soc.integration.soc import SoCRegion
 
 from gateware import info
-from gateware import sram_32_cached
+from gateware import sram_32
 from gateware import memlcd
+from gateware.wdt import WDT
 from gateware import spi_7series as spi
 from gateware import ticktimer
 from gateware.rom_block import BlockRom
@@ -401,7 +406,7 @@ class CRG(Module, AutoCSR):
         # timing to the "S" pins is not sensitive because we don't care if there is an extra clock pulse relative
         # to the gating. Glitch-free operation is guaranteed regardless!
         platform.add_platform_command('set_false_path -through [get_pins BUFGCTRL*/S*]')
-        platform.add_platform_command('set_false_path -through [get_nets vns_rst_meta*]') # fixes for a later version of vivado
+        platform.add_platform_command('set_false_path -through [get_nets rst_meta*]') # fixes for a later version of vivado
 
         self.ignore_locked = Signal()
         reset_combo = Signal()
@@ -656,6 +661,61 @@ class BtPower(Module, AutoCSR, AutoDoc):
             self.sd_ts.o.eq(self.power.fields.selfdestruct),
         ]
 
+# BtSeed -------------------------------------------------------------------------------------------
+
+class BtSeed(Module, AutoDoc, AutoCSR):
+    def __init__(self, reproduceable=False):
+        self.intro = ModuleDoc("""Place and route seed. Set to a fixed number for reproduceable builds.
+        Use a random number or your own number if you are paranoid about hardware implants that target
+        fixed locations within the FPGA.""")
+
+        if reproduceable:
+          seed_reset = int(4) # chosen by fair dice roll. guaranteed to be random.
+        else:
+          rng        = SystemRandom()
+          seed_reset = rng.getrandbits(64)
+        self.seed = CSRStatus(64, name="seed", description="Seed used for the build", reset=seed_reset)
+
+# Keyboard Injector -------------------------------------------------------------------------------
+
+class KeyInject(Module, AutoDoc, AutoCSR):
+    def __init__(self):
+        self.intro = ModuleDoc("""Used by developers to pass a key from the UART to the keyboard block.
+        This is necessary because memory space partitioning plus Rust dependency architecture does
+        not allow the logger block to access either the keyboard memory space or any of the facilities
+        that would normally allow a message to be passed to the keyboard interface. In particular,
+        every package depends upon the logger block; in order for the logger block to talk to the
+        keyboard interface, it would need to add the keyboard to its dependencies, which in turn
+        depends upon the logger, which creates a circular, unresolvable dependency in Rust. This block
+        allows us to break this dependency by creating a separate memory page for a CSR that we can
+        map into the logger's memory space, which is capable of raising an interrupt in the Keyboard's
+        memory space.""")
+
+        # this is used to permanently disable this backdoor, should a user desire to
+        disable = Signal(reset=0)
+        self.uart_char = CSRStorage(8, fields = [
+            CSRField("char", size=8, description="character value to inject. Automatically raises an interrupt upon write. There is no interlock or FIFO buffering on this, so you can lose characters if you inject too fast."),
+        ])
+        self.disable = CSRStorage(1, fields = [
+            CSRField("disable", size=1, description="writing a 1 permanently disables the block, until the next cold boot", reset=0),
+        ])
+        self.char = Signal(8)
+        self.stb = Signal()
+        self.sync += [
+            If(self.disable.fields.disable,
+                disable.eq(1)
+            ).Else(
+                disable.eq(disable)
+            ),
+            If(disable == 0,
+                self.stb.eq(self.uart_char.re),
+                self.char.eq(self.uart_char.fields.char),
+            ).Else(
+                self.stb.eq(0),
+                self.char.eq(0),
+            ),
+        ]
+
 # Suspend/Resume ---------------------------------------------------------------------------------
 
 class SusRes(Module, AutoDoc, AutoCSR):
@@ -691,6 +751,12 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.powerdown_override = Signal()
         self.comb += self.powerdown_override.eq(self.powerdown.fields.powerdown)
 
+        self.wfi = CSRStorage(1, fields=[
+            CSRField("override", description="Write a `1` to this register to disable WFI (used to make sure the suspend/resume is not interrupted by a CPU sleep cal)")
+        ])
+        self.wfi_override = Signal()
+        self.comb += self.wfi_override.eq(self.wfi.fields.override)
+
         self.interrupt = CSRStorage(1, fields=[
             CSRField("interrupt", size = 1, pulse=True,
                 description="Writing this causes an interrupt to fire. Used by Xous to initiate suspend/resume from an interrupt context."
@@ -700,6 +766,53 @@ class SusRes(Module, AutoDoc, AutoCSR):
         self.ev.soft_int = EventSourceProcess()
         self.kernel_resume_interrupt = Signal()
         self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt | self.kernel_resume_interrupt)
+
+# Deterministic timeout ---------------------------------------------------------------------------
+
+class D11cTime(Module, AutoDoc, AutoCSR):
+    def __init__(self, count=1638):
+        self.intro = ModuleDoc("""Deterministic Timeout
+        This module creates a heartbeat that is deterministic. If used correctly, it can help reduce
+        timing side channels on secure processes by giving them an independent, coarse source of
+        time. The idea is that a secure process may handle a request, and then wait for a heartbeat
+        from the D11cTime module to change polarity, which occurs at a regular interval,
+        before returning the result.
+
+        There is a trade-off on how frequent the heartbeat is versus information leakage versus
+        overall throughput of the secure module's responses. If the heartbeat is faster than the
+        maximum time to complete a computation, then information leakage will occur; if it is much
+        slower than the maximum time to complete a computation, then performance is reduced. Deterministic
+        timeout is not the end-all solution; adding noise and computational confounders are also
+        countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
+        hardware-efficient.
+
+        This block has been configured to default to {}ms timeout, assuming LPCLK is 32768Hz.
+        """.format( (count / 32768.0) * 1000.0 ))
+
+        self.control = CSRStorage(15, fields = [
+            CSRField("count", size=15, description="Number of 1/32768 second ticks before creating a heart beat", reset=count),
+        ])
+        self.heartbeat = CSRStatus(1, fields = [
+            CSRField("beat", description="Set to `1` at the next `count` interval rollover since `clear` was set."),
+        ])
+
+        slowcnt = Signal(15, reset=count)
+        self.submodules.cnt_sync = BusSynchronizer(15, "sys", "lpclk")
+        self.comb += [
+            self.cnt_sync.i.eq(self.control.fields.count),
+            slowcnt.eq(self.cnt_sync.o),
+        ]
+        counter = Signal(15, reset=count)
+        heartbeat = Signal(reset=0)
+        self.sync.lpclk += [
+            If(counter == 0,
+                counter.eq(slowcnt),
+                heartbeat.eq(~heartbeat),
+            ).Else(
+                counter.eq(counter - 1),
+            )
+        ]
+        self.specials += MultiReg(heartbeat, self.heartbeat.fields.beat)
 
 # WFI ---------------------------------------------------------------------------------------------
 
@@ -743,6 +856,7 @@ class BetrustedSoC(SoCCore):
                  uart_name="crossover", bios_path='boot/boot.bin',
                  simple=False,
                  usb_type='none',
+                 xous_primitives=True,
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -849,23 +963,46 @@ class BetrustedSoC(SoCCore):
             self.add_interrupt("console")
 
         elif uart_name == "serial":
+            # keep the kernel uart because it's required by the xous kernel to boot
+            # but hardware the console UART. Don't wire up the mux because it's controlled
+            # by the GPIO block which is not in this build.
             serial_layout = [("tx", 1), ("rx", 1)]
             kernel_pads = Record(serial_layout)
+            console_pads = Record(serial_layout)
             self.comb += [
-                uart_pins.tx.eq(kernel_pads.tx),
-                kernel_pads.rx.eq(uart_pins.rx),
+                #If(self.gpio.uartsel.storage == 0,
+                #    uart_pins.tx.eq(kernel_pads.tx),
+                #    kernel_pads.rx.eq(uart_pins.rx),
+                #).Else(self.gpio.uartsel.storage == 1,
+                    uart_pins.tx.eq(console_pads.tx),
+                    console_pads.rx.eq(uart_pins.rx),
+                #)
             ]
             self.submodules.uart_phy = ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UARTPHY(
                 pads=kernel_pads,
                 clk_freq=sys_clk_freq,
                 baudrate=115200))
-            self.submodules.uart = ResetInserter()(uart.UART(self.uart_phy,
-                tx_fifo_depth=16,
-                rx_fifo_depth=16))
+            self.submodules.uart = ResetInserter()(
+                ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UART(self.uart_phy,
+                    tx_fifo_depth=16, rx_fifo_depth=16)
+                ))
 
             self.add_csr("uart_phy")
             self.add_csr("uart")
             self.add_interrupt("uart")
+
+            self.submodules.console_phy = ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UARTPHY(
+                pads=console_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200))
+            self.submodules.console = ResetInserter()(
+                ClockDomainsRenamer({"sys":"sys_always_on"})(uart.UART(self.console_phy,
+                    tx_fifo_depth=16, rx_fifo_depth=16)
+                ))
+
+            self.add_csr("console_phy")
+            self.add_csr("console")
+            self.add_interrupt("console")
 
         self.submodules.info = info.Info(platform, self.__class__.__name__, use_xadc=False) # xadc is managed by TRNG
         self.add_csr("info")
@@ -881,7 +1018,9 @@ class BetrustedSoC(SoCCore):
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~320ns for 8 words.
-        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
+        # No caching in this build, to improve build times; reduces performance by ~30%.
+        #self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
+        self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3)
         self.add_csr("sram_ext")
         self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
         # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits (PS I'm not even sure this works...)
@@ -979,6 +1118,79 @@ class BetrustedSoC(SoCCore):
         self.submodules.keyrom = KeyRom(platform)
         self.add_csr("keyrom")
 
+        if xous_primitives: # primitives specifically needed to boot Xous, but not for loader/bootloader dev
+            # Managed TRNG Interface -------------------------------------------------------------------
+            if usb_type != 'none': # this is a proxy for configs that intend to boot a functional Xous for USB testing -- they will need a TRNG
+                from litex.soc.cores.xadc import analog_layout
+                analog_pads = Record(analog_layout)
+                analog = platform.request("analog")
+                self.comb += [
+                    analog_pads.vp.eq(analog.ana_vp),
+                    analog_pads.vn.eq(analog.ana_vn),
+                ]
+                # use explicit dummies to tie the analog inputs, otherwise the name space during finalization changes
+                # (e.g. FHDL adds 'betrustedsoc_' to the beginning of every netlist name to give a prefix to unnamed signals)
+                # notet that the added prefix messes up the .XDC constraints
+                dummy4 = Signal(4, reset=0)
+                dummy1 = Signal(1, reset=0)
+                self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
+                                                    analog.noise1,        # 4
+                                                    analog.gpio5,         # 5
+                                                    analog.vbus_div,      # 6
+                                                    dummy4,               # 7,8,9,10
+                                                    analog.gpio2,         # 11
+                                                    analog.noise0,        # 12
+                                                    dummy1,               # 13
+                                                    analog.usbdet_p,      # 14
+                                                    analog.usbdet_n,      # 15
+                                            )),
+                self.comb += analog_pads.vauxn.eq(Cat(dummy4,          # 0,1,2,3
+                                                    analog.noise1_n,      # 4
+                                                    analog.gpio5_n,       # 5
+                                                    analog.vbus_div_n,    # 6
+                                                    dummy4,               # 7,8,9,10
+                                                    analog.gpio2_n,       # 11
+                                                    analog.noise0_n,      # 12
+                                                    dummy1,               # 13
+                                                    analog.usbdet_p_n,    # 14
+                                                    analog.usbdet_n_n,    # 15
+                                            )),
+                from gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
+                self.submodules.trng_kernel = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedKernel())
+                self.add_csr("trng_kernel")
+                self.add_interrupt("trng_kernel")
+                self.submodules.trng_server = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedServer(ro_cores=4))
+                self.add_csr("trng_server")
+                self.add_interrupt("trng_server")
+                # put the TRNG proper into an always on domain. It has its own power manager and health tests.
+                # The TRNG adds about an 8.5mW power burden when it is in standby mode but clocks on
+                # NOTE: this is running with reduced RO cores, so the quality is reduced and not suitable for secure applications
+                self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on", "clk50":"clk50_always_on"})(
+                    TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision='pvt2', ro_cores=1))
+                self.add_csr("trng")
+
+            # Watchdog Timer -----------------------------------------------------------------------------
+            self.submodules.wdt = WDT(platform)
+            self.add_csr("wdt")
+            self.comb += [
+                # the STARTUPE2 block is in the SPINOR module, have to reach in and monkey patch these signals...
+                wdt_reset.eq(self.wdt.gsr),
+                self.wdt.cfgmclk.eq(self.spinor.cfgmclk),
+            ]
+
+            # Deterministic timeout helper ---------------------------------------------------------------
+            self.submodules.d11ctime = D11cTime(count=1638)
+            self.add_csr("d11ctime")
+
+            # Key inject - required by log-server; wired to nothing, as there is no keyboard module ------
+            self.submodules.keyinject = ClockDomainsRenamer({"sys":"sys_always_on"})(KeyInject())
+            self.add_csr("keyinject")
+
+            # Build seed -------------------------------------------------------------------------------
+            self.submodules.seed = BtSeed(reproduceable=False)
+            self.add_csr("seed")
+
+        # Optional USB core --------------------------------------------------------------------------
         if usb_type == 'valenty':
             from valentyusb.usbcore import io as usbio
             from valentyusb.usbcore.cpu import dummyusb
@@ -994,9 +1206,12 @@ class BetrustedSoC(SoCCore):
             #     net=self.usb.debug_bridge.read_fifo.dout)
             # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
             self.platform.add_platform_command(
-               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_7_dat1_reg*/D]')
             self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_8_dat1_reg*/D]')
+            #from migen.fhdl.namer import build_namespace
+            #print('******memory: {}'.format(ns.get_name(self.usb.debug_bridge.write_fifo.fifo.storage)))
+            #print('******memory: {}'.format(self.usb.debug_bridge.read_fifo.fifo.storage.get_name()))
         else:
             # What's left of a USB block (for WFI disable)
             usb_pads = platform.request("usb")
@@ -1199,7 +1414,7 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, xous=True, usb_type=args.usb_type, uart_name=uart_name, bios_path=None, simple=args.simple_boot)
+    soc = BetrustedSoC(platform, xous=True, usb_type=args.usb_type, uart_name=uart_name, bios_path=bios_path, simple=args.simple_boot)
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build",
