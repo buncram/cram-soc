@@ -826,7 +826,7 @@ class BetrustedSoC(SoCCore):
         #   from litex.soc.cores.uart import UARTWishboneBridge
         #   self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
         #   self.add_wb_master(self.uart_bridge.wishbone)
-        self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
+        self.bus.add_slave("vexriscv_debug", self.cpu.debug_bus, SoCRegion(origin=0xefff0000, size=0x100, cached=False))
 
         # Clockgen cluster -------------------------------------------------------------------------
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
@@ -901,7 +901,7 @@ class BetrustedSoC(SoCCore):
         # LCD interface ----------------------------------------------------------------------------
         self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd")))
         self.add_csr("memlcd")
-        self.register_mem("memlcd", self.mem_map["memlcd"], self.memlcd.bus, size=self.memlcd.fb_depth*4)
+        self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=self.mem_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # COM SPI interface ------------------------------------------------------------------------
         self.submodules.com = spi.SPIController(platform.request("com"))
@@ -1160,7 +1160,7 @@ def main():
             # do a first-pass to create the soc.svd file
             platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
             platform.add_extension(_io_uart_debug_swapped)
-            soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=None)
+            soc = BetrustedSoC(platform, xous=True, usb_type=args.usb_type, uart_name=uart_name, bios_path=None)
             builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
                 compile_software=False, compile_gateware=False)
             vns = builder.build(run=False)
