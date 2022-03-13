@@ -741,6 +741,8 @@ class BetrustedSoC(SoCCore):
 
     def __init__(self, platform, sys_clk_freq=int(100e6),
                  uart_name="crossover", bios_path='boot/boot.bin',
+                 simple=False,
+                 usb_type='none',
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -912,10 +914,12 @@ class BetrustedSoC(SoCCore):
         # in reality, we are measuring a Tpd from the UP5K of 17ns. Routed input delay is ~3.9ns, which means
         # the fastest clock period supported would be 23.9MHz - just shy of 24MHz, with no margin to spare.
         # slow down clock period of SPI to 20MHz, this gives us about a 4ns margin for setup for PVT variation
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 0.5 [get_ports {{com_cipo}}]") # could be as low as -0.5ns but why not
-        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 17.5 [get_ports {{com_cipo}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 6.0 [get_ports {{com_copi com_csn}}]")
-        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 16.0 [get_ports {{com_copi com_csn}}]")  # could be as large as 21ns but why not
+        # min-delay is minimum Tck-q of EC: how fast can data change relative to spi_clk edge inside FPGA
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -min -add_delay 14.1 [get_ports {{com_cipo}}]")
+        # max-delay is maximum Tck-q of EC: what's the longest it can take for data to settle relative to sp_clk edge inside FPGA
+        self.platform.add_platform_command("set_input_delay -clock [get_clocks spi_clk] -max -add_delay 21.8 [get_ports {{com_cipo}}]")
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -min -add_delay 5.55 [get_ports {{com_copi com_csn}}]") # UP5K input hold = 5.55
+        self.platform.add_platform_command("set_output_delay -clock [get_clocks spi_clk] -max -add_delay 10.0 [get_ports {{com_copi com_csn}}]") # UP5K input setup = -0.5; so could set to -0.5, but we can hit 10...
         # cross domain clocking is handled with explicit software barrires, or with multiregs
         self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_spi.clk)
         self.platform.add_false_path_constraints(self.crg.cd_spi.clk, self.crg.cd_sys.clk)
@@ -975,16 +979,36 @@ class BetrustedSoC(SoCCore):
         self.submodules.keyrom = KeyRom(platform)
         self.add_csr("keyrom")
 
-        # What's left of a USB block (for WFI disable)
-        usb_pads = platform.request("usb")
+        if usb_type == 'valenty':
+            from valentyusb.usbcore import io as usbio
+            from valentyusb.usbcore.cpu import dummyusb
+            usb_pads = platform.request("usb")
+            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor Devmode")
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # self.platform.add_platform_command(
+            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.write_fifo.dout)
+            # self.platform.add_platform_command(
+            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.read_fifo.dout)
+            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
+            self.platform.add_platform_command(
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
+        else:
+            # What's left of a USB block (for WFI disable)
+            usb_pads = platform.request("usb")
 
         # SHA-512 block ----------------------------------------------------------------------------
-        self.submodules.sha512 = sha512.Hmac(platform) # clk50 is only for crypto, so even though it doesn't have the _crypto suffix, it is gated with the _crypto clocks
-        self.add_csr("sha512")
-        self.add_interrupt("sha512")
-        self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
+        if simple == False: # doing signed boot
+            self.submodules.sha512 = sha512.Hmac(platform) # clk50 is only for crypto, so even though it doesn't have the _crypto suffix, it is gated with the _crypto clocks
+            self.add_csr("sha512")
+            self.add_interrupt("sha512")
+            self.bus.add_slave("sha512", self.sha512.bus, SoCRegion(origin=self.mem_map["sha512"], size=0x8, cached=False))
 
-        if False: # speed up compilation during initial debug
+        if simple == False: # doing signed boot
             # Curve25519 engine ------------------------------------------------------------------------
             self.submodules.engine = ClockDomainsRenamer({"eng_clk":"clk50", "rf_clk":"clk200_crypto", "mul_clk":"sys_crypto"})(Engine(platform, self.mem_map["engine"], build_prefix=prefix))
             self.add_csr("engine")
@@ -1116,7 +1140,7 @@ def main():
         "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
     )
     parser.add_argument(
-        "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
+        "-u", "--usb-type", choices=['valenty'], help="Select the USB core. Defaults to 'none'", default='none', type=str,
     )
     parser.add_argument(
         "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
@@ -1160,7 +1184,7 @@ def main():
             # do a first-pass to create the soc.svd file
             platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
             platform.add_extension(_io_uart_debug_swapped)
-            soc = BetrustedSoC(platform, xous=True, usb_type=args.usb_type, uart_name=uart_name, bios_path=None)
+            soc = BetrustedSoC(platform, xous=True, usb_type=args.usb_type, uart_name=uart_name, bios_path=None, simple=args.simple_boot)
             builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
                 compile_software=False, compile_gateware=False)
             vns = builder.build(run=False)
@@ -1175,7 +1199,7 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, uart_name=uart_name, bios_path=bios_path)
+    soc = BetrustedSoC(platform, xous=True, usb_type=args.usb_type, uart_name=uart_name, bios_path=None, simple=args.simple_boot)
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build",
