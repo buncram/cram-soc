@@ -1446,7 +1446,7 @@ mathjax_config = {
         if not os.path.exists('fw/rom-inject/src'): # make rom-inject/src if it doesn't exist, e.g. on clean checkout
             os.mkdir('fw/rom-inject/src')
         with open('fw/rom-inject/src/lib.rs', 'w+') as libfile:
-            subprocess.call([sys.executable, './key2bits.py', '-c', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=libfile)
+            subprocess.call([sys.executable, './key2bits.py', '-c', '-kkeystore.bin', '-rrom.db'], stdout=libfile)
 
     # now re-encrypt the binary if needed
     if encrypt and not args.document_only:
@@ -1461,7 +1461,7 @@ mathjax_config = {
 
             print('Found keystore.bin, patching bitstream to contain specified keystore values.')
             with open('keystore.patch', 'w') as patchfile:
-                subprocess.call([sys.executable, './key2bits.py', '-k../../keystore.bin', '-r../../rom.db'], cwd='deps/rom-locate', stdout=patchfile)
+                subprocess.call([sys.executable, './key2bits.py', '-kkeystore.bin', '-rrom.db'], stdout=patchfile)
                 keystore_args = '-pkeystore.patch'
                 enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/boot_test.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
 

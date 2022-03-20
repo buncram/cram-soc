@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# this file has been vendored in from https://github.com/betrusted-io/rom-locate to eliminate a big, ugly
+# depedency on an outdated version of Litex that is attached to the original rom-locate repo.
 """
 # Intro
 
