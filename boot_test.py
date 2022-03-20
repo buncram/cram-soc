@@ -1212,6 +1212,10 @@ class BetrustedSoC(SoCCore):
             #from migen.fhdl.namer import build_namespace
             #print('******memory: {}'.format(ns.get_name(self.usb.debug_bridge.write_fifo.fifo.storage)))
             #print('******memory: {}'.format(self.usb.debug_bridge.read_fifo.fifo.storage.get_name()))
+        elif usb_type == 'spinal':
+            from gateware.usb import usb_device
+            usb_pads = platform.request("usb")
+            self.submodules.usb = usb_device.USBDevice(platform, usb_pads)
         else:
             # What's left of a USB block (for WFI disable)
             usb_pads = platform.request("usb")
@@ -1345,8 +1349,11 @@ def main():
     if os.environ['PYTHONHASHSEED'] != "1":
         print( "PYTHONHASHEED must be set to 1 for consistent validation results. Failing to set this results in non-deterministic compilation results")
         return 1
-    # used to be -e blank.nky -u debug -x -s NoTimingRelaxation -r pvt2 -p
-    # now is -e blank.nky
+    # a minimal boot_test.py that also boots Xous is:
+    #   python .\boot_test.py --simple-boot -u valenty -e .\dummy.nky
+    #      --simple-boot -> bypasses all ROM generating and curve25519/sha512
+    #      -u valenty -> uses the valentyUSB debug core, so we can reflash using the USB update scripts
+    #      -e .\dummy.nky -> necessary because the artifact we want is soc_csr.bin, not boot_test.bin
     parser = argparse.ArgumentParser(description="Build the Betrusted SoC")
     parser.add_argument(
         "-D", "--document-only", default=False, action="store_true", help="Build docs only"
@@ -1355,7 +1362,7 @@ def main():
         "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
     )
     parser.add_argument(
-        "-u", "--usb-type", choices=['valenty'], help="Select the USB core. Defaults to 'none'", default='none', type=str,
+        "-u", "--usb-type", choices=['valenty', 'spinal'], help="Select the USB core. Defaults to 'none'", default='none', type=str,
     )
     parser.add_argument(
         "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
