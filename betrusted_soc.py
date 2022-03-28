@@ -1238,7 +1238,7 @@ class BetrustedSoC(SoCCore):
         setattr(self.submodules, "rom", rom)
 
         # Debug cluster ----------------------------------------------------------------------------
-        if usb_type != 'debug':  # wire up the debug UART automatically if we don't have USB debugging capability
+        if usb_type == 'device':  # wire up the debug UART automatically if we don't have USB debugging capability
            from litex.soc.cores.uart import UARTWishboneBridge
            self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
            self.add_wb_master(self.uart_bridge.wishbone)
@@ -1427,7 +1427,11 @@ class BetrustedSoC(SoCCore):
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~320ns for 8 words.
-        self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x2_0000)
+        if usb_type == 'spinal':
+            # smaller cache to reduce resource utilization
+            self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
+        else:
+            self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x2_0000)
         self.add_csr("sram_ext")
         self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
         # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits (PS I'm not even sure this works...)
@@ -1598,6 +1602,47 @@ class BetrustedSoC(SoCCore):
 
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
+        # USB FS block -----------------------------------------------------------------------------
+        if usb_type == 'device':
+            usb_pads = platform.request("usb")
+            usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
+            self.add_csr("usb")
+            self.add_interrupt("usb")
+            self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
+            # all multiregs are false paths!
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
+            # async fifos should be async fifos
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
+        elif usb_type=='debug':
+            from valentyusb.usbcore import io as usbio
+            from valentyusb.usbcore.cpu import dummyusb
+            usb_pads = platform.request("usb")
+            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
+            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # self.platform.add_platform_command(
+            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.write_fifo.dout)
+            # self.platform.add_platform_command(
+            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.read_fifo.dout)
+            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
+            self.platform.add_platform_command(
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
+        elif usb_type == 'spinal':
+            from gateware.usb import usb_device
+            usb_pads = platform.request("usb")
+            self.submodules.usb = usb_device.USBDevice(platform, usb_pads)
+
         if xous == True:
             # Managed TRNG Interface -------------------------------------------------------------------
             from gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
@@ -1664,43 +1709,6 @@ class BetrustedSoC(SoCCore):
         self.submodules.jtag = jtag_phy.BtJtag(platform.request("jtag"))
         self.add_csr("jtag")
 
-        # USB FS block -----------------------------------------------------------------------------
-        if usb_type == 'device':
-            usb_pads = platform.request("usb")
-            usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-            self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
-            self.add_csr("usb")
-            self.add_interrupt("usb")
-            self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
-            # all multiregs are false paths!
-            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
-            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
-            # async fifos should be async fifos
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
-        elif usb_type=='debug':
-            from valentyusb.usbcore import io as usbio
-            from valentyusb.usbcore.cpu import dummyusb
-            usb_pads = platform.request("usb")
-            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
-            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
-            self.add_wb_master(self.usb.debug_bridge.wishbone)
-            # self.platform.add_platform_command(
-            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.write_fifo.dout)
-            # self.platform.add_platform_command(
-            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.read_fifo.dout)
-            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
-            self.platform.add_platform_command(
-               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
-            self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
-
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
         # the ICAP block. An ICAP block can read out everything inside the FPGA, including key ROM,
@@ -1761,7 +1769,10 @@ class BetrustedSoC(SoCCore):
         timer0_wakeup = Signal()
         self.comb += timer0_wakeup.eq(self.timer0.trigger_always_on)
         usb_k = Signal()
-        self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
+        if usb_type == 'debug':
+            self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
+        elif usb_type == 'spinal':
+            self.specials += MultiReg(self.usb.k_state, usb_k, "raw_12")
         usb_extender = Signal(32)
         usb_wakeup = Signal()
         self.sync.raw_12 += [
@@ -1879,7 +1890,7 @@ def main():
         "-r", "--revision", choices=['modnoise', 'pvt', 'pvt2'], help="Build for a particular revision. Defaults to 'pvt2'", default='pvt2', type=str,
     )
     parser.add_argument(
-        "-u", "--usb-type", choices=['debug', 'device'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
+        "-u", "--usb-type", choices=['debug', 'device', 'spinal'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
     )
     parser.add_argument(
         "--puppet", help="Builds a 'puppet' that can be controlled by the UP5K via a Wishbone UART. Replaces COM with the UART.", default=False, action="store_true",

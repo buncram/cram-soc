@@ -1118,6 +1118,37 @@ class BetrustedSoC(SoCCore):
         self.submodules.keyrom = KeyRom(platform)
         self.add_csr("keyrom")
 
+        # Optional USB core --------------------------------------------------------------------------
+        # Note: oddly enough, this has to be before the TRNG because of a side-effect of a default_netlist directive inside the TRNG's cha cha modules
+        if usb_type == 'valenty':
+            from valentyusb.usbcore import io as usbio
+            from valentyusb.usbcore.cpu import dummyusb
+            usb_pads = platform.request("usb")
+            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor Devmode")
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # self.platform.add_platform_command(
+            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.write_fifo.dout)
+            # self.platform.add_platform_command(
+            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.read_fifo.dout)
+            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
+            self.platform.add_platform_command(
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_7_dat1_reg*/D]')
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_8_dat1_reg*/D]')
+            #from migen.fhdl.namer import build_namespace
+            #print('******memory: {}'.format(ns.get_name(self.usb.debug_bridge.write_fifo.fifo.storage)))
+            #print('******memory: {}'.format(self.usb.debug_bridge.read_fifo.fifo.storage.get_name()))
+        elif usb_type == 'spinal':
+            from gateware.usb import usb_device
+            usb_pads = platform.request("usb")
+            self.submodules.usb = usb_device.USBDevice(platform, usb_pads)
+        else:
+            # What's left of a USB block (for WFI disable)
+            usb_pads = platform.request("usb")
+
         if xous_primitives: # primitives specifically needed to boot Xous, but not for loader/bootloader dev
             # Managed TRNG Interface -------------------------------------------------------------------
             if usb_type != 'none': # this is a proxy for configs that intend to boot a functional Xous for USB testing -- they will need a TRNG
@@ -1190,36 +1221,6 @@ class BetrustedSoC(SoCCore):
             self.submodules.seed = BtSeed(reproduceable=False)
             self.add_csr("seed")
 
-        # Optional USB core --------------------------------------------------------------------------
-        if usb_type == 'valenty':
-            from valentyusb.usbcore import io as usbio
-            from valentyusb.usbcore.cpu import dummyusb
-            usb_pads = platform.request("usb")
-            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor Devmode")
-            self.add_wb_master(self.usb.debug_bridge.wishbone)
-            # self.platform.add_platform_command(
-            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.write_fifo.dout)
-            # self.platform.add_platform_command(
-            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.read_fifo.dout)
-            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
-            self.platform.add_platform_command(
-               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_7_dat1_reg*/D]')
-            self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_8_dat1_reg*/D]')
-            #from migen.fhdl.namer import build_namespace
-            #print('******memory: {}'.format(ns.get_name(self.usb.debug_bridge.write_fifo.fifo.storage)))
-            #print('******memory: {}'.format(self.usb.debug_bridge.read_fifo.fifo.storage.get_name()))
-        elif usb_type == 'spinal':
-            from gateware.usb import usb_device
-            usb_pads = platform.request("usb")
-            self.submodules.usb = usb_device.USBDevice(platform, usb_pads)
-        else:
-            # What's left of a USB block (for WFI disable)
-            usb_pads = platform.request("usb")
-
         # SHA-512 block ----------------------------------------------------------------------------
         if simple == False: # doing signed boot
             self.submodules.sha512 = sha512.Hmac(platform) # clk50 is only for crypto, so even though it doesn't have the _crypto suffix, it is gated with the _crypto clocks
@@ -1282,7 +1283,10 @@ class BetrustedSoC(SoCCore):
         timer0_wakeup = Signal()
         self.comb += timer0_wakeup.eq(self.timer0.trigger_always_on)
         usb_k = Signal()
-        self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
+        if usb_type == 'valenty':
+            self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
+        elif usb_type == 'spinal':
+            self.specials += MultiReg(self.usb.k_state, usb_k, "raw_12")
         usb_extender = Signal(32)
         usb_wakeup = Signal()
         self.sync.raw_12 += [
