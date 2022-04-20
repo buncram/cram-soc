@@ -1641,7 +1641,25 @@ class BetrustedSoC(SoCCore):
         elif usb_type == 'spinal':
             from gateware.usb import usb_device
             usb_pads = platform.request("usb")
-            self.submodules.usb = usb_device.USBDevice(platform, usb_pads)
+            self.submodules.usb_dev = usb_device.USBDevice(platform, usb_pads)
+
+            from valentyusb.usbcore import io as usbio
+            from valentyusb.usbcore.cpu import dummyusb
+            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
+            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # self.platform.add_platform_command(
+            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.write_fifo.dout)
+            # self.platform.add_platform_command(
+            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.read_fifo.dout)
+            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
+            self.platform.add_platform_command(
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
 
         if xous == True:
             # Managed TRNG Interface -------------------------------------------------------------------
