@@ -88,11 +88,6 @@ SECTIONS
     _edata = .;
   } > REGION_DATA AT > REGION_RODATA
 
-  .fonts ALIGN(65536) : SUBALIGN(65536)
-  {
-      KEEP(*(.fontdata));
-  } > REGION_RODATA
-
   .bss (NOLOAD) :
   {
     _sbss = .;

@@ -32,6 +32,7 @@ pub struct Interrupt {
     value: usize,
 }
 
+#[allow(dead_code)]
 #[derive(Default, Debug)]
 pub struct Peripheral {
     name: String,
