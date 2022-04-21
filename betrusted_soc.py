@@ -1249,6 +1249,10 @@ class BetrustedSoC(SoCCore):
         self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
         self.add_csr("crg")
         self.comb += self.crg.warm_reset.eq(warm_reset) # mirror signal here to hit the Async reset injectors
+        # lpclk/sys paths are async
+        self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks lpclk]')
+        # 12 always-on/sys paths are async
+        self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks clk12]')
 
         # GPIO module ------------------------------------------------------------------------------
         self.submodules.gpio = BtGpio(platform.request("gpio"))
@@ -1601,74 +1605,6 @@ class BetrustedSoC(SoCCore):
 
         self.comb += platform.request("au_mclk", 0).eq(self.crg.clk12_bufg)
 
-        # USB FS block -----------------------------------------------------------------------------
-        if usb_type == 'device':
-            usb_pads = platform.request("usb")
-            usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-            self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
-            self.add_csr("usb")
-            self.add_interrupt("usb")
-            self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
-            # all multiregs are false paths!
-            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
-            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
-            # async fifos should be async fifos
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
-            self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
-        elif usb_type=='debug':
-            from valentyusb.usbcore import io as usbio
-            from valentyusb.usbcore.cpu import dummyusb
-            usb_pads = platform.request("usb")
-            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
-            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
-            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
-            self.add_wb_master(self.usb.debug_bridge.wishbone)
-            # self.platform.add_platform_command(
-            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.write_fifo.dout)
-            # self.platform.add_platform_command(
-            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.read_fifo.dout)
-            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
-            self.platform.add_platform_command(
-               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
-            self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
-        elif usb_type == 'spinal':
-            from gateware.usb import usb_device
-            usb_ios = Record([
-                ("dp_i",  1), ("dp_o",  1), ("dp_oe", 1),
-                ("dm_i",  1), ("dm_o",  1), ("dm_oe", 1),
-            ])
-            # usb mux
-            # valenty wants a `usb_iobuf` structure with self.usb_[p,n]_[tx,rx] pairs, a self.usb_tx_en, and pull-up pin
-            # spinal wants a structure passed to it that defines a usb_ios record and it does the wiring based on that structure
-            usb_pads = platform.request("usb")
-            usb_iobuf = usb_device.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pullup_pin=usb_pads.pullup_p, alt_ios=usb_ios, alt_sel=self.gpio.usbselect.storage)
-
-            # spinal core
-            self.submodules.usb_dev = usb_device.USBDevice(platform, usb_ios)
-            self.bus.add_slave("usbdev", self.usb_dev.wb_ctrl, SoCRegion(origin=self.mem_map["usbdev"], size=65536, mode="rw", cached=False))
-            # all 48->sys paths are false because metastability is retimed by the logic (double check with @dolu1990)
-            self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_48]')
-            self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks sys_clk]')
-
-            # wishbone debug core
-            from valentyusb.usbcore.cpu import dummyusb
-            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
-            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
-            self.add_wb_master(self.usb.debug_bridge.wishbone)
-            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
-            self.platform.add_platform_command(
-               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
-            self.platform.add_platform_command(
-                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
-
         if xous == True:
             # Managed TRNG Interface -------------------------------------------------------------------
             from gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
@@ -1735,6 +1671,89 @@ class BetrustedSoC(SoCCore):
         self.submodules.jtag = jtag_phy.BtJtag(platform.request("jtag"))
         self.add_csr("jtag")
 
+        # Watchdog Timer ---------------------------------------------------------------------------
+        self.submodules.wdt = WDT(platform)
+        self.add_csr("wdt")
+        self.comb += [
+            # the STARTUPE2 block is in the SPINOR module, have to reach in and monkey patch these signals...
+            wdt_reset.eq(self.wdt.gsr),
+            self.wdt.cfgmclk.eq(self.spinor.cfgmclk),
+        ]
+
+        # USB FS block (located near end because it depends on most other blocks above) ------------
+        if usb_type == 'device':
+            usb_pads = platform.request("usb")
+            usb_iobuf = IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = TriEndpointInterface(usb_iobuf, cdc=True)
+            self.add_csr("usb")
+            self.add_interrupt("usb")
+            self.platform.add_platform_command("set_false_path -through [get_nets {}usb_usb_core_rx_o_reset]".format(prefix))
+            # all multiregs are false paths!
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*D*"}} -of_objects [get_cells xilinxmultireg*]]')
+            self.platform.add_platform_command('set_false_path -through [get_pins -filter {{NAME =~ "*Q*"}} -of_objects [get_cells xilinxmultireg*]]')
+            # async fifos should be async fifos
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_3*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_4*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_5*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_cells -filter {{NAME =~ "storage_7*"}}]')
+            self.platform.add_platform_command('set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_cells -filter {{NAME =~ "storage_6*"}}]')
+        elif usb_type=='debug':
+            from valentyusb.usbcore import io as usbio
+            from valentyusb.usbcore.cpu import dummyusb
+            usb_pads = platform.request("usb")
+            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
+            self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
+            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # self.platform.add_platform_command(
+            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.write_fifo.dout)
+            # self.platform.add_platform_command(
+            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
+            #     net=self.usb.debug_bridge.read_fifo.dout)
+            # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
+            self.platform.add_platform_command(
+               'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
+        elif usb_type == 'spinal':
+            from gateware.usb import usb_device
+            usb_ios = Record([
+                ("dp_i",  1), ("dp_o",  1), ("dp_oe", 1),
+                ("dm_i",  1), ("dm_o",  1), ("dm_oe", 1),
+            ])
+            # usb mux
+            # valenty wants a `usb_iobuf` structure with self.usb_[p,n]_[tx,rx] pairs, a self.usb_tx_en, and pull-up pin
+            # spinal wants a structure passed to it that defines a usb_ios record and it does the wiring based on that structure
+            usb_pads = platform.request("usb")
+            usb_iobuf = usb_device.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pullup_pin=usb_pads.pullup_p, alt_ios=usb_ios, alt_sel=self.gpio.usbselect.storage)
+
+            # spinal core
+            self.submodules.usb_dev = usb_device.USBDevice(platform, usb_ios)
+            self.bus.add_slave("usbdev", self.usb_dev.wb_ctrl, SoCRegion(origin=self.mem_map["usbdev"], size=65536, mode="rw", cached=False))
+            # all 48/sys paths are async (thanks to charles papon for suggesting this syntax)
+            self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks usb_48]')
+
+            # wishbone debug core
+            from valentyusb.usbcore.cpu import dummyusb
+            # this is the list of address ranges that the USB is allowed to access
+            filters=[
+                (self.mem_map['csr'] + (self.csr.locs['spinor'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['spinor'] + 1) * 0x1000),
+                (self.mem_map['csr'] + (self.csr.locs['wdt'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['wdt'] + 1) * 0x1000),
+                (self.mem_map['csr'] + (self.csr.locs['reboot'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['reboot'] + 1) * 0x1000),
+                (self.mem_map['vexriscv_debug'], self.mem_map['vexriscv_debug'] + 0x1000), # for resetting/halting the CPU
+                (self.mem_map['spiflash'] + 0x27_7000, self.mem_map['spiflash'] + 0x800_0000), # reading from FLASH, but not the gateware (which can be used as an oracle for WBSTAR attacks)
+            ]
+            self.submodules.usb = dummyusb.DummyUsb(
+                usb_iobuf, debug=True, burst=True, cdc=True,
+                relax_timing=True, product="Precursor " + revision,
+                filters=filters
+            )
+            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
+            self.add_wb_master(self.usb.debug_bridge.wishbone)
+            # 12/sys paths are also async
+            self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks usb_12]')
+
         # Lock down both ICAPE2 blocks -------------------------------------------------------------
         # this attempts to make it harder to partially reconfigure a bitstream that attempts to use
         # the ICAP block. An ICAP block can read out everything inside the FPGA, including key ROM,
@@ -1748,15 +1767,6 @@ class BetrustedSoC(SoCCore):
             Instance("ICAPE2", i_I=0, i_CLK=0, i_CSIB=1, i_RDWRB=1,
                      attr={"KEEP", "DONT_TOUCH", "icap1"}
                      ),
-        ]
-
-        # Watchdog Timer -----------------------------------------------------------------------------
-        self.submodules.wdt = WDT(platform)
-        self.add_csr("wdt")
-        self.comb += [
-            # the STARTUPE2 block is in the SPINOR module, have to reach in and monkey patch these signals...
-            wdt_reset.eq(self.wdt.gsr),
-            self.wdt.cfgmclk.eq(self.spinor.cfgmclk),
         ]
 
         # Deterministic timeout helper ---------------------------------------------------------------
