@@ -910,6 +910,7 @@ class BtGpio(Module, AutoDoc, AutoCSR):
                 description="Whet set, patches wakeup signal into GPIO1 instead of the usual data line. Must configure as output for the value to appear on the pin"),
         ])
         self.usbdisable = CSRStorage(1, name="usbdisable", description="When set to ``1``, USB debug is limited by remapping all wishbone request addresses to 0x8000_0000")
+        self.usbselect = CSRStorage(1, name="usbselect", description="When set to ``1``, the spinal USB device core is selected", reset=0)
 
         self.debug_wakeup = Signal()
         self.debug_wfi = Signal()
@@ -1144,6 +1145,7 @@ class BetrustedSoC(SoCCore):
         "sha2":            0xe0001000,
         "sha512":          0xe0002000,
         "engine":          0xe0020000,
+        "usbdev":          0xe0040000,
         "vexriscv_debug":  0xefff0000,
         "csr":             0xf0000000,
     }
@@ -1637,21 +1639,30 @@ class BetrustedSoC(SoCCore):
                 'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins storage_13_dat1_reg*/D]')
         elif usb_type == 'spinal':
             from gateware.usb import usb_device
+            usb_ios = Record([
+                ("dp_i",  1), ("dp_o",  1), ("dp_oe", 1),
+                ("dm_i",  1), ("dm_o",  1), ("dm_oe", 1),
+            ])
+            # usb mux
+            # valenty wants a `usb_iobuf` structure with self.usb_[p,n]_[tx,rx] pairs, a self.usb_tx_en, and pull-up pin
+            # spinal wants a structure passed to it that defines a usb_ios record and it does the wiring based on that structure
             usb_pads = platform.request("usb")
-            self.submodules.usb_dev = usb_device.USBDevice(platform, usb_pads)
+            usb_iobuf = usb_device.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pullup_pin=usb_pads.pullup_p, alt_ios=usb_ios, alt_sel=self.gpio.usbselect.storage)
 
-            from valentyusb.usbcore import io as usbio
+            # spinal core
+            self.submodules.usb_dev = usb_device.USBDevice(platform, usb_ios)
+            self.bus.add_slave("usbdev", self.usb_dev.wb_ctrl, SoCRegion(origin=self.mem_map["usbdev"], size=65536, mode="rw", cached=False))
+            # all 48->sys paths are false because metastability is retimed by the logic (double check with @dolu1990)
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_48]')
+            self.platform.add_platform_command(
+                'set_false_path -rise_from [get_clocks usb_48] -rise_to [get_clocks sys_clk]')
+
+            # wishbone debug core
             from valentyusb.usbcore.cpu import dummyusb
-            usb_iobuf = usbio.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pads.pullup_p)
             self.submodules.usb = dummyusb.DummyUsb(usb_iobuf, debug=True, burst=True, cdc=True, relax_timing=True, product="Precursor " + revision)
             self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
             self.add_wb_master(self.usb.debug_bridge.wishbone)
-            # self.platform.add_platform_command(
-            #    'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.write_fifo.dout)
-            # self.platform.add_platform_command(
-            #     'set_false_path -rise_from [get_clocks sys_clk] -rise_to [get_clocks usb_12] -through [get_pins {net}_reg*/D]',
-            #     net=self.usb.debug_bridge.read_fifo.dout)
             # The latest LiteX version rubs out the logical net names and replaces them with generic "storage_##" motifs. Let's pray this is consistent from compile-to-compile...
             self.platform.add_platform_command(
                'set_false_path -rise_from [get_clocks usb_12] -rise_to [get_clocks sys_clk] -through [get_pins storage_12_dat1_reg*/D]')
@@ -1784,10 +1795,7 @@ class BetrustedSoC(SoCCore):
         timer0_wakeup = Signal()
         self.comb += timer0_wakeup.eq(self.timer0.trigger_always_on)
         usb_k = Signal()
-        if usb_type == 'debug':
-            self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
-        elif usb_type == 'spinal':
-            self.specials += MultiReg(self.usb.k_state, usb_k, "raw_12")
+        self.specials += MultiReg(~usb_pads.d_p & usb_pads.d_n, usb_k, "raw_12")
         usb_extender = Signal(32)
         usb_wakeup = Signal()
         self.sync.raw_12 += [
