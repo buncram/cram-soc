@@ -1741,7 +1741,14 @@ class BetrustedSoC(SoCCore):
                 (self.mem_map['csr'] + (self.csr.locs['spinor'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['spinor'] + 1) * 0x1000),
                 (self.mem_map['csr'] + (self.csr.locs['wdt'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['wdt'] + 1) * 0x1000),
                 (self.mem_map['csr'] + (self.csr.locs['reboot'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['reboot'] + 1) * 0x1000),
-                (self.mem_map['vexriscv_debug'], self.mem_map['vexriscv_debug'] + 0x4), # for resetting/halting the CPU ONLY; block other addresses so JTAG debug doesn't work.
+                # for resetting/halting the CPU ONLY; block other addresses so JTAG debug doesn't work.
+                # these addresses are hard-coded because...somewhere in the code above...something...side-effects the address of the debug block
+                # and really wants to set it to 0xf00f0000, which is wrong. It's probably one of those things that LiteX has a hard-coded setting for
+                # because virtually nobody ever wants to remap it. However, we had to remap it on our system because our CSR space overflows
+                # directly into this location, because we set 4k pages between each CSR (and nobody else does this in the LiteX ecosystem,
+                # so it's a corner case that nobody else hits).
+                # what it should be but is wrong --> (self.mem_map['vexriscv_debug'], self.mem_map['vexriscv_debug'] + 0x4), # for resetting/halting the CPU ONLY; block other addresses so JTAG debug doesn't work.
+                (0xefff0000, 0xefff0000 + 0x4), # what we actually have
                 (self.mem_map['spiflash'] + 0x27_7000, self.mem_map['spiflash'] + 0x28_0000), # readout of the CSR spec in the gateware region
                 (self.mem_map['spiflash'] + 0x50_0000, self.mem_map['spiflash'] + 0x800_0000), # loader through rest of FLASH - should be encrypted/secured by gateware and/or not confidential
             ]
