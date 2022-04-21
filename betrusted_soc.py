@@ -1741,8 +1741,9 @@ class BetrustedSoC(SoCCore):
                 (self.mem_map['csr'] + (self.csr.locs['spinor'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['spinor'] + 1) * 0x1000),
                 (self.mem_map['csr'] + (self.csr.locs['wdt'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['wdt'] + 1) * 0x1000),
                 (self.mem_map['csr'] + (self.csr.locs['reboot'] * 0x1000), self.mem_map['csr'] + (self.csr.locs['reboot'] + 1) * 0x1000),
-                (self.mem_map['vexriscv_debug'], self.mem_map['vexriscv_debug'] + 0x1000), # for resetting/halting the CPU
-                (self.mem_map['spiflash'] + 0x27_7000, self.mem_map['spiflash'] + 0x800_0000), # reading from FLASH, but not the gateware (which can be used as an oracle for WBSTAR attacks)
+                (self.mem_map['vexriscv_debug'], self.mem_map['vexriscv_debug'] + 0x4), # for resetting/halting the CPU ONLY; block other addresses so JTAG debug doesn't work.
+                (self.mem_map['spiflash'] + 0x27_7000, self.mem_map['spiflash'] + 0x28_0000), # readout of the CSR spec in the gateware region
+                (self.mem_map['spiflash'] + 0x50_0000, self.mem_map['spiflash'] + 0x800_0000), # loader through rest of FLASH - should be encrypted/secured by gateware and/or not confidential
             ]
             self.submodules.usb = dummyusb.DummyUsb(
                 usb_iobuf, debug=True, burst=True, cdc=True,
