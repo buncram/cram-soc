@@ -1146,7 +1146,7 @@ class BetrustedSoC(SoCCore):
         "sha512":          0xe0002000,
         "engine":          0xe0020000,
         "usbdev":          0xe0040000,
-        "vexriscv_debug":  0xefff0000,
+        "vexriscv_debug":  0xefff0000, # this doesn't "stick", LiteX overrides it, so if you use it, you will have to hard code it. Also, search & replace for changes.
         "csr":             0xf0000000,
     }
 
@@ -1242,6 +1242,7 @@ class BetrustedSoC(SoCCore):
            self.submodules.uart_bridge = UARTWishboneBridge(platform.request("debug"), sys_clk_freq, baudrate=115200)
            self.add_wb_master(self.uart_bridge.wishbone)
         if puppet == False:
+            # the origin is hard-coded because LiteX overrides the mapping at some point.
             self.bus.add_slave("vexriscv_debug", self.cpu.debug_bus, SoCRegion(origin=0xefff0000, size=0x100, cached=False))
             #self.register_mem("vexriscv_debug", 0xefff0000, self.cpu.debug_bus, 0x100)
 
