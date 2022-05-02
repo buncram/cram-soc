@@ -1730,10 +1730,12 @@ class BetrustedSoC(SoCCore):
             usb_iobuf = usb_device.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pullup_pin=usb_pads.pullup_p, alt_ios=usb_ios, alt_sel=self.gpio.usbselect.storage)
 
             # spinal core
-            self.submodules.usb_dev = usb_device.USBDevice(platform, usb_ios)
-            self.bus.add_slave("usbdev", self.usb_dev.wb_ctrl, SoCRegion(origin=self.mem_map["usbdev"], size=65536, mode="rw", cached=False))
+            self.submodules.usbdev = usb_device.USBDevice(platform, usb_ios)
+            self.bus.add_slave("usbdev", self.usbdev.wb_ctrl, SoCRegion(origin=self.mem_map["usbdev"], size=65536, mode="rw", cached=False))
             # all 48/sys paths are async (thanks to charles papon for suggesting this syntax)
             self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks usb_48]')
+            self.add_csr("usbdev")
+            self.add_interrupt("usbdev")
 
             # wishbone debug core
             from valentyusb.usbcore.cpu import dummyusb
