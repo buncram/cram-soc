@@ -880,7 +880,7 @@ class BtPower(Module, AutoCSR, AutoDoc):
 # BtGpio -------------------------------------------------------------------------------------------
 
 class BtGpio(Module, AutoDoc, AutoCSR):
-    def __init__(self, pads):
+    def __init__(self, pads, usb_type="debug"):
         self.intro = ModuleDoc("""BtGpio - GPIO interface for betrusted""")
 
         gpio_in  = Signal(pads.nbits)
@@ -909,8 +909,8 @@ class BtGpio(Module, AutoDoc, AutoCSR):
             CSRField(name="wakeup", size=1,
                 description="Whet set, patches wakeup signal into GPIO1 instead of the usual data line. Must configure as output for the value to appear on the pin"),
         ])
-        self.usbdisable = CSRStorage(1, name="usbdisable", description="When set to ``1``, USB debug is limited by remapping all wishbone request addresses to 0x8000_0000")
-        self.usbselect = CSRStorage(1, name="usbselect", description="When set to ``1``, the spinal USB device core is selected", reset=0)
+        if usb_type != 'spinal':
+            self.usbdisable = CSRStorage(1, name="usbdisable", description="When set to ``1``, USB debug is limited by remapping all wishbone request addresses to 0x8000_0000")
 
         self.debug_wakeup = Signal()
         self.debug_wfi = Signal()
@@ -1256,7 +1256,7 @@ class BetrustedSoC(SoCCore):
         self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks clk12]')
 
         # GPIO module ------------------------------------------------------------------------------
-        self.submodules.gpio = BtGpio(platform.request("gpio"))
+        self.submodules.gpio = BtGpio(platform.request("gpio"), usb_type=usb_type)
         self.add_csr("gpio")
         self.add_interrupt("gpio")
 
@@ -1727,7 +1727,12 @@ class BetrustedSoC(SoCCore):
             # valenty wants a `usb_iobuf` structure with self.usb_[p,n]_[tx,rx] pairs, a self.usb_tx_en, and pull-up pin
             # spinal wants a structure passed to it that defines a usb_ios record and it does the wiring based on that structure
             usb_pads = platform.request("usb")
-            usb_iobuf = usb_device.IoBuf(usb_pads.d_p, usb_pads.d_n, usb_pullup_pin=usb_pads.pullup_p, alt_ios=usb_ios, alt_sel=self.gpio.usbselect.storage)
+            select_device=Signal()
+            usb_iobuf = usb_device.IoBuf(
+                usb_pads.d_p, usb_pads.d_n,
+                usb_pullup_pin=usb_pads.pullup_p,
+                select_device=select_device,
+                alt_ios=usb_ios)
 
             # spinal core
             self.submodules.usbdev = usb_device.USBDevice(platform, usb_ios)
@@ -1760,7 +1765,10 @@ class BetrustedSoC(SoCCore):
                 relax_timing=True, product="Precursor " + revision,
                 filters=filters
             )
-            self.comb += self.usb.debug_bridge.disable_wb.eq(self.gpio.usbdisable.storage) # wire up the USB disable bit
+            self.comb += [
+                select_device.eq(self.usbdev.usbselect.storage),
+                self.usb.debug_bridge.disable_wb.eq(self.usbdev.usbdisable.storage)
+            ]
             self.add_wb_master(self.usb.debug_bridge.wishbone)
             # 12/sys paths are also async
             self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks usb_12]')
