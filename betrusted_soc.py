@@ -1728,10 +1728,12 @@ class BetrustedSoC(SoCCore):
             # spinal wants a structure passed to it that defines a usb_ios record and it does the wiring based on that structure
             usb_pads = platform.request("usb")
             select_device=Signal()
+            force_reset=Signal()
             self.submodules.usbiobuf = usb_iobuf = usb_device.IoBuf(
                 usb_pads.d_p, usb_pads.d_n,
                 usb_pullup_pin=usb_pads.pullup_p,
                 select_device=select_device,
+                force_reset=force_reset,
                 alt_ios=usb_ios)
 
             # spinal core
@@ -1766,7 +1768,8 @@ class BetrustedSoC(SoCCore):
                 filters=filters
             )
             self.comb += [
-                select_device.eq(self.usbdev.usbselect.storage),
+                select_device.eq(self.usbdev.usbselect.fields.select_device),
+                force_reset.eq(self.usbdev.usbselect.fields.force_reset),
                 self.usb.debug_bridge.disable_wb.eq(self.usbdev.usbdisable.storage)
             ]
             self.add_wb_master(self.usb.debug_bridge.wishbone)
