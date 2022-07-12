@@ -1172,9 +1172,9 @@ class BetrustedSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, csr_data_width=32,
-            integrated_rom_size  = 0, # don't use default ROM
+            integrated_rom_size  = 0,    # don't use default ROM
             integrated_rom_init  = None, # bios_path,
-            integrated_sram_size = 0, # Use external SRAM for boot code
+            integrated_sram_size = 0,    # Use external SRAM for boot code
             ident                = "Precursor SoC " + revision,
             cpu_type             = "vexriscv",
             csr_paging           = 4096,  # increase paging to 1 page size
