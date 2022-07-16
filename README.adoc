@@ -11,6 +11,7 @@ image::soc_diagram.png[]
 1. Check out this repo with `git clone --recurse-submodules <repo>`.
 1. Ensure you have Python 3.5 or newer installed.
 1. Ensure the following python packages are available in your environment: `pycryptodome` (signing - PEM read), `cryptography` (signind - x509 read), `pynacl` (signing - ed25519 signatures), `progressbar2` (updates), `pyusb` (updates).
+1. Ensure the `riscv32imac-unknown-none-elf` Rust target is installed via `rustup target add riscv32imac-unknown-none-elf`.
 1. Ensure you have `make` installed.
 1. Download the Risc-V toolchain from https://www.sifive.com/products/tools/ and put it in your PATH.
 1. Go to https://www.xilinx.com/support/download.html and download `All OS installer Single-File Download`. Our CI system uses version 2019.2, but it has also been tested against 2020.2.
