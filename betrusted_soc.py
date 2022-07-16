@@ -449,7 +449,7 @@ class Platform(XilinxPlatform):
         self.add_platform_command(
             "set_property CONFIG_VOLTAGE 1.8 [current_design]")
         self.add_platform_command(
-            "set_property CFGBVS VCCO [current_design]")
+            "set_property CFGBVS GND [current_design]")
         self.add_platform_command(
             "set_property BITSTREAM.CONFIG.CONFIGRATE 66 [current_design]")
         self.add_platform_command(
