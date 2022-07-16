@@ -1945,7 +1945,7 @@ def main():
         "-r", "--revision", choices=['modnoise', 'pvt', 'pvt2'], help="Build for a particular revision. Defaults to 'pvt2'", default='pvt2', type=str,
     )
     parser.add_argument(
-        "-u", "--usb-type", choices=['debug', 'device', 'spinal'], help="Select the USB core. Defaults to 'debug'", default='debug', type=str,
+        "-u", "--usb-type", choices=['debug', 'device', 'spinal'], help="Select the USB core. Defaults to 'spinal'", default='spinal', type=str,
     )
     parser.add_argument(
         "--puppet", help="Builds a 'puppet' that can be controlled by the UP5K via a Wishbone UART. Replaces COM with the UART.", default=False, action="store_true",

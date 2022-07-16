@@ -21,19 +21,19 @@ image::soc_diagram.png[]
 There's a lot of options for betrusted-soc.py. The exact command line used to build a Betrusted SoC that is
 compatible with Xous as of July 2021 is:
 
-`./betrusted-soc.py -e blank.nky`
+`./betrusted-soc.py -e dummy.nky`
 
 The script will expect a file called `keystore.bin` to exist in the same directory. This is the initial
 keystore, documented at https://github.com/betrusted-io/betrusted-wiki/wiki/Secure-Boot-and-KEYROM-Layout.
-For brand new, "blank" devices, only the developer public key is necessary for boot.
+For brand new, "blank" devices with an all-0's key, only the developer public key is necessary for boot.
 
 Explanation:
-* `-e blank.nky` forces the creation of an encrypted image using the blank key.
+* `-e dummy.nky` forces the creation of an encrypted image using the all-0's key.
 This means we are always using the decryption pathway to configure an FPGA, even if
 we don't want to burn a key into the device.
 
 Legacy notes:
-* `-u debug` selects the debug USB PHY. You want this, so you can do firmware updates.
+* `-u spinal` selects the spinal USB PHY. You want this, so you can do firmware updates and can use USB HID.
 * `-x` selects the Xous boot configuration
 * `-s NoTimingRelaxation` forces the compiler to exactly meet timing constraints. You can
 probably drop this for a faster compilation time, but we prefer to leave it in for our sanity's sake
