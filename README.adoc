@@ -20,7 +20,7 @@ image::soc_diagram.png[]
 1. Run `./betrusted_soc.py` (or `python3 ./betrusted-soc.py`)
 
 There's a lot of options for betrusted_soc.py. The exact command line used to build a Betrusted SoC that is
-compatible with Xous as of July 2021 is:
+compatible with Xous v0.9.9 as of July 2022 is:
 
 `./betrusted_soc.py -e dummy.nky`
 
@@ -173,6 +173,6 @@ By participating in this project you agree to abide its terms.
 
 ## License
 
-Copyright © 2019 - 2020
+Copyright © 2019 - 2022
 
 Licensed under the https://ohwr.org/project/licenses/wikis/cern-ohl-v1.2[CERN OHL v1.2] link:LICENSE[LICENSE]
