@@ -58,6 +58,7 @@ from gateware import sha512_opentitan as sha512
 from gateware.curve25519.engine import Engine
 from gateware.timer_alwayson import TimerAlwaysOn
 from gateware.keyrom import KeyRom
+from gateware import perfcounter
 
 from valentyusb.usbcore.cpu.eptri import TriEndpointInterface
 from valentyusb.usbcore.io import IoBuf
@@ -1152,7 +1153,7 @@ class BetrustedSoC(SoCCore):
 
     def __init__(self, platform, revision, sys_clk_freq=int(100e6), legacy_spi=False,
                  xous=False, usb_type='debug', uart_name="crossover", bios_path='boot/boot.bin',
-                 puppet=False,
+                 puppet=False, use_perfcounter=False,
                  **kwargs):
         assert sys_clk_freq in [int(12e6), int(100e6)]
         global bios_size
@@ -1921,6 +1922,11 @@ class BetrustedSoC(SoCCore):
             self.gpio.debug_wakeup.eq(any_wakeup),
         ]
 
+        # Performance counter ------------------------------------------------------------------------
+        if use_perfcounter:
+            self.submodules.perfcounter = perfcounter.PerfCounter(self)
+            self.add_csr("perfcounter")
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -1958,6 +1964,9 @@ def main():
     )
     parser.add_argument(
         "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy. Defaults to NoTimingRelaxation.", default='NoTimingRelaxation', type=str
+    )
+    parser.add_argument(
+        "-c", "--perfcounter", default=False, help="Build with the performance counter module.", action="store_true",
     )
     parser.add_argument(
         "--simple-boot", help="Fall back to the simple, unsigned bootloader", default=False, action="store_true",
@@ -2029,7 +2038,16 @@ def main():
     platform.add_extension(_io_uart_debug_swapped)
 
     ##### define the soc
-    soc = BetrustedSoC(platform, args.revision, xous=args.xous, usb_type=args.usb_type, uart_name=uart_name, bios_path=bios_path, puppet=args.puppet)
+    soc = BetrustedSoC(
+        platform,
+        args.revision,
+        xous=args.xous,
+        usb_type=args.usb_type,
+        uart_name=uart_name,
+        bios_path=bios_path,
+        puppet=args.puppet,
+        use_perfcounter=args.perfcounter,
+    )
 
     ##### setup the builder and run it
     builder = Builder(soc, output_dir="build",
