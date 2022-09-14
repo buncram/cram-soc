@@ -1130,6 +1130,7 @@ class SpinorSoftInt(Module, AutoCSR, AutoDoc):
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
 bios_size      = 0x10000
 SPI_FLASH_SIZE = 128 * 1024 * 1024
+SRAM_EXT_SIZE  = 0x1000000
 prefix = ""  # sometimes 'soc_', sometimes '' prefix Litex is attaching to net names
 # changes randomly depending on how the build system feels (currently problems with Chisel doing weird things to net names when CPU core is regenerated)
 
@@ -1438,7 +1439,7 @@ class BetrustedSoC(SoCCore):
         else:
             self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x2_0000)
         self.add_csr("sram_ext")
-        self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=0x1000000)
+        self.register_mem("sram_ext", self.mem_map["sram_ext"], self.sram_ext.bus, size=SRAM_EXT_SIZE)
         # A bit of a bodge -- the path is actually async, so what we are doing is trying to constrain intra-channel skew by pushing them up against clock limits (PS I'm not even sure this works...)
         self.platform.add_platform_command("set_input_delay -clock [get_clocks sys_clk] -min -add_delay 4.0 [get_ports {{sram_d[*]}}]")
         self.platform.add_platform_command("set_input_delay -clock [get_clocks sys_clk] -max -add_delay 9.0 [get_ports {{sram_d[*]}}]")
@@ -1763,6 +1764,13 @@ class BetrustedSoC(SoCCore):
                 (self.mem_map['spiflash'] + 0x27_7000, self.mem_map['spiflash'] + 0x28_0000), # readout of the CSR spec in the gateware region
                 (self.mem_map['spiflash'] + 0x50_0000, self.mem_map['spiflash'] + 0x800_0000), # loader through rest of FLASH - should be encrypted/secured by gateware and/or not confidential
             ]
+            if use_perfcounter:
+                filters += [
+                    # allow USB full access to RAM, so that we can readout the contents of the perfcounter. This is very insecure, but
+                    # high-resolution performance profiling is also insecure as it facilitates timing attacks. In other words: don't use
+                    # this in production!
+                    (self.mem_map['sram_ext'], self.mem_map['sram_ext'] + SRAM_EXT_SIZE)
+                ]
             self.submodules.usb = dummyusb.DummyUsb(
                 usb_iobuf, debug=True, burst=True, cdc=True,
                 relax_timing=True, product="Precursor " + revision,
