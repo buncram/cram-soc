@@ -33,7 +33,7 @@
 	branch = burst-support
 [submodule "deps/pythondata-cpu-vexriscv"]
 	path = deps/pythondata-cpu-vexriscv
-	url = https://github.com/betrusted-io/pythondata-cpu-vexriscv.git
+	url = https://github.com/bunnie/pythondata-cpu-vexriscv.git
 [submodule "deps/compiler_rt"]
 	path = deps/compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt.git
