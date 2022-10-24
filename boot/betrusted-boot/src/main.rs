@@ -9,7 +9,9 @@ const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.3\n\r";
 // v0.2.2 -- check version & length in header against signed area
 // v0.2.3 -- lock out key ROM on signature check failure
 
+#[cfg(feature="hw-sec")]
 const LOADER_DATA_OFFSET: u32 = 0x2050_1000;
+#[cfg(feature="hw-sec")]
 const LOADER_SIG_OFFSET: u32 = 0x2050_0000;
 // changing the bootloader stack is very tricky. here's some places where it needs to be updated:
 // - here
@@ -34,6 +36,7 @@ mod debug;
       - we are trying to get away with direct putc() and tiny_write_str() calls. looks weird for Rust, but it saves a few bytes
 */
 #[repr(C)]
+#[cfg(feature="hw-sec")]
 struct SignatureInFlash {
     pub version: u32,
     pub signed_len: u32,
@@ -97,6 +100,7 @@ impl<'a> Gfx {
             false
         }
     }
+    #[allow(dead_code)]
     pub fn set_devboot(&mut self) {
         self.csr.wfo(utra::memlcd::DEVBOOT_DEVBOOT, 1);
     }
@@ -223,15 +227,18 @@ impl<'a> Gfx {
     }
 }
 
+#[cfg(feature="hw-sec")]
 struct Keyrom {
     csr: utralib::CSR<u32>,
 }
 #[derive(Copy, Clone)]
+#[cfg(feature="hw-sec")]
 enum KeyLoc {
     SelfSignPub = 0x10,
     DevPub = 0x18,
     ThirdPartyPub = 0x20,
 }
+#[cfg(feature="hw-sec")]
 impl Keyrom {
     pub fn new() -> Self {
         Keyrom {
@@ -280,19 +287,22 @@ impl Keyrom {
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
-    /////// hardware resets
-    let mut engine = utralib::CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
-    engine.wfo(utra::engine::POWER_ON, 0); // power off so as to force a re-sync of the clock domains, in case we entered with power on
+    #[cfg(feature="hw-sec")]
+    {
+        /////// hardware resets
+        let mut engine = utralib::CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
+        engine.wfo(utra::engine::POWER_ON, 0); // power off so as to force a re-sync of the clock domains, in case we entered with power on
 
-    // reset the SHA block, in case we're coming out of a warm reset
-    let mut sha = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
-    sha.wfo(utra::sha512::POWER_ON, 1);
-    sha.wfo(utra::sha512::CONFIG_RESET, 1); // this reset takes ~32 CPU cycles but we do plenty of other stuff
-    ///////// end hardware resets
+        // reset the SHA block, in case we're coming out of a warm reset
+        let mut sha = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
+        sha.wfo(utra::sha512::POWER_ON, 1);
+        sha.wfo(utra::sha512::CONFIG_RESET, 1); // this reset takes ~32 CPU cycles but we do plenty of other stuff
+        ///////// end hardware resets
 
-    // conjure the signature struct directly out of memory. super unsafe.
-    let sig_ptr = LOADER_SIG_OFFSET as *const SignatureInFlash;
-    let sig: &SignatureInFlash = sig_ptr.as_ref().unwrap();
+        // conjure the signature struct directly out of memory. super unsafe.
+        let sig_ptr = LOADER_SIG_OFFSET as *const SignatureInFlash;
+        let sig: &SignatureInFlash = sig_ptr.as_ref().unwrap();
+    }
     let mut cursor = Point {x: LEFT_MARGIN, y: 10};
 
     // initial banner
@@ -312,6 +322,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     gfx.update_all();
     while gfx.busy() { }
 
+    #[cfg(feature="hw-sec")]
     // power on the curve engine -- give it >16 cycles to sync up
     engine.wfo(utra::engine::POWER_ON, 1);
 
@@ -319,119 +330,122 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     uart.tiny_write_str(VERSION_STR);
     gfx.msg(VERSION_STR, &mut cursor);
 
-    // init the curve25519 engine
-    engine.wfo(utra::engine::WINDOW_WINDOW, 0);
-    engine.wfo(utra::engine::MPSTART_MPSTART, 0);
+    #[cfg(feature="hw-sec")]
+    {
+        // init the curve25519 engine
+        engine.wfo(utra::engine::WINDOW_WINDOW, 0);
+        engine.wfo(utra::engine::MPSTART_MPSTART, 0);
 
-    // select the public key
-    let mut keyrom = Keyrom::new();
-    let mut keyloc = KeyLoc::SelfSignPub; // start from the self-sign key first, then work your way to less secure options
-    loop {
-        match keyloc {
-            KeyLoc::SelfSignPub => {
-                if !keyrom.key_is_zero(KeyLoc::SelfSignPub) { // self-signing key takes priority
-                    if keyrom.key_is_dev(KeyLoc::SelfSignPub) {
-                        // mainly to protect against devs who were debugging and just stuck a dev key in the secure slot, and forgot to remove it.
-                        gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
-                        gfx.set_devboot();
-                    }
-                } else {
-                    keyloc = KeyLoc::ThirdPartyPub;
-                    continue;
-                }
-            },
-            KeyLoc::ThirdPartyPub => {
-                // policy note: set the devboot flag also if we're doing a thirdparty pubkey boot
-                // reasoning: the purpose of the hash mark is to indicate if someone could have tampered
-                // with the device. Once an update is installed, it should always be self-signed, as it
-                // protects against the third party pubkey from being compromised and an alternate firmware
-                // being installed with no visible warning. Hence, even tho thirdparty pubkey boots could
-                // be more trusted, let's still flag it.
-                gfx.set_devboot();
-                if !keyrom.key_is_zero(KeyLoc::ThirdPartyPub) { // third party key is second in line
-                    if keyrom.key_is_dev(KeyLoc::ThirdPartyPub) {
-                        gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
-                    }
-                } else {
-                    keyloc = KeyLoc::DevPub;
-                    continue;
-                }
-            },
-            KeyLoc::DevPub => {
-                if keyrom.key_is_zero(KeyLoc::DevPub) {
-                    gfx.msg("Can't boot: No valid keys!", &mut cursor);
-                    loop {}
-                }
-                gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
-                gfx.set_devboot();
-            }
-        }
-        let pubkey = keyrom.read_ed25519(keyloc);
-
-        uart.tiny_write_str("Using public key: ");
-        for &b in pubkey.as_bytes().iter() {
-            uart.put_hex(b);
-        }
-        uart.newline();
-
-        let signed_len = sig.signed_len;
-        let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
-        let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
-
-        // extract the version and length from the signed region
-        use core::convert::TryInto;
-        let protected_version = u32::from_le_bytes(image[signed_len as usize - 8 .. signed_len as usize - 4].try_into().unwrap());
-        let protected_len = u32::from_le_bytes(image[signed_len as usize - 4 ..].try_into().unwrap());
-        // check that the signed versions match the version reported in the header
-        if sig.version != 1 || (sig.version != protected_version) {
-            gfx.msg("Sig version mismatch\n\r", &mut cursor);
-            uart.tiny_write_str("Sig version mismatch\n\r");
-            die();
-        }
-        if protected_len != signed_len - 4 {
-            gfx.msg("Sig length mismatch\n\r", &mut cursor);
-            uart.tiny_write_str("Sig length mismatch\n\r");
-            die();
-        }
-
-        /* // some debug remnants that could be handy in the future
-        println!("pubkey: {:?}", pubkey);
-        println!("signature: {:?}", ed25519_signature);
-        println!("image bytes:");
-        for b in image[0..32].iter() {
-            print!("{:02x} ", b);
-        }
-        println!("");
-        println!("sha fifo status: 0x{:08x}", sha.r(utra::sha512::FIFO));
-        println!("sha config     : 0x{:08x}", sha.r(utra::sha512::CONFIG));
-        println!("sha command    : 0x{:08x}", sha.r(utra::sha512::COMMAND));
-        println!("sha msglen     : 0x{:08x}", sha.r(utra::sha512::MSG_LENGTH0));
-        println!("sha evstatus   : 0x{:08x}", sha.r(utra::sha512::EV_STATUS));
-        println!("sha evenable   : 0x{:08x}", sha.r(utra::sha512::EV_ENABLE));
-        */
-
-        use ed25519_dalek::Verifier;
-        if pubkey.verify(image, &ed25519_signature).is_ok() {
-            gfx.msg("Signature check passed\n\r", &mut cursor);
-            uart.tiny_write_str("Signature check passed\n\r");
-            break;
-        } else {
-            // signature didn't work out, setup the next key and try it
+        // select the public key
+        let mut keyrom = Keyrom::new();
+        let mut keyloc = KeyLoc::SelfSignPub; // start from the self-sign key first, then work your way to less secure options
+        loop {
             match keyloc {
                 KeyLoc::SelfSignPub => {
-                    keyloc = KeyLoc::ThirdPartyPub;
-                    continue;
-                }
+                    if !keyrom.key_is_zero(KeyLoc::SelfSignPub) { // self-signing key takes priority
+                        if keyrom.key_is_dev(KeyLoc::SelfSignPub) {
+                            // mainly to protect against devs who were debugging and just stuck a dev key in the secure slot, and forgot to remove it.
+                            gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
+                            gfx.set_devboot();
+                        }
+                    } else {
+                        keyloc = KeyLoc::ThirdPartyPub;
+                        continue;
+                    }
+                },
                 KeyLoc::ThirdPartyPub => {
-                    // try another key and move on
-                    keyloc = KeyLoc::DevPub;
-                    continue;
-                }
+                    // policy note: set the devboot flag also if we're doing a thirdparty pubkey boot
+                    // reasoning: the purpose of the hash mark is to indicate if someone could have tampered
+                    // with the device. Once an update is installed, it should always be self-signed, as it
+                    // protects against the third party pubkey from being compromised and an alternate firmware
+                    // being installed with no visible warning. Hence, even tho thirdparty pubkey boots could
+                    // be more trusted, let's still flag it.
+                    gfx.set_devboot();
+                    if !keyrom.key_is_zero(KeyLoc::ThirdPartyPub) { // third party key is second in line
+                        if keyrom.key_is_dev(KeyLoc::ThirdPartyPub) {
+                            gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
+                        }
+                    } else {
+                        keyloc = KeyLoc::DevPub;
+                        continue;
+                    }
+                },
                 KeyLoc::DevPub => {
-                    // we're out of keys...display message, then try to power down
-                    gfx.msg("Signature check failed; powering down\n\r", &mut cursor);
-                    uart.tiny_write_str("Signature check failed; powering down\n\r");
-                    die();
+                    if keyrom.key_is_zero(KeyLoc::DevPub) {
+                        gfx.msg("Can't boot: No valid keys!", &mut cursor);
+                        loop {}
+                    }
+                    gfx.msg("DEVELOPER KEY DETECTED\n\r", &mut cursor);
+                    gfx.set_devboot();
+                }
+            }
+            let pubkey = keyrom.read_ed25519(keyloc);
+
+            uart.tiny_write_str("Using public key: ");
+            for &b in pubkey.as_bytes().iter() {
+                uart.put_hex(b);
+            }
+            uart.newline();
+
+            let signed_len = sig.signed_len;
+            let image: &[u8] = core::slice::from_raw_parts(LOADER_DATA_OFFSET as *const u8, signed_len as usize);
+            let ed25519_signature = ed25519_dalek::Signature::from(sig.signature);
+
+            // extract the version and length from the signed region
+            use core::convert::TryInto;
+            let protected_version = u32::from_le_bytes(image[signed_len as usize - 8 .. signed_len as usize - 4].try_into().unwrap());
+            let protected_len = u32::from_le_bytes(image[signed_len as usize - 4 ..].try_into().unwrap());
+            // check that the signed versions match the version reported in the header
+            if sig.version != 1 || (sig.version != protected_version) {
+                gfx.msg("Sig version mismatch\n\r", &mut cursor);
+                uart.tiny_write_str("Sig version mismatch\n\r");
+                die();
+            }
+            if protected_len != signed_len - 4 {
+                gfx.msg("Sig length mismatch\n\r", &mut cursor);
+                uart.tiny_write_str("Sig length mismatch\n\r");
+                die();
+            }
+
+            /* // some debug remnants that could be handy in the future
+            println!("pubkey: {:?}", pubkey);
+            println!("signature: {:?}", ed25519_signature);
+            println!("image bytes:");
+            for b in image[0..32].iter() {
+                print!("{:02x} ", b);
+            }
+            println!("");
+            println!("sha fifo status: 0x{:08x}", sha.r(utra::sha512::FIFO));
+            println!("sha config     : 0x{:08x}", sha.r(utra::sha512::CONFIG));
+            println!("sha command    : 0x{:08x}", sha.r(utra::sha512::COMMAND));
+            println!("sha msglen     : 0x{:08x}", sha.r(utra::sha512::MSG_LENGTH0));
+            println!("sha evstatus   : 0x{:08x}", sha.r(utra::sha512::EV_STATUS));
+            println!("sha evenable   : 0x{:08x}", sha.r(utra::sha512::EV_ENABLE));
+            */
+
+            use ed25519_dalek::Verifier;
+            if pubkey.verify(image, &ed25519_signature).is_ok() {
+                gfx.msg("Signature check passed\n\r", &mut cursor);
+                uart.tiny_write_str("Signature check passed\n\r");
+                break;
+            } else {
+                // signature didn't work out, setup the next key and try it
+                match keyloc {
+                    KeyLoc::SelfSignPub => {
+                        keyloc = KeyLoc::ThirdPartyPub;
+                        continue;
+                    }
+                    KeyLoc::ThirdPartyPub => {
+                        // try another key and move on
+                        keyloc = KeyLoc::DevPub;
+                        continue;
+                    }
+                    KeyLoc::DevPub => {
+                        // we're out of keys...display message, then try to power down
+                        gfx.msg("Signature check failed; powering down\n\r", &mut cursor);
+                        uart.tiny_write_str("Signature check failed; powering down\n\r");
+                        die();
+                    }
                 }
             }
         }
@@ -471,12 +485,15 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     gfx.msg("\n\r\n\rJumping to loader...\n\r", &mut cursor);
     uart.tiny_write_str("\n\r\n\rJumping to loader...\n\r");
 
-    let mut sha_csr = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
-    sha_csr.wfo(utra::sha512::POWER_ON, 0); // cut power to the SHA block; this is the expected default state after the bootloader is done.
-    let mut engine_csr = CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
-    engine_csr.wfo(utra::engine::POWER_ON, 0); // cut power to the engine block; this is the expected default state after the bootloader is done.
-    // note that removing power does *not* clear the RF or microcode state -- data can leak from the bootloader
-    // into other areas because of this! (but I think it's OK because we just mess around with public keys here)
+    #[cfg(feature="hw-sec")]
+    {
+        let mut sha_csr = CSR::new(utra::sha512::HW_SHA512_BASE as *mut u32);
+        sha_csr.wfo(utra::sha512::POWER_ON, 0); // cut power to the SHA block; this is the expected default state after the bootloader is done.
+        let mut engine_csr = CSR::new(utra::engine::HW_ENGINE_BASE as *mut u32);
+        engine_csr.wfo(utra::engine::POWER_ON, 0); // cut power to the engine block; this is the expected default state after the bootloader is done.
+        // note that removing power does *not* clear the RF or microcode state -- data can leak from the bootloader
+        // into other areas because of this! (but I think it's OK because we just mess around with public keys here)
+    }
 
     // now jump to the loader once everything checks out.
     start_loader(
@@ -490,6 +507,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     }
 }
 
+#[cfg(feature="hw-sec")]
 fn die() {
     let ticktimer = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
     let mut power = CSR::new(utra::power::HW_POWER_BASE as *mut u32);
