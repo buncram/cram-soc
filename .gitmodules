@@ -49,3 +49,6 @@
 [submodule "deps/pythondata-software-picolibc"]
 	path = deps/pythondata-software-picolibc
 	url = https://github.com/litex-hub/pythondata-software-picolibc
+[submodule "deps/verilog-axi"]
+	path = deps/verilog-axi
+	url = https://github.com/alexforencich/verilog-axi.git
