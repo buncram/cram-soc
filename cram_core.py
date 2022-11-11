@@ -12,7 +12,7 @@ from migen import *
 from litex.build.generic_platform import *
 
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion
+from litex.soc.integration.soc import SoCRegion, SoCIORegion
 from litex.soc.integration.builder import *
 from litex.soc.interconnect import wishbone
 from litex.soc.interconnect import axi
@@ -27,6 +27,7 @@ def get_common_ios():
         ("rst", 0, Pins(1)),
         ("hclk", 0, Pins(1)),
         ("hrst", 0, Pins(1)),
+        ("interrupt", 0, Pins(32)),
     ]
 
 def get_debug_ios():
@@ -54,12 +55,10 @@ class Platform(GenericPlatform):
 class cramSoC(SoCCore):
     # I/O range: 0x80000000-0xfffffffff (not cacheable)
     SoCCore.mem_map = {
-        "rom":             0x60000000,
-        "sram"     : 0x2000_0000,
-        "main_ram" : 0x6100_0000,
-        "vexriscv_debug":  0xefff0000,
-        "csr":             0xa0000000,
-        "p_axi":           0x40000000,
+        "reram"     : 0x6000_0000, # +3M
+        "sram"      : 0x6100_0000, # +2M
+        "p_axi"     : 0x4000_0000, # +256M  # this is an IO region
+        "vexriscv_debug": 0xefff_0000,
     }
 
     def __init__(self, sys_clk_freq=int(100e6),
@@ -86,7 +85,7 @@ class cramSoC(SoCCore):
         ]
 
         # CPU
-        reset_address = self.mem_map["rom"]
+        reset_address = self.mem_map["reram"]
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
@@ -101,33 +100,21 @@ class cramSoC(SoCCore):
             with_ctrl            = False,
             with_timer           = True, # override default timer with a timer that operates in a low-power clock domain
             bus_standard         = "axi",
+            io_regions           = {
+                # Origin, Length.
+                0x4000_0000 : 0x2000_0000,
+                0xa000_0000 : 0x6000_0000,
+            },
             **kwargs)
-        # Litex will always try to move the ROM back to 0.
-        # Move ROM and RAM to uncached regions - we only use these at boot, and they are already quite fast
-        # this helps remove their contribution from the cache tag critical path
-        if self.mem_map["rom"] == 0:
-            self.mem_map["rom"] += 0x60000000
 
         # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_cramSoC.v")
         self.cpu.add_debug()
         self.cpu.set_reset_address(0x6000_0000)
 
-        # MMAP Master Interface --------------------------------------------------------------------
-        # p_bus = wishbone.Interface(data_width=32)
-        # self.bus.add_slave("csr", p_bus, SoCRegion(origin=self.mem_map["csr"], size=0x1000_0000, cached=False))
-        #p_bus = ahb.Interface()
-        #self.bus.add_slave("csr", p_bus, SoCRegion(origin=self.mem_map["csr"], size=0x1000_0000, cached=False))
-        # ahb_bus = ahb.Interface()
-        # self.submodules += ahb.AHB2Wishbone(ahb_bus, p_bus)
-        # platform.add_extension(p_bus.get_ios("ahb_bus"))
-        # ahb_pads = platform.request("ahb_bus")
-        # left off: write some custom connector code here
-        # self.comb += ahb_bus.connect_to_pads(ahb_pads, mode="master")
-
+        # p_bus Master Interface --------------------------------------------------------------------
         p_bus = axi.AXILiteInterface()
-        p_region = SoCRegion(origin=self.mem_map["p_axi"], size=0x1000_0000, cached=False)
-        self.bus.add_slave(name="p_axi", slave=p_bus, region=p_region)
+        self.bus.add_master("p_axi", p_bus)
         platform.add_extension(p_bus.get_ios("p_axi"))
         p_pads = platform.request("p_axi")
         self.comb += p_bus.connect_to_pads(p_pads, mode="master")
@@ -173,16 +160,16 @@ class cramSoC(SoCCore):
                     subsignals = tuple(subsignals)
                     ibus_ios = [subsignals]
 
-                ibus_region =  SoCRegion(origin=self.mem_map["rom"], size=0x1000_0000, cached=True)
-                self.bus.add_slave(name="ibus", slave=ibus, region=ibus_region)
+                #ibus_region =  SoCRegion(origin=self.mem_map["reram"], size=3 * 1024 * 1024, cached=True)
+                #self.bus.add_slave(name="ibus", slave=ibus, region=ibus_region)
                 platform.add_extension(ibus_ios)
                 ibus_pads = platform.request("ibus_axi")
                 print(ibus_pads)
                 self.comb += ibus.connect_to_pads(ibus_pads, mode="master")
             elif 'dbus' in mem_bus:
                 dbus = mem_bus[1]
-                dbus_region =  SoCRegion(origin=self.mem_map["sram"], size=0x1000_0000, cached=True)
-                self.bus.add_slave(name="dbus", slave=dbus, region=dbus_region)
+                #dbus_region =  SoCRegion(origin=self.mem_map["sram"], size=2 * 1024 * 1024, cached=True)
+                #self.bus.add_slave(name="dbus", slave=dbus, region=dbus_region)
                 platform.add_extension(dbus.get_ios("dbus_axi"))
                 dbus_pads = platform.request("dbus_axi")
                 self.comb += dbus.connect_to_pads(dbus_pads, mode="master")
@@ -193,11 +180,11 @@ class cramSoC(SoCCore):
         platform.add_extension(get_debug_ios())
         jtag_pads = platform.request("jtag")
         self.cpu.add_jtag(jtag_pads)
-        #self.comb += [
-            # Export Signal(s) for debug.
-        #    jtag_pads.tdi.eq(1),
-            # Etc...
-        #]
+
+        int_pads = platform.request("interrupt")
+        self.comb += [
+            self.cpu.interrupt.eq(int_pads)
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 def main():

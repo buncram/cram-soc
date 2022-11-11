@@ -282,14 +282,14 @@ class CramSoC(SoCMini):
             standard              = "axi",
             data_width            = 64,
             address_width         = 32,
-            bursting              = False,
+            bursting              = True,
             interconnect          = "crossbar",
             interconnect_register = True,
         )
 
         # Add AXI Buses.
-        # self.mbus.add_master(master=dbus_axi) # isolate
-        self.mbus.add_master(master=ibus64_axi)
+        self.mbus.add_master(name="dbus", master=dbus_axi)
+        self.mbus.add_master(name="ibus", master=ibus64_axi)
 
         # 3) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
         if bios_path is not None:
@@ -298,11 +298,19 @@ class CramSoC(SoCMini):
         else:
             bios_data = []
 
-        self.add_custom_ram(self.mbus, name="reram", origin=axi_map["reram"], size=0x1_0000, contents=bios_data, mode="rwx")
-        # self.add_ram(self.mbus, name="sram", origin=axi_map["sram"], size=0x1_0000, contents=[], mode="rwx") # isolate
+        from axi_ram import AXIRAM
+        reram_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
+        self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x1_0000, mode="rwx", cached=True))
+        self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x1_0000, name="reram", init=bios_data)
+        sram_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
+        self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x1_0000, mode="rwx", cached=True))
+        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000)
+
+        # self.add_custom_ram(self.mbus, name="reram", origin=axi_map["reram"], size=0x1_0000, contents=bios_data, mode="rwx")
+        # self.add_custom_ram(self.mbus, name="sram", origin=axi_map["sram"], size=0x1_0000, contents=[], mode="rwx") # isolate
 
         # setup p_axi as the local bus master
-        self.bus.add_master(master=p_axi)
+        self.bus.add_master(name="pbus", master=p_axi)
 
         # add interrupt handler
         interrupt = Signal(32)
@@ -435,7 +443,7 @@ class CramSoC(SoCMini):
             o_ibus_axi_awqos      = ibus64_axi.aw.qos   ,
             o_ibus_axi_awregion   = ibus64_axi.aw.region,
             o_ibus_axi_awid       = ibus64_axi.aw.id    ,
-            o_ibus_axi_awdest     = ibus64_axi.aw.dest  ,
+            #o_ibus_axi_awdest     = ibus64_axi.aw.dest  ,
             o_ibus_axi_awuser     = ibus64_axi.aw.user  ,
             o_ibus_axi_wvalid     = ibus64_axi.w.valid  ,
             i_ibus_axi_wready     = ibus64_axi.w.ready  ,
@@ -443,13 +451,13 @@ class CramSoC(SoCMini):
             o_ibus_axi_wdata      = ibus64_axi.w.data   ,
             o_ibus_axi_wstrb      = ibus64_axi.w.strb   ,
             #o_ibus_axi_wid        = ibus64_axi.w.id     ,
-            o_ibus_axi_wdest      = ibus64_axi.w.dest   ,
+            #o_ibus_axi_wdest      = ibus64_axi.w.dest   ,
             o_ibus_axi_wuser      = ibus64_axi.w.user   ,
             i_ibus_axi_bvalid     = ibus64_axi.b.valid  ,
             o_ibus_axi_bready     = ibus64_axi.b.ready  ,
             i_ibus_axi_bresp      = ibus64_axi.b.resp   ,
             i_ibus_axi_bid        = ibus64_axi.b.id     ,
-            i_ibus_axi_bdest      = ibus64_axi.b.dest   ,
+            #i_ibus_axi_bdest      = ibus64_axi.b.dest   ,
             i_ibus_axi_buser      = ibus64_axi.b.user   ,
             o_ibus_axi_arvalid    = ibus64_axi.ar.valid ,
             i_ibus_axi_arready    = ibus64_axi.ar.ready ,
@@ -463,7 +471,7 @@ class CramSoC(SoCMini):
             o_ibus_axi_arqos      = ibus64_axi.ar.qos   ,
             o_ibus_axi_arregion   = ibus64_axi.ar.region,
             o_ibus_axi_arid       = ibus64_axi.ar.id    ,
-            o_ibus_axi_ardest     = ibus64_axi.ar.dest  ,
+            #o_ibus_axi_ardest     = ibus64_axi.ar.dest  ,
             o_ibus_axi_aruser     = ibus64_axi.ar.user  ,
             i_ibus_axi_rvalid     = ibus64_axi.r.valid  ,
             o_ibus_axi_rready     = ibus64_axi.r.ready  ,
@@ -471,7 +479,7 @@ class CramSoC(SoCMini):
             i_ibus_axi_rresp      = ibus64_axi.r.resp   ,
             i_ibus_axi_rdata      = ibus64_axi.r.data   ,
             i_ibus_axi_rid        = ibus64_axi.r.id     ,
-            i_ibus_axi_rdest      = ibus64_axi.r.dest   ,
+            #i_ibus_axi_rdest      = ibus64_axi.r.dest   ,
             i_ibus_axi_ruser      = ibus64_axi.r.user   ,
             o_dbus_axi_awvalid    = dbus_axi.aw.valid ,
             i_dbus_axi_awready    = dbus_axi.aw.ready ,
@@ -485,7 +493,7 @@ class CramSoC(SoCMini):
             o_dbus_axi_awqos      = dbus_axi.aw.qos   ,
             o_dbus_axi_awregion   = dbus_axi.aw.region,
             o_dbus_axi_awid       = dbus_axi.aw.id    ,
-            o_dbus_axi_awdest     = dbus_axi.aw.dest  ,
+            #o_dbus_axi_awdest     = dbus_axi.aw.dest  ,
             o_dbus_axi_awuser     = dbus_axi.aw.user  ,
             o_dbus_axi_wvalid     = dbus_axi.w.valid  ,
             i_dbus_axi_wready     = dbus_axi.w.ready  ,
@@ -493,13 +501,13 @@ class CramSoC(SoCMini):
             o_dbus_axi_wdata      = dbus_axi.w.data   ,
             o_dbus_axi_wstrb      = dbus_axi.w.strb   ,
             #o_dbus_axi_wid        = dbus_axi.w.id     ,
-            o_dbus_axi_wdest      = dbus_axi.w.dest  ,
+            #o_dbus_axi_wdest      = dbus_axi.w.dest  ,
             o_dbus_axi_wuser      = dbus_axi.w.user  ,
             i_dbus_axi_bvalid     = dbus_axi.b.valid  ,
             o_dbus_axi_bready     = dbus_axi.b.ready  ,
             i_dbus_axi_bresp      = dbus_axi.b.resp   ,
             i_dbus_axi_bid        = dbus_axi.b.id     ,
-            i_dbus_axi_bdest      = dbus_axi.b.dest  ,
+            #i_dbus_axi_bdest      = dbus_axi.b.dest  ,
             i_dbus_axi_buser      = dbus_axi.b.user  ,
             o_dbus_axi_arvalid    = dbus_axi.ar.valid ,
             i_dbus_axi_arready    = dbus_axi.ar.ready ,
@@ -513,7 +521,7 @@ class CramSoC(SoCMini):
             o_dbus_axi_arqos      = dbus_axi.ar.qos   ,
             o_dbus_axi_arregion   = dbus_axi.ar.region,
             o_dbus_axi_arid       = dbus_axi.ar.id    ,
-            o_dbus_axi_ardest     = dbus_axi.ar.dest  ,
+            #o_dbus_axi_ardest     = dbus_axi.ar.dest  ,
             o_dbus_axi_aruser     = dbus_axi.ar.user  ,
             i_dbus_axi_rvalid     = dbus_axi.r.valid  ,
             o_dbus_axi_rready     = dbus_axi.r.ready  ,
@@ -521,7 +529,7 @@ class CramSoC(SoCMini):
             i_dbus_axi_rresp      = dbus_axi.r.resp   ,
             i_dbus_axi_rdata      = dbus_axi.r.data   ,
             i_dbus_axi_rid        = dbus_axi.r.id     ,
-            i_dbus_axi_rdest      = dbus_axi.r.dest  ,
+            #i_dbus_axi_rdest      = dbus_axi.r.dest  ,
             i_dbus_axi_ruser      = dbus_axi.r.user  ,
             i_jtag_tdi            = jtag_cpu.tdi      ,
             o_jtag_tdo            = jtag_cpu.tdo      ,
@@ -658,7 +666,7 @@ def main():
 
     if args.document_only or args.sim:
         compile_gateware = False
-        compile_software = False
+        compile_software = True
 
     bbram = False
     if args.encrypt == None:
