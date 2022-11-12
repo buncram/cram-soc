@@ -288,8 +288,8 @@ class CramSoC(SoCMini):
         )
 
         # Add AXI Buses.
-        self.mbus.add_master(name="dbus", master=dbus_axi)
         self.mbus.add_master(name="ibus", master=ibus64_axi)
+        self.mbus.add_master(name="dbus", master=dbus_axi)
 
         # 3) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
         if bios_path is not None:
@@ -302,6 +302,7 @@ class CramSoC(SoCMini):
         reram_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
         self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x1_0000, mode="rwx", cached=True))
         self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x1_0000, name="reram", init=bios_data)
+
         sram_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
         self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x1_0000, mode="rwx", cached=True))
         self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000)
