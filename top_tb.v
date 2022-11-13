@@ -47,11 +47,11 @@ cram_soc dut (
     .serial_rx(serial_rx),
     .lcd_sclk(sclk),
     .lcd_si(si),
-    .lcd_scs(scs)
+    .lcd_scs(scs),
 
-    //.sim_success(success),
-    //.sim_done(done),
-    //.sim_report(report)
+    .sim_success(success),
+    .sim_done(done),
+    .sim_report(report)
 );
 
 // extra reporting for CI
