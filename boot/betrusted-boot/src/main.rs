@@ -287,6 +287,12 @@ impl Keyrom {
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
+    #[cfg(feature="sim")]
+    {
+        let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
+    }
+
     #[cfg(feature="hw-sec")]
     {
         /////// hardware resets
