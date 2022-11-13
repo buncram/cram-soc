@@ -40,8 +40,8 @@ features = ["u32e_backend"]
 
 [profile.release]
 codegen-units = 1 # 1 better optimizations
-debug = false
+debug = true
 lto = "fat"
 opt-level = 's'  # Optimize for size instead of performance
 panic = "abort" # Remove panic output, which can reduce file size
-strip = true
+strip = false

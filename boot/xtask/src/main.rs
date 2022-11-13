@@ -37,8 +37,9 @@ fn try_main() -> Result<(), DynError> {
     ];
     let mut args = env::args();
     let task = args.nth(1);
+    let features = get_flag("--feature")?;
     match task.as_deref() {
-        Some("boot-image") => build_hw_image(false, env::args().nth(2), &hw_pkgs)?,
+        Some("boot-image") => build_hw_image(false, features, &hw_pkgs)?,
         _ => print_help(),
     }
     Ok(())
@@ -54,13 +55,10 @@ boot-image [soc.svd]      builds a boot image
 
 fn build_hw_image(
     debug: bool,
-    svd: Option<String>,
+    features: Vec<String>,
     packages: &[&str],
 ) -> Result<(), DynError> {
-    let svd_file = match svd {
-        Some(s) => s,
-        None => "../build/software/soc.svd".to_string(),
-    };
+    let svd_file = "../build/software/soc.svd".to_string();
 
     let path = std::path::Path::new(&svd_file);
     if !path.exists() {
@@ -93,7 +91,7 @@ fn build_hw_image(
         debug,
         Some(TARGET),
         Some("betrusted-boot".into()),
-        None,
+        features,
     )?;
 
     boot.push("betrusted-boot");
@@ -141,7 +139,7 @@ fn build(
     debug: bool,
     target: Option<&str>,
     directory: Option<PathBuf>,
-    extra_args: Option<&[&str]>,
+    features: Vec<String>,
 ) -> Result<PathBuf, DynError> {
     let stream = if debug { "debug" } else { "release" };
     let mut args = vec!["build"];
@@ -163,9 +161,10 @@ fn build(
         args.push("--release");
     }
 
-    if let Some(extra) = extra_args {
-        for &a in extra {
-            args.push(a);
+    if features.len() > 0 {
+        for feature in features.iter() {
+            args.push("--features");
+            args.push(feature);
         }
     }
 
@@ -213,4 +212,26 @@ fn project_root() -> PathBuf {
         .nth(1)
         .unwrap()
         .to_path_buf()
+}
+
+fn get_flag(flag: &str) -> Result<Vec<String>, DynError> {
+    let mut list = Vec::<String>::new();
+    let args = env::args();
+    let mut flag_found = false;
+    for arg in args {
+        if arg == flag {
+            flag_found = true;
+            continue
+        }
+        if flag_found {
+            if arg.starts_with('-') {
+                eprintln!("Malformed arguments. Expected argument after flag {}, but found {}", flag, arg);
+                return Err("Bad arguments".into());
+            }
+            list.push(arg);
+            flag_found = false;
+            continue
+        }
+    }
+    Ok(list)
 }
