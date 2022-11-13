@@ -30,6 +30,8 @@ from litex.soc.cores import uart
 
 from deps.gateware.gateware import memlcd
 
+import subprocess
+
 VEX_VERILOG_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CranSoC.v"
 
 # Equivalent to the powershell Get-Command, and kinda like `which`
@@ -103,6 +105,13 @@ _io = [
         Misc("SLEW=SLOW"),
         Misc("DRIVE=4"),
      ),
+
+     # Simulation "outputs"
+     ("sim", 0,
+        Subsignal("success", Pins(1)),
+        Subsignal("done", Pins(1)),
+        Subsignal("report", Pins(32)),
+     )
 ]
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -225,9 +234,9 @@ class CRG(Module):
 
 class CramSoC(SoCMini):
     mem_map = {**SoCCore.mem_map, **{
-        "csr": 0xa000_0000,
+        "csr": 0x4000_0000,
     }}
-    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6):
+    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False):
         axi_map = {
             "reram"     : 0x6000_0000, # +3M
             "sram"      : 0x6100_0000, # +2M
@@ -266,8 +275,21 @@ class CramSoC(SoCMini):
         )
 
         # Wire up peripheral SoC busses
-        p_axi = axi.AXILiteInterface()
+        p_axi = axi.AXILiteInterface(name="pbus")
         jtag_cpu = platform.request("jtag_cpu")
+
+        # Add simulation "output pins" -----------------------------------------------------
+        if sim:
+            self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
+            self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
+            self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
+
+            sim = platform.request("sim")
+            self.comb += [
+                sim.report.eq(self.sim_report.storage),
+                sim.success.eq(self.sim_success.storage),
+                sim.done.eq(self.sim_done.storage),
+            ]
 
         # Add AXI RAM to SoC (Through AXI Crossbar).
         # ------------------------------------------
@@ -689,13 +711,16 @@ def main():
         else:
             # do a first-pass to create the soc.svd file
             platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
-            soc = CramSoC(platform, bios_path=None)
+            soc = CramSoC(platform, bios_path=None, sim=args.sim)
             builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
                 compile_software=False, compile_gateware=False)
             builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
             vns = builder.build(run=False)
 
-            os.system("cd boot && cargo xtask boot-image")
+            if args.sim:
+                subprocess.run(["cargo", "xtask", "boot-image", "--feature", "sim"], check=True, cwd="boot")
+            else:
+                subprocess.run(["cargo", "xtask", "boot-image"], check=True, cwd="boot")
             bios_path = 'boot{}boot.bin'.format(os.path.sep)
     else:
         bios_path=None
@@ -709,6 +734,7 @@ def main():
         platform,
         bios_path=bios_path,
         sys_clk_freq=75e6,
+        sim=args.sim,
     )
 
     ##### setup the builder and run it
@@ -746,7 +772,7 @@ def main():
             print('Specified key file {} does not exist'.format(args.encrypt))
             return 1
 
-    if args.sim:
+    if args.sim and not args.document_only:
         from sim_support.sim_bench import SimRunner
         SimRunner(args.ci, [], vex_verilog_path=VEX_VERILOG_PATH)
 
