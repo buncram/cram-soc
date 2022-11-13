@@ -238,6 +238,8 @@ class SimRunner():
         # copy over the top test bench and common code
         os.system("{} top_tb.v run".format(cpname) + os.path.sep + "top_tb.v") # "cp top_tb.v run/top_tb.v"
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/common.v") + " run" + os.path.sep) # "cp sim_support/common.v run/"
+        os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
 
         # initialize with a default waveform that contains the most basic execution tracing
         if os.path.isfile('run/top_tb_sim.wcfg') != True:
@@ -252,6 +254,8 @@ class SimRunner():
         os.system("cd run && xvlog "+os.path.normpath("../sim_support/glbl.v"))
         os.system("cd run && xvlog cram_soc.v -sv")
         os.system("cd run && xvlog cram_axi.v -sv")
+        os.system("cd run && xvlog ram_1w_1ra.v -sv")
+        os.system("cd run && xvlog ram_1w_1rs.v -sv")
         os.system("cd run && xvlog top_tb.v -sv ")
         vex_dir = os.path.dirname(VEX_CPU_PATH)
         vex_dir = vex_dir.replace("/", os.path.sep)
