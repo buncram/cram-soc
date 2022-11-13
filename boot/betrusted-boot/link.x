@@ -1,7 +1,7 @@
 MEMORY
 {
-  RAM : ORIGIN = 0x40000000, LENGTH = 16M
-  FLASH : ORIGIN = 0x80000000, LENGTH = 32k
+  RAM : ORIGIN = 0x61000000, LENGTH = 32k
+  FLASH : ORIGIN = 0x60000000, LENGTH = 32k
   /*FLASH : ORIGIN = 0x20D00000, LENGTH = 128k*/  /* use for dev work, along with --simple-boot build option for betrusted_soc.py */
   MEMLCD: ORIGIN = 0xB0000000, LENGTH = 32k
 }
