@@ -258,6 +258,8 @@ class CramSoC(SoCMini):
         # Add standalone SoC sources.
         platform.add_source("build/gateware/cram_axi.v")
         platform.add_source(VEX_VERILOG_PATH)
+        platform.add_source("sim_support/ram_1w_1ra.v")
+        platform.add_source("sim_support/ram_1w_1rs.v")
 
         #platform.add_source("build/femtorv_soc/gateware/femtorv_soc.v")
         #platform.add_source("build/femtorv_soc/gateware/femtorv_soc_rom.init", copy=True)
