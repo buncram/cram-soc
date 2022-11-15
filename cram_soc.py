@@ -269,7 +269,7 @@ class CramSoC(SoCMini):
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
             bus_standard = "axi-lite",
-            bus_timeout = None,
+            # bus_timeout = None,         # use this if regular_comb=True on the builder
             io_regions           = {
                 # Origin, Length.
                 0x4000_0000 : 0x2000_0000,
@@ -292,6 +292,13 @@ class CramSoC(SoCMini):
                 sim.report.eq(self.sim_report.storage),
                 sim.success.eq(self.sim_success.storage),
                 sim.done.eq(self.sim_done.storage),
+            ]
+
+            # test that caching is OFF for the I/O regions
+            self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
+            self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
+            self.comb += [
+                self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
             ]
 
         # Add AXI RAM to SoC (Through AXI Crossbar).
@@ -746,7 +753,7 @@ def main():
         compile_software=False, compile_gateware=compile_gateware)
     builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
 
-    vns = builder.build()
+    vns = builder.build(regular_comb=False)
 
     # now re-encrypt the binary if needed
     if encrypt and not (args.document_only or args.sim):
