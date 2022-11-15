@@ -195,8 +195,6 @@ def main():
     target_group.add_argument("--name",          default="cram_axi", help="SoC Name.")
     target_group.add_argument("--build",         action="store_true", help="Build SoC.")
     target_group.add_argument("--sys-clk-freq",  default=int(50e6),   help="System clock frequency.")
-    builder_args(parser)
-    soc_core_args(parser)
     parser.add_argument(
         "-D", "--document-only", default=False, action="store_true", help="dummy arg to be consistent with cram_soc"
     )
@@ -205,31 +203,16 @@ def main():
     )
     args = parser.parse_args()
 
-    # SoC. Pass 1: make the bios
+    # Generate the SoC
     soc = cramSoC(
         name         = args.name,
         sys_clk_freq = int(float(args.sys_clk_freq)),
-#        **soc_core_argdict(args)
     )
     builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
         compile_software=False, compile_gateware=False)
     builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
-    builder.build(build_name=args.name, run=False)
+    builder.build(build_name=args.name, run=False) #  regular_comb=False
 
-"""
-    # SoC. Pass 2: make the soc
-    soc = cramSoC(
-        name         = args.name,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
-        **soc_core_argdict(args)
-    )
-    builder = Builder(soc, output_dir="build",
-        csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
-        compile_software=False, compile_gateware=False)
-    builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
-
-    vns = builder.build()
-"""
 
 if __name__ == "__main__":
     main()
