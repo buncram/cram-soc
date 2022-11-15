@@ -40,6 +40,14 @@ The core itself contains the following features:
    - Provides core_user signal
 - WFI signal break-out
    - Must confirm AXI bus is relinquished when WFI active
+- Lot and lots of testing
+  - Synthetic test benches exercising corner cases
+  - Verification of memory access partitioning through d-bus xbar
+  - AXI/AXIlite bus signaling verification
+  - Exception handling
+  - WFI verification
+  - core_user verification
+  - Bootable Xous image on FPGA model
 - (stretch) Replicated PC/SP/SATP/TLB for anti-glitch hardening
 - (very stretch) ECC on cache for anti-glitch hardening
 
