@@ -753,7 +753,7 @@ def main():
         compile_software=False, compile_gateware=compile_gateware)
     builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
 
-    vns = builder.build(regular_comb=False)
+    vns = builder.build(regular_comb=~args.sim)
 
     # now re-encrypt the binary if needed
     if encrypt and not (args.document_only or args.sim):
