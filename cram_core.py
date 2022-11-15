@@ -97,6 +97,7 @@ class cramSoC(SoCCore):
             csr_address_width    = 16,    # increase to accommodate larger page size
             with_uart            = False, # implemented manually to allow for UART mux
             cpu_reset_address    = reset_address,
+            cpu_custom_memory    = True,
             with_ctrl            = False,
             with_timer           = True, # override default timer with a timer that operates in a low-power clock domain
             bus_standard         = "axi",
@@ -112,13 +113,8 @@ class cramSoC(SoCCore):
         self.cpu.add_debug()
         self.cpu.set_reset_address(0x6000_0000)
 
-        # p_bus Master Interface --------------------------------------------------------------------
-        p_bus = axi.AXILiteInterface()
-        self.bus.add_master("p_axi", p_bus)
-        platform.add_extension(p_bus.get_ios("p_axi"))
-        p_pads = platform.request("p_axi")
-        self.comb += p_bus.connect_to_pads(p_pads, mode="master")
-
+        # Break out custom busses to pads ----------------------------------------------------------
+        # All appear as "memory", to avoid triggering interference from the bushandler automation
         for mem_bus in self.cpu.memory_buses:
             if 'ibus' in mem_bus:
                 ibus = mem_bus[1]
@@ -164,7 +160,6 @@ class cramSoC(SoCCore):
                 #self.bus.add_slave(name="ibus", slave=ibus, region=ibus_region)
                 platform.add_extension(ibus_ios)
                 ibus_pads = platform.request("ibus_axi")
-                print(ibus_pads)
                 self.comb += ibus.connect_to_pads(ibus_pads, mode="master")
             elif 'dbus' in mem_bus:
                 dbus = mem_bus[1]
@@ -173,6 +168,11 @@ class cramSoC(SoCCore):
                 platform.add_extension(dbus.get_ios("dbus_axi"))
                 dbus_pads = platform.request("dbus_axi")
                 self.comb += dbus.connect_to_pads(dbus_pads, mode="master")
+            elif 'pbus' in mem_bus:
+                p_bus = mem_bus[1]
+                platform.add_extension(p_bus.get_ios("p_axi"))
+                p_pads = platform.request("p_axi")
+                self.sync += p_bus.connect_to_pads(p_pads, mode="master") # was comb
             else:
                 print("Unhandled AXI bus from CPU core: {}".format(mem_bus))
 
@@ -197,6 +197,12 @@ def main():
     target_group.add_argument("--sys-clk-freq",  default=int(50e6),   help="System clock frequency.")
     builder_args(parser)
     soc_core_args(parser)
+    parser.add_argument(
+        "-D", "--document-only", default=False, action="store_true", help="dummy arg to be consistent with cram_soc"
+    )
+    parser.add_argument(
+        "-S", "--sim", default=False, action="store_true", help="dummy arg to be consistent with cram_soc"
+    )
     args = parser.parse_args()
 
     # SoC. Pass 1: make the bios
