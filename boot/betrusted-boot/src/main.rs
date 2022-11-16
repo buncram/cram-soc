@@ -29,6 +29,7 @@ const STACK_TOP: u32 = 0x4100_0000 - STACK_LEN;
 use utralib::generated::*;
 use core::convert::TryInto;
 use core::convert::TryFrom;
+use core::mem::size_of;
 
 mod debug;
 
@@ -287,7 +288,8 @@ impl Keyrom {
     }
 }
 
-unsafe fn ramtest<T>(test_slice: &mut [T], test_index: u32)
+/// chunks through the entire bank of data
+unsafe fn ramtest_all<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
 {
@@ -304,10 +306,116 @@ where
     }
     let mut checksum: u32 = 0;
     for d in test_slice.iter() {
-        checksum += (d as *const T)
+        let a = (d as *const T)
             .read_volatile()
             .try_into()
             .unwrap_or_default();
+        checksum += a;
+        // report.wfo(utra::main::REPORT_REPORT, a);
+    }
+
+    if sum == checksum {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+    } else {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, sum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+    }
+}
+
+
+/*
+/// only touches two words on each cache line
+/// this one tries to write the same word twice to two consecutive addresses
+/// this causes the valid strobe to hit twice in a row. seems to pass.
+unsafe fn ramtest_fast_specialcase1<T>(test_slice: &mut [T], test_index: u32)
+where
+    T: TryFrom<usize> + TryInto<u32> + Default + Copy,
+{
+    const CACHE_LINE_SIZE: usize = 32;
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    let mut sum: u32 = 0;
+    for (index, d) in test_slice.chunks_mut(CACHE_LINE_SIZE / size_of::<T>()).enumerate() {
+        let idxp1 = index + 0;
+        // unroll the loop to force b2b writes
+        sum += TryInto::<u32>::try_into(index).unwrap();
+        sum += TryInto::<u32>::try_into(idxp1).unwrap();
+        // Convert the element into a `u32`, failing
+        (d.as_mut_ptr() as *mut T).write_volatile(
+            index
+                .try_into()
+                .unwrap_or_default()
+        );
+        // Convert the element into a `u32`, failing
+        (d.as_mut_ptr().add(1) as *mut T).write_volatile(
+            idxp1
+                .try_into()
+                .unwrap_or_default()
+        );
+    }
+    let mut checksum: u32 = 0;
+    for d in test_slice.chunks(CACHE_LINE_SIZE / size_of::<T>()) {
+        checksum += (d.as_ptr() as *const T)
+            .read_volatile()
+            .try_into()
+            .unwrap_or_default();
+        checksum += (d.as_ptr().add(1) as *const T)
+            .read_volatile()
+            .try_into()
+            .unwrap_or_default();
+    }
+
+    if sum == checksum {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+    } else {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, sum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+    }
+}
+*/
+
+/// only touches two words on each cache line
+unsafe fn ramtest_fast<T>(test_slice: &mut [T], test_index: u32)
+where
+    T: TryFrom<usize> + TryInto<u32> + Default + Copy,
+{
+    const CACHE_LINE_SIZE: usize = 32;
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    let mut sum: u32 = 0;
+    for (index, d) in test_slice.chunks_mut(CACHE_LINE_SIZE / size_of::<T>()).enumerate() {
+        let idxp1 = index + 1;
+        // unroll the loop to force b2b writes
+        sum += TryInto::<u32>::try_into(index).unwrap();
+        sum += TryInto::<u32>::try_into(idxp1).unwrap();
+        // Convert the element into a `u32`, failing
+        (d.as_mut_ptr() as *mut T).write_volatile(
+            index
+                .try_into()
+                .unwrap_or_default()
+        );
+        // Convert the element into a `u32`, failing
+        (d.as_mut_ptr().add(1) as *mut T).write_volatile(
+            idxp1
+                .try_into()
+                .unwrap_or_default()
+        );
+    }
+    let mut checksum: u32 = 0;
+    for d in test_slice.chunks(CACHE_LINE_SIZE / size_of::<T>()) {
+        let a = (d.as_ptr() as *const T)
+            .read_volatile()
+            .try_into()
+            .unwrap_or_default();
+        let b = (d.as_ptr().add(1) as *const T)
+            .read_volatile()
+            .try_into()
+            .unwrap_or_default();
+        checksum = checksum + a + b;
+        // report.wfo(utra::main::REPORT_REPORT, a);
+        // report.wfo(utra::main::REPORT_REPORT, b);
     }
 
     if sum == checksum {
@@ -347,18 +455,29 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         // entirely within cache access test
         // 256-entry by 32-bit slice at start of RAM
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 256);
-        ramtest(&mut test_slice, 2);
+        ramtest_all(&mut test_slice, 2);
         // byte access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 256);
-        ramtest(&mut test_slice, 3);
+        ramtest_fast(&mut test_slice, 3);
         // word access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u16, 512);
-        ramtest(&mut test_slice, 4); // 1ff00
+        ramtest_fast(&mut test_slice, 4); // 1ff00
 
         // outside cache test
-        // 5120-entry by 32-bit slice at start of RAM - should cross outside cache boundary
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 5120);
-        ramtest(&mut test_slice, 5);  // c7f600
+        // 6144-entry by 32-bit slice at start of RAM - should cross outside cache boundary
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
+        ramtest_fast(&mut test_slice, 5);  // c7f600
+
+        // this passed, now that the AXI state machine is fixed.
+        // let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
+        // ramtest_fast_specialcase1(&mut test_slice, 6);  // c7f600
+
+        // u64 access test
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u64, 0xC00);
+        ramtest_fast(&mut test_slice, 7);
+
+        // random size/access test
+        // let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 0x6000);
 
         report.wfo(utra::main::DONE_DONE, 1);
     }
