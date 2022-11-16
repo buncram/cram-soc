@@ -27,6 +27,8 @@ const STACK_LEN: u32 = 8192 - (7 * 4); // 7 words for backup kernel args
 const STACK_TOP: u32 = 0x4100_0000 - STACK_LEN;
 
 use utralib::generated::*;
+use core::convert::TryInto;
+use core::convert::TryFrom;
 
 mod debug;
 
@@ -285,12 +287,80 @@ impl Keyrom {
     }
 }
 
+unsafe fn ramtest<T>(test_slice: &mut [T], test_index: u32)
+where
+    T: TryFrom<usize> + TryInto<u32> + Default + Copy,
+{
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    let mut sum: u32 = 0;
+    for (index, d) in test_slice.iter_mut().enumerate() {
+        // Convert the element into a `u32`, failing
+        (d as *mut T).write_volatile(
+            index
+                .try_into()
+                .unwrap_or_default()
+        );
+        sum += TryInto::<u32>::try_into(index).unwrap();
+    }
+    let mut checksum: u32 = 0;
+    for d in test_slice.iter() {
+        checksum += (d as *const T)
+            .read_volatile()
+            .try_into()
+            .unwrap_or_default();
+    }
+
+    if sum == checksum {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+    } else {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, sum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+    }
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     #[cfg(feature="sim")]
     {
         let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
+
+        // check that caching is disabled for I/O regions
+        let mut checkstate = 0x1234_0000;
+        report.wfo(utra::main::WDATA_WDATA, 0x1234_0000);
+        let mut checkdata = 0;
+        for _ in 0..100 {
+            checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
+            report.wfo(utra::main::WDATA_WDATA, checkdata);
+            checkstate += 5;
+        }
+        if checkdata == checkstate {
+            report.wfo(utra::main::REPORT_REPORT, checkstate);
+            report.wfo(utra::main::REPORT_REPORT, 0x600d_0001);
+        } else {
+            report.wfo(utra::main::REPORT_REPORT, 0x0bad_0001);
+        }
+
+        // now some basic memory read/write tests
+        // entirely within cache access test
+        // 256-entry by 32-bit slice at start of RAM
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 256);
+        ramtest(&mut test_slice, 2);
+        // byte access test
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 256);
+        ramtest(&mut test_slice, 3);
+        // word access test
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u16, 512);
+        ramtest(&mut test_slice, 4); // 1ff00
+
+        // outside cache test
+        // 5120-entry by 32-bit slice at start of RAM - should cross outside cache boundary
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 5120);
+        ramtest(&mut test_slice, 5);  // c7f600
+
+        report.wfo(utra::main::DONE_DONE, 1);
     }
 
     #[cfg(feature="hw-sec")]
