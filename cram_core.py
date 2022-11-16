@@ -96,7 +96,7 @@ class cramSoC(SoCCore):
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
             with_uart            = False, # implemented manually to allow for UART mux
-            cpu_reset_address    = reset_address,
+            cpu_reset_address    = 0x6000_0000,
             cpu_custom_memory    = True,
             with_ctrl            = False,
             with_timer           = True, # override default timer with a timer that operates in a low-power clock domain
@@ -112,6 +112,7 @@ class cramSoC(SoCCore):
         self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_cramSoC.v")
         self.cpu.add_debug()
         self.cpu.set_reset_address(0x6000_0000)
+        self.cpu.disable_reset_address_check()
 
         # Break out custom busses to pads ----------------------------------------------------------
         # All appear as "memory", to avoid triggering interference from the bushandler automation
