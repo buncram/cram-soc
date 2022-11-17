@@ -289,6 +289,7 @@ impl Keyrom {
 }
 
 /// chunks through the entire bank of data
+#[cfg(feature="sim")]
 unsafe fn ramtest_all<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
@@ -378,6 +379,7 @@ where
 */
 
 /// only touches two words on each cache line
+#[cfg(feature="sim")]
 unsafe fn ramtest_fast<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
