@@ -32,6 +32,7 @@ from deps.gateware.gateware import memlcd
 
 import subprocess
 
+
 VEX_VERILOG_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CranSoC.v"
 
 # Equivalent to the powershell Get-Command, and kinda like `which`
