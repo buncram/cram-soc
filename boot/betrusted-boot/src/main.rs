@@ -430,6 +430,97 @@ where
     }
 }
 
+/* some LFSR terms
+    3 3,2
+    4 4,3
+    5 5,3
+    6 6,5
+    7 7,6
+    8 8,6,5,4
+    9 9,5  <--
+    10 10,7
+    11 11,9
+    12 12,6,4,1
+    13 13,4,3,1
+    14 14,5,3,1
+    15 15,14
+    16 16,15,13,4
+    17 17,14
+    18 18,11
+    19 19,6,2,1
+    20 20,17
+
+    32 32,22,2,1:
+    let bit = ((state >> 31) ^
+               (state >> 21) ^
+               (state >>  1) ^
+               (state >>  0)) & 1;
+
+*/
+#[cfg(feature="sim")]
+/// our desired test length is 512 entries, so pick an LFSR with a perod of 2^9-1...
+fn lfsr_next(state: u16) -> u16 {
+    let bit = ((state >> 8) ^
+               (state >>  4)) & 1;
+
+    ((state << 1) + bit) & 0x1_FF
+}
+
+/// uses an LFSR to cycle through "random" locations. The slice length
+/// should equal the (LFSR period+1), so that we guarantee that each entry
+/// is visited once.
+#[cfg(feature="sim")]
+unsafe fn ramtest_lfsr<T>(test_slice: &mut [T], test_index: u32)
+where
+    T: TryFrom<usize> + TryInto<u32> + Default + Copy,
+{
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+
+    if test_slice.len() != 512 {
+        report.wfo(utra::main::REPORT_REPORT, 0x0bad_000 + test_index + 0x0F00); // indicate a failure due to configuration
+        return;
+    }
+    let mut state: u16 = 1;
+    let mut sum: u32 = 0;
+    const MAX_STATES: usize = 511;
+    (&mut test_slice[0] as *mut T).write_volatile(
+        0.try_into().unwrap_or_default()
+    ); // the 0 index is never written to by this, initialize it to 0
+    for i in 0..MAX_STATES {
+        let wr_val = i * 3;
+        (&mut test_slice[state as usize] as *mut T).write_volatile(wr_val.try_into().unwrap_or_default());
+        sum += wr_val as u32;
+        state = lfsr_next(state);
+    }
+
+    // flush cache
+    report.wfo(utra::main::REPORT_REPORT, 0xff00_ff00);
+    core::arch::asm!(
+        ".word 0x500F",
+    );
+    report.wfo(utra::main::REPORT_REPORT, 0x0f0f_0f0f);
+
+    // we should be able to just iterate in-order and sum all the values, and get the same thing back as above
+    let mut checksum: u32 = 0;
+    for d in test_slice.iter() {
+        let a = (d as *const T)
+            .read_volatile()
+            .try_into()
+            .unwrap_or_default();
+        checksum += a;
+        report.wfo(utra::main::REPORT_REPORT, a);
+    }
+
+    if sum == checksum {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+    } else {
+        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
+        report.wfo(utra::main::REPORT_REPORT, sum as u32);
+        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+    }
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     #[cfg(feature="sim")]
@@ -453,30 +544,59 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             report.wfo(utra::main::REPORT_REPORT, 0x0bad_0001);
         }
 
+        // *** BUG: each AXI read generates four cycles on p_axi, when it should generate just one.
+
+        // check that repeated reads of a register fetch new contents
+        let mut checkdata = 0; // tracked value via simulation
+        let mut computed = 0; // computed value by reading the hardare block
+        let mut devstate = 0; // what the state should be
+        for _ in 0..20 {
+            let readout = report.rf(utra::main::RINC_RINC);
+            computed += readout;
+            report.wfo(utra::main::REPORT_REPORT, readout);
+            checkdata += devstate;
+            devstate += 3;
+        }
+        if checkdata == checkstate {
+            report.wfo(utra::main::REPORT_REPORT, checkstate);
+            report.wfo(utra::main::REPORT_REPORT, 0x600d_0002);
+        } else {
+            report.wfo(utra::main::REPORT_REPORT, checkdata);
+            report.wfo(utra::main::REPORT_REPORT, computed);
+            report.wfo(utra::main::REPORT_REPORT, 0x0bad_0002);
+        }
+
+        // 'random' access test
+        // *** BUG: seems like some of the writes are registering as zeroes
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 512);
+        ramtest_lfsr(&mut test_slice, 3);
+
+        // TODO: test of the 0x500F cache flush instruction
+
         // now some basic memory read/write tests
         // entirely within cache access test
         // 256-entry by 32-bit slice at start of RAM
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 256);
-        ramtest_all(&mut test_slice, 2);
+        ramtest_all(&mut test_slice, 4);
         // byte access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 256);
-        ramtest_fast(&mut test_slice, 3);
+        ramtest_fast(&mut test_slice, 5);
         // word access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u16, 512);
-        ramtest_fast(&mut test_slice, 4); // 1ff00
+        ramtest_fast(&mut test_slice, 6); // 1ff00
 
         // outside cache test
         // 6144-entry by 32-bit slice at start of RAM - should cross outside cache boundary
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
-        ramtest_fast(&mut test_slice, 5);  // c7f600
+        ramtest_fast(&mut test_slice, 7);  // c7f600
 
         // this passed, now that the AXI state machine is fixed.
         // let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
-        // ramtest_fast_specialcase1(&mut test_slice, 6);  // c7f600
+        // ramtest_fast_specialcase1(&mut test_slice, 8);  // c7f600
 
         // u64 access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u64, 0xC00);
-        ramtest_fast(&mut test_slice, 7);
+        ramtest_fast(&mut test_slice, 9);
 
         // random size/access test
         // let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 0x6000);
