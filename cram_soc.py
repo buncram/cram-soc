@@ -298,6 +298,15 @@ class CramSoC(SoCMini):
             # test that caching is OFF for the I/O regions
             self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
             self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
+            self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
+
+            self.sync += [
+                If(self.sim_coherence_inc.we,
+                    self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
+                ).Else(
+                    self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
+                )
+            ]
             self.comb += [
                 self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
             ]
