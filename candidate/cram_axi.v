@@ -8,8 +8,8 @@
 //
 // Filename   : cram_axi.v
 // Device     : 
-// LiteX sha1 : 4d9088c0
-// Date       : 2022-11-15 22:38:00
+// LiteX sha1 : 05d4b572
+// Date       : 2022-12-07 14:26:38
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -1145,14 +1145,15 @@ always @(*) begin
     end
 end
 always @(*) begin
+    cramsoc_socbushandler_w_ready <= 1'd0;
     cramsoc_csr_bridge_aw_valid <= 1'd0;
     cramsoc_socbushandler_b_valid <= 1'd0;
     cramsoc_csr_bridge_aw_payload_addr <= 32'd0;
-    cramsoc_socbushandler_b_payload_resp <= 2'd0;
     cramsoc_csr_bridge_w_valid <= 1'd0;
+    cramsoc_socbushandler_b_payload_resp <= 2'd0;
     cramsoc_socbushandler_b_param_id <= 1'd0;
-    cramsoc_socbushandler_ar_ready <= 1'd0;
     cramsoc_csr_bridge_w_payload_data <= 32'd0;
+    cramsoc_socbushandler_ar_ready <= 1'd0;
     cramsoc_csr_bridge_w_payload_strb <= 4'd0;
     cramsoc_csr_bridge_ar_valid <= 1'd0;
     cramsoc_csr_bridge_ar_payload_addr <= 32'd0;
@@ -1167,33 +1168,31 @@ always @(*) begin
     cramsoc_socbushandler_ax_burst_last <= 1'd0;
     cramsoc_socbushandler_ax_burst_payload_addr <= 32'd0;
     cramsoc_socbushandler_ax_burst_payload_burst <= 2'd0;
-    next_state <= 2'd0;
     cramsoc_socbushandler_ax_burst_payload_len <= 8'd0;
-    cramsoc_socbushandler_cmd_done_next_value0 <= 1'd0;
-    cramsoc_socbushandler_ax_burst_payload_size <= 3'd0;
     cramsoc_socbushandler_aw_ready <= 1'd0;
-    cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd0;
+    cramsoc_socbushandler_ax_burst_payload_size <= 3'd0;
     cramsoc_socbushandler_ax_burst_payload_lock <= 1'd0;
+    next_state <= 2'd0;
+    cramsoc_socbushandler_cmd_done_next_value0 <= 1'd0;
     cramsoc_socbushandler_ax_burst_payload_prot <= 3'd0;
+    cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd0;
     cramsoc_socbushandler_ax_burst_payload_cache <= 4'd0;
-    cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd0;
     cramsoc_socbushandler_ax_burst_payload_qos <= 4'd0;
-    cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd0;
     cramsoc_socbushandler_ax_burst_payload_region <= 4'd0;
+    cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd0;
     cramsoc_socbushandler_ax_burst_param_id <= 1'd0;
+    cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd0;
     cramsoc_socbushandler_ax_burst_param_dest <= 1'd0;
     cramsoc_socbushandler_ax_burst_param_user <= 1'd0;
     cramsoc_socbushandler_ax_beat_ready <= 1'd0;
-    cramsoc_socbushandler_w_ready <= 1'd0;
     next_state <= state;
     case (state)
         1'd1: begin
-            cramsoc_csr_bridge_ar_valid <= (cramsoc_socbushandler_ax_beat_valid & (~cramsoc_socbushandler_cmd_done));
+            cramsoc_csr_bridge_ar_valid <= ((cramsoc_socbushandler_ax_beat_valid & (~cramsoc_socbushandler_cmd_done)) & (~((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last) & cramsoc_csr_bridge_ar_ready)));
             cramsoc_csr_bridge_ar_payload_addr <= cramsoc_socbushandler_ax_beat_payload_addr;
-            cramsoc_socbushandler_ax_beat_ready <= (cramsoc_csr_bridge_ar_ready & (~cramsoc_socbushandler_cmd_done));
+            cramsoc_socbushandler_ax_beat_ready <= cramsoc_csr_bridge_ar_ready;
             if ((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last)) begin
                 if (cramsoc_csr_bridge_ar_ready) begin
-                    cramsoc_socbushandler_ax_beat_ready <= 1'd0;
                     cramsoc_socbushandler_cmd_done_next_value0 <= 1'd1;
                     cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd1;
                 end
@@ -1210,7 +1209,7 @@ always @(*) begin
             end
         end
         2'd2: begin
-            cramsoc_csr_bridge_aw_valid <= (cramsoc_socbushandler_ax_beat_valid & (~cramsoc_socbushandler_cmd_done));
+            cramsoc_csr_bridge_aw_valid <= ((cramsoc_socbushandler_ax_beat_valid & (~cramsoc_socbushandler_cmd_done)) & (~((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last) & cramsoc_csr_bridge_aw_ready)));
             cramsoc_csr_bridge_aw_payload_addr <= cramsoc_socbushandler_ax_beat_payload_addr;
             cramsoc_socbushandler_ax_beat_ready <= (cramsoc_csr_bridge_aw_ready & (~cramsoc_socbushandler_cmd_done));
             if ((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last)) begin
@@ -1414,22 +1413,22 @@ always @(*) begin
     socbushandler_ax_burst_payload_addr <= 32'd0;
     socbushandler_ax_burst_payload_burst <= 2'd0;
     socbushandler_ax_burst_payload_len <= 8'd0;
-    cramsoc_vexriscvaxi_next_state <= 2'd0;
     socbushandler_ax_burst_payload_size <= 3'd0;
-    socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd0;
     socbushandler_aw_ready <= 1'd0;
-    socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd0;
-    socbushandler_ax_burst_payload_prot <= 3'd0;
     socbushandler_ax_burst_payload_lock <= 1'd0;
+    socbushandler_ax_burst_payload_prot <= 3'd0;
     socbushandler_ax_burst_payload_cache <= 4'd0;
-    socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd0;
     socbushandler_ax_burst_payload_qos <= 4'd0;
-    socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd0;
     socbushandler_ax_burst_payload_region <= 4'd0;
     socbushandler_ax_burst_param_id <= 1'd0;
     socbushandler_ax_burst_param_dest <= 1'd0;
     socbushandler_ax_burst_param_user <= 1'd0;
+    cramsoc_vexriscvaxi_next_state <= 2'd0;
+    socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd0;
+    socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd0;
     socbushandler_ax_beat_ready <= 1'd0;
+    socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd0;
+    socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd0;
     socbushandler_w_ready <= 1'd0;
     socbushandler_b_valid <= 1'd0;
     socbushandler_b_payload_resp <= 2'd0;
@@ -1439,12 +1438,11 @@ always @(*) begin
     cramsoc_vexriscvaxi_next_state <= cramsoc_vexriscvaxi_state;
     case (cramsoc_vexriscvaxi_state)
         1'd1: begin
-            dbus_lite_ar_valid <= (socbushandler_ax_beat_valid & (~socbushandler_cmd_done));
+            dbus_lite_ar_valid <= ((socbushandler_ax_beat_valid & (~socbushandler_cmd_done)) & (~((socbushandler_ax_beat_valid & socbushandler_ax_beat_last) & dbus_lite_ar_ready)));
             dbus_lite_ar_payload_addr <= socbushandler_ax_beat_payload_addr;
-            socbushandler_ax_beat_ready <= (dbus_lite_ar_ready & (~socbushandler_cmd_done));
+            socbushandler_ax_beat_ready <= dbus_lite_ar_ready;
             if ((socbushandler_ax_beat_valid & socbushandler_ax_beat_last)) begin
                 if (dbus_lite_ar_ready) begin
-                    socbushandler_ax_beat_ready <= 1'd0;
                     socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd1;
                     socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd1;
                 end
@@ -1461,7 +1459,7 @@ always @(*) begin
             end
         end
         2'd2: begin
-            dbus_lite_aw_valid <= (socbushandler_ax_beat_valid & (~socbushandler_cmd_done));
+            dbus_lite_aw_valid <= ((socbushandler_ax_beat_valid & (~socbushandler_cmd_done)) & (~((socbushandler_ax_beat_valid & socbushandler_ax_beat_last) & dbus_lite_aw_ready)));
             dbus_lite_aw_payload_addr <= socbushandler_ax_beat_payload_addr;
             socbushandler_ax_beat_ready <= (dbus_lite_aw_ready & (~socbushandler_cmd_done));
             if ((socbushandler_ax_beat_valid & socbushandler_ax_beat_last)) begin
@@ -1929,21 +1927,25 @@ always @(*) begin
     cramsoc_csr_bridge_r_payload_resp <= 2'd0;
     cramsoc_adr <= 16'd0;
     cramsoc_csr_bridge_r_payload_data <= 32'd0;
-    cramsoc_csr_bridge_r_valid <= 1'd0;
     cramsoc_csr_bridge_b_valid <= 1'd0;
+    cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_csr_bridge_b_payload_resp <= 2'd0;
     cramsoc_csr_bridge_aw_ready <= 1'd0;
     cramsoc_csr_bridge_ar_ready <= 1'd0;
-    cramsoc_axilite2csr_next_state <= 2'd0;
-    cramsoc_csr_bridge_w_ready <= 1'd0;
     cramsoc_csr_bridge_last_was_read_axilite2csr_next_value <= 1'd0;
     cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce <= 1'd0;
+    cramsoc_csr_bridge_r_valid <= 1'd0;
+    cramsoc_csr_bridge_w_ready <= 1'd0;
     cramsoc_axilite2csr_next_state <= cramsoc_axilite2csr_state;
     case (cramsoc_axilite2csr_state)
         1'd1: begin
             cramsoc_csr_bridge_last_was_read_axilite2csr_next_value <= 1'd1;
             cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce <= 1'd1;
-            cramsoc_adr <= cramsoc_csr_bridge_ar_payload_addr[31:2];
+            if (cramsoc_csr_bridge_r_valid) begin
+                cramsoc_adr <= cramsoc_csr_bridge_ar_payload_addr[31:2];
+            end else begin
+                cramsoc_adr <= 1'd0;
+            end
             cramsoc_csr_bridge_r_payload_data <= cramsoc_dat_r;
             cramsoc_csr_bridge_r_payload_resp <= 1'd0;
             cramsoc_csr_bridge_r_valid <= 1'd1;
@@ -1970,7 +1972,11 @@ always @(*) begin
                 end
             end else begin
                 if (cramsoc_csr_bridge_do_read) begin
-                    cramsoc_adr <= cramsoc_csr_bridge_ar_payload_addr[31:2];
+                    if (cramsoc_csr_bridge_r_valid) begin
+                        cramsoc_adr <= cramsoc_csr_bridge_ar_payload_addr[31:2];
+                    end else begin
+                        cramsoc_adr <= 1'd0;
+                    end
                     cramsoc_csr_bridge_ar_ready <= 1'd1;
                     cramsoc_axilite2csr_next_state <= 1'd1;
                 end
@@ -1990,8 +1996,8 @@ always @(*) begin
 end
 assign csr_bankarray_reload0_r = csr_bankarray_dat_w[31:0];
 always @(*) begin
-    csr_bankarray_reload0_re <= 1'd0;
     csr_bankarray_reload0_we <= 1'd0;
+    csr_bankarray_reload0_re <= 1'd0;
     if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 1'd1))) begin
         csr_bankarray_reload0_re <= csr_bankarray_we;
         csr_bankarray_reload0_we <= (~csr_bankarray_we);
@@ -1999,8 +2005,8 @@ always @(*) begin
 end
 assign csr_bankarray_en0_r = csr_bankarray_dat_w[0];
 always @(*) begin
-    csr_bankarray_en0_we <= 1'd0;
     csr_bankarray_en0_re <= 1'd0;
+    csr_bankarray_en0_we <= 1'd0;
     if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 2'd2))) begin
         csr_bankarray_en0_re <= csr_bankarray_we;
         csr_bankarray_en0_we <= (~csr_bankarray_we);
@@ -2026,8 +2032,8 @@ always @(*) begin
 end
 assign csr_bankarray_ev_status_r = csr_bankarray_dat_w[0];
 always @(*) begin
-    csr_bankarray_ev_status_we <= 1'd0;
     csr_bankarray_ev_status_re <= 1'd0;
+    csr_bankarray_ev_status_we <= 1'd0;
     if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 3'd5))) begin
         csr_bankarray_ev_status_re <= csr_bankarray_we;
         csr_bankarray_ev_status_we <= (~csr_bankarray_we);
@@ -2044,8 +2050,8 @@ always @(*) begin
 end
 assign csr_bankarray_ev_enable0_r = csr_bankarray_dat_w[0];
 always @(*) begin
-    csr_bankarray_ev_enable0_re <= 1'd0;
     csr_bankarray_ev_enable0_we <= 1'd0;
+    csr_bankarray_ev_enable0_re <= 1'd0;
     if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 3'd7))) begin
         csr_bankarray_ev_enable0_re <= csr_bankarray_we;
         csr_bankarray_ev_enable0_we <= (~csr_bankarray_we);
@@ -3146,5 +3152,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2022-11-15 22:38:00.
+//  Auto-Generated by LiteX on 2022-12-07 14:26:38.
 //------------------------------------------------------------------------------
