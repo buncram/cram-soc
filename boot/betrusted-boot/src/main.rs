@@ -466,6 +466,16 @@ fn lfsr_next(state: u16) -> u16 {
     ((state << 1) + bit) & 0x1_FF
 }
 
+#[cfg(feature="sim")]
+#[allow(dead_code)]
+/// shortened test length is 16 entries, so pick an LFSR with a perod of 2^4-1...
+fn lfsr_next_16(state: u16) -> u16 {
+    let bit = ((state >> 3) ^
+               (state >>  2)) & 1;
+
+    ((state << 1) + bit) & 0xF
+}
+
 /// uses an LFSR to cycle through "random" locations. The slice length
 /// should equal the (LFSR period+1), so that we guarantee that each entry
 /// is visited once.
@@ -508,7 +518,7 @@ where
             .try_into()
             .unwrap_or_default();
         checksum += a;
-        report.wfo(utra::main::REPORT_REPORT, a);
+        // report.wfo(utra::main::REPORT_REPORT, a);
     }
 
     if sum == checksum {
@@ -535,16 +545,17 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         for _ in 0..100 {
             checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
             report.wfo(utra::main::WDATA_WDATA, checkdata);
+            // report.wfo(utra::main::REPORT_REPORT, checkdata);
             checkstate += 5;
         }
         if checkdata == checkstate {
             report.wfo(utra::main::REPORT_REPORT, checkstate);
             report.wfo(utra::main::REPORT_REPORT, 0x600d_0001);
         } else {
+            report.wfo(utra::main::REPORT_REPORT, checkstate);
+            report.wfo(utra::main::REPORT_REPORT, checkdata);
             report.wfo(utra::main::REPORT_REPORT, 0x0bad_0001);
         }
-
-        // *** BUG: each AXI read generates four cycles on p_axi, when it should generate just one.
 
         // check that repeated reads of a register fetch new contents
         let mut checkdata = 0; // tracked value via simulation
@@ -553,12 +564,12 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         for _ in 0..20 {
             let readout = report.rf(utra::main::RINC_RINC);
             computed += readout;
-            report.wfo(utra::main::REPORT_REPORT, readout);
+            // report.wfo(utra::main::REPORT_REPORT, readout);
             checkdata += devstate;
             devstate += 3;
         }
-        if checkdata == checkstate {
-            report.wfo(utra::main::REPORT_REPORT, checkstate);
+        if checkdata == computed {
+            report.wfo(utra::main::REPORT_REPORT, checkdata);
             report.wfo(utra::main::REPORT_REPORT, 0x600d_0002);
         } else {
             report.wfo(utra::main::REPORT_REPORT, checkdata);
@@ -567,7 +578,6 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         }
 
         // 'random' access test
-        // *** BUG: seems like some of the writes are registering as zeroes
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 512);
         ramtest_lfsr(&mut test_slice, 3);
 
