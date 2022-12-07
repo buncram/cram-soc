@@ -13,10 +13,6 @@
 [submodule "deps/litedram"]
 	path = deps/litedram
 	url = https://github.com/enjoy-digital/litedram.git
-[submodule "fw/embedded-graphics"]
-	path = fw/embedded-graphics
-	url = https://github.com/betrusted-io/embedded-graphics.git
-	branch = master
 [submodule "deps/encrypt-bitstream-python"]
 	path = deps/encrypt-bitstream-python
 	url = https://github.com/betrusted-io/encrypt-bitstream-python.git
@@ -37,15 +33,6 @@
 [submodule "deps/compiler_rt"]
 	path = deps/compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt.git
-[submodule "fw/curve25519-dalek"]
-	path = fw/curve25519-dalek
-	url = https://github.com/betrusted-io/curve25519-dalek.git
-[submodule "fw/engine25519-as"]
-	path = fw/engine25519-as
-	url = https://github.com/betrusted-io/engine25519-as.git
-[submodule "fw/x25519-dalek"]
-	path = fw/x25519-dalek
-	url = https://github.com/betrusted-io/x25519-dalek.git
 [submodule "deps/pythondata-software-picolibc"]
 	path = deps/pythondata-software-picolibc
 	url = https://github.com/litex-hub/pythondata-software-picolibc
