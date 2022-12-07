@@ -326,7 +326,6 @@ where
 }
 
 
-/*
 /// only touches two words on each cache line
 /// this one tries to write the same word twice to two consecutive addresses
 /// this causes the valid strobe to hit twice in a row. seems to pass.
@@ -376,7 +375,6 @@ where
         report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
     }
 }
-*/
 
 /// only touches two words on each cache line
 #[cfg(feature="sim")]
@@ -538,6 +536,50 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
 
+        // ----------- caching tests -------------
+        // test of the 0x500F cache flush instruction - this requires manual inspection of the report values
+        report.wfo(utra::main::REPORT_REPORT, 0x000c_ac7e);
+        const CACHE_WAYS: usize = 4;
+        const CACHE_SET_SIZE: usize = 4096 / size_of::<u32>();
+        let test_slice = core::slice::from_raw_parts_mut(0x6100_0000 as *mut u32, CACHE_SET_SIZE * CACHE_WAYS);
+        // bottom of cache
+        for set in 0..4 {
+            report.wfo(utra::main::REPORT_REPORT, (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32) as u32);
+            (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).write_volatile(0x0011_1111 * (1 + set as u32));
+        }
+        // top of cache
+        for set in 0..4 {
+            report.wfo(utra::main::REPORT_REPORT, (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32) as u32);
+            (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).write_volatile(0x1100_2222 * (1 + set as u32));
+        }
+        // read cached values - first iteration populates the cache; second iteration should be cached
+        for iter in 0..2 {
+            report.wfo(utra::main::REPORT_REPORT, 0xb1d0_0000 + iter + 1);
+            for set in 0..4 {
+                let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
+                report.wfo(utra::main::REPORT_REPORT, a);
+                let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
+                report.wfo(utra::main::REPORT_REPORT, b);
+            }
+        }
+        // flush cache
+        report.wfo(utra::main::REPORT_REPORT, 0xff00_ff00);
+        core::arch::asm!(
+            ".word 0x500F",
+        );
+        report.wfo(utra::main::REPORT_REPORT, 0x0f0f_0f0f);
+        // read cached values - first iteration populates the cache; second iteration should be cached
+        for iter in 0..2 {
+            report.wfo(utra::main::REPORT_REPORT, 0xb2d0_0000 + iter + 1);
+            for set in 0..4 {
+                let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
+                report.wfo(utra::main::REPORT_REPORT, a);
+                let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
+                report.wfo(utra::main::REPORT_REPORT, b);
+            }
+        }
+        report.wfo(utra::main::REPORT_REPORT, 0x600c_ac7e);
+
         // check that caching is disabled for I/O regions
         let mut checkstate = 0x1234_0000;
         report.wfo(utra::main::WDATA_WDATA, 0x1234_0000);
@@ -577,11 +619,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             report.wfo(utra::main::REPORT_REPORT, 0x0bad_0002);
         }
 
+        // ----------- bus tests -------------
         // 'random' access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 512);
         ramtest_lfsr(&mut test_slice, 3);
-
-        // TODO: test of the 0x500F cache flush instruction
 
         // now some basic memory read/write tests
         // entirely within cache access test
@@ -601,8 +642,8 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         ramtest_fast(&mut test_slice, 7);  // c7f600
 
         // this passed, now that the AXI state machine is fixed.
-        // let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
-        // ramtest_fast_specialcase1(&mut test_slice, 8);  // c7f600
+        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
+        ramtest_fast_specialcase1(&mut test_slice, 8);  // c7f600
 
         // u64 access test
         let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u64, 0xC00);
