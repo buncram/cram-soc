@@ -265,6 +265,9 @@ class SimRunner():
         # AXI test stuff
         os.system("cd run && {} ".format(cpname)+os.path.normpath("../deps/verilog-axi/rtl" + os.path.sep + "*.v ."))
         os.system("cd run && xvlog axi_ram.v -sv")
+        os.system("cd run && xvlog axi_axil_adapter.v -sv")
+        os.system("cd run && xvlog axi_axil_adapter_rd.v -sv")
+        os.system("cd run && xvlog axi_axil_adapter_wr.v -sv")
 
         # run user dependencies
         for cmd in os_cmds:
