@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.7.3    git head : ed8004c489ee8a38c2cab309d0447b543fe9d5b8
 // Component : VexRiscvAxi4
-// Git hash  : 9ff92e3681784d95487c2f84425da746a45ccfd1
+// Git hash  : 05388aef9d5d2b9b9ec825705e605febda486e79
 
 `timescale 1ns/1ps
 
@@ -144,8 +144,8 @@ module VexRiscvAxi4 (
   wire                dataCache_1_io_cpu_flush_payload_singleLine;
   wire       [6:0]    dataCache_1_io_cpu_flush_payload_lineId;
   wire                dataCache_1_io_mem_cmd_ready;
-  wire                RegFilePlugin_regFile_wr_en;
-  wire                RegFilePlugin_regFile_1_wr_en;
+  wire       [31:0]   _zz_RegFilePlugin_regFile_port0;
+  wire       [31:0]   _zz_RegFilePlugin_regFile_port1;
   reg        [31:0]   _zz_memory_AesPlugin_rom_storage_port0;
   wire                IBusCachedPlugin_cache_io_cpu_prefetch_haltIt;
   wire       [31:0]   IBusCachedPlugin_cache_io_cpu_fetch_data;
@@ -194,8 +194,6 @@ module VexRiscvAxi4 (
   wire       [31:0]   systemDebugger_1_io_mem_cmd_payload_data;
   wire                systemDebugger_1_io_mem_cmd_payload_wr;
   wire       [1:0]    systemDebugger_1_io_mem_cmd_payload_size;
-  wire       [31:0]   RegFilePlugin_regFile_rd_data;
-  wire       [31:0]   RegFilePlugin_regFile_1_rd_data;
   wire       [51:0]   _zz_memory_MUL_LOW;
   wire       [51:0]   _zz_memory_MUL_LOW_1;
   wire       [51:0]   _zz_memory_MUL_LOW_2;
@@ -720,7 +718,7 @@ module VexRiscvAxi4 (
   wire       [1:0]    _zz_execute_ALU_BITWISE_CTRL;
   wire       [31:0]   _zz_lastStageRegFileWrite_payload_address;
   wire                _zz_lastStageRegFileWrite_valid;
-  reg                 _zz_wr_en;
+  reg                 _zz_1;
   reg                 decode_REGFILE_WRITE_VALID;
   wire                decode_LEGAL_INSTRUCTION;
   wire       [1:0]    _zz_decode_BRANCH_CTRL;
@@ -1230,8 +1228,7 @@ module VexRiscvAxi4 (
   reg                 lastStageRegFileWrite_valid /* verilator public */ ;
   reg        [4:0]    lastStageRegFileWrite_payload_address /* verilator public */ ;
   reg        [31:0]   lastStageRegFileWrite_payload_data /* verilator public */ ;
-  wire       [31:0]   _zz_wr_data;
-  reg                 _zz_1;
+  reg                 _zz_2;
   reg        [31:0]   execute_IntAluPlugin_bitwise;
   reg        [31:0]   _zz_execute_REGFILE_WRITE_DATA;
   reg        [31:0]   _zz_execute_SRC1_1;
@@ -1877,7 +1874,7 @@ module VexRiscvAxi4 (
   wire                when_DebugPlugin_l295;
   wire                when_DebugPlugin_l298;
   wire                when_DebugPlugin_l311;
-  reg                 _zz_2;
+  reg                 _zz_3;
   reg                 DebugPlugin_resetIt_regNext;
   wire                when_DebugPlugin_l331;
   wire                when_Pipeline_l124;
@@ -2177,7 +2174,7 @@ module VexRiscvAxi4 (
   reg                 _zz_dbus_axi_w_valid_1;
   wire                when_Stream_l945;
   wire                when_Stream_l945_1;
-  reg                 _zz_3;
+  reg                 _zz_4;
   reg                 _zz_dbus_axi_arw_valid_3;
   wire                when_Stream_l438;
   reg                 _zz_dbus_axi_w_valid_2;
@@ -2269,6 +2266,7 @@ module VexRiscvAxi4 (
   reg [31:0] decode_to_execute_BRANCH_CTRL_string;
   `endif
 
+  (* ram_style = "distributed" *) reg [31:0] RegFilePlugin_regFile [0:31] /* verilator public */ ;
   (* ram_style = "block" *) reg [31:0] memory_AesPlugin_rom_storage [0:511];
 
   assign _zz_when = ({decodeExceptionPort_valid,IBusCachedPlugin_decodeExceptionPort_valid} != 2'b00);
@@ -2609,6 +2607,14 @@ module VexRiscvAxi4 (
   assign _zz_MmuPlugin_ports_1_cacheHitsCalc_19 = DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[31 : 22];
   assign _zz_MmuPlugin_ports_1_cacheHitsCalc_20 = DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12];
   assign _zz_CsrPlugin_csrMapping_readDataInit_28 = 32'h0;
+  assign _zz_RegFilePlugin_regFile_port0 = RegFilePlugin_regFile[decode_RegFilePlugin_regFileReadAddress1];
+  assign _zz_RegFilePlugin_regFile_port1 = RegFilePlugin_regFile[decode_RegFilePlugin_regFileReadAddress2];
+  always @(posedge clk) begin
+    if(_zz_1) begin
+      RegFilePlugin_regFile[lastStageRegFileWrite_payload_address] <= lastStageRegFileWrite_payload_data;
+    end
+  end
+
   initial begin
     $readmemb("VexRiscv_CranSoC.v_toplevel_memory_AesPlugin_rom_storage.bin",memory_AesPlugin_rom_storage);
   end
@@ -2796,46 +2802,6 @@ module VexRiscvAxi4 (
     .io_mem_rsp_payload             (debug_bus_rsp_data[31:0]                         ), //i
     .clk                            (clk                                              ), //i
     .debugReset                     (debugReset                                       )  //i
-  );
-  Ram_1w_1ra #(
-    .wordCount(32),
-    .wordWidth(32),
-    .technology("auto"),
-    .readUnderWrite("dontCare"),
-    .wrAddressWidth(5),
-    .wrDataWidth(32),
-    .wrMaskWidth(1),
-    .wrMaskEnable(1'b0),
-    .rdAddressWidth(5),
-    .rdDataWidth(32)
-  ) RegFilePlugin_regFile (
-    .clk     (clk                                          ), //i
-    .wr_en   (RegFilePlugin_regFile_wr_en                  ), //i
-    .wr_mask (1'b1                                         ), //i
-    .wr_addr (lastStageRegFileWrite_payload_address[4:0]   ), //i
-    .wr_data (_zz_wr_data[31:0]                            ), //i
-    .rd_addr (decode_RegFilePlugin_regFileReadAddress1[4:0]), //i
-    .rd_data (RegFilePlugin_regFile_rd_data[31:0]          )  //o
-  );
-  Ram_1w_1ra #(
-    .wordCount(32),
-    .wordWidth(32),
-    .technology("auto"),
-    .readUnderWrite("dontCare"),
-    .wrAddressWidth(5),
-    .wrDataWidth(32),
-    .wrMaskWidth(1),
-    .wrMaskEnable(1'b0),
-    .rdAddressWidth(5),
-    .rdDataWidth(32)
-  ) RegFilePlugin_regFile_1 (
-    .clk     (clk                                          ), //i
-    .wr_en   (RegFilePlugin_regFile_1_wr_en                ), //i
-    .wr_mask (1'b1                                         ), //i
-    .wr_addr (lastStageRegFileWrite_payload_address[4:0]   ), //i
-    .wr_data (_zz_wr_data[31:0]                            ), //i
-    .rd_addr (decode_RegFilePlugin_regFileReadAddress2[4:0]), //i
-    .rd_data (RegFilePlugin_regFile_1_rd_data[31:0]        )  //o
   );
   always @(*) begin
     case(_zz_IBusCachedPlugin_jump_pcLoad_payload_7)
@@ -4083,9 +4049,9 @@ module VexRiscvAxi4 (
   assign _zz_lastStageRegFileWrite_payload_address = writeBack_INSTRUCTION;
   assign _zz_lastStageRegFileWrite_valid = writeBack_REGFILE_WRITE_VALID;
   always @(*) begin
-    _zz_wr_en = 1'b0;
+    _zz_1 = 1'b0;
     if(lastStageRegFileWrite_valid) begin
-      _zz_wr_en = 1'b1;
+      _zz_1 = 1'b1;
     end
   end
 
@@ -4330,10 +4296,10 @@ module VexRiscvAxi4 (
         execute_arbitration_flushNext = 1'b1;
       end
     end
-    if(_zz_2) begin
+    if(_zz_3) begin
       execute_arbitration_flushNext = 1'b1;
     end
-    if(_zz_2) begin
+    if(_zz_3) begin
       execute_arbitration_flushNext = 1'b1;
     end
   end
@@ -4434,7 +4400,7 @@ module VexRiscvAxi4 (
 
   always @(*) begin
     IBusCachedPlugin_forceNoDecodeCond = 1'b0;
-    if(_zz_2) begin
+    if(_zz_3) begin
       IBusCachedPlugin_forceNoDecodeCond = 1'b1;
     end
   end
@@ -5390,26 +5356,25 @@ module VexRiscvAxi4 (
   assign when_RegFilePlugin_l63 = (decode_INSTRUCTION[11 : 7] == 5'h0);
   assign decode_RegFilePlugin_regFileReadAddress1 = decode_INSTRUCTION[19 : 15];
   assign decode_RegFilePlugin_regFileReadAddress2 = decode_INSTRUCTION[24 : 20];
-  assign decode_RegFilePlugin_rs1Data = RegFilePlugin_regFile_rd_data;
-  assign decode_RegFilePlugin_rs2Data = RegFilePlugin_regFile_1_rd_data;
-  assign _zz_wr_data = lastStageRegFileWrite_payload_data;
+  assign decode_RegFilePlugin_rs1Data = _zz_RegFilePlugin_regFile_port0;
+  assign decode_RegFilePlugin_rs2Data = _zz_RegFilePlugin_regFile_port1;
   always @(*) begin
     lastStageRegFileWrite_valid = (_zz_lastStageRegFileWrite_valid && writeBack_arbitration_isFiring);
-    if(_zz_1) begin
+    if(_zz_2) begin
       lastStageRegFileWrite_valid = 1'b1;
     end
   end
 
   always @(*) begin
     lastStageRegFileWrite_payload_address = _zz_lastStageRegFileWrite_payload_address[11 : 7];
-    if(_zz_1) begin
+    if(_zz_2) begin
       lastStageRegFileWrite_payload_address = 5'h0;
     end
   end
 
   always @(*) begin
     lastStageRegFileWrite_payload_data = _zz_decode_RS2_2;
-    if(_zz_1) begin
+    if(_zz_2) begin
       lastStageRegFileWrite_payload_data = 32'h0;
     end
   end
@@ -7364,14 +7329,14 @@ module VexRiscvAxi4 (
   assign _zz_dbus_axi_w_valid = (_zz_dbus_axi_arw_valid && _zz_dbus_axi_w_valid_1);
   always @(*) begin
     _zz_dbus_axi_arw_valid_3 = _zz_dbus_axi_arw_valid_1;
-    if(_zz_3) begin
+    if(_zz_4) begin
       _zz_dbus_axi_arw_valid_3 = 1'b0;
     end
   end
 
   always @(*) begin
     _zz_when_Stream_l945 = dbus_axi_arw_ready;
-    if(_zz_3) begin
+    if(_zz_4) begin
       _zz_when_Stream_l945 = 1'b1;
     end
   end
@@ -7453,8 +7418,6 @@ module VexRiscvAxi4 (
   assign debug_bus_cmd_payload_address = systemDebugger_1_io_mem_cmd_payload_address[7:0];
   assign debug_bus_cmd_fire = (debug_bus_cmd_valid && debug_bus_cmd_ready);
   assign jtag_tdo = jtagBridge_1_io_jtag_tdo;
-  assign RegFilePlugin_regFile_wr_en = (_zz_wr_en && 1'b1);
-  assign RegFilePlugin_regFile_1_wr_en = (_zz_wr_en && 1'b1);
   always @(posedge clk) begin
     if(reset) begin
       IBusCachedPlugin_fetchPc_pcReg <= externalResetVector;
@@ -7475,7 +7438,7 @@ module VexRiscvAxi4 (
       dataCache_1_io_mem_cmd_s2mPipe_rValid <= 1'b0;
       dBus_rsp_regNext_valid <= 1'b0;
       DBusCachedPlugin_rspCounter <= 32'h0;
-      _zz_1 <= 1'b1;
+      _zz_2 <= 1'b1;
       HazardSimplePlugin_writeBackBuffer_valid <= 1'b0;
       memory_DivPlugin_div_counter_value <= 6'h0;
       _zz_CsrPlugin_privilege <= 2'b11;
@@ -7557,7 +7520,7 @@ module VexRiscvAxi4 (
       _zz_dBus_cmd_ready <= 3'b000;
       _zz_dbus_axi_arw_valid_2 <= 1'b1;
       _zz_dbus_axi_w_valid_1 <= 1'b1;
-      _zz_3 <= 1'b0;
+      _zz_4 <= 1'b0;
     end else begin
       if(IBusCachedPlugin_fetchPc_correction) begin
         IBusCachedPlugin_fetchPc_correctionReg <= 1'b1;
@@ -7651,7 +7614,7 @@ module VexRiscvAxi4 (
       if(dBus_rsp_valid) begin
         DBusCachedPlugin_rspCounter <= (DBusCachedPlugin_rspCounter + 32'h00000001);
       end
-      _zz_1 <= 1'b0;
+      _zz_2 <= 1'b0;
       HazardSimplePlugin_writeBackBuffer_valid <= HazardSimplePlugin_writeBackWrites_valid;
       memory_DivPlugin_div_counter_value <= memory_DivPlugin_div_counter_valueNext;
       CsrPlugin_mcycle <= (CsrPlugin_mcycle + 64'h0000000000000001);
@@ -8115,7 +8078,7 @@ module VexRiscvAxi4 (
         _zz_dbus_axi_w_valid_1 <= 1'b1;
       end
       if((_zz_dbus_axi_arw_valid_1 && _zz_when_Stream_l945)) begin
-        _zz_3 <= (! _zz_dbus_axi_w_payload_last);
+        _zz_4 <= (! _zz_dbus_axi_w_payload_last);
       end
     end
   end
@@ -8920,7 +8883,7 @@ module VexRiscvAxi4 (
       DebugPlugin_hardwareBreakpoints_1_valid <= 1'b0;
       DebugPlugin_hardwareBreakpoints_2_valid <= 1'b0;
       DebugPlugin_hardwareBreakpoints_3_valid <= 1'b0;
-      _zz_2 <= 1'b0;
+      _zz_3 <= 1'b0;
       debug_bus_cmd_fire_regNext <= 1'b0;
     end else begin
       if(when_DebugPlugin_l225) begin
@@ -8995,7 +8958,7 @@ module VexRiscvAxi4 (
           DebugPlugin_haltIt <= 1'b1;
         end
       end
-      _zz_2 <= (DebugPlugin_stepIt && decode_arbitration_isFiring);
+      _zz_3 <= (DebugPlugin_stepIt && decode_arbitration_isFiring);
       debug_bus_cmd_fire_regNext <= debug_bus_cmd_fire;
     end
   end
