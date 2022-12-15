@@ -48,7 +48,7 @@ fn try_main() -> Result<(), DynError> {
 fn print_help() {
     eprintln!(
         "Tasks:
-boot-image [soc.svd]      builds a boot image
+boot-image     builds a boot image
 "
     )
 }
@@ -58,16 +58,6 @@ fn build_hw_image(
     features: Vec<String>,
     packages: &[&str],
 ) -> Result<(), DynError> {
-    let svd_file = "../build/software/soc.svd".to_string();
-
-    let path = std::path::Path::new(&svd_file);
-    if !path.exists() {
-        return Err("svd file does not exist".into());
-    }
-
-    // Tools use this environment variable to know when to rebuild the UTRA crate.
-    std::env::set_var("XOUS_SVD_FILE", path.canonicalize().unwrap());
-
     // build the assembly binary
     #[cfg(target_os = "windows")]
     let status = Command::new("powershell")

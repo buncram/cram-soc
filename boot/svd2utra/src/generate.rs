@@ -817,32 +817,38 @@ mod tests {
     Ok(())
 }
 
-pub fn parse_svd<T: Read>(src: T) -> Result<Description, ParseError> {
-    let mut buf = Vec::new();
-    let buf_reader = BufReader::new(src);
-    let mut reader = Reader::from_reader(buf_reader);
+pub fn parse_svd<T: Read>(sources: Vec::<T>) -> Result<Description, ParseError> {
     let mut description = Description::default();
-    loop {
-        match reader.read_event(&mut buf) {
-            Ok(Event::Start(ref e)) => match e.name() {
-                b"peripherals" => {
-                    description.peripherals = generate_peripherals(&mut reader)?;
-                }
-                b"vendorExtensions" => {
-                    parse_vendor_extensions(&mut reader, &mut description)?;
-                }
+    let mut first = true;
+    for src in sources {
+        let mut buf = Vec::new();
+        let buf_reader = BufReader::new(src);
+        let mut reader = Reader::from_reader(buf_reader);
+        loop {
+            match reader.read_event(&mut buf) {
+                Ok(Event::Start(ref e)) => match e.name() {
+                    b"peripherals" => {
+                        description.peripherals.append(&mut generate_peripherals(&mut reader)?);
+                    }
+                    b"vendorExtensions" => {
+                        if first { // this is a bodge to only take one set of extensions. In this case, just the first file in the list takes priority.
+                            parse_vendor_extensions(&mut reader, &mut description)?;
+                        }
+                    }
+                    _ => (),
+                },
+                Ok(Event::Eof) => break,
+                Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
                 _ => (),
-            },
-            Ok(Event::Eof) => break,
-            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-            _ => (),
+            }
+            buf.clear();
         }
-        buf.clear();
+        first = false;
     }
     Ok(description)
 }
 
-pub fn generate<T: Read, U: Write>(src: T, dest: &mut U) -> Result<(), ParseError> {
+pub fn generate<T: Read, U: Write>(src: Vec::<T>, dest: &mut U) -> Result<(), ParseError> {
     let description = parse_svd(src)?;
 
     print_header(dest).or(Err(ParseError::WriteError))?;

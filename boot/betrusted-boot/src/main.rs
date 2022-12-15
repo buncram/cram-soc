@@ -4,7 +4,7 @@
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
 const VERSION_STR: &'static str = "Betrusted/Precursor Bootloader v0.2.3\n\r";
-// v0.2.0 -- intial version
+// v0.2.0 -- initial version
 // v0.2.1 -- fix warmboot issue (SHA reset)
 // v0.2.2 -- check version & length in header against signed area
 // v0.2.3 -- lock out key ROM on signature check failure
@@ -456,7 +456,7 @@ where
 
 */
 #[cfg(feature="sim")]
-/// our desired test length is 512 entries, so pick an LFSR with a perod of 2^9-1...
+/// our desired test length is 512 entries, so pick an LFSR with a period of 2^9-1...
 fn lfsr_next(state: u16) -> u16 {
     let bit = ((state >> 8) ^
                (state >>  4)) & 1;
@@ -466,7 +466,7 @@ fn lfsr_next(state: u16) -> u16 {
 
 #[cfg(feature="sim")]
 #[allow(dead_code)]
-/// shortened test length is 16 entries, so pick an LFSR with a perod of 2^4-1...
+/// shortened test length is 16 entries, so pick an LFSR with a period of 2^4-1...
 fn lfsr_next_16(state: u16) -> u16 {
     let bit = ((state >> 3) ^
                (state >>  2)) & 1;
@@ -535,6 +535,26 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     {
         let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
+
+        // TODO: extract and test the 0x5800_0000 range of CSRs (private to cram_axi.v)
+        report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
+        let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
+        let mut passing = true;
+        for i in 0..4 {
+            csrtest.wfo(utra::csrtest::WTEST_WTEST, i);
+            let val = csrtest.rf(utra::csrtest::RTEST_RTEST);
+            report.wfo(utra::main::REPORT_REPORT,
+                val
+            );
+            if val != i + 0x1000_0000 {
+                passing = false;
+            }
+        }
+        if passing {
+            report.wfo(utra::main::REPORT_REPORT, 0xc520_600d);
+        } else {
+            report.wfo(utra::main::REPORT_REPORT, 0xc520_dead);
+        }
 
         // ----------- caching tests -------------
         // test of the 0x500F cache flush instruction - this requires manual inspection of the report values

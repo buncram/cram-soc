@@ -30,7 +30,7 @@ small-soc = []
 # default = ["debug-print", "small-soc"]
 hw-sec = ["curve25519-dalek", "ed25519-dalek"]
 sim = []
-default = []
+default = ["sim"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}
