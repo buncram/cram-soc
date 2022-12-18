@@ -224,6 +224,7 @@ def compile(file):
 
 class SimRunner():
     def __init__(self, ci, os_cmds, vex_verilog_path=VEX_CPU_PATH):
+        VIVADO_PATH = 'C:\\Xilinx\\Vivado\\2022.2\\bin\\'
         # we need to use wildcards, so shutil is rather hard to code around. Use this hack instead.
         if os.name == 'nt':
             cpname = 'copy'
@@ -258,7 +259,7 @@ class SimRunner():
         os.system("cd run && {} ".format(cpname)+os.path.normpath("../build/gateware") + os.path.sep + "*.v .")
         vex_dir = os.path.dirname(VEX_CPU_PATH)
         vex_dir = vex_dir.replace("/", os.path.sep)
-        os.system("cd run && xvlog {}".format(".." + os.path.sep + vex_verilog_path)) # "cd run && xvlog {}".format("../" + vex_verilog_path)
+        os.system("cd run && {}xvlog {}".format(VIVADO_PATH, ".." + os.path.sep + vex_verilog_path)) # "cd run && xvlog {}".format("../" + vex_verilog_path)
         os.system("cd run && {} ".format(cpname)+os.path.normpath("../deps/verilog-axi/rtl" + os.path.sep + "*.v ."))
 
         # copy any relevant .bin files into the run directory as well
@@ -266,27 +267,27 @@ class SimRunner():
 
         # compile
         deps = [
-            "cd run && xvlog {}".format(os.path.normpath("../sim_support/glbl.v")),
-            "cd run && xvlog cram_soc.v",
-            "cd run && xvlog cram_axi.v",
-            "cd run && xvlog ram_1w_1ra.v",
-            "cd run && xvlog ram_1w_1rs.v",
-            "cd run && xvlog top_tb.v",
-            "cd run && xvlog axi_ram.v",
-            "cd run && xvlog axi_axil_adapter.v",
-            "cd run && xvlog axi_axil_adapter_rd.v",
-            "cd run && xvlog axi_axil_adapter_wr.v",
-            "cd run && xvlog axi_crossbar.v",
-            "cd run && xvlog axi_crossbar_addr.v",
-            "cd run && xvlog axi_crossbar_rd.v",
-            "cd run && xvlog axi_crossbar_wr.v",
-            "cd run && xvlog arbiter.v",
-            "cd run && xvlog axi_register_wr.v",
-            "cd run && xvlog axi_register_rd.v",
-            "cd run && xvlog priority_encoder.v",
-            "cd run && xvlog axi_adapter_wr.v",
-            "cd run && xvlog axi_adapter_rd.v",
-            "cd run && xvlog axi_adapter.v",
+            "cd run && {}xvlog {}".format(VIVADO_PATH, os.path.normpath("../sim_support/glbl.v")),
+            "cd run && {}xvlog cram_soc.v".format(VIVADO_PATH),
+            "cd run && {}xvlog cram_axi.v".format(VIVADO_PATH),
+            "cd run && {}xvlog ram_1w_1ra.v".format(VIVADO_PATH),
+            "cd run && {}xvlog ram_1w_1rs.v".format(VIVADO_PATH),
+            "cd run && {}xvlog top_tb.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_ram.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_axil_adapter.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_axil_adapter_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_axil_adapter_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_crossbar.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_crossbar_addr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_crossbar_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_crossbar_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog arbiter.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_register_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_register_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog priority_encoder.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_adapter_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_adapter_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog axi_adapter.v".format(VIVADO_PATH),
         ]
 
         pool = multiprocessing.Pool(12)
@@ -298,11 +299,11 @@ class SimRunner():
             os.system(cmd)
 
         os.system(
-            "cd run && xelab -debug typical top_tb glbl -s top_tb_sim -L unisims_ver -L unimacro_ver -L SIMPRIM_VER -L secureip -L $xsimdir/xil_defaultlib -timescale 1ns/1ps")
+            "cd run && {}xelab -debug typical top_tb glbl -s top_tb_sim -L unisims_ver -L unimacro_ver -L SIMPRIM_VER -L secureip -L $xsimdir/xil_defaultlib -timescale 1ns/1ps".format(VIVADO_PATH))
         if ci:
-            os.system("cd run && xsim top_tb_sim -runall -wdb ci.wdb")
+            os.system("cd run && {}xsim top_tb_sim -runall -wdb ci.wdb".format(VIVADO_PATH))
         else:
-            os.system("cd run && xsim top_tb_sim -gui")
+            os.system("cd run && {}xsim top_tb_sim -gui".format(VIVADO_PATH))
 
 
 # for automated VCD checking after CI run
