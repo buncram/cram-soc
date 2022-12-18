@@ -8,8 +8,8 @@
 //
 // Filename   : cram_axi.v
 // Device     : 
-// LiteX sha1 : 05d4b572
-// Date       : 2022-12-12 17:58:29
+// LiteX sha1 : f68253f6
+// Date       : 2022-12-19 03:36:14
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -21,8 +21,8 @@
 module cram_axi (
     input  wire          aclk,
     input  wire          rst,
-    input  wire          hclk,
-    input  wire          hrst,
+    input  wire   [31:0] trimming_reset,
+    input  wire          trimming_reset_ena,
     output wire          ibus_axi_awvalid,
     input  wire          ibus_axi_awready,
     output wire   [31:0] ibus_axi_awaddr,
@@ -147,10 +147,10 @@ wire          sys_clk;
 wire          sys_rst;
 wire          por_clk;
 reg           int_rst = 1'd1;
-wire          hclk_clk;
-wire          hclk_rst;
 reg           reset = 1'd0;
-reg    [31:0] interrupt_1 = 32'd0;
+wire   [31:0] interrupt_1;
+wire   [31:0] trimming_reset0;
+wire          trimming_reset_ena0;
 reg           ibus_axi_aw_valid = 1'd0;
 wire          ibus_axi_aw_ready;
 reg    [31:0] ibus_axi_aw_payload_addr = 32'd0;
@@ -197,8 +197,6 @@ wire          ibus_axi_r_param_id;
 wire          ibus_axi_r_param_user;
 wire          dbus_axi_aw_valid;
 wire          dbus_axi_aw_ready;
-reg           dbus_axi_aw_first = 1'd0;
-reg           dbus_axi_aw_last = 1'd0;
 wire   [31:0] dbus_axi_aw_payload_addr;
 wire    [1:0] dbus_axi_aw_payload_burst;
 wire    [7:0] dbus_axi_aw_payload_len;
@@ -209,29 +207,20 @@ wire    [3:0] dbus_axi_aw_payload_cache;
 wire    [3:0] dbus_axi_aw_payload_qos;
 wire    [3:0] dbus_axi_aw_payload_region;
 wire          dbus_axi_aw_param_id;
-reg           dbus_axi_aw_param_dest = 1'd0;
 reg           dbus_axi_aw_param_user = 1'd0;
 wire          dbus_axi_w_valid;
 wire          dbus_axi_w_ready;
-reg           dbus_axi_w_first = 1'd0;
 wire          dbus_axi_w_last;
 wire   [31:0] dbus_axi_w_payload_data;
 wire    [3:0] dbus_axi_w_payload_strb;
-reg           dbus_axi_w_param_id = 1'd0;
-reg           dbus_axi_w_param_dest = 1'd0;
 reg           dbus_axi_w_param_user = 1'd0;
 wire          dbus_axi_b_valid;
 wire          dbus_axi_b_ready;
-wire          dbus_axi_b_first;
-wire          dbus_axi_b_last;
 wire    [1:0] dbus_axi_b_payload_resp;
 wire          dbus_axi_b_param_id;
-wire          dbus_axi_b_param_dest;
 wire          dbus_axi_b_param_user;
 wire          dbus_axi_ar_valid;
 wire          dbus_axi_ar_ready;
-reg           dbus_axi_ar_first = 1'd0;
-reg           dbus_axi_ar_last = 1'd0;
 wire   [31:0] dbus_axi_ar_payload_addr;
 wire    [1:0] dbus_axi_ar_payload_burst;
 wire    [7:0] dbus_axi_ar_payload_len;
@@ -242,21 +231,156 @@ wire    [3:0] dbus_axi_ar_payload_cache;
 wire    [3:0] dbus_axi_ar_payload_qos;
 wire    [3:0] dbus_axi_ar_payload_region;
 wire          dbus_axi_ar_param_id;
-reg           dbus_axi_ar_param_dest = 1'd0;
 reg           dbus_axi_ar_param_user = 1'd0;
 wire          dbus_axi_r_valid;
 wire          dbus_axi_r_ready;
-wire          dbus_axi_r_first;
 wire          dbus_axi_r_last;
 wire    [1:0] dbus_axi_r_payload_resp;
 wire   [31:0] dbus_axi_r_payload_data;
 wire          dbus_axi_r_param_id;
-wire          dbus_axi_r_param_dest;
 wire          dbus_axi_r_param_user;
+wire          dbus_peri_aw_valid;
+wire          dbus_peri_aw_ready;
+wire   [31:0] dbus_peri_aw_payload_addr;
+wire    [1:0] dbus_peri_aw_payload_burst;
+wire    [7:0] dbus_peri_aw_payload_len;
+wire    [2:0] dbus_peri_aw_payload_size;
+wire          dbus_peri_aw_payload_lock;
+wire    [2:0] dbus_peri_aw_payload_prot;
+wire    [3:0] dbus_peri_aw_payload_cache;
+wire    [3:0] dbus_peri_aw_payload_qos;
+wire    [3:0] dbus_peri_aw_payload_region;
+wire          dbus_peri_aw_param_id;
+wire          dbus_peri_aw_param_user;
+wire          dbus_peri_w_valid;
+wire          dbus_peri_w_ready;
+wire          dbus_peri_w_last;
+wire   [31:0] dbus_peri_w_payload_data;
+wire    [3:0] dbus_peri_w_payload_strb;
+wire          dbus_peri_w_param_user;
+wire          dbus_peri_b_valid;
+wire          dbus_peri_b_ready;
+wire    [1:0] dbus_peri_b_payload_resp;
+wire          dbus_peri_b_param_id;
+reg           dbus_peri_b_param_user = 1'd0;
+wire          dbus_peri_ar_valid;
+wire          dbus_peri_ar_ready;
+wire   [31:0] dbus_peri_ar_payload_addr;
+wire    [1:0] dbus_peri_ar_payload_burst;
+wire    [7:0] dbus_peri_ar_payload_len;
+wire    [2:0] dbus_peri_ar_payload_size;
+wire          dbus_peri_ar_payload_lock;
+wire    [2:0] dbus_peri_ar_payload_prot;
+wire    [3:0] dbus_peri_ar_payload_cache;
+wire    [3:0] dbus_peri_ar_payload_qos;
+wire    [3:0] dbus_peri_ar_payload_region;
+wire          dbus_peri_ar_param_id;
+wire          dbus_peri_ar_param_user;
+wire          dbus_peri_r_valid;
+wire          dbus_peri_r_ready;
+wire          dbus_peri_r_last;
+wire    [1:0] dbus_peri_r_payload_resp;
+wire   [31:0] dbus_peri_r_payload_data;
+wire          dbus_peri_r_param_id;
+reg           dbus_peri_r_param_user = 1'd0;
+wire          peripherals_aw_valid;
+reg           peripherals_aw_ready = 1'd0;
+wire   [31:0] peripherals_aw_payload_addr;
+reg     [2:0] peripherals_aw_payload_prot = 3'd0;
+wire          peripherals_w_valid;
+reg           peripherals_w_ready = 1'd0;
+wire   [31:0] peripherals_w_payload_data;
+wire    [3:0] peripherals_w_payload_strb;
+reg           peripherals_b_valid = 1'd0;
+wire          peripherals_b_ready;
+reg     [1:0] peripherals_b_payload_resp = 2'd0;
+wire          peripherals_ar_valid;
+reg           peripherals_ar_ready = 1'd0;
+wire   [31:0] peripherals_ar_payload_addr;
+reg     [2:0] peripherals_ar_payload_prot = 3'd0;
+reg           peripherals_r_valid = 1'd0;
+wire          peripherals_r_ready;
+reg     [1:0] peripherals_r_payload_resp = 2'd0;
+reg    [31:0] peripherals_r_payload_data = 32'd0;
+wire          axi2axiliteadapter00;
+wire          axi2axiliteadapter01;
+wire          axi_csr_aw_valid;
+wire          axi_csr_aw_ready;
+wire   [31:0] axi_csr_aw_payload_addr;
+wire    [1:0] axi_csr_aw_payload_burst;
+wire    [7:0] axi_csr_aw_payload_len;
+wire    [2:0] axi_csr_aw_payload_size;
+wire          axi_csr_aw_payload_lock;
+wire    [2:0] axi_csr_aw_payload_prot;
+wire    [3:0] axi_csr_aw_payload_cache;
+wire    [3:0] axi_csr_aw_payload_qos;
+wire    [3:0] axi_csr_aw_payload_region;
+wire          axi_csr_aw_param_id;
+wire          axi_csr_aw_param_user;
+wire          axi_csr_w_valid;
+wire          axi_csr_w_ready;
+wire          axi_csr_w_last;
+wire   [31:0] axi_csr_w_payload_data;
+wire    [3:0] axi_csr_w_payload_strb;
+wire          axi_csr_w_param_user;
+wire          axi_csr_b_valid;
+wire          axi_csr_b_ready;
+wire    [1:0] axi_csr_b_payload_resp;
+wire          axi_csr_b_param_id;
+reg           axi_csr_b_param_user = 1'd0;
+wire          axi_csr_ar_valid;
+wire          axi_csr_ar_ready;
+wire   [31:0] axi_csr_ar_payload_addr;
+wire    [1:0] axi_csr_ar_payload_burst;
+wire    [7:0] axi_csr_ar_payload_len;
+wire    [2:0] axi_csr_ar_payload_size;
+wire          axi_csr_ar_payload_lock;
+wire    [2:0] axi_csr_ar_payload_prot;
+wire    [3:0] axi_csr_ar_payload_cache;
+wire    [3:0] axi_csr_ar_payload_qos;
+wire    [3:0] axi_csr_ar_payload_region;
+wire          axi_csr_ar_param_id;
+wire          axi_csr_ar_param_user;
+wire          axi_csr_r_valid;
+wire          axi_csr_r_ready;
+wire          axi_csr_r_last;
+wire    [1:0] axi_csr_r_payload_resp;
+wire   [31:0] axi_csr_r_payload_data;
+wire          axi_csr_r_param_id;
+reg           axi_csr_r_param_user = 1'd0;
+wire          corecsr_aw_valid;
+wire          corecsr_aw_ready;
+reg           corecsr_aw_first = 1'd0;
+reg           corecsr_aw_last = 1'd0;
+wire   [31:0] corecsr_aw_payload_addr;
+reg     [2:0] corecsr_aw_payload_prot = 3'd0;
+wire          corecsr_w_valid;
+wire          corecsr_w_ready;
+reg           corecsr_w_first = 1'd0;
+reg           corecsr_w_last = 1'd0;
+wire   [31:0] corecsr_w_payload_data;
+wire    [3:0] corecsr_w_payload_strb;
+wire          corecsr_b_valid;
+wire          corecsr_b_ready;
+wire          corecsr_b_first;
+wire          corecsr_b_last;
+wire    [1:0] corecsr_b_payload_resp;
+wire          corecsr_ar_valid;
+wire          corecsr_ar_ready;
+reg           corecsr_ar_first = 1'd0;
+reg           corecsr_ar_last = 1'd0;
+wire   [31:0] corecsr_ar_payload_addr;
+reg     [2:0] corecsr_ar_payload_prot = 3'd0;
+wire          corecsr_r_valid;
+wire          corecsr_r_ready;
+wire          corecsr_r_first;
+wire          corecsr_r_last;
+wire    [1:0] corecsr_r_payload_resp;
+wire   [31:0] corecsr_r_payload_data;
+wire          axi2axiliteadapter10;
+wire          axi2axiliteadapter11;
 wire          dbus_aw_valid;
 wire          dbus_aw_ready;
-wire          dbus_aw_first;
-wire          dbus_aw_last;
 wire   [31:0] dbus_aw_payload_addr;
 wire    [1:0] dbus_aw_payload_burst;
 wire    [7:0] dbus_aw_payload_len;
@@ -267,29 +391,20 @@ wire    [3:0] dbus_aw_payload_cache;
 wire    [3:0] dbus_aw_payload_qos;
 wire    [3:0] dbus_aw_payload_region;
 wire          dbus_aw_param_id;
-wire          dbus_aw_param_dest;
 wire          dbus_aw_param_user;
 wire          dbus_w_valid;
 wire          dbus_w_ready;
-wire          dbus_w_first;
 wire          dbus_w_last;
 wire   [31:0] dbus_w_payload_data;
 wire    [3:0] dbus_w_payload_strb;
-wire          dbus_w_param_id;
-wire          dbus_w_param_dest;
 wire          dbus_w_param_user;
 wire          dbus_b_valid;
 wire          dbus_b_ready;
-reg           dbus_b_first = 1'd0;
-reg           dbus_b_last = 1'd0;
 wire    [1:0] dbus_b_payload_resp;
 wire          dbus_b_param_id;
-reg           dbus_b_param_dest = 1'd0;
 wire          dbus_b_param_user;
 wire          dbus_ar_valid;
 wire          dbus_ar_ready;
-wire          dbus_ar_first;
-wire          dbus_ar_last;
 wire   [31:0] dbus_ar_payload_addr;
 wire    [1:0] dbus_ar_payload_burst;
 wire    [7:0] dbus_ar_payload_len;
@@ -300,689 +415,192 @@ wire    [3:0] dbus_ar_payload_cache;
 wire    [3:0] dbus_ar_payload_qos;
 wire    [3:0] dbus_ar_payload_region;
 wire          dbus_ar_param_id;
-wire          dbus_ar_param_dest;
 wire          dbus_ar_param_user;
 wire          dbus_r_valid;
 wire          dbus_r_ready;
-reg           dbus_r_first = 1'd0;
 wire          dbus_r_last;
 wire    [1:0] dbus_r_payload_resp;
 wire   [31:0] dbus_r_payload_data;
 wire          dbus_r_param_id;
-reg           dbus_r_param_dest = 1'd0;
 wire          dbus_r_param_user;
-reg           dbus_lite_aw_valid = 1'd0;
-reg           dbus_lite_aw_ready = 1'd0;
-reg    [31:0] dbus_lite_aw_payload_addr = 32'd0;
-reg     [2:0] dbus_lite_aw_payload_prot = 3'd0;
-reg           dbus_lite_w_valid = 1'd0;
-reg           dbus_lite_w_ready = 1'd0;
-reg    [31:0] dbus_lite_w_payload_data = 32'd0;
-reg     [3:0] dbus_lite_w_payload_strb = 4'd0;
-reg           dbus_lite_b_valid = 1'd0;
-wire          dbus_lite_b_ready;
-reg     [1:0] dbus_lite_b_payload_resp = 2'd0;
-reg           dbus_lite_ar_valid = 1'd0;
-reg           dbus_lite_ar_ready = 1'd0;
-reg    [31:0] dbus_lite_ar_payload_addr = 32'd0;
-reg     [2:0] dbus_lite_ar_payload_prot = 3'd0;
-reg           dbus_lite_r_valid = 1'd0;
-reg           dbus_lite_r_ready = 1'd0;
-reg     [1:0] dbus_lite_r_payload_resp = 2'd0;
-reg    [31:0] dbus_lite_r_payload_data = 32'd0;
+reg    [31:0] vexriscvaxi_reset_mux = 32'd1610612736;
+reg    [31:0] vexriscvaxi = 32'd1610612736;
+reg           debug_reset = 1'd0;
+wire          o_resetOut;
+reg           reset_debug_logic = 1'd0;
+wire   [31:0] trimming_reset1;
+wire          trimming_reset_ena1;
+wire   [31:0] status;
+wire          we;
+reg           re = 1'd0;
+reg    [31:0] latched_value = 32'd0;
+reg    [31:0] csr_wtest_storage = 32'd0;
+reg           csr_wtest_re = 1'd0;
+wire   [31:0] csr_rtest_status;
+wire          csr_rtest_we;
+reg           csr_rtest_re = 1'd0;
+reg    [15:0] cramsoc_adr = 16'd0;
+wire          cramsoc_we;
+wire   [31:0] cramsoc_dat_w;
+wire   [31:0] cramsoc_dat_r;
+wire          cramsoc_re;
+wire          cramsoc_aw_valid;
+wire          cramsoc_aw_ready;
+wire          cramsoc_aw_first;
+wire          cramsoc_aw_last;
+wire   [31:0] cramsoc_aw_payload_addr;
+wire    [2:0] cramsoc_aw_payload_prot;
+wire          cramsoc_w_valid;
+wire          cramsoc_w_ready;
+wire          cramsoc_w_first;
+wire          cramsoc_w_last;
+wire   [31:0] cramsoc_w_payload_data;
+wire    [3:0] cramsoc_w_payload_strb;
+wire          cramsoc_b_valid;
+wire          cramsoc_b_ready;
+reg           cramsoc_b_first = 1'd0;
+reg           cramsoc_b_last = 1'd0;
+reg     [1:0] cramsoc_b_payload_resp = 2'd0;
+wire          cramsoc_ar_valid;
+wire          cramsoc_ar_ready;
+wire          cramsoc_ar_first;
+wire          cramsoc_ar_last;
+wire   [31:0] cramsoc_ar_payload_addr;
+wire    [2:0] cramsoc_ar_payload_prot;
+wire          cramsoc_r_valid;
+wire          cramsoc_r_ready;
+reg           cramsoc_r_first = 1'd0;
+reg           cramsoc_r_last = 1'd0;
+reg     [1:0] cramsoc_r_payload_resp = 2'd0;
+reg    [31:0] cramsoc_r_payload_data = 32'd0;
+reg           cramsoc_do_read = 1'd0;
+reg           cramsoc_do_write = 1'd0;
+reg           cramsoc_last_was_read = 1'd0;
+reg           cramsoc_nocomb_axl_r_valid = 1'd0;
+reg           cramsoc_nocomb_axl_w_ready = 1'd0;
+reg           cramsoc_nocomb_axl_aw_ready = 1'd0;
+reg           cramsoc_nocomb_axl_ar_ready = 1'd0;
+reg           cramsoc_nocomb_axl_b_valid = 1'd0;
 wire          socbushandler_aw_valid;
 reg           socbushandler_aw_ready = 1'd0;
 wire          socbushandler_aw_first;
 wire          socbushandler_aw_last;
 wire   [31:0] socbushandler_aw_payload_addr;
-wire    [1:0] socbushandler_aw_payload_burst;
-wire    [7:0] socbushandler_aw_payload_len;
-wire    [2:0] socbushandler_aw_payload_size;
-wire          socbushandler_aw_payload_lock;
 wire    [2:0] socbushandler_aw_payload_prot;
-wire    [3:0] socbushandler_aw_payload_cache;
-wire    [3:0] socbushandler_aw_payload_qos;
-wire    [3:0] socbushandler_aw_payload_region;
-wire          socbushandler_aw_param_id;
-wire          socbushandler_aw_param_dest;
-wire          socbushandler_aw_param_user;
 wire          socbushandler_w_valid;
 reg           socbushandler_w_ready = 1'd0;
 wire          socbushandler_w_first;
 wire          socbushandler_w_last;
 wire   [31:0] socbushandler_w_payload_data;
 wire    [3:0] socbushandler_w_payload_strb;
-wire          socbushandler_w_param_id;
-wire          socbushandler_w_param_dest;
-wire          socbushandler_w_param_user;
 reg           socbushandler_b_valid = 1'd0;
 wire          socbushandler_b_ready;
-reg           socbushandler_b_first = 1'd0;
-reg           socbushandler_b_last = 1'd0;
-reg     [1:0] socbushandler_b_payload_resp = 2'd0;
-reg           socbushandler_b_param_id = 1'd0;
-reg           socbushandler_b_param_dest = 1'd0;
-reg           socbushandler_b_param_user = 1'd0;
+wire          socbushandler_b_first;
+wire          socbushandler_b_last;
+wire    [1:0] socbushandler_b_payload_resp;
 wire          socbushandler_ar_valid;
 reg           socbushandler_ar_ready = 1'd0;
 wire          socbushandler_ar_first;
 wire          socbushandler_ar_last;
 wire   [31:0] socbushandler_ar_payload_addr;
-wire    [1:0] socbushandler_ar_payload_burst;
-wire    [7:0] socbushandler_ar_payload_len;
-wire    [2:0] socbushandler_ar_payload_size;
-wire          socbushandler_ar_payload_lock;
 wire    [2:0] socbushandler_ar_payload_prot;
-wire    [3:0] socbushandler_ar_payload_cache;
-wire    [3:0] socbushandler_ar_payload_qos;
-wire    [3:0] socbushandler_ar_payload_region;
-wire          socbushandler_ar_param_id;
-wire          socbushandler_ar_param_dest;
-wire          socbushandler_ar_param_user;
 reg           socbushandler_r_valid = 1'd0;
 wire          socbushandler_r_ready;
-reg           socbushandler_r_first = 1'd0;
-reg           socbushandler_r_last = 1'd0;
-reg     [1:0] socbushandler_r_payload_resp = 2'd0;
-reg    [31:0] socbushandler_r_payload_data = 32'd0;
-reg           socbushandler_r_param_id = 1'd0;
-reg           socbushandler_r_param_dest = 1'd0;
-reg           socbushandler_r_param_user = 1'd0;
-reg           socbushandler_ax_burst_valid = 1'd0;
-wire          socbushandler_ax_burst_ready;
-reg           socbushandler_ax_burst_first = 1'd0;
-reg           socbushandler_ax_burst_last = 1'd0;
-reg    [31:0] socbushandler_ax_burst_payload_addr = 32'd0;
-reg     [1:0] socbushandler_ax_burst_payload_burst = 2'd0;
-reg     [7:0] socbushandler_ax_burst_payload_len = 8'd0;
-reg     [2:0] socbushandler_ax_burst_payload_size = 3'd0;
-reg           socbushandler_ax_burst_payload_lock = 1'd0;
-reg     [2:0] socbushandler_ax_burst_payload_prot = 3'd0;
-reg     [3:0] socbushandler_ax_burst_payload_cache = 4'd0;
-reg     [3:0] socbushandler_ax_burst_payload_qos = 4'd0;
-reg     [3:0] socbushandler_ax_burst_payload_region = 4'd0;
-reg           socbushandler_ax_burst_param_id = 1'd0;
-reg           socbushandler_ax_burst_param_dest = 1'd0;
-reg           socbushandler_ax_burst_param_user = 1'd0;
-wire          socbushandler_ax_beat_valid;
-reg           socbushandler_ax_beat_ready = 1'd0;
-wire          socbushandler_ax_beat_first;
-wire          socbushandler_ax_beat_last;
-wire   [31:0] socbushandler_ax_beat_payload_addr;
-wire          socbushandler_ax_beat_param_id;
-wire          socbushandler_sink_sink_valid;
-wire          socbushandler_sink_sink_ready;
-wire          socbushandler_sink_sink_first;
-wire          socbushandler_sink_sink_last;
-wire   [31:0] socbushandler_sink_sink_payload_addr;
-wire    [1:0] socbushandler_sink_sink_payload_burst;
-wire    [7:0] socbushandler_sink_sink_payload_len;
-wire    [2:0] socbushandler_sink_sink_payload_size;
-wire          socbushandler_sink_sink_payload_lock;
-wire    [2:0] socbushandler_sink_sink_payload_prot;
-wire    [3:0] socbushandler_sink_sink_payload_cache;
-wire    [3:0] socbushandler_sink_sink_payload_qos;
-wire    [3:0] socbushandler_sink_sink_payload_region;
-wire          socbushandler_sink_sink_param_id;
-wire          socbushandler_sink_sink_param_dest;
-wire          socbushandler_sink_sink_param_user;
-wire          socbushandler_source_source_valid;
-reg           socbushandler_source_source_ready = 1'd0;
-wire          socbushandler_source_source_first;
-wire          socbushandler_source_source_last;
-wire   [31:0] socbushandler_source_source_payload_addr;
-wire    [1:0] socbushandler_source_source_payload_burst;
-wire    [7:0] socbushandler_source_source_payload_len;
-wire    [2:0] socbushandler_source_source_payload_size;
-wire          socbushandler_source_source_payload_lock;
-wire    [2:0] socbushandler_source_source_payload_prot;
-wire    [3:0] socbushandler_source_source_payload_cache;
-wire    [3:0] socbushandler_source_source_payload_qos;
-wire    [3:0] socbushandler_source_source_payload_region;
-wire          socbushandler_source_source_param_id;
-wire          socbushandler_source_source_param_dest;
-wire          socbushandler_source_source_param_user;
-wire          socbushandler_pipe_valid_sink_valid;
-wire          socbushandler_pipe_valid_sink_ready;
-wire          socbushandler_pipe_valid_sink_first;
-wire          socbushandler_pipe_valid_sink_last;
-wire   [31:0] socbushandler_pipe_valid_sink_payload_addr;
-wire    [1:0] socbushandler_pipe_valid_sink_payload_burst;
-wire    [7:0] socbushandler_pipe_valid_sink_payload_len;
-wire    [2:0] socbushandler_pipe_valid_sink_payload_size;
-wire          socbushandler_pipe_valid_sink_payload_lock;
-wire    [2:0] socbushandler_pipe_valid_sink_payload_prot;
-wire    [3:0] socbushandler_pipe_valid_sink_payload_cache;
-wire    [3:0] socbushandler_pipe_valid_sink_payload_qos;
-wire    [3:0] socbushandler_pipe_valid_sink_payload_region;
-wire          socbushandler_pipe_valid_sink_param_id;
-wire          socbushandler_pipe_valid_sink_param_dest;
-wire          socbushandler_pipe_valid_sink_param_user;
-reg           socbushandler_pipe_valid_source_valid = 1'd0;
-wire          socbushandler_pipe_valid_source_ready;
-reg           socbushandler_pipe_valid_source_first = 1'd0;
-reg           socbushandler_pipe_valid_source_last = 1'd0;
-reg    [31:0] socbushandler_pipe_valid_source_payload_addr = 32'd0;
-reg     [1:0] socbushandler_pipe_valid_source_payload_burst = 2'd0;
-reg     [7:0] socbushandler_pipe_valid_source_payload_len = 8'd0;
-reg     [2:0] socbushandler_pipe_valid_source_payload_size = 3'd0;
-reg           socbushandler_pipe_valid_source_payload_lock = 1'd0;
-reg     [2:0] socbushandler_pipe_valid_source_payload_prot = 3'd0;
-reg     [3:0] socbushandler_pipe_valid_source_payload_cache = 4'd0;
-reg     [3:0] socbushandler_pipe_valid_source_payload_qos = 4'd0;
-reg     [3:0] socbushandler_pipe_valid_source_payload_region = 4'd0;
-reg           socbushandler_pipe_valid_source_param_id = 1'd0;
-reg           socbushandler_pipe_valid_source_param_dest = 1'd0;
-reg           socbushandler_pipe_valid_source_param_user = 1'd0;
-reg     [7:0] socbushandler_beat_count = 8'd0;
-wire   [11:0] socbushandler_beat_size;
-reg  signed  [12:0] socbushandler_beat_offset = 13'd0;
-wire   [11:0] socbushandler_beat_wrap;
-reg           socbushandler_cmd_done = 1'd0;
-reg           socbushandler_last_ar_aw_n = 1'd0;
-reg    [31:0] load_storage = 32'd0;
-reg           load_re = 1'd0;
-reg    [31:0] reload_storage = 32'd0;
-reg           reload_re = 1'd0;
-reg           en_storage = 1'd0;
-reg           en_re = 1'd0;
-reg           update_value_storage = 1'd0;
-reg           update_value_re = 1'd0;
-reg    [31:0] value_status = 32'd0;
-wire          value_we;
-reg           value_re = 1'd0;
-wire          irq;
-wire          zero_status;
-reg           zero_pending = 1'd0;
-wire          zero_trigger;
-reg           zero_clear = 1'd0;
-reg           zero_trigger_d = 1'd0;
-wire          zero0;
-wire          status_status;
-wire          status_we;
-reg           status_re = 1'd0;
-wire          zero1;
-wire          pending_status;
-wire          pending_we;
-reg           pending_re = 1'd0;
-reg           pending_r = 1'd0;
-wire          zero2;
-reg           enable_storage = 1'd0;
-reg           enable_re = 1'd0;
-reg    [31:0] value = 32'd0;
-reg           vexriscvaxi_debug_reset = 1'd0;
-wire          vexriscvaxi_o_resetOut;
-reg           vexriscvaxi_reset_debug_logic = 1'd0;
-reg    [31:0] vexriscvaxi = 32'd1610612736;
-reg    [15:0] cramsoc_adr = 16'd0;
-wire          cramsoc_we;
-wire   [31:0] cramsoc_dat_w;
-wire   [31:0] cramsoc_dat_r;
-reg           cramsoc_csr_bridge_aw_valid = 1'd0;
-reg           cramsoc_csr_bridge_aw_ready = 1'd0;
-reg    [31:0] cramsoc_csr_bridge_aw_payload_addr = 32'd0;
-reg           cramsoc_csr_bridge_w_valid = 1'd0;
-reg           cramsoc_csr_bridge_w_ready = 1'd0;
-reg    [31:0] cramsoc_csr_bridge_w_payload_data = 32'd0;
-reg     [3:0] cramsoc_csr_bridge_w_payload_strb = 4'd0;
-reg           cramsoc_csr_bridge_b_valid = 1'd0;
-wire          cramsoc_csr_bridge_b_ready;
-reg     [1:0] cramsoc_csr_bridge_b_payload_resp = 2'd0;
-reg           cramsoc_csr_bridge_ar_valid = 1'd0;
-reg           cramsoc_csr_bridge_ar_ready = 1'd0;
-reg    [31:0] cramsoc_csr_bridge_ar_payload_addr = 32'd0;
-reg           cramsoc_csr_bridge_r_valid = 1'd0;
-reg           cramsoc_csr_bridge_r_ready = 1'd0;
-reg     [1:0] cramsoc_csr_bridge_r_payload_resp = 2'd0;
-reg    [31:0] cramsoc_csr_bridge_r_payload_data = 32'd0;
-reg           cramsoc_csr_bridge_do_read = 1'd0;
-reg           cramsoc_csr_bridge_do_write = 1'd0;
-reg           cramsoc_csr_bridge_last_was_read = 1'd0;
-reg           cramsoc_socbushandler_aw_valid = 1'd0;
-reg           cramsoc_socbushandler_aw_ready = 1'd0;
-reg           cramsoc_socbushandler_aw_first = 1'd0;
-reg           cramsoc_socbushandler_aw_last = 1'd0;
-reg    [31:0] cramsoc_socbushandler_aw_payload_addr = 32'd0;
-reg     [1:0] cramsoc_socbushandler_aw_payload_burst = 2'd0;
-reg     [7:0] cramsoc_socbushandler_aw_payload_len = 8'd0;
-reg     [2:0] cramsoc_socbushandler_aw_payload_size = 3'd0;
-reg           cramsoc_socbushandler_aw_payload_lock = 1'd0;
-reg     [2:0] cramsoc_socbushandler_aw_payload_prot = 3'd0;
-reg     [3:0] cramsoc_socbushandler_aw_payload_cache = 4'd0;
-reg     [3:0] cramsoc_socbushandler_aw_payload_qos = 4'd0;
-reg     [3:0] cramsoc_socbushandler_aw_payload_region = 4'd0;
-reg           cramsoc_socbushandler_aw_param_id = 1'd0;
-reg           cramsoc_socbushandler_aw_param_dest = 1'd0;
-reg           cramsoc_socbushandler_aw_param_user = 1'd0;
-reg           cramsoc_socbushandler_w_valid = 1'd0;
-reg           cramsoc_socbushandler_w_ready = 1'd0;
-reg           cramsoc_socbushandler_w_last = 1'd0;
-reg    [31:0] cramsoc_socbushandler_w_payload_data = 32'd0;
-reg     [3:0] cramsoc_socbushandler_w_payload_strb = 4'd0;
-reg           cramsoc_socbushandler_b_valid = 1'd0;
-reg           cramsoc_socbushandler_b_ready = 1'd0;
-reg     [1:0] cramsoc_socbushandler_b_payload_resp = 2'd0;
-reg           cramsoc_socbushandler_b_param_id = 1'd0;
-reg           cramsoc_socbushandler_ar_valid = 1'd0;
-reg           cramsoc_socbushandler_ar_ready = 1'd0;
-reg           cramsoc_socbushandler_ar_first = 1'd0;
-reg           cramsoc_socbushandler_ar_last = 1'd0;
-reg    [31:0] cramsoc_socbushandler_ar_payload_addr = 32'd0;
-reg     [1:0] cramsoc_socbushandler_ar_payload_burst = 2'd0;
-reg     [7:0] cramsoc_socbushandler_ar_payload_len = 8'd0;
-reg     [2:0] cramsoc_socbushandler_ar_payload_size = 3'd0;
-reg           cramsoc_socbushandler_ar_payload_lock = 1'd0;
-reg     [2:0] cramsoc_socbushandler_ar_payload_prot = 3'd0;
-reg     [3:0] cramsoc_socbushandler_ar_payload_cache = 4'd0;
-reg     [3:0] cramsoc_socbushandler_ar_payload_qos = 4'd0;
-reg     [3:0] cramsoc_socbushandler_ar_payload_region = 4'd0;
-reg           cramsoc_socbushandler_ar_param_id = 1'd0;
-reg           cramsoc_socbushandler_ar_param_dest = 1'd0;
-reg           cramsoc_socbushandler_ar_param_user = 1'd0;
-reg           cramsoc_socbushandler_r_valid = 1'd0;
-reg           cramsoc_socbushandler_r_ready = 1'd0;
-reg           cramsoc_socbushandler_r_last = 1'd0;
-reg     [1:0] cramsoc_socbushandler_r_payload_resp = 2'd0;
-reg    [31:0] cramsoc_socbushandler_r_payload_data = 32'd0;
-reg           cramsoc_socbushandler_r_param_id = 1'd0;
-reg           cramsoc_socbushandler_ax_burst_valid = 1'd0;
-wire          cramsoc_socbushandler_ax_burst_ready;
-reg           cramsoc_socbushandler_ax_burst_first = 1'd0;
-reg           cramsoc_socbushandler_ax_burst_last = 1'd0;
-reg    [31:0] cramsoc_socbushandler_ax_burst_payload_addr = 32'd0;
-reg     [1:0] cramsoc_socbushandler_ax_burst_payload_burst = 2'd0;
-reg     [7:0] cramsoc_socbushandler_ax_burst_payload_len = 8'd0;
-reg     [2:0] cramsoc_socbushandler_ax_burst_payload_size = 3'd0;
-reg           cramsoc_socbushandler_ax_burst_payload_lock = 1'd0;
-reg     [2:0] cramsoc_socbushandler_ax_burst_payload_prot = 3'd0;
-reg     [3:0] cramsoc_socbushandler_ax_burst_payload_cache = 4'd0;
-reg     [3:0] cramsoc_socbushandler_ax_burst_payload_qos = 4'd0;
-reg     [3:0] cramsoc_socbushandler_ax_burst_payload_region = 4'd0;
-reg           cramsoc_socbushandler_ax_burst_param_id = 1'd0;
-reg           cramsoc_socbushandler_ax_burst_param_dest = 1'd0;
-reg           cramsoc_socbushandler_ax_burst_param_user = 1'd0;
-wire          cramsoc_socbushandler_ax_beat_valid;
-reg           cramsoc_socbushandler_ax_beat_ready = 1'd0;
-wire          cramsoc_socbushandler_ax_beat_first;
-wire          cramsoc_socbushandler_ax_beat_last;
-wire   [31:0] cramsoc_socbushandler_ax_beat_payload_addr;
-wire          cramsoc_socbushandler_ax_beat_param_id;
-wire          cramsoc_socbushandler_sink_sink_valid;
-wire          cramsoc_socbushandler_sink_sink_ready;
-wire          cramsoc_socbushandler_sink_sink_first;
-wire          cramsoc_socbushandler_sink_sink_last;
-wire   [31:0] cramsoc_socbushandler_sink_sink_payload_addr;
-wire    [1:0] cramsoc_socbushandler_sink_sink_payload_burst;
-wire    [7:0] cramsoc_socbushandler_sink_sink_payload_len;
-wire    [2:0] cramsoc_socbushandler_sink_sink_payload_size;
-wire          cramsoc_socbushandler_sink_sink_payload_lock;
-wire    [2:0] cramsoc_socbushandler_sink_sink_payload_prot;
-wire    [3:0] cramsoc_socbushandler_sink_sink_payload_cache;
-wire    [3:0] cramsoc_socbushandler_sink_sink_payload_qos;
-wire    [3:0] cramsoc_socbushandler_sink_sink_payload_region;
-wire          cramsoc_socbushandler_sink_sink_param_id;
-wire          cramsoc_socbushandler_sink_sink_param_dest;
-wire          cramsoc_socbushandler_sink_sink_param_user;
-wire          cramsoc_socbushandler_source_source_valid;
-reg           cramsoc_socbushandler_source_source_ready = 1'd0;
-wire          cramsoc_socbushandler_source_source_first;
-wire          cramsoc_socbushandler_source_source_last;
-wire   [31:0] cramsoc_socbushandler_source_source_payload_addr;
-wire    [1:0] cramsoc_socbushandler_source_source_payload_burst;
-wire    [7:0] cramsoc_socbushandler_source_source_payload_len;
-wire    [2:0] cramsoc_socbushandler_source_source_payload_size;
-wire          cramsoc_socbushandler_source_source_payload_lock;
-wire    [2:0] cramsoc_socbushandler_source_source_payload_prot;
-wire    [3:0] cramsoc_socbushandler_source_source_payload_cache;
-wire    [3:0] cramsoc_socbushandler_source_source_payload_qos;
-wire    [3:0] cramsoc_socbushandler_source_source_payload_region;
-wire          cramsoc_socbushandler_source_source_param_id;
-wire          cramsoc_socbushandler_source_source_param_dest;
-wire          cramsoc_socbushandler_source_source_param_user;
-wire          cramsoc_socbushandler_pipe_valid_sink_valid;
-wire          cramsoc_socbushandler_pipe_valid_sink_ready;
-wire          cramsoc_socbushandler_pipe_valid_sink_first;
-wire          cramsoc_socbushandler_pipe_valid_sink_last;
-wire   [31:0] cramsoc_socbushandler_pipe_valid_sink_payload_addr;
-wire    [1:0] cramsoc_socbushandler_pipe_valid_sink_payload_burst;
-wire    [7:0] cramsoc_socbushandler_pipe_valid_sink_payload_len;
-wire    [2:0] cramsoc_socbushandler_pipe_valid_sink_payload_size;
-wire          cramsoc_socbushandler_pipe_valid_sink_payload_lock;
-wire    [2:0] cramsoc_socbushandler_pipe_valid_sink_payload_prot;
-wire    [3:0] cramsoc_socbushandler_pipe_valid_sink_payload_cache;
-wire    [3:0] cramsoc_socbushandler_pipe_valid_sink_payload_qos;
-wire    [3:0] cramsoc_socbushandler_pipe_valid_sink_payload_region;
-wire          cramsoc_socbushandler_pipe_valid_sink_param_id;
-wire          cramsoc_socbushandler_pipe_valid_sink_param_dest;
-wire          cramsoc_socbushandler_pipe_valid_sink_param_user;
-reg           cramsoc_socbushandler_pipe_valid_source_valid = 1'd0;
-wire          cramsoc_socbushandler_pipe_valid_source_ready;
-reg           cramsoc_socbushandler_pipe_valid_source_first = 1'd0;
-reg           cramsoc_socbushandler_pipe_valid_source_last = 1'd0;
-reg    [31:0] cramsoc_socbushandler_pipe_valid_source_payload_addr = 32'd0;
-reg     [1:0] cramsoc_socbushandler_pipe_valid_source_payload_burst = 2'd0;
-reg     [7:0] cramsoc_socbushandler_pipe_valid_source_payload_len = 8'd0;
-reg     [2:0] cramsoc_socbushandler_pipe_valid_source_payload_size = 3'd0;
-reg           cramsoc_socbushandler_pipe_valid_source_payload_lock = 1'd0;
-reg     [2:0] cramsoc_socbushandler_pipe_valid_source_payload_prot = 3'd0;
-reg     [3:0] cramsoc_socbushandler_pipe_valid_source_payload_cache = 4'd0;
-reg     [3:0] cramsoc_socbushandler_pipe_valid_source_payload_qos = 4'd0;
-reg     [3:0] cramsoc_socbushandler_pipe_valid_source_payload_region = 4'd0;
-reg           cramsoc_socbushandler_pipe_valid_source_param_id = 1'd0;
-reg           cramsoc_socbushandler_pipe_valid_source_param_dest = 1'd0;
-reg           cramsoc_socbushandler_pipe_valid_source_param_user = 1'd0;
-reg     [7:0] cramsoc_socbushandler_beat_count = 8'd0;
-wire   [11:0] cramsoc_socbushandler_beat_size;
-reg  signed  [12:0] cramsoc_socbushandler_beat_offset = 13'd0;
-wire   [11:0] cramsoc_socbushandler_beat_wrap;
-reg           cramsoc_socbushandler_cmd_done = 1'd0;
-reg           cramsoc_socbushandler_last_ar_aw_n = 1'd0;
-reg     [1:0] state = 2'd0;
-reg     [1:0] next_state = 2'd0;
-reg           cramsoc_socbushandler_cmd_done_next_value0 = 1'd0;
-reg           cramsoc_socbushandler_cmd_done_next_value_ce0 = 1'd0;
-reg           cramsoc_socbushandler_last_ar_aw_n_next_value1 = 1'd0;
-reg           cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 = 1'd0;
-wire   [15:0] csr_bankarray_adr;
-wire          csr_bankarray_we;
-wire   [31:0] csr_bankarray_dat_w;
-reg    [31:0] csr_bankarray_dat_r = 32'd0;
-reg           csr_bankarray_load0_re = 1'd0;
-wire   [31:0] csr_bankarray_load0_r;
-reg           csr_bankarray_load0_we = 1'd0;
-wire   [31:0] csr_bankarray_load0_w;
-reg           csr_bankarray_reload0_re = 1'd0;
-wire   [31:0] csr_bankarray_reload0_r;
-reg           csr_bankarray_reload0_we = 1'd0;
-wire   [31:0] csr_bankarray_reload0_w;
-reg           csr_bankarray_en0_re = 1'd0;
-wire          csr_bankarray_en0_r;
-reg           csr_bankarray_en0_we = 1'd0;
-wire          csr_bankarray_en0_w;
-reg           csr_bankarray_update_value0_re = 1'd0;
-wire          csr_bankarray_update_value0_r;
-reg           csr_bankarray_update_value0_we = 1'd0;
-wire          csr_bankarray_update_value0_w;
-reg           csr_bankarray_value_re = 1'd0;
-wire   [31:0] csr_bankarray_value_r;
-reg           csr_bankarray_value_we = 1'd0;
-wire   [31:0] csr_bankarray_value_w;
-reg           csr_bankarray_ev_status_re = 1'd0;
-wire          csr_bankarray_ev_status_r;
-reg           csr_bankarray_ev_status_we = 1'd0;
-wire          csr_bankarray_ev_status_w;
-reg           csr_bankarray_ev_pending_re = 1'd0;
-wire          csr_bankarray_ev_pending_r;
-reg           csr_bankarray_ev_pending_we = 1'd0;
-wire          csr_bankarray_ev_pending_w;
-reg           csr_bankarray_ev_enable0_re = 1'd0;
-wire          csr_bankarray_ev_enable0_r;
-reg           csr_bankarray_ev_enable0_we = 1'd0;
-wire          csr_bankarray_ev_enable0_w;
-wire          csr_bankarray_sel;
+wire          socbushandler_r_first;
+wire          socbushandler_r_last;
+wire    [1:0] socbushandler_r_payload_resp;
+wire   [31:0] socbushandler_r_payload_data;
+wire          socbushandler_slave_sel_dec0;
+wire          socbushandler_slave_sel_dec1;
+reg           socbushandler_slave_sel_reg0 = 1'd0;
+reg           socbushandler_slave_sel_reg1 = 1'd0;
+reg           socbushandler_slave_sel0 = 1'd0;
+reg           socbushandler_slave_sel1 = 1'd0;
+reg     [7:0] socbushandler_axiliterequestcounter0_counter = 8'd0;
+wire          socbushandler_axiliterequestcounter0_full;
+wire          socbushandler_axiliterequestcounter0_empty;
+wire          socbushandler_axiliterequestcounter0_stall;
+reg     [7:0] socbushandler_axiliterequestcounter1_counter = 8'd0;
+wire          socbushandler_axiliterequestcounter1_full;
+wire          socbushandler_axiliterequestcounter1_empty;
+wire          socbushandler_axiliterequestcounter1_stall;
+wire          socbushandler_rr_write_request;
+wire          socbushandler_rr_write_grant;
+wire          socbushandler_rr_write_ce;
+wire          socbushandler_rr_read_request;
+wire          socbushandler_rr_read_grant;
+wire          socbushandler_rr_read_ce;
+reg     [7:0] socbushandler_wr_lock_counter = 8'd0;
+wire          socbushandler_wr_lock_full;
+wire          socbushandler_wr_lock_empty;
+wire          socbushandler_wr_lock_stall;
+reg     [7:0] socbushandler_rd_lock_counter = 8'd0;
+wire          socbushandler_rd_lock_full;
+wire          socbushandler_rd_lock_empty;
+wire          socbushandler_rd_lock_stall;
+wire   [15:0] interface0_adr;
+wire          interface0_we;
+wire   [31:0] interface0_dat_w;
+reg    [31:0] interface0_dat_r = 32'd0;
+wire          interface0_re;
+reg           csrbank0_wtest0_re = 1'd0;
+wire   [31:0] csrbank0_wtest0_r;
+reg           csrbank0_wtest0_we = 1'd0;
+wire   [31:0] csrbank0_wtest0_w;
+reg           csrbank0_rtest_re = 1'd0;
+wire   [31:0] csrbank0_rtest_r;
+reg           csrbank0_rtest_we = 1'd0;
+wire   [31:0] csrbank0_rtest_w;
+wire          csrbank0_sel;
+wire          csrbank0_re;
+wire   [15:0] interface1_adr;
+wire          interface1_we;
+wire   [31:0] interface1_dat_w;
+reg    [31:0] interface1_dat_r = 32'd0;
+wire          interface1_re;
+reg           csrbank1_pc_re = 1'd0;
+wire   [31:0] csrbank1_pc_r;
+reg           csrbank1_pc_we = 1'd0;
+wire   [31:0] csrbank1_pc_w;
+wire          csrbank1_sel;
+wire          csrbank1_re;
 wire   [15:0] csr_interconnect_adr;
 wire          csr_interconnect_we;
 wire   [31:0] csr_interconnect_dat_w;
 wire   [31:0] csr_interconnect_dat_r;
-reg     [1:0] cramsoc_vexriscvaxi_state = 2'd0;
-reg     [1:0] cramsoc_vexriscvaxi_next_state = 2'd0;
-reg           socbushandler_cmd_done_vexriscvaxi_next_value0 = 1'd0;
-reg           socbushandler_cmd_done_vexriscvaxi_next_value_ce0 = 1'd0;
-reg           socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 = 1'd0;
-reg           socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_valid;
-reg           cramsoc_vexriscvaxi_axiinterface0_aw_ready = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_first;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_last;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_addr;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_burst;
-wire    [7:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_len;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_size;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_payload_lock;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_prot;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_cache;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_qos;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_aw_payload_region;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface0_aw_param_user;
-wire          cramsoc_vexriscvaxi_axiinterface0_w_valid;
-reg           cramsoc_vexriscvaxi_axiinterface0_w_ready = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface0_w_first;
-wire          cramsoc_vexriscvaxi_axiinterface0_w_last;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface0_w_payload_data;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_w_payload_strb;
-wire          cramsoc_vexriscvaxi_axiinterface0_w_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface0_w_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface0_w_param_user;
-reg           cramsoc_vexriscvaxi_axiinterface0_b_valid = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface0_b_ready;
-wire          cramsoc_vexriscvaxi_axiinterface0_b_first;
-wire          cramsoc_vexriscvaxi_axiinterface0_b_last;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface0_b_payload_resp;
-wire          cramsoc_vexriscvaxi_axiinterface0_b_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface0_b_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface0_b_param_user;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_valid;
-reg           cramsoc_vexriscvaxi_axiinterface0_ar_ready = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_first;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_last;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_addr;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_burst;
-wire    [7:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_len;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_size;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_payload_lock;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_prot;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_cache;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_qos;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface0_ar_payload_region;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface0_ar_param_user;
-reg           cramsoc_vexriscvaxi_axiinterface0_r_valid = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface0_r_ready;
-wire          cramsoc_vexriscvaxi_axiinterface0_r_first;
-wire          cramsoc_vexriscvaxi_axiinterface0_r_last;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface0_r_payload_resp;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface0_r_payload_data;
-wire          cramsoc_vexriscvaxi_axiinterface0_r_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface0_r_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface0_r_param_user;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_valid;
-reg           cramsoc_vexriscvaxi_axiinterface1_aw_ready = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_first;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_last;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_addr;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_burst;
-wire    [7:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_len;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_size;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_payload_lock;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_prot;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_cache;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_qos;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_aw_payload_region;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface1_aw_param_user;
-wire          cramsoc_vexriscvaxi_axiinterface1_w_valid;
-reg           cramsoc_vexriscvaxi_axiinterface1_w_ready = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface1_w_first;
-wire          cramsoc_vexriscvaxi_axiinterface1_w_last;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface1_w_payload_data;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_w_payload_strb;
-wire          cramsoc_vexriscvaxi_axiinterface1_w_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface1_w_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface1_w_param_user;
-reg           cramsoc_vexriscvaxi_axiinterface1_b_valid = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface1_b_ready;
-wire          cramsoc_vexriscvaxi_axiinterface1_b_first;
-wire          cramsoc_vexriscvaxi_axiinterface1_b_last;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface1_b_payload_resp;
-wire          cramsoc_vexriscvaxi_axiinterface1_b_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface1_b_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface1_b_param_user;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_valid;
-reg           cramsoc_vexriscvaxi_axiinterface1_ar_ready = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_first;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_last;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_addr;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_burst;
-wire    [7:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_len;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_size;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_payload_lock;
-wire    [2:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_prot;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_cache;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_qos;
-wire    [3:0] cramsoc_vexriscvaxi_axiinterface1_ar_payload_region;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface1_ar_param_user;
-reg           cramsoc_vexriscvaxi_axiinterface1_r_valid = 1'd0;
-wire          cramsoc_vexriscvaxi_axiinterface1_r_ready;
-wire          cramsoc_vexriscvaxi_axiinterface1_r_first;
-wire          cramsoc_vexriscvaxi_axiinterface1_r_last;
-wire    [1:0] cramsoc_vexriscvaxi_axiinterface1_r_payload_resp;
-wire   [31:0] cramsoc_vexriscvaxi_axiinterface1_r_payload_data;
-wire          cramsoc_vexriscvaxi_axiinterface1_r_param_id;
-wire          cramsoc_vexriscvaxi_axiinterface1_r_param_dest;
-wire          cramsoc_vexriscvaxi_axiinterface1_r_param_user;
-reg     [1:0] cramsoc_vexriscvaxi_slave_sel_dec0 = 2'd0;
-reg     [1:0] cramsoc_vexriscvaxi_slave_sel_dec1 = 2'd0;
-reg     [1:0] cramsoc_vexriscvaxi_slave_sel_reg0 = 2'd0;
-reg     [1:0] cramsoc_vexriscvaxi_slave_sel_reg1 = 2'd0;
-reg     [1:0] cramsoc_vexriscvaxi_slave_sel0 = 2'd0;
-reg     [1:0] cramsoc_vexriscvaxi_slave_sel1 = 2'd0;
-reg     [7:0] cramsoc_vexriscvaxi_axirequestcounter0_counter = 8'd0;
-wire          cramsoc_vexriscvaxi_axirequestcounter0_full;
-wire          cramsoc_vexriscvaxi_axirequestcounter0_empty;
-wire          cramsoc_vexriscvaxi_axirequestcounter0_stall;
-reg     [7:0] cramsoc_vexriscvaxi_axirequestcounter1_counter = 8'd0;
-wire          cramsoc_vexriscvaxi_axirequestcounter1_full;
-wire          cramsoc_vexriscvaxi_axirequestcounter1_empty;
-wire          cramsoc_vexriscvaxi_axirequestcounter1_stall;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rr_write_request;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rr_write_ce;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rr_read_request;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rr_read_ce;
-reg     [7:0] cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter = 8'd0;
-wire          cramsoc_vexriscvaxi_axiarbiter0_wr_lock_full;
-wire          cramsoc_vexriscvaxi_axiarbiter0_wr_lock_empty;
-wire          cramsoc_vexriscvaxi_axiarbiter0_wr_lock_stall;
-reg     [7:0] cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter = 8'd0;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rd_lock_full;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rd_lock_empty;
-wire          cramsoc_vexriscvaxi_axiarbiter0_rd_lock_stall;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rr_write_request;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rr_write_ce;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rr_read_request;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rr_read_ce;
-reg     [7:0] cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter = 8'd0;
-wire          cramsoc_vexriscvaxi_axiarbiter1_wr_lock_full;
-wire          cramsoc_vexriscvaxi_axiarbiter1_wr_lock_empty;
-wire          cramsoc_vexriscvaxi_axiarbiter1_wr_lock_stall;
-reg     [7:0] cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter = 8'd0;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rd_lock_full;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rd_lock_empty;
-wire          cramsoc_vexriscvaxi_axiarbiter1_rd_lock_stall;
-reg     [1:0] cramsoc_axilite2csr_state = 2'd0;
-reg     [1:0] cramsoc_axilite2csr_next_state = 2'd0;
-reg           cramsoc_csr_bridge_last_was_read_axilite2csr_next_value = 1'd0;
-reg           cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce = 1'd0;
+wire          csr_interconnect_re;
+reg     [1:0] cramsoc_state = 2'd0;
+reg     [1:0] cramsoc_next_state = 2'd0;
+reg           cramsoc_last_was_read_next_value = 1'd0;
+reg           cramsoc_last_was_read_next_value_ce = 1'd0;
 wire   [29:0] slice_proxy0;
 wire   [29:0] slice_proxy1;
-wire   [29:0] slice_proxy2;
-wire   [29:0] slice_proxy3;
 reg           array_muxed0 = 1'd0;
 reg           array_muxed1 = 1'd0;
 reg           array_muxed2 = 1'd0;
 reg    [31:0] array_muxed3 = 32'd0;
-reg     [1:0] array_muxed4 = 2'd0;
-reg     [7:0] array_muxed5 = 8'd0;
-reg     [2:0] array_muxed6 = 3'd0;
+reg     [2:0] array_muxed4 = 3'd0;
+reg           array_muxed5 = 1'd0;
+reg           array_muxed6 = 1'd0;
 reg           array_muxed7 = 1'd0;
-reg     [2:0] array_muxed8 = 3'd0;
+reg    [31:0] array_muxed8 = 32'd0;
 reg     [3:0] array_muxed9 = 4'd0;
-reg     [3:0] array_muxed10 = 4'd0;
-reg     [3:0] array_muxed11 = 4'd0;
+reg           array_muxed10 = 1'd0;
+reg           array_muxed11 = 1'd0;
 reg           array_muxed12 = 1'd0;
 reg           array_muxed13 = 1'd0;
-reg           array_muxed14 = 1'd0;
-reg           array_muxed15 = 1'd0;
+reg    [31:0] array_muxed14 = 32'd0;
+reg     [2:0] array_muxed15 = 3'd0;
 reg           array_muxed16 = 1'd0;
-reg           array_muxed17 = 1'd0;
-reg    [31:0] array_muxed18 = 32'd0;
-reg     [3:0] array_muxed19 = 4'd0;
-reg           array_muxed20 = 1'd0;
-reg           array_muxed21 = 1'd0;
-reg           array_muxed22 = 1'd0;
-reg           array_muxed23 = 1'd0;
-reg           array_muxed24 = 1'd0;
-reg           array_muxed25 = 1'd0;
-reg           array_muxed26 = 1'd0;
-reg    [31:0] array_muxed27 = 32'd0;
-reg     [1:0] array_muxed28 = 2'd0;
-reg     [7:0] array_muxed29 = 8'd0;
-reg     [2:0] array_muxed30 = 3'd0;
-reg           array_muxed31 = 1'd0;
-reg     [2:0] array_muxed32 = 3'd0;
-reg     [3:0] array_muxed33 = 4'd0;
-reg     [3:0] array_muxed34 = 4'd0;
-reg     [3:0] array_muxed35 = 4'd0;
-reg           array_muxed36 = 1'd0;
-reg           array_muxed37 = 1'd0;
-reg           array_muxed38 = 1'd0;
-reg           array_muxed39 = 1'd0;
-reg           array_muxed40 = 1'd0;
-reg           array_muxed41 = 1'd0;
-reg           array_muxed42 = 1'd0;
-reg    [31:0] array_muxed43 = 32'd0;
-reg     [1:0] array_muxed44 = 2'd0;
-reg     [7:0] array_muxed45 = 8'd0;
-reg     [2:0] array_muxed46 = 3'd0;
-reg           array_muxed47 = 1'd0;
-reg     [2:0] array_muxed48 = 3'd0;
-reg     [3:0] array_muxed49 = 4'd0;
-reg     [3:0] array_muxed50 = 4'd0;
-reg     [3:0] array_muxed51 = 4'd0;
-reg           array_muxed52 = 1'd0;
-reg           array_muxed53 = 1'd0;
-reg           array_muxed54 = 1'd0;
-reg           array_muxed55 = 1'd0;
-reg           array_muxed56 = 1'd0;
-reg           array_muxed57 = 1'd0;
-reg    [31:0] array_muxed58 = 32'd0;
-reg     [3:0] array_muxed59 = 4'd0;
-reg           array_muxed60 = 1'd0;
-reg           array_muxed61 = 1'd0;
-reg           array_muxed62 = 1'd0;
-reg           array_muxed63 = 1'd0;
-reg           array_muxed64 = 1'd0;
-reg           array_muxed65 = 1'd0;
-reg           array_muxed66 = 1'd0;
-reg    [31:0] array_muxed67 = 32'd0;
-reg     [1:0] array_muxed68 = 2'd0;
-reg     [7:0] array_muxed69 = 8'd0;
-reg     [2:0] array_muxed70 = 3'd0;
-reg           array_muxed71 = 1'd0;
-reg     [2:0] array_muxed72 = 3'd0;
-reg     [3:0] array_muxed73 = 4'd0;
-reg     [3:0] array_muxed74 = 4'd0;
-reg     [3:0] array_muxed75 = 4'd0;
-reg           array_muxed76 = 1'd0;
-reg           array_muxed77 = 1'd0;
-reg           array_muxed78 = 1'd0;
-reg           array_muxed79 = 1'd0;
 
 //------------------------------------------------------------------------------
 // Combinatorial Logic
 //------------------------------------------------------------------------------
 
-assign hclk_clk = hclk;
-assign hclk_rst = hrst;
+assign trimming_reset1 = trimming_reset;
+assign trimming_reset_ena1 = trimming_reset_ena;
+assign trimming_reset0 = trimming_reset1;
+assign trimming_reset_ena0 = trimming_reset_ena1;
 assign ibus_axi_awvalid = ibus_axi_aw_valid;
 assign ibus_axi_awaddr = ibus_axi_aw_payload_addr;
 assign ibus_axi_awburst = ibus_axi_aw_payload_burst;
@@ -1071,1655 +689,396 @@ assign dbus_r_param_id = dbus_axi_rid;
 assign dbus_r_param_user = dbus_axi_ruser;
 assign dbus_r_last = dbus_axi_rlast;
 assign dbus_axi_rready = dbus_r_ready;
-always @(*) begin
-    interrupt_1 <= 32'd0;
-    interrupt_1 <= interrupt;
-    interrupt_1[0] <= irq;
-end
+assign interrupt_1 = interrupt;
 assign sys_clk = aclk;
 assign por_clk = aclk;
 assign sys_rst = int_rst;
-assign cramsoc_socbushandler_sink_sink_valid = cramsoc_socbushandler_ax_burst_valid;
-assign cramsoc_socbushandler_ax_burst_ready = cramsoc_socbushandler_sink_sink_ready;
-assign cramsoc_socbushandler_sink_sink_first = cramsoc_socbushandler_ax_burst_first;
-assign cramsoc_socbushandler_sink_sink_last = cramsoc_socbushandler_ax_burst_last;
-assign cramsoc_socbushandler_sink_sink_payload_addr = cramsoc_socbushandler_ax_burst_payload_addr;
-assign cramsoc_socbushandler_sink_sink_payload_burst = cramsoc_socbushandler_ax_burst_payload_burst;
-assign cramsoc_socbushandler_sink_sink_payload_len = cramsoc_socbushandler_ax_burst_payload_len;
-assign cramsoc_socbushandler_sink_sink_payload_size = cramsoc_socbushandler_ax_burst_payload_size;
-assign cramsoc_socbushandler_sink_sink_payload_lock = cramsoc_socbushandler_ax_burst_payload_lock;
-assign cramsoc_socbushandler_sink_sink_payload_prot = cramsoc_socbushandler_ax_burst_payload_prot;
-assign cramsoc_socbushandler_sink_sink_payload_cache = cramsoc_socbushandler_ax_burst_payload_cache;
-assign cramsoc_socbushandler_sink_sink_payload_qos = cramsoc_socbushandler_ax_burst_payload_qos;
-assign cramsoc_socbushandler_sink_sink_payload_region = cramsoc_socbushandler_ax_burst_payload_region;
-assign cramsoc_socbushandler_sink_sink_param_id = cramsoc_socbushandler_ax_burst_param_id;
-assign cramsoc_socbushandler_sink_sink_param_dest = cramsoc_socbushandler_ax_burst_param_dest;
-assign cramsoc_socbushandler_sink_sink_param_user = cramsoc_socbushandler_ax_burst_param_user;
-assign cramsoc_csr_bridge_b_ready = 1'd1;
-assign cramsoc_socbushandler_pipe_valid_sink_ready = ((~cramsoc_socbushandler_pipe_valid_source_valid) | cramsoc_socbushandler_pipe_valid_source_ready);
-assign cramsoc_socbushandler_pipe_valid_sink_valid = cramsoc_socbushandler_sink_sink_valid;
-assign cramsoc_socbushandler_sink_sink_ready = cramsoc_socbushandler_pipe_valid_sink_ready;
-assign cramsoc_socbushandler_pipe_valid_sink_first = cramsoc_socbushandler_sink_sink_first;
-assign cramsoc_socbushandler_pipe_valid_sink_last = cramsoc_socbushandler_sink_sink_last;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_addr = cramsoc_socbushandler_sink_sink_payload_addr;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_burst = cramsoc_socbushandler_sink_sink_payload_burst;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_len = cramsoc_socbushandler_sink_sink_payload_len;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_size = cramsoc_socbushandler_sink_sink_payload_size;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_lock = cramsoc_socbushandler_sink_sink_payload_lock;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_prot = cramsoc_socbushandler_sink_sink_payload_prot;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_cache = cramsoc_socbushandler_sink_sink_payload_cache;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_qos = cramsoc_socbushandler_sink_sink_payload_qos;
-assign cramsoc_socbushandler_pipe_valid_sink_payload_region = cramsoc_socbushandler_sink_sink_payload_region;
-assign cramsoc_socbushandler_pipe_valid_sink_param_id = cramsoc_socbushandler_sink_sink_param_id;
-assign cramsoc_socbushandler_pipe_valid_sink_param_dest = cramsoc_socbushandler_sink_sink_param_dest;
-assign cramsoc_socbushandler_pipe_valid_sink_param_user = cramsoc_socbushandler_sink_sink_param_user;
-assign cramsoc_socbushandler_source_source_valid = cramsoc_socbushandler_pipe_valid_source_valid;
-assign cramsoc_socbushandler_pipe_valid_source_ready = cramsoc_socbushandler_source_source_ready;
-assign cramsoc_socbushandler_source_source_first = cramsoc_socbushandler_pipe_valid_source_first;
-assign cramsoc_socbushandler_source_source_last = cramsoc_socbushandler_pipe_valid_source_last;
-assign cramsoc_socbushandler_source_source_payload_addr = cramsoc_socbushandler_pipe_valid_source_payload_addr;
-assign cramsoc_socbushandler_source_source_payload_burst = cramsoc_socbushandler_pipe_valid_source_payload_burst;
-assign cramsoc_socbushandler_source_source_payload_len = cramsoc_socbushandler_pipe_valid_source_payload_len;
-assign cramsoc_socbushandler_source_source_payload_size = cramsoc_socbushandler_pipe_valid_source_payload_size;
-assign cramsoc_socbushandler_source_source_payload_lock = cramsoc_socbushandler_pipe_valid_source_payload_lock;
-assign cramsoc_socbushandler_source_source_payload_prot = cramsoc_socbushandler_pipe_valid_source_payload_prot;
-assign cramsoc_socbushandler_source_source_payload_cache = cramsoc_socbushandler_pipe_valid_source_payload_cache;
-assign cramsoc_socbushandler_source_source_payload_qos = cramsoc_socbushandler_pipe_valid_source_payload_qos;
-assign cramsoc_socbushandler_source_source_payload_region = cramsoc_socbushandler_pipe_valid_source_payload_region;
-assign cramsoc_socbushandler_source_source_param_id = cramsoc_socbushandler_pipe_valid_source_param_id;
-assign cramsoc_socbushandler_source_source_param_dest = cramsoc_socbushandler_pipe_valid_source_param_dest;
-assign cramsoc_socbushandler_source_source_param_user = cramsoc_socbushandler_pipe_valid_source_param_user;
-assign cramsoc_socbushandler_beat_size = (1'd1 <<< cramsoc_socbushandler_source_source_payload_size);
-assign cramsoc_socbushandler_beat_wrap = (cramsoc_socbushandler_source_source_payload_len <<< cramsoc_socbushandler_source_source_payload_size);
-assign cramsoc_socbushandler_ax_beat_valid = (cramsoc_socbushandler_source_source_valid | (~cramsoc_socbushandler_ax_beat_first));
-assign cramsoc_socbushandler_ax_beat_first = (cramsoc_socbushandler_beat_count == 1'd0);
-assign cramsoc_socbushandler_ax_beat_last = (cramsoc_socbushandler_beat_count == cramsoc_socbushandler_source_source_payload_len);
-assign cramsoc_socbushandler_ax_beat_payload_addr = ($signed({1'd0, cramsoc_socbushandler_source_source_payload_addr}) + cramsoc_socbushandler_beat_offset);
-assign cramsoc_socbushandler_ax_beat_param_id = cramsoc_socbushandler_source_source_param_id;
+assign socbushandler_slave_sel_dec0 = (slice_proxy0[29:16] == 13'd5632);
+assign socbushandler_slave_sel_dec1 = (slice_proxy1[29:16] == 13'd5632);
 always @(*) begin
-    cramsoc_socbushandler_source_source_ready <= 1'd0;
-    if (cramsoc_socbushandler_ax_beat_ready) begin
-        if (cramsoc_socbushandler_ax_beat_last) begin
-            cramsoc_socbushandler_source_source_ready <= 1'd1;
-        end
+    socbushandler_slave_sel0 <= 1'd0;
+    if (socbushandler_axiliterequestcounter0_empty) begin
+        socbushandler_slave_sel0 <= socbushandler_slave_sel_dec0;
+    end else begin
+        socbushandler_slave_sel0 <= socbushandler_slave_sel_reg0;
     end
 end
 always @(*) begin
-    cramsoc_socbushandler_w_ready <= 1'd0;
-    cramsoc_csr_bridge_aw_valid <= 1'd0;
-    cramsoc_socbushandler_b_valid <= 1'd0;
-    cramsoc_csr_bridge_aw_payload_addr <= 32'd0;
-    cramsoc_csr_bridge_w_valid <= 1'd0;
-    cramsoc_socbushandler_b_payload_resp <= 2'd0;
-    cramsoc_socbushandler_b_param_id <= 1'd0;
-    cramsoc_csr_bridge_w_payload_data <= 32'd0;
-    cramsoc_socbushandler_ar_ready <= 1'd0;
-    cramsoc_csr_bridge_w_payload_strb <= 4'd0;
-    cramsoc_csr_bridge_ar_valid <= 1'd0;
-    cramsoc_csr_bridge_ar_payload_addr <= 32'd0;
-    cramsoc_csr_bridge_r_ready <= 1'd0;
-    cramsoc_socbushandler_r_valid <= 1'd0;
-    cramsoc_socbushandler_r_last <= 1'd0;
-    cramsoc_socbushandler_r_payload_resp <= 2'd0;
-    cramsoc_socbushandler_r_payload_data <= 32'd0;
-    cramsoc_socbushandler_r_param_id <= 1'd0;
-    cramsoc_socbushandler_ax_burst_valid <= 1'd0;
-    cramsoc_socbushandler_ax_burst_first <= 1'd0;
-    cramsoc_socbushandler_ax_burst_last <= 1'd0;
-    cramsoc_socbushandler_ax_burst_payload_addr <= 32'd0;
-    cramsoc_socbushandler_ax_burst_payload_burst <= 2'd0;
-    cramsoc_socbushandler_ax_burst_payload_len <= 8'd0;
-    cramsoc_socbushandler_aw_ready <= 1'd0;
-    cramsoc_socbushandler_ax_burst_payload_size <= 3'd0;
-    cramsoc_socbushandler_ax_burst_payload_lock <= 1'd0;
-    next_state <= 2'd0;
-    cramsoc_socbushandler_cmd_done_next_value0 <= 1'd0;
-    cramsoc_socbushandler_ax_burst_payload_prot <= 3'd0;
-    cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd0;
-    cramsoc_socbushandler_ax_burst_payload_cache <= 4'd0;
-    cramsoc_socbushandler_ax_burst_payload_qos <= 4'd0;
-    cramsoc_socbushandler_ax_burst_payload_region <= 4'd0;
-    cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd0;
-    cramsoc_socbushandler_ax_burst_param_id <= 1'd0;
-    cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd0;
-    cramsoc_socbushandler_ax_burst_param_dest <= 1'd0;
-    cramsoc_socbushandler_ax_burst_param_user <= 1'd0;
-    cramsoc_socbushandler_ax_beat_ready <= 1'd0;
-    next_state <= state;
-    case (state)
-        1'd1: begin
-            cramsoc_csr_bridge_ar_valid <= ((cramsoc_socbushandler_ax_beat_valid & (~cramsoc_socbushandler_cmd_done)) & (~((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last) & cramsoc_csr_bridge_ar_ready)));
-            cramsoc_csr_bridge_ar_payload_addr <= cramsoc_socbushandler_ax_beat_payload_addr;
-            cramsoc_socbushandler_ax_beat_ready <= cramsoc_csr_bridge_ar_ready;
-            if ((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last)) begin
-                if (cramsoc_csr_bridge_ar_ready) begin
-                    cramsoc_socbushandler_cmd_done_next_value0 <= 1'd1;
-                    cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd1;
-                end
-            end
-            cramsoc_socbushandler_r_valid <= cramsoc_csr_bridge_r_valid;
-            cramsoc_socbushandler_r_last <= cramsoc_socbushandler_cmd_done;
-            cramsoc_socbushandler_r_payload_resp <= 1'd0;
-            cramsoc_socbushandler_r_param_id <= cramsoc_socbushandler_ax_beat_param_id;
-            cramsoc_socbushandler_r_payload_data <= cramsoc_csr_bridge_r_payload_data;
-            cramsoc_csr_bridge_r_ready <= cramsoc_socbushandler_r_ready;
-            if (((cramsoc_csr_bridge_r_valid & cramsoc_socbushandler_cmd_done) & cramsoc_socbushandler_r_ready)) begin
-                cramsoc_socbushandler_ax_beat_ready <= 1'd1;
-                next_state <= 1'd0;
-            end
-        end
-        2'd2: begin
-            cramsoc_csr_bridge_aw_valid <= ((cramsoc_socbushandler_ax_beat_valid & (~cramsoc_socbushandler_cmd_done)) & (~((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last) & cramsoc_csr_bridge_aw_ready)));
-            cramsoc_csr_bridge_aw_payload_addr <= cramsoc_socbushandler_ax_beat_payload_addr;
-            cramsoc_socbushandler_ax_beat_ready <= (cramsoc_csr_bridge_aw_ready & (~cramsoc_socbushandler_cmd_done));
-            if ((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_last)) begin
-                if (cramsoc_csr_bridge_aw_ready) begin
-                    cramsoc_socbushandler_ax_beat_ready <= 1'd0;
-                    cramsoc_socbushandler_cmd_done_next_value0 <= 1'd1;
-                    cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd1;
-                end
-            end
-            cramsoc_csr_bridge_w_valid <= cramsoc_socbushandler_w_valid;
-            cramsoc_csr_bridge_w_payload_data <= cramsoc_socbushandler_w_payload_data;
-            cramsoc_csr_bridge_w_payload_strb <= cramsoc_socbushandler_w_payload_strb;
-            cramsoc_socbushandler_w_ready <= cramsoc_csr_bridge_w_ready;
-            if (((cramsoc_socbushandler_w_valid & cramsoc_socbushandler_w_last) & cramsoc_csr_bridge_w_ready)) begin
-                next_state <= 2'd3;
-            end
-        end
-        2'd3: begin
-            cramsoc_socbushandler_b_valid <= 1'd1;
-            cramsoc_socbushandler_b_payload_resp <= 1'd0;
-            cramsoc_socbushandler_b_param_id <= cramsoc_socbushandler_ax_beat_param_id;
-            if (cramsoc_socbushandler_b_ready) begin
-                cramsoc_socbushandler_ax_beat_ready <= 1'd1;
-                next_state <= 1'd0;
-            end
-        end
-        default: begin
-            cramsoc_socbushandler_cmd_done_next_value0 <= 1'd0;
-            cramsoc_socbushandler_cmd_done_next_value_ce0 <= 1'd1;
-            if ((cramsoc_socbushandler_ar_valid & cramsoc_socbushandler_aw_valid)) begin
-                if (cramsoc_socbushandler_last_ar_aw_n) begin
-                    cramsoc_socbushandler_ax_burst_valid <= cramsoc_socbushandler_aw_valid;
-                    cramsoc_socbushandler_aw_ready <= cramsoc_socbushandler_ax_burst_ready;
-                    cramsoc_socbushandler_ax_burst_first <= cramsoc_socbushandler_aw_first;
-                    cramsoc_socbushandler_ax_burst_last <= cramsoc_socbushandler_aw_last;
-                    cramsoc_socbushandler_ax_burst_payload_addr <= cramsoc_socbushandler_aw_payload_addr;
-                    cramsoc_socbushandler_ax_burst_payload_burst <= cramsoc_socbushandler_aw_payload_burst;
-                    cramsoc_socbushandler_ax_burst_payload_len <= cramsoc_socbushandler_aw_payload_len;
-                    cramsoc_socbushandler_ax_burst_payload_size <= cramsoc_socbushandler_aw_payload_size;
-                    cramsoc_socbushandler_ax_burst_payload_lock <= cramsoc_socbushandler_aw_payload_lock;
-                    cramsoc_socbushandler_ax_burst_payload_prot <= cramsoc_socbushandler_aw_payload_prot;
-                    cramsoc_socbushandler_ax_burst_payload_cache <= cramsoc_socbushandler_aw_payload_cache;
-                    cramsoc_socbushandler_ax_burst_payload_qos <= cramsoc_socbushandler_aw_payload_qos;
-                    cramsoc_socbushandler_ax_burst_payload_region <= cramsoc_socbushandler_aw_payload_region;
-                    cramsoc_socbushandler_ax_burst_param_id <= cramsoc_socbushandler_aw_param_id;
-                    cramsoc_socbushandler_ax_burst_param_dest <= cramsoc_socbushandler_aw_param_dest;
-                    cramsoc_socbushandler_ax_burst_param_user <= cramsoc_socbushandler_aw_param_user;
-                    cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd0;
-                    cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd1;
-                    next_state <= 2'd2;
-                end else begin
-                    cramsoc_socbushandler_ax_burst_valid <= cramsoc_socbushandler_ar_valid;
-                    cramsoc_socbushandler_ar_ready <= cramsoc_socbushandler_ax_burst_ready;
-                    cramsoc_socbushandler_ax_burst_first <= cramsoc_socbushandler_ar_first;
-                    cramsoc_socbushandler_ax_burst_last <= cramsoc_socbushandler_ar_last;
-                    cramsoc_socbushandler_ax_burst_payload_addr <= cramsoc_socbushandler_ar_payload_addr;
-                    cramsoc_socbushandler_ax_burst_payload_burst <= cramsoc_socbushandler_ar_payload_burst;
-                    cramsoc_socbushandler_ax_burst_payload_len <= cramsoc_socbushandler_ar_payload_len;
-                    cramsoc_socbushandler_ax_burst_payload_size <= cramsoc_socbushandler_ar_payload_size;
-                    cramsoc_socbushandler_ax_burst_payload_lock <= cramsoc_socbushandler_ar_payload_lock;
-                    cramsoc_socbushandler_ax_burst_payload_prot <= cramsoc_socbushandler_ar_payload_prot;
-                    cramsoc_socbushandler_ax_burst_payload_cache <= cramsoc_socbushandler_ar_payload_cache;
-                    cramsoc_socbushandler_ax_burst_payload_qos <= cramsoc_socbushandler_ar_payload_qos;
-                    cramsoc_socbushandler_ax_burst_payload_region <= cramsoc_socbushandler_ar_payload_region;
-                    cramsoc_socbushandler_ax_burst_param_id <= cramsoc_socbushandler_ar_param_id;
-                    cramsoc_socbushandler_ax_burst_param_dest <= cramsoc_socbushandler_ar_param_dest;
-                    cramsoc_socbushandler_ax_burst_param_user <= cramsoc_socbushandler_ar_param_user;
-                    cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd1;
-                    cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd1;
-                    next_state <= 1'd1;
-                end
-            end else begin
-                if (cramsoc_socbushandler_ar_valid) begin
-                    cramsoc_socbushandler_ax_burst_valid <= cramsoc_socbushandler_ar_valid;
-                    cramsoc_socbushandler_ar_ready <= cramsoc_socbushandler_ax_burst_ready;
-                    cramsoc_socbushandler_ax_burst_first <= cramsoc_socbushandler_ar_first;
-                    cramsoc_socbushandler_ax_burst_last <= cramsoc_socbushandler_ar_last;
-                    cramsoc_socbushandler_ax_burst_payload_addr <= cramsoc_socbushandler_ar_payload_addr;
-                    cramsoc_socbushandler_ax_burst_payload_burst <= cramsoc_socbushandler_ar_payload_burst;
-                    cramsoc_socbushandler_ax_burst_payload_len <= cramsoc_socbushandler_ar_payload_len;
-                    cramsoc_socbushandler_ax_burst_payload_size <= cramsoc_socbushandler_ar_payload_size;
-                    cramsoc_socbushandler_ax_burst_payload_lock <= cramsoc_socbushandler_ar_payload_lock;
-                    cramsoc_socbushandler_ax_burst_payload_prot <= cramsoc_socbushandler_ar_payload_prot;
-                    cramsoc_socbushandler_ax_burst_payload_cache <= cramsoc_socbushandler_ar_payload_cache;
-                    cramsoc_socbushandler_ax_burst_payload_qos <= cramsoc_socbushandler_ar_payload_qos;
-                    cramsoc_socbushandler_ax_burst_payload_region <= cramsoc_socbushandler_ar_payload_region;
-                    cramsoc_socbushandler_ax_burst_param_id <= cramsoc_socbushandler_ar_param_id;
-                    cramsoc_socbushandler_ax_burst_param_dest <= cramsoc_socbushandler_ar_param_dest;
-                    cramsoc_socbushandler_ax_burst_param_user <= cramsoc_socbushandler_ar_param_user;
-                    cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd1;
-                    cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd1;
-                    next_state <= 1'd1;
-                end else begin
-                    if (cramsoc_socbushandler_aw_valid) begin
-                        cramsoc_socbushandler_ax_burst_valid <= cramsoc_socbushandler_aw_valid;
-                        cramsoc_socbushandler_aw_ready <= cramsoc_socbushandler_ax_burst_ready;
-                        cramsoc_socbushandler_ax_burst_first <= cramsoc_socbushandler_aw_first;
-                        cramsoc_socbushandler_ax_burst_last <= cramsoc_socbushandler_aw_last;
-                        cramsoc_socbushandler_ax_burst_payload_addr <= cramsoc_socbushandler_aw_payload_addr;
-                        cramsoc_socbushandler_ax_burst_payload_burst <= cramsoc_socbushandler_aw_payload_burst;
-                        cramsoc_socbushandler_ax_burst_payload_len <= cramsoc_socbushandler_aw_payload_len;
-                        cramsoc_socbushandler_ax_burst_payload_size <= cramsoc_socbushandler_aw_payload_size;
-                        cramsoc_socbushandler_ax_burst_payload_lock <= cramsoc_socbushandler_aw_payload_lock;
-                        cramsoc_socbushandler_ax_burst_payload_prot <= cramsoc_socbushandler_aw_payload_prot;
-                        cramsoc_socbushandler_ax_burst_payload_cache <= cramsoc_socbushandler_aw_payload_cache;
-                        cramsoc_socbushandler_ax_burst_payload_qos <= cramsoc_socbushandler_aw_payload_qos;
-                        cramsoc_socbushandler_ax_burst_payload_region <= cramsoc_socbushandler_aw_payload_region;
-                        cramsoc_socbushandler_ax_burst_param_id <= cramsoc_socbushandler_aw_param_id;
-                        cramsoc_socbushandler_ax_burst_param_dest <= cramsoc_socbushandler_aw_param_dest;
-                        cramsoc_socbushandler_ax_burst_param_user <= cramsoc_socbushandler_aw_param_user;
-                        cramsoc_socbushandler_last_ar_aw_n_next_value1 <= 1'd0;
-                        cramsoc_socbushandler_last_ar_aw_n_next_value_ce1 <= 1'd1;
-                        next_state <= 2'd2;
-                    end
-                end
-            end
-        end
-    endcase
-end
-assign socbushandler_sink_sink_valid = socbushandler_ax_burst_valid;
-assign socbushandler_ax_burst_ready = socbushandler_sink_sink_ready;
-assign socbushandler_sink_sink_first = socbushandler_ax_burst_first;
-assign socbushandler_sink_sink_last = socbushandler_ax_burst_last;
-assign socbushandler_sink_sink_payload_addr = socbushandler_ax_burst_payload_addr;
-assign socbushandler_sink_sink_payload_burst = socbushandler_ax_burst_payload_burst;
-assign socbushandler_sink_sink_payload_len = socbushandler_ax_burst_payload_len;
-assign socbushandler_sink_sink_payload_size = socbushandler_ax_burst_payload_size;
-assign socbushandler_sink_sink_payload_lock = socbushandler_ax_burst_payload_lock;
-assign socbushandler_sink_sink_payload_prot = socbushandler_ax_burst_payload_prot;
-assign socbushandler_sink_sink_payload_cache = socbushandler_ax_burst_payload_cache;
-assign socbushandler_sink_sink_payload_qos = socbushandler_ax_burst_payload_qos;
-assign socbushandler_sink_sink_payload_region = socbushandler_ax_burst_payload_region;
-assign socbushandler_sink_sink_param_id = socbushandler_ax_burst_param_id;
-assign socbushandler_sink_sink_param_dest = socbushandler_ax_burst_param_dest;
-assign socbushandler_sink_sink_param_user = socbushandler_ax_burst_param_user;
-assign dbus_lite_b_ready = 1'd1;
-assign socbushandler_pipe_valid_sink_ready = ((~socbushandler_pipe_valid_source_valid) | socbushandler_pipe_valid_source_ready);
-assign socbushandler_pipe_valid_sink_valid = socbushandler_sink_sink_valid;
-assign socbushandler_sink_sink_ready = socbushandler_pipe_valid_sink_ready;
-assign socbushandler_pipe_valid_sink_first = socbushandler_sink_sink_first;
-assign socbushandler_pipe_valid_sink_last = socbushandler_sink_sink_last;
-assign socbushandler_pipe_valid_sink_payload_addr = socbushandler_sink_sink_payload_addr;
-assign socbushandler_pipe_valid_sink_payload_burst = socbushandler_sink_sink_payload_burst;
-assign socbushandler_pipe_valid_sink_payload_len = socbushandler_sink_sink_payload_len;
-assign socbushandler_pipe_valid_sink_payload_size = socbushandler_sink_sink_payload_size;
-assign socbushandler_pipe_valid_sink_payload_lock = socbushandler_sink_sink_payload_lock;
-assign socbushandler_pipe_valid_sink_payload_prot = socbushandler_sink_sink_payload_prot;
-assign socbushandler_pipe_valid_sink_payload_cache = socbushandler_sink_sink_payload_cache;
-assign socbushandler_pipe_valid_sink_payload_qos = socbushandler_sink_sink_payload_qos;
-assign socbushandler_pipe_valid_sink_payload_region = socbushandler_sink_sink_payload_region;
-assign socbushandler_pipe_valid_sink_param_id = socbushandler_sink_sink_param_id;
-assign socbushandler_pipe_valid_sink_param_dest = socbushandler_sink_sink_param_dest;
-assign socbushandler_pipe_valid_sink_param_user = socbushandler_sink_sink_param_user;
-assign socbushandler_source_source_valid = socbushandler_pipe_valid_source_valid;
-assign socbushandler_pipe_valid_source_ready = socbushandler_source_source_ready;
-assign socbushandler_source_source_first = socbushandler_pipe_valid_source_first;
-assign socbushandler_source_source_last = socbushandler_pipe_valid_source_last;
-assign socbushandler_source_source_payload_addr = socbushandler_pipe_valid_source_payload_addr;
-assign socbushandler_source_source_payload_burst = socbushandler_pipe_valid_source_payload_burst;
-assign socbushandler_source_source_payload_len = socbushandler_pipe_valid_source_payload_len;
-assign socbushandler_source_source_payload_size = socbushandler_pipe_valid_source_payload_size;
-assign socbushandler_source_source_payload_lock = socbushandler_pipe_valid_source_payload_lock;
-assign socbushandler_source_source_payload_prot = socbushandler_pipe_valid_source_payload_prot;
-assign socbushandler_source_source_payload_cache = socbushandler_pipe_valid_source_payload_cache;
-assign socbushandler_source_source_payload_qos = socbushandler_pipe_valid_source_payload_qos;
-assign socbushandler_source_source_payload_region = socbushandler_pipe_valid_source_payload_region;
-assign socbushandler_source_source_param_id = socbushandler_pipe_valid_source_param_id;
-assign socbushandler_source_source_param_dest = socbushandler_pipe_valid_source_param_dest;
-assign socbushandler_source_source_param_user = socbushandler_pipe_valid_source_param_user;
-assign socbushandler_beat_size = (1'd1 <<< socbushandler_source_source_payload_size);
-assign socbushandler_beat_wrap = (socbushandler_source_source_payload_len <<< socbushandler_source_source_payload_size);
-assign socbushandler_ax_beat_valid = (socbushandler_source_source_valid | (~socbushandler_ax_beat_first));
-assign socbushandler_ax_beat_first = (socbushandler_beat_count == 1'd0);
-assign socbushandler_ax_beat_last = (socbushandler_beat_count == socbushandler_source_source_payload_len);
-assign socbushandler_ax_beat_payload_addr = ($signed({1'd0, socbushandler_source_source_payload_addr}) + socbushandler_beat_offset);
-assign socbushandler_ax_beat_param_id = socbushandler_source_source_param_id;
-always @(*) begin
-    socbushandler_source_source_ready <= 1'd0;
-    if (socbushandler_ax_beat_ready) begin
-        if (socbushandler_ax_beat_last) begin
-            socbushandler_source_source_ready <= 1'd1;
-        end
+    socbushandler_slave_sel1 <= 1'd0;
+    if (socbushandler_axiliterequestcounter1_empty) begin
+        socbushandler_slave_sel1 <= socbushandler_slave_sel_dec1;
+    end else begin
+        socbushandler_slave_sel1 <= socbushandler_slave_sel_reg1;
     end
 end
+assign socbushandler_aw_valid = (corecsr_aw_valid & socbushandler_slave_sel0);
+assign socbushandler_aw_first = corecsr_aw_first;
+assign socbushandler_aw_last = corecsr_aw_last;
+assign socbushandler_aw_payload_addr = corecsr_aw_payload_addr;
+assign socbushandler_aw_payload_prot = corecsr_aw_payload_prot;
+assign socbushandler_w_valid = (corecsr_w_valid & socbushandler_slave_sel0);
+assign socbushandler_w_first = corecsr_w_first;
+assign socbushandler_w_last = corecsr_w_last;
+assign socbushandler_w_payload_data = corecsr_w_payload_data;
+assign socbushandler_w_payload_strb = corecsr_w_payload_strb;
+assign socbushandler_b_ready = (corecsr_b_ready & socbushandler_slave_sel0);
+assign socbushandler_ar_valid = (corecsr_ar_valid & socbushandler_slave_sel1);
+assign socbushandler_ar_first = corecsr_ar_first;
+assign socbushandler_ar_last = corecsr_ar_last;
+assign socbushandler_ar_payload_addr = corecsr_ar_payload_addr;
+assign socbushandler_ar_payload_prot = corecsr_ar_payload_prot;
+assign socbushandler_r_ready = (corecsr_r_ready & socbushandler_slave_sel1);
+assign corecsr_aw_ready = (socbushandler_aw_ready & {1{socbushandler_slave_sel0}});
+assign corecsr_w_ready = (socbushandler_w_ready & {1{socbushandler_slave_sel0}});
+assign corecsr_b_valid = (socbushandler_b_valid & {1{socbushandler_slave_sel0}});
+assign corecsr_b_first = (socbushandler_b_first & {1{socbushandler_slave_sel0}});
+assign corecsr_b_last = (socbushandler_b_last & {1{socbushandler_slave_sel0}});
+assign corecsr_b_payload_resp = (socbushandler_b_payload_resp & {2{socbushandler_slave_sel0}});
+assign corecsr_ar_ready = (socbushandler_ar_ready & {1{socbushandler_slave_sel1}});
+assign corecsr_r_valid = (socbushandler_r_valid & {1{socbushandler_slave_sel1}});
+assign corecsr_r_first = (socbushandler_r_first & {1{socbushandler_slave_sel1}});
+assign corecsr_r_last = (socbushandler_r_last & {1{socbushandler_slave_sel1}});
+assign corecsr_r_payload_resp = (socbushandler_r_payload_resp & {2{socbushandler_slave_sel1}});
+assign corecsr_r_payload_data = (socbushandler_r_payload_data & {32{socbushandler_slave_sel1}});
+assign socbushandler_axiliterequestcounter0_full = (socbushandler_axiliterequestcounter0_counter == 8'd255);
+assign socbushandler_axiliterequestcounter0_empty = (socbushandler_axiliterequestcounter0_counter == 1'd0);
+assign socbushandler_axiliterequestcounter0_stall = ((corecsr_aw_valid & corecsr_aw_ready) & socbushandler_axiliterequestcounter0_full);
+assign socbushandler_axiliterequestcounter1_full = (socbushandler_axiliterequestcounter1_counter == 8'd255);
+assign socbushandler_axiliterequestcounter1_empty = (socbushandler_axiliterequestcounter1_counter == 1'd0);
+assign socbushandler_axiliterequestcounter1_stall = ((corecsr_ar_valid & corecsr_ar_ready) & socbushandler_axiliterequestcounter1_full);
+assign cramsoc_aw_valid = array_muxed0;
+assign cramsoc_aw_first = array_muxed1;
+assign cramsoc_aw_last = array_muxed2;
+assign cramsoc_aw_payload_addr = array_muxed3;
+assign cramsoc_aw_payload_prot = array_muxed4;
+assign cramsoc_w_valid = array_muxed5;
+assign cramsoc_w_first = array_muxed6;
+assign cramsoc_w_last = array_muxed7;
+assign cramsoc_w_payload_data = array_muxed8;
+assign cramsoc_w_payload_strb = array_muxed9;
+assign cramsoc_b_ready = array_muxed10;
+assign cramsoc_ar_valid = array_muxed11;
+assign cramsoc_ar_first = array_muxed12;
+assign cramsoc_ar_last = array_muxed13;
+assign cramsoc_ar_payload_addr = array_muxed14;
+assign cramsoc_ar_payload_prot = array_muxed15;
+assign cramsoc_r_ready = array_muxed16;
 always @(*) begin
-    dbus_lite_aw_payload_addr <= 32'd0;
-    dbus_lite_w_valid <= 1'd0;
-    dbus_lite_w_payload_data <= 32'd0;
-    dbus_lite_w_payload_strb <= 4'd0;
-    socbushandler_r_valid <= 1'd0;
-    dbus_lite_ar_valid <= 1'd0;
-    socbushandler_r_last <= 1'd0;
-    socbushandler_r_payload_resp <= 2'd0;
-    socbushandler_r_payload_data <= 32'd0;
-    socbushandler_r_param_id <= 1'd0;
-    dbus_lite_ar_payload_addr <= 32'd0;
-    socbushandler_ax_burst_valid <= 1'd0;
-    dbus_lite_r_ready <= 1'd0;
-    socbushandler_ax_burst_first <= 1'd0;
-    socbushandler_ax_burst_last <= 1'd0;
-    socbushandler_ax_burst_payload_addr <= 32'd0;
-    socbushandler_ax_burst_payload_burst <= 2'd0;
-    socbushandler_ax_burst_payload_len <= 8'd0;
-    socbushandler_ax_burst_payload_size <= 3'd0;
     socbushandler_aw_ready <= 1'd0;
-    socbushandler_ax_burst_payload_lock <= 1'd0;
-    socbushandler_ax_burst_payload_prot <= 3'd0;
-    socbushandler_ax_burst_payload_cache <= 4'd0;
-    socbushandler_ax_burst_payload_qos <= 4'd0;
-    socbushandler_ax_burst_payload_region <= 4'd0;
-    socbushandler_ax_burst_param_id <= 1'd0;
-    socbushandler_ax_burst_param_dest <= 1'd0;
-    socbushandler_ax_burst_param_user <= 1'd0;
-    cramsoc_vexriscvaxi_next_state <= 2'd0;
-    socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd0;
-    socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd0;
-    socbushandler_ax_beat_ready <= 1'd0;
-    socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd0;
-    socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd0;
+    if ((socbushandler_rr_write_grant == 1'd0)) begin
+        socbushandler_aw_ready <= cramsoc_aw_ready;
+    end
+end
+always @(*) begin
     socbushandler_w_ready <= 1'd0;
+    if ((socbushandler_rr_write_grant == 1'd0)) begin
+        socbushandler_w_ready <= cramsoc_w_ready;
+    end
+end
+always @(*) begin
     socbushandler_b_valid <= 1'd0;
-    socbushandler_b_payload_resp <= 2'd0;
-    socbushandler_b_param_id <= 1'd0;
+    if ((socbushandler_rr_write_grant == 1'd0)) begin
+        socbushandler_b_valid <= cramsoc_b_valid;
+    end
+end
+assign socbushandler_b_first = cramsoc_b_first;
+assign socbushandler_b_last = cramsoc_b_last;
+assign socbushandler_b_payload_resp = cramsoc_b_payload_resp;
+always @(*) begin
     socbushandler_ar_ready <= 1'd0;
-    dbus_lite_aw_valid <= 1'd0;
-    cramsoc_vexriscvaxi_next_state <= cramsoc_vexriscvaxi_state;
-    case (cramsoc_vexriscvaxi_state)
-        1'd1: begin
-            dbus_lite_ar_valid <= ((socbushandler_ax_beat_valid & (~socbushandler_cmd_done)) & (~((socbushandler_ax_beat_valid & socbushandler_ax_beat_last) & dbus_lite_ar_ready)));
-            dbus_lite_ar_payload_addr <= socbushandler_ax_beat_payload_addr;
-            socbushandler_ax_beat_ready <= dbus_lite_ar_ready;
-            if ((socbushandler_ax_beat_valid & socbushandler_ax_beat_last)) begin
-                if (dbus_lite_ar_ready) begin
-                    socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd1;
-                    socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd1;
-                end
-            end
-            socbushandler_r_valid <= dbus_lite_r_valid;
-            socbushandler_r_last <= socbushandler_cmd_done;
-            socbushandler_r_payload_resp <= 1'd0;
-            socbushandler_r_param_id <= socbushandler_ax_beat_param_id;
-            socbushandler_r_payload_data <= dbus_lite_r_payload_data;
-            dbus_lite_r_ready <= socbushandler_r_ready;
-            if (((dbus_lite_r_valid & socbushandler_cmd_done) & socbushandler_r_ready)) begin
-                socbushandler_ax_beat_ready <= 1'd1;
-                cramsoc_vexriscvaxi_next_state <= 1'd0;
-            end
-        end
-        2'd2: begin
-            dbus_lite_aw_valid <= ((socbushandler_ax_beat_valid & (~socbushandler_cmd_done)) & (~((socbushandler_ax_beat_valid & socbushandler_ax_beat_last) & dbus_lite_aw_ready)));
-            dbus_lite_aw_payload_addr <= socbushandler_ax_beat_payload_addr;
-            socbushandler_ax_beat_ready <= (dbus_lite_aw_ready & (~socbushandler_cmd_done));
-            if ((socbushandler_ax_beat_valid & socbushandler_ax_beat_last)) begin
-                if (dbus_lite_aw_ready) begin
-                    socbushandler_ax_beat_ready <= 1'd0;
-                    socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd1;
-                    socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd1;
-                end
-            end
-            dbus_lite_w_valid <= socbushandler_w_valid;
-            dbus_lite_w_payload_data <= socbushandler_w_payload_data;
-            dbus_lite_w_payload_strb <= socbushandler_w_payload_strb;
-            socbushandler_w_ready <= dbus_lite_w_ready;
-            if (((socbushandler_w_valid & socbushandler_w_last) & dbus_lite_w_ready)) begin
-                cramsoc_vexriscvaxi_next_state <= 2'd3;
-            end
-        end
-        2'd3: begin
-            socbushandler_b_valid <= 1'd1;
-            socbushandler_b_payload_resp <= 1'd0;
-            socbushandler_b_param_id <= socbushandler_ax_beat_param_id;
-            if (socbushandler_b_ready) begin
-                socbushandler_ax_beat_ready <= 1'd1;
-                cramsoc_vexriscvaxi_next_state <= 1'd0;
-            end
-        end
-        default: begin
-            socbushandler_cmd_done_vexriscvaxi_next_value0 <= 1'd0;
-            socbushandler_cmd_done_vexriscvaxi_next_value_ce0 <= 1'd1;
-            if ((socbushandler_ar_valid & socbushandler_aw_valid)) begin
-                if (socbushandler_last_ar_aw_n) begin
-                    socbushandler_ax_burst_valid <= socbushandler_aw_valid;
-                    socbushandler_aw_ready <= socbushandler_ax_burst_ready;
-                    socbushandler_ax_burst_first <= socbushandler_aw_first;
-                    socbushandler_ax_burst_last <= socbushandler_aw_last;
-                    socbushandler_ax_burst_payload_addr <= socbushandler_aw_payload_addr;
-                    socbushandler_ax_burst_payload_burst <= socbushandler_aw_payload_burst;
-                    socbushandler_ax_burst_payload_len <= socbushandler_aw_payload_len;
-                    socbushandler_ax_burst_payload_size <= socbushandler_aw_payload_size;
-                    socbushandler_ax_burst_payload_lock <= socbushandler_aw_payload_lock;
-                    socbushandler_ax_burst_payload_prot <= socbushandler_aw_payload_prot;
-                    socbushandler_ax_burst_payload_cache <= socbushandler_aw_payload_cache;
-                    socbushandler_ax_burst_payload_qos <= socbushandler_aw_payload_qos;
-                    socbushandler_ax_burst_payload_region <= socbushandler_aw_payload_region;
-                    socbushandler_ax_burst_param_id <= socbushandler_aw_param_id;
-                    socbushandler_ax_burst_param_dest <= socbushandler_aw_param_dest;
-                    socbushandler_ax_burst_param_user <= socbushandler_aw_param_user;
-                    socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd0;
-                    socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd1;
-                    cramsoc_vexriscvaxi_next_state <= 2'd2;
-                end else begin
-                    socbushandler_ax_burst_valid <= socbushandler_ar_valid;
-                    socbushandler_ar_ready <= socbushandler_ax_burst_ready;
-                    socbushandler_ax_burst_first <= socbushandler_ar_first;
-                    socbushandler_ax_burst_last <= socbushandler_ar_last;
-                    socbushandler_ax_burst_payload_addr <= socbushandler_ar_payload_addr;
-                    socbushandler_ax_burst_payload_burst <= socbushandler_ar_payload_burst;
-                    socbushandler_ax_burst_payload_len <= socbushandler_ar_payload_len;
-                    socbushandler_ax_burst_payload_size <= socbushandler_ar_payload_size;
-                    socbushandler_ax_burst_payload_lock <= socbushandler_ar_payload_lock;
-                    socbushandler_ax_burst_payload_prot <= socbushandler_ar_payload_prot;
-                    socbushandler_ax_burst_payload_cache <= socbushandler_ar_payload_cache;
-                    socbushandler_ax_burst_payload_qos <= socbushandler_ar_payload_qos;
-                    socbushandler_ax_burst_payload_region <= socbushandler_ar_payload_region;
-                    socbushandler_ax_burst_param_id <= socbushandler_ar_param_id;
-                    socbushandler_ax_burst_param_dest <= socbushandler_ar_param_dest;
-                    socbushandler_ax_burst_param_user <= socbushandler_ar_param_user;
-                    socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd1;
-                    socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd1;
-                    cramsoc_vexriscvaxi_next_state <= 1'd1;
-                end
-            end else begin
-                if (socbushandler_ar_valid) begin
-                    socbushandler_ax_burst_valid <= socbushandler_ar_valid;
-                    socbushandler_ar_ready <= socbushandler_ax_burst_ready;
-                    socbushandler_ax_burst_first <= socbushandler_ar_first;
-                    socbushandler_ax_burst_last <= socbushandler_ar_last;
-                    socbushandler_ax_burst_payload_addr <= socbushandler_ar_payload_addr;
-                    socbushandler_ax_burst_payload_burst <= socbushandler_ar_payload_burst;
-                    socbushandler_ax_burst_payload_len <= socbushandler_ar_payload_len;
-                    socbushandler_ax_burst_payload_size <= socbushandler_ar_payload_size;
-                    socbushandler_ax_burst_payload_lock <= socbushandler_ar_payload_lock;
-                    socbushandler_ax_burst_payload_prot <= socbushandler_ar_payload_prot;
-                    socbushandler_ax_burst_payload_cache <= socbushandler_ar_payload_cache;
-                    socbushandler_ax_burst_payload_qos <= socbushandler_ar_payload_qos;
-                    socbushandler_ax_burst_payload_region <= socbushandler_ar_payload_region;
-                    socbushandler_ax_burst_param_id <= socbushandler_ar_param_id;
-                    socbushandler_ax_burst_param_dest <= socbushandler_ar_param_dest;
-                    socbushandler_ax_burst_param_user <= socbushandler_ar_param_user;
-                    socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd1;
-                    socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd1;
-                    cramsoc_vexriscvaxi_next_state <= 1'd1;
-                end else begin
-                    if (socbushandler_aw_valid) begin
-                        socbushandler_ax_burst_valid <= socbushandler_aw_valid;
-                        socbushandler_aw_ready <= socbushandler_ax_burst_ready;
-                        socbushandler_ax_burst_first <= socbushandler_aw_first;
-                        socbushandler_ax_burst_last <= socbushandler_aw_last;
-                        socbushandler_ax_burst_payload_addr <= socbushandler_aw_payload_addr;
-                        socbushandler_ax_burst_payload_burst <= socbushandler_aw_payload_burst;
-                        socbushandler_ax_burst_payload_len <= socbushandler_aw_payload_len;
-                        socbushandler_ax_burst_payload_size <= socbushandler_aw_payload_size;
-                        socbushandler_ax_burst_payload_lock <= socbushandler_aw_payload_lock;
-                        socbushandler_ax_burst_payload_prot <= socbushandler_aw_payload_prot;
-                        socbushandler_ax_burst_payload_cache <= socbushandler_aw_payload_cache;
-                        socbushandler_ax_burst_payload_qos <= socbushandler_aw_payload_qos;
-                        socbushandler_ax_burst_payload_region <= socbushandler_aw_payload_region;
-                        socbushandler_ax_burst_param_id <= socbushandler_aw_param_id;
-                        socbushandler_ax_burst_param_dest <= socbushandler_aw_param_dest;
-                        socbushandler_ax_burst_param_user <= socbushandler_aw_param_user;
-                        socbushandler_last_ar_aw_n_vexriscvaxi_next_value1 <= 1'd0;
-                        socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1 <= 1'd1;
-                        cramsoc_vexriscvaxi_next_state <= 2'd2;
-                    end
-                end
-            end
-        end
-    endcase
+    if ((socbushandler_rr_read_grant == 1'd0)) begin
+        socbushandler_ar_ready <= cramsoc_ar_ready;
+    end
 end
 always @(*) begin
-    cramsoc_vexriscvaxi_slave_sel_dec0 <= 2'd0;
-    cramsoc_vexriscvaxi_slave_sel_dec0[0] <= (slice_proxy0[29:27] == 2'd2);
-    cramsoc_vexriscvaxi_slave_sel_dec0[1] <= (slice_proxy2[29:27] == 2'd3);
+    socbushandler_r_valid <= 1'd0;
+    if ((socbushandler_rr_read_grant == 1'd0)) begin
+        socbushandler_r_valid <= cramsoc_r_valid;
+    end
 end
+assign socbushandler_r_first = cramsoc_r_first;
+assign socbushandler_r_last = cramsoc_r_last;
+assign socbushandler_r_payload_resp = cramsoc_r_payload_resp;
+assign socbushandler_r_payload_data = cramsoc_r_payload_data;
+assign socbushandler_rr_write_ce = ((~((cramsoc_aw_valid | cramsoc_w_valid) | cramsoc_b_valid)) & socbushandler_wr_lock_empty);
+assign socbushandler_rr_read_ce = ((~(cramsoc_ar_valid | cramsoc_r_valid)) & socbushandler_rd_lock_empty);
+assign socbushandler_rr_write_request = {((socbushandler_aw_valid | socbushandler_w_valid) | socbushandler_b_valid)};
+assign socbushandler_rr_read_request = {(socbushandler_ar_valid | socbushandler_r_valid)};
+assign socbushandler_rr_write_grant = 1'd0;
+assign socbushandler_rr_read_grant = 1'd0;
+assign socbushandler_wr_lock_full = (socbushandler_wr_lock_counter == 8'd255);
+assign socbushandler_wr_lock_empty = (socbushandler_wr_lock_counter == 1'd0);
+assign socbushandler_wr_lock_stall = ((cramsoc_aw_valid & cramsoc_aw_ready) & socbushandler_wr_lock_full);
+assign socbushandler_rd_lock_full = (socbushandler_rd_lock_counter == 8'd255);
+assign socbushandler_rd_lock_empty = (socbushandler_rd_lock_counter == 1'd0);
+assign socbushandler_rd_lock_stall = ((cramsoc_ar_valid & cramsoc_ar_ready) & socbushandler_rd_lock_full);
 always @(*) begin
-    cramsoc_vexriscvaxi_slave_sel_dec1 <= 2'd0;
-    cramsoc_vexriscvaxi_slave_sel_dec1[0] <= (slice_proxy1[29:27] == 2'd2);
-    cramsoc_vexriscvaxi_slave_sel_dec1[1] <= (slice_proxy3[29:27] == 2'd3);
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_slave_sel0 <= 2'd0;
-    if (cramsoc_vexriscvaxi_axirequestcounter0_empty) begin
-        cramsoc_vexriscvaxi_slave_sel0 <= cramsoc_vexriscvaxi_slave_sel_dec0;
+    vexriscvaxi_reset_mux <= 32'd1610612736;
+    if (trimming_reset_ena0) begin
+        vexriscvaxi_reset_mux <= trimming_reset0;
     end else begin
-        cramsoc_vexriscvaxi_slave_sel0 <= cramsoc_vexriscvaxi_slave_sel_reg0;
+        vexriscvaxi_reset_mux <= vexriscvaxi;
     end
 end
+assign status = latched_value;
+assign csr_rtest_status = (csr_wtest_storage + 29'd268435456);
+assign cramsoc_dat_w = cramsoc_w_payload_data;
+assign cramsoc_we = ((cramsoc_w_valid & cramsoc_w_ready) & (cramsoc_w_payload_strb != 1'd0));
+assign cramsoc_re = cramsoc_r_ready;
 always @(*) begin
-    cramsoc_vexriscvaxi_slave_sel1 <= 2'd0;
-    if (cramsoc_vexriscvaxi_axirequestcounter1_empty) begin
-        cramsoc_vexriscvaxi_slave_sel1 <= cramsoc_vexriscvaxi_slave_sel_dec1;
+    cramsoc_do_read <= 1'd0;
+    cramsoc_do_write <= 1'd0;
+    if ((cramsoc_aw_valid & cramsoc_ar_valid)) begin
+        cramsoc_do_write <= cramsoc_last_was_read;
+        cramsoc_do_read <= (~cramsoc_last_was_read);
     end else begin
-        cramsoc_vexriscvaxi_slave_sel1 <= cramsoc_vexriscvaxi_slave_sel_reg1;
+        cramsoc_do_write <= cramsoc_aw_valid;
+        cramsoc_do_read <= cramsoc_ar_valid;
     end
 end
-assign cramsoc_vexriscvaxi_axiinterface0_aw_valid = (dbus_axi_aw_valid & cramsoc_vexriscvaxi_slave_sel0[0]);
-assign cramsoc_vexriscvaxi_axiinterface0_aw_first = dbus_axi_aw_first;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_last = dbus_axi_aw_last;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_addr = dbus_axi_aw_payload_addr;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_burst = dbus_axi_aw_payload_burst;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_len = dbus_axi_aw_payload_len;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_size = dbus_axi_aw_payload_size;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_lock = dbus_axi_aw_payload_lock;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_prot = dbus_axi_aw_payload_prot;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_cache = dbus_axi_aw_payload_cache;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_qos = dbus_axi_aw_payload_qos;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_payload_region = dbus_axi_aw_payload_region;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_param_id = dbus_axi_aw_param_id;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_param_dest = dbus_axi_aw_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface0_aw_param_user = dbus_axi_aw_param_user;
-assign cramsoc_vexriscvaxi_axiinterface0_w_valid = (dbus_axi_w_valid & cramsoc_vexriscvaxi_slave_sel0[0]);
-assign cramsoc_vexriscvaxi_axiinterface0_w_first = dbus_axi_w_first;
-assign cramsoc_vexriscvaxi_axiinterface0_w_last = dbus_axi_w_last;
-assign cramsoc_vexriscvaxi_axiinterface0_w_payload_data = dbus_axi_w_payload_data;
-assign cramsoc_vexriscvaxi_axiinterface0_w_payload_strb = dbus_axi_w_payload_strb;
-assign cramsoc_vexriscvaxi_axiinterface0_w_param_id = dbus_axi_w_param_id;
-assign cramsoc_vexriscvaxi_axiinterface0_w_param_dest = dbus_axi_w_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface0_w_param_user = dbus_axi_w_param_user;
-assign cramsoc_vexriscvaxi_axiinterface0_b_ready = (dbus_axi_b_ready & cramsoc_vexriscvaxi_slave_sel0[0]);
-assign cramsoc_vexriscvaxi_axiinterface0_ar_valid = (dbus_axi_ar_valid & cramsoc_vexriscvaxi_slave_sel1[0]);
-assign cramsoc_vexriscvaxi_axiinterface0_ar_first = dbus_axi_ar_first;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_last = dbus_axi_ar_last;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_addr = dbus_axi_ar_payload_addr;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_burst = dbus_axi_ar_payload_burst;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_len = dbus_axi_ar_payload_len;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_size = dbus_axi_ar_payload_size;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_lock = dbus_axi_ar_payload_lock;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_prot = dbus_axi_ar_payload_prot;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_cache = dbus_axi_ar_payload_cache;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_qos = dbus_axi_ar_payload_qos;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_payload_region = dbus_axi_ar_payload_region;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_param_id = dbus_axi_ar_param_id;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_param_dest = dbus_axi_ar_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface0_ar_param_user = dbus_axi_ar_param_user;
-assign cramsoc_vexriscvaxi_axiinterface0_r_ready = (dbus_axi_r_ready & cramsoc_vexriscvaxi_slave_sel1[0]);
-assign cramsoc_vexriscvaxi_axiinterface1_aw_valid = (dbus_axi_aw_valid & cramsoc_vexriscvaxi_slave_sel0[1]);
-assign cramsoc_vexriscvaxi_axiinterface1_aw_first = dbus_axi_aw_first;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_last = dbus_axi_aw_last;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_addr = dbus_axi_aw_payload_addr;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_burst = dbus_axi_aw_payload_burst;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_len = dbus_axi_aw_payload_len;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_size = dbus_axi_aw_payload_size;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_lock = dbus_axi_aw_payload_lock;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_prot = dbus_axi_aw_payload_prot;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_cache = dbus_axi_aw_payload_cache;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_qos = dbus_axi_aw_payload_qos;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_payload_region = dbus_axi_aw_payload_region;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_param_id = dbus_axi_aw_param_id;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_param_dest = dbus_axi_aw_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface1_aw_param_user = dbus_axi_aw_param_user;
-assign cramsoc_vexriscvaxi_axiinterface1_w_valid = (dbus_axi_w_valid & cramsoc_vexriscvaxi_slave_sel0[1]);
-assign cramsoc_vexriscvaxi_axiinterface1_w_first = dbus_axi_w_first;
-assign cramsoc_vexriscvaxi_axiinterface1_w_last = dbus_axi_w_last;
-assign cramsoc_vexriscvaxi_axiinterface1_w_payload_data = dbus_axi_w_payload_data;
-assign cramsoc_vexriscvaxi_axiinterface1_w_payload_strb = dbus_axi_w_payload_strb;
-assign cramsoc_vexriscvaxi_axiinterface1_w_param_id = dbus_axi_w_param_id;
-assign cramsoc_vexriscvaxi_axiinterface1_w_param_dest = dbus_axi_w_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface1_w_param_user = dbus_axi_w_param_user;
-assign cramsoc_vexriscvaxi_axiinterface1_b_ready = (dbus_axi_b_ready & cramsoc_vexriscvaxi_slave_sel0[1]);
-assign cramsoc_vexriscvaxi_axiinterface1_ar_valid = (dbus_axi_ar_valid & cramsoc_vexriscvaxi_slave_sel1[1]);
-assign cramsoc_vexriscvaxi_axiinterface1_ar_first = dbus_axi_ar_first;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_last = dbus_axi_ar_last;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_addr = dbus_axi_ar_payload_addr;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_burst = dbus_axi_ar_payload_burst;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_len = dbus_axi_ar_payload_len;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_size = dbus_axi_ar_payload_size;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_lock = dbus_axi_ar_payload_lock;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_prot = dbus_axi_ar_payload_prot;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_cache = dbus_axi_ar_payload_cache;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_qos = dbus_axi_ar_payload_qos;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_payload_region = dbus_axi_ar_payload_region;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_param_id = dbus_axi_ar_param_id;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_param_dest = dbus_axi_ar_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface1_ar_param_user = dbus_axi_ar_param_user;
-assign cramsoc_vexriscvaxi_axiinterface1_r_ready = (dbus_axi_r_ready & cramsoc_vexriscvaxi_slave_sel1[1]);
-assign dbus_axi_aw_ready = ((cramsoc_vexriscvaxi_axiinterface0_aw_ready & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_aw_ready & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_w_ready = ((cramsoc_vexriscvaxi_axiinterface0_w_ready & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_w_ready & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_valid = ((cramsoc_vexriscvaxi_axiinterface0_b_valid & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_valid & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_first = ((cramsoc_vexriscvaxi_axiinterface0_b_first & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_first & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_last = ((cramsoc_vexriscvaxi_axiinterface0_b_last & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_last & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_payload_resp = ((cramsoc_vexriscvaxi_axiinterface0_b_payload_resp & {2{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_payload_resp & {2{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_param_id = ((cramsoc_vexriscvaxi_axiinterface0_b_param_id & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_param_id & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_param_dest = ((cramsoc_vexriscvaxi_axiinterface0_b_param_dest & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_param_dest & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_b_param_user = ((cramsoc_vexriscvaxi_axiinterface0_b_param_user & {1{cramsoc_vexriscvaxi_slave_sel0[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_b_param_user & {1{cramsoc_vexriscvaxi_slave_sel0[1]}}));
-assign dbus_axi_ar_ready = ((cramsoc_vexriscvaxi_axiinterface0_ar_ready & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_ar_ready & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_valid = ((cramsoc_vexriscvaxi_axiinterface0_r_valid & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_valid & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_first = ((cramsoc_vexriscvaxi_axiinterface0_r_first & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_first & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_last = ((cramsoc_vexriscvaxi_axiinterface0_r_last & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_last & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_payload_resp = ((cramsoc_vexriscvaxi_axiinterface0_r_payload_resp & {2{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_payload_resp & {2{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_payload_data = ((cramsoc_vexriscvaxi_axiinterface0_r_payload_data & {32{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_payload_data & {32{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_param_id = ((cramsoc_vexriscvaxi_axiinterface0_r_param_id & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_param_id & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_param_dest = ((cramsoc_vexriscvaxi_axiinterface0_r_param_dest & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_param_dest & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign dbus_axi_r_param_user = ((cramsoc_vexriscvaxi_axiinterface0_r_param_user & {1{cramsoc_vexriscvaxi_slave_sel1[0]}}) | (cramsoc_vexriscvaxi_axiinterface1_r_param_user & {1{cramsoc_vexriscvaxi_slave_sel1[1]}}));
-assign cramsoc_vexriscvaxi_axirequestcounter0_full = (cramsoc_vexriscvaxi_axirequestcounter0_counter == 8'd255);
-assign cramsoc_vexriscvaxi_axirequestcounter0_empty = (cramsoc_vexriscvaxi_axirequestcounter0_counter == 1'd0);
-assign cramsoc_vexriscvaxi_axirequestcounter0_stall = ((dbus_axi_aw_valid & dbus_axi_aw_ready) & cramsoc_vexriscvaxi_axirequestcounter0_full);
-assign cramsoc_vexriscvaxi_axirequestcounter1_full = (cramsoc_vexriscvaxi_axirequestcounter1_counter == 8'd255);
-assign cramsoc_vexriscvaxi_axirequestcounter1_empty = (cramsoc_vexriscvaxi_axirequestcounter1_counter == 1'd0);
-assign cramsoc_vexriscvaxi_axirequestcounter1_stall = ((dbus_axi_ar_valid & dbus_axi_ar_ready) & cramsoc_vexriscvaxi_axirequestcounter1_full);
-assign socbushandler_aw_valid = array_muxed0;
-assign socbushandler_aw_first = array_muxed1;
-assign socbushandler_aw_last = array_muxed2;
-assign socbushandler_aw_payload_addr = array_muxed3;
-assign socbushandler_aw_payload_burst = array_muxed4;
-assign socbushandler_aw_payload_len = array_muxed5;
-assign socbushandler_aw_payload_size = array_muxed6;
-assign socbushandler_aw_payload_lock = array_muxed7;
-assign socbushandler_aw_payload_prot = array_muxed8;
-assign socbushandler_aw_payload_cache = array_muxed9;
-assign socbushandler_aw_payload_qos = array_muxed10;
-assign socbushandler_aw_payload_region = array_muxed11;
-assign socbushandler_aw_param_id = array_muxed12;
-assign socbushandler_aw_param_dest = array_muxed13;
-assign socbushandler_aw_param_user = array_muxed14;
-assign socbushandler_w_valid = array_muxed15;
-assign socbushandler_w_first = array_muxed16;
-assign socbushandler_w_last = array_muxed17;
-assign socbushandler_w_payload_data = array_muxed18;
-assign socbushandler_w_payload_strb = array_muxed19;
-assign socbushandler_w_param_id = array_muxed20;
-assign socbushandler_w_param_dest = array_muxed21;
-assign socbushandler_w_param_user = array_muxed22;
-assign socbushandler_b_ready = array_muxed23;
-assign socbushandler_ar_valid = array_muxed24;
-assign socbushandler_ar_first = array_muxed25;
-assign socbushandler_ar_last = array_muxed26;
-assign socbushandler_ar_payload_addr = array_muxed27;
-assign socbushandler_ar_payload_burst = array_muxed28;
-assign socbushandler_ar_payload_len = array_muxed29;
-assign socbushandler_ar_payload_size = array_muxed30;
-assign socbushandler_ar_payload_lock = array_muxed31;
-assign socbushandler_ar_payload_prot = array_muxed32;
-assign socbushandler_ar_payload_cache = array_muxed33;
-assign socbushandler_ar_payload_qos = array_muxed34;
-assign socbushandler_ar_payload_region = array_muxed35;
-assign socbushandler_ar_param_id = array_muxed36;
-assign socbushandler_ar_param_dest = array_muxed37;
-assign socbushandler_ar_param_user = array_muxed38;
-assign socbushandler_r_ready = array_muxed39;
+assign cramsoc_r_valid = cramsoc_nocomb_axl_r_valid;
+assign cramsoc_aw_ready = cramsoc_nocomb_axl_aw_ready;
+assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
+assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
+assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface0_aw_ready <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface0_aw_ready <= socbushandler_aw_ready;
-    end
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface0_w_ready <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface0_w_ready <= socbushandler_w_ready;
-    end
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface0_b_valid <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface0_b_valid <= socbushandler_b_valid;
-    end
-end
-assign cramsoc_vexriscvaxi_axiinterface0_b_first = socbushandler_b_first;
-assign cramsoc_vexriscvaxi_axiinterface0_b_last = socbushandler_b_last;
-assign cramsoc_vexriscvaxi_axiinterface0_b_payload_resp = socbushandler_b_payload_resp;
-assign cramsoc_vexriscvaxi_axiinterface0_b_param_id = socbushandler_b_param_id;
-assign cramsoc_vexriscvaxi_axiinterface0_b_param_dest = socbushandler_b_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface0_b_param_user = socbushandler_b_param_user;
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface0_ar_ready <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface0_ar_ready <= socbushandler_ar_ready;
-    end
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface0_r_valid <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface0_r_valid <= socbushandler_r_valid;
-    end
-end
-assign cramsoc_vexriscvaxi_axiinterface0_r_first = socbushandler_r_first;
-assign cramsoc_vexriscvaxi_axiinterface0_r_last = socbushandler_r_last;
-assign cramsoc_vexriscvaxi_axiinterface0_r_payload_resp = socbushandler_r_payload_resp;
-assign cramsoc_vexriscvaxi_axiinterface0_r_payload_data = socbushandler_r_payload_data;
-assign cramsoc_vexriscvaxi_axiinterface0_r_param_id = socbushandler_r_param_id;
-assign cramsoc_vexriscvaxi_axiinterface0_r_param_dest = socbushandler_r_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface0_r_param_user = socbushandler_r_param_user;
-assign cramsoc_vexriscvaxi_axiarbiter0_rr_write_ce = ((~((socbushandler_aw_valid | socbushandler_w_valid) | socbushandler_b_valid)) & cramsoc_vexriscvaxi_axiarbiter0_wr_lock_empty);
-assign cramsoc_vexriscvaxi_axiarbiter0_rr_read_ce = ((~(socbushandler_ar_valid | socbushandler_r_valid)) & cramsoc_vexriscvaxi_axiarbiter0_rd_lock_empty);
-assign cramsoc_vexriscvaxi_axiarbiter0_rr_write_request = {((cramsoc_vexriscvaxi_axiinterface0_aw_valid | cramsoc_vexriscvaxi_axiinterface0_w_valid) | cramsoc_vexriscvaxi_axiinterface0_b_valid)};
-assign cramsoc_vexriscvaxi_axiarbiter0_rr_read_request = {(cramsoc_vexriscvaxi_axiinterface0_ar_valid | cramsoc_vexriscvaxi_axiinterface0_r_valid)};
-assign cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant = 1'd0;
-assign cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant = 1'd0;
-assign cramsoc_vexriscvaxi_axiarbiter0_wr_lock_full = (cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter == 8'd255);
-assign cramsoc_vexriscvaxi_axiarbiter0_wr_lock_empty = (cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter == 1'd0);
-assign cramsoc_vexriscvaxi_axiarbiter0_wr_lock_stall = ((socbushandler_aw_valid & socbushandler_aw_ready) & cramsoc_vexriscvaxi_axiarbiter0_wr_lock_full);
-assign cramsoc_vexriscvaxi_axiarbiter0_rd_lock_full = (cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter == 8'd255);
-assign cramsoc_vexriscvaxi_axiarbiter0_rd_lock_empty = (cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter == 1'd0);
-assign cramsoc_vexriscvaxi_axiarbiter0_rd_lock_stall = ((socbushandler_ar_valid & socbushandler_ar_ready) & cramsoc_vexriscvaxi_axiarbiter0_rd_lock_full);
-assign dbus_aw_valid = array_muxed40;
-assign dbus_aw_first = array_muxed41;
-assign dbus_aw_last = array_muxed42;
-assign dbus_aw_payload_addr = array_muxed43;
-assign dbus_aw_payload_burst = array_muxed44;
-assign dbus_aw_payload_len = array_muxed45;
-assign dbus_aw_payload_size = array_muxed46;
-assign dbus_aw_payload_lock = array_muxed47;
-assign dbus_aw_payload_prot = array_muxed48;
-assign dbus_aw_payload_cache = array_muxed49;
-assign dbus_aw_payload_qos = array_muxed50;
-assign dbus_aw_payload_region = array_muxed51;
-assign dbus_aw_param_id = array_muxed52;
-assign dbus_aw_param_dest = array_muxed53;
-assign dbus_aw_param_user = array_muxed54;
-assign dbus_w_valid = array_muxed55;
-assign dbus_w_first = array_muxed56;
-assign dbus_w_last = array_muxed57;
-assign dbus_w_payload_data = array_muxed58;
-assign dbus_w_payload_strb = array_muxed59;
-assign dbus_w_param_id = array_muxed60;
-assign dbus_w_param_dest = array_muxed61;
-assign dbus_w_param_user = array_muxed62;
-assign dbus_b_ready = array_muxed63;
-assign dbus_ar_valid = array_muxed64;
-assign dbus_ar_first = array_muxed65;
-assign dbus_ar_last = array_muxed66;
-assign dbus_ar_payload_addr = array_muxed67;
-assign dbus_ar_payload_burst = array_muxed68;
-assign dbus_ar_payload_len = array_muxed69;
-assign dbus_ar_payload_size = array_muxed70;
-assign dbus_ar_payload_lock = array_muxed71;
-assign dbus_ar_payload_prot = array_muxed72;
-assign dbus_ar_payload_cache = array_muxed73;
-assign dbus_ar_payload_qos = array_muxed74;
-assign dbus_ar_payload_region = array_muxed75;
-assign dbus_ar_param_id = array_muxed76;
-assign dbus_ar_param_dest = array_muxed77;
-assign dbus_ar_param_user = array_muxed78;
-assign dbus_r_ready = array_muxed79;
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface1_aw_ready <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface1_aw_ready <= dbus_aw_ready;
-    end
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface1_w_ready <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface1_w_ready <= dbus_w_ready;
-    end
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface1_b_valid <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface1_b_valid <= dbus_b_valid;
-    end
-end
-assign cramsoc_vexriscvaxi_axiinterface1_b_first = dbus_b_first;
-assign cramsoc_vexriscvaxi_axiinterface1_b_last = dbus_b_last;
-assign cramsoc_vexriscvaxi_axiinterface1_b_payload_resp = dbus_b_payload_resp;
-assign cramsoc_vexriscvaxi_axiinterface1_b_param_id = dbus_b_param_id;
-assign cramsoc_vexriscvaxi_axiinterface1_b_param_dest = dbus_b_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface1_b_param_user = dbus_b_param_user;
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface1_ar_ready <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface1_ar_ready <= dbus_ar_ready;
-    end
-end
-always @(*) begin
-    cramsoc_vexriscvaxi_axiinterface1_r_valid <= 1'd0;
-    if ((cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant == 1'd0)) begin
-        cramsoc_vexriscvaxi_axiinterface1_r_valid <= dbus_r_valid;
-    end
-end
-assign cramsoc_vexriscvaxi_axiinterface1_r_first = dbus_r_first;
-assign cramsoc_vexriscvaxi_axiinterface1_r_last = dbus_r_last;
-assign cramsoc_vexriscvaxi_axiinterface1_r_payload_resp = dbus_r_payload_resp;
-assign cramsoc_vexriscvaxi_axiinterface1_r_payload_data = dbus_r_payload_data;
-assign cramsoc_vexriscvaxi_axiinterface1_r_param_id = dbus_r_param_id;
-assign cramsoc_vexriscvaxi_axiinterface1_r_param_dest = dbus_r_param_dest;
-assign cramsoc_vexriscvaxi_axiinterface1_r_param_user = dbus_r_param_user;
-assign cramsoc_vexriscvaxi_axiarbiter1_rr_write_ce = ((~((dbus_aw_valid | dbus_w_valid) | dbus_b_valid)) & cramsoc_vexriscvaxi_axiarbiter1_wr_lock_empty);
-assign cramsoc_vexriscvaxi_axiarbiter1_rr_read_ce = ((~(dbus_ar_valid | dbus_r_valid)) & cramsoc_vexriscvaxi_axiarbiter1_rd_lock_empty);
-assign cramsoc_vexriscvaxi_axiarbiter1_rr_write_request = {((cramsoc_vexriscvaxi_axiinterface1_aw_valid | cramsoc_vexriscvaxi_axiinterface1_w_valid) | cramsoc_vexriscvaxi_axiinterface1_b_valid)};
-assign cramsoc_vexriscvaxi_axiarbiter1_rr_read_request = {(cramsoc_vexriscvaxi_axiinterface1_ar_valid | cramsoc_vexriscvaxi_axiinterface1_r_valid)};
-assign cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant = 1'd0;
-assign cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant = 1'd0;
-assign cramsoc_vexriscvaxi_axiarbiter1_wr_lock_full = (cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter == 8'd255);
-assign cramsoc_vexriscvaxi_axiarbiter1_wr_lock_empty = (cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter == 1'd0);
-assign cramsoc_vexriscvaxi_axiarbiter1_wr_lock_stall = ((dbus_aw_valid & dbus_aw_ready) & cramsoc_vexriscvaxi_axiarbiter1_wr_lock_full);
-assign cramsoc_vexriscvaxi_axiarbiter1_rd_lock_full = (cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter == 8'd255);
-assign cramsoc_vexriscvaxi_axiarbiter1_rd_lock_empty = (cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter == 1'd0);
-assign cramsoc_vexriscvaxi_axiarbiter1_rd_lock_stall = ((dbus_ar_valid & dbus_ar_ready) & cramsoc_vexriscvaxi_axiarbiter1_rd_lock_full);
-assign zero_trigger = (value == 1'd0);
-assign zero0 = zero_status;
-assign zero1 = zero_pending;
-always @(*) begin
-    zero_clear <= 1'd0;
-    if ((pending_re & pending_r)) begin
-        zero_clear <= 1'd1;
-    end
-end
-assign irq = (pending_status & enable_storage);
-assign zero_status = zero_trigger;
-assign cramsoc_dat_w = cramsoc_csr_bridge_w_payload_data;
-assign cramsoc_we = ((cramsoc_csr_bridge_w_valid & cramsoc_csr_bridge_w_ready) & (cramsoc_csr_bridge_w_payload_strb != 1'd0));
-always @(*) begin
-    cramsoc_csr_bridge_do_read <= 1'd0;
-    cramsoc_csr_bridge_do_write <= 1'd0;
-    if ((cramsoc_csr_bridge_aw_valid & cramsoc_csr_bridge_ar_valid)) begin
-        cramsoc_csr_bridge_do_write <= cramsoc_csr_bridge_last_was_read;
-        cramsoc_csr_bridge_do_read <= (~cramsoc_csr_bridge_last_was_read);
-    end else begin
-        cramsoc_csr_bridge_do_write <= cramsoc_csr_bridge_aw_valid;
-        cramsoc_csr_bridge_do_read <= cramsoc_csr_bridge_ar_valid;
-    end
-end
-always @(*) begin
-    cramsoc_csr_bridge_r_payload_resp <= 2'd0;
+    cramsoc_last_was_read_next_value_ce <= 1'd0;
     cramsoc_adr <= 16'd0;
-    cramsoc_csr_bridge_r_payload_data <= 32'd0;
-    cramsoc_csr_bridge_b_valid <= 1'd0;
-    cramsoc_axilite2csr_next_state <= 2'd0;
-    cramsoc_csr_bridge_b_payload_resp <= 2'd0;
-    cramsoc_csr_bridge_aw_ready <= 1'd0;
-    cramsoc_csr_bridge_ar_ready <= 1'd0;
-    cramsoc_csr_bridge_last_was_read_axilite2csr_next_value <= 1'd0;
-    cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce <= 1'd0;
-    cramsoc_csr_bridge_r_valid <= 1'd0;
-    cramsoc_csr_bridge_w_ready <= 1'd0;
-    cramsoc_axilite2csr_next_state <= cramsoc_axilite2csr_state;
-    case (cramsoc_axilite2csr_state)
+    cramsoc_r_payload_resp <= 2'd0;
+    cramsoc_r_payload_data <= 32'd0;
+    cramsoc_b_payload_resp <= 2'd0;
+    cramsoc_nocomb_axl_r_valid <= 1'd0;
+    cramsoc_nocomb_axl_w_ready <= 1'd0;
+    cramsoc_nocomb_axl_aw_ready <= 1'd0;
+    cramsoc_next_state <= 2'd0;
+    cramsoc_nocomb_axl_ar_ready <= 1'd0;
+    cramsoc_nocomb_axl_b_valid <= 1'd0;
+    cramsoc_last_was_read_next_value <= 1'd0;
+    cramsoc_next_state <= cramsoc_state;
+    case (cramsoc_state)
         1'd1: begin
-            cramsoc_csr_bridge_last_was_read_axilite2csr_next_value <= 1'd1;
-            cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce <= 1'd1;
-            if (cramsoc_csr_bridge_r_valid) begin
-                cramsoc_adr <= cramsoc_csr_bridge_ar_payload_addr[31:2];
-            end else begin
-                cramsoc_adr <= 1'd0;
-            end
-            cramsoc_csr_bridge_r_payload_data <= cramsoc_dat_r;
-            cramsoc_csr_bridge_r_payload_resp <= 1'd0;
-            cramsoc_csr_bridge_r_valid <= 1'd1;
-            if (cramsoc_csr_bridge_r_ready) begin
-                cramsoc_axilite2csr_next_state <= 1'd0;
+            cramsoc_last_was_read_next_value <= 1'd1;
+            cramsoc_last_was_read_next_value_ce <= 1'd1;
+            cramsoc_adr <= cramsoc_ar_payload_addr[31:2];
+            cramsoc_r_payload_data <= cramsoc_dat_r;
+            cramsoc_r_payload_resp <= 1'd0;
+            cramsoc_nocomb_axl_r_valid <= 1'd1;
+            if (cramsoc_r_ready) begin
+                cramsoc_next_state <= 1'd0;
             end
         end
         2'd2: begin
-            cramsoc_csr_bridge_last_was_read_axilite2csr_next_value <= 1'd0;
-            cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce <= 1'd1;
-            cramsoc_csr_bridge_b_valid <= 1'd1;
-            cramsoc_csr_bridge_b_payload_resp <= 1'd0;
-            if (cramsoc_csr_bridge_b_ready) begin
-                cramsoc_axilite2csr_next_state <= 1'd0;
+            cramsoc_last_was_read_next_value <= 1'd0;
+            cramsoc_last_was_read_next_value_ce <= 1'd1;
+            cramsoc_nocomb_axl_b_valid <= 1'd1;
+            cramsoc_b_payload_resp <= 1'd0;
+            if (cramsoc_b_ready) begin
+                cramsoc_next_state <= 1'd0;
             end
         end
         default: begin
-            if (cramsoc_csr_bridge_do_write) begin
-                cramsoc_adr <= cramsoc_csr_bridge_aw_payload_addr[31:2];
-                if (cramsoc_csr_bridge_w_valid) begin
-                    cramsoc_csr_bridge_aw_ready <= 1'd1;
-                    cramsoc_csr_bridge_w_ready <= 1'd1;
-                    cramsoc_axilite2csr_next_state <= 2'd2;
+            if (cramsoc_do_write) begin
+                cramsoc_adr <= cramsoc_aw_payload_addr[31:2];
+                if (cramsoc_w_valid) begin
+                    cramsoc_nocomb_axl_aw_ready <= 1'd1;
+                    cramsoc_nocomb_axl_w_ready <= 1'd1;
+                    cramsoc_next_state <= 2'd2;
                 end
             end else begin
-                if (cramsoc_csr_bridge_do_read) begin
-                    if (cramsoc_csr_bridge_r_valid) begin
-                        cramsoc_adr <= cramsoc_csr_bridge_ar_payload_addr[31:2];
-                    end else begin
-                        cramsoc_adr <= 1'd0;
-                    end
-                    cramsoc_csr_bridge_ar_ready <= 1'd1;
-                    cramsoc_axilite2csr_next_state <= 1'd1;
+                if (cramsoc_do_read) begin
+                    cramsoc_nocomb_axl_ar_ready <= 1'd1;
+                    cramsoc_adr <= cramsoc_ar_payload_addr[31:2];
+                    cramsoc_next_state <= 1'd1;
                 end
             end
         end
     endcase
 end
-assign csr_bankarray_sel = (csr_bankarray_adr[15:10] == 1'd0);
-assign csr_bankarray_load0_r = csr_bankarray_dat_w[31:0];
+assign csrbank0_sel = (interface0_adr[15:10] == 1'd0);
+assign csrbank0_re = interface0_re;
+assign csrbank0_wtest0_r = interface0_dat_w[31:0];
 always @(*) begin
-    csr_bankarray_load0_re <= 1'd0;
-    csr_bankarray_load0_we <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 1'd0))) begin
-        csr_bankarray_load0_re <= csr_bankarray_we;
-        csr_bankarray_load0_we <= (~csr_bankarray_we);
+    csrbank0_wtest0_we <= 1'd0;
+    csrbank0_wtest0_re <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 1'd0))) begin
+        csrbank0_wtest0_re <= interface0_we;
+        csrbank0_wtest0_we <= csrbank0_re;
     end
 end
-assign csr_bankarray_reload0_r = csr_bankarray_dat_w[31:0];
+assign csrbank0_rtest_r = interface0_dat_w[31:0];
 always @(*) begin
-    csr_bankarray_reload0_we <= 1'd0;
-    csr_bankarray_reload0_re <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 1'd1))) begin
-        csr_bankarray_reload0_re <= csr_bankarray_we;
-        csr_bankarray_reload0_we <= (~csr_bankarray_we);
+    csrbank0_rtest_re <= 1'd0;
+    csrbank0_rtest_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 1'd1))) begin
+        csrbank0_rtest_re <= interface0_we;
+        csrbank0_rtest_we <= csrbank0_re;
     end
 end
-assign csr_bankarray_en0_r = csr_bankarray_dat_w[0];
+assign csrbank0_wtest0_w = csr_wtest_storage[31:0];
+assign csrbank0_rtest_w = csr_rtest_status[31:0];
+assign csr_rtest_we = csrbank0_rtest_we;
+assign csrbank1_sel = (interface1_adr[15:10] == 1'd1);
+assign csrbank1_re = interface1_re;
+assign csrbank1_pc_r = interface1_dat_w[31:0];
 always @(*) begin
-    csr_bankarray_en0_re <= 1'd0;
-    csr_bankarray_en0_we <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 2'd2))) begin
-        csr_bankarray_en0_re <= csr_bankarray_we;
-        csr_bankarray_en0_we <= (~csr_bankarray_we);
+    csrbank1_pc_re <= 1'd0;
+    csrbank1_pc_we <= 1'd0;
+    if ((csrbank1_sel & (interface1_adr[9:0] == 1'd0))) begin
+        csrbank1_pc_re <= interface1_we;
+        csrbank1_pc_we <= csrbank1_re;
     end
 end
-assign csr_bankarray_update_value0_r = csr_bankarray_dat_w[0];
-always @(*) begin
-    csr_bankarray_update_value0_re <= 1'd0;
-    csr_bankarray_update_value0_we <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 2'd3))) begin
-        csr_bankarray_update_value0_re <= csr_bankarray_we;
-        csr_bankarray_update_value0_we <= (~csr_bankarray_we);
-    end
-end
-assign csr_bankarray_value_r = csr_bankarray_dat_w[31:0];
-always @(*) begin
-    csr_bankarray_value_we <= 1'd0;
-    csr_bankarray_value_re <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 3'd4))) begin
-        csr_bankarray_value_re <= csr_bankarray_we;
-        csr_bankarray_value_we <= (~csr_bankarray_we);
-    end
-end
-assign csr_bankarray_ev_status_r = csr_bankarray_dat_w[0];
-always @(*) begin
-    csr_bankarray_ev_status_re <= 1'd0;
-    csr_bankarray_ev_status_we <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 3'd5))) begin
-        csr_bankarray_ev_status_re <= csr_bankarray_we;
-        csr_bankarray_ev_status_we <= (~csr_bankarray_we);
-    end
-end
-assign csr_bankarray_ev_pending_r = csr_bankarray_dat_w[0];
-always @(*) begin
-    csr_bankarray_ev_pending_re <= 1'd0;
-    csr_bankarray_ev_pending_we <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 3'd6))) begin
-        csr_bankarray_ev_pending_re <= csr_bankarray_we;
-        csr_bankarray_ev_pending_we <= (~csr_bankarray_we);
-    end
-end
-assign csr_bankarray_ev_enable0_r = csr_bankarray_dat_w[0];
-always @(*) begin
-    csr_bankarray_ev_enable0_we <= 1'd0;
-    csr_bankarray_ev_enable0_re <= 1'd0;
-    if ((csr_bankarray_sel & (csr_bankarray_adr[9:0] == 3'd7))) begin
-        csr_bankarray_ev_enable0_re <= csr_bankarray_we;
-        csr_bankarray_ev_enable0_we <= (~csr_bankarray_we);
-    end
-end
-assign csr_bankarray_load0_w = load_storage[31:0];
-assign csr_bankarray_reload0_w = reload_storage[31:0];
-assign csr_bankarray_en0_w = en_storage;
-assign csr_bankarray_update_value0_w = update_value_storage;
-assign csr_bankarray_value_w = value_status[31:0];
-assign value_we = csr_bankarray_value_we;
-assign status_status = zero0;
-assign csr_bankarray_ev_status_w = status_status;
-assign status_we = csr_bankarray_ev_status_we;
-assign pending_status = zero1;
-assign csr_bankarray_ev_pending_w = pending_status;
-assign pending_we = csr_bankarray_ev_pending_we;
-assign zero2 = enable_storage;
-assign csr_bankarray_ev_enable0_w = enable_storage;
+assign csrbank1_pc_w = status[31:0];
+assign we = csrbank1_pc_we;
 assign csr_interconnect_adr = cramsoc_adr;
 assign csr_interconnect_we = cramsoc_we;
 assign csr_interconnect_dat_w = cramsoc_dat_w;
+assign csr_interconnect_re = cramsoc_re;
 assign cramsoc_dat_r = csr_interconnect_dat_r;
-assign csr_bankarray_adr = csr_interconnect_adr;
-assign csr_bankarray_we = csr_interconnect_we;
-assign csr_bankarray_dat_w = csr_interconnect_dat_w;
-assign csr_interconnect_dat_r = csr_bankarray_dat_r;
-assign slice_proxy0 = dbus_axi_aw_payload_addr[31:2];
-assign slice_proxy1 = dbus_axi_ar_payload_addr[31:2];
-assign slice_proxy2 = dbus_axi_aw_payload_addr[31:2];
-assign slice_proxy3 = dbus_axi_ar_payload_addr[31:2];
+assign interface0_adr = csr_interconnect_adr;
+assign interface1_adr = csr_interconnect_adr;
+assign interface0_we = csr_interconnect_we;
+assign interface1_we = csr_interconnect_we;
+assign interface0_dat_w = csr_interconnect_dat_w;
+assign interface1_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = (interface0_dat_r | interface1_dat_r);
+assign interface0_re = csr_interconnect_re;
+assign interface1_re = csr_interconnect_re;
+assign slice_proxy0 = corecsr_aw_payload_addr[31:2];
+assign slice_proxy1 = corecsr_ar_payload_addr[31:2];
 always @(*) begin
     array_muxed0 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed0 <= cramsoc_vexriscvaxi_axiinterface0_aw_valid;
+            array_muxed0 <= socbushandler_aw_valid;
         end
     endcase
 end
 always @(*) begin
     array_muxed1 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed1 <= cramsoc_vexriscvaxi_axiinterface0_aw_first;
+            array_muxed1 <= socbushandler_aw_first;
         end
     endcase
 end
 always @(*) begin
     array_muxed2 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed2 <= cramsoc_vexriscvaxi_axiinterface0_aw_last;
+            array_muxed2 <= socbushandler_aw_last;
         end
     endcase
 end
 always @(*) begin
     array_muxed3 <= 32'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed3 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_addr;
+            array_muxed3 <= socbushandler_aw_payload_addr;
         end
     endcase
 end
 always @(*) begin
-    array_muxed4 <= 2'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed4 <= 3'd0;
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed4 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_burst;
+            array_muxed4 <= socbushandler_aw_payload_prot;
         end
     endcase
 end
 always @(*) begin
-    array_muxed5 <= 8'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed5 <= 1'd0;
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed5 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_len;
+            array_muxed5 <= socbushandler_w_valid;
         end
     endcase
 end
 always @(*) begin
-    array_muxed6 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed6 <= 1'd0;
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed6 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_size;
+            array_muxed6 <= socbushandler_w_first;
         end
     endcase
 end
 always @(*) begin
     array_muxed7 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed7 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_lock;
+            array_muxed7 <= socbushandler_w_last;
         end
     endcase
 end
 always @(*) begin
-    array_muxed8 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed8 <= 32'd0;
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed8 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_prot;
+            array_muxed8 <= socbushandler_w_payload_data;
         end
     endcase
 end
 always @(*) begin
     array_muxed9 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed9 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_cache;
+            array_muxed9 <= socbushandler_w_payload_strb;
         end
     endcase
 end
 always @(*) begin
-    array_muxed10 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed10 <= 1'd0;
+    case (socbushandler_rr_write_grant)
         default: begin
-            array_muxed10 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_qos;
+            array_muxed10 <= socbushandler_b_ready;
         end
     endcase
 end
 always @(*) begin
-    array_muxed11 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed11 <= 1'd0;
+    case (socbushandler_rr_read_grant)
         default: begin
-            array_muxed11 <= cramsoc_vexriscvaxi_axiinterface0_aw_payload_region;
+            array_muxed11 <= socbushandler_ar_valid;
         end
     endcase
 end
 always @(*) begin
     array_muxed12 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_read_grant)
         default: begin
-            array_muxed12 <= cramsoc_vexriscvaxi_axiinterface0_aw_param_id;
+            array_muxed12 <= socbushandler_ar_first;
         end
     endcase
 end
 always @(*) begin
     array_muxed13 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_read_grant)
         default: begin
-            array_muxed13 <= cramsoc_vexriscvaxi_axiinterface0_aw_param_dest;
+            array_muxed13 <= socbushandler_ar_last;
         end
     endcase
 end
 always @(*) begin
-    array_muxed14 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed14 <= 32'd0;
+    case (socbushandler_rr_read_grant)
         default: begin
-            array_muxed14 <= cramsoc_vexriscvaxi_axiinterface0_aw_param_user;
+            array_muxed14 <= socbushandler_ar_payload_addr;
         end
     endcase
 end
 always @(*) begin
-    array_muxed15 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    array_muxed15 <= 3'd0;
+    case (socbushandler_rr_read_grant)
         default: begin
-            array_muxed15 <= cramsoc_vexriscvaxi_axiinterface0_w_valid;
+            array_muxed15 <= socbushandler_ar_payload_prot;
         end
     endcase
 end
 always @(*) begin
     array_muxed16 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
+    case (socbushandler_rr_read_grant)
         default: begin
-            array_muxed16 <= cramsoc_vexriscvaxi_axiinterface0_w_first;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed17 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed17 <= cramsoc_vexriscvaxi_axiinterface0_w_last;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed18 <= 32'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed18 <= cramsoc_vexriscvaxi_axiinterface0_w_payload_data;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed19 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed19 <= cramsoc_vexriscvaxi_axiinterface0_w_payload_strb;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed20 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed20 <= cramsoc_vexriscvaxi_axiinterface0_w_param_id;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed21 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed21 <= cramsoc_vexriscvaxi_axiinterface0_w_param_dest;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed22 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed22 <= cramsoc_vexriscvaxi_axiinterface0_w_param_user;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed23 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_write_grant)
-        default: begin
-            array_muxed23 <= cramsoc_vexriscvaxi_axiinterface0_b_ready;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed24 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed24 <= cramsoc_vexriscvaxi_axiinterface0_ar_valid;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed25 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed25 <= cramsoc_vexriscvaxi_axiinterface0_ar_first;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed26 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed26 <= cramsoc_vexriscvaxi_axiinterface0_ar_last;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed27 <= 32'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed27 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_addr;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed28 <= 2'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed28 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_burst;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed29 <= 8'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed29 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_len;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed30 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed30 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_size;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed31 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed31 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_lock;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed32 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed32 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_prot;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed33 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed33 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_cache;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed34 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed34 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_qos;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed35 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed35 <= cramsoc_vexriscvaxi_axiinterface0_ar_payload_region;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed36 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed36 <= cramsoc_vexriscvaxi_axiinterface0_ar_param_id;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed37 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed37 <= cramsoc_vexriscvaxi_axiinterface0_ar_param_dest;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed38 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed38 <= cramsoc_vexriscvaxi_axiinterface0_ar_param_user;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed39 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter0_rr_read_grant)
-        default: begin
-            array_muxed39 <= cramsoc_vexriscvaxi_axiinterface0_r_ready;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed40 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed40 <= cramsoc_vexriscvaxi_axiinterface1_aw_valid;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed41 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed41 <= cramsoc_vexriscvaxi_axiinterface1_aw_first;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed42 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed42 <= cramsoc_vexriscvaxi_axiinterface1_aw_last;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed43 <= 32'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed43 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_addr;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed44 <= 2'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed44 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_burst;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed45 <= 8'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed45 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_len;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed46 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed46 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_size;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed47 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed47 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_lock;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed48 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed48 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_prot;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed49 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed49 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_cache;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed50 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed50 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_qos;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed51 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed51 <= cramsoc_vexriscvaxi_axiinterface1_aw_payload_region;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed52 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed52 <= cramsoc_vexriscvaxi_axiinterface1_aw_param_id;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed53 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed53 <= cramsoc_vexriscvaxi_axiinterface1_aw_param_dest;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed54 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed54 <= cramsoc_vexriscvaxi_axiinterface1_aw_param_user;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed55 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed55 <= cramsoc_vexriscvaxi_axiinterface1_w_valid;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed56 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed56 <= cramsoc_vexriscvaxi_axiinterface1_w_first;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed57 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed57 <= cramsoc_vexriscvaxi_axiinterface1_w_last;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed58 <= 32'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed58 <= cramsoc_vexriscvaxi_axiinterface1_w_payload_data;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed59 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed59 <= cramsoc_vexriscvaxi_axiinterface1_w_payload_strb;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed60 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed60 <= cramsoc_vexriscvaxi_axiinterface1_w_param_id;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed61 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed61 <= cramsoc_vexriscvaxi_axiinterface1_w_param_dest;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed62 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed62 <= cramsoc_vexriscvaxi_axiinterface1_w_param_user;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed63 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_write_grant)
-        default: begin
-            array_muxed63 <= cramsoc_vexriscvaxi_axiinterface1_b_ready;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed64 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed64 <= cramsoc_vexriscvaxi_axiinterface1_ar_valid;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed65 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed65 <= cramsoc_vexriscvaxi_axiinterface1_ar_first;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed66 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed66 <= cramsoc_vexriscvaxi_axiinterface1_ar_last;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed67 <= 32'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed67 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_addr;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed68 <= 2'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed68 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_burst;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed69 <= 8'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed69 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_len;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed70 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed70 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_size;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed71 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed71 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_lock;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed72 <= 3'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed72 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_prot;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed73 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed73 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_cache;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed74 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed74 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_qos;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed75 <= 4'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed75 <= cramsoc_vexriscvaxi_axiinterface1_ar_payload_region;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed76 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed76 <= cramsoc_vexriscvaxi_axiinterface1_ar_param_id;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed77 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed77 <= cramsoc_vexriscvaxi_axiinterface1_ar_param_dest;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed78 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed78 <= cramsoc_vexriscvaxi_axiinterface1_ar_param_user;
-        end
-    endcase
-end
-always @(*) begin
-    array_muxed79 <= 1'd0;
-    case (cramsoc_vexriscvaxi_axiarbiter1_rr_read_grant)
-        default: begin
-            array_muxed79 <= cramsoc_vexriscvaxi_axiinterface1_r_ready;
+            array_muxed16 <= socbushandler_r_ready;
         end
     endcase
 end
@@ -2734,304 +1093,131 @@ always @(posedge por_clk) begin
 end
 
 always @(posedge sys_clk) begin
-    p_axi_awvalid <= dbus_lite_aw_valid;
-    p_axi_awaddr <= dbus_lite_aw_payload_addr;
-    p_axi_awprot <= dbus_lite_aw_payload_prot;
-    dbus_lite_aw_ready <= p_axi_awready;
-    p_axi_wvalid <= dbus_lite_w_valid;
-    p_axi_wdata <= dbus_lite_w_payload_data;
-    p_axi_wstrb <= dbus_lite_w_payload_strb;
-    dbus_lite_w_ready <= p_axi_wready;
-    dbus_lite_b_valid <= p_axi_bvalid;
-    dbus_lite_b_payload_resp <= p_axi_bresp;
-    p_axi_bready <= dbus_lite_b_ready;
-    p_axi_arvalid <= dbus_lite_ar_valid;
-    p_axi_araddr <= dbus_lite_ar_payload_addr;
-    p_axi_arprot <= dbus_lite_ar_payload_prot;
-    dbus_lite_ar_ready <= p_axi_arready;
-    dbus_lite_r_valid <= p_axi_rvalid;
-    dbus_lite_r_payload_resp <= p_axi_rresp;
-    dbus_lite_r_payload_data <= p_axi_rdata;
-    p_axi_rready <= dbus_lite_r_ready;
-    if (((~cramsoc_socbushandler_pipe_valid_source_valid) | cramsoc_socbushandler_pipe_valid_source_ready)) begin
-        cramsoc_socbushandler_pipe_valid_source_valid <= cramsoc_socbushandler_pipe_valid_sink_valid;
-        cramsoc_socbushandler_pipe_valid_source_first <= cramsoc_socbushandler_pipe_valid_sink_first;
-        cramsoc_socbushandler_pipe_valid_source_last <= cramsoc_socbushandler_pipe_valid_sink_last;
-        cramsoc_socbushandler_pipe_valid_source_payload_addr <= cramsoc_socbushandler_pipe_valid_sink_payload_addr;
-        cramsoc_socbushandler_pipe_valid_source_payload_burst <= cramsoc_socbushandler_pipe_valid_sink_payload_burst;
-        cramsoc_socbushandler_pipe_valid_source_payload_len <= cramsoc_socbushandler_pipe_valid_sink_payload_len;
-        cramsoc_socbushandler_pipe_valid_source_payload_size <= cramsoc_socbushandler_pipe_valid_sink_payload_size;
-        cramsoc_socbushandler_pipe_valid_source_payload_lock <= cramsoc_socbushandler_pipe_valid_sink_payload_lock;
-        cramsoc_socbushandler_pipe_valid_source_payload_prot <= cramsoc_socbushandler_pipe_valid_sink_payload_prot;
-        cramsoc_socbushandler_pipe_valid_source_payload_cache <= cramsoc_socbushandler_pipe_valid_sink_payload_cache;
-        cramsoc_socbushandler_pipe_valid_source_payload_qos <= cramsoc_socbushandler_pipe_valid_sink_payload_qos;
-        cramsoc_socbushandler_pipe_valid_source_payload_region <= cramsoc_socbushandler_pipe_valid_sink_payload_region;
-        cramsoc_socbushandler_pipe_valid_source_param_id <= cramsoc_socbushandler_pipe_valid_sink_param_id;
-        cramsoc_socbushandler_pipe_valid_source_param_dest <= cramsoc_socbushandler_pipe_valid_sink_param_dest;
-        cramsoc_socbushandler_pipe_valid_source_param_user <= cramsoc_socbushandler_pipe_valid_sink_param_user;
+    p_axi_awvalid <= peripherals_aw_valid;
+    p_axi_awaddr <= peripherals_aw_payload_addr;
+    p_axi_awprot <= peripherals_aw_payload_prot;
+    peripherals_aw_ready <= p_axi_awready;
+    p_axi_wvalid <= peripherals_w_valid;
+    p_axi_wdata <= peripherals_w_payload_data;
+    p_axi_wstrb <= peripherals_w_payload_strb;
+    peripherals_w_ready <= p_axi_wready;
+    peripherals_b_valid <= p_axi_bvalid;
+    peripherals_b_payload_resp <= p_axi_bresp;
+    p_axi_bready <= peripherals_b_ready;
+    p_axi_arvalid <= peripherals_ar_valid;
+    p_axi_araddr <= peripherals_ar_payload_addr;
+    p_axi_arprot <= peripherals_ar_payload_prot;
+    peripherals_ar_ready <= p_axi_arready;
+    peripherals_r_valid <= p_axi_rvalid;
+    peripherals_r_payload_resp <= p_axi_rresp;
+    peripherals_r_payload_data <= p_axi_rdata;
+    p_axi_rready <= peripherals_r_ready;
+    if (socbushandler_axiliterequestcounter0_empty) begin
+        socbushandler_slave_sel_reg0 <= socbushandler_slave_sel_dec0;
     end
-    if ((cramsoc_socbushandler_ax_beat_valid & cramsoc_socbushandler_ax_beat_ready)) begin
-        if (cramsoc_socbushandler_ax_beat_last) begin
-            cramsoc_socbushandler_beat_count <= 1'd0;
-            cramsoc_socbushandler_beat_offset <= 1'd0;
-        end else begin
-            cramsoc_socbushandler_beat_count <= (cramsoc_socbushandler_beat_count + 1'd1);
-            if ((((cramsoc_socbushandler_source_source_payload_burst == 1'd1) & 1'd1) | ((cramsoc_socbushandler_source_source_payload_burst == 2'd2) & 1'd1))) begin
-                cramsoc_socbushandler_beat_offset <= (cramsoc_socbushandler_beat_offset + $signed({1'd0, cramsoc_socbushandler_beat_size}));
-            end
-        end
-        if (((cramsoc_socbushandler_source_source_payload_burst == 2'd2) & 1'd1)) begin
-            if (((cramsoc_socbushandler_ax_beat_payload_addr & cramsoc_socbushandler_beat_wrap) == cramsoc_socbushandler_beat_wrap)) begin
-                cramsoc_socbushandler_beat_offset <= (cramsoc_socbushandler_beat_offset - $signed({1'd0, cramsoc_socbushandler_beat_wrap}));
-            end
-        end
+    if (socbushandler_axiliterequestcounter1_empty) begin
+        socbushandler_slave_sel_reg1 <= socbushandler_slave_sel_dec1;
     end
-    state <= next_state;
-    if (cramsoc_socbushandler_cmd_done_next_value_ce0) begin
-        cramsoc_socbushandler_cmd_done <= cramsoc_socbushandler_cmd_done_next_value0;
-    end
-    if (cramsoc_socbushandler_last_ar_aw_n_next_value_ce1) begin
-        cramsoc_socbushandler_last_ar_aw_n <= cramsoc_socbushandler_last_ar_aw_n_next_value1;
-    end
-    vexriscvaxi_debug_reset <= (vexriscvaxi_reset_debug_logic | sys_rst);
-    if (vexriscvaxi_o_resetOut) begin
-        vexriscvaxi_reset_debug_logic <= 1'd1;
+    if (((corecsr_aw_valid & corecsr_aw_ready) & (corecsr_b_valid & corecsr_b_ready))) begin
+        socbushandler_axiliterequestcounter0_counter <= socbushandler_axiliterequestcounter0_counter;
     end else begin
-        vexriscvaxi_reset_debug_logic <= 1'd0;
-    end
-    if (((~socbushandler_pipe_valid_source_valid) | socbushandler_pipe_valid_source_ready)) begin
-        socbushandler_pipe_valid_source_valid <= socbushandler_pipe_valid_sink_valid;
-        socbushandler_pipe_valid_source_first <= socbushandler_pipe_valid_sink_first;
-        socbushandler_pipe_valid_source_last <= socbushandler_pipe_valid_sink_last;
-        socbushandler_pipe_valid_source_payload_addr <= socbushandler_pipe_valid_sink_payload_addr;
-        socbushandler_pipe_valid_source_payload_burst <= socbushandler_pipe_valid_sink_payload_burst;
-        socbushandler_pipe_valid_source_payload_len <= socbushandler_pipe_valid_sink_payload_len;
-        socbushandler_pipe_valid_source_payload_size <= socbushandler_pipe_valid_sink_payload_size;
-        socbushandler_pipe_valid_source_payload_lock <= socbushandler_pipe_valid_sink_payload_lock;
-        socbushandler_pipe_valid_source_payload_prot <= socbushandler_pipe_valid_sink_payload_prot;
-        socbushandler_pipe_valid_source_payload_cache <= socbushandler_pipe_valid_sink_payload_cache;
-        socbushandler_pipe_valid_source_payload_qos <= socbushandler_pipe_valid_sink_payload_qos;
-        socbushandler_pipe_valid_source_payload_region <= socbushandler_pipe_valid_sink_payload_region;
-        socbushandler_pipe_valid_source_param_id <= socbushandler_pipe_valid_sink_param_id;
-        socbushandler_pipe_valid_source_param_dest <= socbushandler_pipe_valid_sink_param_dest;
-        socbushandler_pipe_valid_source_param_user <= socbushandler_pipe_valid_sink_param_user;
-    end
-    if ((socbushandler_ax_beat_valid & socbushandler_ax_beat_ready)) begin
-        if (socbushandler_ax_beat_last) begin
-            socbushandler_beat_count <= 1'd0;
-            socbushandler_beat_offset <= 1'd0;
+        if (((corecsr_aw_valid & corecsr_aw_ready) & (~socbushandler_axiliterequestcounter0_full))) begin
+            socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter + 1'd1);
         end else begin
-            socbushandler_beat_count <= (socbushandler_beat_count + 1'd1);
-            if ((((socbushandler_source_source_payload_burst == 1'd1) & 1'd1) | ((socbushandler_source_source_payload_burst == 2'd2) & 1'd1))) begin
-                socbushandler_beat_offset <= (socbushandler_beat_offset + $signed({1'd0, socbushandler_beat_size}));
-            end
-        end
-        if (((socbushandler_source_source_payload_burst == 2'd2) & 1'd1)) begin
-            if (((socbushandler_ax_beat_payload_addr & socbushandler_beat_wrap) == socbushandler_beat_wrap)) begin
-                socbushandler_beat_offset <= (socbushandler_beat_offset - $signed({1'd0, socbushandler_beat_wrap}));
+            if (((corecsr_b_valid & corecsr_b_ready) & (~socbushandler_axiliterequestcounter0_empty))) begin
+                socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter - 1'd1);
             end
         end
     end
-    cramsoc_vexriscvaxi_state <= cramsoc_vexriscvaxi_next_state;
-    if (socbushandler_cmd_done_vexriscvaxi_next_value_ce0) begin
-        socbushandler_cmd_done <= socbushandler_cmd_done_vexriscvaxi_next_value0;
-    end
-    if (socbushandler_last_ar_aw_n_vexriscvaxi_next_value_ce1) begin
-        socbushandler_last_ar_aw_n <= socbushandler_last_ar_aw_n_vexriscvaxi_next_value1;
-    end
-    if (cramsoc_vexriscvaxi_axirequestcounter0_empty) begin
-        cramsoc_vexriscvaxi_slave_sel_reg0 <= cramsoc_vexriscvaxi_slave_sel_dec0;
-    end
-    if (cramsoc_vexriscvaxi_axirequestcounter1_empty) begin
-        cramsoc_vexriscvaxi_slave_sel_reg1 <= cramsoc_vexriscvaxi_slave_sel_dec1;
-    end
-    if (((dbus_axi_aw_valid & dbus_axi_aw_ready) & (dbus_axi_b_valid & dbus_axi_b_ready))) begin
-        cramsoc_vexriscvaxi_axirequestcounter0_counter <= cramsoc_vexriscvaxi_axirequestcounter0_counter;
+    if (((corecsr_ar_valid & corecsr_ar_ready) & (corecsr_r_valid & corecsr_r_ready))) begin
+        socbushandler_axiliterequestcounter1_counter <= socbushandler_axiliterequestcounter1_counter;
     end else begin
-        if (((dbus_axi_aw_valid & dbus_axi_aw_ready) & (~cramsoc_vexriscvaxi_axirequestcounter0_full))) begin
-            cramsoc_vexriscvaxi_axirequestcounter0_counter <= (cramsoc_vexriscvaxi_axirequestcounter0_counter + 1'd1);
+        if (((corecsr_ar_valid & corecsr_ar_ready) & (~socbushandler_axiliterequestcounter1_full))) begin
+            socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter + 1'd1);
         end else begin
-            if (((dbus_axi_b_valid & dbus_axi_b_ready) & (~cramsoc_vexriscvaxi_axirequestcounter0_empty))) begin
-                cramsoc_vexriscvaxi_axirequestcounter0_counter <= (cramsoc_vexriscvaxi_axirequestcounter0_counter - 1'd1);
+            if (((corecsr_r_valid & corecsr_r_ready) & (~socbushandler_axiliterequestcounter1_empty))) begin
+                socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter - 1'd1);
             end
         end
     end
-    if (((dbus_axi_ar_valid & dbus_axi_ar_ready) & ((dbus_axi_r_valid & dbus_axi_r_ready) & dbus_axi_r_last))) begin
-        cramsoc_vexriscvaxi_axirequestcounter1_counter <= cramsoc_vexriscvaxi_axirequestcounter1_counter;
+    if (((cramsoc_aw_valid & cramsoc_aw_ready) & (cramsoc_b_valid & cramsoc_b_ready))) begin
+        socbushandler_wr_lock_counter <= socbushandler_wr_lock_counter;
     end else begin
-        if (((dbus_axi_ar_valid & dbus_axi_ar_ready) & (~cramsoc_vexriscvaxi_axirequestcounter1_full))) begin
-            cramsoc_vexriscvaxi_axirequestcounter1_counter <= (cramsoc_vexriscvaxi_axirequestcounter1_counter + 1'd1);
+        if (((cramsoc_aw_valid & cramsoc_aw_ready) & (~socbushandler_wr_lock_full))) begin
+            socbushandler_wr_lock_counter <= (socbushandler_wr_lock_counter + 1'd1);
         end else begin
-            if ((((dbus_axi_r_valid & dbus_axi_r_ready) & dbus_axi_r_last) & (~cramsoc_vexriscvaxi_axirequestcounter1_empty))) begin
-                cramsoc_vexriscvaxi_axirequestcounter1_counter <= (cramsoc_vexriscvaxi_axirequestcounter1_counter - 1'd1);
+            if (((cramsoc_b_valid & cramsoc_b_ready) & (~socbushandler_wr_lock_empty))) begin
+                socbushandler_wr_lock_counter <= (socbushandler_wr_lock_counter - 1'd1);
             end
         end
     end
-    if (((socbushandler_aw_valid & socbushandler_aw_ready) & (socbushandler_b_valid & socbushandler_b_ready))) begin
-        cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter <= cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter;
+    if (((cramsoc_ar_valid & cramsoc_ar_ready) & (cramsoc_r_valid & cramsoc_r_ready))) begin
+        socbushandler_rd_lock_counter <= socbushandler_rd_lock_counter;
     end else begin
-        if (((socbushandler_aw_valid & socbushandler_aw_ready) & (~cramsoc_vexriscvaxi_axiarbiter0_wr_lock_full))) begin
-            cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter + 1'd1);
+        if (((cramsoc_ar_valid & cramsoc_ar_ready) & (~socbushandler_rd_lock_full))) begin
+            socbushandler_rd_lock_counter <= (socbushandler_rd_lock_counter + 1'd1);
         end else begin
-            if (((socbushandler_b_valid & socbushandler_b_ready) & (~cramsoc_vexriscvaxi_axiarbiter0_wr_lock_empty))) begin
-                cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter - 1'd1);
+            if (((cramsoc_r_valid & cramsoc_r_ready) & (~socbushandler_rd_lock_empty))) begin
+                socbushandler_rd_lock_counter <= (socbushandler_rd_lock_counter - 1'd1);
             end
         end
     end
-    if (((socbushandler_ar_valid & socbushandler_ar_ready) & ((socbushandler_r_valid & socbushandler_r_ready) & socbushandler_r_last))) begin
-        cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter <= cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter;
+    debug_reset <= (reset_debug_logic | sys_rst);
+    if (o_resetOut) begin
+        reset_debug_logic <= 1'd1;
     end else begin
-        if (((socbushandler_ar_valid & socbushandler_ar_ready) & (~cramsoc_vexriscvaxi_axiarbiter0_rd_lock_full))) begin
-            cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter + 1'd1);
-        end else begin
-            if ((((socbushandler_r_valid & socbushandler_r_ready) & socbushandler_r_last) & (~cramsoc_vexriscvaxi_axiarbiter0_rd_lock_empty))) begin
-                cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter - 1'd1);
-            end
-        end
+        reset_debug_logic <= 1'd0;
     end
-    if (((dbus_aw_valid & dbus_aw_ready) & (dbus_b_valid & dbus_b_ready))) begin
-        cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter <= cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter;
-    end else begin
-        if (((dbus_aw_valid & dbus_aw_ready) & (~cramsoc_vexriscvaxi_axiarbiter1_wr_lock_full))) begin
-            cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter + 1'd1);
+    if (sys_rst) begin
+        if (trimming_reset_ena1) begin
+            latched_value <= trimming_reset1;
         end else begin
-            if (((dbus_b_valid & dbus_b_ready) & (~cramsoc_vexriscvaxi_axiarbiter1_wr_lock_empty))) begin
-                cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter - 1'd1);
-            end
-        end
-    end
-    if (((dbus_ar_valid & dbus_ar_ready) & ((dbus_r_valid & dbus_r_ready) & dbus_r_last))) begin
-        cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter <= cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter;
-    end else begin
-        if (((dbus_ar_valid & dbus_ar_ready) & (~cramsoc_vexriscvaxi_axiarbiter1_rd_lock_full))) begin
-            cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter + 1'd1);
-        end else begin
-            if ((((dbus_r_valid & dbus_r_ready) & dbus_r_last) & (~cramsoc_vexriscvaxi_axiarbiter1_rd_lock_empty))) begin
-                cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter <= (cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter - 1'd1);
-            end
-        end
-    end
-    if (en_storage) begin
-        if ((value == 1'd0)) begin
-            value <= reload_storage;
-        end else begin
-            value <= (value - 1'd1);
+            latched_value <= 31'd1610612736;
         end
     end else begin
-        value <= load_storage;
+        latched_value <= latched_value;
     end
-    if (update_value_re) begin
-        value_status <= value;
+    cramsoc_state <= cramsoc_next_state;
+    if (cramsoc_last_was_read_next_value_ce) begin
+        cramsoc_last_was_read <= cramsoc_last_was_read_next_value;
     end
-    if (zero_clear) begin
-        zero_pending <= 1'd0;
-    end
-    zero_trigger_d <= zero_trigger;
-    if ((zero_trigger & (~zero_trigger_d))) begin
-        zero_pending <= 1'd1;
-    end
-    cramsoc_axilite2csr_state <= cramsoc_axilite2csr_next_state;
-    if (cramsoc_csr_bridge_last_was_read_axilite2csr_next_value_ce) begin
-        cramsoc_csr_bridge_last_was_read <= cramsoc_csr_bridge_last_was_read_axilite2csr_next_value;
-    end
-    csr_bankarray_dat_r <= 1'd0;
-    if (csr_bankarray_sel) begin
-        case (csr_bankarray_adr[9:0])
+    interface0_dat_r <= 1'd0;
+    if (csrbank0_sel) begin
+        case (interface0_adr[9:0])
             1'd0: begin
-                csr_bankarray_dat_r <= csr_bankarray_load0_w;
+                interface0_dat_r <= csrbank0_wtest0_w;
             end
             1'd1: begin
-                csr_bankarray_dat_r <= csr_bankarray_reload0_w;
-            end
-            2'd2: begin
-                csr_bankarray_dat_r <= csr_bankarray_en0_w;
-            end
-            2'd3: begin
-                csr_bankarray_dat_r <= csr_bankarray_update_value0_w;
-            end
-            3'd4: begin
-                csr_bankarray_dat_r <= csr_bankarray_value_w;
-            end
-            3'd5: begin
-                csr_bankarray_dat_r <= csr_bankarray_ev_status_w;
-            end
-            3'd6: begin
-                csr_bankarray_dat_r <= csr_bankarray_ev_pending_w;
-            end
-            3'd7: begin
-                csr_bankarray_dat_r <= csr_bankarray_ev_enable0_w;
+                interface0_dat_r <= csrbank0_rtest_w;
             end
         endcase
     end
-    if (csr_bankarray_load0_re) begin
-        load_storage[31:0] <= csr_bankarray_load0_r;
+    if (csrbank0_wtest0_re) begin
+        csr_wtest_storage[31:0] <= csrbank0_wtest0_r;
     end
-    load_re <= csr_bankarray_load0_re;
-    if (csr_bankarray_reload0_re) begin
-        reload_storage[31:0] <= csr_bankarray_reload0_r;
+    csr_wtest_re <= csrbank0_wtest0_re;
+    csr_rtest_re <= csrbank0_rtest_re;
+    interface1_dat_r <= 1'd0;
+    if (csrbank1_sel) begin
+        case (interface1_adr[9:0])
+            1'd0: begin
+                interface1_dat_r <= csrbank1_pc_w;
+            end
+        endcase
     end
-    reload_re <= csr_bankarray_reload0_re;
-    if (csr_bankarray_en0_re) begin
-        en_storage <= csr_bankarray_en0_r;
-    end
-    en_re <= csr_bankarray_en0_re;
-    if (csr_bankarray_update_value0_re) begin
-        update_value_storage <= csr_bankarray_update_value0_r;
-    end
-    update_value_re <= csr_bankarray_update_value0_re;
-    value_re <= csr_bankarray_value_re;
-    status_re <= csr_bankarray_ev_status_re;
-    if (csr_bankarray_ev_pending_re) begin
-        pending_r <= csr_bankarray_ev_pending_r;
-    end
-    pending_re <= csr_bankarray_ev_pending_re;
-    if (csr_bankarray_ev_enable0_re) begin
-        enable_storage <= csr_bankarray_ev_enable0_r;
-    end
-    enable_re <= csr_bankarray_ev_enable0_re;
+    re <= csrbank1_pc_re;
     if (sys_rst) begin
-        dbus_lite_aw_ready <= 1'd0;
-        dbus_lite_w_ready <= 1'd0;
-        dbus_lite_b_valid <= 1'd0;
-        dbus_lite_b_payload_resp <= 2'd0;
-        dbus_lite_ar_ready <= 1'd0;
-        dbus_lite_r_valid <= 1'd0;
-        dbus_lite_r_payload_resp <= 2'd0;
-        dbus_lite_r_payload_data <= 32'd0;
-        socbushandler_pipe_valid_source_valid <= 1'd0;
-        socbushandler_pipe_valid_source_payload_addr <= 32'd0;
-        socbushandler_pipe_valid_source_payload_burst <= 2'd0;
-        socbushandler_pipe_valid_source_payload_len <= 8'd0;
-        socbushandler_pipe_valid_source_payload_size <= 3'd0;
-        socbushandler_pipe_valid_source_payload_lock <= 1'd0;
-        socbushandler_pipe_valid_source_payload_prot <= 3'd0;
-        socbushandler_pipe_valid_source_payload_cache <= 4'd0;
-        socbushandler_pipe_valid_source_payload_qos <= 4'd0;
-        socbushandler_pipe_valid_source_payload_region <= 4'd0;
-        socbushandler_beat_count <= 8'd0;
-        socbushandler_beat_offset <= 13'd0;
-        socbushandler_cmd_done <= 1'd0;
-        socbushandler_last_ar_aw_n <= 1'd0;
-        load_storage <= 32'd0;
-        load_re <= 1'd0;
-        reload_storage <= 32'd0;
-        reload_re <= 1'd0;
-        en_storage <= 1'd0;
-        en_re <= 1'd0;
-        update_value_storage <= 1'd0;
-        update_value_re <= 1'd0;
-        value_status <= 32'd0;
-        value_re <= 1'd0;
-        zero_pending <= 1'd0;
-        zero_trigger_d <= 1'd0;
-        status_re <= 1'd0;
-        pending_re <= 1'd0;
-        pending_r <= 1'd0;
-        enable_storage <= 1'd0;
-        enable_re <= 1'd0;
-        value <= 32'd0;
-        vexriscvaxi_debug_reset <= 1'd0;
-        vexriscvaxi_reset_debug_logic <= 1'd0;
+        peripherals_aw_ready <= 1'd0;
+        peripherals_w_ready <= 1'd0;
+        peripherals_b_valid <= 1'd0;
+        peripherals_b_payload_resp <= 2'd0;
+        peripherals_ar_ready <= 1'd0;
+        peripherals_r_valid <= 1'd0;
+        peripherals_r_payload_resp <= 2'd0;
+        peripherals_r_payload_data <= 32'd0;
+        debug_reset <= 1'd0;
+        reset_debug_logic <= 1'd0;
+        re <= 1'd0;
         p_axi_awvalid <= 1'd0;
         p_axi_awaddr <= 32'd0;
         p_axi_awprot <= 3'd0;
@@ -3043,32 +1229,17 @@ always @(posedge sys_clk) begin
         p_axi_araddr <= 32'd0;
         p_axi_arprot <= 3'd0;
         p_axi_rready <= 1'd0;
-        cramsoc_csr_bridge_last_was_read <= 1'd0;
-        cramsoc_socbushandler_pipe_valid_source_valid <= 1'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_addr <= 32'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_burst <= 2'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_len <= 8'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_size <= 3'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_lock <= 1'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_prot <= 3'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_cache <= 4'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_qos <= 4'd0;
-        cramsoc_socbushandler_pipe_valid_source_payload_region <= 4'd0;
-        cramsoc_socbushandler_beat_count <= 8'd0;
-        cramsoc_socbushandler_beat_offset <= 13'd0;
-        cramsoc_socbushandler_cmd_done <= 1'd0;
-        cramsoc_socbushandler_last_ar_aw_n <= 1'd0;
-        state <= 2'd0;
-        cramsoc_vexriscvaxi_state <= 2'd0;
-        cramsoc_vexriscvaxi_slave_sel_reg0 <= 2'd0;
-        cramsoc_vexriscvaxi_slave_sel_reg1 <= 2'd0;
-        cramsoc_vexriscvaxi_axirequestcounter0_counter <= 8'd0;
-        cramsoc_vexriscvaxi_axirequestcounter1_counter <= 8'd0;
-        cramsoc_vexriscvaxi_axiarbiter0_wr_lock_counter <= 8'd0;
-        cramsoc_vexriscvaxi_axiarbiter0_rd_lock_counter <= 8'd0;
-        cramsoc_vexriscvaxi_axiarbiter1_wr_lock_counter <= 8'd0;
-        cramsoc_vexriscvaxi_axiarbiter1_rd_lock_counter <= 8'd0;
-        cramsoc_axilite2csr_state <= 2'd0;
+        csr_wtest_storage <= 32'd0;
+        csr_wtest_re <= 1'd0;
+        csr_rtest_re <= 1'd0;
+        cramsoc_last_was_read <= 1'd0;
+        socbushandler_slave_sel_reg0 <= 1'd0;
+        socbushandler_slave_sel_reg1 <= 1'd0;
+        socbushandler_axiliterequestcounter0_counter <= 8'd0;
+        socbushandler_axiliterequestcounter1_counter <= 8'd0;
+        socbushandler_wr_lock_counter <= 8'd0;
+        socbushandler_rd_lock_counter <= 8'd0;
+        cramsoc_state <= 2'd0;
     end
 end
 
@@ -3076,6 +1247,256 @@ end
 //------------------------------------------------------------------------------
 // Specialized Logic
 //------------------------------------------------------------------------------
+
+axi_axil_adapter #(
+	.ADDR_WIDTH(6'd32),
+	.AXIL_DATA_WIDTH(6'd32),
+	.AXI_DATA_WIDTH(6'd32),
+	.CONVERT_BURST(1'd1),
+	.CONVERT_NARROW_BURST(1'd0)
+) axi_axil_adapter (
+	.clk(sys_clk),
+	.m_axil_arready(peripherals_ar_ready),
+	.m_axil_awready(peripherals_aw_ready),
+	.m_axil_bresp(peripherals_b_payload_resp),
+	.m_axil_bvalid(peripherals_b_valid),
+	.m_axil_rdata(peripherals_r_payload_data),
+	.m_axil_rresp(peripherals_r_payload_resp),
+	.m_axil_rvalid(peripherals_r_valid),
+	.m_axil_wready(peripherals_w_ready),
+	.rst(sys_rst),
+	.s_axi_araddr(dbus_peri_ar_payload_addr),
+	.s_axi_arburst(dbus_peri_ar_payload_burst),
+	.s_axi_arcache(dbus_peri_ar_payload_cache),
+	.s_axi_arid(dbus_peri_ar_param_id),
+	.s_axi_arlen(dbus_peri_ar_payload_len),
+	.s_axi_arlock(dbus_peri_ar_payload_lock),
+	.s_axi_arprot(dbus_peri_ar_payload_prot),
+	.s_axi_arsize(dbus_peri_ar_payload_size),
+	.s_axi_arvalid(dbus_peri_ar_valid),
+	.s_axi_awaddr(dbus_peri_aw_payload_addr),
+	.s_axi_awburst(dbus_peri_aw_payload_burst),
+	.s_axi_awcache(dbus_peri_aw_payload_cache),
+	.s_axi_awid(dbus_peri_aw_param_id),
+	.s_axi_awlen(dbus_peri_aw_payload_len),
+	.s_axi_awlock(dbus_peri_aw_payload_lock),
+	.s_axi_awprot(dbus_peri_aw_payload_prot),
+	.s_axi_awsize(dbus_peri_aw_payload_size),
+	.s_axi_awvalid(dbus_peri_aw_valid),
+	.s_axi_bready(dbus_peri_b_ready),
+	.s_axi_rready(dbus_peri_r_ready),
+	.s_axi_wdata(dbus_peri_w_payload_data),
+	.s_axi_wlast(dbus_peri_w_last),
+	.s_axi_wstrb(dbus_peri_w_payload_strb),
+	.s_axi_wvalid(dbus_peri_w_valid),
+	.m_axil_araddr(peripherals_ar_payload_addr),
+	.m_axil_arprot(axi2axiliteadapter01),
+	.m_axil_arvalid(peripherals_ar_valid),
+	.m_axil_awaddr(peripherals_aw_payload_addr),
+	.m_axil_awprot(axi2axiliteadapter00),
+	.m_axil_awvalid(peripherals_aw_valid),
+	.m_axil_bready(peripherals_b_ready),
+	.m_axil_rready(peripherals_r_ready),
+	.m_axil_wdata(peripherals_w_payload_data),
+	.m_axil_wstrb(peripherals_w_payload_strb),
+	.m_axil_wvalid(peripherals_w_valid),
+	.s_axi_arready(dbus_peri_ar_ready),
+	.s_axi_awready(dbus_peri_aw_ready),
+	.s_axi_bid(dbus_peri_b_param_id),
+	.s_axi_bresp(dbus_peri_b_payload_resp),
+	.s_axi_bvalid(dbus_peri_b_valid),
+	.s_axi_rdata(dbus_peri_r_payload_data),
+	.s_axi_rid(dbus_peri_r_param_id),
+	.s_axi_rlast(dbus_peri_r_last),
+	.s_axi_rresp(dbus_peri_r_payload_resp),
+	.s_axi_rvalid(dbus_peri_r_valid),
+	.s_axi_wready(dbus_peri_w_ready)
+);
+
+axi_axil_adapter #(
+	.ADDR_WIDTH(6'd32),
+	.AXIL_DATA_WIDTH(6'd32),
+	.AXI_DATA_WIDTH(6'd32),
+	.CONVERT_BURST(1'd1),
+	.CONVERT_NARROW_BURST(1'd0)
+) axi_axil_adapter_1 (
+	.clk(sys_clk),
+	.m_axil_arready(corecsr_ar_ready),
+	.m_axil_awready(corecsr_aw_ready),
+	.m_axil_bresp(corecsr_b_payload_resp),
+	.m_axil_bvalid(corecsr_b_valid),
+	.m_axil_rdata(corecsr_r_payload_data),
+	.m_axil_rresp(corecsr_r_payload_resp),
+	.m_axil_rvalid(corecsr_r_valid),
+	.m_axil_wready(corecsr_w_ready),
+	.rst(sys_rst),
+	.s_axi_araddr(axi_csr_ar_payload_addr),
+	.s_axi_arburst(axi_csr_ar_payload_burst),
+	.s_axi_arcache(axi_csr_ar_payload_cache),
+	.s_axi_arid(axi_csr_ar_param_id),
+	.s_axi_arlen(axi_csr_ar_payload_len),
+	.s_axi_arlock(axi_csr_ar_payload_lock),
+	.s_axi_arprot(axi_csr_ar_payload_prot),
+	.s_axi_arsize(axi_csr_ar_payload_size),
+	.s_axi_arvalid(axi_csr_ar_valid),
+	.s_axi_awaddr(axi_csr_aw_payload_addr),
+	.s_axi_awburst(axi_csr_aw_payload_burst),
+	.s_axi_awcache(axi_csr_aw_payload_cache),
+	.s_axi_awid(axi_csr_aw_param_id),
+	.s_axi_awlen(axi_csr_aw_payload_len),
+	.s_axi_awlock(axi_csr_aw_payload_lock),
+	.s_axi_awprot(axi_csr_aw_payload_prot),
+	.s_axi_awsize(axi_csr_aw_payload_size),
+	.s_axi_awvalid(axi_csr_aw_valid),
+	.s_axi_bready(axi_csr_b_ready),
+	.s_axi_rready(axi_csr_r_ready),
+	.s_axi_wdata(axi_csr_w_payload_data),
+	.s_axi_wlast(axi_csr_w_last),
+	.s_axi_wstrb(axi_csr_w_payload_strb),
+	.s_axi_wvalid(axi_csr_w_valid),
+	.m_axil_araddr(corecsr_ar_payload_addr),
+	.m_axil_arprot(axi2axiliteadapter11),
+	.m_axil_arvalid(corecsr_ar_valid),
+	.m_axil_awaddr(corecsr_aw_payload_addr),
+	.m_axil_awprot(axi2axiliteadapter10),
+	.m_axil_awvalid(corecsr_aw_valid),
+	.m_axil_bready(corecsr_b_ready),
+	.m_axil_rready(corecsr_r_ready),
+	.m_axil_wdata(corecsr_w_payload_data),
+	.m_axil_wstrb(corecsr_w_payload_strb),
+	.m_axil_wvalid(corecsr_w_valid),
+	.s_axi_arready(axi_csr_ar_ready),
+	.s_axi_awready(axi_csr_aw_ready),
+	.s_axi_bid(axi_csr_b_param_id),
+	.s_axi_bresp(axi_csr_b_payload_resp),
+	.s_axi_bvalid(axi_csr_b_valid),
+	.s_axi_rdata(axi_csr_r_payload_data),
+	.s_axi_rid(axi_csr_r_param_id),
+	.s_axi_rlast(axi_csr_r_last),
+	.s_axi_rresp(axi_csr_r_payload_resp),
+	.s_axi_rvalid(axi_csr_r_valid),
+	.s_axi_wready(axi_csr_w_ready)
+);
+
+axi_crossbar #(
+	.ADDR_WIDTH(6'd32),
+	.ARUSER_ENABLE(1'd0),
+	.ARUSER_WIDTH(7'd68),
+	.AWUSER_ENABLE(1'd0),
+	.AWUSER_WIDTH(7'd68),
+	.BUSER_ENABLE(1'd0),
+	.BUSER_WIDTH(4'd9),
+	.DATA_WIDTH(6'd32),
+	.M_ADDR_WIDTH(96'd534955578244951179292),
+	.M_AR_REG_TYPE(6'd21),
+	.M_AW_REG_TYPE(6'd21),
+	.M_BASE_ADDR(96'd29710560949190194873990381568),
+	.M_B_REG_TYPE(6'd21),
+	.M_COUNT(2'd3),
+	.M_ID_WIDTH(1'd1),
+	.M_R_REG_TYPE(6'd42),
+	.M_W_REG_TYPE(6'd42),
+	.RUSER_ENABLE(1'd0),
+	.RUSER_WIDTH(6'd41),
+	.S_AR_REG_TYPE(2'd1),
+	.S_AW_REG_TYPE(2'd1),
+	.S_B_REG_TYPE(2'd1),
+	.S_COUNT(1'd1),
+	.S_ID_WIDTH(1'd1),
+	.S_R_REG_TYPE(2'd2),
+	.S_W_REG_TYPE(2'd2),
+	.WUSER_ENABLE(1'd0),
+	.WUSER_WIDTH(6'd43)
+) axi_crossbar (
+	.clk(sys_clk),
+	.m_axi_arready({dbus_ar_ready, axi_csr_ar_ready, dbus_peri_ar_ready}),
+	.m_axi_awready({dbus_aw_ready, axi_csr_aw_ready, dbus_peri_aw_ready}),
+	.m_axi_bid({dbus_b_param_id, axi_csr_b_param_id, dbus_peri_b_param_id}),
+	.m_axi_bresp({dbus_b_payload_resp, axi_csr_b_payload_resp, dbus_peri_b_payload_resp}),
+	.m_axi_buser({dbus_b_param_user, axi_csr_b_param_user, dbus_peri_b_param_user}),
+	.m_axi_bvalid({dbus_b_valid, axi_csr_b_valid, dbus_peri_b_valid}),
+	.m_axi_rdata({dbus_r_payload_data, axi_csr_r_payload_data, dbus_peri_r_payload_data}),
+	.m_axi_rid({dbus_r_param_id, axi_csr_r_param_id, dbus_peri_r_param_id}),
+	.m_axi_rlast({dbus_r_last, axi_csr_r_last, dbus_peri_r_last}),
+	.m_axi_rresp({dbus_r_payload_resp, axi_csr_r_payload_resp, dbus_peri_r_payload_resp}),
+	.m_axi_ruser({dbus_r_param_user, axi_csr_r_param_user, dbus_peri_r_param_user}),
+	.m_axi_rvalid({dbus_r_valid, axi_csr_r_valid, dbus_peri_r_valid}),
+	.m_axi_wready({dbus_w_ready, axi_csr_w_ready, dbus_peri_w_ready}),
+	.rst(sys_rst),
+	.s_axi_araddr({dbus_axi_ar_payload_addr}),
+	.s_axi_arburst({dbus_axi_ar_payload_burst}),
+	.s_axi_arcache({dbus_axi_ar_payload_cache}),
+	.s_axi_arid({dbus_axi_ar_param_id}),
+	.s_axi_arlen({dbus_axi_ar_payload_len}),
+	.s_axi_arlock({dbus_axi_ar_payload_lock}),
+	.s_axi_arprot({dbus_axi_ar_payload_prot}),
+	.s_axi_arqos({dbus_axi_ar_payload_qos}),
+	.s_axi_arsize({dbus_axi_ar_payload_size}),
+	.s_axi_aruser({dbus_axi_ar_param_user}),
+	.s_axi_arvalid({dbus_axi_ar_valid}),
+	.s_axi_awaddr({dbus_axi_aw_payload_addr}),
+	.s_axi_awburst({dbus_axi_aw_payload_burst}),
+	.s_axi_awcache({dbus_axi_aw_payload_cache}),
+	.s_axi_awid({dbus_axi_aw_param_id}),
+	.s_axi_awlen({dbus_axi_aw_payload_len}),
+	.s_axi_awlock({dbus_axi_aw_payload_lock}),
+	.s_axi_awprot({dbus_axi_aw_payload_prot}),
+	.s_axi_awqos({dbus_axi_aw_payload_qos}),
+	.s_axi_awsize({dbus_axi_aw_payload_size}),
+	.s_axi_awuser({dbus_axi_aw_param_user}),
+	.s_axi_awvalid({dbus_axi_aw_valid}),
+	.s_axi_bready({dbus_axi_b_ready}),
+	.s_axi_rready({dbus_axi_r_ready}),
+	.s_axi_wdata({dbus_axi_w_payload_data}),
+	.s_axi_wlast({dbus_axi_w_last}),
+	.s_axi_wstrb({dbus_axi_w_payload_strb}),
+	.s_axi_wuser({dbus_axi_w_param_user}),
+	.s_axi_wvalid({dbus_axi_w_valid}),
+	.m_axi_araddr({dbus_ar_payload_addr, axi_csr_ar_payload_addr, dbus_peri_ar_payload_addr}),
+	.m_axi_arburst({dbus_ar_payload_burst, axi_csr_ar_payload_burst, dbus_peri_ar_payload_burst}),
+	.m_axi_arcache({dbus_ar_payload_cache, axi_csr_ar_payload_cache, dbus_peri_ar_payload_cache}),
+	.m_axi_arid({dbus_ar_param_id, axi_csr_ar_param_id, dbus_peri_ar_param_id}),
+	.m_axi_arlen({dbus_ar_payload_len, axi_csr_ar_payload_len, dbus_peri_ar_payload_len}),
+	.m_axi_arlock({dbus_ar_payload_lock, axi_csr_ar_payload_lock, dbus_peri_ar_payload_lock}),
+	.m_axi_arprot({dbus_ar_payload_prot, axi_csr_ar_payload_prot, dbus_peri_ar_payload_prot}),
+	.m_axi_arqos({dbus_ar_payload_qos, axi_csr_ar_payload_qos, dbus_peri_ar_payload_qos}),
+	.m_axi_arregion({dbus_ar_payload_region, axi_csr_ar_payload_region, dbus_peri_ar_payload_region}),
+	.m_axi_arsize({dbus_ar_payload_size, axi_csr_ar_payload_size, dbus_peri_ar_payload_size}),
+	.m_axi_aruser({dbus_ar_param_user, axi_csr_ar_param_user, dbus_peri_ar_param_user}),
+	.m_axi_arvalid({dbus_ar_valid, axi_csr_ar_valid, dbus_peri_ar_valid}),
+	.m_axi_awaddr({dbus_aw_payload_addr, axi_csr_aw_payload_addr, dbus_peri_aw_payload_addr}),
+	.m_axi_awburst({dbus_aw_payload_burst, axi_csr_aw_payload_burst, dbus_peri_aw_payload_burst}),
+	.m_axi_awcache({dbus_aw_payload_cache, axi_csr_aw_payload_cache, dbus_peri_aw_payload_cache}),
+	.m_axi_awid({dbus_aw_param_id, axi_csr_aw_param_id, dbus_peri_aw_param_id}),
+	.m_axi_awlen({dbus_aw_payload_len, axi_csr_aw_payload_len, dbus_peri_aw_payload_len}),
+	.m_axi_awlock({dbus_aw_payload_lock, axi_csr_aw_payload_lock, dbus_peri_aw_payload_lock}),
+	.m_axi_awprot({dbus_aw_payload_prot, axi_csr_aw_payload_prot, dbus_peri_aw_payload_prot}),
+	.m_axi_awqos({dbus_aw_payload_qos, axi_csr_aw_payload_qos, dbus_peri_aw_payload_qos}),
+	.m_axi_awregion({dbus_aw_payload_region, axi_csr_aw_payload_region, dbus_peri_aw_payload_region}),
+	.m_axi_awsize({dbus_aw_payload_size, axi_csr_aw_payload_size, dbus_peri_aw_payload_size}),
+	.m_axi_awuser({dbus_aw_param_user, axi_csr_aw_param_user, dbus_peri_aw_param_user}),
+	.m_axi_awvalid({dbus_aw_valid, axi_csr_aw_valid, dbus_peri_aw_valid}),
+	.m_axi_bready({dbus_b_ready, axi_csr_b_ready, dbus_peri_b_ready}),
+	.m_axi_rready({dbus_r_ready, axi_csr_r_ready, dbus_peri_r_ready}),
+	.m_axi_wdata({dbus_w_payload_data, axi_csr_w_payload_data, dbus_peri_w_payload_data}),
+	.m_axi_wlast({dbus_w_last, axi_csr_w_last, dbus_peri_w_last}),
+	.m_axi_wstrb({dbus_w_payload_strb, axi_csr_w_payload_strb, dbus_peri_w_payload_strb}),
+	.m_axi_wuser({dbus_w_param_user, axi_csr_w_param_user, dbus_peri_w_param_user}),
+	.m_axi_wvalid({dbus_w_valid, axi_csr_w_valid, dbus_peri_w_valid}),
+	.s_axi_arready({dbus_axi_ar_ready}),
+	.s_axi_awready({dbus_axi_aw_ready}),
+	.s_axi_bid({dbus_axi_b_param_id}),
+	.s_axi_bresp({dbus_axi_b_payload_resp}),
+	.s_axi_buser({dbus_axi_b_param_user}),
+	.s_axi_bvalid({dbus_axi_b_valid}),
+	.s_axi_rdata({dbus_axi_r_payload_data}),
+	.s_axi_rid({dbus_axi_r_param_id}),
+	.s_axi_rlast({dbus_axi_r_last}),
+	.s_axi_rresp({dbus_axi_r_payload_resp}),
+	.s_axi_ruser({dbus_axi_r_param_user}),
+	.s_axi_rvalid({dbus_axi_r_valid}),
+	.s_axi_wready({dbus_axi_w_ready})
+);
 
 VexRiscvAxi4 VexRiscvAxi4(
 	.clk(sys_clk),
@@ -3092,7 +1513,7 @@ VexRiscvAxi4 VexRiscvAxi4(
 	.dBusAxi_w_ready(dbus_axi_w_ready),
 	.debugReset(jtag_trst),
 	.externalInterruptArray(interrupt_1),
-	.externalResetVector(vexriscvaxi),
+	.externalResetVector(vexriscvaxi_reset_mux),
 	.iBusAxi_ar_ready(ibus_axi_ar_ready),
 	.iBusAxi_r_payload_data(ibus_axi_r_payload_data),
 	.iBusAxi_r_payload_id(ibus_axi_r_param_id),
@@ -3102,7 +1523,7 @@ VexRiscvAxi4 VexRiscvAxi4(
 	.jtag_tck(jtag_tck),
 	.jtag_tdi(jtag_tdi),
 	.jtag_tms(jtag_tms),
-	.reset(((sys_rst | reset) | vexriscvaxi_debug_reset)),
+	.reset(((sys_rst | reset) | debug_reset)),
 	.softwareInterrupt(1'd0),
 	.timerInterrupt(1'd0),
 	.dBusAxi_ar_payload_addr(dbus_axi_ar_payload_addr),
@@ -3133,7 +1554,7 @@ VexRiscvAxi4 VexRiscvAxi4(
 	.dBusAxi_w_payload_last(dbus_axi_w_last),
 	.dBusAxi_w_payload_strb(dbus_axi_w_payload_strb),
 	.dBusAxi_w_valid(dbus_axi_w_valid),
-	.debug_resetOut(vexriscvaxi_o_resetOut),
+	.debug_resetOut(o_resetOut),
 	.iBusAxi_ar_payload_addr(ibus_axi_ar_payload_addr),
 	.iBusAxi_ar_payload_burst(ibus_axi_ar_payload_burst),
 	.iBusAxi_ar_payload_cache(ibus_axi_ar_payload_cache),
@@ -3152,5 +1573,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2022-12-12 17:58:29.
+//  Auto-Generated by LiteX on 2022-12-19 03:36:14.
 //------------------------------------------------------------------------------
