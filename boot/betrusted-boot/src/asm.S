@@ -2,6 +2,8 @@
 .global _start
 
 _start:
+    // cause default reset to fail; we can only boot if trimming_reset worked
+    j           _start
     // decorate boot area with a canary pattern
     li          t1, 0xDEADC0DE  // deadc337
     li          t0, 0x6100E01C  // 0de30313 currently allowed stack extent - 8k - (7 words) - 7 words for kernel backup args

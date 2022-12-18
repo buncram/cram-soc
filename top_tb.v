@@ -12,18 +12,32 @@ initial lpclk = 1'b0;
 //always #15258.789 lpclk = ~lpclk;
 always #400 lpclk = ~lpclk;   // speed up faster than real-time, but still much slower than main clocks
 
-reg trst;
+reg [31:0] trimming_reset;
+reg trimming_reset_ena;
+reg reset;
+
 initial begin
-    trst = 1;
-    #100 trst = 0;
+    reset = 0;
+    trimming_reset = 32'h6000_0002;
+    trimming_reset_ena = 1'b0;
+
+    #20000
+    reset = 1;
+    #100 reset = 0;
+    #10000
+    trimming_reset_ena = 1'b1;
+    reset = 1;
+    #100 reset = 0;
 end
 
+reg trst;
 reg tck;
 reg tms;
 reg tdi;
 initial tck = 0;
 initial tms = 0;
 initial tdi = 0;
+initial trst = 0;
 
 reg serial_rx;
 initial serial_rx = 1;
@@ -36,6 +50,7 @@ wire si;
 cram_soc dut (
     .clk12(clk12),
     .lpclk(lpclk),
+    .reset(reset),
 
     .jtag_cpu_tck(tck),
     .jtag_cpu_tms(tms),
@@ -48,6 +63,9 @@ cram_soc dut (
     .lcd_sclk(sclk),
     .lcd_si(si),
     .lcd_scs(scs),
+
+    .trimming_reset(trimming_reset),
+    .trimming_reset_ena(trimming_reset_ena),
 
     .sim_success(success),
     .sim_done(done),

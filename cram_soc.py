@@ -76,6 +76,7 @@ _io = [
     # Clk / Rst.
     ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
     ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),
+    ("reset", 0, Pins(1)),
 
     ("jtag", 0,
          Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),
@@ -111,11 +112,17 @@ _io = [
         Misc("DRIVE=4"),
      ),
 
-     # Simulation "outputs"
+     # Simulation "I/O"
      ("sim", 0,
         Subsignal("success", Pins(1)),
         Subsignal("done", Pins(1)),
         Subsignal("report", Pins(32)),
+     ),
+
+    # Trimming bits
+     ("trimming", 0,
+        Subsignal("reset", Pins(32)),
+        Subsignal("reset_ena", Pins(1)),
      )
 ]
 
@@ -205,7 +212,7 @@ class CRG(Module):
 
         self.ignore_locked = Signal()
         reset_combo = Signal()
-        self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked))
+        self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked) | platform.request("reset"))
         # See https://forums.xilinx.com/t5/Other-FPGA-Architecture/MMCM-Behavior-After-Its-PWRDWN-Port-Is-Asserted-and-Then/td-p/792324
         # "The DRP functional logic itself does not behave differently for PWRDWN or RST.
         # The "registers" programmed previously through the DRP (or any other once) are not affected either
@@ -463,13 +470,14 @@ class CramSoC(SoCMini):
                 # o_CFGMCLK   = self.cfgmclk,
             ),
         ]
+        trimming = platform.request("trimming")
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
-            i_hclk                = ClockSignal("clk50"),
-            i_hrst                = ResetSignal("clk50"),
+            i_trimming_reset      = trimming.reset,
+            i_trimming_reset_ena  = trimming.reset_ena,
             o_p_axi_awvalid       = p_axi.aw.valid,
             i_p_axi_awready       = p_axi.aw.ready,
             o_p_axi_awaddr        = p_axi.aw.addr ,

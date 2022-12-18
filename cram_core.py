@@ -20,6 +20,7 @@ from litex.soc.interconnect import ahb
 from litex.soc.interconnect.csr import *
 from litex.soc.interconnect.csr_eventmanager import *
 from litex.soc.integration.soc import SoCBusHandler
+from litex.soc.integration.doc import AutoDoc,ModuleDoc
 
 # Interrupt emulator -------------------------------------------------------------------------------
 
@@ -34,9 +35,10 @@ def get_common_ios():
         # Clk/Rst.
         ("aclk", 0, Pins(1)),
         ("rst", 0, Pins(1)),
-        ("hclk", 0, Pins(1)),
-        ("hrst", 0, Pins(1)),
         ("interrupt", 0, Pins(32)),
+        # trimming_reset is a reset vector, specified by the trimming bits. Only loaded if trimming_reset_ena is set.
+        ("trimming_reset", 0, Pins(32)),
+        ("trimming_reset_ena", 0, Pins(1)),
     ]
 
 def get_debug_ios():
@@ -59,13 +61,57 @@ class Platform(GenericPlatform):
         conv_output = self.get_verilog(fragment, name=build_name)
         conv_output.write(f"{build_name}.v")
 
-class CsrTest(Module, AutoCSR):
+class CsrTest(Module, AutoCSR, AutoDoc):
     def __init__(self):
         self.csr_wtest = CSRStorage(32, name="wtest", description="Write test data here")
         self.csr_rtest = CSRStatus(32, name="rtest", description="Read test data here")
         self.comb += [
             self.csr_rtest.status.eq(self.csr_wtest.storage + 0x1000_0000)
         ]
+
+# Needs to handle: pulsed or level; priorities, from 0-255
+class IrqBank(Module, AutoCSR, AutoDoc):
+    def __init__(self, ints_per_bank=16):
+        self.submodules.ev = EventManager()
+        # TODO
+
+class IrqArray(Module, AutoCSR, AutoDoc):
+    """Interrupt Array Handler"""
+    def __init__(self, banks=16, ints_per_bank=16):
+        self.intro = ModuleDoc("""
+`IrqArray` provides a large bank of interrupts for SoC integration. It is different from e.g. the NVIC
+or CLINT in that the register bank is structured along page boundaries, so that the interrupt handler CSRs
+can be owned by a specific virtual memory process, instead of bouncing through a common handler
+and forcing an inter-process message to be generated to route interrupts to their final destination.
+        """)
+        # TODO
+
+class ResetValue(Module, AutoCSR, AutoDoc):
+    """Actual reset value"""
+    def __init__(self, default_value, trimming_reset, trimming_reset_ena):
+        self.intro = ModuleDoc("""
+`ResetValue` captures the actual reset value present at a reset event. The reason this is
+necessary is because the reset value could either be that built into the silicon, or it could
+come from a "trimming value" that is programmed via ReRAM bits. This vector can be read back to
+confirm that the reset vector is, in fact, where we expected it to be.
+
+`default_value` specifies what the value would be if the `trimming_reset` ReRAM bits are not
+enabled with `trimming_reset_ena`.
+        """)
+        self.reset_value = CSRStatus(32, name="pc", description="Latched value for PC on reset")
+        latched_value = Signal(32, reset_less=True)
+        self.sync += [
+            If(ResetSignal(),
+                If(trimming_reset_ena,
+                    latched_value.eq(trimming_reset)
+                ).Else(
+                    latched_value.eq(default_value)
+                )
+            ).Else(
+                latched_value.eq(latched_value)
+            )
+        ]
+        self.comb += self.reset_value.status.eq(latched_value)
 
 # cramSoC -------------------------------------------------------------------------------------
 
@@ -94,18 +140,8 @@ class cramSoC(SoCCore):
             rst = platform.request("rst"),
         )
 
-        hclk = platform.request("hclk")
-        hrst = platform.request("hrst")
-        self.clock_domains.cd_hclk = ClockDomain()
-        self.comb += [
-            self.cd_hclk.clk.eq(hclk),
-            self.cd_hclk.rst.eq(hrst),
-        ]
-
-        # CPU
-        reset_address = self.mem_map["reram"]
-
         # SoCMini ----------------------------------------------------------------------------------
+        reset_address = self.mem_map["reram"]
         SoCMini.__init__(self, platform, sys_clk_freq,
             cpu_type             = "vexriscv_axi",
             csr_paging           = 4096,  # increase paging to 1 page size
@@ -122,25 +158,20 @@ class cramSoC(SoCCore):
                 0xa000_0000 : 0x6000_0000,
             },
             **kwargs)
-        """
-        self.bus = SoCBusHandler(
-            standard              = "axi-lite",
-            data_width            = 32,
-            address_width         = 32,
-            bursting              = False,
-            interconnect          = "shared",
-            interconnect_register = True,
-        )
-        self.bus.add_master(master=self.cpu.periph_buses[0])
-        self.bus.add_region(name="corecsr", region=SoCIORegion(self.mem_map["csr"], size=0x0200_0000, mode = "rw", cached = False))
-        self.mem_regions = self.bus.regions
-        """
 
-        # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_cramSoC.v")
         self.cpu.add_debug()
-        self.cpu.set_reset_address(reset_address)
+        # self.cpu.set_reset_address(reset_address)
         self.cpu.disable_reset_address_check()
+        trimming_reset = Signal(32)
+        trimming_reset_ena = Signal()
+        self.submodules.resetvalue = ResetValue(reset_address, trimming_reset, trimming_reset_ena)
+        self.comb += [
+            trimming_reset.eq(platform.request("trimming_reset")),
+            trimming_reset_ena.eq(platform.request("trimming_reset_ena")),
+            self.cpu.trimming_reset.eq(trimming_reset),
+            self.cpu.trimming_reset_ena.eq(trimming_reset_ena),
+        ]
 
         # Break out custom busses to pads ----------------------------------------------------------
         # All appear as "memory", to avoid triggering interference from the bushandler automation

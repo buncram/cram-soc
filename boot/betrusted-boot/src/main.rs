@@ -537,6 +537,9 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
 
+        let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
+        report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
+
         // TODO: extract and test the 0x5800_0000 range of CSRs (private to cram_axi.v)
         report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
         let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
