@@ -5,6 +5,7 @@ import sys
 import os
 import shutil
 import argparse
+import multiprocessing
 
 # ASSUME: project structure is <project_root>/deps/gateware/sim/<sim_proj>/this_script
 # where the "gateware" repository is cloned into <project_root>/deps/
@@ -217,6 +218,10 @@ class Preamble():
             os.system("mkdir -p ../../target")  # this doesn't exist on the first run
             os.system("cp ../../sim_support/placeholder_bios.bin run/software/bios/bios.bin")
 
+def compile(file):
+    os.system("cd run && xvlog {}".format(file))
+    return None
+
 class SimRunner():
     def __init__(self, ci, os_cmds, vex_verilog_path=VEX_CPU_PATH):
         # we need to use wildcards, so shutil is rather hard to code around. Use this hack instead.
@@ -248,26 +253,45 @@ class SimRunner():
             else:
                 os.system('{} .'.format(cpname) + os.path.sep+'sim_support'+os.path.sep+'top_tb_sim.wcfg run' + os.path.sep) # 'cp ./sim_support/top_tb_sim.wcfg run/'
 
-        # load up simulator dependencies
+        # copy over the source files
         os.system("cd run && {} ".format(cpname)+os.path.normpath("../build/gateware") + os.path.sep + "*.init .")
         os.system("cd run && {} ".format(cpname)+os.path.normpath("../build/gateware") + os.path.sep + "*.v .")
-        os.system("cd run && xvlog "+os.path.normpath("../sim_support/glbl.v"))
-        os.system("cd run && xvlog cram_soc.v -sv")
-        os.system("cd run && xvlog cram_axi.v -sv")
-        os.system("cd run && xvlog ram_1w_1ra.v -sv")
-        os.system("cd run && xvlog ram_1w_1rs.v -sv")
-        os.system("cd run && xvlog top_tb.v -sv ")
         vex_dir = os.path.dirname(VEX_CPU_PATH)
         vex_dir = vex_dir.replace("/", os.path.sep)
+        os.system("cd run && xvlog {}".format(".." + os.path.sep + vex_verilog_path)) # "cd run && xvlog {}".format("../" + vex_verilog_path)
+        os.system("cd run && {} ".format(cpname)+os.path.normpath("../deps/verilog-axi/rtl" + os.path.sep + "*.v ."))
+
         # copy any relevant .bin files into the run directory as well
         os.system("{} {} ".format(cpname, vex_dir + os.path.sep + "*.bin") + " run" + os.path.sep) # "{} {} run/".format(cpname, vex_dir + "/*.bin")
-        os.system("cd run && xvlog {}".format(".." + os.path.sep + vex_verilog_path)) # "cd run && xvlog {}".format("../" + vex_verilog_path)
-        # AXI test stuff
-        os.system("cd run && {} ".format(cpname)+os.path.normpath("../deps/verilog-axi/rtl" + os.path.sep + "*.v ."))
-        os.system("cd run && xvlog axi_ram.v -sv")
-        os.system("cd run && xvlog axi_axil_adapter.v -sv")
-        os.system("cd run && xvlog axi_axil_adapter_rd.v -sv")
-        os.system("cd run && xvlog axi_axil_adapter_wr.v -sv")
+
+        # compile
+        deps = [
+            "cd run && xvlog {}".format(os.path.normpath("../sim_support/glbl.v")),
+            "cd run && xvlog cram_soc.v",
+            "cd run && xvlog cram_axi.v",
+            "cd run && xvlog ram_1w_1ra.v",
+            "cd run && xvlog ram_1w_1rs.v",
+            "cd run && xvlog top_tb.v",
+            "cd run && xvlog axi_ram.v",
+            "cd run && xvlog axi_axil_adapter.v",
+            "cd run && xvlog axi_axil_adapter_rd.v",
+            "cd run && xvlog axi_axil_adapter_wr.v",
+            "cd run && xvlog axi_crossbar.v",
+            "cd run && xvlog axi_crossbar_addr.v",
+            "cd run && xvlog axi_crossbar_rd.v",
+            "cd run && xvlog axi_crossbar_wr.v",
+            "cd run && xvlog arbiter.v",
+            "cd run && xvlog axi_register_wr.v",
+            "cd run && xvlog axi_register_rd.v",
+            "cd run && xvlog priority_encoder.v",
+            "cd run && xvlog axi_adapter_wr.v",
+            "cd run && xvlog axi_adapter_rd.v",
+            "cd run && xvlog axi_adapter.v",
+        ]
+
+        pool = multiprocessing.Pool(12)
+        pool.map(os.system, deps)
+        pool.close()
 
         # run user dependencies
         for cmd in os_cmds:
