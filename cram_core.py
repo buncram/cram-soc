@@ -17,6 +17,15 @@ from litex.soc.integration.builder import *
 from litex.soc.interconnect import wishbone
 from litex.soc.interconnect import axi
 from litex.soc.interconnect import ahb
+from litex.soc.interconnect.csr import *
+from litex.soc.interconnect.csr_eventmanager import *
+from litex.soc.integration.soc import SoCBusHandler
+
+# Interrupt emulator -------------------------------------------------------------------------------
+
+class InterruptBank(Module, AutoCSR):
+    def __init__(self):
+        self.submodules.ev = EventManager()
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
@@ -50,6 +59,14 @@ class Platform(GenericPlatform):
         conv_output = self.get_verilog(fragment, name=build_name)
         conv_output.write(f"{build_name}.v")
 
+class CsrTest(Module, AutoCSR):
+    def __init__(self):
+        self.csr_wtest = CSRStorage(32, name="wtest", description="Write test data here")
+        self.csr_rtest = CSRStatus(32, name="rtest", description="Read test data here")
+        self.comb += [
+            self.csr_rtest.status.eq(self.csr_wtest.storage + 0x1000_0000)
+        ]
+
 # cramSoC -------------------------------------------------------------------------------------
 
 class cramSoC(SoCCore):
@@ -59,6 +76,7 @@ class cramSoC(SoCCore):
         "sram"      : 0x6100_0000, # +2M
         "p_axi"     : 0x4000_0000, # +256M  # this is an IO region
         "vexriscv_debug": 0xefff_0000,
+        "csr"       : 0x5800_0000,
     }
 
     def __init__(self, sys_clk_freq=int(100e6),
@@ -87,31 +105,41 @@ class cramSoC(SoCCore):
         # CPU
         reset_address = self.mem_map["reram"]
 
-        # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, sys_clk_freq,
-            integrated_rom_size  = 0,    # don't use default ROM
-            integrated_rom_init  = None, # bios_path,
-            integrated_sram_size = 0,    # Use external SRAM for boot code
+        # SoCMini ----------------------------------------------------------------------------------
+        SoCMini.__init__(self, platform, sys_clk_freq,
             cpu_type             = "vexriscv_axi",
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
-            with_uart            = False, # implemented manually to allow for UART mux
-            cpu_reset_address    = 0x6000_0000,
+            cpu_reset_address    = reset_address,
             cpu_custom_memory    = True,
+            bus_standard         = "axi-lite",
+            bus_interconnect     = "crossbar",
+            # bus_timeout          = None,
             with_ctrl            = False,
-            with_timer           = True, # override default timer with a timer that operates in a low-power clock domain
-            bus_standard         = "axi",
             io_regions           = {
                 # Origin, Length.
                 0x4000_0000 : 0x2000_0000,
                 0xa000_0000 : 0x6000_0000,
             },
             **kwargs)
+        """
+        self.bus = SoCBusHandler(
+            standard              = "axi-lite",
+            data_width            = 32,
+            address_width         = 32,
+            bursting              = False,
+            interconnect          = "shared",
+            interconnect_register = True,
+        )
+        self.bus.add_master(master=self.cpu.periph_buses[0])
+        self.bus.add_region(name="corecsr", region=SoCIORegion(self.mem_map["csr"], size=0x0200_0000, mode = "rw", cached = False))
+        self.mem_regions = self.bus.regions
+        """
 
         # CPU --------------------------------------------------------------------------------------
         self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_cramSoC.v")
         self.cpu.add_debug()
-        self.cpu.set_reset_address(0x6000_0000)
+        self.cpu.set_reset_address(reset_address)
         self.cpu.disable_reset_address_check()
 
         # Break out custom busses to pads ----------------------------------------------------------
@@ -187,6 +215,10 @@ class cramSoC(SoCCore):
             self.cpu.interrupt.eq(int_pads)
         ]
 
+        # Test module
+        self.submodules.csrtest = CsrTest()
+
+
 # Build --------------------------------------------------------------------------------------------
 def main():
     # Arguments.
@@ -200,7 +232,7 @@ def main():
         "-D", "--document-only", default=False, action="store_true", help="dummy arg to be consistent with cram_soc"
     )
     parser.add_argument(
-        "-S", "--sim", default=False, action="store_true", help="dummy arg to be consistent with cram_soc"
+        "-S", "--sim", default=False, action="store_true", help="Run simulation. Changes `comb` description style slightly for improved simulator compatibility."
     )
     args = parser.parse_args()
 
@@ -209,10 +241,15 @@ def main():
         name         = args.name,
         sys_clk_freq = int(float(args.sys_clk_freq)),
     )
-    builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
+    builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/core.svd",
         compile_software=False, compile_gateware=False)
     builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
-    builder.build(build_name=args.name, run=False) #  regular_comb=False
+    # turn off regular_comb for simulation. Can't just use ~ because Python.
+    if args.sim:
+        rc=False
+    else:
+        rc=True
+    builder.build(build_name=args.name, run=False, regular_comb=rc)
 
 
 if __name__ == "__main__":

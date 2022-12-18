@@ -30,6 +30,10 @@ from litex.soc.cores import uart
 
 from deps.gateware.gateware import memlcd
 
+from axi_crossbar import AXICrossbar
+from axi_adapter import AXIAdapter
+from axi_ram import AXIRAM
+
 import subprocess
 
 
@@ -237,7 +241,7 @@ class CramSoC(SoCMini):
     mem_map = {**SoCCore.mem_map, **{
         "csr": 0x4000_0000,
     }}
-    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False):
+    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False):
         axi_map = {
             "reram"     : 0x6000_0000, # +3M
             "sram"      : 0x6100_0000, # +2M
@@ -262,6 +266,12 @@ class CramSoC(SoCMini):
         platform.add_source("sim_support/ram_1w_1ra.v")
         platform.add_source("sim_support/ram_1w_1rs.v")
 
+        # this must be pulled in manually because it's instantiated in the core design, but not in the SoC design
+        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
+        platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter.v"))
+        platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_wr.v"))
+        platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_rd.v"))
+
         #platform.add_source("build/femtorv_soc/gateware/femtorv_soc.v")
         #platform.add_source("build/femtorv_soc/gateware/femtorv_soc_rom.init", copy=True)
 
@@ -269,8 +279,9 @@ class CramSoC(SoCMini):
         SoCMini.__init__(self, platform, clk_freq=int(sys_clk_freq),
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
-            bus_standard = "axi-lite",
-            # bus_timeout = None,         # use this if regular_comb=True on the builder
+            bus_standard         = "axi-lite",
+            # bus_timeout          = None,         # use this if regular_comb=True on the builder
+            with_ctrl            = False,
             io_regions           = {
                 # Origin, Length.
                 0x4000_0000 : 0x2000_0000,
@@ -315,43 +326,51 @@ class CramSoC(SoCMini):
         # ------------------------------------------
 
         # 1) Create AXI interface and connect it to SoC.
-        dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=1)
-        ibus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
+        dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=1, bursting=True)
+        dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1, bursting=True)
+        self.submodules += AXIAdapter(platform, s_axi = dbus_axi, m_axi = dbus64_axi, convert_burst=True, convert_narrow_burst=True)
+        ibus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1, bursting=True)
 
-        # 2) Add AXICrossbar  (2 Slave / 2 Master).
-        self.mbus = SoCBusHandler(
-            name                  = "CachedMemoryXbar",
-            standard              = "axi",
-            data_width            = 64,
-            address_width         = 32,
-            bursting              = True,
-            interconnect          = "crossbar",
-            interconnect_register = True,
-        )
-
-        # Add AXI Buses.
-        self.mbus.add_master(name="ibus", master=ibus64_axi)
-        self.mbus.add_master(name="dbus", master=dbus_axi)
-
-        # 3) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
+        # 2) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
         if bios_path is not None:
             with open(bios_path, 'rb') as bios:
                 bios_data = bios.read()
         else:
             bios_data = []
 
-        from axi_ram import AXIRAM
-        reram_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
-        self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x1_0000, mode="rwx", cached=True))
+        reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
         self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x1_0000, name="reram", init=bios_data)
 
-        sram_axi = AXIInterface(data_width=64, address_width=32, id_width=1)
-        self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x1_0000, mode="rwx", cached=True))
-        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000)
+        sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000, name="sram")
 
-        # self.add_custom_ram(self.mbus, name="reram", origin=axi_map["reram"], size=0x1_0000, contents=bios_data, mode="rwx")
-        # self.add_custom_ram(self.mbus, name="sram", origin=axi_map["sram"], size=0x1_0000, contents=[], mode="rwx") # isolate
+        # 3) Add AXICrossbar  (2 Slave / 2 Master).
+        if not litex_axi:
+            mbus = AXICrossbar(platform=platform)
+            self.submodules += mbus
+            mbus.add_slave(name = "dbus", s_axi=dbus64_axi)
+            mbus.add_slave(name = "ibus", s_axi=ibus64_axi)
+            mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_map["reram"], size=0x0100_0000)
+            mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_map["sram"],  size=0x0100_0000)
+        else:
+            self.mbus = SoCBusHandler(
+                name                  = "CachedMemoryXbar",
+                standard              = "axi",
+                data_width            = 64,
+                address_width         = 32,
+                bursting              = True,
+                interconnect          = "crossbar",
+                interconnect_register = True,
+            )
 
+            # Add AXI Buses.
+            self.mbus.add_master(name="ibus", master=ibus64_axi)
+            self.mbus.add_master(name="dbus", master=dbus64_axi)
+
+            self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x1_0000, mode="rwx", cached=True))
+            self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x1_0000, mode="rwx", cached=True))
+
+        # 4) Add peripherals
         # setup p_axi as the local bus master
         self.bus.add_master(name="pbus", master=p_axi)
 
@@ -422,13 +441,9 @@ class CramSoC(SoCMini):
         self.irq.add("app_uart")
 
         # LCD interface ----------------------------------------------------------------------------
-        cached_lcd = False  # not caching LCD memory may lead to net improvement as stack & code are not displaced by use-once LCD entries in iterator routines
-        self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd")))
+        self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
         self.add_csr("memlcd")
-        if cached_lcd:
-            self.register_mem("memlcd", self.mem_map["memlcd"], self.memlcd.bus, size=self.memlcd.fb_depth*4)
-        else:
-            self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
+        self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # Internal reset ---------------------------------------------------------------------------
         gsr = Signal()
