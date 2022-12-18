@@ -537,6 +537,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
 
+        // report the measured reset value
         let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
 

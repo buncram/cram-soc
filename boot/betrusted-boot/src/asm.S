@@ -2,7 +2,8 @@
 .global _start
 
 _start:
-    // cause default reset to fail; we can only boot if trimming_reset worked
+    // cause default reset to fail; we can only boot if trimming_reset worked. Requires test bench
+    // to set trimming_reset_ena to 1 and trimming_reset to 0x6000_0002
     j           _start
     // decorate boot area with a canary pattern
     li          t1, 0xDEADC0DE  // deadc337

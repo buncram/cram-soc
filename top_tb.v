@@ -17,6 +17,7 @@ reg trimming_reset_ena;
 reg reset;
 
 initial begin
+    // test the trimming reset.
     reset = 0;
     trimming_reset = 32'h6000_0002;
     trimming_reset_ena = 1'b0;
