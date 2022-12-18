@@ -329,6 +329,7 @@ where
 /// only touches two words on each cache line
 /// this one tries to write the same word twice to two consecutive addresses
 /// this causes the valid strobe to hit twice in a row. seems to pass.
+#[cfg(feature="sim")]
 unsafe fn ramtest_fast_specialcase1<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
