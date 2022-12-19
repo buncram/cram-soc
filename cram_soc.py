@@ -33,6 +33,7 @@ from deps.gateware.gateware import memlcd
 from axi_crossbar import AXICrossbar
 from axi_adapter import AXIAdapter
 from axi_ram import AXIRAM
+from axi_common import *
 
 import subprocess
 
@@ -355,8 +356,20 @@ class CramSoC(SoCMini):
         if not litex_axi:
             mbus = AXICrossbar(platform=platform)
             self.submodules += mbus
-            mbus.add_slave(name = "dbus", s_axi=dbus64_axi)
-            mbus.add_slave(name = "ibus", s_axi=ibus64_axi)
+            mbus.add_slave(name = "dbus", s_axi=dbus64_axi,
+                aw_reg = AXIRegister.BYPASS,
+                w_reg  = AXIRegister.BYPASS,
+                b_reg  = AXIRegister.BYPASS,
+                ar_reg = AXIRegister.BYPASS,
+                r_reg  = AXIRegister.BYPASS,
+            )
+            mbus.add_slave(name = "ibus", s_axi=ibus64_axi,
+                aw_reg = AXIRegister.BYPASS,
+                w_reg  = AXIRegister.BYPASS,
+                b_reg  = AXIRegister.BYPASS,
+                ar_reg = AXIRegister.BYPASS,
+                r_reg  = AXIRegister.BYPASS,
+            )
             mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_map["reram"], size=0x0100_0000)
             mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_map["sram"],  size=0x0100_0000)
         else:
