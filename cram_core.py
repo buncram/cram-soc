@@ -159,7 +159,7 @@ class cramSoC(SoCCore):
             },
             **kwargs)
 
-        self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_cramSoC.v")
+        self.cpu.use_external_variant("deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v")
         self.cpu.add_debug()
         # self.cpu.set_reset_address(reset_address)
         self.cpu.disable_reset_address_check()

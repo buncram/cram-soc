@@ -38,7 +38,7 @@ from axi_common import *
 import subprocess
 
 
-VEX_VERILOG_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CranSoC.v"
+VEX_VERILOG_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v"
 
 # Equivalent to the powershell Get-Command, and kinda like `which`
 def get_command(cmd):
