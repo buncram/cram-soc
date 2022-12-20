@@ -118,6 +118,7 @@ _io = [
         Subsignal("success", Pins(1)),
         Subsignal("done", Pins(1)),
         Subsignal("report", Pins(32)),
+        Subsignal("coreuser", Pins(1)),
      ),
 
     # Trimming bits
@@ -489,6 +490,7 @@ class CramSoC(SoCMini):
         self.specials += Instance("cram_axi",
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
+            i_always_on           = ClockSignal("sys"),
             i_trimming_reset      = trimming.reset,
             i_trimming_reset_ena  = trimming.reset_ena,
             o_p_axi_awvalid       = p_axi.aw.valid,
@@ -616,6 +618,8 @@ class CramSoC(SoCMini):
             i_jtag_tck            = jtag_cpu.tck      ,
             i_jtag_trst           = jtag_cpu.trst     ,
             i_interrupt           = interrupt,
+
+            o_coreuser            = sim.coreuser      ,
         )
 
     def add_custom_ram(self, custom_bus, name, origin, size, contents=[], mode="rwx"):
