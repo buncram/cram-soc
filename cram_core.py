@@ -136,7 +136,11 @@ memory has been enabled).
 
 When specifying PPN values, two windows are provided, `a` and `b`. The windows are
 computed independently, and then OR'd together. The `a` and `b` windows should be non-overlapping.
-If they overlap, or the windows are poorly-specified, the behavior is not guaranteed.
+If they overlap, or the windows are poorly-specified, the behavior is not guaranteed. The intention
+of having two windows is not so that the OS can specify only two processes as `CoreUser`. Rather,
+the OS should design to allocate all CoreUser processes within a single range that is protected
+by a single window. The alternate window is provided only so that the OS can have a scratch space to
+re-organize or shuffle around process spaces at a higher level.
 
 The `CoreUser` signal is not cycle-precise; it will assert roughly 2 cycles after the current
 instruction being executed. Thus the signal is meant to be indicative and best used in conjunction
@@ -161,6 +165,7 @@ sensitive hardware.
             CSRField("ppn_a", size=1, description="When set to `1`, requires the `a` `ppn` window to be trusted to assert `CoreUser`"),
             CSRField("ppn_b", size=1, description="When set to `1`, requires the `b` `ppn` window to be trusted to assert `CoreUser`")
         ])
+        self.protect = CSRStorage(size=1, description="Writing `1` to this bit prevents any further updates to CoreUser configuration status. Can only be reversed with a system reset.");
         self.window_al = CSRStorage(fields=[
             CSRField("ppn", size=22, description="PPN match value, `a` window lower bound. Matches if ppn is greater than or equal to this value"),
         ])
@@ -173,40 +178,84 @@ sensitive hardware.
         self.window_bh = CSRStorage(fields=[
             CSRField("ppn", size=22, description="PPN match value, `b` window upper bound. Matches if ppn is less than or equal to this value (so a value of 255 would match everything from 0 to 255; resulting in 256 total locations"),
         ])
+        # one-way door for protecting block from updates
+        protect = Signal()
+        self.sync += [
+            If(self.protect.storage,
+                protect.eq(1)
+            ).Else(
+                protect.eq(protect)
+            )
+        ]
+        enable = Signal()
+        require_asid = Signal()
+        require_ppn_a = Signal()
+        require_ppn_b = Signal()
+        self.sync += [
+            If(protect,
+                enable.eq(enable),
+                require_asid.eq(require_asid),
+                require_ppn_a.eq(require_ppn_a),
+                require_ppn_b.eq(require_ppn_b),
+            ).Else(
+                enable.eq(self.control.fields.enable),
+                require_asid.eq(self.control.fields.asid),
+                require_ppn_a.eq(self.control.fields.ppn_a),
+                require_ppn_b.eq(self.control.fields.ppn_b),
+            )
+        ]
 
-        self.specials.asid_lut = lut = Memory(1, 512)
-        self.specials.asid_rd = lut.get_port(write_capable=False)
-        self.specials.asid_wr = lut.get_port(write_capable=True)
+        asid_lut = Memory(1, 512, init=None, name="asid_lut_nomap")
+        self.specials += asid_lut
+        asid_rd = asid_lut.get_port(write_capable=False)
+        asid_wr = asid_lut.get_port(write_capable=True)
+        self.specials += asid_rd
+        self.specials += asid_wr
 
         coreuser_asid = Signal()
 
         self.comb += [
-            self.asid_rd.adr.eq(cpu.satp_asid),
-            coreuser_asid.eq(self.asid_rd.dat_r),
-            self.asid_wr.adr.eq(self.set_asid.fields.asid),
-            self.asid_wr.dat_w.eq(self.set_asid.fields.trusted),
-            self.asid_wr.we.eq(self.set_asid.re),
-            self.get_asid_value.fields.value.eq(self.asid_wr.dat_r),
+            asid_rd.adr.eq(cpu.satp_asid),
+            coreuser_asid.eq(asid_rd.dat_r),
+            asid_wr.adr.eq(self.set_asid.fields.asid),
+            asid_wr.dat_w.eq(self.set_asid.fields.trusted),
+            asid_wr.we.eq(~protect & self.set_asid.re),
+            self.get_asid_value.fields.value.eq(asid_wr.dat_r),
         ]
+        window_al = Signal(22)
+        window_ah = Signal(22)
+        window_bl = Signal(22)
+        window_bh = Signal(22)
 
         self.sync += [
+            If(protect,
+                window_al.eq(window_al),
+                window_ah.eq(window_ah),
+                window_bl.eq(window_bh),
+                window_bh.eq(window_bh)
+            ).Else(
+                window_al.eq(self.window_al.fields.ppn),
+                window_ah.eq(self.window_ah.fields.ppn),
+                window_bl.eq(self.window_bl.fields.ppn),
+                window_bh.eq(self.window_bh.fields.ppn),
+            ),
             coreuser.eq(
                 # always trusted if we're not in Sv32 mode
                 ~cpu.satp_mode |
                 # always trusted if this check is disabled
-                ~self.control.fields.enable |
+                ~enable |
                 # ASID-based check
-                coreuser_asid & self.control.fields.asid |
+                (coreuser_asid | ~require_asid) &
                 # PPN window A check
-                self.control.fields.ppn_a & (
-                    (cpu.satp_ppn >= self.window_al.fields.ppn) &
-                    (cpu.satp_ppn <= self.window_ah.fields.ppn)
-                ) |
+                (~require_ppn_a | (
+                    (cpu.satp_ppn >= window_al) &
+                    (cpu.satp_ppn <= window_ah)
+                )) &
                 # PPN window B check
-                self.control.fields.ppn_b & (
-                    (cpu.satp_ppn >= self.window_bl.fields.ppn) &
-                    (cpu.satp_ppn <= self.window_bh.fields.ppn)
-                )
+                (~require_ppn_b | (
+                    (cpu.satp_ppn >= window_bl) &
+                    (cpu.satp_ppn <= window_bh)
+                ))
             )
         ]
 
