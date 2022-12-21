@@ -47,6 +47,7 @@ wire serial_tx;
 wire sclk;
 wire scs;
 wire si;
+wire coreuser;
 
 cram_soc dut (
     .clk12(clk12),
@@ -68,6 +69,7 @@ cram_soc dut (
     .trimming_reset(trimming_reset),
     .trimming_reset_ena(trimming_reset_ena),
 
+    .sim_coreuser(coreuser),
     .sim_success(success),
     .sim_done(done),
     .sim_report(report)
