@@ -542,7 +542,8 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
 
         // ---------- coreuser test --------------
-        satp::satp_setup();
+        satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
+        satp::satp_test();
 
         // ---------- CPU CSR tests --------------
         report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);

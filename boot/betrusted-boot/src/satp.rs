@@ -1,3 +1,5 @@
+use utralib::generated::*;
+
 pub const PAGE_SIZE: usize = 4096;
 const WORD_SIZE: usize = core::mem::size_of::<usize>();
 
@@ -5,8 +7,11 @@ const FLG_VALID: usize = 0x1;
 const FLG_X: usize = 0x8;
 const FLG_W: usize = 0x4;
 const FLG_R: usize = 0x2;
+#[allow(dead_code)]
 const FLG_U: usize = 0x10;
+#[allow(dead_code)]
 const FLG_A: usize = 0x40;
+#[allow(dead_code)]
 const FLG_D: usize = 0x80;
 
 #[repr(C)]
@@ -46,6 +51,8 @@ fn set_l2_pte(from_va: usize, to_pa: usize, l2_pt: &mut PageTable, flags: usize)
         | FLG_VALID;
 }
 
+/// Very simple Sv32 setup that drops into supervisor (kernel) mode, with most
+/// mappings being 1:1 between VA->PA, except for code which is remapped to address 0x0 in VA space.
 #[inline(never)] // correct behavior depends on RA being set.
 pub fn satp_setup() {
     // re-layout memory in virtual space
@@ -69,21 +76,21 @@ pub fn satp_setup() {
     // map code space. This is the only one that has a difference on VA->PA
     const CODE_LEN: usize = 65536;
     for offset in (0..CODE_LEN).step_by(PAGE_SIZE) {
-        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R);
+        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R | FLG_U);
     }
     // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
     const SRAM_LEN: usize = 65536;
     for offset in (0..SRAM_LEN).step_by(PAGE_SIZE) {
-        set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R);
+        set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
     }
     // map peripherals
     const CSR_LEN: usize = 0xA000;
     const PERI_LEN: usize = 0xA000;
     for offset in (0..CSR_LEN).step_by(PAGE_SIZE) {
-        set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R);
+        set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R | FLG_U);
     }
     for offset in (0..PERI_LEN).step_by(PAGE_SIZE) {
-        set_l2_pte(PERI_VA + offset, PERI_VA + offset, &mut peri_pt, FLG_W | FLG_R);
+        set_l2_pte(PERI_VA + offset, PERI_VA + offset, &mut peri_pt, FLG_W | FLG_R | FLG_U);
     }
     let asid: u32 = 1;
     let satp: u32 =
@@ -99,8 +106,8 @@ pub fn satp_setup() {
             "csrw        medeleg, t0",
 
             // Return to Supervisor mode (1 << 11) when we call `reti`.
-            // Disable interrupts (0 << 5)
-            "li		    t0, (1 << 11) | (0 << 5)",
+            // Disable interrupts (0 << 5), allow supervisor mode to run user mode code (1 << 18)
+            "li		    t0, (1 << 11) | (0 << 5) | (1 << 18)",
             "csrw	    mstatus, t0",
 
             // Enable the MMU (once we issue `mret`) and flush the cache
@@ -119,4 +126,131 @@ pub fn satp_setup() {
             satp_val = in(reg) satp,
         );
     }
+}
+
+#[inline(never)] // correct behavior depends on RA being set.
+pub fn to_user_mode() {
+    unsafe {
+        core::arch::asm!(
+            "csrw   sepc, ra",
+            "sret",
+        );
+    }
+}
+
+pub fn satp_test() {
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0000);
+
+    let mut coreuser = CSR::new(utra::coreuser::HW_COREUSER_BASE as *mut u32);
+    // first, clear the ASID table to 0
+    for asid in 0..512 {
+        coreuser.wo(utra::coreuser::SET_ASID,
+            coreuser.ms(utra::coreuser::SET_ASID_ASID, asid)
+            | coreuser.ms(utra::coreuser::SET_ASID_TRUSTED, 0)
+        );
+    }
+
+    // set some ASIDs to trusted. Values picked to somewhat challenge the decoding
+    let trusted_asids = [1, 23, 24, 278, 399];
+    for asid in trusted_asids {
+        coreuser.wo(utra::coreuser::SET_ASID,
+            coreuser.ms(utra::coreuser::SET_ASID_ASID, asid)
+            | coreuser.ms(utra::coreuser::SET_ASID_TRUSTED, 1)
+        );
+    }
+    // partial readback of table
+    for asid in 0..32 {
+        coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
+        report.wfo(utra::main::REPORT_REPORT,
+    coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
+        );
+    }
+
+    // setup window on our root page. Narrowly define it to *just* one page.
+    coreuser.wfo(utra::coreuser::WINDOW_AH_PPN, (ROOT_PT_PA >> 12) as u32);
+    coreuser.wfo(utra::coreuser::WINDOW_AL_PPN, (ROOT_PT_PA >> 12) as u32);
+
+    // turn on the coreuser computation
+    coreuser.wo(utra::coreuser::CONTROL,
+        coreuser.ms(utra::coreuser::CONTROL_ASID, 1)
+        | coreuser.ms(utra::coreuser::CONTROL_ENABLE, 1)
+        | coreuser.ms(utra::coreuser::CONTROL_PPN_A, 1)
+    );
+
+    // turn off updates
+    coreuser.wo(utra::coreuser::PROTECT, 1);
+
+    // tries to "turn off" protect, but it should do nothing
+    coreuser.wo(utra::coreuser::PROTECT, 0);
+    // tamper with asid & ppn values, should not change result
+    // add `2` to the trusted list (should not work)
+    coreuser.wo(utra::coreuser::SET_ASID,
+        coreuser.ms(utra::coreuser::SET_ASID_ASID, 2)
+        | coreuser.ms(utra::coreuser::SET_ASID_TRUSTED, 1)
+    );
+    coreuser.wfo(utra::coreuser::WINDOW_AH_PPN, 0xface as u32);
+    coreuser.wfo(utra::coreuser::WINDOW_AL_PPN, 0xdead as u32);
+    // partial readback of table; `2` should not be trusted
+    for asid in 0..4 {
+        coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
+        report.wfo(utra::main::REPORT_REPORT,
+    coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
+        );
+    }
+
+    // now try changing the SATP around and see that the coreuser value updates
+    // since we are in supervisor mode we can diddle with this at will, normally
+    // user processes can't change this
+    for asid in 0..512 {
+        let satp: u32 =
+        0x8000_0000
+        | asid << 22
+        | (ROOT_PT_PA as u32 >> 12);
+        unsafe {
+            core::arch::asm!(
+                "csrw        satp, {satp_val}",
+                "sfence.vma",
+                satp_val = in(reg) satp,
+            );
+        }
+    }
+    // restore ASID to 1
+    let satp: u32 =
+    0x8000_0000
+    | 1 << 22
+    | (ROOT_PT_PA as u32 >> 12);
+    unsafe {
+        core::arch::asm!(
+            "csrw        satp, {satp_val}",
+            "sfence.vma",
+            satp_val = in(reg) satp,
+        );
+    }
+
+    // switch to user mode
+    to_user_mode();
+
+    // attempt to change ASID. This should be ignored!
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0001);
+    let satp: u32 =
+    0x8000_0000
+    | 4 << 22
+    | (ROOT_PT_PA as u32 >> 12);
+    unsafe {
+        core::arch::asm!(
+            "csrw        satp, {satp_val}",
+            "sfence.vma",
+            // this is interesting. any less than 3 `nop`s below cause the 0x5a1d_0002 value to
+            // not appear in the final register, to varying degrees. it seems that the pipeline gets a bit
+            // imprecise after this sequence...
+            "nop",
+            "nop",
+            "nop",
+            satp_val = in(reg) satp,
+        );
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0002);
+
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_600d);
 }
