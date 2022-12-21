@@ -32,7 +32,7 @@ use core::convert::TryFrom;
 use core::mem::size_of;
 
 mod debug;
-
+mod satp;
 /*
     Notes about printing:
       - the println! and write! macros are actually quite expensive in the context of a 32kiB ROM (~4k overhead??)
@@ -541,7 +541,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
 
-        // TODO: extract and test the 0x5800_0000 range of CSRs (private to cram_axi.v)
+        // ---------- coreuser test --------------
+        satp::satp_setup();
+
+        // ---------- CPU CSR tests --------------
         report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
         let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
         let mut passing = true;
@@ -645,37 +648,38 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         }
 
         // ----------- bus tests -------------
+        const BASE_ADDR: u32 = 0x6100_8000;
         // 'random' access test
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 512);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 512);
         ramtest_lfsr(&mut test_slice, 3);
 
         // now some basic memory read/write tests
         // entirely within cache access test
         // 256-entry by 32-bit slice at start of RAM
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 256);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 256);
         ramtest_all(&mut test_slice, 4);
         // byte access test
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 256);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 256);
         ramtest_fast(&mut test_slice, 5);
         // word access test
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u16, 512);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u16, 512);
         ramtest_fast(&mut test_slice, 6); // 1ff00
 
         // outside cache test
         // 6144-entry by 32-bit slice at start of RAM - should cross outside cache boundary
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 0x1800);
         ramtest_fast(&mut test_slice, 7);  // c7f600
 
         // this passed, now that the AXI state machine is fixed.
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u32, 0x1800);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 0x1800);
         ramtest_fast_specialcase1(&mut test_slice, 8);  // c7f600
 
         // u64 access test
-        let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u64, 0xC00);
+        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u64, 0xC00);
         ramtest_fast(&mut test_slice, 9);
 
         // random size/access test
-        // let mut test_slice = core::slice::from_raw_parts_mut(0x61000000 as *mut u8, 0x6000);
+        // let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 0x6000);
 
         report.wfo(utra::main::DONE_DONE, 1);
     }
