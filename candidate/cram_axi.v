@@ -8,8 +8,8 @@
 //
 // Filename   : cram_axi.v
 // Device     : 
-// LiteX sha1 : cbb06b06
-// Date       : 2022-12-20 01:47:38
+// LiteX sha1 : b49be33d
+// Date       : 2022-12-23 02:18:02
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -21,6 +21,7 @@
 module cram_axi (
     input  wire          aclk,
     input  wire          rst,
+    input  wire          always_on,
     input  wire   [31:0] trimming_reset,
     input  wire          trimming_reset_ena,
     output wire          ibus_axi_awvalid,
@@ -135,7 +136,8 @@ module cram_axi (
     input  wire          jtag_tms,
     input  wire          jtag_tck,
     input  wire          jtag_trst,
-    input  wire   [31:0] interrupt
+    input  wire   [31:0] interrupt,
+    output reg           coreuser
 );
 
 
@@ -147,293 +149,491 @@ wire          sys_clk;
 wire          sys_rst;
 wire          por_clk;
 reg           int_rst = 1'd1;
-reg           reset = 1'd0;
-wire   [31:0] interrupt_1;
-wire   [31:0] trimming_reset0;
-wire          trimming_reset_ena0;
-reg           ibus_axi_aw_valid = 1'd0;
-wire          ibus_axi_aw_ready;
-reg    [31:0] ibus_axi_aw_payload_addr = 32'd0;
-reg     [1:0] ibus_axi_aw_payload_burst = 2'd0;
-reg     [7:0] ibus_axi_aw_payload_len = 8'd0;
-reg     [2:0] ibus_axi_aw_payload_size = 3'd0;
-reg           ibus_axi_aw_payload_lock = 1'd0;
-reg     [2:0] ibus_axi_aw_payload_prot = 3'd0;
-reg     [3:0] ibus_axi_aw_payload_cache = 4'd0;
-reg     [3:0] ibus_axi_aw_payload_qos = 4'd0;
-reg     [3:0] ibus_axi_aw_payload_region = 4'd0;
-reg           ibus_axi_aw_param_id = 1'd0;
-reg           ibus_axi_aw_param_user = 1'd0;
-reg           ibus_axi_w_valid = 1'd0;
-wire          ibus_axi_w_ready;
-reg           ibus_axi_w_last = 1'd0;
-reg    [63:0] ibus_axi_w_payload_data = 64'd0;
-reg     [7:0] ibus_axi_w_payload_strb = 8'd0;
-reg           ibus_axi_w_param_user = 1'd0;
-wire          ibus_axi_b_valid;
-reg           ibus_axi_b_ready = 1'd0;
-wire    [1:0] ibus_axi_b_payload_resp;
-wire          ibus_axi_b_param_id;
-wire          ibus_axi_b_param_user;
-wire          ibus_axi_ar_valid;
-wire          ibus_axi_ar_ready;
-wire   [31:0] ibus_axi_ar_payload_addr;
-wire    [1:0] ibus_axi_ar_payload_burst;
-wire    [7:0] ibus_axi_ar_payload_len;
-wire    [2:0] ibus_axi_ar_payload_size;
-wire          ibus_axi_ar_payload_lock;
-wire    [2:0] ibus_axi_ar_payload_prot;
-wire    [3:0] ibus_axi_ar_payload_cache;
-wire    [3:0] ibus_axi_ar_payload_qos;
-wire    [3:0] ibus_axi_ar_payload_region;
-wire          ibus_axi_ar_param_id;
-reg           ibus_axi_ar_param_user = 1'd0;
-wire          ibus_axi_r_valid;
-wire          ibus_axi_r_ready;
-wire          ibus_axi_r_last;
-wire    [1:0] ibus_axi_r_payload_resp;
-wire   [63:0] ibus_axi_r_payload_data;
-wire          ibus_axi_r_param_id;
-wire          ibus_axi_r_param_user;
-wire          dbus_axi_aw_valid;
-wire          dbus_axi_aw_ready;
-wire   [31:0] dbus_axi_aw_payload_addr;
-wire    [1:0] dbus_axi_aw_payload_burst;
-wire    [7:0] dbus_axi_aw_payload_len;
-wire    [2:0] dbus_axi_aw_payload_size;
-wire          dbus_axi_aw_payload_lock;
-wire    [2:0] dbus_axi_aw_payload_prot;
-wire    [3:0] dbus_axi_aw_payload_cache;
-wire    [3:0] dbus_axi_aw_payload_qos;
-wire    [3:0] dbus_axi_aw_payload_region;
-wire          dbus_axi_aw_param_id;
-reg           dbus_axi_aw_param_user = 1'd0;
-wire          dbus_axi_w_valid;
-wire          dbus_axi_w_ready;
-wire          dbus_axi_w_last;
-wire   [31:0] dbus_axi_w_payload_data;
-wire    [3:0] dbus_axi_w_payload_strb;
-reg           dbus_axi_w_param_user = 1'd0;
-wire          dbus_axi_b_valid;
-wire          dbus_axi_b_ready;
-wire    [1:0] dbus_axi_b_payload_resp;
-wire          dbus_axi_b_param_id;
-wire          dbus_axi_b_param_user;
-wire          dbus_axi_ar_valid;
-wire          dbus_axi_ar_ready;
-wire   [31:0] dbus_axi_ar_payload_addr;
-wire    [1:0] dbus_axi_ar_payload_burst;
-wire    [7:0] dbus_axi_ar_payload_len;
-wire    [2:0] dbus_axi_ar_payload_size;
-wire          dbus_axi_ar_payload_lock;
-wire    [2:0] dbus_axi_ar_payload_prot;
-wire    [3:0] dbus_axi_ar_payload_cache;
-wire    [3:0] dbus_axi_ar_payload_qos;
-wire    [3:0] dbus_axi_ar_payload_region;
-wire          dbus_axi_ar_param_id;
-reg           dbus_axi_ar_param_user = 1'd0;
-wire          dbus_axi_r_valid;
-wire          dbus_axi_r_ready;
-wire          dbus_axi_r_last;
-wire    [1:0] dbus_axi_r_payload_resp;
-wire   [31:0] dbus_axi_r_payload_data;
-wire          dbus_axi_r_param_id;
-wire          dbus_axi_r_param_user;
-wire          dbus_peri_aw_valid;
-wire          dbus_peri_aw_ready;
-wire   [31:0] dbus_peri_aw_payload_addr;
-wire    [1:0] dbus_peri_aw_payload_burst;
-wire    [7:0] dbus_peri_aw_payload_len;
-wire    [2:0] dbus_peri_aw_payload_size;
-wire          dbus_peri_aw_payload_lock;
-wire    [2:0] dbus_peri_aw_payload_prot;
-wire    [3:0] dbus_peri_aw_payload_cache;
-wire    [3:0] dbus_peri_aw_payload_qos;
-wire    [3:0] dbus_peri_aw_payload_region;
-wire          dbus_peri_aw_param_id;
-wire          dbus_peri_aw_param_user;
-wire          dbus_peri_w_valid;
-wire          dbus_peri_w_ready;
-wire          dbus_peri_w_last;
-wire   [31:0] dbus_peri_w_payload_data;
-wire    [3:0] dbus_peri_w_payload_strb;
-wire          dbus_peri_w_param_user;
-wire          dbus_peri_b_valid;
-wire          dbus_peri_b_ready;
-wire    [1:0] dbus_peri_b_payload_resp;
-wire          dbus_peri_b_param_id;
-reg           dbus_peri_b_param_user = 1'd0;
-wire          dbus_peri_ar_valid;
-wire          dbus_peri_ar_ready;
-wire   [31:0] dbus_peri_ar_payload_addr;
-wire    [1:0] dbus_peri_ar_payload_burst;
-wire    [7:0] dbus_peri_ar_payload_len;
-wire    [2:0] dbus_peri_ar_payload_size;
-wire          dbus_peri_ar_payload_lock;
-wire    [2:0] dbus_peri_ar_payload_prot;
-wire    [3:0] dbus_peri_ar_payload_cache;
-wire    [3:0] dbus_peri_ar_payload_qos;
-wire    [3:0] dbus_peri_ar_payload_region;
-wire          dbus_peri_ar_param_id;
-wire          dbus_peri_ar_param_user;
-wire          dbus_peri_r_valid;
-wire          dbus_peri_r_ready;
-wire          dbus_peri_r_last;
-wire    [1:0] dbus_peri_r_payload_resp;
-wire   [31:0] dbus_peri_r_payload_data;
-wire          dbus_peri_r_param_id;
-reg           dbus_peri_r_param_user = 1'd0;
-wire          peripherals_aw_valid;
-reg           peripherals_aw_ready = 1'd0;
-wire   [31:0] peripherals_aw_payload_addr;
-reg     [2:0] peripherals_aw_payload_prot = 3'd0;
-wire          peripherals_w_valid;
-reg           peripherals_w_ready = 1'd0;
-wire   [31:0] peripherals_w_payload_data;
-wire    [3:0] peripherals_w_payload_strb;
-reg           peripherals_b_valid = 1'd0;
-wire          peripherals_b_ready;
-reg     [1:0] peripherals_b_payload_resp = 2'd0;
-wire          peripherals_ar_valid;
-reg           peripherals_ar_ready = 1'd0;
-wire   [31:0] peripherals_ar_payload_addr;
-reg     [2:0] peripherals_ar_payload_prot = 3'd0;
-reg           peripherals_r_valid = 1'd0;
-wire          peripherals_r_ready;
-reg     [1:0] peripherals_r_payload_resp = 2'd0;
-reg    [31:0] peripherals_r_payload_data = 32'd0;
-wire          axi2axiliteadapter00;
-wire          axi2axiliteadapter01;
-wire          axi_csr_aw_valid;
-wire          axi_csr_aw_ready;
-wire   [31:0] axi_csr_aw_payload_addr;
-wire    [1:0] axi_csr_aw_payload_burst;
-wire    [7:0] axi_csr_aw_payload_len;
-wire    [2:0] axi_csr_aw_payload_size;
-wire          axi_csr_aw_payload_lock;
-wire    [2:0] axi_csr_aw_payload_prot;
-wire    [3:0] axi_csr_aw_payload_cache;
-wire    [3:0] axi_csr_aw_payload_qos;
-wire    [3:0] axi_csr_aw_payload_region;
-wire          axi_csr_aw_param_id;
-wire          axi_csr_aw_param_user;
-wire          axi_csr_w_valid;
-wire          axi_csr_w_ready;
-wire          axi_csr_w_last;
-wire   [31:0] axi_csr_w_payload_data;
-wire    [3:0] axi_csr_w_payload_strb;
-wire          axi_csr_w_param_user;
-wire          axi_csr_b_valid;
-wire          axi_csr_b_ready;
-wire    [1:0] axi_csr_b_payload_resp;
-wire          axi_csr_b_param_id;
-reg           axi_csr_b_param_user = 1'd0;
-wire          axi_csr_ar_valid;
-wire          axi_csr_ar_ready;
-wire   [31:0] axi_csr_ar_payload_addr;
-wire    [1:0] axi_csr_ar_payload_burst;
-wire    [7:0] axi_csr_ar_payload_len;
-wire    [2:0] axi_csr_ar_payload_size;
-wire          axi_csr_ar_payload_lock;
-wire    [2:0] axi_csr_ar_payload_prot;
-wire    [3:0] axi_csr_ar_payload_cache;
-wire    [3:0] axi_csr_ar_payload_qos;
-wire    [3:0] axi_csr_ar_payload_region;
-wire          axi_csr_ar_param_id;
-wire          axi_csr_ar_param_user;
-wire          axi_csr_r_valid;
-wire          axi_csr_r_ready;
-wire          axi_csr_r_last;
-wire    [1:0] axi_csr_r_payload_resp;
-wire   [31:0] axi_csr_r_payload_data;
-wire          axi_csr_r_param_id;
-reg           axi_csr_r_param_user = 1'd0;
-wire          corecsr_aw_valid;
-wire          corecsr_aw_ready;
-reg           corecsr_aw_first = 1'd0;
-reg           corecsr_aw_last = 1'd0;
-wire   [31:0] corecsr_aw_payload_addr;
-reg     [2:0] corecsr_aw_payload_prot = 3'd0;
-wire          corecsr_w_valid;
-wire          corecsr_w_ready;
-reg           corecsr_w_first = 1'd0;
-reg           corecsr_w_last = 1'd0;
-wire   [31:0] corecsr_w_payload_data;
-wire    [3:0] corecsr_w_payload_strb;
-wire          corecsr_b_valid;
-wire          corecsr_b_ready;
-wire          corecsr_b_first;
-wire          corecsr_b_last;
-wire    [1:0] corecsr_b_payload_resp;
-wire          corecsr_ar_valid;
-wire          corecsr_ar_ready;
-reg           corecsr_ar_first = 1'd0;
-reg           corecsr_ar_last = 1'd0;
-wire   [31:0] corecsr_ar_payload_addr;
-reg     [2:0] corecsr_ar_payload_prot = 3'd0;
-wire          corecsr_r_valid;
-wire          corecsr_r_ready;
-wire          corecsr_r_first;
-wire          corecsr_r_last;
-wire    [1:0] corecsr_r_payload_resp;
-wire   [31:0] corecsr_r_payload_data;
-wire          axi2axiliteadapter10;
-wire          axi2axiliteadapter11;
-wire          dbus_aw_valid;
-wire          dbus_aw_ready;
-wire   [31:0] dbus_aw_payload_addr;
-wire    [1:0] dbus_aw_payload_burst;
-wire    [7:0] dbus_aw_payload_len;
-wire    [2:0] dbus_aw_payload_size;
-wire          dbus_aw_payload_lock;
-wire    [2:0] dbus_aw_payload_prot;
-wire    [3:0] dbus_aw_payload_cache;
-wire    [3:0] dbus_aw_payload_qos;
-wire    [3:0] dbus_aw_payload_region;
-wire          dbus_aw_param_id;
-wire          dbus_aw_param_user;
-wire          dbus_w_valid;
-wire          dbus_w_ready;
-wire          dbus_w_last;
-wire   [31:0] dbus_w_payload_data;
-wire    [3:0] dbus_w_payload_strb;
-wire          dbus_w_param_user;
-wire          dbus_b_valid;
-wire          dbus_b_ready;
-wire    [1:0] dbus_b_payload_resp;
-wire          dbus_b_param_id;
-wire          dbus_b_param_user;
-wire          dbus_ar_valid;
-wire          dbus_ar_ready;
-wire   [31:0] dbus_ar_payload_addr;
-wire    [1:0] dbus_ar_payload_burst;
-wire    [7:0] dbus_ar_payload_len;
-wire    [2:0] dbus_ar_payload_size;
-wire          dbus_ar_payload_lock;
-wire    [2:0] dbus_ar_payload_prot;
-wire    [3:0] dbus_ar_payload_cache;
-wire    [3:0] dbus_ar_payload_qos;
-wire    [3:0] dbus_ar_payload_region;
-wire          dbus_ar_param_id;
-wire          dbus_ar_param_user;
-wire          dbus_r_valid;
-wire          dbus_r_ready;
-wire          dbus_r_last;
-wire    [1:0] dbus_r_payload_resp;
-wire   [31:0] dbus_r_payload_data;
-wire          dbus_r_param_id;
-wire          dbus_r_param_user;
-reg    [31:0] vexriscvaxi_reset_mux = 32'd1610612736;
-reg    [31:0] vexriscvaxi = 32'd1610612736;
+wire          always_on_clk;
+reg           always_on_rst = 1'd0;
+reg           cramsoc_reset = 1'd0;
+wire   [31:0] cramsoc_interrupt;
+wire   [31:0] cramsoc_trimming_reset;
+wire          cramsoc_trimming_reset_ena;
+wire          cramsoc_satp_mode;
+wire    [8:0] cramsoc_satp_asid;
+wire   [21:0] cramsoc_satp_ppn;
+reg           cramsoc_ibus_axi_aw_valid = 1'd0;
+wire          cramsoc_ibus_axi_aw_ready;
+reg    [31:0] cramsoc_ibus_axi_aw_payload_addr = 32'd0;
+reg     [1:0] cramsoc_ibus_axi_aw_payload_burst = 2'd0;
+reg     [7:0] cramsoc_ibus_axi_aw_payload_len = 8'd0;
+reg     [2:0] cramsoc_ibus_axi_aw_payload_size = 3'd0;
+reg           cramsoc_ibus_axi_aw_payload_lock = 1'd0;
+reg     [2:0] cramsoc_ibus_axi_aw_payload_prot = 3'd0;
+reg     [3:0] cramsoc_ibus_axi_aw_payload_cache = 4'd0;
+reg     [3:0] cramsoc_ibus_axi_aw_payload_qos = 4'd0;
+reg     [3:0] cramsoc_ibus_axi_aw_payload_region = 4'd0;
+reg           cramsoc_ibus_axi_aw_param_id = 1'd0;
+reg           cramsoc_ibus_axi_aw_param_user = 1'd0;
+reg           cramsoc_ibus_axi_w_valid = 1'd0;
+wire          cramsoc_ibus_axi_w_ready;
+reg           cramsoc_ibus_axi_w_last = 1'd0;
+reg    [63:0] cramsoc_ibus_axi_w_payload_data = 64'd0;
+reg     [7:0] cramsoc_ibus_axi_w_payload_strb = 8'd0;
+reg           cramsoc_ibus_axi_w_param_user = 1'd0;
+wire          cramsoc_ibus_axi_b_valid;
+reg           cramsoc_ibus_axi_b_ready = 1'd0;
+wire    [1:0] cramsoc_ibus_axi_b_payload_resp;
+wire          cramsoc_ibus_axi_b_param_id;
+wire          cramsoc_ibus_axi_b_param_user;
+wire          cramsoc_ibus_axi_ar_valid;
+wire          cramsoc_ibus_axi_ar_ready;
+wire   [31:0] cramsoc_ibus_axi_ar_payload_addr;
+wire    [1:0] cramsoc_ibus_axi_ar_payload_burst;
+wire    [7:0] cramsoc_ibus_axi_ar_payload_len;
+wire    [2:0] cramsoc_ibus_axi_ar_payload_size;
+wire          cramsoc_ibus_axi_ar_payload_lock;
+wire    [2:0] cramsoc_ibus_axi_ar_payload_prot;
+wire    [3:0] cramsoc_ibus_axi_ar_payload_cache;
+wire    [3:0] cramsoc_ibus_axi_ar_payload_qos;
+wire    [3:0] cramsoc_ibus_axi_ar_payload_region;
+wire          cramsoc_ibus_axi_ar_param_id;
+reg           cramsoc_ibus_axi_ar_param_user = 1'd0;
+wire          cramsoc_ibus_axi_r_valid;
+wire          cramsoc_ibus_axi_r_ready;
+wire          cramsoc_ibus_axi_r_last;
+wire    [1:0] cramsoc_ibus_axi_r_payload_resp;
+wire   [63:0] cramsoc_ibus_axi_r_payload_data;
+wire          cramsoc_ibus_axi_r_param_id;
+wire          cramsoc_ibus_axi_r_param_user;
+wire          cramsoc_dbus_axi_aw_valid;
+wire          cramsoc_dbus_axi_aw_ready;
+wire   [31:0] cramsoc_dbus_axi_aw_payload_addr;
+wire    [1:0] cramsoc_dbus_axi_aw_payload_burst;
+wire    [7:0] cramsoc_dbus_axi_aw_payload_len;
+wire    [2:0] cramsoc_dbus_axi_aw_payload_size;
+wire          cramsoc_dbus_axi_aw_payload_lock;
+wire    [2:0] cramsoc_dbus_axi_aw_payload_prot;
+wire    [3:0] cramsoc_dbus_axi_aw_payload_cache;
+wire    [3:0] cramsoc_dbus_axi_aw_payload_qos;
+wire    [3:0] cramsoc_dbus_axi_aw_payload_region;
+wire          cramsoc_dbus_axi_aw_param_id;
+reg           cramsoc_dbus_axi_aw_param_user = 1'd0;
+wire          cramsoc_dbus_axi_w_valid;
+wire          cramsoc_dbus_axi_w_ready;
+wire          cramsoc_dbus_axi_w_last;
+wire   [31:0] cramsoc_dbus_axi_w_payload_data;
+wire    [3:0] cramsoc_dbus_axi_w_payload_strb;
+reg           cramsoc_dbus_axi_w_param_user = 1'd0;
+wire          cramsoc_dbus_axi_b_valid;
+wire          cramsoc_dbus_axi_b_ready;
+wire    [1:0] cramsoc_dbus_axi_b_payload_resp;
+wire          cramsoc_dbus_axi_b_param_id;
+wire          cramsoc_dbus_axi_b_param_user;
+wire          cramsoc_dbus_axi_ar_valid;
+wire          cramsoc_dbus_axi_ar_ready;
+wire   [31:0] cramsoc_dbus_axi_ar_payload_addr;
+wire    [1:0] cramsoc_dbus_axi_ar_payload_burst;
+wire    [7:0] cramsoc_dbus_axi_ar_payload_len;
+wire    [2:0] cramsoc_dbus_axi_ar_payload_size;
+wire          cramsoc_dbus_axi_ar_payload_lock;
+wire    [2:0] cramsoc_dbus_axi_ar_payload_prot;
+wire    [3:0] cramsoc_dbus_axi_ar_payload_cache;
+wire    [3:0] cramsoc_dbus_axi_ar_payload_qos;
+wire    [3:0] cramsoc_dbus_axi_ar_payload_region;
+wire          cramsoc_dbus_axi_ar_param_id;
+reg           cramsoc_dbus_axi_ar_param_user = 1'd0;
+wire          cramsoc_dbus_axi_r_valid;
+wire          cramsoc_dbus_axi_r_ready;
+wire          cramsoc_dbus_axi_r_last;
+wire    [1:0] cramsoc_dbus_axi_r_payload_resp;
+wire   [31:0] cramsoc_dbus_axi_r_payload_data;
+wire          cramsoc_dbus_axi_r_param_id;
+wire          cramsoc_dbus_axi_r_param_user;
+wire          cramsoc_dbus_peri_aw_valid;
+wire          cramsoc_dbus_peri_aw_ready;
+wire   [31:0] cramsoc_dbus_peri_aw_payload_addr;
+wire    [1:0] cramsoc_dbus_peri_aw_payload_burst;
+wire    [7:0] cramsoc_dbus_peri_aw_payload_len;
+wire    [2:0] cramsoc_dbus_peri_aw_payload_size;
+wire          cramsoc_dbus_peri_aw_payload_lock;
+wire    [2:0] cramsoc_dbus_peri_aw_payload_prot;
+wire    [3:0] cramsoc_dbus_peri_aw_payload_cache;
+wire    [3:0] cramsoc_dbus_peri_aw_payload_qos;
+wire    [3:0] cramsoc_dbus_peri_aw_payload_region;
+wire          cramsoc_dbus_peri_aw_param_id;
+wire          cramsoc_dbus_peri_aw_param_user;
+wire          cramsoc_dbus_peri_w_valid;
+wire          cramsoc_dbus_peri_w_ready;
+wire          cramsoc_dbus_peri_w_last;
+wire   [31:0] cramsoc_dbus_peri_w_payload_data;
+wire    [3:0] cramsoc_dbus_peri_w_payload_strb;
+wire          cramsoc_dbus_peri_w_param_user;
+wire          cramsoc_dbus_peri_b_valid;
+wire          cramsoc_dbus_peri_b_ready;
+wire    [1:0] cramsoc_dbus_peri_b_payload_resp;
+wire          cramsoc_dbus_peri_b_param_id;
+reg           cramsoc_dbus_peri_b_param_user = 1'd0;
+wire          cramsoc_dbus_peri_ar_valid;
+wire          cramsoc_dbus_peri_ar_ready;
+wire   [31:0] cramsoc_dbus_peri_ar_payload_addr;
+wire    [1:0] cramsoc_dbus_peri_ar_payload_burst;
+wire    [7:0] cramsoc_dbus_peri_ar_payload_len;
+wire    [2:0] cramsoc_dbus_peri_ar_payload_size;
+wire          cramsoc_dbus_peri_ar_payload_lock;
+wire    [2:0] cramsoc_dbus_peri_ar_payload_prot;
+wire    [3:0] cramsoc_dbus_peri_ar_payload_cache;
+wire    [3:0] cramsoc_dbus_peri_ar_payload_qos;
+wire    [3:0] cramsoc_dbus_peri_ar_payload_region;
+wire          cramsoc_dbus_peri_ar_param_id;
+wire          cramsoc_dbus_peri_ar_param_user;
+wire          cramsoc_dbus_peri_r_valid;
+wire          cramsoc_dbus_peri_r_ready;
+wire          cramsoc_dbus_peri_r_last;
+wire    [1:0] cramsoc_dbus_peri_r_payload_resp;
+wire   [31:0] cramsoc_dbus_peri_r_payload_data;
+wire          cramsoc_dbus_peri_r_param_id;
+reg           cramsoc_dbus_peri_r_param_user = 1'd0;
+wire          cramsoc_peripherals_aw_valid;
+reg           cramsoc_peripherals_aw_ready = 1'd0;
+wire   [31:0] cramsoc_peripherals_aw_payload_addr;
+reg     [2:0] cramsoc_peripherals_aw_payload_prot = 3'd0;
+wire          cramsoc_peripherals_w_valid;
+reg           cramsoc_peripherals_w_ready = 1'd0;
+wire   [31:0] cramsoc_peripherals_w_payload_data;
+wire    [3:0] cramsoc_peripherals_w_payload_strb;
+reg           cramsoc_peripherals_b_valid = 1'd0;
+wire          cramsoc_peripherals_b_ready;
+reg     [1:0] cramsoc_peripherals_b_payload_resp = 2'd0;
+wire          cramsoc_peripherals_ar_valid;
+reg           cramsoc_peripherals_ar_ready = 1'd0;
+wire   [31:0] cramsoc_peripherals_ar_payload_addr;
+reg     [2:0] cramsoc_peripherals_ar_payload_prot = 3'd0;
+reg           cramsoc_peripherals_r_valid = 1'd0;
+wire          cramsoc_peripherals_r_ready;
+reg     [1:0] cramsoc_peripherals_r_payload_resp = 2'd0;
+reg    [31:0] cramsoc_peripherals_r_payload_data = 32'd0;
+wire          cramsoc_axi2axiliteadapter00;
+wire          cramsoc_axi2axiliteadapter01;
+wire          cramsoc_axi_csr_aw_valid;
+wire          cramsoc_axi_csr_aw_ready;
+wire   [31:0] cramsoc_axi_csr_aw_payload_addr;
+wire    [1:0] cramsoc_axi_csr_aw_payload_burst;
+wire    [7:0] cramsoc_axi_csr_aw_payload_len;
+wire    [2:0] cramsoc_axi_csr_aw_payload_size;
+wire          cramsoc_axi_csr_aw_payload_lock;
+wire    [2:0] cramsoc_axi_csr_aw_payload_prot;
+wire    [3:0] cramsoc_axi_csr_aw_payload_cache;
+wire    [3:0] cramsoc_axi_csr_aw_payload_qos;
+wire    [3:0] cramsoc_axi_csr_aw_payload_region;
+wire          cramsoc_axi_csr_aw_param_id;
+wire          cramsoc_axi_csr_aw_param_user;
+wire          cramsoc_axi_csr_w_valid;
+wire          cramsoc_axi_csr_w_ready;
+wire          cramsoc_axi_csr_w_last;
+wire   [31:0] cramsoc_axi_csr_w_payload_data;
+wire    [3:0] cramsoc_axi_csr_w_payload_strb;
+wire          cramsoc_axi_csr_w_param_user;
+wire          cramsoc_axi_csr_b_valid;
+wire          cramsoc_axi_csr_b_ready;
+wire    [1:0] cramsoc_axi_csr_b_payload_resp;
+wire          cramsoc_axi_csr_b_param_id;
+reg           cramsoc_axi_csr_b_param_user = 1'd0;
+wire          cramsoc_axi_csr_ar_valid;
+wire          cramsoc_axi_csr_ar_ready;
+wire   [31:0] cramsoc_axi_csr_ar_payload_addr;
+wire    [1:0] cramsoc_axi_csr_ar_payload_burst;
+wire    [7:0] cramsoc_axi_csr_ar_payload_len;
+wire    [2:0] cramsoc_axi_csr_ar_payload_size;
+wire          cramsoc_axi_csr_ar_payload_lock;
+wire    [2:0] cramsoc_axi_csr_ar_payload_prot;
+wire    [3:0] cramsoc_axi_csr_ar_payload_cache;
+wire    [3:0] cramsoc_axi_csr_ar_payload_qos;
+wire    [3:0] cramsoc_axi_csr_ar_payload_region;
+wire          cramsoc_axi_csr_ar_param_id;
+wire          cramsoc_axi_csr_ar_param_user;
+wire          cramsoc_axi_csr_r_valid;
+wire          cramsoc_axi_csr_r_ready;
+wire          cramsoc_axi_csr_r_last;
+wire    [1:0] cramsoc_axi_csr_r_payload_resp;
+wire   [31:0] cramsoc_axi_csr_r_payload_data;
+wire          cramsoc_axi_csr_r_param_id;
+reg           cramsoc_axi_csr_r_param_user = 1'd0;
+wire          cramsoc_corecsr_aw_valid;
+wire          cramsoc_corecsr_aw_ready;
+reg           cramsoc_corecsr_aw_first = 1'd0;
+reg           cramsoc_corecsr_aw_last = 1'd0;
+wire   [31:0] cramsoc_corecsr_aw_payload_addr;
+reg     [2:0] cramsoc_corecsr_aw_payload_prot = 3'd0;
+wire          cramsoc_corecsr_w_valid;
+wire          cramsoc_corecsr_w_ready;
+reg           cramsoc_corecsr_w_first = 1'd0;
+reg           cramsoc_corecsr_w_last = 1'd0;
+wire   [31:0] cramsoc_corecsr_w_payload_data;
+wire    [3:0] cramsoc_corecsr_w_payload_strb;
+wire          cramsoc_corecsr_b_valid;
+wire          cramsoc_corecsr_b_ready;
+wire          cramsoc_corecsr_b_first;
+wire          cramsoc_corecsr_b_last;
+wire    [1:0] cramsoc_corecsr_b_payload_resp;
+wire          cramsoc_corecsr_ar_valid;
+wire          cramsoc_corecsr_ar_ready;
+reg           cramsoc_corecsr_ar_first = 1'd0;
+reg           cramsoc_corecsr_ar_last = 1'd0;
+wire   [31:0] cramsoc_corecsr_ar_payload_addr;
+reg     [2:0] cramsoc_corecsr_ar_payload_prot = 3'd0;
+wire          cramsoc_corecsr_r_valid;
+wire          cramsoc_corecsr_r_ready;
+wire          cramsoc_corecsr_r_first;
+wire          cramsoc_corecsr_r_last;
+wire    [1:0] cramsoc_corecsr_r_payload_resp;
+wire   [31:0] cramsoc_corecsr_r_payload_data;
+wire          cramsoc_axi2axiliteadapter10;
+wire          cramsoc_axi2axiliteadapter11;
+wire          cramsoc_dbus_aw_valid;
+wire          cramsoc_dbus_aw_ready;
+wire   [31:0] cramsoc_dbus_aw_payload_addr;
+wire    [1:0] cramsoc_dbus_aw_payload_burst;
+wire    [7:0] cramsoc_dbus_aw_payload_len;
+wire    [2:0] cramsoc_dbus_aw_payload_size;
+wire          cramsoc_dbus_aw_payload_lock;
+wire    [2:0] cramsoc_dbus_aw_payload_prot;
+wire    [3:0] cramsoc_dbus_aw_payload_cache;
+wire    [3:0] cramsoc_dbus_aw_payload_qos;
+wire    [3:0] cramsoc_dbus_aw_payload_region;
+wire          cramsoc_dbus_aw_param_id;
+wire          cramsoc_dbus_aw_param_user;
+wire          cramsoc_dbus_w_valid;
+wire          cramsoc_dbus_w_ready;
+wire          cramsoc_dbus_w_last;
+wire   [31:0] cramsoc_dbus_w_payload_data;
+wire    [3:0] cramsoc_dbus_w_payload_strb;
+wire          cramsoc_dbus_w_param_user;
+wire          cramsoc_dbus_b_valid;
+wire          cramsoc_dbus_b_ready;
+wire    [1:0] cramsoc_dbus_b_payload_resp;
+wire          cramsoc_dbus_b_param_id;
+wire          cramsoc_dbus_b_param_user;
+wire          cramsoc_dbus_ar_valid;
+wire          cramsoc_dbus_ar_ready;
+wire   [31:0] cramsoc_dbus_ar_payload_addr;
+wire    [1:0] cramsoc_dbus_ar_payload_burst;
+wire    [7:0] cramsoc_dbus_ar_payload_len;
+wire    [2:0] cramsoc_dbus_ar_payload_size;
+wire          cramsoc_dbus_ar_payload_lock;
+wire    [2:0] cramsoc_dbus_ar_payload_prot;
+wire    [3:0] cramsoc_dbus_ar_payload_cache;
+wire    [3:0] cramsoc_dbus_ar_payload_qos;
+wire    [3:0] cramsoc_dbus_ar_payload_region;
+wire          cramsoc_dbus_ar_param_id;
+wire          cramsoc_dbus_ar_param_user;
+wire          cramsoc_dbus_r_valid;
+wire          cramsoc_dbus_r_ready;
+wire          cramsoc_dbus_r_last;
+wire    [1:0] cramsoc_dbus_r_payload_resp;
+wire   [31:0] cramsoc_dbus_r_payload_data;
+wire          cramsoc_dbus_r_param_id;
+wire          cramsoc_dbus_r_param_user;
+reg    [31:0] cramsoc_vexriscvaxi_reset_mux = 32'd1610612736;
+reg    [31:0] cramsoc_vexriscvaxi = 32'd1610612736;
 reg           debug_reset = 1'd0;
 wire          o_resetOut;
 reg           reset_debug_logic = 1'd0;
-wire   [31:0] trimming_reset1;
-wire          trimming_reset_ena1;
+wire   [31:0] trimming_reset_1;
+wire          trimming_reset_ena_1;
 wire   [31:0] status;
 wire          we;
 reg           re = 1'd0;
 reg    [31:0] latched_value = 32'd0;
+wire    [8:0] coreuser_asid0;
+wire          coreuser_trusted;
+reg     [9:0] coreuser_set_asid_storage = 10'd0;
+reg           coreuser_set_asid_re = 1'd0;
+wire    [8:0] coreuser_asid1;
+reg     [8:0] coreuser_get_asid_addr_storage = 9'd0;
+reg           coreuser_get_asid_addr_re = 1'd0;
+reg           coreuser_value = 1'd0;
+reg           coreuser_get_asid_value_storage = 1'd0;
+reg           coreuser_get_asid_value_re = 1'd0;
+wire          coreuser_enable0;
+wire          coreuser_asid2;
+wire          coreuser_ppn_a;
+wire          coreuser_ppn_b;
+reg     [3:0] coreuser_control_storage = 4'd0;
+reg           coreuser_control_re = 1'd0;
+reg           coreuser_protect_storage = 1'd0;
+reg           coreuser_protect_re = 1'd0;
+wire   [21:0] coreuser_ppn0;
+reg    [21:0] coreuser_window_al_storage = 22'd0;
+reg           coreuser_window_al_re = 1'd0;
+wire   [21:0] coreuser_ppn1;
+reg    [21:0] coreuser_window_ah_storage = 22'd0;
+reg           coreuser_window_ah_re = 1'd0;
+wire   [21:0] coreuser_ppn2;
+reg    [21:0] coreuser_window_bl_storage = 22'd0;
+reg           coreuser_window_bl_re = 1'd0;
+wire   [21:0] coreuser_ppn3;
+reg    [21:0] coreuser_window_bh_storage = 22'd0;
+reg           coreuser_window_bh_re = 1'd0;
+reg           coreuser_protect = 1'd0;
+reg           coreuser_enable1 = 1'd0;
+reg           coreuser_require_asid = 1'd0;
+reg           coreuser_require_ppn_a = 1'd0;
+reg           coreuser_require_ppn_b = 1'd0;
+wire    [8:0] coreuser_asid_rd_adr;
+wire          coreuser_asid_rd_dat_r;
+wire    [8:0] coreuser_asid_wr_adr;
+wire          coreuser_asid_wr_dat_r;
+wire          coreuser_asid_wr_we;
+wire          coreuser_asid_wr_dat_w;
+wire          coreuser_coreuser_asid;
+reg    [21:0] coreuser_window_al = 22'd0;
+reg    [21:0] coreuser_window_ah = 22'd0;
+reg    [21:0] coreuser_window_bl = 22'd0;
+reg    [21:0] coreuser_window_bh = 22'd0;
+reg    [18:0] ticktimer_prescaler = 19'd400000;
+reg    [63:0] ticktimer_timer0 = 64'd0;
+reg           ticktimer_pause0 = 1'd0;
+wire          ticktimer_pause1;
+reg           ticktimer_load = 1'd0;
+wire          ticktimer_load_xfer_i;
+wire          ticktimer_load_xfer_o;
+wire          ticktimer_load_xfer_ps_i;
+wire          ticktimer_load_xfer_ps_o;
+reg           ticktimer_load_xfer_ps_toggle_i = 1'd0;
+wire          ticktimer_load_xfer_ps_toggle_o;
+reg           ticktimer_load_xfer_ps_toggle_o_r = 1'd0;
+wire          ticktimer_load_xfer_ps_ack_i;
+wire          ticktimer_load_xfer_ps_ack_o;
+reg           ticktimer_load_xfer_ps_ack_toggle_i = 1'd0;
+wire          ticktimer_load_xfer_ps_ack_toggle_o;
+reg           ticktimer_load_xfer_ps_ack_toggle_o_r = 1'd0;
+reg           ticktimer_load_xfer_blind = 1'd0;
+wire          ticktimer_paused0;
+reg           ticktimer_paused1 = 1'd0;
+wire   [63:0] ticktimer_timer1;
+wire   [63:0] ticktimer_timer_sync_i;
+reg    [63:0] ticktimer_timer_sync_o = 64'd0;
+reg           ticktimer_timer_sync_starter = 1'd1;
+wire          ticktimer_timer_sync_ping_i;
+wire          ticktimer_timer_sync_ping_o0;
+reg           ticktimer_timer_sync_ping_toggle_i = 1'd0;
+wire          ticktimer_timer_sync_ping_toggle_o;
+reg           ticktimer_timer_sync_ping_toggle_o_r = 1'd0;
+reg           ticktimer_timer_sync_ping_o1 = 1'd0;
+wire          ticktimer_timer_sync_pong_i;
+wire          ticktimer_timer_sync_pong_o;
+reg           ticktimer_timer_sync_pong_toggle_i = 1'd0;
+wire          ticktimer_timer_sync_pong_toggle_o;
+reg           ticktimer_timer_sync_pong_toggle_o_r = 1'd0;
+wire          ticktimer_timer_sync_wait;
+wire          ticktimer_timer_sync_done;
+reg     [7:0] ticktimer_timer_sync_count = 8'd128;
+reg    [63:0] ticktimer_timer_sync_ibuffer = 64'd0;
+wire   [63:0] ticktimer_timer_sync_obuffer;
+reg    [63:0] ticktimer_resume_time = 64'd0;
+wire   [63:0] ticktimer_resume_sync_i;
+reg    [63:0] ticktimer_resume_sync_o = 64'd0;
+reg           ticktimer_resume_sync_starter = 1'd1;
+wire          ticktimer_resume_sync_ping_i;
+wire          ticktimer_resume_sync_ping_o0;
+reg           ticktimer_resume_sync_ping_toggle_i = 1'd0;
+wire          ticktimer_resume_sync_ping_toggle_o;
+reg           ticktimer_resume_sync_ping_toggle_o_r = 1'd0;
+reg           ticktimer_resume_sync_ping_o1 = 1'd0;
+wire          ticktimer_resume_sync_pong_i;
+wire          ticktimer_resume_sync_pong_o;
+reg           ticktimer_resume_sync_pong_toggle_i = 1'd0;
+wire          ticktimer_resume_sync_pong_toggle_o;
+reg           ticktimer_resume_sync_pong_toggle_o_r = 1'd0;
+wire          ticktimer_resume_sync_wait;
+wire          ticktimer_resume_sync_done;
+reg     [7:0] ticktimer_resume_sync_count = 8'd128;
+reg    [63:0] ticktimer_resume_sync_ibuffer = 64'd0;
+wire   [63:0] ticktimer_resume_sync_obuffer;
+reg           ticktimer_reset = 1'd0;
+reg           ticktimer_control_storage = 1'd0;
+reg           ticktimer_control_re = 1'd0;
+wire   [63:0] ticktimer_time_status;
+wire          ticktimer_time_we;
+reg           ticktimer_time_re = 1'd0;
+wire          ticktimer_reset_xfer_i;
+wire          ticktimer_reset_xfer_o;
+wire          ticktimer_reset_xfer_ps_i;
+wire          ticktimer_reset_xfer_ps_o;
+reg           ticktimer_reset_xfer_ps_toggle_i = 1'd0;
+wire          ticktimer_reset_xfer_ps_toggle_o;
+reg           ticktimer_reset_xfer_ps_toggle_o_r = 1'd0;
+wire          ticktimer_reset_xfer_ps_ack_i;
+wire          ticktimer_reset_xfer_ps_ack_o;
+reg           ticktimer_reset_xfer_ps_ack_toggle_i = 1'd0;
+wire          ticktimer_reset_xfer_ps_ack_toggle_o;
+reg           ticktimer_reset_xfer_ps_ack_toggle_o_r = 1'd0;
+reg           ticktimer_reset_xfer_blind = 1'd0;
+reg    [63:0] ticktimer_msleep_target_storage = 64'd0;
+reg           ticktimer_msleep_target_re = 1'd0;
+wire          ticktimer_irq;
+wire          ticktimer_alarm_status;
+wire          ticktimer_alarm_pending;
+wire          ticktimer_alarm_trigger0;
+reg           ticktimer_alarm_clear = 1'd0;
+reg           ticktimer_alarm_trigger1 = 1'd0;
+wire          ticktimer_alarm0;
+wire          ticktimer_status_status;
+wire          ticktimer_status_we;
+reg           ticktimer_status_re = 1'd0;
+wire          ticktimer_alarm1;
+wire          ticktimer_pending_status;
+wire          ticktimer_pending_we;
+reg           ticktimer_pending_re = 1'd0;
+reg           ticktimer_pending_r = 1'd0;
+wire          ticktimer_alarm2;
+reg           ticktimer_enable_storage = 1'd0;
+reg           ticktimer_enable_re = 1'd0;
+wire          ticktimer_ping_i;
+wire          ticktimer_ping_o;
+wire          ticktimer_ping_ps_i;
+wire          ticktimer_ping_ps_o;
+reg           ticktimer_ping_ps_toggle_i = 1'd0;
+wire          ticktimer_ping_ps_toggle_o;
+reg           ticktimer_ping_ps_toggle_o_r = 1'd0;
+wire          ticktimer_ping_ps_ack_i;
+wire          ticktimer_ping_ps_ack_o;
+reg           ticktimer_ping_ps_ack_toggle_i = 1'd0;
+wire          ticktimer_ping_ps_ack_toggle_o;
+reg           ticktimer_ping_ps_ack_toggle_o_r = 1'd0;
+reg           ticktimer_ping_blind = 1'd0;
+wire          ticktimer_pong_i;
+wire          ticktimer_pong_o;
+wire          ticktimer_pong_ps_i;
+wire          ticktimer_pong_ps_o;
+reg           ticktimer_pong_ps_toggle_i = 1'd0;
+wire          ticktimer_pong_ps_toggle_o;
+reg           ticktimer_pong_ps_toggle_o_r = 1'd0;
+wire          ticktimer_pong_ps_ack_i;
+wire          ticktimer_pong_ps_ack_o;
+reg           ticktimer_pong_ps_ack_toggle_i = 1'd0;
+wire          ticktimer_pong_ps_ack_toggle_o;
+reg           ticktimer_pong_ps_ack_toggle_o_r = 1'd0;
+reg           ticktimer_pong_blind = 1'd0;
+reg           ticktimer_lockout_alarm = 1'd0;
+reg           ticktimer_alarm3 = 1'd0;
+wire   [63:0] ticktimer_target_xfer_i;
+reg    [63:0] ticktimer_target_xfer_o = 64'd0;
+reg           ticktimer_target_xfer_starter = 1'd1;
+wire          ticktimer_target_xfer_ping_i;
+wire          ticktimer_target_xfer_ping_o0;
+reg           ticktimer_target_xfer_ping_toggle_i = 1'd0;
+wire          ticktimer_target_xfer_ping_toggle_o;
+reg           ticktimer_target_xfer_ping_toggle_o_r = 1'd0;
+reg           ticktimer_target_xfer_ping_o1 = 1'd0;
+wire          ticktimer_target_xfer_pong_i;
+wire          ticktimer_target_xfer_pong_o;
+reg           ticktimer_target_xfer_pong_toggle_i = 1'd0;
+wire          ticktimer_target_xfer_pong_toggle_o;
+reg           ticktimer_target_xfer_pong_toggle_o_r = 1'd0;
+wire          ticktimer_target_xfer_wait;
+wire          ticktimer_target_xfer_done;
+reg     [7:0] ticktimer_target_xfer_count = 8'd128;
+reg    [63:0] ticktimer_target_xfer_ibuffer = 64'd0;
+wire   [63:0] ticktimer_target_xfer_obuffer;
+wire          ticktimer_alarm_always_on;
 reg    [31:0] csr_wtest_storage = 32'd0;
 reg           csr_wtest_re = 1'd0;
 wire   [31:0] csr_rtest_status;
@@ -543,14 +743,42 @@ wire          interface0_we;
 wire   [31:0] interface0_dat_w;
 reg    [31:0] interface0_dat_r = 32'd0;
 wire          interface0_re;
-reg           csrbank0_wtest0_re = 1'd0;
-wire   [31:0] csrbank0_wtest0_r;
-reg           csrbank0_wtest0_we = 1'd0;
-wire   [31:0] csrbank0_wtest0_w;
-reg           csrbank0_rtest_re = 1'd0;
-wire   [31:0] csrbank0_rtest_r;
-reg           csrbank0_rtest_we = 1'd0;
-wire   [31:0] csrbank0_rtest_w;
+reg           csrbank0_set_asid0_re = 1'd0;
+wire    [9:0] csrbank0_set_asid0_r;
+reg           csrbank0_set_asid0_we = 1'd0;
+wire    [9:0] csrbank0_set_asid0_w;
+reg           csrbank0_get_asid_addr0_re = 1'd0;
+wire    [8:0] csrbank0_get_asid_addr0_r;
+reg           csrbank0_get_asid_addr0_we = 1'd0;
+wire    [8:0] csrbank0_get_asid_addr0_w;
+reg           csrbank0_get_asid_value0_re = 1'd0;
+wire          csrbank0_get_asid_value0_r;
+reg           csrbank0_get_asid_value0_we = 1'd0;
+wire          csrbank0_get_asid_value0_w;
+reg           csrbank0_control0_re = 1'd0;
+wire    [3:0] csrbank0_control0_r;
+reg           csrbank0_control0_we = 1'd0;
+wire    [3:0] csrbank0_control0_w;
+reg           csrbank0_protect0_re = 1'd0;
+wire          csrbank0_protect0_r;
+reg           csrbank0_protect0_we = 1'd0;
+wire          csrbank0_protect0_w;
+reg           csrbank0_window_al0_re = 1'd0;
+wire   [21:0] csrbank0_window_al0_r;
+reg           csrbank0_window_al0_we = 1'd0;
+wire   [21:0] csrbank0_window_al0_w;
+reg           csrbank0_window_ah0_re = 1'd0;
+wire   [21:0] csrbank0_window_ah0_r;
+reg           csrbank0_window_ah0_we = 1'd0;
+wire   [21:0] csrbank0_window_ah0_w;
+reg           csrbank0_window_bl0_re = 1'd0;
+wire   [21:0] csrbank0_window_bl0_r;
+reg           csrbank0_window_bl0_we = 1'd0;
+wire   [21:0] csrbank0_window_bl0_w;
+reg           csrbank0_window_bh0_re = 1'd0;
+wire   [21:0] csrbank0_window_bh0_r;
+reg           csrbank0_window_bh0_we = 1'd0;
+wire   [21:0] csrbank0_window_bh0_w;
 wire          csrbank0_sel;
 wire          csrbank0_re;
 wire   [15:0] interface1_adr;
@@ -558,12 +786,66 @@ wire          interface1_we;
 wire   [31:0] interface1_dat_w;
 reg    [31:0] interface1_dat_r = 32'd0;
 wire          interface1_re;
-reg           csrbank1_pc_re = 1'd0;
-wire   [31:0] csrbank1_pc_r;
-reg           csrbank1_pc_we = 1'd0;
-wire   [31:0] csrbank1_pc_w;
+reg           csrbank1_wtest0_re = 1'd0;
+wire   [31:0] csrbank1_wtest0_r;
+reg           csrbank1_wtest0_we = 1'd0;
+wire   [31:0] csrbank1_wtest0_w;
+reg           csrbank1_rtest_re = 1'd0;
+wire   [31:0] csrbank1_rtest_r;
+reg           csrbank1_rtest_we = 1'd0;
+wire   [31:0] csrbank1_rtest_w;
 wire          csrbank1_sel;
 wire          csrbank1_re;
+wire   [15:0] interface2_adr;
+wire          interface2_we;
+wire   [31:0] interface2_dat_w;
+reg    [31:0] interface2_dat_r = 32'd0;
+wire          interface2_re;
+reg           csrbank2_pc_re = 1'd0;
+wire   [31:0] csrbank2_pc_r;
+reg           csrbank2_pc_we = 1'd0;
+wire   [31:0] csrbank2_pc_w;
+wire          csrbank2_sel;
+wire          csrbank2_re;
+wire   [15:0] interface3_adr;
+wire          interface3_we;
+wire   [31:0] interface3_dat_w;
+reg    [31:0] interface3_dat_r = 32'd0;
+wire          interface3_re;
+reg           csrbank3_control0_re = 1'd0;
+wire          csrbank3_control0_r;
+reg           csrbank3_control0_we = 1'd0;
+wire          csrbank3_control0_w;
+reg           csrbank3_time1_re = 1'd0;
+wire   [31:0] csrbank3_time1_r;
+reg           csrbank3_time1_we = 1'd0;
+wire   [31:0] csrbank3_time1_w;
+reg           csrbank3_time0_re = 1'd0;
+wire   [31:0] csrbank3_time0_r;
+reg           csrbank3_time0_we = 1'd0;
+wire   [31:0] csrbank3_time0_w;
+reg           csrbank3_msleep_target1_re = 1'd0;
+wire   [31:0] csrbank3_msleep_target1_r;
+reg           csrbank3_msleep_target1_we = 1'd0;
+wire   [31:0] csrbank3_msleep_target1_w;
+reg           csrbank3_msleep_target0_re = 1'd0;
+wire   [31:0] csrbank3_msleep_target0_r;
+reg           csrbank3_msleep_target0_we = 1'd0;
+wire   [31:0] csrbank3_msleep_target0_w;
+reg           csrbank3_ev_status_re = 1'd0;
+wire          csrbank3_ev_status_r;
+reg           csrbank3_ev_status_we = 1'd0;
+wire          csrbank3_ev_status_w;
+reg           csrbank3_ev_pending_re = 1'd0;
+wire          csrbank3_ev_pending_r;
+reg           csrbank3_ev_pending_we = 1'd0;
+wire          csrbank3_ev_pending_w;
+reg           csrbank3_ev_enable0_re = 1'd0;
+wire          csrbank3_ev_enable0_r;
+reg           csrbank3_ev_enable0_we = 1'd0;
+wire          csrbank3_ev_enable0_w;
+wire          csrbank3_sel;
+wire          csrbank3_re;
 wire   [15:0] csr_interconnect_adr;
 wire          csr_interconnect_we;
 wire   [31:0] csr_interconnect_dat_w;
@@ -592,104 +874,143 @@ reg           array_muxed13 = 1'd0;
 reg    [31:0] array_muxed14 = 32'd0;
 reg     [2:0] array_muxed15 = 3'd0;
 reg           array_muxed16 = 1'd0;
+reg           multiregimpl00 = 1'd0;
+reg           multiregimpl01 = 1'd0;
+reg           multiregimpl10 = 1'd0;
+reg           multiregimpl11 = 1'd0;
+reg           multiregimpl20 = 1'd0;
+reg           multiregimpl21 = 1'd0;
+reg           multiregimpl30 = 1'd0;
+reg           multiregimpl31 = 1'd0;
+reg           multiregimpl40 = 1'd0;
+reg           multiregimpl41 = 1'd0;
+reg           multiregimpl50 = 1'd0;
+reg           multiregimpl51 = 1'd0;
+reg    [63:0] multiregimpl60 = 64'd0;
+reg    [63:0] multiregimpl61 = 64'd0;
+reg           multiregimpl70 = 1'd0;
+reg           multiregimpl71 = 1'd0;
+reg           multiregimpl80 = 1'd0;
+reg           multiregimpl81 = 1'd0;
+reg    [63:0] multiregimpl90 = 64'd0;
+reg    [63:0] multiregimpl91 = 64'd0;
+reg           multiregimpl100 = 1'd0;
+reg           multiregimpl101 = 1'd0;
+reg           multiregimpl110 = 1'd0;
+reg           multiregimpl111 = 1'd0;
+reg           multiregimpl120 = 1'd0;
+reg           multiregimpl121 = 1'd0;
+reg           multiregimpl130 = 1'd0;
+reg           multiregimpl131 = 1'd0;
+reg           multiregimpl140 = 1'd0;
+reg           multiregimpl141 = 1'd0;
+reg           multiregimpl150 = 1'd0;
+reg           multiregimpl151 = 1'd0;
+reg           multiregimpl160 = 1'd0;
+reg           multiregimpl161 = 1'd0;
+reg           multiregimpl170 = 1'd0;
+reg           multiregimpl171 = 1'd0;
+reg    [63:0] multiregimpl180 = 64'd0;
+reg    [63:0] multiregimpl181 = 64'd0;
 
 //------------------------------------------------------------------------------
 // Combinatorial Logic
 //------------------------------------------------------------------------------
 
-assign trimming_reset1 = trimming_reset;
-assign trimming_reset_ena1 = trimming_reset_ena;
-assign trimming_reset0 = trimming_reset1;
-assign trimming_reset_ena0 = trimming_reset_ena1;
-assign ibus_axi_awvalid = ibus_axi_aw_valid;
-assign ibus_axi_awaddr = ibus_axi_aw_payload_addr;
-assign ibus_axi_awburst = ibus_axi_aw_payload_burst;
-assign ibus_axi_awlen = ibus_axi_aw_payload_len;
-assign ibus_axi_awsize = ibus_axi_aw_payload_size;
-assign ibus_axi_awlock = ibus_axi_aw_payload_lock;
-assign ibus_axi_awprot = ibus_axi_aw_payload_prot;
-assign ibus_axi_awcache = ibus_axi_aw_payload_cache;
-assign ibus_axi_awqos = ibus_axi_aw_payload_qos;
-assign ibus_axi_awregion = ibus_axi_aw_payload_region;
-assign ibus_axi_awid = ibus_axi_aw_param_id;
-assign ibus_axi_awuser = ibus_axi_aw_param_user;
-assign ibus_axi_aw_ready = ibus_axi_awready;
-assign ibus_axi_wvalid = ibus_axi_w_valid;
-assign ibus_axi_wdata = ibus_axi_w_payload_data;
-assign ibus_axi_wstrb = ibus_axi_w_payload_strb;
-assign ibus_axi_wuser = ibus_axi_w_param_user;
-assign ibus_axi_wlast = ibus_axi_w_last;
-assign ibus_axi_w_ready = ibus_axi_wready;
-assign ibus_axi_b_valid = ibus_axi_bvalid;
-assign ibus_axi_b_payload_resp = ibus_axi_bresp;
-assign ibus_axi_b_param_id = ibus_axi_bid;
-assign ibus_axi_b_param_user = ibus_axi_buser;
-assign ibus_axi_bready = ibus_axi_b_ready;
-assign ibus_axi_arvalid = ibus_axi_ar_valid;
-assign ibus_axi_araddr = ibus_axi_ar_payload_addr;
-assign ibus_axi_arburst = ibus_axi_ar_payload_burst;
-assign ibus_axi_arlen = ibus_axi_ar_payload_len;
-assign ibus_axi_arsize = ibus_axi_ar_payload_size;
-assign ibus_axi_arlock = ibus_axi_ar_payload_lock;
-assign ibus_axi_arprot = ibus_axi_ar_payload_prot;
-assign ibus_axi_arcache = ibus_axi_ar_payload_cache;
-assign ibus_axi_arqos = ibus_axi_ar_payload_qos;
-assign ibus_axi_arregion = ibus_axi_ar_payload_region;
-assign ibus_axi_arid = ibus_axi_ar_param_id;
-assign ibus_axi_aruser = ibus_axi_ar_param_user;
-assign ibus_axi_ar_ready = ibus_axi_arready;
-assign ibus_axi_r_valid = ibus_axi_rvalid;
-assign ibus_axi_r_payload_resp = ibus_axi_rresp;
-assign ibus_axi_r_payload_data = ibus_axi_rdata;
-assign ibus_axi_r_param_id = ibus_axi_rid;
-assign ibus_axi_r_param_user = ibus_axi_ruser;
-assign ibus_axi_r_last = ibus_axi_rlast;
-assign ibus_axi_rready = ibus_axi_r_ready;
-assign dbus_axi_awvalid = dbus_aw_valid;
-assign dbus_axi_awaddr = dbus_aw_payload_addr;
-assign dbus_axi_awburst = dbus_aw_payload_burst;
-assign dbus_axi_awlen = dbus_aw_payload_len;
-assign dbus_axi_awsize = dbus_aw_payload_size;
-assign dbus_axi_awlock = dbus_aw_payload_lock;
-assign dbus_axi_awprot = dbus_aw_payload_prot;
-assign dbus_axi_awcache = dbus_aw_payload_cache;
-assign dbus_axi_awqos = dbus_aw_payload_qos;
-assign dbus_axi_awregion = dbus_aw_payload_region;
-assign dbus_axi_awid = dbus_aw_param_id;
-assign dbus_axi_awuser = dbus_aw_param_user;
-assign dbus_aw_ready = dbus_axi_awready;
-assign dbus_axi_wvalid = dbus_w_valid;
-assign dbus_axi_wdata = dbus_w_payload_data;
-assign dbus_axi_wstrb = dbus_w_payload_strb;
-assign dbus_axi_wuser = dbus_w_param_user;
-assign dbus_axi_wlast = dbus_w_last;
-assign dbus_w_ready = dbus_axi_wready;
-assign dbus_b_valid = dbus_axi_bvalid;
-assign dbus_b_payload_resp = dbus_axi_bresp;
-assign dbus_b_param_id = dbus_axi_bid;
-assign dbus_b_param_user = dbus_axi_buser;
-assign dbus_axi_bready = dbus_b_ready;
-assign dbus_axi_arvalid = dbus_ar_valid;
-assign dbus_axi_araddr = dbus_ar_payload_addr;
-assign dbus_axi_arburst = dbus_ar_payload_burst;
-assign dbus_axi_arlen = dbus_ar_payload_len;
-assign dbus_axi_arsize = dbus_ar_payload_size;
-assign dbus_axi_arlock = dbus_ar_payload_lock;
-assign dbus_axi_arprot = dbus_ar_payload_prot;
-assign dbus_axi_arcache = dbus_ar_payload_cache;
-assign dbus_axi_arqos = dbus_ar_payload_qos;
-assign dbus_axi_arregion = dbus_ar_payload_region;
-assign dbus_axi_arid = dbus_ar_param_id;
-assign dbus_axi_aruser = dbus_ar_param_user;
-assign dbus_ar_ready = dbus_axi_arready;
-assign dbus_r_valid = dbus_axi_rvalid;
-assign dbus_r_payload_resp = dbus_axi_rresp;
-assign dbus_r_payload_data = dbus_axi_rdata;
-assign dbus_r_param_id = dbus_axi_rid;
-assign dbus_r_param_user = dbus_axi_ruser;
-assign dbus_r_last = dbus_axi_rlast;
-assign dbus_axi_rready = dbus_r_ready;
-assign interrupt_1 = interrupt;
+assign always_on_clk = always_on;
+assign trimming_reset_1 = trimming_reset;
+assign trimming_reset_ena_1 = trimming_reset_ena;
+assign cramsoc_trimming_reset = trimming_reset_1;
+assign cramsoc_trimming_reset_ena = trimming_reset_ena_1;
+assign ibus_axi_awvalid = cramsoc_ibus_axi_aw_valid;
+assign ibus_axi_awaddr = cramsoc_ibus_axi_aw_payload_addr;
+assign ibus_axi_awburst = cramsoc_ibus_axi_aw_payload_burst;
+assign ibus_axi_awlen = cramsoc_ibus_axi_aw_payload_len;
+assign ibus_axi_awsize = cramsoc_ibus_axi_aw_payload_size;
+assign ibus_axi_awlock = cramsoc_ibus_axi_aw_payload_lock;
+assign ibus_axi_awprot = cramsoc_ibus_axi_aw_payload_prot;
+assign ibus_axi_awcache = cramsoc_ibus_axi_aw_payload_cache;
+assign ibus_axi_awqos = cramsoc_ibus_axi_aw_payload_qos;
+assign ibus_axi_awregion = cramsoc_ibus_axi_aw_payload_region;
+assign ibus_axi_awid = cramsoc_ibus_axi_aw_param_id;
+assign ibus_axi_awuser = cramsoc_ibus_axi_aw_param_user;
+assign cramsoc_ibus_axi_aw_ready = ibus_axi_awready;
+assign ibus_axi_wvalid = cramsoc_ibus_axi_w_valid;
+assign ibus_axi_wdata = cramsoc_ibus_axi_w_payload_data;
+assign ibus_axi_wstrb = cramsoc_ibus_axi_w_payload_strb;
+assign ibus_axi_wuser = cramsoc_ibus_axi_w_param_user;
+assign ibus_axi_wlast = cramsoc_ibus_axi_w_last;
+assign cramsoc_ibus_axi_w_ready = ibus_axi_wready;
+assign cramsoc_ibus_axi_b_valid = ibus_axi_bvalid;
+assign cramsoc_ibus_axi_b_payload_resp = ibus_axi_bresp;
+assign cramsoc_ibus_axi_b_param_id = ibus_axi_bid;
+assign cramsoc_ibus_axi_b_param_user = ibus_axi_buser;
+assign ibus_axi_bready = cramsoc_ibus_axi_b_ready;
+assign ibus_axi_arvalid = cramsoc_ibus_axi_ar_valid;
+assign ibus_axi_araddr = cramsoc_ibus_axi_ar_payload_addr;
+assign ibus_axi_arburst = cramsoc_ibus_axi_ar_payload_burst;
+assign ibus_axi_arlen = cramsoc_ibus_axi_ar_payload_len;
+assign ibus_axi_arsize = cramsoc_ibus_axi_ar_payload_size;
+assign ibus_axi_arlock = cramsoc_ibus_axi_ar_payload_lock;
+assign ibus_axi_arprot = cramsoc_ibus_axi_ar_payload_prot;
+assign ibus_axi_arcache = cramsoc_ibus_axi_ar_payload_cache;
+assign ibus_axi_arqos = cramsoc_ibus_axi_ar_payload_qos;
+assign ibus_axi_arregion = cramsoc_ibus_axi_ar_payload_region;
+assign ibus_axi_arid = cramsoc_ibus_axi_ar_param_id;
+assign ibus_axi_aruser = cramsoc_ibus_axi_ar_param_user;
+assign cramsoc_ibus_axi_ar_ready = ibus_axi_arready;
+assign cramsoc_ibus_axi_r_valid = ibus_axi_rvalid;
+assign cramsoc_ibus_axi_r_payload_resp = ibus_axi_rresp;
+assign cramsoc_ibus_axi_r_payload_data = ibus_axi_rdata;
+assign cramsoc_ibus_axi_r_param_id = ibus_axi_rid;
+assign cramsoc_ibus_axi_r_param_user = ibus_axi_ruser;
+assign cramsoc_ibus_axi_r_last = ibus_axi_rlast;
+assign ibus_axi_rready = cramsoc_ibus_axi_r_ready;
+assign dbus_axi_awvalid = cramsoc_dbus_aw_valid;
+assign dbus_axi_awaddr = cramsoc_dbus_aw_payload_addr;
+assign dbus_axi_awburst = cramsoc_dbus_aw_payload_burst;
+assign dbus_axi_awlen = cramsoc_dbus_aw_payload_len;
+assign dbus_axi_awsize = cramsoc_dbus_aw_payload_size;
+assign dbus_axi_awlock = cramsoc_dbus_aw_payload_lock;
+assign dbus_axi_awprot = cramsoc_dbus_aw_payload_prot;
+assign dbus_axi_awcache = cramsoc_dbus_aw_payload_cache;
+assign dbus_axi_awqos = cramsoc_dbus_aw_payload_qos;
+assign dbus_axi_awregion = cramsoc_dbus_aw_payload_region;
+assign dbus_axi_awid = cramsoc_dbus_aw_param_id;
+assign dbus_axi_awuser = cramsoc_dbus_aw_param_user;
+assign cramsoc_dbus_aw_ready = dbus_axi_awready;
+assign dbus_axi_wvalid = cramsoc_dbus_w_valid;
+assign dbus_axi_wdata = cramsoc_dbus_w_payload_data;
+assign dbus_axi_wstrb = cramsoc_dbus_w_payload_strb;
+assign dbus_axi_wuser = cramsoc_dbus_w_param_user;
+assign dbus_axi_wlast = cramsoc_dbus_w_last;
+assign cramsoc_dbus_w_ready = dbus_axi_wready;
+assign cramsoc_dbus_b_valid = dbus_axi_bvalid;
+assign cramsoc_dbus_b_payload_resp = dbus_axi_bresp;
+assign cramsoc_dbus_b_param_id = dbus_axi_bid;
+assign cramsoc_dbus_b_param_user = dbus_axi_buser;
+assign dbus_axi_bready = cramsoc_dbus_b_ready;
+assign dbus_axi_arvalid = cramsoc_dbus_ar_valid;
+assign dbus_axi_araddr = cramsoc_dbus_ar_payload_addr;
+assign dbus_axi_arburst = cramsoc_dbus_ar_payload_burst;
+assign dbus_axi_arlen = cramsoc_dbus_ar_payload_len;
+assign dbus_axi_arsize = cramsoc_dbus_ar_payload_size;
+assign dbus_axi_arlock = cramsoc_dbus_ar_payload_lock;
+assign dbus_axi_arprot = cramsoc_dbus_ar_payload_prot;
+assign dbus_axi_arcache = cramsoc_dbus_ar_payload_cache;
+assign dbus_axi_arqos = cramsoc_dbus_ar_payload_qos;
+assign dbus_axi_arregion = cramsoc_dbus_ar_payload_region;
+assign dbus_axi_arid = cramsoc_dbus_ar_param_id;
+assign dbus_axi_aruser = cramsoc_dbus_ar_param_user;
+assign cramsoc_dbus_ar_ready = dbus_axi_arready;
+assign cramsoc_dbus_r_valid = dbus_axi_rvalid;
+assign cramsoc_dbus_r_payload_resp = dbus_axi_rresp;
+assign cramsoc_dbus_r_payload_data = dbus_axi_rdata;
+assign cramsoc_dbus_r_param_id = dbus_axi_rid;
+assign cramsoc_dbus_r_param_user = dbus_axi_ruser;
+assign cramsoc_dbus_r_last = dbus_axi_rlast;
+assign dbus_axi_rready = cramsoc_dbus_r_ready;
+assign cramsoc_interrupt = interrupt;
 assign sys_clk = aclk;
 assign por_clk = aclk;
 assign sys_rst = int_rst;
@@ -711,41 +1032,41 @@ always @(*) begin
         socbushandler_slave_sel1 <= socbushandler_slave_sel_reg1;
     end
 end
-assign socbushandler_aw_valid = (corecsr_aw_valid & socbushandler_slave_sel0);
-assign socbushandler_aw_first = corecsr_aw_first;
-assign socbushandler_aw_last = corecsr_aw_last;
-assign socbushandler_aw_payload_addr = corecsr_aw_payload_addr;
-assign socbushandler_aw_payload_prot = corecsr_aw_payload_prot;
-assign socbushandler_w_valid = (corecsr_w_valid & socbushandler_slave_sel0);
-assign socbushandler_w_first = corecsr_w_first;
-assign socbushandler_w_last = corecsr_w_last;
-assign socbushandler_w_payload_data = corecsr_w_payload_data;
-assign socbushandler_w_payload_strb = corecsr_w_payload_strb;
-assign socbushandler_b_ready = (corecsr_b_ready & socbushandler_slave_sel0);
-assign socbushandler_ar_valid = (corecsr_ar_valid & socbushandler_slave_sel1);
-assign socbushandler_ar_first = corecsr_ar_first;
-assign socbushandler_ar_last = corecsr_ar_last;
-assign socbushandler_ar_payload_addr = corecsr_ar_payload_addr;
-assign socbushandler_ar_payload_prot = corecsr_ar_payload_prot;
-assign socbushandler_r_ready = (corecsr_r_ready & socbushandler_slave_sel1);
-assign corecsr_aw_ready = (socbushandler_aw_ready & {1{socbushandler_slave_sel0}});
-assign corecsr_w_ready = (socbushandler_w_ready & {1{socbushandler_slave_sel0}});
-assign corecsr_b_valid = (socbushandler_b_valid & {1{socbushandler_slave_sel0}});
-assign corecsr_b_first = (socbushandler_b_first & {1{socbushandler_slave_sel0}});
-assign corecsr_b_last = (socbushandler_b_last & {1{socbushandler_slave_sel0}});
-assign corecsr_b_payload_resp = (socbushandler_b_payload_resp & {2{socbushandler_slave_sel0}});
-assign corecsr_ar_ready = (socbushandler_ar_ready & {1{socbushandler_slave_sel1}});
-assign corecsr_r_valid = (socbushandler_r_valid & {1{socbushandler_slave_sel1}});
-assign corecsr_r_first = (socbushandler_r_first & {1{socbushandler_slave_sel1}});
-assign corecsr_r_last = (socbushandler_r_last & {1{socbushandler_slave_sel1}});
-assign corecsr_r_payload_resp = (socbushandler_r_payload_resp & {2{socbushandler_slave_sel1}});
-assign corecsr_r_payload_data = (socbushandler_r_payload_data & {32{socbushandler_slave_sel1}});
+assign socbushandler_aw_valid = (cramsoc_corecsr_aw_valid & socbushandler_slave_sel0);
+assign socbushandler_aw_first = cramsoc_corecsr_aw_first;
+assign socbushandler_aw_last = cramsoc_corecsr_aw_last;
+assign socbushandler_aw_payload_addr = cramsoc_corecsr_aw_payload_addr;
+assign socbushandler_aw_payload_prot = cramsoc_corecsr_aw_payload_prot;
+assign socbushandler_w_valid = (cramsoc_corecsr_w_valid & socbushandler_slave_sel0);
+assign socbushandler_w_first = cramsoc_corecsr_w_first;
+assign socbushandler_w_last = cramsoc_corecsr_w_last;
+assign socbushandler_w_payload_data = cramsoc_corecsr_w_payload_data;
+assign socbushandler_w_payload_strb = cramsoc_corecsr_w_payload_strb;
+assign socbushandler_b_ready = (cramsoc_corecsr_b_ready & socbushandler_slave_sel0);
+assign socbushandler_ar_valid = (cramsoc_corecsr_ar_valid & socbushandler_slave_sel1);
+assign socbushandler_ar_first = cramsoc_corecsr_ar_first;
+assign socbushandler_ar_last = cramsoc_corecsr_ar_last;
+assign socbushandler_ar_payload_addr = cramsoc_corecsr_ar_payload_addr;
+assign socbushandler_ar_payload_prot = cramsoc_corecsr_ar_payload_prot;
+assign socbushandler_r_ready = (cramsoc_corecsr_r_ready & socbushandler_slave_sel1);
+assign cramsoc_corecsr_aw_ready = (socbushandler_aw_ready & {1{socbushandler_slave_sel0}});
+assign cramsoc_corecsr_w_ready = (socbushandler_w_ready & {1{socbushandler_slave_sel0}});
+assign cramsoc_corecsr_b_valid = (socbushandler_b_valid & {1{socbushandler_slave_sel0}});
+assign cramsoc_corecsr_b_first = (socbushandler_b_first & {1{socbushandler_slave_sel0}});
+assign cramsoc_corecsr_b_last = (socbushandler_b_last & {1{socbushandler_slave_sel0}});
+assign cramsoc_corecsr_b_payload_resp = (socbushandler_b_payload_resp & {2{socbushandler_slave_sel0}});
+assign cramsoc_corecsr_ar_ready = (socbushandler_ar_ready & {1{socbushandler_slave_sel1}});
+assign cramsoc_corecsr_r_valid = (socbushandler_r_valid & {1{socbushandler_slave_sel1}});
+assign cramsoc_corecsr_r_first = (socbushandler_r_first & {1{socbushandler_slave_sel1}});
+assign cramsoc_corecsr_r_last = (socbushandler_r_last & {1{socbushandler_slave_sel1}});
+assign cramsoc_corecsr_r_payload_resp = (socbushandler_r_payload_resp & {2{socbushandler_slave_sel1}});
+assign cramsoc_corecsr_r_payload_data = (socbushandler_r_payload_data & {32{socbushandler_slave_sel1}});
 assign socbushandler_axiliterequestcounter0_full = (socbushandler_axiliterequestcounter0_counter == 8'd255);
 assign socbushandler_axiliterequestcounter0_empty = (socbushandler_axiliterequestcounter0_counter == 1'd0);
-assign socbushandler_axiliterequestcounter0_stall = ((corecsr_aw_valid & corecsr_aw_ready) & socbushandler_axiliterequestcounter0_full);
+assign socbushandler_axiliterequestcounter0_stall = ((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & socbushandler_axiliterequestcounter0_full);
 assign socbushandler_axiliterequestcounter1_full = (socbushandler_axiliterequestcounter1_counter == 8'd255);
 assign socbushandler_axiliterequestcounter1_empty = (socbushandler_axiliterequestcounter1_counter == 1'd0);
-assign socbushandler_axiliterequestcounter1_stall = ((corecsr_ar_valid & corecsr_ar_ready) & socbushandler_axiliterequestcounter1_full);
+assign socbushandler_axiliterequestcounter1_stall = ((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & socbushandler_axiliterequestcounter1_full);
 assign cramsoc_aw_valid = array_muxed0;
 assign cramsoc_aw_first = array_muxed1;
 assign cramsoc_aw_last = array_muxed2;
@@ -813,14 +1134,87 @@ assign socbushandler_rd_lock_full = (socbushandler_rd_lock_counter == 8'd255);
 assign socbushandler_rd_lock_empty = (socbushandler_rd_lock_counter == 1'd0);
 assign socbushandler_rd_lock_stall = ((cramsoc_ar_valid & cramsoc_ar_ready) & socbushandler_rd_lock_full);
 always @(*) begin
-    vexriscvaxi_reset_mux <= 32'd1610612736;
-    if (trimming_reset_ena0) begin
-        vexriscvaxi_reset_mux <= trimming_reset0;
+    cramsoc_vexriscvaxi_reset_mux <= 32'd1610612736;
+    if (cramsoc_trimming_reset_ena) begin
+        cramsoc_vexriscvaxi_reset_mux <= cramsoc_trimming_reset;
     end else begin
-        vexriscvaxi_reset_mux <= vexriscvaxi;
+        cramsoc_vexriscvaxi_reset_mux <= cramsoc_vexriscvaxi;
     end
 end
 assign status = latched_value;
+assign coreuser_asid_rd_adr = cramsoc_satp_asid;
+assign coreuser_coreuser_asid = coreuser_asid_rd_dat_r;
+assign coreuser_asid_wr_adr = coreuser_asid0;
+assign coreuser_asid_wr_dat_w = coreuser_trusted;
+assign coreuser_asid_wr_we = ((~coreuser_protect) & coreuser_set_asid_re);
+assign ticktimer_load_xfer_i = ticktimer_load;
+assign ticktimer_timer_sync_i = ticktimer_timer0;
+assign ticktimer_timer1 = ticktimer_timer_sync_o;
+assign ticktimer_resume_sync_i = ticktimer_resume_time;
+assign ticktimer_time_status = ticktimer_timer_sync_o;
+assign ticktimer_reset_xfer_i = ticktimer_reset;
+assign ticktimer_alarm_trigger0 = ticktimer_alarm_trigger1;
+assign ticktimer_ping_i = ticktimer_msleep_target_re;
+assign ticktimer_pong_i = ticktimer_ping_o;
+always @(*) begin
+    ticktimer_alarm_trigger1 <= 1'd0;
+    if (ticktimer_lockout_alarm) begin
+        ticktimer_alarm_trigger1 <= 1'd0;
+    end else begin
+        ticktimer_alarm_trigger1 <= (ticktimer_msleep_target_storage <= ticktimer_timer_sync_o);
+    end
+end
+assign ticktimer_target_xfer_i = ticktimer_msleep_target_storage;
+assign ticktimer_alarm_always_on = ticktimer_alarm3;
+assign ticktimer_load_xfer_ps_i = (ticktimer_load_xfer_i & (~ticktimer_load_xfer_blind));
+assign ticktimer_load_xfer_ps_ack_i = ticktimer_load_xfer_ps_o;
+assign ticktimer_load_xfer_o = ticktimer_load_xfer_ps_o;
+assign ticktimer_load_xfer_ps_o = (ticktimer_load_xfer_ps_toggle_o ^ ticktimer_load_xfer_ps_toggle_o_r);
+assign ticktimer_load_xfer_ps_ack_o = (ticktimer_load_xfer_ps_ack_toggle_o ^ ticktimer_load_xfer_ps_ack_toggle_o_r);
+assign ticktimer_timer_sync_wait = (~ticktimer_timer_sync_ping_i);
+assign ticktimer_timer_sync_ping_i = ((ticktimer_timer_sync_starter | ticktimer_timer_sync_pong_o) | ticktimer_timer_sync_done);
+assign ticktimer_timer_sync_pong_i = ticktimer_timer_sync_ping_o1;
+assign ticktimer_timer_sync_ping_o0 = (ticktimer_timer_sync_ping_toggle_o ^ ticktimer_timer_sync_ping_toggle_o_r);
+assign ticktimer_timer_sync_pong_o = (ticktimer_timer_sync_pong_toggle_o ^ ticktimer_timer_sync_pong_toggle_o_r);
+assign ticktimer_timer_sync_done = (ticktimer_timer_sync_count == 1'd0);
+assign ticktimer_resume_sync_wait = (~ticktimer_resume_sync_ping_i);
+assign ticktimer_resume_sync_ping_i = ((ticktimer_resume_sync_starter | ticktimer_resume_sync_pong_o) | ticktimer_resume_sync_done);
+assign ticktimer_resume_sync_pong_i = ticktimer_resume_sync_ping_o1;
+assign ticktimer_resume_sync_ping_o0 = (ticktimer_resume_sync_ping_toggle_o ^ ticktimer_resume_sync_ping_toggle_o_r);
+assign ticktimer_resume_sync_pong_o = (ticktimer_resume_sync_pong_toggle_o ^ ticktimer_resume_sync_pong_toggle_o_r);
+assign ticktimer_resume_sync_done = (ticktimer_resume_sync_count == 1'd0);
+assign ticktimer_reset_xfer_ps_i = (ticktimer_reset_xfer_i & (~ticktimer_reset_xfer_blind));
+assign ticktimer_reset_xfer_ps_ack_i = ticktimer_reset_xfer_ps_o;
+assign ticktimer_reset_xfer_o = ticktimer_reset_xfer_ps_o;
+assign ticktimer_reset_xfer_ps_o = (ticktimer_reset_xfer_ps_toggle_o ^ ticktimer_reset_xfer_ps_toggle_o_r);
+assign ticktimer_reset_xfer_ps_ack_o = (ticktimer_reset_xfer_ps_ack_toggle_o ^ ticktimer_reset_xfer_ps_ack_toggle_o_r);
+assign ticktimer_alarm0 = ticktimer_alarm_status;
+assign ticktimer_alarm1 = ticktimer_alarm_pending;
+always @(*) begin
+    ticktimer_alarm_clear <= 1'd0;
+    if ((ticktimer_pending_re & ticktimer_pending_r)) begin
+        ticktimer_alarm_clear <= 1'd1;
+    end
+end
+assign ticktimer_irq = (ticktimer_pending_status & ticktimer_enable_storage);
+assign ticktimer_alarm_status = ticktimer_alarm_trigger0;
+assign ticktimer_alarm_pending = ticktimer_alarm_trigger0;
+assign ticktimer_ping_ps_i = (ticktimer_ping_i & (~ticktimer_ping_blind));
+assign ticktimer_ping_ps_ack_i = ticktimer_ping_ps_o;
+assign ticktimer_ping_o = ticktimer_ping_ps_o;
+assign ticktimer_ping_ps_o = (ticktimer_ping_ps_toggle_o ^ ticktimer_ping_ps_toggle_o_r);
+assign ticktimer_ping_ps_ack_o = (ticktimer_ping_ps_ack_toggle_o ^ ticktimer_ping_ps_ack_toggle_o_r);
+assign ticktimer_pong_ps_i = (ticktimer_pong_i & (~ticktimer_pong_blind));
+assign ticktimer_pong_ps_ack_i = ticktimer_pong_ps_o;
+assign ticktimer_pong_o = ticktimer_pong_ps_o;
+assign ticktimer_pong_ps_o = (ticktimer_pong_ps_toggle_o ^ ticktimer_pong_ps_toggle_o_r);
+assign ticktimer_pong_ps_ack_o = (ticktimer_pong_ps_ack_toggle_o ^ ticktimer_pong_ps_ack_toggle_o_r);
+assign ticktimer_target_xfer_wait = (~ticktimer_target_xfer_ping_i);
+assign ticktimer_target_xfer_ping_i = ((ticktimer_target_xfer_starter | ticktimer_target_xfer_pong_o) | ticktimer_target_xfer_done);
+assign ticktimer_target_xfer_pong_i = ticktimer_target_xfer_ping_o1;
+assign ticktimer_target_xfer_ping_o0 = (ticktimer_target_xfer_ping_toggle_o ^ ticktimer_target_xfer_ping_toggle_o_r);
+assign ticktimer_target_xfer_pong_o = (ticktimer_target_xfer_pong_toggle_o ^ ticktimer_target_xfer_pong_toggle_o_r);
+assign ticktimer_target_xfer_done = (ticktimer_target_xfer_count == 1'd0);
 assign csr_rtest_status = (csr_wtest_storage + 29'd268435456);
 assign cramsoc_dat_w = cramsoc_w_payload_data;
 assign cramsoc_we = ((cramsoc_w_valid & cramsoc_w_ready) & (cramsoc_w_payload_strb != 1'd0));
@@ -842,18 +1236,18 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
-    cramsoc_last_was_read_next_value_ce <= 1'd0;
+    cramsoc_next_state <= 2'd0;
+    cramsoc_last_was_read_next_value <= 1'd0;
     cramsoc_adr <= 16'd0;
-    cramsoc_r_payload_resp <= 2'd0;
+    cramsoc_last_was_read_next_value_ce <= 1'd0;
     cramsoc_r_payload_data <= 32'd0;
+    cramsoc_r_payload_resp <= 2'd0;
     cramsoc_b_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_r_valid <= 1'd0;
     cramsoc_nocomb_axl_w_ready <= 1'd0;
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
-    cramsoc_next_state <= 2'd0;
     cramsoc_nocomb_axl_ar_ready <= 1'd0;
     cramsoc_nocomb_axl_b_valid <= 1'd0;
-    cramsoc_last_was_read_next_value <= 1'd0;
     cramsoc_next_state <= cramsoc_state;
     case (cramsoc_state)
         1'd1: begin
@@ -896,40 +1290,242 @@ always @(*) begin
 end
 assign csrbank0_sel = (interface0_adr[15:10] == 1'd0);
 assign csrbank0_re = interface0_re;
-assign csrbank0_wtest0_r = interface0_dat_w[31:0];
+assign csrbank0_set_asid0_r = interface0_dat_w[9:0];
 always @(*) begin
-    csrbank0_wtest0_we <= 1'd0;
-    csrbank0_wtest0_re <= 1'd0;
+    csrbank0_set_asid0_re <= 1'd0;
+    csrbank0_set_asid0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_adr[9:0] == 1'd0))) begin
-        csrbank0_wtest0_re <= interface0_we;
-        csrbank0_wtest0_we <= csrbank0_re;
+        csrbank0_set_asid0_re <= interface0_we;
+        csrbank0_set_asid0_we <= csrbank0_re;
     end
 end
-assign csrbank0_rtest_r = interface0_dat_w[31:0];
+assign csrbank0_get_asid_addr0_r = interface0_dat_w[8:0];
 always @(*) begin
-    csrbank0_rtest_re <= 1'd0;
-    csrbank0_rtest_we <= 1'd0;
+    csrbank0_get_asid_addr0_we <= 1'd0;
+    csrbank0_get_asid_addr0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_adr[9:0] == 1'd1))) begin
-        csrbank0_rtest_re <= interface0_we;
-        csrbank0_rtest_we <= csrbank0_re;
+        csrbank0_get_asid_addr0_re <= interface0_we;
+        csrbank0_get_asid_addr0_we <= csrbank0_re;
     end
 end
-assign csrbank0_wtest0_w = csr_wtest_storage[31:0];
-assign csrbank0_rtest_w = csr_rtest_status[31:0];
-assign csr_rtest_we = csrbank0_rtest_we;
+assign csrbank0_get_asid_value0_r = interface0_dat_w[0];
+always @(*) begin
+    csrbank0_get_asid_value0_we <= 1'd0;
+    csrbank0_get_asid_value0_re <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 2'd2))) begin
+        csrbank0_get_asid_value0_re <= interface0_we;
+        csrbank0_get_asid_value0_we <= csrbank0_re;
+    end
+end
+assign csrbank0_control0_r = interface0_dat_w[3:0];
+always @(*) begin
+    csrbank0_control0_re <= 1'd0;
+    csrbank0_control0_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 2'd3))) begin
+        csrbank0_control0_re <= interface0_we;
+        csrbank0_control0_we <= csrbank0_re;
+    end
+end
+assign csrbank0_protect0_r = interface0_dat_w[0];
+always @(*) begin
+    csrbank0_protect0_we <= 1'd0;
+    csrbank0_protect0_re <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd4))) begin
+        csrbank0_protect0_re <= interface0_we;
+        csrbank0_protect0_we <= csrbank0_re;
+    end
+end
+assign csrbank0_window_al0_r = interface0_dat_w[21:0];
+always @(*) begin
+    csrbank0_window_al0_re <= 1'd0;
+    csrbank0_window_al0_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd5))) begin
+        csrbank0_window_al0_re <= interface0_we;
+        csrbank0_window_al0_we <= csrbank0_re;
+    end
+end
+assign csrbank0_window_ah0_r = interface0_dat_w[21:0];
+always @(*) begin
+    csrbank0_window_ah0_re <= 1'd0;
+    csrbank0_window_ah0_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd6))) begin
+        csrbank0_window_ah0_re <= interface0_we;
+        csrbank0_window_ah0_we <= csrbank0_re;
+    end
+end
+assign csrbank0_window_bl0_r = interface0_dat_w[21:0];
+always @(*) begin
+    csrbank0_window_bl0_we <= 1'd0;
+    csrbank0_window_bl0_re <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd7))) begin
+        csrbank0_window_bl0_re <= interface0_we;
+        csrbank0_window_bl0_we <= csrbank0_re;
+    end
+end
+assign csrbank0_window_bh0_r = interface0_dat_w[21:0];
+always @(*) begin
+    csrbank0_window_bh0_re <= 1'd0;
+    csrbank0_window_bh0_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_adr[9:0] == 4'd8))) begin
+        csrbank0_window_bh0_re <= interface0_we;
+        csrbank0_window_bh0_we <= csrbank0_re;
+    end
+end
+assign coreuser_asid0 = coreuser_set_asid_storage[8:0];
+assign coreuser_trusted = coreuser_set_asid_storage[9];
+assign csrbank0_set_asid0_w = coreuser_set_asid_storage[9:0];
+assign coreuser_asid1 = coreuser_get_asid_addr_storage[8:0];
+assign csrbank0_get_asid_addr0_w = coreuser_get_asid_addr_storage[8:0];
+always @(*) begin
+    coreuser_value <= 1'd0;
+    coreuser_value <= coreuser_asid_wr_dat_r;
+    coreuser_value <= coreuser_get_asid_value_storage;
+end
+assign csrbank0_get_asid_value0_w = coreuser_get_asid_value_storage;
+assign coreuser_enable0 = coreuser_control_storage[0];
+assign coreuser_asid2 = coreuser_control_storage[1];
+assign coreuser_ppn_a = coreuser_control_storage[2];
+assign coreuser_ppn_b = coreuser_control_storage[3];
+assign csrbank0_control0_w = coreuser_control_storage[3:0];
+assign csrbank0_protect0_w = coreuser_protect_storage;
+assign coreuser_ppn0 = coreuser_window_al_storage[21:0];
+assign csrbank0_window_al0_w = coreuser_window_al_storage[21:0];
+assign coreuser_ppn1 = coreuser_window_ah_storage[21:0];
+assign csrbank0_window_ah0_w = coreuser_window_ah_storage[21:0];
+assign coreuser_ppn2 = coreuser_window_bl_storage[21:0];
+assign csrbank0_window_bl0_w = coreuser_window_bl_storage[21:0];
+assign coreuser_ppn3 = coreuser_window_bh_storage[21:0];
+assign csrbank0_window_bh0_w = coreuser_window_bh_storage[21:0];
 assign csrbank1_sel = (interface1_adr[15:10] == 1'd1);
 assign csrbank1_re = interface1_re;
-assign csrbank1_pc_r = interface1_dat_w[31:0];
+assign csrbank1_wtest0_r = interface1_dat_w[31:0];
 always @(*) begin
-    csrbank1_pc_re <= 1'd0;
-    csrbank1_pc_we <= 1'd0;
+    csrbank1_wtest0_we <= 1'd0;
+    csrbank1_wtest0_re <= 1'd0;
     if ((csrbank1_sel & (interface1_adr[9:0] == 1'd0))) begin
-        csrbank1_pc_re <= interface1_we;
-        csrbank1_pc_we <= csrbank1_re;
+        csrbank1_wtest0_re <= interface1_we;
+        csrbank1_wtest0_we <= csrbank1_re;
     end
 end
-assign csrbank1_pc_w = status[31:0];
-assign we = csrbank1_pc_we;
+assign csrbank1_rtest_r = interface1_dat_w[31:0];
+always @(*) begin
+    csrbank1_rtest_re <= 1'd0;
+    csrbank1_rtest_we <= 1'd0;
+    if ((csrbank1_sel & (interface1_adr[9:0] == 1'd1))) begin
+        csrbank1_rtest_re <= interface1_we;
+        csrbank1_rtest_we <= csrbank1_re;
+    end
+end
+assign csrbank1_wtest0_w = csr_wtest_storage[31:0];
+assign csrbank1_rtest_w = csr_rtest_status[31:0];
+assign csr_rtest_we = csrbank1_rtest_we;
+assign csrbank2_sel = (interface2_adr[15:10] == 2'd2);
+assign csrbank2_re = interface2_re;
+assign csrbank2_pc_r = interface2_dat_w[31:0];
+always @(*) begin
+    csrbank2_pc_re <= 1'd0;
+    csrbank2_pc_we <= 1'd0;
+    if ((csrbank2_sel & (interface2_adr[9:0] == 1'd0))) begin
+        csrbank2_pc_re <= interface2_we;
+        csrbank2_pc_we <= csrbank2_re;
+    end
+end
+assign csrbank2_pc_w = status[31:0];
+assign we = csrbank2_pc_we;
+assign csrbank3_sel = (interface3_adr[15:10] == 2'd3);
+assign csrbank3_re = interface3_re;
+assign csrbank3_control0_r = interface3_dat_w[0];
+always @(*) begin
+    csrbank3_control0_we <= 1'd0;
+    csrbank3_control0_re <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 1'd0))) begin
+        csrbank3_control0_re <= interface3_we;
+        csrbank3_control0_we <= csrbank3_re;
+    end
+end
+assign csrbank3_time1_r = interface3_dat_w[31:0];
+always @(*) begin
+    csrbank3_time1_we <= 1'd0;
+    csrbank3_time1_re <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 1'd1))) begin
+        csrbank3_time1_re <= interface3_we;
+        csrbank3_time1_we <= csrbank3_re;
+    end
+end
+assign csrbank3_time0_r = interface3_dat_w[31:0];
+always @(*) begin
+    csrbank3_time0_re <= 1'd0;
+    csrbank3_time0_we <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd2))) begin
+        csrbank3_time0_re <= interface3_we;
+        csrbank3_time0_we <= csrbank3_re;
+    end
+end
+assign csrbank3_msleep_target1_r = interface3_dat_w[31:0];
+always @(*) begin
+    csrbank3_msleep_target1_re <= 1'd0;
+    csrbank3_msleep_target1_we <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd3))) begin
+        csrbank3_msleep_target1_re <= interface3_we;
+        csrbank3_msleep_target1_we <= csrbank3_re;
+    end
+end
+assign csrbank3_msleep_target0_r = interface3_dat_w[31:0];
+always @(*) begin
+    csrbank3_msleep_target0_we <= 1'd0;
+    csrbank3_msleep_target0_re <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd4))) begin
+        csrbank3_msleep_target0_re <= interface3_we;
+        csrbank3_msleep_target0_we <= csrbank3_re;
+    end
+end
+assign csrbank3_ev_status_r = interface3_dat_w[0];
+always @(*) begin
+    csrbank3_ev_status_re <= 1'd0;
+    csrbank3_ev_status_we <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd5))) begin
+        csrbank3_ev_status_re <= interface3_we;
+        csrbank3_ev_status_we <= csrbank3_re;
+    end
+end
+assign csrbank3_ev_pending_r = interface3_dat_w[0];
+always @(*) begin
+    csrbank3_ev_pending_re <= 1'd0;
+    csrbank3_ev_pending_we <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd6))) begin
+        csrbank3_ev_pending_re <= interface3_we;
+        csrbank3_ev_pending_we <= csrbank3_re;
+    end
+end
+assign csrbank3_ev_enable0_r = interface3_dat_w[0];
+always @(*) begin
+    csrbank3_ev_enable0_we <= 1'd0;
+    csrbank3_ev_enable0_re <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd7))) begin
+        csrbank3_ev_enable0_re <= interface3_we;
+        csrbank3_ev_enable0_we <= csrbank3_re;
+    end
+end
+always @(*) begin
+    ticktimer_reset <= 1'd0;
+    if (ticktimer_control_re) begin
+        ticktimer_reset <= ticktimer_control_storage;
+    end
+end
+assign csrbank3_control0_w = ticktimer_control_storage;
+assign csrbank3_time1_w = ticktimer_time_status[63:32];
+assign csrbank3_time0_w = ticktimer_time_status[31:0];
+assign ticktimer_time_we = csrbank3_time0_we;
+assign csrbank3_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
+assign csrbank3_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
+assign ticktimer_status_status = ticktimer_alarm0;
+assign csrbank3_ev_status_w = ticktimer_status_status;
+assign ticktimer_status_we = csrbank3_ev_status_we;
+assign ticktimer_pending_status = ticktimer_alarm1;
+assign csrbank3_ev_pending_w = ticktimer_pending_status;
+assign ticktimer_pending_we = csrbank3_ev_pending_we;
+assign ticktimer_alarm2 = ticktimer_enable_storage;
+assign csrbank3_ev_enable0_w = ticktimer_enable_storage;
 assign csr_interconnect_adr = cramsoc_adr;
 assign csr_interconnect_we = cramsoc_we;
 assign csr_interconnect_dat_w = cramsoc_dat_w;
@@ -937,15 +1533,23 @@ assign csr_interconnect_re = cramsoc_re;
 assign cramsoc_dat_r = csr_interconnect_dat_r;
 assign interface0_adr = csr_interconnect_adr;
 assign interface1_adr = csr_interconnect_adr;
+assign interface2_adr = csr_interconnect_adr;
+assign interface3_adr = csr_interconnect_adr;
 assign interface0_we = csr_interconnect_we;
 assign interface1_we = csr_interconnect_we;
+assign interface2_we = csr_interconnect_we;
+assign interface3_we = csr_interconnect_we;
 assign interface0_dat_w = csr_interconnect_dat_w;
 assign interface1_dat_w = csr_interconnect_dat_w;
-assign csr_interconnect_dat_r = (interface0_dat_r | interface1_dat_r);
+assign interface2_dat_w = csr_interconnect_dat_w;
+assign interface3_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = (((interface0_dat_r | interface1_dat_r) | interface2_dat_r) | interface3_dat_r);
 assign interface0_re = csr_interconnect_re;
 assign interface1_re = csr_interconnect_re;
-assign slice_proxy0 = corecsr_aw_payload_addr[31:2];
-assign slice_proxy1 = corecsr_ar_payload_addr[31:2];
+assign interface2_re = csr_interconnect_re;
+assign interface3_re = csr_interconnect_re;
+assign slice_proxy0 = cramsoc_corecsr_aw_payload_addr[31:2];
+assign slice_proxy1 = cramsoc_corecsr_ar_payload_addr[31:2];
 always @(*) begin
     array_muxed0 <= 1'd0;
     case (socbushandler_rr_write_grant)
@@ -1082,60 +1686,189 @@ always @(*) begin
         end
     endcase
 end
+assign ticktimer_pause1 = multiregimpl01;
+assign ticktimer_load_xfer_ps_toggle_o = multiregimpl11;
+assign ticktimer_load_xfer_ps_ack_toggle_o = multiregimpl21;
+assign ticktimer_paused0 = multiregimpl31;
+assign ticktimer_timer_sync_ping_toggle_o = multiregimpl41;
+assign ticktimer_timer_sync_pong_toggle_o = multiregimpl51;
+assign ticktimer_timer_sync_obuffer = multiregimpl61;
+assign ticktimer_resume_sync_ping_toggle_o = multiregimpl71;
+assign ticktimer_resume_sync_pong_toggle_o = multiregimpl81;
+assign ticktimer_resume_sync_obuffer = multiregimpl91;
+assign ticktimer_reset_xfer_ps_toggle_o = multiregimpl101;
+assign ticktimer_reset_xfer_ps_ack_toggle_o = multiregimpl111;
+assign ticktimer_ping_ps_toggle_o = multiregimpl121;
+assign ticktimer_ping_ps_ack_toggle_o = multiregimpl131;
+assign ticktimer_pong_ps_toggle_o = multiregimpl141;
+assign ticktimer_pong_ps_ack_toggle_o = multiregimpl151;
+assign ticktimer_target_xfer_ping_toggle_o = multiregimpl161;
+assign ticktimer_target_xfer_pong_toggle_o = multiregimpl171;
+assign ticktimer_target_xfer_obuffer = multiregimpl181;
 
 
 //------------------------------------------------------------------------------
 // Synchronous Logic
 //------------------------------------------------------------------------------
 
+always @(posedge always_on_clk) begin
+    if (ticktimer_reset_xfer_o) begin
+        ticktimer_timer0 <= 1'd0;
+        ticktimer_prescaler <= 19'd400000;
+    end else begin
+        if (ticktimer_load_xfer_o) begin
+            ticktimer_prescaler <= 19'd400000;
+            ticktimer_timer0 <= ticktimer_resume_sync_o;
+        end else begin
+            if ((ticktimer_prescaler == 1'd0)) begin
+                ticktimer_prescaler <= 19'd400000;
+                if ((ticktimer_pause1 == 1'd0)) begin
+                    ticktimer_timer0 <= (ticktimer_timer0 + 1'd1);
+                    ticktimer_paused1 <= 1'd0;
+                end else begin
+                    ticktimer_timer0 <= ticktimer_timer0;
+                    ticktimer_paused1 <= 1'd1;
+                end
+            end else begin
+                ticktimer_prescaler <= (ticktimer_prescaler - 1'd1);
+            end
+        end
+    end
+    ticktimer_alarm3 <= (ticktimer_target_xfer_o <= ticktimer_timer0);
+    ticktimer_load_xfer_ps_toggle_o_r <= ticktimer_load_xfer_ps_toggle_o;
+    if (ticktimer_load_xfer_ps_ack_i) begin
+        ticktimer_load_xfer_ps_ack_toggle_i <= (~ticktimer_load_xfer_ps_ack_toggle_i);
+    end
+    ticktimer_timer_sync_starter <= 1'd0;
+    if (ticktimer_timer_sync_pong_o) begin
+        ticktimer_timer_sync_ibuffer <= ticktimer_timer_sync_i;
+    end
+    if (ticktimer_timer_sync_ping_i) begin
+        ticktimer_timer_sync_ping_toggle_i <= (~ticktimer_timer_sync_ping_toggle_i);
+    end
+    ticktimer_timer_sync_pong_toggle_o_r <= ticktimer_timer_sync_pong_toggle_o;
+    if (ticktimer_timer_sync_wait) begin
+        if ((~ticktimer_timer_sync_done)) begin
+            ticktimer_timer_sync_count <= (ticktimer_timer_sync_count - 1'd1);
+        end
+    end else begin
+        ticktimer_timer_sync_count <= 8'd128;
+    end
+    ticktimer_resume_sync_ping_o1 <= ticktimer_resume_sync_ping_o0;
+    if (ticktimer_resume_sync_ping_o1) begin
+        ticktimer_resume_sync_o <= ticktimer_resume_sync_obuffer;
+    end
+    ticktimer_resume_sync_ping_toggle_o_r <= ticktimer_resume_sync_ping_toggle_o;
+    if (ticktimer_resume_sync_pong_i) begin
+        ticktimer_resume_sync_pong_toggle_i <= (~ticktimer_resume_sync_pong_toggle_i);
+    end
+    ticktimer_reset_xfer_ps_toggle_o_r <= ticktimer_reset_xfer_ps_toggle_o;
+    if (ticktimer_reset_xfer_ps_ack_i) begin
+        ticktimer_reset_xfer_ps_ack_toggle_i <= (~ticktimer_reset_xfer_ps_ack_toggle_i);
+    end
+    ticktimer_ping_ps_toggle_o_r <= ticktimer_ping_ps_toggle_o;
+    if (ticktimer_ping_ps_ack_i) begin
+        ticktimer_ping_ps_ack_toggle_i <= (~ticktimer_ping_ps_ack_toggle_i);
+    end
+    if (ticktimer_pong_i) begin
+        ticktimer_pong_blind <= 1'd1;
+    end
+    if (ticktimer_pong_ps_ack_o) begin
+        ticktimer_pong_blind <= 1'd0;
+    end
+    if (ticktimer_pong_ps_i) begin
+        ticktimer_pong_ps_toggle_i <= (~ticktimer_pong_ps_toggle_i);
+    end
+    ticktimer_pong_ps_ack_toggle_o_r <= ticktimer_pong_ps_ack_toggle_o;
+    ticktimer_target_xfer_ping_o1 <= ticktimer_target_xfer_ping_o0;
+    if (ticktimer_target_xfer_ping_o1) begin
+        ticktimer_target_xfer_o <= ticktimer_target_xfer_obuffer;
+    end
+    ticktimer_target_xfer_ping_toggle_o_r <= ticktimer_target_xfer_ping_toggle_o;
+    if (ticktimer_target_xfer_pong_i) begin
+        ticktimer_target_xfer_pong_toggle_i <= (~ticktimer_target_xfer_pong_toggle_i);
+    end
+    if (always_on_rst) begin
+        ticktimer_prescaler <= 19'd400000;
+        ticktimer_timer0 <= 64'd0;
+        ticktimer_paused1 <= 1'd0;
+        ticktimer_timer_sync_starter <= 1'd1;
+        ticktimer_timer_sync_count <= 8'd128;
+        ticktimer_resume_sync_ping_o1 <= 1'd0;
+        ticktimer_pong_blind <= 1'd0;
+        ticktimer_alarm3 <= 1'd0;
+        ticktimer_target_xfer_ping_o1 <= 1'd0;
+    end
+    multiregimpl00 <= ticktimer_pause0;
+    multiregimpl01 <= multiregimpl00;
+    multiregimpl10 <= ticktimer_load_xfer_ps_toggle_i;
+    multiregimpl11 <= multiregimpl10;
+    multiregimpl50 <= ticktimer_timer_sync_pong_toggle_i;
+    multiregimpl51 <= multiregimpl50;
+    multiregimpl70 <= ticktimer_resume_sync_ping_toggle_i;
+    multiregimpl71 <= multiregimpl70;
+    multiregimpl90 <= ticktimer_resume_sync_ibuffer;
+    multiregimpl91 <= multiregimpl90;
+    multiregimpl100 <= ticktimer_reset_xfer_ps_toggle_i;
+    multiregimpl101 <= multiregimpl100;
+    multiregimpl120 <= ticktimer_ping_ps_toggle_i;
+    multiregimpl121 <= multiregimpl120;
+    multiregimpl150 <= ticktimer_pong_ps_ack_toggle_i;
+    multiregimpl151 <= multiregimpl150;
+    multiregimpl160 <= ticktimer_target_xfer_ping_toggle_i;
+    multiregimpl161 <= multiregimpl160;
+    multiregimpl180 <= ticktimer_target_xfer_ibuffer;
+    multiregimpl181 <= multiregimpl180;
+end
+
 always @(posedge por_clk) begin
     int_rst <= rst;
 end
 
 always @(posedge sys_clk) begin
-    p_axi_awvalid <= peripherals_aw_valid;
-    p_axi_awaddr <= peripherals_aw_payload_addr;
-    p_axi_awprot <= peripherals_aw_payload_prot;
-    peripherals_aw_ready <= p_axi_awready;
-    p_axi_wvalid <= peripherals_w_valid;
-    p_axi_wdata <= peripherals_w_payload_data;
-    p_axi_wstrb <= peripherals_w_payload_strb;
-    peripherals_w_ready <= p_axi_wready;
-    peripherals_b_valid <= p_axi_bvalid;
-    peripherals_b_payload_resp <= p_axi_bresp;
-    p_axi_bready <= peripherals_b_ready;
-    p_axi_arvalid <= peripherals_ar_valid;
-    p_axi_araddr <= peripherals_ar_payload_addr;
-    p_axi_arprot <= peripherals_ar_payload_prot;
-    peripherals_ar_ready <= p_axi_arready;
-    peripherals_r_valid <= p_axi_rvalid;
-    peripherals_r_payload_resp <= p_axi_rresp;
-    peripherals_r_payload_data <= p_axi_rdata;
-    p_axi_rready <= peripherals_r_ready;
+    p_axi_awvalid <= cramsoc_peripherals_aw_valid;
+    p_axi_awaddr <= cramsoc_peripherals_aw_payload_addr;
+    p_axi_awprot <= cramsoc_peripherals_aw_payload_prot;
+    cramsoc_peripherals_aw_ready <= p_axi_awready;
+    p_axi_wvalid <= cramsoc_peripherals_w_valid;
+    p_axi_wdata <= cramsoc_peripherals_w_payload_data;
+    p_axi_wstrb <= cramsoc_peripherals_w_payload_strb;
+    cramsoc_peripherals_w_ready <= p_axi_wready;
+    cramsoc_peripherals_b_valid <= p_axi_bvalid;
+    cramsoc_peripherals_b_payload_resp <= p_axi_bresp;
+    p_axi_bready <= cramsoc_peripherals_b_ready;
+    p_axi_arvalid <= cramsoc_peripherals_ar_valid;
+    p_axi_araddr <= cramsoc_peripherals_ar_payload_addr;
+    p_axi_arprot <= cramsoc_peripherals_ar_payload_prot;
+    cramsoc_peripherals_ar_ready <= p_axi_arready;
+    cramsoc_peripherals_r_valid <= p_axi_rvalid;
+    cramsoc_peripherals_r_payload_resp <= p_axi_rresp;
+    cramsoc_peripherals_r_payload_data <= p_axi_rdata;
+    p_axi_rready <= cramsoc_peripherals_r_ready;
     if (socbushandler_axiliterequestcounter0_empty) begin
         socbushandler_slave_sel_reg0 <= socbushandler_slave_sel_dec0;
     end
     if (socbushandler_axiliterequestcounter1_empty) begin
         socbushandler_slave_sel_reg1 <= socbushandler_slave_sel_dec1;
     end
-    if (((corecsr_aw_valid & corecsr_aw_ready) & (corecsr_b_valid & corecsr_b_ready))) begin
+    if (((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & (cramsoc_corecsr_b_valid & cramsoc_corecsr_b_ready))) begin
         socbushandler_axiliterequestcounter0_counter <= socbushandler_axiliterequestcounter0_counter;
     end else begin
-        if (((corecsr_aw_valid & corecsr_aw_ready) & (~socbushandler_axiliterequestcounter0_full))) begin
+        if (((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & (~socbushandler_axiliterequestcounter0_full))) begin
             socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter + 1'd1);
         end else begin
-            if (((corecsr_b_valid & corecsr_b_ready) & (~socbushandler_axiliterequestcounter0_empty))) begin
+            if (((cramsoc_corecsr_b_valid & cramsoc_corecsr_b_ready) & (~socbushandler_axiliterequestcounter0_empty))) begin
                 socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter - 1'd1);
             end
         end
     end
-    if (((corecsr_ar_valid & corecsr_ar_ready) & (corecsr_r_valid & corecsr_r_ready))) begin
+    if (((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & (cramsoc_corecsr_r_valid & cramsoc_corecsr_r_ready))) begin
         socbushandler_axiliterequestcounter1_counter <= socbushandler_axiliterequestcounter1_counter;
     end else begin
-        if (((corecsr_ar_valid & corecsr_ar_ready) & (~socbushandler_axiliterequestcounter1_full))) begin
+        if (((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & (~socbushandler_axiliterequestcounter1_full))) begin
             socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter + 1'd1);
         end else begin
-            if (((corecsr_r_valid & corecsr_r_ready) & (~socbushandler_axiliterequestcounter1_empty))) begin
+            if (((cramsoc_corecsr_r_valid & cramsoc_corecsr_r_ready) & (~socbushandler_axiliterequestcounter1_empty))) begin
                 socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter - 1'd1);
             end
         end
@@ -1169,13 +1902,122 @@ always @(posedge sys_clk) begin
         reset_debug_logic <= 1'd0;
     end
     if (sys_rst) begin
-        if (trimming_reset_ena1) begin
-            latched_value <= trimming_reset1;
+        if (trimming_reset_ena_1) begin
+            latched_value <= trimming_reset_1;
         end else begin
             latched_value <= 31'd1610612736;
         end
     end else begin
         latched_value <= latched_value;
+    end
+    if (coreuser_protect_storage) begin
+        coreuser_protect <= 1'd1;
+    end else begin
+        coreuser_protect <= coreuser_protect;
+    end
+    if (coreuser_protect) begin
+        coreuser_enable1 <= coreuser_enable1;
+        coreuser_require_asid <= coreuser_require_asid;
+        coreuser_require_ppn_a <= coreuser_require_ppn_a;
+        coreuser_require_ppn_b <= coreuser_require_ppn_b;
+    end else begin
+        coreuser_enable1 <= coreuser_enable0;
+        coreuser_require_asid <= coreuser_asid2;
+        coreuser_require_ppn_a <= coreuser_ppn_a;
+        coreuser_require_ppn_b <= coreuser_ppn_b;
+    end
+    if (coreuser_protect) begin
+        coreuser_window_al <= coreuser_window_al;
+        coreuser_window_ah <= coreuser_window_ah;
+        coreuser_window_bl <= coreuser_window_bh;
+        coreuser_window_bh <= coreuser_window_bh;
+    end else begin
+        coreuser_window_al <= coreuser_ppn0;
+        coreuser_window_ah <= coreuser_ppn1;
+        coreuser_window_bl <= coreuser_ppn2;
+        coreuser_window_bh <= coreuser_ppn3;
+    end
+    coreuser <= (((~cramsoc_satp_mode) | (~coreuser_enable1)) | (((coreuser_coreuser_asid | (~coreuser_require_asid)) & ((~coreuser_require_ppn_a) | ((cramsoc_satp_ppn >= coreuser_window_al) & (cramsoc_satp_ppn <= coreuser_window_ah)))) & ((~coreuser_require_ppn_b) | ((cramsoc_satp_ppn >= coreuser_window_bl) & (cramsoc_satp_ppn <= coreuser_window_bh)))));
+    if (ticktimer_msleep_target_re) begin
+        ticktimer_lockout_alarm <= 1'd1;
+    end else begin
+        if (ticktimer_pong_o) begin
+            ticktimer_lockout_alarm <= 1'd0;
+        end else begin
+            ticktimer_lockout_alarm <= ticktimer_lockout_alarm;
+        end
+    end
+    if (ticktimer_load_xfer_i) begin
+        ticktimer_load_xfer_blind <= 1'd1;
+    end
+    if (ticktimer_load_xfer_ps_ack_o) begin
+        ticktimer_load_xfer_blind <= 1'd0;
+    end
+    if (ticktimer_load_xfer_ps_i) begin
+        ticktimer_load_xfer_ps_toggle_i <= (~ticktimer_load_xfer_ps_toggle_i);
+    end
+    ticktimer_load_xfer_ps_ack_toggle_o_r <= ticktimer_load_xfer_ps_ack_toggle_o;
+    ticktimer_timer_sync_ping_o1 <= ticktimer_timer_sync_ping_o0;
+    if (ticktimer_timer_sync_ping_o1) begin
+        ticktimer_timer_sync_o <= ticktimer_timer_sync_obuffer;
+    end
+    ticktimer_timer_sync_ping_toggle_o_r <= ticktimer_timer_sync_ping_toggle_o;
+    if (ticktimer_timer_sync_pong_i) begin
+        ticktimer_timer_sync_pong_toggle_i <= (~ticktimer_timer_sync_pong_toggle_i);
+    end
+    ticktimer_resume_sync_starter <= 1'd0;
+    if (ticktimer_resume_sync_pong_o) begin
+        ticktimer_resume_sync_ibuffer <= ticktimer_resume_sync_i;
+    end
+    if (ticktimer_resume_sync_ping_i) begin
+        ticktimer_resume_sync_ping_toggle_i <= (~ticktimer_resume_sync_ping_toggle_i);
+    end
+    ticktimer_resume_sync_pong_toggle_o_r <= ticktimer_resume_sync_pong_toggle_o;
+    if (ticktimer_resume_sync_wait) begin
+        if ((~ticktimer_resume_sync_done)) begin
+            ticktimer_resume_sync_count <= (ticktimer_resume_sync_count - 1'd1);
+        end
+    end else begin
+        ticktimer_resume_sync_count <= 8'd128;
+    end
+    if (ticktimer_reset_xfer_i) begin
+        ticktimer_reset_xfer_blind <= 1'd1;
+    end
+    if (ticktimer_reset_xfer_ps_ack_o) begin
+        ticktimer_reset_xfer_blind <= 1'd0;
+    end
+    if (ticktimer_reset_xfer_ps_i) begin
+        ticktimer_reset_xfer_ps_toggle_i <= (~ticktimer_reset_xfer_ps_toggle_i);
+    end
+    ticktimer_reset_xfer_ps_ack_toggle_o_r <= ticktimer_reset_xfer_ps_ack_toggle_o;
+    if (ticktimer_ping_i) begin
+        ticktimer_ping_blind <= 1'd1;
+    end
+    if (ticktimer_ping_ps_ack_o) begin
+        ticktimer_ping_blind <= 1'd0;
+    end
+    if (ticktimer_ping_ps_i) begin
+        ticktimer_ping_ps_toggle_i <= (~ticktimer_ping_ps_toggle_i);
+    end
+    ticktimer_ping_ps_ack_toggle_o_r <= ticktimer_ping_ps_ack_toggle_o;
+    ticktimer_pong_ps_toggle_o_r <= ticktimer_pong_ps_toggle_o;
+    if (ticktimer_pong_ps_ack_i) begin
+        ticktimer_pong_ps_ack_toggle_i <= (~ticktimer_pong_ps_ack_toggle_i);
+    end
+    ticktimer_target_xfer_starter <= 1'd0;
+    if (ticktimer_target_xfer_pong_o) begin
+        ticktimer_target_xfer_ibuffer <= ticktimer_target_xfer_i;
+    end
+    if (ticktimer_target_xfer_ping_i) begin
+        ticktimer_target_xfer_ping_toggle_i <= (~ticktimer_target_xfer_ping_toggle_i);
+    end
+    ticktimer_target_xfer_pong_toggle_o_r <= ticktimer_target_xfer_pong_toggle_o;
+    if (ticktimer_target_xfer_wait) begin
+        if ((~ticktimer_target_xfer_done)) begin
+            ticktimer_target_xfer_count <= (ticktimer_target_xfer_count - 1'd1);
+        end
+    end else begin
+        ticktimer_target_xfer_count <= 8'd128;
     end
     cramsoc_state <= cramsoc_next_state;
     if (cramsoc_last_was_read_next_value_ce) begin
@@ -1185,36 +2027,154 @@ always @(posedge sys_clk) begin
     if (csrbank0_sel) begin
         case (interface0_adr[9:0])
             1'd0: begin
-                interface0_dat_r <= csrbank0_wtest0_w;
+                interface0_dat_r <= csrbank0_set_asid0_w;
             end
             1'd1: begin
-                interface0_dat_r <= csrbank0_rtest_w;
+                interface0_dat_r <= csrbank0_get_asid_addr0_w;
+            end
+            2'd2: begin
+                interface0_dat_r <= csrbank0_get_asid_value0_w;
+            end
+            2'd3: begin
+                interface0_dat_r <= csrbank0_control0_w;
+            end
+            3'd4: begin
+                interface0_dat_r <= csrbank0_protect0_w;
+            end
+            3'd5: begin
+                interface0_dat_r <= csrbank0_window_al0_w;
+            end
+            3'd6: begin
+                interface0_dat_r <= csrbank0_window_ah0_w;
+            end
+            3'd7: begin
+                interface0_dat_r <= csrbank0_window_bl0_w;
+            end
+            4'd8: begin
+                interface0_dat_r <= csrbank0_window_bh0_w;
             end
         endcase
     end
-    if (csrbank0_wtest0_re) begin
-        csr_wtest_storage[31:0] <= csrbank0_wtest0_r;
+    if (csrbank0_set_asid0_re) begin
+        coreuser_set_asid_storage[9:0] <= csrbank0_set_asid0_r;
     end
-    csr_wtest_re <= csrbank0_wtest0_re;
-    csr_rtest_re <= csrbank0_rtest_re;
+    coreuser_set_asid_re <= csrbank0_set_asid0_re;
+    if (csrbank0_get_asid_addr0_re) begin
+        coreuser_get_asid_addr_storage[8:0] <= csrbank0_get_asid_addr0_r;
+    end
+    coreuser_get_asid_addr_re <= csrbank0_get_asid_addr0_re;
+    if (csrbank0_get_asid_value0_re) begin
+        coreuser_get_asid_value_storage <= csrbank0_get_asid_value0_r;
+    end
+    coreuser_get_asid_value_re <= csrbank0_get_asid_value0_re;
+    if (csrbank0_control0_re) begin
+        coreuser_control_storage[3:0] <= csrbank0_control0_r;
+    end
+    coreuser_control_re <= csrbank0_control0_re;
+    if (csrbank0_protect0_re) begin
+        coreuser_protect_storage <= csrbank0_protect0_r;
+    end
+    coreuser_protect_re <= csrbank0_protect0_re;
+    if (csrbank0_window_al0_re) begin
+        coreuser_window_al_storage[21:0] <= csrbank0_window_al0_r;
+    end
+    coreuser_window_al_re <= csrbank0_window_al0_re;
+    if (csrbank0_window_ah0_re) begin
+        coreuser_window_ah_storage[21:0] <= csrbank0_window_ah0_r;
+    end
+    coreuser_window_ah_re <= csrbank0_window_ah0_re;
+    if (csrbank0_window_bl0_re) begin
+        coreuser_window_bl_storage[21:0] <= csrbank0_window_bl0_r;
+    end
+    coreuser_window_bl_re <= csrbank0_window_bl0_re;
+    if (csrbank0_window_bh0_re) begin
+        coreuser_window_bh_storage[21:0] <= csrbank0_window_bh0_r;
+    end
+    coreuser_window_bh_re <= csrbank0_window_bh0_re;
     interface1_dat_r <= 1'd0;
     if (csrbank1_sel) begin
         case (interface1_adr[9:0])
             1'd0: begin
-                interface1_dat_r <= csrbank1_pc_w;
+                interface1_dat_r <= csrbank1_wtest0_w;
+            end
+            1'd1: begin
+                interface1_dat_r <= csrbank1_rtest_w;
             end
         endcase
     end
-    re <= csrbank1_pc_re;
+    if (csrbank1_wtest0_re) begin
+        csr_wtest_storage[31:0] <= csrbank1_wtest0_r;
+    end
+    csr_wtest_re <= csrbank1_wtest0_re;
+    csr_rtest_re <= csrbank1_rtest_re;
+    interface2_dat_r <= 1'd0;
+    if (csrbank2_sel) begin
+        case (interface2_adr[9:0])
+            1'd0: begin
+                interface2_dat_r <= csrbank2_pc_w;
+            end
+        endcase
+    end
+    re <= csrbank2_pc_re;
+    interface3_dat_r <= 1'd0;
+    if (csrbank3_sel) begin
+        case (interface3_adr[9:0])
+            1'd0: begin
+                interface3_dat_r <= csrbank3_control0_w;
+            end
+            1'd1: begin
+                interface3_dat_r <= csrbank3_time1_w;
+            end
+            2'd2: begin
+                interface3_dat_r <= csrbank3_time0_w;
+            end
+            2'd3: begin
+                interface3_dat_r <= csrbank3_msleep_target1_w;
+            end
+            3'd4: begin
+                interface3_dat_r <= csrbank3_msleep_target0_w;
+            end
+            3'd5: begin
+                interface3_dat_r <= csrbank3_ev_status_w;
+            end
+            3'd6: begin
+                interface3_dat_r <= csrbank3_ev_pending_w;
+            end
+            3'd7: begin
+                interface3_dat_r <= csrbank3_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank3_control0_re) begin
+        ticktimer_control_storage <= csrbank3_control0_r;
+    end
+    ticktimer_control_re <= csrbank3_control0_re;
+    ticktimer_time_re <= csrbank3_time0_re;
+    if (csrbank3_msleep_target1_re) begin
+        ticktimer_msleep_target_storage[63:32] <= csrbank3_msleep_target1_r;
+    end
+    if (csrbank3_msleep_target0_re) begin
+        ticktimer_msleep_target_storage[31:0] <= csrbank3_msleep_target0_r;
+    end
+    ticktimer_msleep_target_re <= csrbank3_msleep_target0_re;
+    ticktimer_status_re <= csrbank3_ev_status_re;
+    if (csrbank3_ev_pending_re) begin
+        ticktimer_pending_r <= csrbank3_ev_pending_r;
+    end
+    ticktimer_pending_re <= csrbank3_ev_pending_re;
+    if (csrbank3_ev_enable0_re) begin
+        ticktimer_enable_storage <= csrbank3_ev_enable0_r;
+    end
+    ticktimer_enable_re <= csrbank3_ev_enable0_re;
     if (sys_rst) begin
-        peripherals_aw_ready <= 1'd0;
-        peripherals_w_ready <= 1'd0;
-        peripherals_b_valid <= 1'd0;
-        peripherals_b_payload_resp <= 2'd0;
-        peripherals_ar_ready <= 1'd0;
-        peripherals_r_valid <= 1'd0;
-        peripherals_r_payload_resp <= 2'd0;
-        peripherals_r_payload_data <= 32'd0;
+        cramsoc_peripherals_aw_ready <= 1'd0;
+        cramsoc_peripherals_w_ready <= 1'd0;
+        cramsoc_peripherals_b_valid <= 1'd0;
+        cramsoc_peripherals_b_payload_resp <= 2'd0;
+        cramsoc_peripherals_ar_ready <= 1'd0;
+        cramsoc_peripherals_r_valid <= 1'd0;
+        cramsoc_peripherals_r_payload_resp <= 2'd0;
+        cramsoc_peripherals_r_payload_data <= 32'd0;
         debug_reset <= 1'd0;
         reset_debug_logic <= 1'd0;
         re <= 1'd0;
@@ -1229,6 +2189,53 @@ always @(posedge sys_clk) begin
         p_axi_araddr <= 32'd0;
         p_axi_arprot <= 3'd0;
         p_axi_rready <= 1'd0;
+        coreuser <= 1'd0;
+        coreuser_set_asid_storage <= 10'd0;
+        coreuser_set_asid_re <= 1'd0;
+        coreuser_get_asid_addr_storage <= 9'd0;
+        coreuser_get_asid_addr_re <= 1'd0;
+        coreuser_get_asid_value_storage <= 1'd0;
+        coreuser_get_asid_value_re <= 1'd0;
+        coreuser_control_storage <= 4'd0;
+        coreuser_control_re <= 1'd0;
+        coreuser_protect_storage <= 1'd0;
+        coreuser_protect_re <= 1'd0;
+        coreuser_window_al_storage <= 22'd0;
+        coreuser_window_al_re <= 1'd0;
+        coreuser_window_ah_storage <= 22'd0;
+        coreuser_window_ah_re <= 1'd0;
+        coreuser_window_bl_storage <= 22'd0;
+        coreuser_window_bl_re <= 1'd0;
+        coreuser_window_bh_storage <= 22'd0;
+        coreuser_window_bh_re <= 1'd0;
+        coreuser_protect <= 1'd0;
+        coreuser_enable1 <= 1'd0;
+        coreuser_require_asid <= 1'd0;
+        coreuser_require_ppn_a <= 1'd0;
+        coreuser_require_ppn_b <= 1'd0;
+        coreuser_window_al <= 22'd0;
+        coreuser_window_ah <= 22'd0;
+        coreuser_window_bl <= 22'd0;
+        coreuser_window_bh <= 22'd0;
+        ticktimer_load_xfer_blind <= 1'd0;
+        ticktimer_timer_sync_ping_o1 <= 1'd0;
+        ticktimer_resume_sync_starter <= 1'd1;
+        ticktimer_resume_sync_count <= 8'd128;
+        ticktimer_control_storage <= 1'd0;
+        ticktimer_control_re <= 1'd0;
+        ticktimer_time_re <= 1'd0;
+        ticktimer_reset_xfer_blind <= 1'd0;
+        ticktimer_msleep_target_storage <= 64'd0;
+        ticktimer_msleep_target_re <= 1'd0;
+        ticktimer_status_re <= 1'd0;
+        ticktimer_pending_re <= 1'd0;
+        ticktimer_pending_r <= 1'd0;
+        ticktimer_enable_storage <= 1'd0;
+        ticktimer_enable_re <= 1'd0;
+        ticktimer_ping_blind <= 1'd0;
+        ticktimer_lockout_alarm <= 1'd0;
+        ticktimer_target_xfer_starter <= 1'd1;
+        ticktimer_target_xfer_count <= 8'd128;
         csr_wtest_storage <= 32'd0;
         csr_wtest_re <= 1'd0;
         csr_rtest_re <= 1'd0;
@@ -1241,6 +2248,24 @@ always @(posedge sys_clk) begin
         socbushandler_rd_lock_counter <= 8'd0;
         cramsoc_state <= 2'd0;
     end
+    multiregimpl20 <= ticktimer_load_xfer_ps_ack_toggle_i;
+    multiregimpl21 <= multiregimpl20;
+    multiregimpl30 <= ticktimer_paused1;
+    multiregimpl31 <= multiregimpl30;
+    multiregimpl40 <= ticktimer_timer_sync_ping_toggle_i;
+    multiregimpl41 <= multiregimpl40;
+    multiregimpl60 <= ticktimer_timer_sync_ibuffer;
+    multiregimpl61 <= multiregimpl60;
+    multiregimpl80 <= ticktimer_resume_sync_pong_toggle_i;
+    multiregimpl81 <= multiregimpl80;
+    multiregimpl110 <= ticktimer_reset_xfer_ps_ack_toggle_i;
+    multiregimpl111 <= multiregimpl110;
+    multiregimpl130 <= ticktimer_ping_ps_ack_toggle_i;
+    multiregimpl131 <= multiregimpl130;
+    multiregimpl140 <= ticktimer_pong_ps_toggle_i;
+    multiregimpl141 <= multiregimpl140;
+    multiregimpl170 <= ticktimer_target_xfer_pong_toggle_i;
+    multiregimpl171 <= multiregimpl170;
 end
 
 
@@ -1256,61 +2281,61 @@ axi_axil_adapter #(
 	.CONVERT_NARROW_BURST(1'd0)
 ) axi_axil_adapter (
 	.clk(sys_clk),
-	.m_axil_arready(peripherals_ar_ready),
-	.m_axil_awready(peripherals_aw_ready),
-	.m_axil_bresp(peripherals_b_payload_resp),
-	.m_axil_bvalid(peripherals_b_valid),
-	.m_axil_rdata(peripherals_r_payload_data),
-	.m_axil_rresp(peripherals_r_payload_resp),
-	.m_axil_rvalid(peripherals_r_valid),
-	.m_axil_wready(peripherals_w_ready),
+	.m_axil_arready(cramsoc_peripherals_ar_ready),
+	.m_axil_awready(cramsoc_peripherals_aw_ready),
+	.m_axil_bresp(cramsoc_peripherals_b_payload_resp),
+	.m_axil_bvalid(cramsoc_peripherals_b_valid),
+	.m_axil_rdata(cramsoc_peripherals_r_payload_data),
+	.m_axil_rresp(cramsoc_peripherals_r_payload_resp),
+	.m_axil_rvalid(cramsoc_peripherals_r_valid),
+	.m_axil_wready(cramsoc_peripherals_w_ready),
 	.rst(sys_rst),
-	.s_axi_araddr(dbus_peri_ar_payload_addr),
-	.s_axi_arburst(dbus_peri_ar_payload_burst),
-	.s_axi_arcache(dbus_peri_ar_payload_cache),
-	.s_axi_arid(dbus_peri_ar_param_id),
-	.s_axi_arlen(dbus_peri_ar_payload_len),
-	.s_axi_arlock(dbus_peri_ar_payload_lock),
-	.s_axi_arprot(dbus_peri_ar_payload_prot),
-	.s_axi_arsize(dbus_peri_ar_payload_size),
-	.s_axi_arvalid(dbus_peri_ar_valid),
-	.s_axi_awaddr(dbus_peri_aw_payload_addr),
-	.s_axi_awburst(dbus_peri_aw_payload_burst),
-	.s_axi_awcache(dbus_peri_aw_payload_cache),
-	.s_axi_awid(dbus_peri_aw_param_id),
-	.s_axi_awlen(dbus_peri_aw_payload_len),
-	.s_axi_awlock(dbus_peri_aw_payload_lock),
-	.s_axi_awprot(dbus_peri_aw_payload_prot),
-	.s_axi_awsize(dbus_peri_aw_payload_size),
-	.s_axi_awvalid(dbus_peri_aw_valid),
-	.s_axi_bready(dbus_peri_b_ready),
-	.s_axi_rready(dbus_peri_r_ready),
-	.s_axi_wdata(dbus_peri_w_payload_data),
-	.s_axi_wlast(dbus_peri_w_last),
-	.s_axi_wstrb(dbus_peri_w_payload_strb),
-	.s_axi_wvalid(dbus_peri_w_valid),
-	.m_axil_araddr(peripherals_ar_payload_addr),
-	.m_axil_arprot(axi2axiliteadapter01),
-	.m_axil_arvalid(peripherals_ar_valid),
-	.m_axil_awaddr(peripherals_aw_payload_addr),
-	.m_axil_awprot(axi2axiliteadapter00),
-	.m_axil_awvalid(peripherals_aw_valid),
-	.m_axil_bready(peripherals_b_ready),
-	.m_axil_rready(peripherals_r_ready),
-	.m_axil_wdata(peripherals_w_payload_data),
-	.m_axil_wstrb(peripherals_w_payload_strb),
-	.m_axil_wvalid(peripherals_w_valid),
-	.s_axi_arready(dbus_peri_ar_ready),
-	.s_axi_awready(dbus_peri_aw_ready),
-	.s_axi_bid(dbus_peri_b_param_id),
-	.s_axi_bresp(dbus_peri_b_payload_resp),
-	.s_axi_bvalid(dbus_peri_b_valid),
-	.s_axi_rdata(dbus_peri_r_payload_data),
-	.s_axi_rid(dbus_peri_r_param_id),
-	.s_axi_rlast(dbus_peri_r_last),
-	.s_axi_rresp(dbus_peri_r_payload_resp),
-	.s_axi_rvalid(dbus_peri_r_valid),
-	.s_axi_wready(dbus_peri_w_ready)
+	.s_axi_araddr(cramsoc_dbus_peri_ar_payload_addr),
+	.s_axi_arburst(cramsoc_dbus_peri_ar_payload_burst),
+	.s_axi_arcache(cramsoc_dbus_peri_ar_payload_cache),
+	.s_axi_arid(cramsoc_dbus_peri_ar_param_id),
+	.s_axi_arlen(cramsoc_dbus_peri_ar_payload_len),
+	.s_axi_arlock(cramsoc_dbus_peri_ar_payload_lock),
+	.s_axi_arprot(cramsoc_dbus_peri_ar_payload_prot),
+	.s_axi_arsize(cramsoc_dbus_peri_ar_payload_size),
+	.s_axi_arvalid(cramsoc_dbus_peri_ar_valid),
+	.s_axi_awaddr(cramsoc_dbus_peri_aw_payload_addr),
+	.s_axi_awburst(cramsoc_dbus_peri_aw_payload_burst),
+	.s_axi_awcache(cramsoc_dbus_peri_aw_payload_cache),
+	.s_axi_awid(cramsoc_dbus_peri_aw_param_id),
+	.s_axi_awlen(cramsoc_dbus_peri_aw_payload_len),
+	.s_axi_awlock(cramsoc_dbus_peri_aw_payload_lock),
+	.s_axi_awprot(cramsoc_dbus_peri_aw_payload_prot),
+	.s_axi_awsize(cramsoc_dbus_peri_aw_payload_size),
+	.s_axi_awvalid(cramsoc_dbus_peri_aw_valid),
+	.s_axi_bready(cramsoc_dbus_peri_b_ready),
+	.s_axi_rready(cramsoc_dbus_peri_r_ready),
+	.s_axi_wdata(cramsoc_dbus_peri_w_payload_data),
+	.s_axi_wlast(cramsoc_dbus_peri_w_last),
+	.s_axi_wstrb(cramsoc_dbus_peri_w_payload_strb),
+	.s_axi_wvalid(cramsoc_dbus_peri_w_valid),
+	.m_axil_araddr(cramsoc_peripherals_ar_payload_addr),
+	.m_axil_arprot(cramsoc_axi2axiliteadapter01),
+	.m_axil_arvalid(cramsoc_peripherals_ar_valid),
+	.m_axil_awaddr(cramsoc_peripherals_aw_payload_addr),
+	.m_axil_awprot(cramsoc_axi2axiliteadapter00),
+	.m_axil_awvalid(cramsoc_peripherals_aw_valid),
+	.m_axil_bready(cramsoc_peripherals_b_ready),
+	.m_axil_rready(cramsoc_peripherals_r_ready),
+	.m_axil_wdata(cramsoc_peripherals_w_payload_data),
+	.m_axil_wstrb(cramsoc_peripherals_w_payload_strb),
+	.m_axil_wvalid(cramsoc_peripherals_w_valid),
+	.s_axi_arready(cramsoc_dbus_peri_ar_ready),
+	.s_axi_awready(cramsoc_dbus_peri_aw_ready),
+	.s_axi_bid(cramsoc_dbus_peri_b_param_id),
+	.s_axi_bresp(cramsoc_dbus_peri_b_payload_resp),
+	.s_axi_bvalid(cramsoc_dbus_peri_b_valid),
+	.s_axi_rdata(cramsoc_dbus_peri_r_payload_data),
+	.s_axi_rid(cramsoc_dbus_peri_r_param_id),
+	.s_axi_rlast(cramsoc_dbus_peri_r_last),
+	.s_axi_rresp(cramsoc_dbus_peri_r_payload_resp),
+	.s_axi_rvalid(cramsoc_dbus_peri_r_valid),
+	.s_axi_wready(cramsoc_dbus_peri_w_ready)
 );
 
 axi_axil_adapter #(
@@ -1321,62 +2346,82 @@ axi_axil_adapter #(
 	.CONVERT_NARROW_BURST(1'd0)
 ) axi_axil_adapter_1 (
 	.clk(sys_clk),
-	.m_axil_arready(corecsr_ar_ready),
-	.m_axil_awready(corecsr_aw_ready),
-	.m_axil_bresp(corecsr_b_payload_resp),
-	.m_axil_bvalid(corecsr_b_valid),
-	.m_axil_rdata(corecsr_r_payload_data),
-	.m_axil_rresp(corecsr_r_payload_resp),
-	.m_axil_rvalid(corecsr_r_valid),
-	.m_axil_wready(corecsr_w_ready),
+	.m_axil_arready(cramsoc_corecsr_ar_ready),
+	.m_axil_awready(cramsoc_corecsr_aw_ready),
+	.m_axil_bresp(cramsoc_corecsr_b_payload_resp),
+	.m_axil_bvalid(cramsoc_corecsr_b_valid),
+	.m_axil_rdata(cramsoc_corecsr_r_payload_data),
+	.m_axil_rresp(cramsoc_corecsr_r_payload_resp),
+	.m_axil_rvalid(cramsoc_corecsr_r_valid),
+	.m_axil_wready(cramsoc_corecsr_w_ready),
 	.rst(sys_rst),
-	.s_axi_araddr(axi_csr_ar_payload_addr),
-	.s_axi_arburst(axi_csr_ar_payload_burst),
-	.s_axi_arcache(axi_csr_ar_payload_cache),
-	.s_axi_arid(axi_csr_ar_param_id),
-	.s_axi_arlen(axi_csr_ar_payload_len),
-	.s_axi_arlock(axi_csr_ar_payload_lock),
-	.s_axi_arprot(axi_csr_ar_payload_prot),
-	.s_axi_arsize(axi_csr_ar_payload_size),
-	.s_axi_arvalid(axi_csr_ar_valid),
-	.s_axi_awaddr(axi_csr_aw_payload_addr),
-	.s_axi_awburst(axi_csr_aw_payload_burst),
-	.s_axi_awcache(axi_csr_aw_payload_cache),
-	.s_axi_awid(axi_csr_aw_param_id),
-	.s_axi_awlen(axi_csr_aw_payload_len),
-	.s_axi_awlock(axi_csr_aw_payload_lock),
-	.s_axi_awprot(axi_csr_aw_payload_prot),
-	.s_axi_awsize(axi_csr_aw_payload_size),
-	.s_axi_awvalid(axi_csr_aw_valid),
-	.s_axi_bready(axi_csr_b_ready),
-	.s_axi_rready(axi_csr_r_ready),
-	.s_axi_wdata(axi_csr_w_payload_data),
-	.s_axi_wlast(axi_csr_w_last),
-	.s_axi_wstrb(axi_csr_w_payload_strb),
-	.s_axi_wvalid(axi_csr_w_valid),
-	.m_axil_araddr(corecsr_ar_payload_addr),
-	.m_axil_arprot(axi2axiliteadapter11),
-	.m_axil_arvalid(corecsr_ar_valid),
-	.m_axil_awaddr(corecsr_aw_payload_addr),
-	.m_axil_awprot(axi2axiliteadapter10),
-	.m_axil_awvalid(corecsr_aw_valid),
-	.m_axil_bready(corecsr_b_ready),
-	.m_axil_rready(corecsr_r_ready),
-	.m_axil_wdata(corecsr_w_payload_data),
-	.m_axil_wstrb(corecsr_w_payload_strb),
-	.m_axil_wvalid(corecsr_w_valid),
-	.s_axi_arready(axi_csr_ar_ready),
-	.s_axi_awready(axi_csr_aw_ready),
-	.s_axi_bid(axi_csr_b_param_id),
-	.s_axi_bresp(axi_csr_b_payload_resp),
-	.s_axi_bvalid(axi_csr_b_valid),
-	.s_axi_rdata(axi_csr_r_payload_data),
-	.s_axi_rid(axi_csr_r_param_id),
-	.s_axi_rlast(axi_csr_r_last),
-	.s_axi_rresp(axi_csr_r_payload_resp),
-	.s_axi_rvalid(axi_csr_r_valid),
-	.s_axi_wready(axi_csr_w_ready)
+	.s_axi_araddr(cramsoc_axi_csr_ar_payload_addr),
+	.s_axi_arburst(cramsoc_axi_csr_ar_payload_burst),
+	.s_axi_arcache(cramsoc_axi_csr_ar_payload_cache),
+	.s_axi_arid(cramsoc_axi_csr_ar_param_id),
+	.s_axi_arlen(cramsoc_axi_csr_ar_payload_len),
+	.s_axi_arlock(cramsoc_axi_csr_ar_payload_lock),
+	.s_axi_arprot(cramsoc_axi_csr_ar_payload_prot),
+	.s_axi_arsize(cramsoc_axi_csr_ar_payload_size),
+	.s_axi_arvalid(cramsoc_axi_csr_ar_valid),
+	.s_axi_awaddr(cramsoc_axi_csr_aw_payload_addr),
+	.s_axi_awburst(cramsoc_axi_csr_aw_payload_burst),
+	.s_axi_awcache(cramsoc_axi_csr_aw_payload_cache),
+	.s_axi_awid(cramsoc_axi_csr_aw_param_id),
+	.s_axi_awlen(cramsoc_axi_csr_aw_payload_len),
+	.s_axi_awlock(cramsoc_axi_csr_aw_payload_lock),
+	.s_axi_awprot(cramsoc_axi_csr_aw_payload_prot),
+	.s_axi_awsize(cramsoc_axi_csr_aw_payload_size),
+	.s_axi_awvalid(cramsoc_axi_csr_aw_valid),
+	.s_axi_bready(cramsoc_axi_csr_b_ready),
+	.s_axi_rready(cramsoc_axi_csr_r_ready),
+	.s_axi_wdata(cramsoc_axi_csr_w_payload_data),
+	.s_axi_wlast(cramsoc_axi_csr_w_last),
+	.s_axi_wstrb(cramsoc_axi_csr_w_payload_strb),
+	.s_axi_wvalid(cramsoc_axi_csr_w_valid),
+	.m_axil_araddr(cramsoc_corecsr_ar_payload_addr),
+	.m_axil_arprot(cramsoc_axi2axiliteadapter11),
+	.m_axil_arvalid(cramsoc_corecsr_ar_valid),
+	.m_axil_awaddr(cramsoc_corecsr_aw_payload_addr),
+	.m_axil_awprot(cramsoc_axi2axiliteadapter10),
+	.m_axil_awvalid(cramsoc_corecsr_aw_valid),
+	.m_axil_bready(cramsoc_corecsr_b_ready),
+	.m_axil_rready(cramsoc_corecsr_r_ready),
+	.m_axil_wdata(cramsoc_corecsr_w_payload_data),
+	.m_axil_wstrb(cramsoc_corecsr_w_payload_strb),
+	.m_axil_wvalid(cramsoc_corecsr_w_valid),
+	.s_axi_arready(cramsoc_axi_csr_ar_ready),
+	.s_axi_awready(cramsoc_axi_csr_aw_ready),
+	.s_axi_bid(cramsoc_axi_csr_b_param_id),
+	.s_axi_bresp(cramsoc_axi_csr_b_payload_resp),
+	.s_axi_bvalid(cramsoc_axi_csr_b_valid),
+	.s_axi_rdata(cramsoc_axi_csr_r_payload_data),
+	.s_axi_rid(cramsoc_axi_csr_r_param_id),
+	.s_axi_rlast(cramsoc_axi_csr_r_last),
+	.s_axi_rresp(cramsoc_axi_csr_r_payload_resp),
+	.s_axi_rvalid(cramsoc_axi_csr_r_valid),
+	.s_axi_wready(cramsoc_axi_csr_w_ready)
 );
+
+//------------------------------------------------------------------------------
+// Memory asid_lut_nomap: 512-words x 1-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: ---- | 
+// Port 1 | Read: Sync  | Write: Sync | Mode: Write-First | Write-Granularity: 1 
+reg [0:0] asid_lut_nomap[0:511];
+reg [8:0] asid_lut_nomap_adr0;
+reg [8:0] asid_lut_nomap_adr1;
+always @(posedge sys_clk) begin
+	asid_lut_nomap_adr0 <= coreuser_asid_rd_adr;
+end
+always @(posedge sys_clk) begin
+	if (coreuser_asid_wr_we)
+		asid_lut_nomap[coreuser_asid_wr_adr] <= coreuser_asid_wr_dat_w;
+	asid_lut_nomap_adr1 <= coreuser_asid_wr_adr;
+end
+assign coreuser_asid_rd_dat_r = asid_lut_nomap[asid_lut_nomap_adr0];
+assign coreuser_asid_wr_dat_r = asid_lut_nomap[asid_lut_nomap_adr1];
+
 
 axi_crossbar #(
 	.ADDR_WIDTH(6'd32),
@@ -1387,15 +2432,15 @@ axi_crossbar #(
 	.BUSER_ENABLE(1'd0),
 	.BUSER_WIDTH(4'd9),
 	.DATA_WIDTH(6'd32),
-	.M_ADDR_WIDTH(96'd534955578244951179292),
-	.M_AR_REG_TYPE(6'd0),
-	.M_AW_REG_TYPE(6'd0),
+	.M_ADDR_WIDTH(96'd534955578244951179295),
+	.M_AR_REG_TYPE(6'd21),
+	.M_AW_REG_TYPE(6'd21),
 	.M_BASE_ADDR(96'd29710560949190194873990381568),
-	.M_B_REG_TYPE(6'd0),
+	.M_B_REG_TYPE(6'd21),
 	.M_COUNT(2'd3),
 	.M_ID_WIDTH(1'd1),
-	.M_R_REG_TYPE(6'd0),
-	.M_W_REG_TYPE(6'd0),
+	.M_R_REG_TYPE(6'd42),
+	.M_W_REG_TYPE(6'd42),
 	.RUSER_ENABLE(1'd0),
 	.RUSER_WIDTH(6'd41),
 	.S_AR_REG_TYPE(2'd0),
@@ -1409,169 +2454,172 @@ axi_crossbar #(
 	.WUSER_WIDTH(6'd43)
 ) axi_crossbar (
 	.clk(sys_clk),
-	.m_axi_arready({dbus_ar_ready, axi_csr_ar_ready, dbus_peri_ar_ready}),
-	.m_axi_awready({dbus_aw_ready, axi_csr_aw_ready, dbus_peri_aw_ready}),
-	.m_axi_bid({dbus_b_param_id, axi_csr_b_param_id, dbus_peri_b_param_id}),
-	.m_axi_bresp({dbus_b_payload_resp, axi_csr_b_payload_resp, dbus_peri_b_payload_resp}),
-	.m_axi_buser({dbus_b_param_user, axi_csr_b_param_user, dbus_peri_b_param_user}),
-	.m_axi_bvalid({dbus_b_valid, axi_csr_b_valid, dbus_peri_b_valid}),
-	.m_axi_rdata({dbus_r_payload_data, axi_csr_r_payload_data, dbus_peri_r_payload_data}),
-	.m_axi_rid({dbus_r_param_id, axi_csr_r_param_id, dbus_peri_r_param_id}),
-	.m_axi_rlast({dbus_r_last, axi_csr_r_last, dbus_peri_r_last}),
-	.m_axi_rresp({dbus_r_payload_resp, axi_csr_r_payload_resp, dbus_peri_r_payload_resp}),
-	.m_axi_ruser({dbus_r_param_user, axi_csr_r_param_user, dbus_peri_r_param_user}),
-	.m_axi_rvalid({dbus_r_valid, axi_csr_r_valid, dbus_peri_r_valid}),
-	.m_axi_wready({dbus_w_ready, axi_csr_w_ready, dbus_peri_w_ready}),
+	.m_axi_arready({cramsoc_dbus_ar_ready, cramsoc_axi_csr_ar_ready, cramsoc_dbus_peri_ar_ready}),
+	.m_axi_awready({cramsoc_dbus_aw_ready, cramsoc_axi_csr_aw_ready, cramsoc_dbus_peri_aw_ready}),
+	.m_axi_bid({cramsoc_dbus_b_param_id, cramsoc_axi_csr_b_param_id, cramsoc_dbus_peri_b_param_id}),
+	.m_axi_bresp({cramsoc_dbus_b_payload_resp, cramsoc_axi_csr_b_payload_resp, cramsoc_dbus_peri_b_payload_resp}),
+	.m_axi_buser({cramsoc_dbus_b_param_user, cramsoc_axi_csr_b_param_user, cramsoc_dbus_peri_b_param_user}),
+	.m_axi_bvalid({cramsoc_dbus_b_valid, cramsoc_axi_csr_b_valid, cramsoc_dbus_peri_b_valid}),
+	.m_axi_rdata({cramsoc_dbus_r_payload_data, cramsoc_axi_csr_r_payload_data, cramsoc_dbus_peri_r_payload_data}),
+	.m_axi_rid({cramsoc_dbus_r_param_id, cramsoc_axi_csr_r_param_id, cramsoc_dbus_peri_r_param_id}),
+	.m_axi_rlast({cramsoc_dbus_r_last, cramsoc_axi_csr_r_last, cramsoc_dbus_peri_r_last}),
+	.m_axi_rresp({cramsoc_dbus_r_payload_resp, cramsoc_axi_csr_r_payload_resp, cramsoc_dbus_peri_r_payload_resp}),
+	.m_axi_ruser({cramsoc_dbus_r_param_user, cramsoc_axi_csr_r_param_user, cramsoc_dbus_peri_r_param_user}),
+	.m_axi_rvalid({cramsoc_dbus_r_valid, cramsoc_axi_csr_r_valid, cramsoc_dbus_peri_r_valid}),
+	.m_axi_wready({cramsoc_dbus_w_ready, cramsoc_axi_csr_w_ready, cramsoc_dbus_peri_w_ready}),
 	.rst(sys_rst),
-	.s_axi_araddr({dbus_axi_ar_payload_addr}),
-	.s_axi_arburst({dbus_axi_ar_payload_burst}),
-	.s_axi_arcache({dbus_axi_ar_payload_cache}),
-	.s_axi_arid({dbus_axi_ar_param_id}),
-	.s_axi_arlen({dbus_axi_ar_payload_len}),
-	.s_axi_arlock({dbus_axi_ar_payload_lock}),
-	.s_axi_arprot({dbus_axi_ar_payload_prot}),
-	.s_axi_arqos({dbus_axi_ar_payload_qos}),
-	.s_axi_arsize({dbus_axi_ar_payload_size}),
-	.s_axi_aruser({dbus_axi_ar_param_user}),
-	.s_axi_arvalid({dbus_axi_ar_valid}),
-	.s_axi_awaddr({dbus_axi_aw_payload_addr}),
-	.s_axi_awburst({dbus_axi_aw_payload_burst}),
-	.s_axi_awcache({dbus_axi_aw_payload_cache}),
-	.s_axi_awid({dbus_axi_aw_param_id}),
-	.s_axi_awlen({dbus_axi_aw_payload_len}),
-	.s_axi_awlock({dbus_axi_aw_payload_lock}),
-	.s_axi_awprot({dbus_axi_aw_payload_prot}),
-	.s_axi_awqos({dbus_axi_aw_payload_qos}),
-	.s_axi_awsize({dbus_axi_aw_payload_size}),
-	.s_axi_awuser({dbus_axi_aw_param_user}),
-	.s_axi_awvalid({dbus_axi_aw_valid}),
-	.s_axi_bready({dbus_axi_b_ready}),
-	.s_axi_rready({dbus_axi_r_ready}),
-	.s_axi_wdata({dbus_axi_w_payload_data}),
-	.s_axi_wlast({dbus_axi_w_last}),
-	.s_axi_wstrb({dbus_axi_w_payload_strb}),
-	.s_axi_wuser({dbus_axi_w_param_user}),
-	.s_axi_wvalid({dbus_axi_w_valid}),
-	.m_axi_araddr({dbus_ar_payload_addr, axi_csr_ar_payload_addr, dbus_peri_ar_payload_addr}),
-	.m_axi_arburst({dbus_ar_payload_burst, axi_csr_ar_payload_burst, dbus_peri_ar_payload_burst}),
-	.m_axi_arcache({dbus_ar_payload_cache, axi_csr_ar_payload_cache, dbus_peri_ar_payload_cache}),
-	.m_axi_arid({dbus_ar_param_id, axi_csr_ar_param_id, dbus_peri_ar_param_id}),
-	.m_axi_arlen({dbus_ar_payload_len, axi_csr_ar_payload_len, dbus_peri_ar_payload_len}),
-	.m_axi_arlock({dbus_ar_payload_lock, axi_csr_ar_payload_lock, dbus_peri_ar_payload_lock}),
-	.m_axi_arprot({dbus_ar_payload_prot, axi_csr_ar_payload_prot, dbus_peri_ar_payload_prot}),
-	.m_axi_arqos({dbus_ar_payload_qos, axi_csr_ar_payload_qos, dbus_peri_ar_payload_qos}),
-	.m_axi_arregion({dbus_ar_payload_region, axi_csr_ar_payload_region, dbus_peri_ar_payload_region}),
-	.m_axi_arsize({dbus_ar_payload_size, axi_csr_ar_payload_size, dbus_peri_ar_payload_size}),
-	.m_axi_aruser({dbus_ar_param_user, axi_csr_ar_param_user, dbus_peri_ar_param_user}),
-	.m_axi_arvalid({dbus_ar_valid, axi_csr_ar_valid, dbus_peri_ar_valid}),
-	.m_axi_awaddr({dbus_aw_payload_addr, axi_csr_aw_payload_addr, dbus_peri_aw_payload_addr}),
-	.m_axi_awburst({dbus_aw_payload_burst, axi_csr_aw_payload_burst, dbus_peri_aw_payload_burst}),
-	.m_axi_awcache({dbus_aw_payload_cache, axi_csr_aw_payload_cache, dbus_peri_aw_payload_cache}),
-	.m_axi_awid({dbus_aw_param_id, axi_csr_aw_param_id, dbus_peri_aw_param_id}),
-	.m_axi_awlen({dbus_aw_payload_len, axi_csr_aw_payload_len, dbus_peri_aw_payload_len}),
-	.m_axi_awlock({dbus_aw_payload_lock, axi_csr_aw_payload_lock, dbus_peri_aw_payload_lock}),
-	.m_axi_awprot({dbus_aw_payload_prot, axi_csr_aw_payload_prot, dbus_peri_aw_payload_prot}),
-	.m_axi_awqos({dbus_aw_payload_qos, axi_csr_aw_payload_qos, dbus_peri_aw_payload_qos}),
-	.m_axi_awregion({dbus_aw_payload_region, axi_csr_aw_payload_region, dbus_peri_aw_payload_region}),
-	.m_axi_awsize({dbus_aw_payload_size, axi_csr_aw_payload_size, dbus_peri_aw_payload_size}),
-	.m_axi_awuser({dbus_aw_param_user, axi_csr_aw_param_user, dbus_peri_aw_param_user}),
-	.m_axi_awvalid({dbus_aw_valid, axi_csr_aw_valid, dbus_peri_aw_valid}),
-	.m_axi_bready({dbus_b_ready, axi_csr_b_ready, dbus_peri_b_ready}),
-	.m_axi_rready({dbus_r_ready, axi_csr_r_ready, dbus_peri_r_ready}),
-	.m_axi_wdata({dbus_w_payload_data, axi_csr_w_payload_data, dbus_peri_w_payload_data}),
-	.m_axi_wlast({dbus_w_last, axi_csr_w_last, dbus_peri_w_last}),
-	.m_axi_wstrb({dbus_w_payload_strb, axi_csr_w_payload_strb, dbus_peri_w_payload_strb}),
-	.m_axi_wuser({dbus_w_param_user, axi_csr_w_param_user, dbus_peri_w_param_user}),
-	.m_axi_wvalid({dbus_w_valid, axi_csr_w_valid, dbus_peri_w_valid}),
-	.s_axi_arready({dbus_axi_ar_ready}),
-	.s_axi_awready({dbus_axi_aw_ready}),
-	.s_axi_bid({dbus_axi_b_param_id}),
-	.s_axi_bresp({dbus_axi_b_payload_resp}),
-	.s_axi_buser({dbus_axi_b_param_user}),
-	.s_axi_bvalid({dbus_axi_b_valid}),
-	.s_axi_rdata({dbus_axi_r_payload_data}),
-	.s_axi_rid({dbus_axi_r_param_id}),
-	.s_axi_rlast({dbus_axi_r_last}),
-	.s_axi_rresp({dbus_axi_r_payload_resp}),
-	.s_axi_ruser({dbus_axi_r_param_user}),
-	.s_axi_rvalid({dbus_axi_r_valid}),
-	.s_axi_wready({dbus_axi_w_ready})
+	.s_axi_araddr({cramsoc_dbus_axi_ar_payload_addr}),
+	.s_axi_arburst({cramsoc_dbus_axi_ar_payload_burst}),
+	.s_axi_arcache({cramsoc_dbus_axi_ar_payload_cache}),
+	.s_axi_arid({cramsoc_dbus_axi_ar_param_id}),
+	.s_axi_arlen({cramsoc_dbus_axi_ar_payload_len}),
+	.s_axi_arlock({cramsoc_dbus_axi_ar_payload_lock}),
+	.s_axi_arprot({cramsoc_dbus_axi_ar_payload_prot}),
+	.s_axi_arqos({cramsoc_dbus_axi_ar_payload_qos}),
+	.s_axi_arsize({cramsoc_dbus_axi_ar_payload_size}),
+	.s_axi_aruser({cramsoc_dbus_axi_ar_param_user}),
+	.s_axi_arvalid({cramsoc_dbus_axi_ar_valid}),
+	.s_axi_awaddr({cramsoc_dbus_axi_aw_payload_addr}),
+	.s_axi_awburst({cramsoc_dbus_axi_aw_payload_burst}),
+	.s_axi_awcache({cramsoc_dbus_axi_aw_payload_cache}),
+	.s_axi_awid({cramsoc_dbus_axi_aw_param_id}),
+	.s_axi_awlen({cramsoc_dbus_axi_aw_payload_len}),
+	.s_axi_awlock({cramsoc_dbus_axi_aw_payload_lock}),
+	.s_axi_awprot({cramsoc_dbus_axi_aw_payload_prot}),
+	.s_axi_awqos({cramsoc_dbus_axi_aw_payload_qos}),
+	.s_axi_awsize({cramsoc_dbus_axi_aw_payload_size}),
+	.s_axi_awuser({cramsoc_dbus_axi_aw_param_user}),
+	.s_axi_awvalid({cramsoc_dbus_axi_aw_valid}),
+	.s_axi_bready({cramsoc_dbus_axi_b_ready}),
+	.s_axi_rready({cramsoc_dbus_axi_r_ready}),
+	.s_axi_wdata({cramsoc_dbus_axi_w_payload_data}),
+	.s_axi_wlast({cramsoc_dbus_axi_w_last}),
+	.s_axi_wstrb({cramsoc_dbus_axi_w_payload_strb}),
+	.s_axi_wuser({cramsoc_dbus_axi_w_param_user}),
+	.s_axi_wvalid({cramsoc_dbus_axi_w_valid}),
+	.m_axi_araddr({cramsoc_dbus_ar_payload_addr, cramsoc_axi_csr_ar_payload_addr, cramsoc_dbus_peri_ar_payload_addr}),
+	.m_axi_arburst({cramsoc_dbus_ar_payload_burst, cramsoc_axi_csr_ar_payload_burst, cramsoc_dbus_peri_ar_payload_burst}),
+	.m_axi_arcache({cramsoc_dbus_ar_payload_cache, cramsoc_axi_csr_ar_payload_cache, cramsoc_dbus_peri_ar_payload_cache}),
+	.m_axi_arid({cramsoc_dbus_ar_param_id, cramsoc_axi_csr_ar_param_id, cramsoc_dbus_peri_ar_param_id}),
+	.m_axi_arlen({cramsoc_dbus_ar_payload_len, cramsoc_axi_csr_ar_payload_len, cramsoc_dbus_peri_ar_payload_len}),
+	.m_axi_arlock({cramsoc_dbus_ar_payload_lock, cramsoc_axi_csr_ar_payload_lock, cramsoc_dbus_peri_ar_payload_lock}),
+	.m_axi_arprot({cramsoc_dbus_ar_payload_prot, cramsoc_axi_csr_ar_payload_prot, cramsoc_dbus_peri_ar_payload_prot}),
+	.m_axi_arqos({cramsoc_dbus_ar_payload_qos, cramsoc_axi_csr_ar_payload_qos, cramsoc_dbus_peri_ar_payload_qos}),
+	.m_axi_arregion({cramsoc_dbus_ar_payload_region, cramsoc_axi_csr_ar_payload_region, cramsoc_dbus_peri_ar_payload_region}),
+	.m_axi_arsize({cramsoc_dbus_ar_payload_size, cramsoc_axi_csr_ar_payload_size, cramsoc_dbus_peri_ar_payload_size}),
+	.m_axi_aruser({cramsoc_dbus_ar_param_user, cramsoc_axi_csr_ar_param_user, cramsoc_dbus_peri_ar_param_user}),
+	.m_axi_arvalid({cramsoc_dbus_ar_valid, cramsoc_axi_csr_ar_valid, cramsoc_dbus_peri_ar_valid}),
+	.m_axi_awaddr({cramsoc_dbus_aw_payload_addr, cramsoc_axi_csr_aw_payload_addr, cramsoc_dbus_peri_aw_payload_addr}),
+	.m_axi_awburst({cramsoc_dbus_aw_payload_burst, cramsoc_axi_csr_aw_payload_burst, cramsoc_dbus_peri_aw_payload_burst}),
+	.m_axi_awcache({cramsoc_dbus_aw_payload_cache, cramsoc_axi_csr_aw_payload_cache, cramsoc_dbus_peri_aw_payload_cache}),
+	.m_axi_awid({cramsoc_dbus_aw_param_id, cramsoc_axi_csr_aw_param_id, cramsoc_dbus_peri_aw_param_id}),
+	.m_axi_awlen({cramsoc_dbus_aw_payload_len, cramsoc_axi_csr_aw_payload_len, cramsoc_dbus_peri_aw_payload_len}),
+	.m_axi_awlock({cramsoc_dbus_aw_payload_lock, cramsoc_axi_csr_aw_payload_lock, cramsoc_dbus_peri_aw_payload_lock}),
+	.m_axi_awprot({cramsoc_dbus_aw_payload_prot, cramsoc_axi_csr_aw_payload_prot, cramsoc_dbus_peri_aw_payload_prot}),
+	.m_axi_awqos({cramsoc_dbus_aw_payload_qos, cramsoc_axi_csr_aw_payload_qos, cramsoc_dbus_peri_aw_payload_qos}),
+	.m_axi_awregion({cramsoc_dbus_aw_payload_region, cramsoc_axi_csr_aw_payload_region, cramsoc_dbus_peri_aw_payload_region}),
+	.m_axi_awsize({cramsoc_dbus_aw_payload_size, cramsoc_axi_csr_aw_payload_size, cramsoc_dbus_peri_aw_payload_size}),
+	.m_axi_awuser({cramsoc_dbus_aw_param_user, cramsoc_axi_csr_aw_param_user, cramsoc_dbus_peri_aw_param_user}),
+	.m_axi_awvalid({cramsoc_dbus_aw_valid, cramsoc_axi_csr_aw_valid, cramsoc_dbus_peri_aw_valid}),
+	.m_axi_bready({cramsoc_dbus_b_ready, cramsoc_axi_csr_b_ready, cramsoc_dbus_peri_b_ready}),
+	.m_axi_rready({cramsoc_dbus_r_ready, cramsoc_axi_csr_r_ready, cramsoc_dbus_peri_r_ready}),
+	.m_axi_wdata({cramsoc_dbus_w_payload_data, cramsoc_axi_csr_w_payload_data, cramsoc_dbus_peri_w_payload_data}),
+	.m_axi_wlast({cramsoc_dbus_w_last, cramsoc_axi_csr_w_last, cramsoc_dbus_peri_w_last}),
+	.m_axi_wstrb({cramsoc_dbus_w_payload_strb, cramsoc_axi_csr_w_payload_strb, cramsoc_dbus_peri_w_payload_strb}),
+	.m_axi_wuser({cramsoc_dbus_w_param_user, cramsoc_axi_csr_w_param_user, cramsoc_dbus_peri_w_param_user}),
+	.m_axi_wvalid({cramsoc_dbus_w_valid, cramsoc_axi_csr_w_valid, cramsoc_dbus_peri_w_valid}),
+	.s_axi_arready({cramsoc_dbus_axi_ar_ready}),
+	.s_axi_awready({cramsoc_dbus_axi_aw_ready}),
+	.s_axi_bid({cramsoc_dbus_axi_b_param_id}),
+	.s_axi_bresp({cramsoc_dbus_axi_b_payload_resp}),
+	.s_axi_buser({cramsoc_dbus_axi_b_param_user}),
+	.s_axi_bvalid({cramsoc_dbus_axi_b_valid}),
+	.s_axi_rdata({cramsoc_dbus_axi_r_payload_data}),
+	.s_axi_rid({cramsoc_dbus_axi_r_param_id}),
+	.s_axi_rlast({cramsoc_dbus_axi_r_last}),
+	.s_axi_rresp({cramsoc_dbus_axi_r_payload_resp}),
+	.s_axi_ruser({cramsoc_dbus_axi_r_param_user}),
+	.s_axi_rvalid({cramsoc_dbus_axi_r_valid}),
+	.s_axi_wready({cramsoc_dbus_axi_w_ready})
 );
 
 VexRiscvAxi4 VexRiscvAxi4(
 	.clk(sys_clk),
-	.dBusAxi_ar_ready(dbus_axi_ar_ready),
-	.dBusAxi_aw_ready(dbus_axi_aw_ready),
-	.dBusAxi_b_payload_id(dbus_axi_b_param_id),
-	.dBusAxi_b_payload_resp(dbus_axi_b_payload_resp),
-	.dBusAxi_b_valid(dbus_axi_b_valid),
-	.dBusAxi_r_payload_data(dbus_axi_r_payload_data),
-	.dBusAxi_r_payload_id(dbus_axi_r_param_id),
-	.dBusAxi_r_payload_last(dbus_axi_r_last),
-	.dBusAxi_r_payload_resp(dbus_axi_r_payload_resp),
-	.dBusAxi_r_valid(dbus_axi_r_valid),
-	.dBusAxi_w_ready(dbus_axi_w_ready),
+	.dBusAxi_ar_ready(cramsoc_dbus_axi_ar_ready),
+	.dBusAxi_aw_ready(cramsoc_dbus_axi_aw_ready),
+	.dBusAxi_b_payload_id(cramsoc_dbus_axi_b_param_id),
+	.dBusAxi_b_payload_resp(cramsoc_dbus_axi_b_payload_resp),
+	.dBusAxi_b_valid(cramsoc_dbus_axi_b_valid),
+	.dBusAxi_r_payload_data(cramsoc_dbus_axi_r_payload_data),
+	.dBusAxi_r_payload_id(cramsoc_dbus_axi_r_param_id),
+	.dBusAxi_r_payload_last(cramsoc_dbus_axi_r_last),
+	.dBusAxi_r_payload_resp(cramsoc_dbus_axi_r_payload_resp),
+	.dBusAxi_r_valid(cramsoc_dbus_axi_r_valid),
+	.dBusAxi_w_ready(cramsoc_dbus_axi_w_ready),
 	.debugReset(jtag_trst),
-	.externalInterruptArray(interrupt_1),
-	.externalResetVector(vexriscvaxi_reset_mux),
-	.iBusAxi_ar_ready(ibus_axi_ar_ready),
-	.iBusAxi_r_payload_data(ibus_axi_r_payload_data),
-	.iBusAxi_r_payload_id(ibus_axi_r_param_id),
-	.iBusAxi_r_payload_last(ibus_axi_r_last),
-	.iBusAxi_r_payload_resp(ibus_axi_r_payload_resp),
-	.iBusAxi_r_valid(ibus_axi_r_valid),
+	.externalInterruptArray(cramsoc_interrupt),
+	.externalResetVector(cramsoc_vexriscvaxi_reset_mux),
+	.iBusAxi_ar_ready(cramsoc_ibus_axi_ar_ready),
+	.iBusAxi_r_payload_data(cramsoc_ibus_axi_r_payload_data),
+	.iBusAxi_r_payload_id(cramsoc_ibus_axi_r_param_id),
+	.iBusAxi_r_payload_last(cramsoc_ibus_axi_r_last),
+	.iBusAxi_r_payload_resp(cramsoc_ibus_axi_r_payload_resp),
+	.iBusAxi_r_valid(cramsoc_ibus_axi_r_valid),
 	.jtag_tck(jtag_tck),
 	.jtag_tdi(jtag_tdi),
 	.jtag_tms(jtag_tms),
-	.reset(((sys_rst | reset) | debug_reset)),
+	.reset(((sys_rst | cramsoc_reset) | debug_reset)),
 	.softwareInterrupt(1'd0),
 	.timerInterrupt(1'd0),
-	.dBusAxi_ar_payload_addr(dbus_axi_ar_payload_addr),
-	.dBusAxi_ar_payload_burst(dbus_axi_ar_payload_burst),
-	.dBusAxi_ar_payload_cache(dbus_axi_ar_payload_cache),
-	.dBusAxi_ar_payload_id(dbus_axi_ar_param_id),
-	.dBusAxi_ar_payload_len(dbus_axi_ar_payload_len),
-	.dBusAxi_ar_payload_lock(dbus_axi_ar_payload_lock),
-	.dBusAxi_ar_payload_prot(dbus_axi_ar_payload_prot),
-	.dBusAxi_ar_payload_qos(dbus_axi_ar_payload_qos),
-	.dBusAxi_ar_payload_region(dbus_axi_ar_payload_region),
-	.dBusAxi_ar_payload_size(dbus_axi_ar_payload_size),
-	.dBusAxi_ar_valid(dbus_axi_ar_valid),
-	.dBusAxi_aw_payload_addr(dbus_axi_aw_payload_addr),
-	.dBusAxi_aw_payload_burst(dbus_axi_aw_payload_burst),
-	.dBusAxi_aw_payload_cache(dbus_axi_aw_payload_cache),
-	.dBusAxi_aw_payload_id(dbus_axi_aw_param_id),
-	.dBusAxi_aw_payload_len(dbus_axi_aw_payload_len),
-	.dBusAxi_aw_payload_lock(dbus_axi_aw_payload_lock),
-	.dBusAxi_aw_payload_prot(dbus_axi_aw_payload_prot),
-	.dBusAxi_aw_payload_qos(dbus_axi_aw_payload_qos),
-	.dBusAxi_aw_payload_region(dbus_axi_aw_payload_region),
-	.dBusAxi_aw_payload_size(dbus_axi_aw_payload_size),
-	.dBusAxi_aw_valid(dbus_axi_aw_valid),
-	.dBusAxi_b_ready(dbus_axi_b_ready),
-	.dBusAxi_r_ready(dbus_axi_r_ready),
-	.dBusAxi_w_payload_data(dbus_axi_w_payload_data),
-	.dBusAxi_w_payload_last(dbus_axi_w_last),
-	.dBusAxi_w_payload_strb(dbus_axi_w_payload_strb),
-	.dBusAxi_w_valid(dbus_axi_w_valid),
+	.MmuPlugin_satp_asid(cramsoc_satp_asid),
+	.MmuPlugin_satp_mode(cramsoc_satp_mode),
+	.MmuPlugin_satp_ppn(cramsoc_satp_ppn),
+	.dBusAxi_ar_payload_addr(cramsoc_dbus_axi_ar_payload_addr),
+	.dBusAxi_ar_payload_burst(cramsoc_dbus_axi_ar_payload_burst),
+	.dBusAxi_ar_payload_cache(cramsoc_dbus_axi_ar_payload_cache),
+	.dBusAxi_ar_payload_id(cramsoc_dbus_axi_ar_param_id),
+	.dBusAxi_ar_payload_len(cramsoc_dbus_axi_ar_payload_len),
+	.dBusAxi_ar_payload_lock(cramsoc_dbus_axi_ar_payload_lock),
+	.dBusAxi_ar_payload_prot(cramsoc_dbus_axi_ar_payload_prot),
+	.dBusAxi_ar_payload_qos(cramsoc_dbus_axi_ar_payload_qos),
+	.dBusAxi_ar_payload_region(cramsoc_dbus_axi_ar_payload_region),
+	.dBusAxi_ar_payload_size(cramsoc_dbus_axi_ar_payload_size),
+	.dBusAxi_ar_valid(cramsoc_dbus_axi_ar_valid),
+	.dBusAxi_aw_payload_addr(cramsoc_dbus_axi_aw_payload_addr),
+	.dBusAxi_aw_payload_burst(cramsoc_dbus_axi_aw_payload_burst),
+	.dBusAxi_aw_payload_cache(cramsoc_dbus_axi_aw_payload_cache),
+	.dBusAxi_aw_payload_id(cramsoc_dbus_axi_aw_param_id),
+	.dBusAxi_aw_payload_len(cramsoc_dbus_axi_aw_payload_len),
+	.dBusAxi_aw_payload_lock(cramsoc_dbus_axi_aw_payload_lock),
+	.dBusAxi_aw_payload_prot(cramsoc_dbus_axi_aw_payload_prot),
+	.dBusAxi_aw_payload_qos(cramsoc_dbus_axi_aw_payload_qos),
+	.dBusAxi_aw_payload_region(cramsoc_dbus_axi_aw_payload_region),
+	.dBusAxi_aw_payload_size(cramsoc_dbus_axi_aw_payload_size),
+	.dBusAxi_aw_valid(cramsoc_dbus_axi_aw_valid),
+	.dBusAxi_b_ready(cramsoc_dbus_axi_b_ready),
+	.dBusAxi_r_ready(cramsoc_dbus_axi_r_ready),
+	.dBusAxi_w_payload_data(cramsoc_dbus_axi_w_payload_data),
+	.dBusAxi_w_payload_last(cramsoc_dbus_axi_w_last),
+	.dBusAxi_w_payload_strb(cramsoc_dbus_axi_w_payload_strb),
+	.dBusAxi_w_valid(cramsoc_dbus_axi_w_valid),
 	.debug_resetOut(o_resetOut),
-	.iBusAxi_ar_payload_addr(ibus_axi_ar_payload_addr),
-	.iBusAxi_ar_payload_burst(ibus_axi_ar_payload_burst),
-	.iBusAxi_ar_payload_cache(ibus_axi_ar_payload_cache),
-	.iBusAxi_ar_payload_id(ibus_axi_ar_param_id),
-	.iBusAxi_ar_payload_len(ibus_axi_ar_payload_len),
-	.iBusAxi_ar_payload_lock(ibus_axi_ar_payload_lock),
-	.iBusAxi_ar_payload_prot(ibus_axi_ar_payload_prot),
-	.iBusAxi_ar_payload_qos(ibus_axi_ar_payload_qos),
-	.iBusAxi_ar_payload_region(ibus_axi_ar_payload_region),
-	.iBusAxi_ar_payload_size(ibus_axi_ar_payload_size),
-	.iBusAxi_ar_valid(ibus_axi_ar_valid),
-	.iBusAxi_r_ready(ibus_axi_r_ready),
+	.iBusAxi_ar_payload_addr(cramsoc_ibus_axi_ar_payload_addr),
+	.iBusAxi_ar_payload_burst(cramsoc_ibus_axi_ar_payload_burst),
+	.iBusAxi_ar_payload_cache(cramsoc_ibus_axi_ar_payload_cache),
+	.iBusAxi_ar_payload_id(cramsoc_ibus_axi_ar_param_id),
+	.iBusAxi_ar_payload_len(cramsoc_ibus_axi_ar_payload_len),
+	.iBusAxi_ar_payload_lock(cramsoc_ibus_axi_ar_payload_lock),
+	.iBusAxi_ar_payload_prot(cramsoc_ibus_axi_ar_payload_prot),
+	.iBusAxi_ar_payload_qos(cramsoc_ibus_axi_ar_payload_qos),
+	.iBusAxi_ar_payload_region(cramsoc_ibus_axi_ar_payload_region),
+	.iBusAxi_ar_payload_size(cramsoc_ibus_axi_ar_payload_size),
+	.iBusAxi_ar_valid(cramsoc_ibus_axi_ar_valid),
+	.iBusAxi_r_ready(cramsoc_ibus_axi_r_ready),
 	.jtag_tdo(jtag_tdo)
 );
 
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2022-12-20 01:47:38.
+//  Auto-Generated by LiteX on 2022-12-23 02:18:02.
 //------------------------------------------------------------------------------

@@ -1,0 +1,31 @@
+CPU
+===
+
+
+
+This `VexRiscv <https://github.com/SpinalHDL/VexRiscv#vexriscv-architecture>`_ core provides the following bus interfaces:
+
+- 64-bit AXI-4 instruction cache bus (read-only cached)
+- Data bus crossbar
+
+  - 0x60000000-7FFFFFFF: 32-bit AXI-4 data cache bus (r/w cached)
+  - 0x40000000-4FFFFFFF: 32-bit AXI-lite peripheral bus (r/w uncached)
+- All busses run at ACLK speed
+
+The core itself contains the following features:
+
+- VexRiscv CPU (simple, in-order RV32-IMAC with pipelining)
+- Static branch prediction
+- 4k, 4-way D-cache
+- 4k, 4-way I-cache
+- MMU and 8-entry TLB
+- AES instruction extensions
+- Non-cached regions (used for I/O):
+
+   - 0x40000000 - 5FFFFFFF
+   - 0xA0000000 - FFFFFFFF
+
+   - Any non-cached regions not routed through peripheral bus are internal to the core block
+
+
+

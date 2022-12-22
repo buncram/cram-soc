@@ -1,0 +1,33 @@
+
+Documentation for Cramium SoC (RISC-V Core Complex)
+===================================================
+
+
+
+Modules
+=======
+
+.. toctree::
+    :maxdepth: 1
+
+    interrupts
+    cpu
+
+Register Groups
+===============
+
+.. toctree::
+    :maxdepth: 1
+
+    coreuser
+    csrtest
+    resetvalue
+    ticktimer
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

@@ -1,0 +1,40 @@
+RESETVALUE
+==========
+
+
+
+`ResetValue` captures the actual reset value present at a reset event. The reason this is
+necessary is because the reset value could either be that built into the silicon, or it could
+come from a "trimming value" that is programmed via ReRAM bits. This vector can be read back to
+confirm that the reset vector is, in fact, where we expected it to be.
+
+`default_value` specifies what the value would be if the `trimming_reset` ReRAM bits are not
+enabled with `trimming_reset_ena`.
+
+
+Register Listing for RESETVALUE
+-------------------------------
+
++--------------------------------------+-----------------------------------+
+| Register                             | Address                           |
++======================================+===================================+
+| :ref:`RESETVALUE_PC <RESETVALUE_PC>` | :ref:`0x58002000 <RESETVALUE_PC>` |
++--------------------------------------+-----------------------------------+
+
+RESETVALUE_PC
+^^^^^^^^^^^^^
+
+`Address: 0x58002000 + 0x0 = 0x58002000`
+
+    Latched value for PC on reset
+
+    .. wavedrom::
+        :caption: RESETVALUE_PC
+
+        {
+            "reg": [
+                {"name": "pc[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+

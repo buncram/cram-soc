@@ -7,27 +7,11 @@
 - [AES ROM for core](./VexRiscv_CranSoC.v_toplevel_memory_AesPlugin_rom_storage.bin)
 - [Register file abstract model](./ram_1w_1ra.v)
 - [Cache memory abstract model](./ram_1w_1rs.v)
+- Source files for the AXI pathway
 
 ## Description
 
-This is a customized VexRiscv core in a wrapper that provides the following bus interfaces:
-- 64-bit AXI-4 instruction cache bus (read-only cached)
-- 32-bit AXI-4 data cache bus (r/w cached)
-- 32-bit AXI-lite peripheral bus (r/w uncached)
-- All busses run at ACLK speed
-
-The core itself contains the following features:
-- VexRiscv CPU (simple, in-order RV32-IMAC with pipelining)
-- Static branch prediction
-- 4k, 4-way D-cache
-- 4k, 4-way I-cache
-- MMU and 8-entry TLB
-- AES instruction extensions
-- Non-cached regions (available for I/O):
-  - 0x4000_0000-0x5FFF_FFFF (routed to p_bus)
-  - 0xA000_0000-0xFFFF_FFFF (not routed to p_bus)
-- Peripheral AXI-lite routed via crossbar
-  - Only 0x4000_0000-0x5FFF_FFF is routed to peripheral AXI
+Please refer to the [documentation](docs/index.html)
 
 ## Roadmap
 
@@ -58,3 +42,7 @@ Nov 16, 2022:
 - I/O read/write / non-cacheable access tested
 - Much, much more testing required (many bugs to be found still)
 
+Dec 23, 2022:
+- Add `coreuser` signal
+- Rework AXI pathway to use `verilog-axi` framework
+- Add auto-generated documentation tree, synchronized to SpinalHDL source for CPU

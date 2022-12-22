@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.8.0    git head : 4e3563a282582b41f4eaafc503787757251d23ea
 // Component : VexRiscvAxi4
-// Git hash  : 27b49dbfc5231fafe0821f7307c103729ccb34db
+// Git hash  : 8170a0ce9904cfb81457f49e9ef95236b07d6c67
 
 `timescale 1ns/1ps
 
@@ -12,7 +12,7 @@ module VexRiscvAxi4 (
   output              debug_resetOut,
   output reg          MmuPlugin_satp_mode,
   output reg [8:0]    MmuPlugin_satp_asid,
-  output reg [19:0]   MmuPlugin_satp_ppn,
+  output reg [21:0]   MmuPlugin_satp_ppn,
   output              iBusAxi_ar_valid,
   input               iBusAxi_ar_ready,
   output     [31:0]   iBusAxi_ar_payload_addr,
@@ -1628,8 +1628,8 @@ module VexRiscvAxi4 (
   reg                 MmuPlugin_ports_0_cache_7_allowUser;
   wire                MmuPlugin_ports_0_dirty;
   reg                 MmuPlugin_ports_0_requireMmuLockupCalc;
-  wire                when_MmuPlugin_l136;
   wire                when_MmuPlugin_l137;
+  wire                when_MmuPlugin_l138;
   wire       [7:0]    MmuPlugin_ports_0_cacheHitsCalc;
   wire                MmuPlugin_ports_0_cacheHit;
   wire                _zz_MmuPlugin_ports_0_cacheLine_valid;
@@ -1747,9 +1747,9 @@ module VexRiscvAxi4 (
   reg                 MmuPlugin_ports_1_cache_7_allowUser;
   wire                MmuPlugin_ports_1_dirty;
   reg                 MmuPlugin_ports_1_requireMmuLockupCalc;
-  wire                when_MmuPlugin_l136_1;
   wire                when_MmuPlugin_l137_1;
-  wire                when_MmuPlugin_l139;
+  wire                when_MmuPlugin_l138_1;
+  wire                when_MmuPlugin_l140;
   wire       [7:0]    MmuPlugin_ports_1_cacheHitsCalc;
   wire                MmuPlugin_ports_1_cacheHit;
   wire                _zz_MmuPlugin_ports_1_cacheLine_valid;
@@ -1798,7 +1798,7 @@ module VexRiscvAxi4 (
   wire       [11:0]   MmuPlugin_shared_dBusRsp_pte_PPN1;
   wire                MmuPlugin_shared_dBusRsp_exception;
   wire                MmuPlugin_shared_dBusRsp_leaf;
-  wire                when_MmuPlugin_l216;
+  wire                when_MmuPlugin_l217;
   reg                 MmuPlugin_shared_pteBuffer_V;
   reg                 MmuPlugin_shared_pteBuffer_R;
   reg                 MmuPlugin_shared_pteBuffer_W;
@@ -1815,29 +1815,29 @@ module VexRiscvAxi4 (
   wire       [1:0]    MmuPlugin_shared_refills;
   wire       [1:0]    _zz_MmuPlugin_shared_refills_2;
   reg        [1:0]    _zz_MmuPlugin_shared_refills_3;
-  wire                when_MmuPlugin_l228;
+  wire                when_MmuPlugin_l229;
   wire       [31:0]   _zz_MmuPlugin_shared_vpn_0;
-  wire                when_MmuPlugin_l254;
-  wire                when_MmuPlugin_l283;
+  wire                when_MmuPlugin_l256;
   wire                when_MmuPlugin_l285;
-  wire                when_MmuPlugin_l291;
-  wire                when_MmuPlugin_l291_1;
-  wire                when_MmuPlugin_l291_2;
-  wire                when_MmuPlugin_l291_3;
-  wire                when_MmuPlugin_l291_4;
-  wire                when_MmuPlugin_l291_5;
-  wire                when_MmuPlugin_l291_6;
-  wire                when_MmuPlugin_l291_7;
-  wire                when_MmuPlugin_l285_1;
-  wire                when_MmuPlugin_l291_8;
-  wire                when_MmuPlugin_l291_9;
-  wire                when_MmuPlugin_l291_10;
-  wire                when_MmuPlugin_l291_11;
-  wire                when_MmuPlugin_l291_12;
-  wire                when_MmuPlugin_l291_13;
-  wire                when_MmuPlugin_l291_14;
-  wire                when_MmuPlugin_l291_15;
-  wire                when_MmuPlugin_l315;
+  wire                when_MmuPlugin_l287;
+  wire                when_MmuPlugin_l293;
+  wire                when_MmuPlugin_l293_1;
+  wire                when_MmuPlugin_l293_2;
+  wire                when_MmuPlugin_l293_3;
+  wire                when_MmuPlugin_l293_4;
+  wire                when_MmuPlugin_l293_5;
+  wire                when_MmuPlugin_l293_6;
+  wire                when_MmuPlugin_l293_7;
+  wire                when_MmuPlugin_l287_1;
+  wire                when_MmuPlugin_l293_8;
+  wire                when_MmuPlugin_l293_9;
+  wire                when_MmuPlugin_l293_10;
+  wire                when_MmuPlugin_l293_11;
+  wire                when_MmuPlugin_l293_12;
+  wire                when_MmuPlugin_l293_13;
+  wire                when_MmuPlugin_l293_14;
+  wire                when_MmuPlugin_l293_15;
+  wire                when_MmuPlugin_l317;
   reg        [31:0]   externalInterruptArray_regNext;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit;
   wire       [31:0]   _zz_externalInterrupt;
@@ -6500,16 +6500,16 @@ module VexRiscvAxi4 (
   assign MmuPlugin_ports_0_dirty = 1'b0;
   always @(*) begin
     MmuPlugin_ports_0_requireMmuLockupCalc = ((1'b1 && (! IBusCachedPlugin_mmuBus_cmd_0_bypassTranslation)) && MmuPlugin_satp_mode); // @[BaseType.scala 305:24]
-    if(when_MmuPlugin_l136) begin
-      MmuPlugin_ports_0_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 136:32]
-    end
     if(when_MmuPlugin_l137) begin
-      MmuPlugin_ports_0_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 141:36]
+      MmuPlugin_ports_0_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 137:32]
+    end
+    if(when_MmuPlugin_l138) begin
+      MmuPlugin_ports_0_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 142:36]
     end
   end
 
-  assign when_MmuPlugin_l136 = ((! MmuPlugin_status_mprv) && (CsrPlugin_privilege == 2'b11)); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l137 = (CsrPlugin_privilege == 2'b11); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l137 = ((! MmuPlugin_status_mprv) && (CsrPlugin_privilege == 2'b11)); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l138 = (CsrPlugin_privilege == 2'b11); // @[BaseType.scala 305:24]
   assign MmuPlugin_ports_0_cacheHitsCalc = {((MmuPlugin_ports_0_cache_7_valid && (MmuPlugin_ports_0_cache_7_virtualAddress_1 == _zz_MmuPlugin_ports_0_cacheHitsCalc)) && (MmuPlugin_ports_0_cache_7_superPage || (MmuPlugin_ports_0_cache_7_virtualAddress_0 == _zz_MmuPlugin_ports_0_cacheHitsCalc_1))),{((MmuPlugin_ports_0_cache_6_valid && _zz_MmuPlugin_ports_0_cacheHitsCalc_2) && (MmuPlugin_ports_0_cache_6_superPage || _zz_MmuPlugin_ports_0_cacheHitsCalc_3)),{(_zz_MmuPlugin_ports_0_cacheHitsCalc_4 && _zz_MmuPlugin_ports_0_cacheHitsCalc_5),{_zz_MmuPlugin_ports_0_cacheHitsCalc_6,{_zz_MmuPlugin_ports_0_cacheHitsCalc_9,_zz_MmuPlugin_ports_0_cacheHitsCalc_12}}}}}; // @[BaseType.scala 299:24]
   assign MmuPlugin_ports_0_cacheHit = (|MmuPlugin_ports_0_cacheHitsCalc); // @[BaseType.scala 312:24]
   assign _zz_MmuPlugin_ports_0_cacheLine_valid = MmuPlugin_ports_0_cacheHitsCalc[3]; // @[BaseType.scala 305:24]
@@ -6533,8 +6533,8 @@ module VexRiscvAxi4 (
   assign MmuPlugin_ports_0_cacheLine_allowUser = _zz_MmuPlugin_ports_0_cacheLine_allowUser; // @[Vec.scala 202:25]
   always @(*) begin
     MmuPlugin_ports_0_entryToReplace_willIncrement = 1'b0; // @[Utils.scala 536:23]
-    if(when_MmuPlugin_l283) begin
-      if(when_MmuPlugin_l285) begin
+    if(when_MmuPlugin_l285) begin
+      if(when_MmuPlugin_l287) begin
         MmuPlugin_ports_0_entryToReplace_willIncrement = 1'b1; // @[Utils.scala 540:41]
       end
     end
@@ -6552,94 +6552,94 @@ module VexRiscvAxi4 (
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_physicalAddress = {{MmuPlugin_ports_0_cacheLine_physicalAddress_1,(MmuPlugin_ports_0_cacheLine_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cacheLine_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 159:40]
+      IBusCachedPlugin_mmuBus_rsp_physicalAddress = {{MmuPlugin_ports_0_cacheLine_physicalAddress_1,(MmuPlugin_ports_0_cacheLine_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cacheLine_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 160:40]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_physicalAddress = IBusCachedPlugin_mmuBus_cmd_0_virtualAddress; // @[MmuPlugin.scala 167:40]
+      IBusCachedPlugin_mmuBus_rsp_physicalAddress = IBusCachedPlugin_mmuBus_cmd_0_virtualAddress; // @[MmuPlugin.scala 168:40]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_allowRead = (MmuPlugin_ports_0_cacheLine_allowRead || (MmuPlugin_status_mxr && MmuPlugin_ports_0_cacheLine_allowExecute)); // @[MmuPlugin.scala 160:34]
+      IBusCachedPlugin_mmuBus_rsp_allowRead = (MmuPlugin_ports_0_cacheLine_allowRead || (MmuPlugin_status_mxr && MmuPlugin_ports_0_cacheLine_allowExecute)); // @[MmuPlugin.scala 161:34]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_allowRead = 1'b1; // @[MmuPlugin.scala 168:34]
+      IBusCachedPlugin_mmuBus_rsp_allowRead = 1'b1; // @[MmuPlugin.scala 169:34]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_allowWrite = MmuPlugin_ports_0_cacheLine_allowWrite; // @[MmuPlugin.scala 161:35]
+      IBusCachedPlugin_mmuBus_rsp_allowWrite = MmuPlugin_ports_0_cacheLine_allowWrite; // @[MmuPlugin.scala 162:35]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_allowWrite = 1'b1; // @[MmuPlugin.scala 169:35]
+      IBusCachedPlugin_mmuBus_rsp_allowWrite = 1'b1; // @[MmuPlugin.scala 170:35]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_allowExecute = MmuPlugin_ports_0_cacheLine_allowExecute; // @[MmuPlugin.scala 162:37]
+      IBusCachedPlugin_mmuBus_rsp_allowExecute = MmuPlugin_ports_0_cacheLine_allowExecute; // @[MmuPlugin.scala 163:37]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_allowExecute = 1'b1; // @[MmuPlugin.scala 170:37]
+      IBusCachedPlugin_mmuBus_rsp_allowExecute = 1'b1; // @[MmuPlugin.scala 171:37]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_exception = (((! MmuPlugin_ports_0_dirty) && MmuPlugin_ports_0_cacheHit) && ((MmuPlugin_ports_0_cacheLine_exception || ((MmuPlugin_ports_0_cacheLine_allowUser && (CsrPlugin_privilege == 2'b01)) && (! MmuPlugin_status_sum))) || ((! MmuPlugin_ports_0_cacheLine_allowUser) && (CsrPlugin_privilege == 2'b00)))); // @[MmuPlugin.scala 163:34]
+      IBusCachedPlugin_mmuBus_rsp_exception = (((! MmuPlugin_ports_0_dirty) && MmuPlugin_ports_0_cacheHit) && ((MmuPlugin_ports_0_cacheLine_exception || ((MmuPlugin_ports_0_cacheLine_allowUser && (CsrPlugin_privilege == 2'b01)) && (! MmuPlugin_status_sum))) || ((! MmuPlugin_ports_0_cacheLine_allowUser) && (CsrPlugin_privilege == 2'b00)))); // @[MmuPlugin.scala 164:34]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_exception = 1'b0; // @[MmuPlugin.scala 171:34]
+      IBusCachedPlugin_mmuBus_rsp_exception = 1'b0; // @[MmuPlugin.scala 172:34]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_refilling = (MmuPlugin_ports_0_dirty || (! MmuPlugin_ports_0_cacheHit)); // @[MmuPlugin.scala 164:34]
+      IBusCachedPlugin_mmuBus_rsp_refilling = (MmuPlugin_ports_0_dirty || (! MmuPlugin_ports_0_cacheHit)); // @[MmuPlugin.scala 165:34]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_refilling = 1'b0; // @[MmuPlugin.scala 172:34]
+      IBusCachedPlugin_mmuBus_rsp_refilling = 1'b0; // @[MmuPlugin.scala 173:34]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_0_requireMmuLockupCalc) begin
-      IBusCachedPlugin_mmuBus_rsp_isPaging = 1'b1; // @[MmuPlugin.scala 165:33]
+      IBusCachedPlugin_mmuBus_rsp_isPaging = 1'b1; // @[MmuPlugin.scala 166:33]
     end else begin
-      IBusCachedPlugin_mmuBus_rsp_isPaging = 1'b0; // @[MmuPlugin.scala 173:33]
+      IBusCachedPlugin_mmuBus_rsp_isPaging = 1'b0; // @[MmuPlugin.scala 174:33]
     end
   end
 
-  assign IBusCachedPlugin_mmuBus_rsp_isIoAccess = ((((((((IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0100) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0101)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1010)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1011)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1100)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1101)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1110)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1111)); // @[MmuPlugin.scala 175:33]
-  assign IBusCachedPlugin_mmuBus_rsp_bypassTranslation = (! MmuPlugin_ports_0_requireMmuLockupCalc); // @[MmuPlugin.scala 177:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_0_sel = MmuPlugin_ports_0_cacheHitsCalc[0]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_0_physical = {{MmuPlugin_ports_0_cache_0_physicalAddress_1,(MmuPlugin_ports_0_cache_0_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_0_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_1_sel = MmuPlugin_ports_0_cacheHitsCalc[1]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_1_physical = {{MmuPlugin_ports_0_cache_1_physicalAddress_1,(MmuPlugin_ports_0_cache_1_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_1_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_2_sel = MmuPlugin_ports_0_cacheHitsCalc[2]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_2_physical = {{MmuPlugin_ports_0_cache_2_physicalAddress_1,(MmuPlugin_ports_0_cache_2_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_2_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_3_sel = MmuPlugin_ports_0_cacheHitsCalc[3]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_3_physical = {{MmuPlugin_ports_0_cache_3_physicalAddress_1,(MmuPlugin_ports_0_cache_3_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_3_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_4_sel = MmuPlugin_ports_0_cacheHitsCalc[4]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_4_physical = {{MmuPlugin_ports_0_cache_4_physicalAddress_1,(MmuPlugin_ports_0_cache_4_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_4_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_5_sel = MmuPlugin_ports_0_cacheHitsCalc[5]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_5_physical = {{MmuPlugin_ports_0_cache_5_physicalAddress_1,(MmuPlugin_ports_0_cache_5_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_5_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_6_sel = MmuPlugin_ports_0_cacheHitsCalc[6]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_6_physical = {{MmuPlugin_ports_0_cache_6_physicalAddress_1,(MmuPlugin_ports_0_cache_6_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_6_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_7_sel = MmuPlugin_ports_0_cacheHitsCalc[7]; // @[MmuPlugin.scala 179:40]
-  assign IBusCachedPlugin_mmuBus_rsp_ways_7_physical = {{MmuPlugin_ports_0_cache_7_physicalAddress_1,(MmuPlugin_ports_0_cache_7_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_7_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
+  assign IBusCachedPlugin_mmuBus_rsp_isIoAccess = ((((((((IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0100) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0101)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1010)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1011)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1100)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1101)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1110)) || (IBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1111)); // @[MmuPlugin.scala 176:33]
+  assign IBusCachedPlugin_mmuBus_rsp_bypassTranslation = (! MmuPlugin_ports_0_requireMmuLockupCalc); // @[MmuPlugin.scala 178:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_0_sel = MmuPlugin_ports_0_cacheHitsCalc[0]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_0_physical = {{MmuPlugin_ports_0_cache_0_physicalAddress_1,(MmuPlugin_ports_0_cache_0_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_0_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_1_sel = MmuPlugin_ports_0_cacheHitsCalc[1]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_1_physical = {{MmuPlugin_ports_0_cache_1_physicalAddress_1,(MmuPlugin_ports_0_cache_1_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_1_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_2_sel = MmuPlugin_ports_0_cacheHitsCalc[2]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_2_physical = {{MmuPlugin_ports_0_cache_2_physicalAddress_1,(MmuPlugin_ports_0_cache_2_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_2_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_3_sel = MmuPlugin_ports_0_cacheHitsCalc[3]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_3_physical = {{MmuPlugin_ports_0_cache_3_physicalAddress_1,(MmuPlugin_ports_0_cache_3_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_3_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_4_sel = MmuPlugin_ports_0_cacheHitsCalc[4]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_4_physical = {{MmuPlugin_ports_0_cache_4_physicalAddress_1,(MmuPlugin_ports_0_cache_4_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_4_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_5_sel = MmuPlugin_ports_0_cacheHitsCalc[5]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_5_physical = {{MmuPlugin_ports_0_cache_5_physicalAddress_1,(MmuPlugin_ports_0_cache_5_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_5_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_6_sel = MmuPlugin_ports_0_cacheHitsCalc[6]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_6_physical = {{MmuPlugin_ports_0_cache_6_physicalAddress_1,(MmuPlugin_ports_0_cache_6_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_6_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_7_sel = MmuPlugin_ports_0_cacheHitsCalc[7]; // @[MmuPlugin.scala 180:40]
+  assign IBusCachedPlugin_mmuBus_rsp_ways_7_physical = {{MmuPlugin_ports_0_cache_7_physicalAddress_1,(MmuPlugin_ports_0_cache_7_superPage ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_0_cache_7_physicalAddress_0)},IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
   assign MmuPlugin_ports_1_dirty = 1'b0;
   always @(*) begin
     MmuPlugin_ports_1_requireMmuLockupCalc = ((1'b1 && (! DBusCachedPlugin_mmuBus_cmd_0_bypassTranslation)) && MmuPlugin_satp_mode); // @[BaseType.scala 305:24]
-    if(when_MmuPlugin_l136_1) begin
-      MmuPlugin_ports_1_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 136:32]
-    end
     if(when_MmuPlugin_l137_1) begin
-      if(when_MmuPlugin_l139) begin
-        MmuPlugin_ports_1_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 139:36]
+      MmuPlugin_ports_1_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 137:32]
+    end
+    if(when_MmuPlugin_l138_1) begin
+      if(when_MmuPlugin_l140) begin
+        MmuPlugin_ports_1_requireMmuLockupCalc = 1'b0; // @[MmuPlugin.scala 140:36]
       end
     end
   end
 
-  assign when_MmuPlugin_l136_1 = ((! MmuPlugin_status_mprv) && (CsrPlugin_privilege == 2'b11)); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l137_1 = (CsrPlugin_privilege == 2'b11); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l139 = ((! MmuPlugin_status_mprv) || (CsrPlugin_mstatus_MPP == 2'b11)); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l137_1 = ((! MmuPlugin_status_mprv) && (CsrPlugin_privilege == 2'b11)); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l138_1 = (CsrPlugin_privilege == 2'b11); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l140 = ((! MmuPlugin_status_mprv) || (CsrPlugin_mstatus_MPP == 2'b11)); // @[BaseType.scala 305:24]
   assign MmuPlugin_ports_1_cacheHitsCalc = {((MmuPlugin_ports_1_cache_7_valid && (MmuPlugin_ports_1_cache_7_virtualAddress_1 == _zz_MmuPlugin_ports_1_cacheHitsCalc)) && (MmuPlugin_ports_1_cache_7_superPage || (MmuPlugin_ports_1_cache_7_virtualAddress_0 == _zz_MmuPlugin_ports_1_cacheHitsCalc_1))),{((MmuPlugin_ports_1_cache_6_valid && _zz_MmuPlugin_ports_1_cacheHitsCalc_2) && (MmuPlugin_ports_1_cache_6_superPage || _zz_MmuPlugin_ports_1_cacheHitsCalc_3)),{(_zz_MmuPlugin_ports_1_cacheHitsCalc_4 && _zz_MmuPlugin_ports_1_cacheHitsCalc_5),{_zz_MmuPlugin_ports_1_cacheHitsCalc_6,{_zz_MmuPlugin_ports_1_cacheHitsCalc_9,_zz_MmuPlugin_ports_1_cacheHitsCalc_12}}}}}; // @[BaseType.scala 299:24]
   assign MmuPlugin_ports_1_cacheHit = (|MmuPlugin_ports_1_cacheHitsCalc); // @[BaseType.scala 312:24]
   assign _zz_MmuPlugin_ports_1_cacheLine_valid = MmuPlugin_ports_1_cacheHitsCalc[3]; // @[BaseType.scala 305:24]
@@ -6663,8 +6663,8 @@ module VexRiscvAxi4 (
   assign MmuPlugin_ports_1_cacheLine_allowUser = _zz_MmuPlugin_ports_1_cacheLine_allowUser; // @[Vec.scala 202:25]
   always @(*) begin
     MmuPlugin_ports_1_entryToReplace_willIncrement = 1'b0; // @[Utils.scala 536:23]
-    if(when_MmuPlugin_l283) begin
-      if(when_MmuPlugin_l285_1) begin
+    if(when_MmuPlugin_l285) begin
+      if(when_MmuPlugin_l287_1) begin
         MmuPlugin_ports_1_entryToReplace_willIncrement = 1'b1; // @[Utils.scala 540:41]
       end
     end
@@ -6682,78 +6682,78 @@ module VexRiscvAxi4 (
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_physicalAddress = {{MmuPlugin_ports_1_cacheLine_physicalAddress_1,(MmuPlugin_ports_1_cacheLine_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cacheLine_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 159:40]
+      DBusCachedPlugin_mmuBus_rsp_physicalAddress = {{MmuPlugin_ports_1_cacheLine_physicalAddress_1,(MmuPlugin_ports_1_cacheLine_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cacheLine_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 160:40]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_physicalAddress = DBusCachedPlugin_mmuBus_cmd_0_virtualAddress; // @[MmuPlugin.scala 167:40]
+      DBusCachedPlugin_mmuBus_rsp_physicalAddress = DBusCachedPlugin_mmuBus_cmd_0_virtualAddress; // @[MmuPlugin.scala 168:40]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_allowRead = (MmuPlugin_ports_1_cacheLine_allowRead || (MmuPlugin_status_mxr && MmuPlugin_ports_1_cacheLine_allowExecute)); // @[MmuPlugin.scala 160:34]
+      DBusCachedPlugin_mmuBus_rsp_allowRead = (MmuPlugin_ports_1_cacheLine_allowRead || (MmuPlugin_status_mxr && MmuPlugin_ports_1_cacheLine_allowExecute)); // @[MmuPlugin.scala 161:34]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_allowRead = 1'b1; // @[MmuPlugin.scala 168:34]
+      DBusCachedPlugin_mmuBus_rsp_allowRead = 1'b1; // @[MmuPlugin.scala 169:34]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_allowWrite = MmuPlugin_ports_1_cacheLine_allowWrite; // @[MmuPlugin.scala 161:35]
+      DBusCachedPlugin_mmuBus_rsp_allowWrite = MmuPlugin_ports_1_cacheLine_allowWrite; // @[MmuPlugin.scala 162:35]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_allowWrite = 1'b1; // @[MmuPlugin.scala 169:35]
+      DBusCachedPlugin_mmuBus_rsp_allowWrite = 1'b1; // @[MmuPlugin.scala 170:35]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_allowExecute = MmuPlugin_ports_1_cacheLine_allowExecute; // @[MmuPlugin.scala 162:37]
+      DBusCachedPlugin_mmuBus_rsp_allowExecute = MmuPlugin_ports_1_cacheLine_allowExecute; // @[MmuPlugin.scala 163:37]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_allowExecute = 1'b1; // @[MmuPlugin.scala 170:37]
+      DBusCachedPlugin_mmuBus_rsp_allowExecute = 1'b1; // @[MmuPlugin.scala 171:37]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_exception = (((! MmuPlugin_ports_1_dirty) && MmuPlugin_ports_1_cacheHit) && ((MmuPlugin_ports_1_cacheLine_exception || ((MmuPlugin_ports_1_cacheLine_allowUser && (CsrPlugin_privilege == 2'b01)) && (! MmuPlugin_status_sum))) || ((! MmuPlugin_ports_1_cacheLine_allowUser) && (CsrPlugin_privilege == 2'b00)))); // @[MmuPlugin.scala 163:34]
+      DBusCachedPlugin_mmuBus_rsp_exception = (((! MmuPlugin_ports_1_dirty) && MmuPlugin_ports_1_cacheHit) && ((MmuPlugin_ports_1_cacheLine_exception || ((MmuPlugin_ports_1_cacheLine_allowUser && (CsrPlugin_privilege == 2'b01)) && (! MmuPlugin_status_sum))) || ((! MmuPlugin_ports_1_cacheLine_allowUser) && (CsrPlugin_privilege == 2'b00)))); // @[MmuPlugin.scala 164:34]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_exception = 1'b0; // @[MmuPlugin.scala 171:34]
+      DBusCachedPlugin_mmuBus_rsp_exception = 1'b0; // @[MmuPlugin.scala 172:34]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_refilling = (MmuPlugin_ports_1_dirty || (! MmuPlugin_ports_1_cacheHit)); // @[MmuPlugin.scala 164:34]
+      DBusCachedPlugin_mmuBus_rsp_refilling = (MmuPlugin_ports_1_dirty || (! MmuPlugin_ports_1_cacheHit)); // @[MmuPlugin.scala 165:34]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_refilling = 1'b0; // @[MmuPlugin.scala 172:34]
+      DBusCachedPlugin_mmuBus_rsp_refilling = 1'b0; // @[MmuPlugin.scala 173:34]
     end
   end
 
   always @(*) begin
     if(MmuPlugin_ports_1_requireMmuLockupCalc) begin
-      DBusCachedPlugin_mmuBus_rsp_isPaging = 1'b1; // @[MmuPlugin.scala 165:33]
+      DBusCachedPlugin_mmuBus_rsp_isPaging = 1'b1; // @[MmuPlugin.scala 166:33]
     end else begin
-      DBusCachedPlugin_mmuBus_rsp_isPaging = 1'b0; // @[MmuPlugin.scala 173:33]
+      DBusCachedPlugin_mmuBus_rsp_isPaging = 1'b0; // @[MmuPlugin.scala 174:33]
     end
   end
 
-  assign DBusCachedPlugin_mmuBus_rsp_isIoAccess = ((((((((DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0100) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0101)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1010)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1011)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1100)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1101)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1110)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1111)); // @[MmuPlugin.scala 175:33]
-  assign DBusCachedPlugin_mmuBus_rsp_bypassTranslation = (! MmuPlugin_ports_1_requireMmuLockupCalc); // @[MmuPlugin.scala 177:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_0_sel = MmuPlugin_ports_1_cacheHitsCalc[0]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_0_physical = {{MmuPlugin_ports_1_cache_0_physicalAddress_1,(MmuPlugin_ports_1_cache_0_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_0_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_1_sel = MmuPlugin_ports_1_cacheHitsCalc[1]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_1_physical = {{MmuPlugin_ports_1_cache_1_physicalAddress_1,(MmuPlugin_ports_1_cache_1_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_1_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_2_sel = MmuPlugin_ports_1_cacheHitsCalc[2]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_2_physical = {{MmuPlugin_ports_1_cache_2_physicalAddress_1,(MmuPlugin_ports_1_cache_2_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_2_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_3_sel = MmuPlugin_ports_1_cacheHitsCalc[3]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_3_physical = {{MmuPlugin_ports_1_cache_3_physicalAddress_1,(MmuPlugin_ports_1_cache_3_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_3_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_4_sel = MmuPlugin_ports_1_cacheHitsCalc[4]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_4_physical = {{MmuPlugin_ports_1_cache_4_physicalAddress_1,(MmuPlugin_ports_1_cache_4_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_4_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_5_sel = MmuPlugin_ports_1_cacheHitsCalc[5]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_5_physical = {{MmuPlugin_ports_1_cache_5_physicalAddress_1,(MmuPlugin_ports_1_cache_5_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_5_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_6_sel = MmuPlugin_ports_1_cacheHitsCalc[6]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_6_physical = {{MmuPlugin_ports_1_cache_6_physicalAddress_1,(MmuPlugin_ports_1_cache_6_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_6_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_7_sel = MmuPlugin_ports_1_cacheHitsCalc[7]; // @[MmuPlugin.scala 179:40]
-  assign DBusCachedPlugin_mmuBus_rsp_ways_7_physical = {{MmuPlugin_ports_1_cache_7_physicalAddress_1,(MmuPlugin_ports_1_cache_7_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_7_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 180:45]
+  assign DBusCachedPlugin_mmuBus_rsp_isIoAccess = ((((((((DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0100) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b0101)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1010)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1011)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1100)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1101)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1110)) || (DBusCachedPlugin_mmuBus_rsp_physicalAddress[31 : 28] == 4'b1111)); // @[MmuPlugin.scala 176:33]
+  assign DBusCachedPlugin_mmuBus_rsp_bypassTranslation = (! MmuPlugin_ports_1_requireMmuLockupCalc); // @[MmuPlugin.scala 178:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_0_sel = MmuPlugin_ports_1_cacheHitsCalc[0]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_0_physical = {{MmuPlugin_ports_1_cache_0_physicalAddress_1,(MmuPlugin_ports_1_cache_0_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_0_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_1_sel = MmuPlugin_ports_1_cacheHitsCalc[1]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_1_physical = {{MmuPlugin_ports_1_cache_1_physicalAddress_1,(MmuPlugin_ports_1_cache_1_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_1_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_2_sel = MmuPlugin_ports_1_cacheHitsCalc[2]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_2_physical = {{MmuPlugin_ports_1_cache_2_physicalAddress_1,(MmuPlugin_ports_1_cache_2_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_2_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_3_sel = MmuPlugin_ports_1_cacheHitsCalc[3]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_3_physical = {{MmuPlugin_ports_1_cache_3_physicalAddress_1,(MmuPlugin_ports_1_cache_3_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_3_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_4_sel = MmuPlugin_ports_1_cacheHitsCalc[4]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_4_physical = {{MmuPlugin_ports_1_cache_4_physicalAddress_1,(MmuPlugin_ports_1_cache_4_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_4_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_5_sel = MmuPlugin_ports_1_cacheHitsCalc[5]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_5_physical = {{MmuPlugin_ports_1_cache_5_physicalAddress_1,(MmuPlugin_ports_1_cache_5_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_5_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_6_sel = MmuPlugin_ports_1_cacheHitsCalc[6]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_6_physical = {{MmuPlugin_ports_1_cache_6_physicalAddress_1,(MmuPlugin_ports_1_cache_6_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_6_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_7_sel = MmuPlugin_ports_1_cacheHitsCalc[7]; // @[MmuPlugin.scala 180:40]
+  assign DBusCachedPlugin_mmuBus_rsp_ways_7_physical = {{MmuPlugin_ports_1_cache_7_physicalAddress_1,(MmuPlugin_ports_1_cache_7_superPage ? DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[21 : 12] : MmuPlugin_ports_1_cache_7_physicalAddress_0)},DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[11 : 0]}; // @[MmuPlugin.scala 181:45]
   assign MmuPlugin_shared_dBusRsp_pte_V = MmuPlugin_shared_dBusRspStaged_payload_data[0]; // @[Bool.scala 189:10]
   assign MmuPlugin_shared_dBusRsp_pte_R = MmuPlugin_shared_dBusRspStaged_payload_data[1]; // @[Bool.scala 189:10]
   assign MmuPlugin_shared_dBusRsp_pte_W = MmuPlugin_shared_dBusRspStaged_payload_data[2]; // @[Bool.scala 189:10]
@@ -6767,39 +6767,39 @@ module VexRiscvAxi4 (
   assign MmuPlugin_shared_dBusRsp_pte_PPN1 = MmuPlugin_shared_dBusRspStaged_payload_data[31 : 20]; // @[UInt.scala 381:56]
   assign MmuPlugin_shared_dBusRsp_exception = (((! MmuPlugin_shared_dBusRsp_pte_V) || ((! MmuPlugin_shared_dBusRsp_pte_R) && MmuPlugin_shared_dBusRsp_pte_W)) || MmuPlugin_shared_dBusRspStaged_payload_error); // @[BaseType.scala 305:24]
   assign MmuPlugin_shared_dBusRsp_leaf = (MmuPlugin_shared_dBusRsp_pte_R || MmuPlugin_shared_dBusRsp_pte_X); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l216 = (MmuPlugin_shared_dBusRspStaged_valid && (! MmuPlugin_shared_dBusRspStaged_payload_redo)); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l217 = (MmuPlugin_shared_dBusRspStaged_valid && (! MmuPlugin_shared_dBusRspStaged_payload_redo)); // @[BaseType.scala 305:24]
   always @(*) begin
-    MmuPlugin_dBusAccess_cmd_valid = 1'b0; // @[MmuPlugin.scala 218:30]
+    MmuPlugin_dBusAccess_cmd_valid = 1'b0; // @[MmuPlugin.scala 219:30]
     case(MmuPlugin_shared_state_1)
       MmuPlugin_shared_State_IDLE : begin
       end
       MmuPlugin_shared_State_L1_CMD : begin
-        MmuPlugin_dBusAccess_cmd_valid = 1'b1; // @[MmuPlugin.scala 245:34]
+        MmuPlugin_dBusAccess_cmd_valid = 1'b1; // @[MmuPlugin.scala 246:34]
       end
       MmuPlugin_shared_State_L1_RSP : begin
       end
       MmuPlugin_shared_State_L0_CMD : begin
-        MmuPlugin_dBusAccess_cmd_valid = 1'b1; // @[MmuPlugin.scala 263:34]
+        MmuPlugin_dBusAccess_cmd_valid = 1'b1; // @[MmuPlugin.scala 265:34]
       end
       default : begin
       end
     endcase
   end
 
-  assign MmuPlugin_dBusAccess_cmd_payload_write = 1'b0; // @[MmuPlugin.scala 219:30]
-  assign MmuPlugin_dBusAccess_cmd_payload_size = 2'b10; // @[MmuPlugin.scala 220:29]
+  assign MmuPlugin_dBusAccess_cmd_payload_write = 1'b0; // @[MmuPlugin.scala 220:30]
+  assign MmuPlugin_dBusAccess_cmd_payload_size = 2'b10; // @[MmuPlugin.scala 221:29]
   always @(*) begin
     MmuPlugin_dBusAccess_cmd_payload_address = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; // @[UInt.scala 467:20]
     case(MmuPlugin_shared_state_1)
       MmuPlugin_shared_State_IDLE : begin
       end
       MmuPlugin_shared_State_L1_CMD : begin
-        MmuPlugin_dBusAccess_cmd_payload_address = {{MmuPlugin_satp_ppn,MmuPlugin_shared_vpn_1},2'b00}; // @[MmuPlugin.scala 246:36]
+        MmuPlugin_dBusAccess_cmd_payload_address = {{MmuPlugin_satp_ppn[19 : 0],MmuPlugin_shared_vpn_1},2'b00}; // @[MmuPlugin.scala 248:36]
       end
       MmuPlugin_shared_State_L1_RSP : begin
       end
       MmuPlugin_shared_State_L0_CMD : begin
-        MmuPlugin_dBusAccess_cmd_payload_address = {{{MmuPlugin_shared_pteBuffer_PPN1[9 : 0],MmuPlugin_shared_pteBuffer_PPN0},MmuPlugin_shared_vpn_0},2'b00}; // @[MmuPlugin.scala 264:36]
+        MmuPlugin_dBusAccess_cmd_payload_address = {{{MmuPlugin_shared_pteBuffer_PPN1[9 : 0],MmuPlugin_shared_pteBuffer_PPN0},MmuPlugin_shared_vpn_0},2'b00}; // @[MmuPlugin.scala 266:36]
       end
       default : begin
       end
@@ -6821,31 +6821,31 @@ module VexRiscvAxi4 (
   end
 
   assign MmuPlugin_shared_refills = _zz_MmuPlugin_shared_refills_3; // @[Bits.scala 133:56]
-  assign when_MmuPlugin_l228 = (|MmuPlugin_shared_refills); // @[BaseType.scala 312:24]
+  assign when_MmuPlugin_l229 = (|MmuPlugin_shared_refills); // @[BaseType.scala 312:24]
   assign _zz_MmuPlugin_shared_vpn_0 = (MmuPlugin_shared_refills[0] ? IBusCachedPlugin_mmuBus_cmd_0_virtualAddress : DBusCachedPlugin_mmuBus_cmd_0_virtualAddress); // @[Expression.scala 1420:25]
-  assign when_MmuPlugin_l254 = (MmuPlugin_shared_dBusRsp_leaf || MmuPlugin_shared_dBusRsp_exception); // @[BaseType.scala 305:24]
-  assign IBusCachedPlugin_mmuBus_busy = ((MmuPlugin_shared_state_1 != MmuPlugin_shared_State_IDLE) && MmuPlugin_shared_portSortedOh[0]); // @[MmuPlugin.scala 280:25]
-  assign DBusCachedPlugin_mmuBus_busy = ((MmuPlugin_shared_state_1 != MmuPlugin_shared_State_IDLE) && MmuPlugin_shared_portSortedOh[1]); // @[MmuPlugin.scala 280:25]
-  assign when_MmuPlugin_l283 = ((MmuPlugin_shared_dBusRspStaged_valid && (! MmuPlugin_shared_dBusRspStaged_payload_redo)) && (MmuPlugin_shared_dBusRsp_leaf || MmuPlugin_shared_dBusRsp_exception)); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l285 = MmuPlugin_shared_portSortedOh[0]; // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291 = (MmuPlugin_ports_0_entryToReplace_value == 3'b000); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_1 = (MmuPlugin_ports_0_entryToReplace_value == 3'b001); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_2 = (MmuPlugin_ports_0_entryToReplace_value == 3'b010); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_3 = (MmuPlugin_ports_0_entryToReplace_value == 3'b011); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_4 = (MmuPlugin_ports_0_entryToReplace_value == 3'b100); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_5 = (MmuPlugin_ports_0_entryToReplace_value == 3'b101); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_6 = (MmuPlugin_ports_0_entryToReplace_value == 3'b110); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_7 = (MmuPlugin_ports_0_entryToReplace_value == 3'b111); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l285_1 = MmuPlugin_shared_portSortedOh[1]; // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_8 = (MmuPlugin_ports_1_entryToReplace_value == 3'b000); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_9 = (MmuPlugin_ports_1_entryToReplace_value == 3'b001); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_10 = (MmuPlugin_ports_1_entryToReplace_value == 3'b010); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_11 = (MmuPlugin_ports_1_entryToReplace_value == 3'b011); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_12 = (MmuPlugin_ports_1_entryToReplace_value == 3'b100); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_13 = (MmuPlugin_ports_1_entryToReplace_value == 3'b101); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_14 = (MmuPlugin_ports_1_entryToReplace_value == 3'b110); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l291_15 = (MmuPlugin_ports_1_entryToReplace_value == 3'b111); // @[BaseType.scala 305:24]
-  assign when_MmuPlugin_l315 = ((execute_arbitration_isValid && execute_arbitration_isFiring) && execute_IS_SFENCE_VMA2); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l256 = (MmuPlugin_shared_dBusRsp_leaf || MmuPlugin_shared_dBusRsp_exception); // @[BaseType.scala 305:24]
+  assign IBusCachedPlugin_mmuBus_busy = ((MmuPlugin_shared_state_1 != MmuPlugin_shared_State_IDLE) && MmuPlugin_shared_portSortedOh[0]); // @[MmuPlugin.scala 282:25]
+  assign DBusCachedPlugin_mmuBus_busy = ((MmuPlugin_shared_state_1 != MmuPlugin_shared_State_IDLE) && MmuPlugin_shared_portSortedOh[1]); // @[MmuPlugin.scala 282:25]
+  assign when_MmuPlugin_l285 = ((MmuPlugin_shared_dBusRspStaged_valid && (! MmuPlugin_shared_dBusRspStaged_payload_redo)) && (MmuPlugin_shared_dBusRsp_leaf || MmuPlugin_shared_dBusRsp_exception)); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l287 = MmuPlugin_shared_portSortedOh[0]; // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293 = (MmuPlugin_ports_0_entryToReplace_value == 3'b000); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_1 = (MmuPlugin_ports_0_entryToReplace_value == 3'b001); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_2 = (MmuPlugin_ports_0_entryToReplace_value == 3'b010); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_3 = (MmuPlugin_ports_0_entryToReplace_value == 3'b011); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_4 = (MmuPlugin_ports_0_entryToReplace_value == 3'b100); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_5 = (MmuPlugin_ports_0_entryToReplace_value == 3'b101); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_6 = (MmuPlugin_ports_0_entryToReplace_value == 3'b110); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_7 = (MmuPlugin_ports_0_entryToReplace_value == 3'b111); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l287_1 = MmuPlugin_shared_portSortedOh[1]; // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_8 = (MmuPlugin_ports_1_entryToReplace_value == 3'b000); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_9 = (MmuPlugin_ports_1_entryToReplace_value == 3'b001); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_10 = (MmuPlugin_ports_1_entryToReplace_value == 3'b010); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_11 = (MmuPlugin_ports_1_entryToReplace_value == 3'b011); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_12 = (MmuPlugin_ports_1_entryToReplace_value == 3'b100); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_13 = (MmuPlugin_ports_1_entryToReplace_value == 3'b101); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_14 = (MmuPlugin_ports_1_entryToReplace_value == 3'b110); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l293_15 = (MmuPlugin_ports_1_entryToReplace_value == 3'b111); // @[BaseType.scala 305:24]
+  assign when_MmuPlugin_l317 = ((execute_arbitration_isValid && execute_arbitration_isFiring) && execute_IS_SFENCE_VMA2); // @[BaseType.scala 305:24]
   assign _zz_externalInterrupt = (_zz_CsrPlugin_csrMapping_readDataInit & externalInterruptArray_regNext); // @[BaseType.scala 299:24]
   assign externalInterrupt = (|_zz_externalInterrupt); // @[ExternalInterruptArrayPlugin.scala 23:41]
   assign _zz_externalInterruptS = (_zz_CsrPlugin_csrMapping_readDataInit_1 & externalInterruptArray_regNext); // @[BaseType.scala 299:24]
@@ -7253,7 +7253,7 @@ module VexRiscvAxi4 (
     if(execute_CsrPlugin_csr_384) begin
       _zz_CsrPlugin_csrMapping_readDataInit_21[31 : 31] = MmuPlugin_satp_mode; // @[CsrPlugin.scala 1598:138]
       _zz_CsrPlugin_csrMapping_readDataInit_21[30 : 22] = MmuPlugin_satp_asid; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_21[19 : 0] = MmuPlugin_satp_ppn; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_21[21 : 0] = MmuPlugin_satp_ppn; // @[CsrPlugin.scala 1598:138]
     end
   end
 
@@ -7774,61 +7774,61 @@ module VexRiscvAxi4 (
       MmuPlugin_ports_0_entryToReplace_value <= MmuPlugin_ports_0_entryToReplace_valueNext; // @[Reg.scala 39:30]
       if(contextSwitching) begin
         if(MmuPlugin_ports_0_cache_0_exception) begin
-          MmuPlugin_ports_0_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_1_exception) begin
-          MmuPlugin_ports_0_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_2_exception) begin
-          MmuPlugin_ports_0_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_3_exception) begin
-          MmuPlugin_ports_0_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_4_exception) begin
-          MmuPlugin_ports_0_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_5_exception) begin
-          MmuPlugin_ports_0_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_6_exception) begin
-          MmuPlugin_ports_0_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_0_cache_7_exception) begin
-          MmuPlugin_ports_0_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_0_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
       end
       MmuPlugin_ports_1_entryToReplace_value <= MmuPlugin_ports_1_entryToReplace_valueNext; // @[Reg.scala 39:30]
       if(contextSwitching) begin
         if(MmuPlugin_ports_1_cache_0_exception) begin
-          MmuPlugin_ports_1_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_1_exception) begin
-          MmuPlugin_ports_1_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_2_exception) begin
-          MmuPlugin_ports_1_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_3_exception) begin
-          MmuPlugin_ports_1_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_4_exception) begin
-          MmuPlugin_ports_1_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_5_exception) begin
-          MmuPlugin_ports_1_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_6_exception) begin
-          MmuPlugin_ports_1_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
         if(MmuPlugin_ports_1_cache_7_exception) begin
-          MmuPlugin_ports_1_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 188:26]
+          MmuPlugin_ports_1_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 189:26]
         end
       end
       MmuPlugin_shared_dBusRspStaged_valid <= MmuPlugin_dBusAccess_rsp_valid; // @[Reg.scala 39:30]
       case(MmuPlugin_shared_state_1)
         MmuPlugin_shared_State_IDLE : begin
-          if(when_MmuPlugin_l228) begin
+          if(when_MmuPlugin_l229) begin
             MmuPlugin_shared_state_1 <= MmuPlugin_shared_State_L1_CMD; // @[Enum.scala 148:67]
           end
         end
@@ -7840,7 +7840,7 @@ module VexRiscvAxi4 (
         MmuPlugin_shared_State_L1_RSP : begin
           if(MmuPlugin_shared_dBusRspStaged_valid) begin
             MmuPlugin_shared_state_1 <= MmuPlugin_shared_State_L0_CMD; // @[Enum.scala 148:67]
-            if(when_MmuPlugin_l254) begin
+            if(when_MmuPlugin_l256) begin
               MmuPlugin_shared_state_1 <= MmuPlugin_shared_State_IDLE; // @[Enum.scala 148:67]
             end
             if(MmuPlugin_shared_dBusRspStaged_payload_redo) begin
@@ -7862,77 +7862,77 @@ module VexRiscvAxi4 (
           end
         end
       endcase
-      if(when_MmuPlugin_l283) begin
-        if(when_MmuPlugin_l285) begin
-          if(when_MmuPlugin_l291) begin
-            MmuPlugin_ports_0_cache_0_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+      if(when_MmuPlugin_l285) begin
+        if(when_MmuPlugin_l287) begin
+          if(when_MmuPlugin_l293) begin
+            MmuPlugin_ports_0_cache_0_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_1) begin
-            MmuPlugin_ports_0_cache_1_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_1) begin
+            MmuPlugin_ports_0_cache_1_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_2) begin
-            MmuPlugin_ports_0_cache_2_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_2) begin
+            MmuPlugin_ports_0_cache_2_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_3) begin
-            MmuPlugin_ports_0_cache_3_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_3) begin
+            MmuPlugin_ports_0_cache_3_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_4) begin
-            MmuPlugin_ports_0_cache_4_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_4) begin
+            MmuPlugin_ports_0_cache_4_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_5) begin
-            MmuPlugin_ports_0_cache_5_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_5) begin
+            MmuPlugin_ports_0_cache_5_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_6) begin
-            MmuPlugin_ports_0_cache_6_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_6) begin
+            MmuPlugin_ports_0_cache_6_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_7) begin
-            MmuPlugin_ports_0_cache_7_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_7) begin
+            MmuPlugin_ports_0_cache_7_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
         end
-        if(when_MmuPlugin_l285_1) begin
-          if(when_MmuPlugin_l291_8) begin
-            MmuPlugin_ports_1_cache_0_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+        if(when_MmuPlugin_l287_1) begin
+          if(when_MmuPlugin_l293_8) begin
+            MmuPlugin_ports_1_cache_0_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_9) begin
-            MmuPlugin_ports_1_cache_1_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_9) begin
+            MmuPlugin_ports_1_cache_1_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_10) begin
-            MmuPlugin_ports_1_cache_2_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_10) begin
+            MmuPlugin_ports_1_cache_2_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_11) begin
-            MmuPlugin_ports_1_cache_3_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_11) begin
+            MmuPlugin_ports_1_cache_3_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_12) begin
-            MmuPlugin_ports_1_cache_4_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_12) begin
+            MmuPlugin_ports_1_cache_4_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_13) begin
-            MmuPlugin_ports_1_cache_5_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_13) begin
+            MmuPlugin_ports_1_cache_5_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_14) begin
-            MmuPlugin_ports_1_cache_6_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_14) begin
+            MmuPlugin_ports_1_cache_6_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
-          if(when_MmuPlugin_l291_15) begin
-            MmuPlugin_ports_1_cache_7_valid <= 1'b1; // @[MmuPlugin.scala 293:30]
+          if(when_MmuPlugin_l293_15) begin
+            MmuPlugin_ports_1_cache_7_valid <= 1'b1; // @[MmuPlugin.scala 295:30]
           end
         end
       end
-      if(when_MmuPlugin_l315) begin
-        MmuPlugin_ports_0_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_0_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
-        MmuPlugin_ports_1_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 316:64]
+      if(when_MmuPlugin_l317) begin
+        MmuPlugin_ports_0_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_0_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
+        MmuPlugin_ports_1_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 318:64]
       end
       if(when_Pipeline_l124_64) begin
         execute_to_memory_IS_DBUS_SHARING <= execute_IS_DBUS_SHARING; // @[Pipeline.scala 124:40]
@@ -8079,22 +8079,22 @@ module VexRiscvAxi4 (
       if(execute_CsrPlugin_csr_384) begin
         if(execute_CsrPlugin_writeEnable) begin
           MmuPlugin_satp_mode <= CsrPlugin_csrMapping_writeDataSignal[31]; // @[Bool.scala 189:10]
-          MmuPlugin_ports_0_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_0_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
-          MmuPlugin_ports_1_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 320:64]
+          MmuPlugin_ports_0_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_0_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_0_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_1_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_2_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_3_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_4_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_5_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_6_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
+          MmuPlugin_ports_1_cache_7_valid <= 1'b0; // @[MmuPlugin.scala 322:64]
         end
       end
       if(execute_CsrPlugin_csr_3008) begin
@@ -8270,25 +8270,25 @@ module VexRiscvAxi4 (
     MmuPlugin_shared_dBusRspStaged_payload_data <= MmuPlugin_dBusAccess_rsp_payload_data; // @[Reg.scala 39:30]
     MmuPlugin_shared_dBusRspStaged_payload_error <= MmuPlugin_dBusAccess_rsp_payload_error; // @[Reg.scala 39:30]
     MmuPlugin_shared_dBusRspStaged_payload_redo <= MmuPlugin_dBusAccess_rsp_payload_redo; // @[Reg.scala 39:30]
-    if(when_MmuPlugin_l216) begin
-      MmuPlugin_shared_pteBuffer_V <= MmuPlugin_shared_dBusRsp_pte_V; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_R <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_W <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_X <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_U <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_G <= MmuPlugin_shared_dBusRsp_pte_G; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_A <= MmuPlugin_shared_dBusRsp_pte_A; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_D <= MmuPlugin_shared_dBusRsp_pte_D; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_RSW <= MmuPlugin_shared_dBusRsp_pte_RSW; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_PPN0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 216:36]
-      MmuPlugin_shared_pteBuffer_PPN1 <= MmuPlugin_shared_dBusRsp_pte_PPN1; // @[MmuPlugin.scala 216:36]
+    if(when_MmuPlugin_l217) begin
+      MmuPlugin_shared_pteBuffer_V <= MmuPlugin_shared_dBusRsp_pte_V; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_R <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_W <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_X <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_U <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_G <= MmuPlugin_shared_dBusRsp_pte_G; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_A <= MmuPlugin_shared_dBusRsp_pte_A; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_D <= MmuPlugin_shared_dBusRsp_pte_D; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_RSW <= MmuPlugin_shared_dBusRsp_pte_RSW; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_PPN0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 217:36]
+      MmuPlugin_shared_pteBuffer_PPN1 <= MmuPlugin_shared_dBusRsp_pte_PPN1; // @[MmuPlugin.scala 217:36]
     end
     case(MmuPlugin_shared_state_1)
       MmuPlugin_shared_State_IDLE : begin
-        if(when_MmuPlugin_l228) begin
-          MmuPlugin_shared_portSortedOh <= MmuPlugin_shared_refills; // @[MmuPlugin.scala 229:28]
-          MmuPlugin_shared_vpn_1 <= _zz_MmuPlugin_shared_vpn_0[31 : 22]; // @[MmuPlugin.scala 232:22]
-          MmuPlugin_shared_vpn_0 <= _zz_MmuPlugin_shared_vpn_0[21 : 12]; // @[MmuPlugin.scala 233:22]
+        if(when_MmuPlugin_l229) begin
+          MmuPlugin_shared_portSortedOh <= MmuPlugin_shared_refills; // @[MmuPlugin.scala 230:28]
+          MmuPlugin_shared_vpn_1 <= _zz_MmuPlugin_shared_vpn_0[31 : 22]; // @[MmuPlugin.scala 233:22]
+          MmuPlugin_shared_vpn_0 <= _zz_MmuPlugin_shared_vpn_0[21 : 12]; // @[MmuPlugin.scala 234:22]
         end
       end
       MmuPlugin_shared_State_L1_CMD : begin
@@ -8300,201 +8300,201 @@ module VexRiscvAxi4 (
       default : begin
       end
     endcase
-    if(when_MmuPlugin_l283) begin
-      if(when_MmuPlugin_l285) begin
-        if(when_MmuPlugin_l291) begin
-          MmuPlugin_ports_0_cache_0_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_0_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_0_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_0_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_0_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_0_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_0_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_0_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_0_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_0_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+    if(when_MmuPlugin_l285) begin
+      if(when_MmuPlugin_l287) begin
+        if(when_MmuPlugin_l293) begin
+          MmuPlugin_ports_0_cache_0_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_0_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_0_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_0_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_0_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_0_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_0_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_0_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_0_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_0_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_1) begin
-          MmuPlugin_ports_0_cache_1_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_1_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_1_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_1_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_1_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_1_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_1_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_1_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_1_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_1_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_1) begin
+          MmuPlugin_ports_0_cache_1_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_1_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_1_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_1_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_1_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_1_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_1_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_1_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_1_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_1_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_2) begin
-          MmuPlugin_ports_0_cache_2_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_2_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_2_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_2_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_2_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_2_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_2_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_2_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_2_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_2_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_2) begin
+          MmuPlugin_ports_0_cache_2_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_2_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_2_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_2_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_2_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_2_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_2_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_2_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_2_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_2_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_3) begin
-          MmuPlugin_ports_0_cache_3_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_3_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_3_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_3_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_3_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_3_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_3_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_3_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_3_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_3_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_3) begin
+          MmuPlugin_ports_0_cache_3_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_3_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_3_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_3_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_3_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_3_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_3_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_3_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_3_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_3_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_4) begin
-          MmuPlugin_ports_0_cache_4_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_4_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_4_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_4_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_4_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_4_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_4_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_4_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_4_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_4_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_4) begin
+          MmuPlugin_ports_0_cache_4_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_4_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_4_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_4_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_4_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_4_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_4_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_4_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_4_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_4_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_5) begin
-          MmuPlugin_ports_0_cache_5_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_5_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_5_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_5_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_5_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_5_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_5_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_5_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_5_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_5_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_5) begin
+          MmuPlugin_ports_0_cache_5_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_5_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_5_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_5_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_5_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_5_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_5_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_5_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_5_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_5_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_6) begin
-          MmuPlugin_ports_0_cache_6_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_6_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_6_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_6_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_6_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_6_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_6_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_6_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_6_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_6_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_6) begin
+          MmuPlugin_ports_0_cache_6_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_6_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_6_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_6_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_6_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_6_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_6_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_6_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_6_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_6_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_7) begin
-          MmuPlugin_ports_0_cache_7_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_0_cache_7_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_7_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_0_cache_7_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_7_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_0_cache_7_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_0_cache_7_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_0_cache_7_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_0_cache_7_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_0_cache_7_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_7) begin
+          MmuPlugin_ports_0_cache_7_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_0_cache_7_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_7_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_0_cache_7_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_7_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_0_cache_7_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_0_cache_7_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_0_cache_7_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_0_cache_7_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_0_cache_7_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
       end
-      if(when_MmuPlugin_l285_1) begin
-        if(when_MmuPlugin_l291_8) begin
-          MmuPlugin_ports_1_cache_0_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_0_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_0_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_0_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_0_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_0_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_0_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_0_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_0_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_0_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+      if(when_MmuPlugin_l287_1) begin
+        if(when_MmuPlugin_l293_8) begin
+          MmuPlugin_ports_1_cache_0_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_0_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_0_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_0_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_0_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_0_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_0_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_0_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_0_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_0_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_9) begin
-          MmuPlugin_ports_1_cache_1_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_1_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_1_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_1_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_1_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_1_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_1_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_1_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_1_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_1_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_9) begin
+          MmuPlugin_ports_1_cache_1_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_1_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_1_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_1_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_1_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_1_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_1_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_1_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_1_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_1_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_10) begin
-          MmuPlugin_ports_1_cache_2_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_2_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_2_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_2_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_2_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_2_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_2_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_2_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_2_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_2_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_10) begin
+          MmuPlugin_ports_1_cache_2_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_2_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_2_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_2_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_2_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_2_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_2_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_2_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_2_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_2_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_11) begin
-          MmuPlugin_ports_1_cache_3_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_3_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_3_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_3_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_3_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_3_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_3_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_3_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_3_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_3_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_11) begin
+          MmuPlugin_ports_1_cache_3_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_3_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_3_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_3_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_3_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_3_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_3_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_3_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_3_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_3_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_12) begin
-          MmuPlugin_ports_1_cache_4_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_4_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_4_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_4_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_4_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_4_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_4_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_4_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_4_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_4_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_12) begin
+          MmuPlugin_ports_1_cache_4_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_4_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_4_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_4_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_4_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_4_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_4_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_4_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_4_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_4_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_13) begin
-          MmuPlugin_ports_1_cache_5_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_5_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_5_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_5_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_5_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_5_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_5_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_5_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_5_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_5_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_13) begin
+          MmuPlugin_ports_1_cache_5_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_5_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_5_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_5_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_5_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_5_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_5_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_5_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_5_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_5_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_14) begin
-          MmuPlugin_ports_1_cache_6_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_6_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_6_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_6_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_6_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_6_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_6_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_6_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_6_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_6_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_14) begin
+          MmuPlugin_ports_1_cache_6_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_6_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_6_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_6_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_6_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_6_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_6_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_6_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_6_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_6_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
-        if(when_MmuPlugin_l291_15) begin
-          MmuPlugin_ports_1_cache_7_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 294:34]
-          MmuPlugin_ports_1_cache_7_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_7_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 295:39]
-          MmuPlugin_ports_1_cache_7_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_7_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 296:40]
-          MmuPlugin_ports_1_cache_7_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 297:34]
-          MmuPlugin_ports_1_cache_7_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 298:35]
-          MmuPlugin_ports_1_cache_7_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 299:37]
-          MmuPlugin_ports_1_cache_7_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 300:34]
-          MmuPlugin_ports_1_cache_7_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 301:34]
+        if(when_MmuPlugin_l293_15) begin
+          MmuPlugin_ports_1_cache_7_exception <= (MmuPlugin_shared_dBusRsp_exception || ((MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP) && (MmuPlugin_shared_dBusRsp_pte_PPN0 != 10'h0))); // @[MmuPlugin.scala 296:34]
+          MmuPlugin_ports_1_cache_7_virtualAddress_0 <= MmuPlugin_shared_vpn_0; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_7_virtualAddress_1 <= MmuPlugin_shared_vpn_1; // @[MmuPlugin.scala 297:39]
+          MmuPlugin_ports_1_cache_7_physicalAddress_0 <= MmuPlugin_shared_dBusRsp_pte_PPN0; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_7_physicalAddress_1 <= MmuPlugin_shared_dBusRsp_pte_PPN1[9 : 0]; // @[MmuPlugin.scala 298:40]
+          MmuPlugin_ports_1_cache_7_allowRead <= MmuPlugin_shared_dBusRsp_pte_R; // @[MmuPlugin.scala 299:34]
+          MmuPlugin_ports_1_cache_7_allowWrite <= MmuPlugin_shared_dBusRsp_pte_W; // @[MmuPlugin.scala 300:35]
+          MmuPlugin_ports_1_cache_7_allowExecute <= MmuPlugin_shared_dBusRsp_pte_X; // @[MmuPlugin.scala 301:37]
+          MmuPlugin_ports_1_cache_7_allowUser <= MmuPlugin_shared_dBusRsp_pte_U; // @[MmuPlugin.scala 302:34]
+          MmuPlugin_ports_1_cache_7_superPage <= (MmuPlugin_shared_state_1 == MmuPlugin_shared_State_L1_RSP); // @[MmuPlugin.scala 303:34]
         end
       end
     end
@@ -8865,7 +8865,7 @@ module VexRiscvAxi4 (
     if(execute_CsrPlugin_csr_384) begin
       if(execute_CsrPlugin_writeEnable) begin
         MmuPlugin_satp_asid <= CsrPlugin_csrMapping_writeDataSignal[30 : 22]; // @[Bits.scala 133:56]
-        MmuPlugin_satp_ppn <= CsrPlugin_csrMapping_writeDataSignal[19 : 0]; // @[UInt.scala 381:56]
+        MmuPlugin_satp_ppn <= CsrPlugin_csrMapping_writeDataSignal[21 : 0]; // @[UInt.scala 381:56]
       end
     end
   end

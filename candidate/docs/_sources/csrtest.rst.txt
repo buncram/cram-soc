@@ -1,0 +1,48 @@
+CSRTEST
+=======
+
+Register Listing for CSRTEST
+----------------------------
+
++--------------------------------------+-----------------------------------+
+| Register                             | Address                           |
++======================================+===================================+
+| :ref:`CSRTEST_WTEST <CSRTEST_WTEST>` | :ref:`0x58001000 <CSRTEST_WTEST>` |
++--------------------------------------+-----------------------------------+
+| :ref:`CSRTEST_RTEST <CSRTEST_RTEST>` | :ref:`0x58001004 <CSRTEST_RTEST>` |
++--------------------------------------+-----------------------------------+
+
+CSRTEST_WTEST
+^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x0 = 0x58001000`
+
+    Write test data here
+
+    .. wavedrom::
+        :caption: CSRTEST_WTEST
+
+        {
+            "reg": [
+                {"name": "wtest[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+CSRTEST_RTEST
+^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x4 = 0x58001004`
+
+    Read test data here
+
+    .. wavedrom::
+        :caption: CSRTEST_RTEST
+
+        {
+            "reg": [
+                {"name": "rtest[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+

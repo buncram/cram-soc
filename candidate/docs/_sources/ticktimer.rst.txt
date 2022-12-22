@@ -1,0 +1,233 @@
+TICKTIMER
+=========
+
+TickTimer: A practical systick timer.
+-------------------------------------
+
+TIMER0 in the system gives a high-resolution, sysclk-speed timer which overflows
+very quickly and requires OS overhead to convert it into a practically usable time source
+which counts off in systicks, instead of sysclks.
+
+The hardware parameter to the block is the divisor of sysclk, and sysclk. So if
+the divisor is 1000, then the increment for a tick is 1ms. If the divisor is 2000,
+the increment for a tick is 0.5ms.
+
+Note to self: substantial area savings could be hand by being smarter about the
+synchronization between the always-on and the TickTimer domains. Right now about 1.8%
+of the chip is eaten up by ~1100 synchronization registers to cross the 64-bit values
+between the clock domains. Since the values move rarely, a slightly smarter method
+would be to create a lock-out around a read pulse and then create some false_path
+rules around the datapaths to keep the place/route from getting distracted by the
+cross-domain clocks.
+
+
+Configuration
+-------------
+This timer was configured with 64 bits, which rolls over in 292471208.68 years, with each bit giving 0.5ms resolution
+
+msleep extension
+----------------
+
+The msleep extension is a Xous-specific add-on to aid the implementation of the msleep server.
+
+msleep fires an interrupt when the requested time is less than or equal to the current elapsed time in
+systicks. The interrupt remains active until a new target is set, or masked.
+
+There is a slight slip in time (~200ns) from when the msleep timer is set before it can take effect.
+This is because it takes many CPU clock cycles to transfer this data into the always-on clock
+domain, which runs at a much slower rate than the CPU clock.
+
+
+Register Listing for TICKTIMER
+------------------------------
+
++------------------------------------------------------------+----------------------------------------------+
+| Register                                                   | Address                                      |
++============================================================+==============================================+
+| :ref:`TICKTIMER_CONTROL <TICKTIMER_CONTROL>`               | :ref:`0x58003000 <TICKTIMER_CONTROL>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_TIME1 <TICKTIMER_TIME1>`                   | :ref:`0x58003004 <TICKTIMER_TIME1>`          |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_TIME0 <TICKTIMER_TIME0>`                   | :ref:`0x58003008 <TICKTIMER_TIME0>`          |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_MSLEEP_TARGET1 <TICKTIMER_MSLEEP_TARGET1>` | :ref:`0x5800300c <TICKTIMER_MSLEEP_TARGET1>` |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_MSLEEP_TARGET0 <TICKTIMER_MSLEEP_TARGET0>` | :ref:`0x58003010 <TICKTIMER_MSLEEP_TARGET0>` |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_EV_STATUS <TICKTIMER_EV_STATUS>`           | :ref:`0x58003014 <TICKTIMER_EV_STATUS>`      |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_EV_PENDING <TICKTIMER_EV_PENDING>`         | :ref:`0x58003018 <TICKTIMER_EV_PENDING>`     |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`TICKTIMER_EV_ENABLE <TICKTIMER_EV_ENABLE>`           | :ref:`0x5800301c <TICKTIMER_EV_ENABLE>`      |
++------------------------------------------------------------+----------------------------------------------+
+
+TICKTIMER_CONTROL
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x0 = 0x58003000`
+
+
+    .. wavedrom::
+        :caption: TICKTIMER_CONTROL
+
+        {
+            "reg": [
+                {"name": "reset",  "type": 4, "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+---------------------------------------------------------------------------------+
+| Field | Name  | Description                                                                     |
++=======+=======+=================================================================================+
+| [0]   | RESET | Write a `1` to this bit to reset the count to 0. This bit has priority over all |
+|       |       | other requests.                                                                 |
+|       |       |                                                                                 |
+|       |       | Writing a 1 to this bit triggers the function.                                  |
++-------+-------+---------------------------------------------------------------------------------+
+
+TICKTIMER_TIME1
+^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x4 = 0x58003004`
+
+    Bits 32-63 of `TICKTIMER_TIME`. Elapsed time in systicks
+
+    .. wavedrom::
+        :caption: TICKTIMER_TIME1
+
+        {
+            "reg": [
+                {"name": "time[63:32]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+TICKTIMER_TIME0
+^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x8 = 0x58003008`
+
+    Bits 0-31 of `TICKTIMER_TIME`.
+
+    .. wavedrom::
+        :caption: TICKTIMER_TIME0
+
+        {
+            "reg": [
+                {"name": "time[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+TICKTIMER_MSLEEP_TARGET1
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0xc = 0x5800300c`
+
+    Bits 32-63 of `TICKTIMER_MSLEEP_TARGET`. Target time in 0.5ms ticks
+
+    .. wavedrom::
+        :caption: TICKTIMER_MSLEEP_TARGET1
+
+        {
+            "reg": [
+                {"name": "msleep_target[63:32]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+TICKTIMER_MSLEEP_TARGET0
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x10 = 0x58003010`
+
+    Bits 0-31 of `TICKTIMER_MSLEEP_TARGET`.
+
+    .. wavedrom::
+        :caption: TICKTIMER_MSLEEP_TARGET0
+
+        {
+            "reg": [
+                {"name": "msleep_target[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+TICKTIMER_EV_STATUS
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x14 = 0x58003014`
+
+    This register contains the current raw level of the alarm event trigger.  Writes
+    to this register have no effect.
+
+    .. wavedrom::
+        :caption: TICKTIMER_EV_STATUS
+
+        {
+            "reg": [
+                {"name": "alarm",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+------------------------------+
+| Field | Name  | Description                  |
++=======+=======+==============================+
+| [0]   | ALARM | Level of the ``alarm`` event |
++-------+-------+------------------------------+
+
+TICKTIMER_EV_PENDING
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x18 = 0x58003018`
+
+    When a  alarm event occurs, the corresponding bit will be set in this register.
+    To clear the Event, set the corresponding bit in this register.
+
+    .. wavedrom::
+        :caption: TICKTIMER_EV_PENDING
+
+        {
+            "reg": [
+                {"name": "alarm",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+-----------------------------------------------------------------------------+
+| Field | Name  | Description                                                                 |
++=======+=======+=============================================================================+
+| [0]   | ALARM | `1` if a `alarm` event occurred. This Event is **level triggered** when the |
+|       |       | signal is **high**.                                                         |
++-------+-------+-----------------------------------------------------------------------------+
+
+TICKTIMER_EV_ENABLE
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58003000 + 0x1c = 0x5800301c`
+
+    This register enables the corresponding alarm events.  Write a ``0`` to this
+    register to disable individual events.
+
+    .. wavedrom::
+        :caption: TICKTIMER_EV_ENABLE
+
+        {
+            "reg": [
+                {"name": "alarm",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+---------------------------------------------+
+| Field | Name  | Description                                 |
++=======+=======+=============================================+
+| [0]   | ALARM | Write a ``1`` to enable the ``alarm`` Event |
++-------+-------+---------------------------------------------+
+

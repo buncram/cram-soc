@@ -22,3 +22,7 @@ cp ../deps/verilog-axi/rtl/priority_encoder.v .
 cp ../deps/verilog-axi/rtl/axi_adapter_wr.v .
 cp ../deps/verilog-axi/rtl/axi_adapter_rd.v .
 cp ../deps/verilog-axi/rtl/axi_adapter.v .
+
+rm -rf docs
+mkdir docs
+cp -r ../build/gateware/build/documentation/_build/html/* docs/

@@ -1,0 +1,277 @@
+COREUSER
+========
+
+
+
+`CoreUser` is a hardware signal that indicates that the code executing is in a highly trusted
+piece of code. This is determined by examining a configurable combination of the SATP's ASID and
+PPN values, allowing the OS to target certain virtual memory spaces as more trusted than
+others. `CoreUser` can only be computed when the RISC-V core is in Sv32 mode (that is, virtual
+memory has been enabled).
+
+When specifying PPN values, two windows are provided, `a` and `b`. The windows are
+computed independently, and then OR'd together. The `a` and `b` windows should be non-overlapping.
+If they overlap, or the windows are poorly-specified, the behavior is not guaranteed. The intention
+of having two windows is not so that the OS can specify only two processes as `CoreUser`. Rather,
+the OS should design to allocate all CoreUser processes within a single range that is protected
+by a single window. The alternate window is provided only so that the OS can have a scratch space to
+re-organize or shuffle around process spaces at a higher level.
+
+The `CoreUser` signal is not cycle-precise; it will assert roughly 2 cycles after the current
+instruction being executed. Thus the signal is meant to be indicative and best used in conjunction
+with a virtual memory enabled OS where a kernel context swap (which takes several cycles) is considered to
+be non-trusted code. This ensures a break-before-make behavior in the kernel when changing contexts, thus removing
+the opportunity for malicious processes to use their first few instructions to intervene and access
+sensitive hardware.
+
+
+Register Listing for COREUSER
+-----------------------------
+
++----------------------------------------------------------+---------------------------------------------+
+| Register                                                 | Address                                     |
++==========================================================+=============================================+
+| :ref:`COREUSER_SET_ASID <COREUSER_SET_ASID>`             | :ref:`0x58000000 <COREUSER_SET_ASID>`       |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_GET_ASID_ADDR <COREUSER_GET_ASID_ADDR>`   | :ref:`0x58000004 <COREUSER_GET_ASID_ADDR>`  |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_GET_ASID_VALUE <COREUSER_GET_ASID_VALUE>` | :ref:`0x58000008 <COREUSER_GET_ASID_VALUE>` |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_CONTROL <COREUSER_CONTROL>`               | :ref:`0x5800000c <COREUSER_CONTROL>`        |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_PROTECT <COREUSER_PROTECT>`               | :ref:`0x58000010 <COREUSER_PROTECT>`        |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_WINDOW_AL <COREUSER_WINDOW_AL>`           | :ref:`0x58000014 <COREUSER_WINDOW_AL>`      |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_WINDOW_AH <COREUSER_WINDOW_AH>`           | :ref:`0x58000018 <COREUSER_WINDOW_AH>`      |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_WINDOW_BL <COREUSER_WINDOW_BL>`           | :ref:`0x5800001c <COREUSER_WINDOW_BL>`      |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_WINDOW_BH <COREUSER_WINDOW_BH>`           | :ref:`0x58000020 <COREUSER_WINDOW_BH>`      |
++----------------------------------------------------------+---------------------------------------------+
+
+COREUSER_SET_ASID
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x0 = 0x58000000`
+
+
+    .. wavedrom::
+        :caption: COREUSER_SET_ASID
+
+        {
+            "reg": [
+                {"name": "asid",  "bits": 9},
+                {"name": "trusted",  "bits": 1},
+                {"bits": 22}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+---------+-----------------------------------------------------------------------------+
+| Field | Name    | Description                                                                 |
++=======+=========+=============================================================================+
+| [8:0] | ASID    | ASID to set. Writing to this register commits the value in `trusted` to the |
+|       |         | specified `asid` value                                                      |
++-------+---------+-----------------------------------------------------------------------------+
+| [9]   | TRUSTED | Set to `1` if the ASID is trusted                                           |
++-------+---------+-----------------------------------------------------------------------------+
+
+COREUSER_GET_ASID_ADDR
+^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x4 = 0x58000004`
+
+
+    .. wavedrom::
+        :caption: COREUSER_GET_ASID_ADDR
+
+        {
+            "reg": [
+                {"name": "asid",  "bits": 9},
+                {"bits": 23}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+------+--------------------+
+| Field | Name | Description        |
++=======+======+====================+
+| [8:0] | ASID | ASID to read back. |
++-------+------+--------------------+
+
+COREUSER_GET_ASID_VALUE
+^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x8 = 0x58000008`
+
+
+    .. wavedrom::
+        :caption: COREUSER_GET_ASID_VALUE
+
+        {
+            "reg": [
+                {"name": "value",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+---------------------------------------------------------------------------------+
+| Field | Name  | Description                                                                     |
++=======+=======+=================================================================================+
+| [0]   | VALUE | Value corresponding to the ASID specified it `get_asid_addr`. `1` means trusted |
++-------+-------+---------------------------------------------------------------------------------+
+
+COREUSER_CONTROL
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0xc = 0x5800000c`
+
+
+    .. wavedrom::
+        :caption: COREUSER_CONTROL
+
+        {
+            "reg": [
+                {"name": "enable",  "bits": 1},
+                {"name": "asid",  "bits": 1},
+                {"name": "ppn_a",  "bits": 1},
+                {"name": "ppn_b",  "bits": 1},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+--------+--------------------------------------------------------------------------------+
+| Field | Name   | Description                                                                    |
++=======+========+================================================================================+
+| [0]   | ENABLE | Enable `CoreUser` computation. When set to `1`, the settings are applied; when |
+|       |        | cleared to `0`, the `CoreUser` signal is always valid. Defaults to `0`.        |
++-------+--------+--------------------------------------------------------------------------------+
+| [1]   | ASID   | When `1`, requires the ASID mapping to be trusted to assert `CoreUser`         |
++-------+--------+--------------------------------------------------------------------------------+
+| [2]   | PPN_A  | When set to `1`, requires the `a` `ppn` window to be trusted to assert         |
+|       |        | `CoreUser`                                                                     |
++-------+--------+--------------------------------------------------------------------------------+
+| [3]   | PPN_B  | When set to `1`, requires the `b` `ppn` window to be trusted to assert         |
+|       |        | `CoreUser`                                                                     |
++-------+--------+--------------------------------------------------------------------------------+
+
+COREUSER_PROTECT
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x10 = 0x58000010`
+
+    Writing `1` to this bit prevents any further updates to CoreUser configuration
+    status. Can only be reversed with a system reset.
+
+    .. wavedrom::
+        :caption: COREUSER_PROTECT
+
+        {
+            "reg": [
+                {"name": "protect", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+COREUSER_WINDOW_AL
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x14 = 0x58000014`
+
+
+    .. wavedrom::
+        :caption: COREUSER_WINDOW_AL
+
+        {
+            "reg": [
+                {"name": "ppn",  "bits": 22},
+                {"bits": 10}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------+----------------------------------------------------------------------------------+
+| Field  | Name | Description                                                                      |
++========+======+==================================================================================+
+| [21:0] | PPN  | PPN match value, `a` window lower bound. Matches if ppn is greater than or equal |
+|        |      | to this value                                                                    |
++--------+------+----------------------------------------------------------------------------------+
+
+COREUSER_WINDOW_AH
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x18 = 0x58000018`
+
+
+    .. wavedrom::
+        :caption: COREUSER_WINDOW_AH
+
+        {
+            "reg": [
+                {"name": "ppn",  "bits": 22},
+                {"bits": 10}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------+----------------------------------------------------------------------------------+
+| Field  | Name | Description                                                                      |
++========+======+==================================================================================+
+| [21:0] | PPN  | PPN match value, `a` window upper bound. Matches if ppn is less than or equal to |
+|        |      | this value (so a value of 255 would match everything from 0 to 255; resulting in |
+|        |      | 256 total locations                                                              |
++--------+------+----------------------------------------------------------------------------------+
+
+COREUSER_WINDOW_BL
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x1c = 0x5800001c`
+
+
+    .. wavedrom::
+        :caption: COREUSER_WINDOW_BL
+
+        {
+            "reg": [
+                {"name": "ppn",  "bits": 22},
+                {"bits": 10}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------+----------------------------------------------------------------------------------+
+| Field  | Name | Description                                                                      |
++========+======+==================================================================================+
+| [21:0] | PPN  | PPN match value, `b` window lower bound. Matches if ppn is greater than or equal |
+|        |      | to this value                                                                    |
++--------+------+----------------------------------------------------------------------------------+
+
+COREUSER_WINDOW_BH
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x20 = 0x58000020`
+
+
+    .. wavedrom::
+        :caption: COREUSER_WINDOW_BH
+
+        {
+            "reg": [
+                {"name": "ppn",  "bits": 22},
+                {"bits": 10}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------+----------------------------------------------------------------------------------+
+| Field  | Name | Description                                                                      |
++========+======+==================================================================================+
+| [21:0] | PPN  | PPN match value, `b` window upper bound. Matches if ppn is less than or equal to |
+|        |      | this value (so a value of 255 would match everything from 0 to 255; resulting in |
+|        |      | 256 total locations                                                              |
++--------+------+----------------------------------------------------------------------------------+
+
