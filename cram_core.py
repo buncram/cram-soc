@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import argparse
+import litex.soc.doc as lxsocdoc
 
 from migen import *
 
@@ -398,7 +399,7 @@ class cramSoC(SoCCore):
         self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
 
         # Ticktimer --------------------------------------------------------------------------------
-        self.submodules.ticktimer = ticktimer.TickTimer(200e3, 800e6)
+        self.submodules.ticktimer = ticktimer.TickTimer(2000, 800e6)
 
         # CSR bus test loopback register -----------------------------------------------------------
         self.submodules.csrtest = CsrTest()
@@ -420,6 +421,9 @@ def main():
     )
     args = parser.parse_args()
 
+    # TODO: add SBT run to generate core whenever this is invoked, to ensure that docs are
+    # consistent with the source code.
+
     # Generate the SoC
     soc = cramSoC(
         name         = args.name,
@@ -433,8 +437,21 @@ def main():
         rc=False
     else:
         rc=True
-    builder.build(build_name=args.name, run=False, regular_comb=rc)
+    vns = builder.build(build_name=args.name, run=False, regular_comb=rc)
 
+    soc.do_exit(vns)
+    lxsocdoc.generate_docs(
+        soc, "build/documentation", note_pulses=True,
+        sphinx_extensions=['sphinx_math_dollar', 'sphinx.ext.mathjax'],
+        project_name="Cramium SoC (RISC-V Core Complex)",
+        author="Cramium, Inc.",
+            sphinx_extra_config=r"""
+mathjax_config = {
+   'tex2jax': {
+       'inlineMath': [ ["\\(","\\)"] ],
+       'displayMath': [["\\[","\\]"] ],
+   },
+}""")
 
 if __name__ == "__main__":
     main()
