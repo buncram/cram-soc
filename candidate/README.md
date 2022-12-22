@@ -11,7 +11,7 @@
 
 ## Description
 
-Please refer to the [documentation](https://htmlpreview.github.io/?https%3A%2F%2Fgithub.com%2Fbuncram%2Fcram-soc%2Fblob%2Fcram%2Fcandidate%2Fdocs%2Findex.html=)
+Please refer to the [documentation](https://htmlpreview.github.io/?https://github.com/buncram/cram-soc/blob/cram/candidate/docs/index.html)
 
 ## Roadmap
 
