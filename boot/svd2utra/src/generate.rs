@@ -1,7 +1,8 @@
-use quick_xml::events::Event;
+use convert_case::{Case, Casing};
+use quick_xml::events::{attributes::Attribute, Event};
 use quick_xml::Reader;
 use std::io::{BufRead, BufReader, Read, Write};
-use convert_case::{Case, Casing};
+
 #[derive(Debug)]
 pub enum ParseError {
     UnexpectedTag,
@@ -9,16 +10,18 @@ pub enum ParseError {
     ParseIntError,
     NonUTF8,
     WriteError,
+    UnexpectedValue,
+    MissingBasePeripheral(String),
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Field {
     name: String,
     lsb: usize,
     msb: usize,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Register {
     name: String,
     offset: usize,
@@ -26,18 +29,17 @@ pub struct Register {
     fields: Vec<Field>,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Interrupt {
     name: String,
     value: usize,
 }
 
-#[allow(dead_code)]
 #[derive(Default, Debug)]
 pub struct Peripheral {
     name: String,
     pub base: usize,
-    size: usize,
+    _size: usize,
     interrupt: Vec<Interrupt>,
     registers: Vec<Register>,
 }
@@ -67,10 +69,12 @@ impl core::fmt::Display for ParseError {
         use ParseError::*;
         match *self {
             UnexpectedTag => write!(f, "unexpected XML tag encountered"),
+            UnexpectedValue => write!(f, "unexpected XML tag value encountered"),
             MissingValue => write!(f, "XML tag should have contained a value"),
             ParseIntError => write!(f, "unable to parse number"),
             NonUTF8 => write!(f, "file is not UTF-8"),
             WriteError => write!(f, "unable to write destination file"),
+            MissingBasePeripheral(ref name) => write!(f, "undeclared base peripheral: {}", name),
         }
     }
 }
@@ -117,6 +121,9 @@ fn generate_field<T: BufRead>(reader: &mut Reader<T>) -> Result<Field, ParseErro
     let mut name = None;
     let mut lsb = None;
     let mut msb = None;
+    let mut bit_offset = None;
+    let mut bit_width = None;
+
     loop {
         match reader.read_event(&mut buf) {
             Ok(Event::Start(ref e)) => {
@@ -124,9 +131,37 @@ fn generate_field<T: BufRead>(reader: &mut Reader<T>) -> Result<Field, ParseErro
                     .unescape_and_decode(reader)
                     .map_err(|_| ParseError::NonUTF8)?;
                 match tag_name.as_str() {
-                    "name" => name = Some(extract_contents(reader)?),
+                    "name" if name.is_none() => name = Some(extract_contents(reader)?),
                     "lsb" => lsb = Some(parse_usize(extract_contents(reader)?.as_bytes())?),
                     "msb" => msb = Some(parse_usize(extract_contents(reader)?.as_bytes())?),
+                    "bitRange" => {
+                        let range = extract_contents(reader)?;
+                        if !range.starts_with('[') || !range.ends_with(']') {
+                            return Err(ParseError::UnexpectedValue);
+                        }
+
+                        let mut parts = range[1..range.len() - 1].split(':');
+                        msb = Some(
+                            parts
+                                .next()
+                                .ok_or(ParseError::UnexpectedValue)?
+                                .parse::<usize>()
+                                .map_err(|_| ParseError::ParseIntError)?,
+                        );
+                        lsb = Some(
+                            parts
+                                .next()
+                                .ok_or(ParseError::UnexpectedValue)?
+                                .parse::<usize>()
+                                .map_err(|_| ParseError::ParseIntError)?,
+                        );
+                    }
+                    "bitWidth" => {
+                        bit_width = Some(parse_usize(extract_contents(reader)?.as_bytes())?)
+                    }
+                    "bitOffset" => {
+                        bit_offset = Some(parse_usize(extract_contents(reader)?.as_bytes())?)
+                    }
                     _ => (),
                 }
             }
@@ -137,6 +172,16 @@ fn generate_field<T: BufRead>(reader: &mut Reader<T>) -> Result<Field, ParseErro
             }
             Ok(_) => (),
             Err(e) => panic!("error parsing: {:?}", e),
+        }
+    }
+
+    // If no msb/lsb and bitRange tags were encountered then
+    // it's possible that the field is defined via
+    // `bitWidth` and `bitOffset` tags instead. Let's handle this.
+    if lsb.is_none() && msb.is_none() {
+        if let (Some(bit_width), Some(bit_offset)) = (bit_width, bit_offset) {
+            lsb = Some(bit_offset);
+            msb = Some(bit_offset + bit_width - 1);
         }
     }
 
@@ -272,13 +317,27 @@ fn generate_registers<T: BufRead>(
     Ok(())
 }
 
-fn generate_peripheral<T: BufRead>(reader: &mut Reader<T>) -> Result<Peripheral, ParseError> {
+fn derive_peripheral(base: &Peripheral, child_name: &str, child_base: usize) -> Peripheral {
+    Peripheral {
+        name: child_name.to_owned(),
+        base: child_base,
+        _size: base._size,
+        interrupt: base.interrupt.clone(),
+        registers: base.registers.clone(),
+    }
+}
+
+fn generate_peripheral<T: BufRead>(
+    base_peripheral: Option<&Peripheral>,
+    reader: &mut Reader<T>,
+) -> Result<Peripheral, ParseError> {
     let mut buf = Vec::new();
     let mut name = None;
     let mut base = None;
     let mut size = None;
     let mut registers = vec![];
     let mut interrupts = vec![];
+
     loop {
         match reader.read_event(&mut buf) {
             Ok(Event::Start(ref e)) => {
@@ -306,22 +365,48 @@ fn generate_peripheral<T: BufRead>(reader: &mut Reader<T>) -> Result<Peripheral,
         }
     }
 
-    Ok(Peripheral {
-        name: name.ok_or(ParseError::MissingValue)?,
-        base: base.ok_or(ParseError::MissingValue)?,
-        size: size.ok_or(ParseError::MissingValue)?,
-        interrupt: interrupts,
-        registers,
-    })
+    let name = name.ok_or(ParseError::MissingValue)?;
+    let base = base.ok_or(ParseError::MissingValue)?;
+
+    // Derive from the base peripheral if specified
+    if let Some(base_peripheral) = base_peripheral {
+        Ok(derive_peripheral(base_peripheral, &name, base))
+    } else {
+        Ok(Peripheral {
+            name,
+            base,
+            _size: size.ok_or(ParseError::MissingValue)?,
+            interrupt: interrupts,
+            registers,
+        })
+    }
 }
 
 fn generate_peripherals<T: BufRead>(reader: &mut Reader<T>) -> Result<Vec<Peripheral>, ParseError> {
     let mut buf = Vec::new();
-    let mut peripherals = vec![];
+    let mut peripherals: Vec<Peripheral> = vec![];
+
     loop {
         match reader.read_event(&mut buf) {
             Ok(Event::Start(ref e)) => match e.name() {
-                b"peripheral" => peripherals.push(generate_peripheral(reader)?),
+                b"peripheral" => {
+                    let base_peripheral = match e.attributes().next() {
+                        Some(Ok(Attribute { key, value })) if key == b"derivedFrom" => {
+                            let base_peripheral_name = String::from_utf8(value.to_vec())
+                                .map_err(|_| ParseError::NonUTF8)?;
+
+                            let base = peripherals
+                                .iter()
+                                .find(|p| p.name == base_peripheral_name)
+                                .ok_or(ParseError::MissingBasePeripheral(base_peripheral_name))?;
+
+                            Some(base)
+                        }
+                        _ => None,
+                    };
+
+                    peripherals.push(generate_peripheral(base_peripheral, reader)?);
+                }
                 _ => panic!("unexpected tag in <peripherals>: {:?}", e),
             },
             Ok(Event::End(ref e)) => match e.name() {
@@ -414,21 +499,23 @@ fn generate_constants<T: BufRead>(
                     for maybe_att in e.attributes() {
                         match maybe_att {
                             Ok(att) => {
-                                let att_name = String::from_utf8(att.key.to_vec()).expect("constant: error parsing attribute name");
-                                let att_value = String::from_utf8(att.value.to_vec()).expect("constant: error parsing attribute value");
+                                let att_name = String::from_utf8(att.key.to_vec())
+                                    .expect("constant: error parsing attribute name");
+                                let att_value = String::from_utf8(att.value.to_vec())
+                                    .expect("constant: error parsing attribute value");
                                 match att_name {
                                     _ if att_name == "name" => constant_descriptor.name = att_value,
-                                    _ if att_name == "value" => constant_descriptor.value = att_value,
-                                    _ => panic!("unexpected attribute name")
+                                    _ if att_name == "value" => {
+                                        constant_descriptor.value = att_value
+                                    }
+                                    _ => panic!("unexpected attribute name"),
                                 }
-                            },
+                            }
                             _ => panic!("unexpected value in constant: {:?}", maybe_att),
                         }
                     }
-                    description
-                    .constants
-                    .push(constant_descriptor)
-                },
+                    description.constants.push(constant_descriptor)
+                }
                 _ => panic!("unexpected tag in <constants>: {:?}", e),
             },
             // note to future self: if Litex goe away from attributes to nested elements, you would want
@@ -439,13 +526,11 @@ fn generate_constants<T: BufRead>(
             // if there are no attributes, the attribute iterator would do nothing; and if there are no
             // child elements, the recursive descent would also do nothing.
             Ok(Event::End(ref e)) => match e.name() {
-                b"constants" => {
-                    break
-                }
+                b"constants" => break,
                 e => panic!("unhandled value: {:?}", e),
             },
             Ok(Event::Text(_)) => (),
-            e => panic!("unhandled value: {:?}", e)
+            e => panic!("unhandled value: {:?}", e),
         }
     }
     Ok(())
@@ -480,6 +565,7 @@ fn print_header<U: Write>(out: &mut U) -> std::io::Result<()> {
     let s = r####"
 #![allow(dead_code)]
 use core::convert::TryInto;
+use core::sync::atomic::AtomicPtr;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Register {
@@ -569,6 +655,9 @@ where
     }
     /// Read the contents of this register
     pub fn r(&self, reg: Register) -> T {
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+
         let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
         unsafe { usize_base.add(reg.offset).read_volatile() }
             .try_into()
@@ -576,6 +665,9 @@ where
     }
     /// Read a field from this CSR
     pub fn rf(&self, field: Field) -> T {
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+
         let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
         ((unsafe { usize_base.add(field.register.offset).read_volatile() } >> field.offset)
             & field.mask)
@@ -593,6 +685,8 @@ where
                 .add(field.register.offset)
                 .write_volatile(previous | value_as_usize)
         };
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
     }
     /// Write a given field without reading it first
     pub fn wfo(&mut self, field: Field, value: T) {
@@ -603,12 +697,119 @@ where
                 .add(field.register.offset)
                 .write_volatile(value_as_usize)
         };
+        // Ensure the compiler doesn't re-order the write.
+        // We use `SeqCst`, because `Acquire` only prevents later accesses from being reordered before
+        // *reads*, but this method only *writes* to the locations.
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
     }
     /// Write the entire contents of a register without reading it first
     pub fn wo(&mut self, reg: Register, value: T) {
         let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
         let value_as_usize: usize = value.try_into().unwrap_or_default();
         unsafe { usize_base.add(reg.offset).write_volatile(value_as_usize) };
+        // Ensure the compiler doesn't re-order the write.
+        // We use `SeqCst`, because `Acquire` only prevents later accesses from being reordered before
+        // *reads*, but this method only *writes* to the locations.
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+    }
+    /// Zero a field from a provided value
+    pub fn zf(&self, field: Field, value: T) -> T {
+        let value_as_usize: usize = value.try_into().unwrap_or_default();
+        (value_as_usize & !(field.mask << field.offset))
+            .try_into()
+            .unwrap_or_default()
+    }
+    /// Shift & mask a value to its final field position
+    pub fn ms(&self, field: Field, value: T) -> T {
+        let value_as_usize: usize = value.try_into().unwrap_or_default();
+        ((value_as_usize & field.mask) << field.offset)
+            .try_into()
+            .unwrap_or_default()
+    }
+}
+
+#[derive(Debug)]
+pub struct AtomicCsr<T> {
+    pub base: AtomicPtr<T>,
+}
+impl<T> AtomicCsr<T>
+where
+    T: core::convert::TryFrom<usize> + core::convert::TryInto<usize> + core::default::Default,
+{
+    pub fn new(base: *mut T) -> Self {
+        AtomicCsr {
+            base: AtomicPtr::new(base)
+        }
+    }
+    /// In reality, we should wrap this in an `Arc` so we can be truly safe across a multi-core
+    /// implementation, but for our single-core system this is fine. The reason we don't do it
+    /// immediately is that UTRA also needs to work in a `no_std` environment, where `Arc`
+    /// does not exist, and so additional config flags would need to be introduced to not break
+    /// that compability issue. If migrating to multicore, this technical debt would have to be
+    /// addressed.
+    pub fn clone(&self) -> Self {
+        AtomicCsr {
+            base: AtomicPtr::new(self.base.load(core::sync::atomic::Ordering::SeqCst))
+        }
+    }
+    /// Read the contents of this register
+    pub fn r(&self, reg: Register) -> T {
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base.load(core::sync::atomic::Ordering::SeqCst)) };
+        unsafe { usize_base.add(reg.offset).read_volatile() }
+            .try_into()
+            .unwrap_or_default()
+    }
+    /// Read a field from this CSR
+    pub fn rf(&self, field: Field) -> T {
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base.load(core::sync::atomic::Ordering::SeqCst)) };
+        ((unsafe { usize_base.add(field.register.offset).read_volatile() } >> field.offset)
+            & field.mask)
+            .try_into()
+            .unwrap_or_default()
+    }
+    /// Read-modify-write a given field in this CSR
+    pub fn rmwf(&self, field: Field, value: T) {
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base.load(core::sync::atomic::Ordering::SeqCst)) };
+        let value_as_usize: usize = value.try_into().unwrap_or_default() << field.offset;
+        let previous =
+            unsafe { usize_base.add(field.register.offset).read_volatile() } & !(field.mask << field.offset);
+        unsafe {
+            usize_base
+                .add(field.register.offset)
+                .write_volatile(previous | value_as_usize)
+        };
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+    }
+    /// Write a given field without reading it first
+    pub fn wfo(&self, field: Field, value: T) {
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base.load(core::sync::atomic::Ordering::SeqCst)) };
+        let value_as_usize: usize = (value.try_into().unwrap_or_default() & field.mask) << field.offset;
+        unsafe {
+            usize_base
+                .add(field.register.offset)
+                .write_volatile(value_as_usize)
+        };
+        // Ensure the compiler doesn't re-order the write.
+        // We use `SeqCst`, because `Acquire` only prevents later accesses from being reordered before
+        // *reads*, but this method only *writes* to the locations.
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+    }
+    /// Write the entire contents of a register without reading it first
+    pub fn wo(&self, reg: Register, value: T) {
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base.load(core::sync::atomic::Ordering::SeqCst)) };
+        let value_as_usize: usize = value.try_into().unwrap_or_default();
+        unsafe { usize_base.add(reg.offset).write_volatile(value_as_usize) };
+        // Ensure the compiler doesn't re-order the write.
+        // We use `SeqCst`, because `Acquire` only prevents later accesses from being reordered before
+        // *reads*, but this method only *writes* to the locations.
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
     }
     /// Zero a field from a provided value
     pub fn zf(&self, field: Field, value: T) -> T {
@@ -658,7 +859,7 @@ fn print_constants<U: Write>(constants: &[Constant], out: &mut U) -> std::io::Re
                     "pub const LITEX_{}: usize = {};",
                     constant.name, intval
                 )?;
-            },
+            }
             Err(_) => {
                 writeln!(
                     out,
@@ -692,14 +893,31 @@ pub mod utra {
     for peripheral in peripherals {
         writeln!(out)?;
         writeln!(out, "    pub mod {} {{", peripheral.name.to_lowercase())?;
-        writeln!(out, "        // this enum is vestigal, and currently not used by anything")?;
+        writeln!(
+            out,
+            "        // this enum is vestigal, and currently not used by anything"
+        )?;
         writeln!(out, "        #[derive(Debug, Copy, Clone)]")?;
-        writeln!(out, "        pub enum {}Offset {{", peripheral.name.to_case(Case::UpperCamel))?;
+        writeln!(
+            out,
+            "        pub enum {}Offset {{",
+            peripheral.name.to_case(Case::UpperCamel)
+        )?;
         for register in &peripheral.registers {
-            writeln!(out, "            {} = {},", register.name.to_case(Case::UpperCamel), register.offset / 4)?;
+            writeln!(
+                out,
+                "            {} = {},",
+                register.name.to_case(Case::UpperCamel),
+                register.offset
+            )?;
         }
         writeln!(out, "        }}")?;
-        writeln!(out, "        pub const {}_NUMREGS: usize = {};", peripheral.name.to_uppercase(), peripheral.registers.len())?;
+        writeln!(
+            out,
+            "        pub const {}_NUMREGS: usize = {};",
+            peripheral.name.to_uppercase(),
+            peripheral.registers.len()
+        )?;
         for register in &peripheral.registers {
             writeln!(out)?;
             if let Some(description) = &register.description {
@@ -753,16 +971,25 @@ fn print_tests<U: Write>(peripherals: &[Peripheral], out: &mut U) -> std::io::Re
     let test_header = r####"
 #[cfg(test)]
 mod tests {
-    #[test]
-    #[ignore]
-    fn compile_check() {
-        use super::*;
 "####
         .as_bytes();
     out.write_all(test_header)?;
+
     for peripheral in peripherals {
         let mod_name = peripheral.name.to_lowercase();
         let per_name = peripheral.name.to_lowercase() + "_csr";
+
+        write!(
+            out,
+            r####"
+    #[test]
+    #[ignore]
+    fn compile_check_{}() {{
+        use super::*;
+"####,
+            per_name
+        )?;
+
         writeln!(
             out,
             "        let mut {} = CSR::new(HW_{}_BASE as *mut u32);",
@@ -811,9 +1038,11 @@ mod tests {
                 )?;
             }
         }
+
+        writeln!(out, "  }}")?;
     }
-    writeln!(out, "    }}")?;
     writeln!(out, "}}")?;
+
     Ok(())
 }
 
