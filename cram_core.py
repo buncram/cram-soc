@@ -19,9 +19,11 @@ from litex.soc.interconnect import wishbone
 from litex.soc.interconnect import axi
 from litex.soc.interconnect import ahb
 from litex.soc.interconnect.csr import *
-from litex.soc.interconnect.csr_eventmanager import *
 from litex.soc.integration.soc import SoCBusHandler
 from litex.soc.integration.doc import AutoDoc,ModuleDoc
+
+from litex.soc.interconnect.csr_eventmanager import *
+from litex.soc.interconnect.csr_eventmanager import _EventSource
 
 from deps.gateware.gateware import ticktimer
 
@@ -32,13 +34,14 @@ class InterruptBank(Module, AutoCSR):
         self.submodules.ev = EventManager()
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
+IRQ_BANKS=20
+IRQS_PER_BANK=20
 
 def get_common_ios():
-    return [
+    ios = [
         # Clk/Rst.
         ("aclk", 0, Pins(1)),
         ("rst", 0, Pins(1)),
-        ("interrupt", 0, Pins(32)),
         # `always_on` is an `aclk` replica that is running even when the core `aclk` is stopped.
         # if power management is not supported, tie this directly to `aclk`
         ("always_on", 0, Pins(1)),
@@ -48,6 +51,11 @@ def get_common_ios():
         # coreuser signal
         ("coreuser", 0, Pins(1)),
     ]
+    irqs = ["irqarray", 0]
+    for bank in range(IRQ_BANKS):
+        irqs += [Subsignal("bank{}".format(bank), Pins(IRQS_PER_BANK))]
+    ios += [tuple(irqs)]
+    return ios
 
 def get_debug_ios():
     return [
@@ -77,22 +85,82 @@ class CsrTest(Module, AutoCSR, AutoDoc):
             self.csr_rtest.status.eq(self.csr_wtest.storage + 0x1000_0000)
         ]
 
-# Needs to handle: pulsed or level; priorities, from 0-255
-class IrqBank(Module, AutoCSR, AutoDoc):
-    def __init__(self, ints_per_bank=16):
-        self.submodules.ev = EventManager()
-        # TODO
+# Interrupts ------------------------------------------------------------------------------------
+class EventSourceFlex(Module, _EventSource):
+    def __init__(self, trigger, soft_trigger, name=None, description=None):
+        _EventSource.__init__(self, name, description)
+        self.trigger = trigger
+        self.soft_trigger = soft_trigger
+        self.comb += [
+            self.status.eq(self.trigger | self.soft_trigger),
+        ]
+        self.sync += [
+            If(self.trigger | self.soft_trigger,
+                self.pending.eq(1)
+            ).Elif(self.clear,
+                self.pending.eq(0)
+            ).Else(
+                self.pending.eq(self.pending)
+            ),
+        ]
 
 class IrqArray(Module, AutoCSR, AutoDoc):
     """Interrupt Array Handler"""
-    def __init__(self, banks=16, ints_per_bank=16):
+    def __init__(self, bank, pins):
         self.intro = ModuleDoc("""
 `IrqArray` provides a large bank of interrupts for SoC integration. It is different from e.g. the NVIC
 or CLINT in that the register bank is structured along page boundaries, so that the interrupt handler CSRs
 can be owned by a specific virtual memory process, instead of bouncing through a common handler
 and forcing an inter-process message to be generated to route interrupts to their final destination.
+
+The incoming interrupt signals are assumed to be synchronized to `aclk`.
+
+Priorities are enforced entirely through software; the handler must read the `pending` bits and
+decide which ones should be handled first.
+
+The `EventSource` is an `EventSourceFlex` which can handle pulses and levels, as well as software triggers.
+
+The interrupt pending bit is latched when the trigger goes high, and stays high
+until software clears the event. The trigger takes precedence over clearing, so
+if the interrupt source is not cleared prior to clearing the interrupt pending bit,
+the interrupt will trigger again.
+
+`status` reflects the instantaneous value of the trigger.
+
+A separate input line is provided so that software can induce an interrupt by
+writing to a soft-trigger bit.
         """)
-        # TODO
+        ints_per_bank = len(pins)
+        self.submodules.ev = ev = EventManager()
+        self.interrupts = interrupts = Signal(ints_per_bank)
+        self.comb += self.interrupts.eq(pins)
+        setattr(self, 'bank{}_ints'.format(bank), interrupts)
+        soft = CSRStorage(
+            size=ints_per_bank,
+            description="""Software interrupt trigger register.
+
+Bits set to `1` will trigger an interrupt. Interrupts trigger on write, but the
+value will persist in the register, allowing software to determine if a software
+interrupt was triggered by reading back the register.
+
+Software is responsible for clearing the register to 0.
+
+Repeated `1` writes without clearing will still trigger an interrupt.""",
+            fields=[
+                CSRField("trigger", size=ints_per_bank, pulse=True)
+            ])
+        for i in range(ints_per_bank):
+            bit_int = EventSourceFlex(
+                trigger=interrupts[i],
+                soft_trigger=soft.fields.trigger[i],
+                name='source{}'.format(i),
+                description='`1` when a source{} event occurs. This event uses an `EventSourceFlex` form of triggering'.format(i)
+            )
+            setattr(ev, 'source{}'.format(i), bit_int)
+
+        ev.soft = soft
+        ev.finalize()
+        # setattr(self, 'evm{}'.format(bank), ev)
 
 # ResetValue ----------------------------------------------------------------------------------
 
@@ -390,16 +458,19 @@ class cramSoC(SoCCore):
         jtag_pads = platform.request("jtag")
         self.cpu.add_jtag(jtag_pads)
 
-        int_pads = platform.request("interrupt")
-        self.comb += [
-            self.cpu.interrupt.eq(int_pads)
-        ]
-
         # CoreUser computation ---------------------------------------------------------------------
         self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
 
+        # Interrupt Array --------------------------------------------------------------------------
+        irqpins = platform.request("irqarray")
+        for bank in range(IRQ_BANKS):
+            pins = getattr(irqpins, 'bank{}'.format(bank))
+            setattr(self.submodules, 'irqarray{}'.format(bank), IrqArray(bank, pins))
+            self.irq.add("irqarray{}".format(bank))
+
         # Ticktimer --------------------------------------------------------------------------------
         self.submodules.ticktimer = ticktimer.TickTimer(2000, 800e6)
+        self.irq.add("ticktimer")
 
         # CSR bus test loopback register -----------------------------------------------------------
         self.submodules.csrtest = CsrTest()
@@ -452,6 +523,7 @@ mathjax_config = {
        'displayMath': [["\\[","\\]"] ],
    },
 }""")
+    print("LIES! The command is `sphinx-build -M html build/gateware/build/documentation/ build/gateware/build/documentation/_build`")
 
 if __name__ == "__main__":
     main()
