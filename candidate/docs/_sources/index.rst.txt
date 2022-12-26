@@ -21,6 +21,26 @@ Register Groups
 
     coreuser
     csrtest
+    irqarray0
+    irqarray1
+    irqarray10
+    irqarray11
+    irqarray12
+    irqarray13
+    irqarray14
+    irqarray15
+    irqarray16
+    irqarray17
+    irqarray18
+    irqarray19
+    irqarray2
+    irqarray3
+    irqarray4
+    irqarray5
+    irqarray6
+    irqarray7
+    irqarray8
+    irqarray9
     resetvalue
     ticktimer
 

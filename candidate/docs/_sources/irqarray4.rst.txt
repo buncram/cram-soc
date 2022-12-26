@@ -1,0 +1,343 @@
+IRQARRAY4
+=========
+
+
+
+`IrqArray` provides a large bank of interrupts for SoC integration. It is different from e.g. the NVIC
+or CLINT in that the register bank is structured along page boundaries, so that the interrupt handler CSRs
+can be owned by a specific virtual memory process, instead of bouncing through a common handler
+and forcing an inter-process message to be generated to route interrupts to their final destination.
+
+The incoming interrupt signals are assumed to be synchronized to `aclk`.
+
+Priorities are enforced entirely through software; the handler must read the `pending` bits and
+decide which ones should be handled first.
+
+The `EventSource` is an `EventSourceFlex` which can handle pulses and levels, as well as software triggers.
+
+The interrupt pending bit is latched when the trigger goes high, and stays high
+until software clears the event. The trigger takes precedence over clearing, so
+if the interrupt source is not cleared prior to clearing the interrupt pending bit,
+the interrupt will trigger again.
+
+`status` reflects the instantaneous value of the trigger.
+
+A separate input line is provided so that software can induce an interrupt by
+writing to a soft-trigger bit.
+
+
+Register Listing for IRQARRAY4
+------------------------------
+
++----------------------------------------------------+------------------------------------------+
+| Register                                           | Address                                  |
++====================================================+==========================================+
+| :ref:`IRQARRAY4_EV_SOFT <IRQARRAY4_EV_SOFT>`       | :ref:`0x58010000 <IRQARRAY4_EV_SOFT>`    |
++----------------------------------------------------+------------------------------------------+
+| :ref:`IRQARRAY4_EV_STATUS <IRQARRAY4_EV_STATUS>`   | :ref:`0x58010004 <IRQARRAY4_EV_STATUS>`  |
++----------------------------------------------------+------------------------------------------+
+| :ref:`IRQARRAY4_EV_PENDING <IRQARRAY4_EV_PENDING>` | :ref:`0x58010008 <IRQARRAY4_EV_PENDING>` |
++----------------------------------------------------+------------------------------------------+
+| :ref:`IRQARRAY4_EV_ENABLE <IRQARRAY4_EV_ENABLE>`   | :ref:`0x5801000c <IRQARRAY4_EV_ENABLE>`  |
++----------------------------------------------------+------------------------------------------+
+
+IRQARRAY4_EV_SOFT
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x58010000 + 0x0 = 0x58010000`
+
+    Software interrupt trigger register.
+
+    Bits set to `1` will trigger an interrupt. Interrupts trigger on write, but the
+    value will persist in the register, allowing software to determine if a software
+    interrupt was triggered by reading back the register.
+
+    Software is responsible for clearing the register to 0.
+
+    Repeated `1` writes without clearing will still trigger an interrupt.
+
+    .. wavedrom::
+        :caption: IRQARRAY4_EV_SOFT
+
+        {
+            "reg": [
+                {"name": "trigger",  "type": 4, "bits": 20},
+                {"bits": 12}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+------------------------------------------------+
+| Field  | Name    | Description                                    |
++========+=========+================================================+
+| [19:0] | TRIGGER |                                                |
+|        |         |                                                |
+|        |         | Writing a 1 to this bit triggers the function. |
++--------+---------+------------------------------------------------+
+
+IRQARRAY4_EV_STATUS
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58010000 + 0x4 = 0x58010004`
+
+    `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
+    triggering
+
+    .. wavedrom::
+        :caption: IRQARRAY4_EV_STATUS
+
+        {
+            "reg": [
+                {"name": "source0",  "bits": 1},
+                {"name": "source1",  "bits": 1},
+                {"name": "source2",  "bits": 1},
+                {"name": "source3",  "bits": 1},
+                {"name": "source4",  "bits": 1},
+                {"name": "source5",  "bits": 1},
+                {"name": "source6",  "bits": 1},
+                {"name": "source7",  "bits": 1},
+                {"name": "source8",  "bits": 1},
+                {"name": "source9",  "bits": 1},
+                {"name": "source10",  "bits": 1},
+                {"name": "source11",  "bits": 1},
+                {"name": "source12",  "bits": 1},
+                {"name": "source13",  "bits": 1},
+                {"name": "source14",  "bits": 1},
+                {"name": "source15",  "bits": 1},
+                {"name": "source16",  "bits": 1},
+                {"name": "source17",  "bits": 1},
+                {"name": "source18",  "bits": 1},
+                {"name": "source19",  "bits": 1},
+                {"bits": 12}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------+---------------------------------+
+| Field | Name     | Description                     |
++=======+==========+=================================+
+| [0]   | SOURCE0  | Level of the ``source0`` event  |
++-------+----------+---------------------------------+
+| [1]   | SOURCE1  | Level of the ``source1`` event  |
++-------+----------+---------------------------------+
+| [2]   | SOURCE2  | Level of the ``source2`` event  |
++-------+----------+---------------------------------+
+| [3]   | SOURCE3  | Level of the ``source3`` event  |
++-------+----------+---------------------------------+
+| [4]   | SOURCE4  | Level of the ``source4`` event  |
++-------+----------+---------------------------------+
+| [5]   | SOURCE5  | Level of the ``source5`` event  |
++-------+----------+---------------------------------+
+| [6]   | SOURCE6  | Level of the ``source6`` event  |
++-------+----------+---------------------------------+
+| [7]   | SOURCE7  | Level of the ``source7`` event  |
++-------+----------+---------------------------------+
+| [8]   | SOURCE8  | Level of the ``source8`` event  |
++-------+----------+---------------------------------+
+| [9]   | SOURCE9  | Level of the ``source9`` event  |
++-------+----------+---------------------------------+
+| [10]  | SOURCE10 | Level of the ``source10`` event |
++-------+----------+---------------------------------+
+| [11]  | SOURCE11 | Level of the ``source11`` event |
++-------+----------+---------------------------------+
+| [12]  | SOURCE12 | Level of the ``source12`` event |
++-------+----------+---------------------------------+
+| [13]  | SOURCE13 | Level of the ``source13`` event |
++-------+----------+---------------------------------+
+| [14]  | SOURCE14 | Level of the ``source14`` event |
++-------+----------+---------------------------------+
+| [15]  | SOURCE15 | Level of the ``source15`` event |
++-------+----------+---------------------------------+
+| [16]  | SOURCE16 | Level of the ``source16`` event |
++-------+----------+---------------------------------+
+| [17]  | SOURCE17 | Level of the ``source17`` event |
++-------+----------+---------------------------------+
+| [18]  | SOURCE18 | Level of the ``source18`` event |
++-------+----------+---------------------------------+
+| [19]  | SOURCE19 | Level of the ``source19`` event |
++-------+----------+---------------------------------+
+
+IRQARRAY4_EV_PENDING
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58010000 + 0x8 = 0x58010008`
+
+    `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
+    triggering
+
+    .. wavedrom::
+        :caption: IRQARRAY4_EV_PENDING
+
+        {
+            "reg": [
+                {"name": "source0",  "bits": 1},
+                {"name": "source1",  "bits": 1},
+                {"name": "source2",  "bits": 1},
+                {"name": "source3",  "bits": 1},
+                {"name": "source4",  "bits": 1},
+                {"name": "source5",  "bits": 1},
+                {"name": "source6",  "bits": 1},
+                {"name": "source7",  "bits": 1},
+                {"name": "source8",  "bits": 1},
+                {"name": "source9",  "bits": 1},
+                {"name": "source10",  "bits": 1},
+                {"name": "source11",  "bits": 1},
+                {"name": "source12",  "bits": 1},
+                {"name": "source13",  "bits": 1},
+                {"name": "source14",  "bits": 1},
+                {"name": "source15",  "bits": 1},
+                {"name": "source16",  "bits": 1},
+                {"name": "source17",  "bits": 1},
+                {"name": "source18",  "bits": 1},
+                {"name": "source19",  "bits": 1},
+                {"bits": 12}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------+--------------------------------------------------------------------------------+
+| Field | Name     | Description                                                                    |
++=======+==========+================================================================================+
+| [0]   | SOURCE0  | `1` when a source0 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [1]   | SOURCE1  | `1` when a source1 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [2]   | SOURCE2  | `1` when a source2 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [3]   | SOURCE3  | `1` when a source3 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [4]   | SOURCE4  | `1` when a source4 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [5]   | SOURCE5  | `1` when a source5 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [6]   | SOURCE6  | `1` when a source6 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [7]   | SOURCE7  | `1` when a source7 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [8]   | SOURCE8  | `1` when a source8 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [9]   | SOURCE9  | `1` when a source9 event occurs. This event uses an `EventSourceFlex` form of  |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [10]  | SOURCE10 | `1` when a source10 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [11]  | SOURCE11 | `1` when a source11 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [12]  | SOURCE12 | `1` when a source12 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [13]  | SOURCE13 | `1` when a source13 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [14]  | SOURCE14 | `1` when a source14 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [15]  | SOURCE15 | `1` when a source15 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [16]  | SOURCE16 | `1` when a source16 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [17]  | SOURCE17 | `1` when a source17 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [18]  | SOURCE18 | `1` when a source18 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+| [19]  | SOURCE19 | `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of |
+|       |          | triggering                                                                     |
++-------+----------+--------------------------------------------------------------------------------+
+
+IRQARRAY4_EV_ENABLE
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58010000 + 0xc = 0x5801000c`
+
+    `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
+    triggering
+
+    .. wavedrom::
+        :caption: IRQARRAY4_EV_ENABLE
+
+        {
+            "reg": [
+                {"name": "source0",  "bits": 1},
+                {"name": "source1",  "bits": 1},
+                {"name": "source2",  "bits": 1},
+                {"name": "source3",  "bits": 1},
+                {"name": "source4",  "bits": 1},
+                {"name": "source5",  "bits": 1},
+                {"name": "source6",  "bits": 1},
+                {"name": "source7",  "bits": 1},
+                {"name": "source8",  "bits": 1},
+                {"name": "source9",  "bits": 1},
+                {"name": "source10",  "bits": 1},
+                {"name": "source11",  "bits": 1},
+                {"name": "source12",  "bits": 1},
+                {"name": "source13",  "bits": 1},
+                {"name": "source14",  "bits": 1},
+                {"name": "source15",  "bits": 1},
+                {"name": "source16",  "bits": 1},
+                {"name": "source17",  "bits": 1},
+                {"name": "source18",  "bits": 1},
+                {"name": "source19",  "bits": 1},
+                {"bits": 12}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------+------------------------------------------------+
+| Field | Name     | Description                                    |
++=======+==========+================================================+
+| [0]   | SOURCE0  | Write a ``1`` to enable the ``source0`` Event  |
++-------+----------+------------------------------------------------+
+| [1]   | SOURCE1  | Write a ``1`` to enable the ``source1`` Event  |
++-------+----------+------------------------------------------------+
+| [2]   | SOURCE2  | Write a ``1`` to enable the ``source2`` Event  |
++-------+----------+------------------------------------------------+
+| [3]   | SOURCE3  | Write a ``1`` to enable the ``source3`` Event  |
++-------+----------+------------------------------------------------+
+| [4]   | SOURCE4  | Write a ``1`` to enable the ``source4`` Event  |
++-------+----------+------------------------------------------------+
+| [5]   | SOURCE5  | Write a ``1`` to enable the ``source5`` Event  |
++-------+----------+------------------------------------------------+
+| [6]   | SOURCE6  | Write a ``1`` to enable the ``source6`` Event  |
++-------+----------+------------------------------------------------+
+| [7]   | SOURCE7  | Write a ``1`` to enable the ``source7`` Event  |
++-------+----------+------------------------------------------------+
+| [8]   | SOURCE8  | Write a ``1`` to enable the ``source8`` Event  |
++-------+----------+------------------------------------------------+
+| [9]   | SOURCE9  | Write a ``1`` to enable the ``source9`` Event  |
++-------+----------+------------------------------------------------+
+| [10]  | SOURCE10 | Write a ``1`` to enable the ``source10`` Event |
++-------+----------+------------------------------------------------+
+| [11]  | SOURCE11 | Write a ``1`` to enable the ``source11`` Event |
++-------+----------+------------------------------------------------+
+| [12]  | SOURCE12 | Write a ``1`` to enable the ``source12`` Event |
++-------+----------+------------------------------------------------+
+| [13]  | SOURCE13 | Write a ``1`` to enable the ``source13`` Event |
++-------+----------+------------------------------------------------+
+| [14]  | SOURCE14 | Write a ``1`` to enable the ``source14`` Event |
++-------+----------+------------------------------------------------+
+| [15]  | SOURCE15 | Write a ``1`` to enable the ``source15`` Event |
++-------+----------+------------------------------------------------+
+| [16]  | SOURCE16 | Write a ``1`` to enable the ``source16`` Event |
++-------+----------+------------------------------------------------+
+| [17]  | SOURCE17 | Write a ``1`` to enable the ``source17`` Event |
++-------+----------+------------------------------------------------+
+| [18]  | SOURCE18 | Write a ``1`` to enable the ``source18`` Event |
++-------+----------+------------------------------------------------+
+| [19]  | SOURCE19 | Write a ``1`` to enable the ``source19`` Event |
++-------+----------+------------------------------------------------+
+

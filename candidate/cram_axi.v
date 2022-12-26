@@ -8,8 +8,8 @@
 //
 // Filename   : cram_axi.v
 // Device     : 
-// LiteX sha1 : b49be33d
-// Date       : 2022-12-23 02:18:02
+// LiteX sha1 : 4f89b896
+// Date       : 2022-12-26 14:40:36
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -136,8 +136,27 @@ module cram_axi (
     input  wire          jtag_tms,
     input  wire          jtag_tck,
     input  wire          jtag_trst,
-    input  wire   [31:0] interrupt,
-    output reg           coreuser
+    output reg           coreuser,
+    input  wire   [19:0] irqarray_bank0,
+    input  wire   [19:0] irqarray_bank1,
+    input  wire   [19:0] irqarray_bank2,
+    input  wire   [19:0] irqarray_bank3,
+    input  wire   [19:0] irqarray_bank4,
+    input  wire   [19:0] irqarray_bank5,
+    input  wire   [19:0] irqarray_bank6,
+    input  wire   [19:0] irqarray_bank7,
+    input  wire   [19:0] irqarray_bank8,
+    input  wire   [19:0] irqarray_bank9,
+    input  wire   [19:0] irqarray_bank10,
+    input  wire   [19:0] irqarray_bank11,
+    input  wire   [19:0] irqarray_bank12,
+    input  wire   [19:0] irqarray_bank13,
+    input  wire   [19:0] irqarray_bank14,
+    input  wire   [19:0] irqarray_bank15,
+    input  wire   [19:0] irqarray_bank16,
+    input  wire   [19:0] irqarray_bank17,
+    input  wire   [19:0] irqarray_bank18,
+    input  wire   [19:0] irqarray_bank19
 );
 
 
@@ -152,7 +171,7 @@ reg           int_rst = 1'd1;
 wire          always_on_clk;
 reg           always_on_rst = 1'd0;
 reg           cramsoc_reset = 1'd0;
-wire   [31:0] cramsoc_interrupt;
+reg    [31:0] cramsoc_interrupt = 32'd0;
 wire   [31:0] cramsoc_trimming_reset;
 wire          cramsoc_trimming_reset_ena;
 wire          cramsoc_satp_mode;
@@ -437,10 +456,10 @@ wire          o_resetOut;
 reg           reset_debug_logic = 1'd0;
 wire   [31:0] trimming_reset_1;
 wire          trimming_reset_ena_1;
-wire   [31:0] status;
-wire          we;
-reg           re = 1'd0;
-reg    [31:0] latched_value = 32'd0;
+wire   [31:0] resetvalue_status;
+wire          resetvalue_we;
+reg           resetvalue_re = 1'd0;
+reg    [31:0] resetvalue_latched_value = 32'd0;
 wire    [8:0] coreuser_asid0;
 wire          coreuser_trusted;
 reg     [9:0] coreuser_set_asid_storage = 10'd0;
@@ -487,6 +506,2686 @@ reg    [21:0] coreuser_window_al = 22'd0;
 reg    [21:0] coreuser_window_ah = 22'd0;
 reg    [21:0] coreuser_window_bl = 22'd0;
 reg    [21:0] coreuser_window_bh = 22'd0;
+wire          irqarray0_irq;
+wire   [19:0] irqarray0_interrupts;
+reg    [19:0] irqarray0_trigger = 20'd0;
+reg    [19:0] irqarray0_storage = 20'd0;
+reg           irqarray0_re = 1'd0;
+wire          irqarray0_eventsourceflex0_status;
+reg           irqarray0_eventsourceflex0_pending = 1'd0;
+reg           irqarray0_eventsourceflex0_clear = 1'd0;
+wire          irqarray0_eventsourceflex1_status;
+reg           irqarray0_eventsourceflex1_pending = 1'd0;
+reg           irqarray0_eventsourceflex1_clear = 1'd0;
+wire          irqarray0_eventsourceflex2_status;
+reg           irqarray0_eventsourceflex2_pending = 1'd0;
+reg           irqarray0_eventsourceflex2_clear = 1'd0;
+wire          irqarray0_eventsourceflex3_status;
+reg           irqarray0_eventsourceflex3_pending = 1'd0;
+reg           irqarray0_eventsourceflex3_clear = 1'd0;
+wire          irqarray0_eventsourceflex4_status;
+reg           irqarray0_eventsourceflex4_pending = 1'd0;
+reg           irqarray0_eventsourceflex4_clear = 1'd0;
+wire          irqarray0_eventsourceflex5_status;
+reg           irqarray0_eventsourceflex5_pending = 1'd0;
+reg           irqarray0_eventsourceflex5_clear = 1'd0;
+wire          irqarray0_eventsourceflex6_status;
+reg           irqarray0_eventsourceflex6_pending = 1'd0;
+reg           irqarray0_eventsourceflex6_clear = 1'd0;
+wire          irqarray0_eventsourceflex7_status;
+reg           irqarray0_eventsourceflex7_pending = 1'd0;
+reg           irqarray0_eventsourceflex7_clear = 1'd0;
+wire          irqarray0_eventsourceflex8_status;
+reg           irqarray0_eventsourceflex8_pending = 1'd0;
+reg           irqarray0_eventsourceflex8_clear = 1'd0;
+wire          irqarray0_eventsourceflex9_status;
+reg           irqarray0_eventsourceflex9_pending = 1'd0;
+reg           irqarray0_eventsourceflex9_clear = 1'd0;
+wire          irqarray0_eventsourceflex10_status;
+reg           irqarray0_eventsourceflex10_pending = 1'd0;
+reg           irqarray0_eventsourceflex10_clear = 1'd0;
+wire          irqarray0_eventsourceflex11_status;
+reg           irqarray0_eventsourceflex11_pending = 1'd0;
+reg           irqarray0_eventsourceflex11_clear = 1'd0;
+wire          irqarray0_eventsourceflex12_status;
+reg           irqarray0_eventsourceflex12_pending = 1'd0;
+reg           irqarray0_eventsourceflex12_clear = 1'd0;
+wire          irqarray0_eventsourceflex13_status;
+reg           irqarray0_eventsourceflex13_pending = 1'd0;
+reg           irqarray0_eventsourceflex13_clear = 1'd0;
+wire          irqarray0_eventsourceflex14_status;
+reg           irqarray0_eventsourceflex14_pending = 1'd0;
+reg           irqarray0_eventsourceflex14_clear = 1'd0;
+wire          irqarray0_eventsourceflex15_status;
+reg           irqarray0_eventsourceflex15_pending = 1'd0;
+reg           irqarray0_eventsourceflex15_clear = 1'd0;
+wire          irqarray0_eventsourceflex16_status;
+reg           irqarray0_eventsourceflex16_pending = 1'd0;
+reg           irqarray0_eventsourceflex16_clear = 1'd0;
+wire          irqarray0_eventsourceflex17_status;
+reg           irqarray0_eventsourceflex17_pending = 1'd0;
+reg           irqarray0_eventsourceflex17_clear = 1'd0;
+wire          irqarray0_eventsourceflex18_status;
+reg           irqarray0_eventsourceflex18_pending = 1'd0;
+reg           irqarray0_eventsourceflex18_clear = 1'd0;
+wire          irqarray0_eventsourceflex19_status;
+reg           irqarray0_eventsourceflex19_pending = 1'd0;
+reg           irqarray0_eventsourceflex19_clear = 1'd0;
+wire          irqarray0_source00;
+wire          irqarray0_source10;
+wire          irqarray0_source20;
+wire          irqarray0_source30;
+wire          irqarray0_source40;
+wire          irqarray0_source50;
+wire          irqarray0_source60;
+wire          irqarray0_source70;
+wire          irqarray0_source80;
+wire          irqarray0_source90;
+wire          irqarray0_source100;
+wire          irqarray0_source110;
+wire          irqarray0_source120;
+wire          irqarray0_source130;
+wire          irqarray0_source140;
+wire          irqarray0_source150;
+wire          irqarray0_source160;
+wire          irqarray0_source170;
+wire          irqarray0_source180;
+wire          irqarray0_source190;
+reg    [19:0] irqarray0_status_status = 20'd0;
+wire          irqarray0_status_we;
+reg           irqarray0_status_re = 1'd0;
+wire          irqarray0_source01;
+wire          irqarray0_source11;
+wire          irqarray0_source21;
+wire          irqarray0_source31;
+wire          irqarray0_source41;
+wire          irqarray0_source51;
+wire          irqarray0_source61;
+wire          irqarray0_source71;
+wire          irqarray0_source81;
+wire          irqarray0_source91;
+wire          irqarray0_source101;
+wire          irqarray0_source111;
+wire          irqarray0_source121;
+wire          irqarray0_source131;
+wire          irqarray0_source141;
+wire          irqarray0_source151;
+wire          irqarray0_source161;
+wire          irqarray0_source171;
+wire          irqarray0_source181;
+wire          irqarray0_source191;
+reg    [19:0] irqarray0_pending_status = 20'd0;
+wire          irqarray0_pending_we;
+reg           irqarray0_pending_re = 1'd0;
+reg    [19:0] irqarray0_pending_r = 20'd0;
+wire          irqarray0_source02;
+wire          irqarray0_source12;
+wire          irqarray0_source22;
+wire          irqarray0_source32;
+wire          irqarray0_source42;
+wire          irqarray0_source52;
+wire          irqarray0_source62;
+wire          irqarray0_source72;
+wire          irqarray0_source82;
+wire          irqarray0_source92;
+wire          irqarray0_source102;
+wire          irqarray0_source112;
+wire          irqarray0_source122;
+wire          irqarray0_source132;
+wire          irqarray0_source142;
+wire          irqarray0_source152;
+wire          irqarray0_source162;
+wire          irqarray0_source172;
+wire          irqarray0_source182;
+wire          irqarray0_source192;
+reg    [19:0] irqarray0_enable_storage = 20'd0;
+reg           irqarray0_enable_re = 1'd0;
+wire          irqarray1_irq;
+wire   [19:0] irqarray1_interrupts;
+reg    [19:0] irqarray1_trigger = 20'd0;
+reg    [19:0] irqarray1_storage = 20'd0;
+reg           irqarray1_re = 1'd0;
+wire          irqarray1_eventsourceflex20_status;
+reg           irqarray1_eventsourceflex20_pending = 1'd0;
+reg           irqarray1_eventsourceflex20_clear = 1'd0;
+wire          irqarray1_eventsourceflex21_status;
+reg           irqarray1_eventsourceflex21_pending = 1'd0;
+reg           irqarray1_eventsourceflex21_clear = 1'd0;
+wire          irqarray1_eventsourceflex22_status;
+reg           irqarray1_eventsourceflex22_pending = 1'd0;
+reg           irqarray1_eventsourceflex22_clear = 1'd0;
+wire          irqarray1_eventsourceflex23_status;
+reg           irqarray1_eventsourceflex23_pending = 1'd0;
+reg           irqarray1_eventsourceflex23_clear = 1'd0;
+wire          irqarray1_eventsourceflex24_status;
+reg           irqarray1_eventsourceflex24_pending = 1'd0;
+reg           irqarray1_eventsourceflex24_clear = 1'd0;
+wire          irqarray1_eventsourceflex25_status;
+reg           irqarray1_eventsourceflex25_pending = 1'd0;
+reg           irqarray1_eventsourceflex25_clear = 1'd0;
+wire          irqarray1_eventsourceflex26_status;
+reg           irqarray1_eventsourceflex26_pending = 1'd0;
+reg           irqarray1_eventsourceflex26_clear = 1'd0;
+wire          irqarray1_eventsourceflex27_status;
+reg           irqarray1_eventsourceflex27_pending = 1'd0;
+reg           irqarray1_eventsourceflex27_clear = 1'd0;
+wire          irqarray1_eventsourceflex28_status;
+reg           irqarray1_eventsourceflex28_pending = 1'd0;
+reg           irqarray1_eventsourceflex28_clear = 1'd0;
+wire          irqarray1_eventsourceflex29_status;
+reg           irqarray1_eventsourceflex29_pending = 1'd0;
+reg           irqarray1_eventsourceflex29_clear = 1'd0;
+wire          irqarray1_eventsourceflex30_status;
+reg           irqarray1_eventsourceflex30_pending = 1'd0;
+reg           irqarray1_eventsourceflex30_clear = 1'd0;
+wire          irqarray1_eventsourceflex31_status;
+reg           irqarray1_eventsourceflex31_pending = 1'd0;
+reg           irqarray1_eventsourceflex31_clear = 1'd0;
+wire          irqarray1_eventsourceflex32_status;
+reg           irqarray1_eventsourceflex32_pending = 1'd0;
+reg           irqarray1_eventsourceflex32_clear = 1'd0;
+wire          irqarray1_eventsourceflex33_status;
+reg           irqarray1_eventsourceflex33_pending = 1'd0;
+reg           irqarray1_eventsourceflex33_clear = 1'd0;
+wire          irqarray1_eventsourceflex34_status;
+reg           irqarray1_eventsourceflex34_pending = 1'd0;
+reg           irqarray1_eventsourceflex34_clear = 1'd0;
+wire          irqarray1_eventsourceflex35_status;
+reg           irqarray1_eventsourceflex35_pending = 1'd0;
+reg           irqarray1_eventsourceflex35_clear = 1'd0;
+wire          irqarray1_eventsourceflex36_status;
+reg           irqarray1_eventsourceflex36_pending = 1'd0;
+reg           irqarray1_eventsourceflex36_clear = 1'd0;
+wire          irqarray1_eventsourceflex37_status;
+reg           irqarray1_eventsourceflex37_pending = 1'd0;
+reg           irqarray1_eventsourceflex37_clear = 1'd0;
+wire          irqarray1_eventsourceflex38_status;
+reg           irqarray1_eventsourceflex38_pending = 1'd0;
+reg           irqarray1_eventsourceflex38_clear = 1'd0;
+wire          irqarray1_eventsourceflex39_status;
+reg           irqarray1_eventsourceflex39_pending = 1'd0;
+reg           irqarray1_eventsourceflex39_clear = 1'd0;
+wire          irqarray1_source00;
+wire          irqarray1_source10;
+wire          irqarray1_source20;
+wire          irqarray1_source30;
+wire          irqarray1_source40;
+wire          irqarray1_source50;
+wire          irqarray1_source60;
+wire          irqarray1_source70;
+wire          irqarray1_source80;
+wire          irqarray1_source90;
+wire          irqarray1_source100;
+wire          irqarray1_source110;
+wire          irqarray1_source120;
+wire          irqarray1_source130;
+wire          irqarray1_source140;
+wire          irqarray1_source150;
+wire          irqarray1_source160;
+wire          irqarray1_source170;
+wire          irqarray1_source180;
+wire          irqarray1_source190;
+reg    [19:0] irqarray1_status_status = 20'd0;
+wire          irqarray1_status_we;
+reg           irqarray1_status_re = 1'd0;
+wire          irqarray1_source01;
+wire          irqarray1_source11;
+wire          irqarray1_source21;
+wire          irqarray1_source31;
+wire          irqarray1_source41;
+wire          irqarray1_source51;
+wire          irqarray1_source61;
+wire          irqarray1_source71;
+wire          irqarray1_source81;
+wire          irqarray1_source91;
+wire          irqarray1_source101;
+wire          irqarray1_source111;
+wire          irqarray1_source121;
+wire          irqarray1_source131;
+wire          irqarray1_source141;
+wire          irqarray1_source151;
+wire          irqarray1_source161;
+wire          irqarray1_source171;
+wire          irqarray1_source181;
+wire          irqarray1_source191;
+reg    [19:0] irqarray1_pending_status = 20'd0;
+wire          irqarray1_pending_we;
+reg           irqarray1_pending_re = 1'd0;
+reg    [19:0] irqarray1_pending_r = 20'd0;
+wire          irqarray1_source02;
+wire          irqarray1_source12;
+wire          irqarray1_source22;
+wire          irqarray1_source32;
+wire          irqarray1_source42;
+wire          irqarray1_source52;
+wire          irqarray1_source62;
+wire          irqarray1_source72;
+wire          irqarray1_source82;
+wire          irqarray1_source92;
+wire          irqarray1_source102;
+wire          irqarray1_source112;
+wire          irqarray1_source122;
+wire          irqarray1_source132;
+wire          irqarray1_source142;
+wire          irqarray1_source152;
+wire          irqarray1_source162;
+wire          irqarray1_source172;
+wire          irqarray1_source182;
+wire          irqarray1_source192;
+reg    [19:0] irqarray1_enable_storage = 20'd0;
+reg           irqarray1_enable_re = 1'd0;
+wire          irqarray2_irq;
+wire   [19:0] irqarray2_interrupts;
+reg    [19:0] irqarray2_trigger = 20'd0;
+reg    [19:0] irqarray2_storage = 20'd0;
+reg           irqarray2_re = 1'd0;
+wire          irqarray2_eventsourceflex40_status;
+reg           irqarray2_eventsourceflex40_pending = 1'd0;
+reg           irqarray2_eventsourceflex40_clear = 1'd0;
+wire          irqarray2_eventsourceflex41_status;
+reg           irqarray2_eventsourceflex41_pending = 1'd0;
+reg           irqarray2_eventsourceflex41_clear = 1'd0;
+wire          irqarray2_eventsourceflex42_status;
+reg           irqarray2_eventsourceflex42_pending = 1'd0;
+reg           irqarray2_eventsourceflex42_clear = 1'd0;
+wire          irqarray2_eventsourceflex43_status;
+reg           irqarray2_eventsourceflex43_pending = 1'd0;
+reg           irqarray2_eventsourceflex43_clear = 1'd0;
+wire          irqarray2_eventsourceflex44_status;
+reg           irqarray2_eventsourceflex44_pending = 1'd0;
+reg           irqarray2_eventsourceflex44_clear = 1'd0;
+wire          irqarray2_eventsourceflex45_status;
+reg           irqarray2_eventsourceflex45_pending = 1'd0;
+reg           irqarray2_eventsourceflex45_clear = 1'd0;
+wire          irqarray2_eventsourceflex46_status;
+reg           irqarray2_eventsourceflex46_pending = 1'd0;
+reg           irqarray2_eventsourceflex46_clear = 1'd0;
+wire          irqarray2_eventsourceflex47_status;
+reg           irqarray2_eventsourceflex47_pending = 1'd0;
+reg           irqarray2_eventsourceflex47_clear = 1'd0;
+wire          irqarray2_eventsourceflex48_status;
+reg           irqarray2_eventsourceflex48_pending = 1'd0;
+reg           irqarray2_eventsourceflex48_clear = 1'd0;
+wire          irqarray2_eventsourceflex49_status;
+reg           irqarray2_eventsourceflex49_pending = 1'd0;
+reg           irqarray2_eventsourceflex49_clear = 1'd0;
+wire          irqarray2_eventsourceflex50_status;
+reg           irqarray2_eventsourceflex50_pending = 1'd0;
+reg           irqarray2_eventsourceflex50_clear = 1'd0;
+wire          irqarray2_eventsourceflex51_status;
+reg           irqarray2_eventsourceflex51_pending = 1'd0;
+reg           irqarray2_eventsourceflex51_clear = 1'd0;
+wire          irqarray2_eventsourceflex52_status;
+reg           irqarray2_eventsourceflex52_pending = 1'd0;
+reg           irqarray2_eventsourceflex52_clear = 1'd0;
+wire          irqarray2_eventsourceflex53_status;
+reg           irqarray2_eventsourceflex53_pending = 1'd0;
+reg           irqarray2_eventsourceflex53_clear = 1'd0;
+wire          irqarray2_eventsourceflex54_status;
+reg           irqarray2_eventsourceflex54_pending = 1'd0;
+reg           irqarray2_eventsourceflex54_clear = 1'd0;
+wire          irqarray2_eventsourceflex55_status;
+reg           irqarray2_eventsourceflex55_pending = 1'd0;
+reg           irqarray2_eventsourceflex55_clear = 1'd0;
+wire          irqarray2_eventsourceflex56_status;
+reg           irqarray2_eventsourceflex56_pending = 1'd0;
+reg           irqarray2_eventsourceflex56_clear = 1'd0;
+wire          irqarray2_eventsourceflex57_status;
+reg           irqarray2_eventsourceflex57_pending = 1'd0;
+reg           irqarray2_eventsourceflex57_clear = 1'd0;
+wire          irqarray2_eventsourceflex58_status;
+reg           irqarray2_eventsourceflex58_pending = 1'd0;
+reg           irqarray2_eventsourceflex58_clear = 1'd0;
+wire          irqarray2_eventsourceflex59_status;
+reg           irqarray2_eventsourceflex59_pending = 1'd0;
+reg           irqarray2_eventsourceflex59_clear = 1'd0;
+wire          irqarray2_source00;
+wire          irqarray2_source10;
+wire          irqarray2_source20;
+wire          irqarray2_source30;
+wire          irqarray2_source40;
+wire          irqarray2_source50;
+wire          irqarray2_source60;
+wire          irqarray2_source70;
+wire          irqarray2_source80;
+wire          irqarray2_source90;
+wire          irqarray2_source100;
+wire          irqarray2_source110;
+wire          irqarray2_source120;
+wire          irqarray2_source130;
+wire          irqarray2_source140;
+wire          irqarray2_source150;
+wire          irqarray2_source160;
+wire          irqarray2_source170;
+wire          irqarray2_source180;
+wire          irqarray2_source190;
+reg    [19:0] irqarray2_status_status = 20'd0;
+wire          irqarray2_status_we;
+reg           irqarray2_status_re = 1'd0;
+wire          irqarray2_source01;
+wire          irqarray2_source11;
+wire          irqarray2_source21;
+wire          irqarray2_source31;
+wire          irqarray2_source41;
+wire          irqarray2_source51;
+wire          irqarray2_source61;
+wire          irqarray2_source71;
+wire          irqarray2_source81;
+wire          irqarray2_source91;
+wire          irqarray2_source101;
+wire          irqarray2_source111;
+wire          irqarray2_source121;
+wire          irqarray2_source131;
+wire          irqarray2_source141;
+wire          irqarray2_source151;
+wire          irqarray2_source161;
+wire          irqarray2_source171;
+wire          irqarray2_source181;
+wire          irqarray2_source191;
+reg    [19:0] irqarray2_pending_status = 20'd0;
+wire          irqarray2_pending_we;
+reg           irqarray2_pending_re = 1'd0;
+reg    [19:0] irqarray2_pending_r = 20'd0;
+wire          irqarray2_source02;
+wire          irqarray2_source12;
+wire          irqarray2_source22;
+wire          irqarray2_source32;
+wire          irqarray2_source42;
+wire          irqarray2_source52;
+wire          irqarray2_source62;
+wire          irqarray2_source72;
+wire          irqarray2_source82;
+wire          irqarray2_source92;
+wire          irqarray2_source102;
+wire          irqarray2_source112;
+wire          irqarray2_source122;
+wire          irqarray2_source132;
+wire          irqarray2_source142;
+wire          irqarray2_source152;
+wire          irqarray2_source162;
+wire          irqarray2_source172;
+wire          irqarray2_source182;
+wire          irqarray2_source192;
+reg    [19:0] irqarray2_enable_storage = 20'd0;
+reg           irqarray2_enable_re = 1'd0;
+wire          irqarray3_irq;
+wire   [19:0] irqarray3_interrupts;
+reg    [19:0] irqarray3_trigger = 20'd0;
+reg    [19:0] irqarray3_storage = 20'd0;
+reg           irqarray3_re = 1'd0;
+wire          irqarray3_eventsourceflex60_status;
+reg           irqarray3_eventsourceflex60_pending = 1'd0;
+reg           irqarray3_eventsourceflex60_clear = 1'd0;
+wire          irqarray3_eventsourceflex61_status;
+reg           irqarray3_eventsourceflex61_pending = 1'd0;
+reg           irqarray3_eventsourceflex61_clear = 1'd0;
+wire          irqarray3_eventsourceflex62_status;
+reg           irqarray3_eventsourceflex62_pending = 1'd0;
+reg           irqarray3_eventsourceflex62_clear = 1'd0;
+wire          irqarray3_eventsourceflex63_status;
+reg           irqarray3_eventsourceflex63_pending = 1'd0;
+reg           irqarray3_eventsourceflex63_clear = 1'd0;
+wire          irqarray3_eventsourceflex64_status;
+reg           irqarray3_eventsourceflex64_pending = 1'd0;
+reg           irqarray3_eventsourceflex64_clear = 1'd0;
+wire          irqarray3_eventsourceflex65_status;
+reg           irqarray3_eventsourceflex65_pending = 1'd0;
+reg           irqarray3_eventsourceflex65_clear = 1'd0;
+wire          irqarray3_eventsourceflex66_status;
+reg           irqarray3_eventsourceflex66_pending = 1'd0;
+reg           irqarray3_eventsourceflex66_clear = 1'd0;
+wire          irqarray3_eventsourceflex67_status;
+reg           irqarray3_eventsourceflex67_pending = 1'd0;
+reg           irqarray3_eventsourceflex67_clear = 1'd0;
+wire          irqarray3_eventsourceflex68_status;
+reg           irqarray3_eventsourceflex68_pending = 1'd0;
+reg           irqarray3_eventsourceflex68_clear = 1'd0;
+wire          irqarray3_eventsourceflex69_status;
+reg           irqarray3_eventsourceflex69_pending = 1'd0;
+reg           irqarray3_eventsourceflex69_clear = 1'd0;
+wire          irqarray3_eventsourceflex70_status;
+reg           irqarray3_eventsourceflex70_pending = 1'd0;
+reg           irqarray3_eventsourceflex70_clear = 1'd0;
+wire          irqarray3_eventsourceflex71_status;
+reg           irqarray3_eventsourceflex71_pending = 1'd0;
+reg           irqarray3_eventsourceflex71_clear = 1'd0;
+wire          irqarray3_eventsourceflex72_status;
+reg           irqarray3_eventsourceflex72_pending = 1'd0;
+reg           irqarray3_eventsourceflex72_clear = 1'd0;
+wire          irqarray3_eventsourceflex73_status;
+reg           irqarray3_eventsourceflex73_pending = 1'd0;
+reg           irqarray3_eventsourceflex73_clear = 1'd0;
+wire          irqarray3_eventsourceflex74_status;
+reg           irqarray3_eventsourceflex74_pending = 1'd0;
+reg           irqarray3_eventsourceflex74_clear = 1'd0;
+wire          irqarray3_eventsourceflex75_status;
+reg           irqarray3_eventsourceflex75_pending = 1'd0;
+reg           irqarray3_eventsourceflex75_clear = 1'd0;
+wire          irqarray3_eventsourceflex76_status;
+reg           irqarray3_eventsourceflex76_pending = 1'd0;
+reg           irqarray3_eventsourceflex76_clear = 1'd0;
+wire          irqarray3_eventsourceflex77_status;
+reg           irqarray3_eventsourceflex77_pending = 1'd0;
+reg           irqarray3_eventsourceflex77_clear = 1'd0;
+wire          irqarray3_eventsourceflex78_status;
+reg           irqarray3_eventsourceflex78_pending = 1'd0;
+reg           irqarray3_eventsourceflex78_clear = 1'd0;
+wire          irqarray3_eventsourceflex79_status;
+reg           irqarray3_eventsourceflex79_pending = 1'd0;
+reg           irqarray3_eventsourceflex79_clear = 1'd0;
+wire          irqarray3_source00;
+wire          irqarray3_source10;
+wire          irqarray3_source20;
+wire          irqarray3_source30;
+wire          irqarray3_source40;
+wire          irqarray3_source50;
+wire          irqarray3_source60;
+wire          irqarray3_source70;
+wire          irqarray3_source80;
+wire          irqarray3_source90;
+wire          irqarray3_source100;
+wire          irqarray3_source110;
+wire          irqarray3_source120;
+wire          irqarray3_source130;
+wire          irqarray3_source140;
+wire          irqarray3_source150;
+wire          irqarray3_source160;
+wire          irqarray3_source170;
+wire          irqarray3_source180;
+wire          irqarray3_source190;
+reg    [19:0] irqarray3_status_status = 20'd0;
+wire          irqarray3_status_we;
+reg           irqarray3_status_re = 1'd0;
+wire          irqarray3_source01;
+wire          irqarray3_source11;
+wire          irqarray3_source21;
+wire          irqarray3_source31;
+wire          irqarray3_source41;
+wire          irqarray3_source51;
+wire          irqarray3_source61;
+wire          irqarray3_source71;
+wire          irqarray3_source81;
+wire          irqarray3_source91;
+wire          irqarray3_source101;
+wire          irqarray3_source111;
+wire          irqarray3_source121;
+wire          irqarray3_source131;
+wire          irqarray3_source141;
+wire          irqarray3_source151;
+wire          irqarray3_source161;
+wire          irqarray3_source171;
+wire          irqarray3_source181;
+wire          irqarray3_source191;
+reg    [19:0] irqarray3_pending_status = 20'd0;
+wire          irqarray3_pending_we;
+reg           irqarray3_pending_re = 1'd0;
+reg    [19:0] irqarray3_pending_r = 20'd0;
+wire          irqarray3_source02;
+wire          irqarray3_source12;
+wire          irqarray3_source22;
+wire          irqarray3_source32;
+wire          irqarray3_source42;
+wire          irqarray3_source52;
+wire          irqarray3_source62;
+wire          irqarray3_source72;
+wire          irqarray3_source82;
+wire          irqarray3_source92;
+wire          irqarray3_source102;
+wire          irqarray3_source112;
+wire          irqarray3_source122;
+wire          irqarray3_source132;
+wire          irqarray3_source142;
+wire          irqarray3_source152;
+wire          irqarray3_source162;
+wire          irqarray3_source172;
+wire          irqarray3_source182;
+wire          irqarray3_source192;
+reg    [19:0] irqarray3_enable_storage = 20'd0;
+reg           irqarray3_enable_re = 1'd0;
+wire          irqarray4_irq;
+wire   [19:0] irqarray4_interrupts;
+reg    [19:0] irqarray4_trigger = 20'd0;
+reg    [19:0] irqarray4_storage = 20'd0;
+reg           irqarray4_re = 1'd0;
+wire          irqarray4_eventsourceflex80_status;
+reg           irqarray4_eventsourceflex80_pending = 1'd0;
+reg           irqarray4_eventsourceflex80_clear = 1'd0;
+wire          irqarray4_eventsourceflex81_status;
+reg           irqarray4_eventsourceflex81_pending = 1'd0;
+reg           irqarray4_eventsourceflex81_clear = 1'd0;
+wire          irqarray4_eventsourceflex82_status;
+reg           irqarray4_eventsourceflex82_pending = 1'd0;
+reg           irqarray4_eventsourceflex82_clear = 1'd0;
+wire          irqarray4_eventsourceflex83_status;
+reg           irqarray4_eventsourceflex83_pending = 1'd0;
+reg           irqarray4_eventsourceflex83_clear = 1'd0;
+wire          irqarray4_eventsourceflex84_status;
+reg           irqarray4_eventsourceflex84_pending = 1'd0;
+reg           irqarray4_eventsourceflex84_clear = 1'd0;
+wire          irqarray4_eventsourceflex85_status;
+reg           irqarray4_eventsourceflex85_pending = 1'd0;
+reg           irqarray4_eventsourceflex85_clear = 1'd0;
+wire          irqarray4_eventsourceflex86_status;
+reg           irqarray4_eventsourceflex86_pending = 1'd0;
+reg           irqarray4_eventsourceflex86_clear = 1'd0;
+wire          irqarray4_eventsourceflex87_status;
+reg           irqarray4_eventsourceflex87_pending = 1'd0;
+reg           irqarray4_eventsourceflex87_clear = 1'd0;
+wire          irqarray4_eventsourceflex88_status;
+reg           irqarray4_eventsourceflex88_pending = 1'd0;
+reg           irqarray4_eventsourceflex88_clear = 1'd0;
+wire          irqarray4_eventsourceflex89_status;
+reg           irqarray4_eventsourceflex89_pending = 1'd0;
+reg           irqarray4_eventsourceflex89_clear = 1'd0;
+wire          irqarray4_eventsourceflex90_status;
+reg           irqarray4_eventsourceflex90_pending = 1'd0;
+reg           irqarray4_eventsourceflex90_clear = 1'd0;
+wire          irqarray4_eventsourceflex91_status;
+reg           irqarray4_eventsourceflex91_pending = 1'd0;
+reg           irqarray4_eventsourceflex91_clear = 1'd0;
+wire          irqarray4_eventsourceflex92_status;
+reg           irqarray4_eventsourceflex92_pending = 1'd0;
+reg           irqarray4_eventsourceflex92_clear = 1'd0;
+wire          irqarray4_eventsourceflex93_status;
+reg           irqarray4_eventsourceflex93_pending = 1'd0;
+reg           irqarray4_eventsourceflex93_clear = 1'd0;
+wire          irqarray4_eventsourceflex94_status;
+reg           irqarray4_eventsourceflex94_pending = 1'd0;
+reg           irqarray4_eventsourceflex94_clear = 1'd0;
+wire          irqarray4_eventsourceflex95_status;
+reg           irqarray4_eventsourceflex95_pending = 1'd0;
+reg           irqarray4_eventsourceflex95_clear = 1'd0;
+wire          irqarray4_eventsourceflex96_status;
+reg           irqarray4_eventsourceflex96_pending = 1'd0;
+reg           irqarray4_eventsourceflex96_clear = 1'd0;
+wire          irqarray4_eventsourceflex97_status;
+reg           irqarray4_eventsourceflex97_pending = 1'd0;
+reg           irqarray4_eventsourceflex97_clear = 1'd0;
+wire          irqarray4_eventsourceflex98_status;
+reg           irqarray4_eventsourceflex98_pending = 1'd0;
+reg           irqarray4_eventsourceflex98_clear = 1'd0;
+wire          irqarray4_eventsourceflex99_status;
+reg           irqarray4_eventsourceflex99_pending = 1'd0;
+reg           irqarray4_eventsourceflex99_clear = 1'd0;
+wire          irqarray4_source00;
+wire          irqarray4_source10;
+wire          irqarray4_source20;
+wire          irqarray4_source30;
+wire          irqarray4_source40;
+wire          irqarray4_source50;
+wire          irqarray4_source60;
+wire          irqarray4_source70;
+wire          irqarray4_source80;
+wire          irqarray4_source90;
+wire          irqarray4_source100;
+wire          irqarray4_source110;
+wire          irqarray4_source120;
+wire          irqarray4_source130;
+wire          irqarray4_source140;
+wire          irqarray4_source150;
+wire          irqarray4_source160;
+wire          irqarray4_source170;
+wire          irqarray4_source180;
+wire          irqarray4_source190;
+reg    [19:0] irqarray4_status_status = 20'd0;
+wire          irqarray4_status_we;
+reg           irqarray4_status_re = 1'd0;
+wire          irqarray4_source01;
+wire          irqarray4_source11;
+wire          irqarray4_source21;
+wire          irqarray4_source31;
+wire          irqarray4_source41;
+wire          irqarray4_source51;
+wire          irqarray4_source61;
+wire          irqarray4_source71;
+wire          irqarray4_source81;
+wire          irqarray4_source91;
+wire          irqarray4_source101;
+wire          irqarray4_source111;
+wire          irqarray4_source121;
+wire          irqarray4_source131;
+wire          irqarray4_source141;
+wire          irqarray4_source151;
+wire          irqarray4_source161;
+wire          irqarray4_source171;
+wire          irqarray4_source181;
+wire          irqarray4_source191;
+reg    [19:0] irqarray4_pending_status = 20'd0;
+wire          irqarray4_pending_we;
+reg           irqarray4_pending_re = 1'd0;
+reg    [19:0] irqarray4_pending_r = 20'd0;
+wire          irqarray4_source02;
+wire          irqarray4_source12;
+wire          irqarray4_source22;
+wire          irqarray4_source32;
+wire          irqarray4_source42;
+wire          irqarray4_source52;
+wire          irqarray4_source62;
+wire          irqarray4_source72;
+wire          irqarray4_source82;
+wire          irqarray4_source92;
+wire          irqarray4_source102;
+wire          irqarray4_source112;
+wire          irqarray4_source122;
+wire          irqarray4_source132;
+wire          irqarray4_source142;
+wire          irqarray4_source152;
+wire          irqarray4_source162;
+wire          irqarray4_source172;
+wire          irqarray4_source182;
+wire          irqarray4_source192;
+reg    [19:0] irqarray4_enable_storage = 20'd0;
+reg           irqarray4_enable_re = 1'd0;
+wire          irqarray5_irq;
+wire   [19:0] irqarray5_interrupts;
+reg    [19:0] irqarray5_trigger = 20'd0;
+reg    [19:0] irqarray5_storage = 20'd0;
+reg           irqarray5_re = 1'd0;
+wire          irqarray5_eventsourceflex100_status;
+reg           irqarray5_eventsourceflex100_pending = 1'd0;
+reg           irqarray5_eventsourceflex100_clear = 1'd0;
+wire          irqarray5_eventsourceflex101_status;
+reg           irqarray5_eventsourceflex101_pending = 1'd0;
+reg           irqarray5_eventsourceflex101_clear = 1'd0;
+wire          irqarray5_eventsourceflex102_status;
+reg           irqarray5_eventsourceflex102_pending = 1'd0;
+reg           irqarray5_eventsourceflex102_clear = 1'd0;
+wire          irqarray5_eventsourceflex103_status;
+reg           irqarray5_eventsourceflex103_pending = 1'd0;
+reg           irqarray5_eventsourceflex103_clear = 1'd0;
+wire          irqarray5_eventsourceflex104_status;
+reg           irqarray5_eventsourceflex104_pending = 1'd0;
+reg           irqarray5_eventsourceflex104_clear = 1'd0;
+wire          irqarray5_eventsourceflex105_status;
+reg           irqarray5_eventsourceflex105_pending = 1'd0;
+reg           irqarray5_eventsourceflex105_clear = 1'd0;
+wire          irqarray5_eventsourceflex106_status;
+reg           irqarray5_eventsourceflex106_pending = 1'd0;
+reg           irqarray5_eventsourceflex106_clear = 1'd0;
+wire          irqarray5_eventsourceflex107_status;
+reg           irqarray5_eventsourceflex107_pending = 1'd0;
+reg           irqarray5_eventsourceflex107_clear = 1'd0;
+wire          irqarray5_eventsourceflex108_status;
+reg           irqarray5_eventsourceflex108_pending = 1'd0;
+reg           irqarray5_eventsourceflex108_clear = 1'd0;
+wire          irqarray5_eventsourceflex109_status;
+reg           irqarray5_eventsourceflex109_pending = 1'd0;
+reg           irqarray5_eventsourceflex109_clear = 1'd0;
+wire          irqarray5_eventsourceflex110_status;
+reg           irqarray5_eventsourceflex110_pending = 1'd0;
+reg           irqarray5_eventsourceflex110_clear = 1'd0;
+wire          irqarray5_eventsourceflex111_status;
+reg           irqarray5_eventsourceflex111_pending = 1'd0;
+reg           irqarray5_eventsourceflex111_clear = 1'd0;
+wire          irqarray5_eventsourceflex112_status;
+reg           irqarray5_eventsourceflex112_pending = 1'd0;
+reg           irqarray5_eventsourceflex112_clear = 1'd0;
+wire          irqarray5_eventsourceflex113_status;
+reg           irqarray5_eventsourceflex113_pending = 1'd0;
+reg           irqarray5_eventsourceflex113_clear = 1'd0;
+wire          irqarray5_eventsourceflex114_status;
+reg           irqarray5_eventsourceflex114_pending = 1'd0;
+reg           irqarray5_eventsourceflex114_clear = 1'd0;
+wire          irqarray5_eventsourceflex115_status;
+reg           irqarray5_eventsourceflex115_pending = 1'd0;
+reg           irqarray5_eventsourceflex115_clear = 1'd0;
+wire          irqarray5_eventsourceflex116_status;
+reg           irqarray5_eventsourceflex116_pending = 1'd0;
+reg           irqarray5_eventsourceflex116_clear = 1'd0;
+wire          irqarray5_eventsourceflex117_status;
+reg           irqarray5_eventsourceflex117_pending = 1'd0;
+reg           irqarray5_eventsourceflex117_clear = 1'd0;
+wire          irqarray5_eventsourceflex118_status;
+reg           irqarray5_eventsourceflex118_pending = 1'd0;
+reg           irqarray5_eventsourceflex118_clear = 1'd0;
+wire          irqarray5_eventsourceflex119_status;
+reg           irqarray5_eventsourceflex119_pending = 1'd0;
+reg           irqarray5_eventsourceflex119_clear = 1'd0;
+wire          irqarray5_source00;
+wire          irqarray5_source10;
+wire          irqarray5_source20;
+wire          irqarray5_source30;
+wire          irqarray5_source40;
+wire          irqarray5_source50;
+wire          irqarray5_source60;
+wire          irqarray5_source70;
+wire          irqarray5_source80;
+wire          irqarray5_source90;
+wire          irqarray5_source100;
+wire          irqarray5_source110;
+wire          irqarray5_source120;
+wire          irqarray5_source130;
+wire          irqarray5_source140;
+wire          irqarray5_source150;
+wire          irqarray5_source160;
+wire          irqarray5_source170;
+wire          irqarray5_source180;
+wire          irqarray5_source190;
+reg    [19:0] irqarray5_status_status = 20'd0;
+wire          irqarray5_status_we;
+reg           irqarray5_status_re = 1'd0;
+wire          irqarray5_source01;
+wire          irqarray5_source11;
+wire          irqarray5_source21;
+wire          irqarray5_source31;
+wire          irqarray5_source41;
+wire          irqarray5_source51;
+wire          irqarray5_source61;
+wire          irqarray5_source71;
+wire          irqarray5_source81;
+wire          irqarray5_source91;
+wire          irqarray5_source101;
+wire          irqarray5_source111;
+wire          irqarray5_source121;
+wire          irqarray5_source131;
+wire          irqarray5_source141;
+wire          irqarray5_source151;
+wire          irqarray5_source161;
+wire          irqarray5_source171;
+wire          irqarray5_source181;
+wire          irqarray5_source191;
+reg    [19:0] irqarray5_pending_status = 20'd0;
+wire          irqarray5_pending_we;
+reg           irqarray5_pending_re = 1'd0;
+reg    [19:0] irqarray5_pending_r = 20'd0;
+wire          irqarray5_source02;
+wire          irqarray5_source12;
+wire          irqarray5_source22;
+wire          irqarray5_source32;
+wire          irqarray5_source42;
+wire          irqarray5_source52;
+wire          irqarray5_source62;
+wire          irqarray5_source72;
+wire          irqarray5_source82;
+wire          irqarray5_source92;
+wire          irqarray5_source102;
+wire          irqarray5_source112;
+wire          irqarray5_source122;
+wire          irqarray5_source132;
+wire          irqarray5_source142;
+wire          irqarray5_source152;
+wire          irqarray5_source162;
+wire          irqarray5_source172;
+wire          irqarray5_source182;
+wire          irqarray5_source192;
+reg    [19:0] irqarray5_enable_storage = 20'd0;
+reg           irqarray5_enable_re = 1'd0;
+wire          irqarray6_irq;
+wire   [19:0] irqarray6_interrupts;
+reg    [19:0] irqarray6_trigger = 20'd0;
+reg    [19:0] irqarray6_storage = 20'd0;
+reg           irqarray6_re = 1'd0;
+wire          irqarray6_eventsourceflex120_status;
+reg           irqarray6_eventsourceflex120_pending = 1'd0;
+reg           irqarray6_eventsourceflex120_clear = 1'd0;
+wire          irqarray6_eventsourceflex121_status;
+reg           irqarray6_eventsourceflex121_pending = 1'd0;
+reg           irqarray6_eventsourceflex121_clear = 1'd0;
+wire          irqarray6_eventsourceflex122_status;
+reg           irqarray6_eventsourceflex122_pending = 1'd0;
+reg           irqarray6_eventsourceflex122_clear = 1'd0;
+wire          irqarray6_eventsourceflex123_status;
+reg           irqarray6_eventsourceflex123_pending = 1'd0;
+reg           irqarray6_eventsourceflex123_clear = 1'd0;
+wire          irqarray6_eventsourceflex124_status;
+reg           irqarray6_eventsourceflex124_pending = 1'd0;
+reg           irqarray6_eventsourceflex124_clear = 1'd0;
+wire          irqarray6_eventsourceflex125_status;
+reg           irqarray6_eventsourceflex125_pending = 1'd0;
+reg           irqarray6_eventsourceflex125_clear = 1'd0;
+wire          irqarray6_eventsourceflex126_status;
+reg           irqarray6_eventsourceflex126_pending = 1'd0;
+reg           irqarray6_eventsourceflex126_clear = 1'd0;
+wire          irqarray6_eventsourceflex127_status;
+reg           irqarray6_eventsourceflex127_pending = 1'd0;
+reg           irqarray6_eventsourceflex127_clear = 1'd0;
+wire          irqarray6_eventsourceflex128_status;
+reg           irqarray6_eventsourceflex128_pending = 1'd0;
+reg           irqarray6_eventsourceflex128_clear = 1'd0;
+wire          irqarray6_eventsourceflex129_status;
+reg           irqarray6_eventsourceflex129_pending = 1'd0;
+reg           irqarray6_eventsourceflex129_clear = 1'd0;
+wire          irqarray6_eventsourceflex130_status;
+reg           irqarray6_eventsourceflex130_pending = 1'd0;
+reg           irqarray6_eventsourceflex130_clear = 1'd0;
+wire          irqarray6_eventsourceflex131_status;
+reg           irqarray6_eventsourceflex131_pending = 1'd0;
+reg           irqarray6_eventsourceflex131_clear = 1'd0;
+wire          irqarray6_eventsourceflex132_status;
+reg           irqarray6_eventsourceflex132_pending = 1'd0;
+reg           irqarray6_eventsourceflex132_clear = 1'd0;
+wire          irqarray6_eventsourceflex133_status;
+reg           irqarray6_eventsourceflex133_pending = 1'd0;
+reg           irqarray6_eventsourceflex133_clear = 1'd0;
+wire          irqarray6_eventsourceflex134_status;
+reg           irqarray6_eventsourceflex134_pending = 1'd0;
+reg           irqarray6_eventsourceflex134_clear = 1'd0;
+wire          irqarray6_eventsourceflex135_status;
+reg           irqarray6_eventsourceflex135_pending = 1'd0;
+reg           irqarray6_eventsourceflex135_clear = 1'd0;
+wire          irqarray6_eventsourceflex136_status;
+reg           irqarray6_eventsourceflex136_pending = 1'd0;
+reg           irqarray6_eventsourceflex136_clear = 1'd0;
+wire          irqarray6_eventsourceflex137_status;
+reg           irqarray6_eventsourceflex137_pending = 1'd0;
+reg           irqarray6_eventsourceflex137_clear = 1'd0;
+wire          irqarray6_eventsourceflex138_status;
+reg           irqarray6_eventsourceflex138_pending = 1'd0;
+reg           irqarray6_eventsourceflex138_clear = 1'd0;
+wire          irqarray6_eventsourceflex139_status;
+reg           irqarray6_eventsourceflex139_pending = 1'd0;
+reg           irqarray6_eventsourceflex139_clear = 1'd0;
+wire          irqarray6_source00;
+wire          irqarray6_source10;
+wire          irqarray6_source20;
+wire          irqarray6_source30;
+wire          irqarray6_source40;
+wire          irqarray6_source50;
+wire          irqarray6_source60;
+wire          irqarray6_source70;
+wire          irqarray6_source80;
+wire          irqarray6_source90;
+wire          irqarray6_source100;
+wire          irqarray6_source110;
+wire          irqarray6_source120;
+wire          irqarray6_source130;
+wire          irqarray6_source140;
+wire          irqarray6_source150;
+wire          irqarray6_source160;
+wire          irqarray6_source170;
+wire          irqarray6_source180;
+wire          irqarray6_source190;
+reg    [19:0] irqarray6_status_status = 20'd0;
+wire          irqarray6_status_we;
+reg           irqarray6_status_re = 1'd0;
+wire          irqarray6_source01;
+wire          irqarray6_source11;
+wire          irqarray6_source21;
+wire          irqarray6_source31;
+wire          irqarray6_source41;
+wire          irqarray6_source51;
+wire          irqarray6_source61;
+wire          irqarray6_source71;
+wire          irqarray6_source81;
+wire          irqarray6_source91;
+wire          irqarray6_source101;
+wire          irqarray6_source111;
+wire          irqarray6_source121;
+wire          irqarray6_source131;
+wire          irqarray6_source141;
+wire          irqarray6_source151;
+wire          irqarray6_source161;
+wire          irqarray6_source171;
+wire          irqarray6_source181;
+wire          irqarray6_source191;
+reg    [19:0] irqarray6_pending_status = 20'd0;
+wire          irqarray6_pending_we;
+reg           irqarray6_pending_re = 1'd0;
+reg    [19:0] irqarray6_pending_r = 20'd0;
+wire          irqarray6_source02;
+wire          irqarray6_source12;
+wire          irqarray6_source22;
+wire          irqarray6_source32;
+wire          irqarray6_source42;
+wire          irqarray6_source52;
+wire          irqarray6_source62;
+wire          irqarray6_source72;
+wire          irqarray6_source82;
+wire          irqarray6_source92;
+wire          irqarray6_source102;
+wire          irqarray6_source112;
+wire          irqarray6_source122;
+wire          irqarray6_source132;
+wire          irqarray6_source142;
+wire          irqarray6_source152;
+wire          irqarray6_source162;
+wire          irqarray6_source172;
+wire          irqarray6_source182;
+wire          irqarray6_source192;
+reg    [19:0] irqarray6_enable_storage = 20'd0;
+reg           irqarray6_enable_re = 1'd0;
+wire          irqarray7_irq;
+wire   [19:0] irqarray7_interrupts;
+reg    [19:0] irqarray7_trigger = 20'd0;
+reg    [19:0] irqarray7_storage = 20'd0;
+reg           irqarray7_re = 1'd0;
+wire          irqarray7_eventsourceflex140_status;
+reg           irqarray7_eventsourceflex140_pending = 1'd0;
+reg           irqarray7_eventsourceflex140_clear = 1'd0;
+wire          irqarray7_eventsourceflex141_status;
+reg           irqarray7_eventsourceflex141_pending = 1'd0;
+reg           irqarray7_eventsourceflex141_clear = 1'd0;
+wire          irqarray7_eventsourceflex142_status;
+reg           irqarray7_eventsourceflex142_pending = 1'd0;
+reg           irqarray7_eventsourceflex142_clear = 1'd0;
+wire          irqarray7_eventsourceflex143_status;
+reg           irqarray7_eventsourceflex143_pending = 1'd0;
+reg           irqarray7_eventsourceflex143_clear = 1'd0;
+wire          irqarray7_eventsourceflex144_status;
+reg           irqarray7_eventsourceflex144_pending = 1'd0;
+reg           irqarray7_eventsourceflex144_clear = 1'd0;
+wire          irqarray7_eventsourceflex145_status;
+reg           irqarray7_eventsourceflex145_pending = 1'd0;
+reg           irqarray7_eventsourceflex145_clear = 1'd0;
+wire          irqarray7_eventsourceflex146_status;
+reg           irqarray7_eventsourceflex146_pending = 1'd0;
+reg           irqarray7_eventsourceflex146_clear = 1'd0;
+wire          irqarray7_eventsourceflex147_status;
+reg           irqarray7_eventsourceflex147_pending = 1'd0;
+reg           irqarray7_eventsourceflex147_clear = 1'd0;
+wire          irqarray7_eventsourceflex148_status;
+reg           irqarray7_eventsourceflex148_pending = 1'd0;
+reg           irqarray7_eventsourceflex148_clear = 1'd0;
+wire          irqarray7_eventsourceflex149_status;
+reg           irqarray7_eventsourceflex149_pending = 1'd0;
+reg           irqarray7_eventsourceflex149_clear = 1'd0;
+wire          irqarray7_eventsourceflex150_status;
+reg           irqarray7_eventsourceflex150_pending = 1'd0;
+reg           irqarray7_eventsourceflex150_clear = 1'd0;
+wire          irqarray7_eventsourceflex151_status;
+reg           irqarray7_eventsourceflex151_pending = 1'd0;
+reg           irqarray7_eventsourceflex151_clear = 1'd0;
+wire          irqarray7_eventsourceflex152_status;
+reg           irqarray7_eventsourceflex152_pending = 1'd0;
+reg           irqarray7_eventsourceflex152_clear = 1'd0;
+wire          irqarray7_eventsourceflex153_status;
+reg           irqarray7_eventsourceflex153_pending = 1'd0;
+reg           irqarray7_eventsourceflex153_clear = 1'd0;
+wire          irqarray7_eventsourceflex154_status;
+reg           irqarray7_eventsourceflex154_pending = 1'd0;
+reg           irqarray7_eventsourceflex154_clear = 1'd0;
+wire          irqarray7_eventsourceflex155_status;
+reg           irqarray7_eventsourceflex155_pending = 1'd0;
+reg           irqarray7_eventsourceflex155_clear = 1'd0;
+wire          irqarray7_eventsourceflex156_status;
+reg           irqarray7_eventsourceflex156_pending = 1'd0;
+reg           irqarray7_eventsourceflex156_clear = 1'd0;
+wire          irqarray7_eventsourceflex157_status;
+reg           irqarray7_eventsourceflex157_pending = 1'd0;
+reg           irqarray7_eventsourceflex157_clear = 1'd0;
+wire          irqarray7_eventsourceflex158_status;
+reg           irqarray7_eventsourceflex158_pending = 1'd0;
+reg           irqarray7_eventsourceflex158_clear = 1'd0;
+wire          irqarray7_eventsourceflex159_status;
+reg           irqarray7_eventsourceflex159_pending = 1'd0;
+reg           irqarray7_eventsourceflex159_clear = 1'd0;
+wire          irqarray7_source00;
+wire          irqarray7_source10;
+wire          irqarray7_source20;
+wire          irqarray7_source30;
+wire          irqarray7_source40;
+wire          irqarray7_source50;
+wire          irqarray7_source60;
+wire          irqarray7_source70;
+wire          irqarray7_source80;
+wire          irqarray7_source90;
+wire          irqarray7_source100;
+wire          irqarray7_source110;
+wire          irqarray7_source120;
+wire          irqarray7_source130;
+wire          irqarray7_source140;
+wire          irqarray7_source150;
+wire          irqarray7_source160;
+wire          irqarray7_source170;
+wire          irqarray7_source180;
+wire          irqarray7_source190;
+reg    [19:0] irqarray7_status_status = 20'd0;
+wire          irqarray7_status_we;
+reg           irqarray7_status_re = 1'd0;
+wire          irqarray7_source01;
+wire          irqarray7_source11;
+wire          irqarray7_source21;
+wire          irqarray7_source31;
+wire          irqarray7_source41;
+wire          irqarray7_source51;
+wire          irqarray7_source61;
+wire          irqarray7_source71;
+wire          irqarray7_source81;
+wire          irqarray7_source91;
+wire          irqarray7_source101;
+wire          irqarray7_source111;
+wire          irqarray7_source121;
+wire          irqarray7_source131;
+wire          irqarray7_source141;
+wire          irqarray7_source151;
+wire          irqarray7_source161;
+wire          irqarray7_source171;
+wire          irqarray7_source181;
+wire          irqarray7_source191;
+reg    [19:0] irqarray7_pending_status = 20'd0;
+wire          irqarray7_pending_we;
+reg           irqarray7_pending_re = 1'd0;
+reg    [19:0] irqarray7_pending_r = 20'd0;
+wire          irqarray7_source02;
+wire          irqarray7_source12;
+wire          irqarray7_source22;
+wire          irqarray7_source32;
+wire          irqarray7_source42;
+wire          irqarray7_source52;
+wire          irqarray7_source62;
+wire          irqarray7_source72;
+wire          irqarray7_source82;
+wire          irqarray7_source92;
+wire          irqarray7_source102;
+wire          irqarray7_source112;
+wire          irqarray7_source122;
+wire          irqarray7_source132;
+wire          irqarray7_source142;
+wire          irqarray7_source152;
+wire          irqarray7_source162;
+wire          irqarray7_source172;
+wire          irqarray7_source182;
+wire          irqarray7_source192;
+reg    [19:0] irqarray7_enable_storage = 20'd0;
+reg           irqarray7_enable_re = 1'd0;
+wire          irqarray8_irq;
+wire   [19:0] irqarray8_interrupts;
+reg    [19:0] irqarray8_trigger = 20'd0;
+reg    [19:0] irqarray8_storage = 20'd0;
+reg           irqarray8_re = 1'd0;
+wire          irqarray8_eventsourceflex160_status;
+reg           irqarray8_eventsourceflex160_pending = 1'd0;
+reg           irqarray8_eventsourceflex160_clear = 1'd0;
+wire          irqarray8_eventsourceflex161_status;
+reg           irqarray8_eventsourceflex161_pending = 1'd0;
+reg           irqarray8_eventsourceflex161_clear = 1'd0;
+wire          irqarray8_eventsourceflex162_status;
+reg           irqarray8_eventsourceflex162_pending = 1'd0;
+reg           irqarray8_eventsourceflex162_clear = 1'd0;
+wire          irqarray8_eventsourceflex163_status;
+reg           irqarray8_eventsourceflex163_pending = 1'd0;
+reg           irqarray8_eventsourceflex163_clear = 1'd0;
+wire          irqarray8_eventsourceflex164_status;
+reg           irqarray8_eventsourceflex164_pending = 1'd0;
+reg           irqarray8_eventsourceflex164_clear = 1'd0;
+wire          irqarray8_eventsourceflex165_status;
+reg           irqarray8_eventsourceflex165_pending = 1'd0;
+reg           irqarray8_eventsourceflex165_clear = 1'd0;
+wire          irqarray8_eventsourceflex166_status;
+reg           irqarray8_eventsourceflex166_pending = 1'd0;
+reg           irqarray8_eventsourceflex166_clear = 1'd0;
+wire          irqarray8_eventsourceflex167_status;
+reg           irqarray8_eventsourceflex167_pending = 1'd0;
+reg           irqarray8_eventsourceflex167_clear = 1'd0;
+wire          irqarray8_eventsourceflex168_status;
+reg           irqarray8_eventsourceflex168_pending = 1'd0;
+reg           irqarray8_eventsourceflex168_clear = 1'd0;
+wire          irqarray8_eventsourceflex169_status;
+reg           irqarray8_eventsourceflex169_pending = 1'd0;
+reg           irqarray8_eventsourceflex169_clear = 1'd0;
+wire          irqarray8_eventsourceflex170_status;
+reg           irqarray8_eventsourceflex170_pending = 1'd0;
+reg           irqarray8_eventsourceflex170_clear = 1'd0;
+wire          irqarray8_eventsourceflex171_status;
+reg           irqarray8_eventsourceflex171_pending = 1'd0;
+reg           irqarray8_eventsourceflex171_clear = 1'd0;
+wire          irqarray8_eventsourceflex172_status;
+reg           irqarray8_eventsourceflex172_pending = 1'd0;
+reg           irqarray8_eventsourceflex172_clear = 1'd0;
+wire          irqarray8_eventsourceflex173_status;
+reg           irqarray8_eventsourceflex173_pending = 1'd0;
+reg           irqarray8_eventsourceflex173_clear = 1'd0;
+wire          irqarray8_eventsourceflex174_status;
+reg           irqarray8_eventsourceflex174_pending = 1'd0;
+reg           irqarray8_eventsourceflex174_clear = 1'd0;
+wire          irqarray8_eventsourceflex175_status;
+reg           irqarray8_eventsourceflex175_pending = 1'd0;
+reg           irqarray8_eventsourceflex175_clear = 1'd0;
+wire          irqarray8_eventsourceflex176_status;
+reg           irqarray8_eventsourceflex176_pending = 1'd0;
+reg           irqarray8_eventsourceflex176_clear = 1'd0;
+wire          irqarray8_eventsourceflex177_status;
+reg           irqarray8_eventsourceflex177_pending = 1'd0;
+reg           irqarray8_eventsourceflex177_clear = 1'd0;
+wire          irqarray8_eventsourceflex178_status;
+reg           irqarray8_eventsourceflex178_pending = 1'd0;
+reg           irqarray8_eventsourceflex178_clear = 1'd0;
+wire          irqarray8_eventsourceflex179_status;
+reg           irqarray8_eventsourceflex179_pending = 1'd0;
+reg           irqarray8_eventsourceflex179_clear = 1'd0;
+wire          irqarray8_source00;
+wire          irqarray8_source10;
+wire          irqarray8_source20;
+wire          irqarray8_source30;
+wire          irqarray8_source40;
+wire          irqarray8_source50;
+wire          irqarray8_source60;
+wire          irqarray8_source70;
+wire          irqarray8_source80;
+wire          irqarray8_source90;
+wire          irqarray8_source100;
+wire          irqarray8_source110;
+wire          irqarray8_source120;
+wire          irqarray8_source130;
+wire          irqarray8_source140;
+wire          irqarray8_source150;
+wire          irqarray8_source160;
+wire          irqarray8_source170;
+wire          irqarray8_source180;
+wire          irqarray8_source190;
+reg    [19:0] irqarray8_status_status = 20'd0;
+wire          irqarray8_status_we;
+reg           irqarray8_status_re = 1'd0;
+wire          irqarray8_source01;
+wire          irqarray8_source11;
+wire          irqarray8_source21;
+wire          irqarray8_source31;
+wire          irqarray8_source41;
+wire          irqarray8_source51;
+wire          irqarray8_source61;
+wire          irqarray8_source71;
+wire          irqarray8_source81;
+wire          irqarray8_source91;
+wire          irqarray8_source101;
+wire          irqarray8_source111;
+wire          irqarray8_source121;
+wire          irqarray8_source131;
+wire          irqarray8_source141;
+wire          irqarray8_source151;
+wire          irqarray8_source161;
+wire          irqarray8_source171;
+wire          irqarray8_source181;
+wire          irqarray8_source191;
+reg    [19:0] irqarray8_pending_status = 20'd0;
+wire          irqarray8_pending_we;
+reg           irqarray8_pending_re = 1'd0;
+reg    [19:0] irqarray8_pending_r = 20'd0;
+wire          irqarray8_source02;
+wire          irqarray8_source12;
+wire          irqarray8_source22;
+wire          irqarray8_source32;
+wire          irqarray8_source42;
+wire          irqarray8_source52;
+wire          irqarray8_source62;
+wire          irqarray8_source72;
+wire          irqarray8_source82;
+wire          irqarray8_source92;
+wire          irqarray8_source102;
+wire          irqarray8_source112;
+wire          irqarray8_source122;
+wire          irqarray8_source132;
+wire          irqarray8_source142;
+wire          irqarray8_source152;
+wire          irqarray8_source162;
+wire          irqarray8_source172;
+wire          irqarray8_source182;
+wire          irqarray8_source192;
+reg    [19:0] irqarray8_enable_storage = 20'd0;
+reg           irqarray8_enable_re = 1'd0;
+wire          irqarray9_irq;
+wire   [19:0] irqarray9_interrupts;
+reg    [19:0] irqarray9_trigger = 20'd0;
+reg    [19:0] irqarray9_storage = 20'd0;
+reg           irqarray9_re = 1'd0;
+wire          irqarray9_eventsourceflex180_status;
+reg           irqarray9_eventsourceflex180_pending = 1'd0;
+reg           irqarray9_eventsourceflex180_clear = 1'd0;
+wire          irqarray9_eventsourceflex181_status;
+reg           irqarray9_eventsourceflex181_pending = 1'd0;
+reg           irqarray9_eventsourceflex181_clear = 1'd0;
+wire          irqarray9_eventsourceflex182_status;
+reg           irqarray9_eventsourceflex182_pending = 1'd0;
+reg           irqarray9_eventsourceflex182_clear = 1'd0;
+wire          irqarray9_eventsourceflex183_status;
+reg           irqarray9_eventsourceflex183_pending = 1'd0;
+reg           irqarray9_eventsourceflex183_clear = 1'd0;
+wire          irqarray9_eventsourceflex184_status;
+reg           irqarray9_eventsourceflex184_pending = 1'd0;
+reg           irqarray9_eventsourceflex184_clear = 1'd0;
+wire          irqarray9_eventsourceflex185_status;
+reg           irqarray9_eventsourceflex185_pending = 1'd0;
+reg           irqarray9_eventsourceflex185_clear = 1'd0;
+wire          irqarray9_eventsourceflex186_status;
+reg           irqarray9_eventsourceflex186_pending = 1'd0;
+reg           irqarray9_eventsourceflex186_clear = 1'd0;
+wire          irqarray9_eventsourceflex187_status;
+reg           irqarray9_eventsourceflex187_pending = 1'd0;
+reg           irqarray9_eventsourceflex187_clear = 1'd0;
+wire          irqarray9_eventsourceflex188_status;
+reg           irqarray9_eventsourceflex188_pending = 1'd0;
+reg           irqarray9_eventsourceflex188_clear = 1'd0;
+wire          irqarray9_eventsourceflex189_status;
+reg           irqarray9_eventsourceflex189_pending = 1'd0;
+reg           irqarray9_eventsourceflex189_clear = 1'd0;
+wire          irqarray9_eventsourceflex190_status;
+reg           irqarray9_eventsourceflex190_pending = 1'd0;
+reg           irqarray9_eventsourceflex190_clear = 1'd0;
+wire          irqarray9_eventsourceflex191_status;
+reg           irqarray9_eventsourceflex191_pending = 1'd0;
+reg           irqarray9_eventsourceflex191_clear = 1'd0;
+wire          irqarray9_eventsourceflex192_status;
+reg           irqarray9_eventsourceflex192_pending = 1'd0;
+reg           irqarray9_eventsourceflex192_clear = 1'd0;
+wire          irqarray9_eventsourceflex193_status;
+reg           irqarray9_eventsourceflex193_pending = 1'd0;
+reg           irqarray9_eventsourceflex193_clear = 1'd0;
+wire          irqarray9_eventsourceflex194_status;
+reg           irqarray9_eventsourceflex194_pending = 1'd0;
+reg           irqarray9_eventsourceflex194_clear = 1'd0;
+wire          irqarray9_eventsourceflex195_status;
+reg           irqarray9_eventsourceflex195_pending = 1'd0;
+reg           irqarray9_eventsourceflex195_clear = 1'd0;
+wire          irqarray9_eventsourceflex196_status;
+reg           irqarray9_eventsourceflex196_pending = 1'd0;
+reg           irqarray9_eventsourceflex196_clear = 1'd0;
+wire          irqarray9_eventsourceflex197_status;
+reg           irqarray9_eventsourceflex197_pending = 1'd0;
+reg           irqarray9_eventsourceflex197_clear = 1'd0;
+wire          irqarray9_eventsourceflex198_status;
+reg           irqarray9_eventsourceflex198_pending = 1'd0;
+reg           irqarray9_eventsourceflex198_clear = 1'd0;
+wire          irqarray9_eventsourceflex199_status;
+reg           irqarray9_eventsourceflex199_pending = 1'd0;
+reg           irqarray9_eventsourceflex199_clear = 1'd0;
+wire          irqarray9_source00;
+wire          irqarray9_source10;
+wire          irqarray9_source20;
+wire          irqarray9_source30;
+wire          irqarray9_source40;
+wire          irqarray9_source50;
+wire          irqarray9_source60;
+wire          irqarray9_source70;
+wire          irqarray9_source80;
+wire          irqarray9_source90;
+wire          irqarray9_source100;
+wire          irqarray9_source110;
+wire          irqarray9_source120;
+wire          irqarray9_source130;
+wire          irqarray9_source140;
+wire          irqarray9_source150;
+wire          irqarray9_source160;
+wire          irqarray9_source170;
+wire          irqarray9_source180;
+wire          irqarray9_source190;
+reg    [19:0] irqarray9_status_status = 20'd0;
+wire          irqarray9_status_we;
+reg           irqarray9_status_re = 1'd0;
+wire          irqarray9_source01;
+wire          irqarray9_source11;
+wire          irqarray9_source21;
+wire          irqarray9_source31;
+wire          irqarray9_source41;
+wire          irqarray9_source51;
+wire          irqarray9_source61;
+wire          irqarray9_source71;
+wire          irqarray9_source81;
+wire          irqarray9_source91;
+wire          irqarray9_source101;
+wire          irqarray9_source111;
+wire          irqarray9_source121;
+wire          irqarray9_source131;
+wire          irqarray9_source141;
+wire          irqarray9_source151;
+wire          irqarray9_source161;
+wire          irqarray9_source171;
+wire          irqarray9_source181;
+wire          irqarray9_source191;
+reg    [19:0] irqarray9_pending_status = 20'd0;
+wire          irqarray9_pending_we;
+reg           irqarray9_pending_re = 1'd0;
+reg    [19:0] irqarray9_pending_r = 20'd0;
+wire          irqarray9_source02;
+wire          irqarray9_source12;
+wire          irqarray9_source22;
+wire          irqarray9_source32;
+wire          irqarray9_source42;
+wire          irqarray9_source52;
+wire          irqarray9_source62;
+wire          irqarray9_source72;
+wire          irqarray9_source82;
+wire          irqarray9_source92;
+wire          irqarray9_source102;
+wire          irqarray9_source112;
+wire          irqarray9_source122;
+wire          irqarray9_source132;
+wire          irqarray9_source142;
+wire          irqarray9_source152;
+wire          irqarray9_source162;
+wire          irqarray9_source172;
+wire          irqarray9_source182;
+wire          irqarray9_source192;
+reg    [19:0] irqarray9_enable_storage = 20'd0;
+reg           irqarray9_enable_re = 1'd0;
+wire          irqarray10_irq;
+wire   [19:0] irqarray10_interrupts;
+reg    [19:0] irqarray10_trigger = 20'd0;
+reg    [19:0] irqarray10_storage = 20'd0;
+reg           irqarray10_re = 1'd0;
+wire          irqarray10_eventsourceflex200_status;
+reg           irqarray10_eventsourceflex200_pending = 1'd0;
+reg           irqarray10_eventsourceflex200_clear = 1'd0;
+wire          irqarray10_eventsourceflex201_status;
+reg           irqarray10_eventsourceflex201_pending = 1'd0;
+reg           irqarray10_eventsourceflex201_clear = 1'd0;
+wire          irqarray10_eventsourceflex202_status;
+reg           irqarray10_eventsourceflex202_pending = 1'd0;
+reg           irqarray10_eventsourceflex202_clear = 1'd0;
+wire          irqarray10_eventsourceflex203_status;
+reg           irqarray10_eventsourceflex203_pending = 1'd0;
+reg           irqarray10_eventsourceflex203_clear = 1'd0;
+wire          irqarray10_eventsourceflex204_status;
+reg           irqarray10_eventsourceflex204_pending = 1'd0;
+reg           irqarray10_eventsourceflex204_clear = 1'd0;
+wire          irqarray10_eventsourceflex205_status;
+reg           irqarray10_eventsourceflex205_pending = 1'd0;
+reg           irqarray10_eventsourceflex205_clear = 1'd0;
+wire          irqarray10_eventsourceflex206_status;
+reg           irqarray10_eventsourceflex206_pending = 1'd0;
+reg           irqarray10_eventsourceflex206_clear = 1'd0;
+wire          irqarray10_eventsourceflex207_status;
+reg           irqarray10_eventsourceflex207_pending = 1'd0;
+reg           irqarray10_eventsourceflex207_clear = 1'd0;
+wire          irqarray10_eventsourceflex208_status;
+reg           irqarray10_eventsourceflex208_pending = 1'd0;
+reg           irqarray10_eventsourceflex208_clear = 1'd0;
+wire          irqarray10_eventsourceflex209_status;
+reg           irqarray10_eventsourceflex209_pending = 1'd0;
+reg           irqarray10_eventsourceflex209_clear = 1'd0;
+wire          irqarray10_eventsourceflex210_status;
+reg           irqarray10_eventsourceflex210_pending = 1'd0;
+reg           irqarray10_eventsourceflex210_clear = 1'd0;
+wire          irqarray10_eventsourceflex211_status;
+reg           irqarray10_eventsourceflex211_pending = 1'd0;
+reg           irqarray10_eventsourceflex211_clear = 1'd0;
+wire          irqarray10_eventsourceflex212_status;
+reg           irqarray10_eventsourceflex212_pending = 1'd0;
+reg           irqarray10_eventsourceflex212_clear = 1'd0;
+wire          irqarray10_eventsourceflex213_status;
+reg           irqarray10_eventsourceflex213_pending = 1'd0;
+reg           irqarray10_eventsourceflex213_clear = 1'd0;
+wire          irqarray10_eventsourceflex214_status;
+reg           irqarray10_eventsourceflex214_pending = 1'd0;
+reg           irqarray10_eventsourceflex214_clear = 1'd0;
+wire          irqarray10_eventsourceflex215_status;
+reg           irqarray10_eventsourceflex215_pending = 1'd0;
+reg           irqarray10_eventsourceflex215_clear = 1'd0;
+wire          irqarray10_eventsourceflex216_status;
+reg           irqarray10_eventsourceflex216_pending = 1'd0;
+reg           irqarray10_eventsourceflex216_clear = 1'd0;
+wire          irqarray10_eventsourceflex217_status;
+reg           irqarray10_eventsourceflex217_pending = 1'd0;
+reg           irqarray10_eventsourceflex217_clear = 1'd0;
+wire          irqarray10_eventsourceflex218_status;
+reg           irqarray10_eventsourceflex218_pending = 1'd0;
+reg           irqarray10_eventsourceflex218_clear = 1'd0;
+wire          irqarray10_eventsourceflex219_status;
+reg           irqarray10_eventsourceflex219_pending = 1'd0;
+reg           irqarray10_eventsourceflex219_clear = 1'd0;
+wire          irqarray10_source00;
+wire          irqarray10_source10;
+wire          irqarray10_source20;
+wire          irqarray10_source30;
+wire          irqarray10_source40;
+wire          irqarray10_source50;
+wire          irqarray10_source60;
+wire          irqarray10_source70;
+wire          irqarray10_source80;
+wire          irqarray10_source90;
+wire          irqarray10_source100;
+wire          irqarray10_source110;
+wire          irqarray10_source120;
+wire          irqarray10_source130;
+wire          irqarray10_source140;
+wire          irqarray10_source150;
+wire          irqarray10_source160;
+wire          irqarray10_source170;
+wire          irqarray10_source180;
+wire          irqarray10_source190;
+reg    [19:0] irqarray10_status_status = 20'd0;
+wire          irqarray10_status_we;
+reg           irqarray10_status_re = 1'd0;
+wire          irqarray10_source01;
+wire          irqarray10_source11;
+wire          irqarray10_source21;
+wire          irqarray10_source31;
+wire          irqarray10_source41;
+wire          irqarray10_source51;
+wire          irqarray10_source61;
+wire          irqarray10_source71;
+wire          irqarray10_source81;
+wire          irqarray10_source91;
+wire          irqarray10_source101;
+wire          irqarray10_source111;
+wire          irqarray10_source121;
+wire          irqarray10_source131;
+wire          irqarray10_source141;
+wire          irqarray10_source151;
+wire          irqarray10_source161;
+wire          irqarray10_source171;
+wire          irqarray10_source181;
+wire          irqarray10_source191;
+reg    [19:0] irqarray10_pending_status = 20'd0;
+wire          irqarray10_pending_we;
+reg           irqarray10_pending_re = 1'd0;
+reg    [19:0] irqarray10_pending_r = 20'd0;
+wire          irqarray10_source02;
+wire          irqarray10_source12;
+wire          irqarray10_source22;
+wire          irqarray10_source32;
+wire          irqarray10_source42;
+wire          irqarray10_source52;
+wire          irqarray10_source62;
+wire          irqarray10_source72;
+wire          irqarray10_source82;
+wire          irqarray10_source92;
+wire          irqarray10_source102;
+wire          irqarray10_source112;
+wire          irqarray10_source122;
+wire          irqarray10_source132;
+wire          irqarray10_source142;
+wire          irqarray10_source152;
+wire          irqarray10_source162;
+wire          irqarray10_source172;
+wire          irqarray10_source182;
+wire          irqarray10_source192;
+reg    [19:0] irqarray10_enable_storage = 20'd0;
+reg           irqarray10_enable_re = 1'd0;
+wire          irqarray11_irq;
+wire   [19:0] irqarray11_interrupts;
+reg    [19:0] irqarray11_trigger = 20'd0;
+reg    [19:0] irqarray11_storage = 20'd0;
+reg           irqarray11_re = 1'd0;
+wire          irqarray11_eventsourceflex220_status;
+reg           irqarray11_eventsourceflex220_pending = 1'd0;
+reg           irqarray11_eventsourceflex220_clear = 1'd0;
+wire          irqarray11_eventsourceflex221_status;
+reg           irqarray11_eventsourceflex221_pending = 1'd0;
+reg           irqarray11_eventsourceflex221_clear = 1'd0;
+wire          irqarray11_eventsourceflex222_status;
+reg           irqarray11_eventsourceflex222_pending = 1'd0;
+reg           irqarray11_eventsourceflex222_clear = 1'd0;
+wire          irqarray11_eventsourceflex223_status;
+reg           irqarray11_eventsourceflex223_pending = 1'd0;
+reg           irqarray11_eventsourceflex223_clear = 1'd0;
+wire          irqarray11_eventsourceflex224_status;
+reg           irqarray11_eventsourceflex224_pending = 1'd0;
+reg           irqarray11_eventsourceflex224_clear = 1'd0;
+wire          irqarray11_eventsourceflex225_status;
+reg           irqarray11_eventsourceflex225_pending = 1'd0;
+reg           irqarray11_eventsourceflex225_clear = 1'd0;
+wire          irqarray11_eventsourceflex226_status;
+reg           irqarray11_eventsourceflex226_pending = 1'd0;
+reg           irqarray11_eventsourceflex226_clear = 1'd0;
+wire          irqarray11_eventsourceflex227_status;
+reg           irqarray11_eventsourceflex227_pending = 1'd0;
+reg           irqarray11_eventsourceflex227_clear = 1'd0;
+wire          irqarray11_eventsourceflex228_status;
+reg           irqarray11_eventsourceflex228_pending = 1'd0;
+reg           irqarray11_eventsourceflex228_clear = 1'd0;
+wire          irqarray11_eventsourceflex229_status;
+reg           irqarray11_eventsourceflex229_pending = 1'd0;
+reg           irqarray11_eventsourceflex229_clear = 1'd0;
+wire          irqarray11_eventsourceflex230_status;
+reg           irqarray11_eventsourceflex230_pending = 1'd0;
+reg           irqarray11_eventsourceflex230_clear = 1'd0;
+wire          irqarray11_eventsourceflex231_status;
+reg           irqarray11_eventsourceflex231_pending = 1'd0;
+reg           irqarray11_eventsourceflex231_clear = 1'd0;
+wire          irqarray11_eventsourceflex232_status;
+reg           irqarray11_eventsourceflex232_pending = 1'd0;
+reg           irqarray11_eventsourceflex232_clear = 1'd0;
+wire          irqarray11_eventsourceflex233_status;
+reg           irqarray11_eventsourceflex233_pending = 1'd0;
+reg           irqarray11_eventsourceflex233_clear = 1'd0;
+wire          irqarray11_eventsourceflex234_status;
+reg           irqarray11_eventsourceflex234_pending = 1'd0;
+reg           irqarray11_eventsourceflex234_clear = 1'd0;
+wire          irqarray11_eventsourceflex235_status;
+reg           irqarray11_eventsourceflex235_pending = 1'd0;
+reg           irqarray11_eventsourceflex235_clear = 1'd0;
+wire          irqarray11_eventsourceflex236_status;
+reg           irqarray11_eventsourceflex236_pending = 1'd0;
+reg           irqarray11_eventsourceflex236_clear = 1'd0;
+wire          irqarray11_eventsourceflex237_status;
+reg           irqarray11_eventsourceflex237_pending = 1'd0;
+reg           irqarray11_eventsourceflex237_clear = 1'd0;
+wire          irqarray11_eventsourceflex238_status;
+reg           irqarray11_eventsourceflex238_pending = 1'd0;
+reg           irqarray11_eventsourceflex238_clear = 1'd0;
+wire          irqarray11_eventsourceflex239_status;
+reg           irqarray11_eventsourceflex239_pending = 1'd0;
+reg           irqarray11_eventsourceflex239_clear = 1'd0;
+wire          irqarray11_source00;
+wire          irqarray11_source10;
+wire          irqarray11_source20;
+wire          irqarray11_source30;
+wire          irqarray11_source40;
+wire          irqarray11_source50;
+wire          irqarray11_source60;
+wire          irqarray11_source70;
+wire          irqarray11_source80;
+wire          irqarray11_source90;
+wire          irqarray11_source100;
+wire          irqarray11_source110;
+wire          irqarray11_source120;
+wire          irqarray11_source130;
+wire          irqarray11_source140;
+wire          irqarray11_source150;
+wire          irqarray11_source160;
+wire          irqarray11_source170;
+wire          irqarray11_source180;
+wire          irqarray11_source190;
+reg    [19:0] irqarray11_status_status = 20'd0;
+wire          irqarray11_status_we;
+reg           irqarray11_status_re = 1'd0;
+wire          irqarray11_source01;
+wire          irqarray11_source11;
+wire          irqarray11_source21;
+wire          irqarray11_source31;
+wire          irqarray11_source41;
+wire          irqarray11_source51;
+wire          irqarray11_source61;
+wire          irqarray11_source71;
+wire          irqarray11_source81;
+wire          irqarray11_source91;
+wire          irqarray11_source101;
+wire          irqarray11_source111;
+wire          irqarray11_source121;
+wire          irqarray11_source131;
+wire          irqarray11_source141;
+wire          irqarray11_source151;
+wire          irqarray11_source161;
+wire          irqarray11_source171;
+wire          irqarray11_source181;
+wire          irqarray11_source191;
+reg    [19:0] irqarray11_pending_status = 20'd0;
+wire          irqarray11_pending_we;
+reg           irqarray11_pending_re = 1'd0;
+reg    [19:0] irqarray11_pending_r = 20'd0;
+wire          irqarray11_source02;
+wire          irqarray11_source12;
+wire          irqarray11_source22;
+wire          irqarray11_source32;
+wire          irqarray11_source42;
+wire          irqarray11_source52;
+wire          irqarray11_source62;
+wire          irqarray11_source72;
+wire          irqarray11_source82;
+wire          irqarray11_source92;
+wire          irqarray11_source102;
+wire          irqarray11_source112;
+wire          irqarray11_source122;
+wire          irqarray11_source132;
+wire          irqarray11_source142;
+wire          irqarray11_source152;
+wire          irqarray11_source162;
+wire          irqarray11_source172;
+wire          irqarray11_source182;
+wire          irqarray11_source192;
+reg    [19:0] irqarray11_enable_storage = 20'd0;
+reg           irqarray11_enable_re = 1'd0;
+wire          irqarray12_irq;
+wire   [19:0] irqarray12_interrupts;
+reg    [19:0] irqarray12_trigger = 20'd0;
+reg    [19:0] irqarray12_storage = 20'd0;
+reg           irqarray12_re = 1'd0;
+wire          irqarray12_eventsourceflex240_status;
+reg           irqarray12_eventsourceflex240_pending = 1'd0;
+reg           irqarray12_eventsourceflex240_clear = 1'd0;
+wire          irqarray12_eventsourceflex241_status;
+reg           irqarray12_eventsourceflex241_pending = 1'd0;
+reg           irqarray12_eventsourceflex241_clear = 1'd0;
+wire          irqarray12_eventsourceflex242_status;
+reg           irqarray12_eventsourceflex242_pending = 1'd0;
+reg           irqarray12_eventsourceflex242_clear = 1'd0;
+wire          irqarray12_eventsourceflex243_status;
+reg           irqarray12_eventsourceflex243_pending = 1'd0;
+reg           irqarray12_eventsourceflex243_clear = 1'd0;
+wire          irqarray12_eventsourceflex244_status;
+reg           irqarray12_eventsourceflex244_pending = 1'd0;
+reg           irqarray12_eventsourceflex244_clear = 1'd0;
+wire          irqarray12_eventsourceflex245_status;
+reg           irqarray12_eventsourceflex245_pending = 1'd0;
+reg           irqarray12_eventsourceflex245_clear = 1'd0;
+wire          irqarray12_eventsourceflex246_status;
+reg           irqarray12_eventsourceflex246_pending = 1'd0;
+reg           irqarray12_eventsourceflex246_clear = 1'd0;
+wire          irqarray12_eventsourceflex247_status;
+reg           irqarray12_eventsourceflex247_pending = 1'd0;
+reg           irqarray12_eventsourceflex247_clear = 1'd0;
+wire          irqarray12_eventsourceflex248_status;
+reg           irqarray12_eventsourceflex248_pending = 1'd0;
+reg           irqarray12_eventsourceflex248_clear = 1'd0;
+wire          irqarray12_eventsourceflex249_status;
+reg           irqarray12_eventsourceflex249_pending = 1'd0;
+reg           irqarray12_eventsourceflex249_clear = 1'd0;
+wire          irqarray12_eventsourceflex250_status;
+reg           irqarray12_eventsourceflex250_pending = 1'd0;
+reg           irqarray12_eventsourceflex250_clear = 1'd0;
+wire          irqarray12_eventsourceflex251_status;
+reg           irqarray12_eventsourceflex251_pending = 1'd0;
+reg           irqarray12_eventsourceflex251_clear = 1'd0;
+wire          irqarray12_eventsourceflex252_status;
+reg           irqarray12_eventsourceflex252_pending = 1'd0;
+reg           irqarray12_eventsourceflex252_clear = 1'd0;
+wire          irqarray12_eventsourceflex253_status;
+reg           irqarray12_eventsourceflex253_pending = 1'd0;
+reg           irqarray12_eventsourceflex253_clear = 1'd0;
+wire          irqarray12_eventsourceflex254_status;
+reg           irqarray12_eventsourceflex254_pending = 1'd0;
+reg           irqarray12_eventsourceflex254_clear = 1'd0;
+wire          irqarray12_eventsourceflex255_status;
+reg           irqarray12_eventsourceflex255_pending = 1'd0;
+reg           irqarray12_eventsourceflex255_clear = 1'd0;
+wire          irqarray12_eventsourceflex256_status;
+reg           irqarray12_eventsourceflex256_pending = 1'd0;
+reg           irqarray12_eventsourceflex256_clear = 1'd0;
+wire          irqarray12_eventsourceflex257_status;
+reg           irqarray12_eventsourceflex257_pending = 1'd0;
+reg           irqarray12_eventsourceflex257_clear = 1'd0;
+wire          irqarray12_eventsourceflex258_status;
+reg           irqarray12_eventsourceflex258_pending = 1'd0;
+reg           irqarray12_eventsourceflex258_clear = 1'd0;
+wire          irqarray12_eventsourceflex259_status;
+reg           irqarray12_eventsourceflex259_pending = 1'd0;
+reg           irqarray12_eventsourceflex259_clear = 1'd0;
+wire          irqarray12_source00;
+wire          irqarray12_source10;
+wire          irqarray12_source20;
+wire          irqarray12_source30;
+wire          irqarray12_source40;
+wire          irqarray12_source50;
+wire          irqarray12_source60;
+wire          irqarray12_source70;
+wire          irqarray12_source80;
+wire          irqarray12_source90;
+wire          irqarray12_source100;
+wire          irqarray12_source110;
+wire          irqarray12_source120;
+wire          irqarray12_source130;
+wire          irqarray12_source140;
+wire          irqarray12_source150;
+wire          irqarray12_source160;
+wire          irqarray12_source170;
+wire          irqarray12_source180;
+wire          irqarray12_source190;
+reg    [19:0] irqarray12_status_status = 20'd0;
+wire          irqarray12_status_we;
+reg           irqarray12_status_re = 1'd0;
+wire          irqarray12_source01;
+wire          irqarray12_source11;
+wire          irqarray12_source21;
+wire          irqarray12_source31;
+wire          irqarray12_source41;
+wire          irqarray12_source51;
+wire          irqarray12_source61;
+wire          irqarray12_source71;
+wire          irqarray12_source81;
+wire          irqarray12_source91;
+wire          irqarray12_source101;
+wire          irqarray12_source111;
+wire          irqarray12_source121;
+wire          irqarray12_source131;
+wire          irqarray12_source141;
+wire          irqarray12_source151;
+wire          irqarray12_source161;
+wire          irqarray12_source171;
+wire          irqarray12_source181;
+wire          irqarray12_source191;
+reg    [19:0] irqarray12_pending_status = 20'd0;
+wire          irqarray12_pending_we;
+reg           irqarray12_pending_re = 1'd0;
+reg    [19:0] irqarray12_pending_r = 20'd0;
+wire          irqarray12_source02;
+wire          irqarray12_source12;
+wire          irqarray12_source22;
+wire          irqarray12_source32;
+wire          irqarray12_source42;
+wire          irqarray12_source52;
+wire          irqarray12_source62;
+wire          irqarray12_source72;
+wire          irqarray12_source82;
+wire          irqarray12_source92;
+wire          irqarray12_source102;
+wire          irqarray12_source112;
+wire          irqarray12_source122;
+wire          irqarray12_source132;
+wire          irqarray12_source142;
+wire          irqarray12_source152;
+wire          irqarray12_source162;
+wire          irqarray12_source172;
+wire          irqarray12_source182;
+wire          irqarray12_source192;
+reg    [19:0] irqarray12_enable_storage = 20'd0;
+reg           irqarray12_enable_re = 1'd0;
+wire          irqarray13_irq;
+wire   [19:0] irqarray13_interrupts;
+reg    [19:0] irqarray13_trigger = 20'd0;
+reg    [19:0] irqarray13_storage = 20'd0;
+reg           irqarray13_re = 1'd0;
+wire          irqarray13_eventsourceflex260_status;
+reg           irqarray13_eventsourceflex260_pending = 1'd0;
+reg           irqarray13_eventsourceflex260_clear = 1'd0;
+wire          irqarray13_eventsourceflex261_status;
+reg           irqarray13_eventsourceflex261_pending = 1'd0;
+reg           irqarray13_eventsourceflex261_clear = 1'd0;
+wire          irqarray13_eventsourceflex262_status;
+reg           irqarray13_eventsourceflex262_pending = 1'd0;
+reg           irqarray13_eventsourceflex262_clear = 1'd0;
+wire          irqarray13_eventsourceflex263_status;
+reg           irqarray13_eventsourceflex263_pending = 1'd0;
+reg           irqarray13_eventsourceflex263_clear = 1'd0;
+wire          irqarray13_eventsourceflex264_status;
+reg           irqarray13_eventsourceflex264_pending = 1'd0;
+reg           irqarray13_eventsourceflex264_clear = 1'd0;
+wire          irqarray13_eventsourceflex265_status;
+reg           irqarray13_eventsourceflex265_pending = 1'd0;
+reg           irqarray13_eventsourceflex265_clear = 1'd0;
+wire          irqarray13_eventsourceflex266_status;
+reg           irqarray13_eventsourceflex266_pending = 1'd0;
+reg           irqarray13_eventsourceflex266_clear = 1'd0;
+wire          irqarray13_eventsourceflex267_status;
+reg           irqarray13_eventsourceflex267_pending = 1'd0;
+reg           irqarray13_eventsourceflex267_clear = 1'd0;
+wire          irqarray13_eventsourceflex268_status;
+reg           irqarray13_eventsourceflex268_pending = 1'd0;
+reg           irqarray13_eventsourceflex268_clear = 1'd0;
+wire          irqarray13_eventsourceflex269_status;
+reg           irqarray13_eventsourceflex269_pending = 1'd0;
+reg           irqarray13_eventsourceflex269_clear = 1'd0;
+wire          irqarray13_eventsourceflex270_status;
+reg           irqarray13_eventsourceflex270_pending = 1'd0;
+reg           irqarray13_eventsourceflex270_clear = 1'd0;
+wire          irqarray13_eventsourceflex271_status;
+reg           irqarray13_eventsourceflex271_pending = 1'd0;
+reg           irqarray13_eventsourceflex271_clear = 1'd0;
+wire          irqarray13_eventsourceflex272_status;
+reg           irqarray13_eventsourceflex272_pending = 1'd0;
+reg           irqarray13_eventsourceflex272_clear = 1'd0;
+wire          irqarray13_eventsourceflex273_status;
+reg           irqarray13_eventsourceflex273_pending = 1'd0;
+reg           irqarray13_eventsourceflex273_clear = 1'd0;
+wire          irqarray13_eventsourceflex274_status;
+reg           irqarray13_eventsourceflex274_pending = 1'd0;
+reg           irqarray13_eventsourceflex274_clear = 1'd0;
+wire          irqarray13_eventsourceflex275_status;
+reg           irqarray13_eventsourceflex275_pending = 1'd0;
+reg           irqarray13_eventsourceflex275_clear = 1'd0;
+wire          irqarray13_eventsourceflex276_status;
+reg           irqarray13_eventsourceflex276_pending = 1'd0;
+reg           irqarray13_eventsourceflex276_clear = 1'd0;
+wire          irqarray13_eventsourceflex277_status;
+reg           irqarray13_eventsourceflex277_pending = 1'd0;
+reg           irqarray13_eventsourceflex277_clear = 1'd0;
+wire          irqarray13_eventsourceflex278_status;
+reg           irqarray13_eventsourceflex278_pending = 1'd0;
+reg           irqarray13_eventsourceflex278_clear = 1'd0;
+wire          irqarray13_eventsourceflex279_status;
+reg           irqarray13_eventsourceflex279_pending = 1'd0;
+reg           irqarray13_eventsourceflex279_clear = 1'd0;
+wire          irqarray13_source00;
+wire          irqarray13_source10;
+wire          irqarray13_source20;
+wire          irqarray13_source30;
+wire          irqarray13_source40;
+wire          irqarray13_source50;
+wire          irqarray13_source60;
+wire          irqarray13_source70;
+wire          irqarray13_source80;
+wire          irqarray13_source90;
+wire          irqarray13_source100;
+wire          irqarray13_source110;
+wire          irqarray13_source120;
+wire          irqarray13_source130;
+wire          irqarray13_source140;
+wire          irqarray13_source150;
+wire          irqarray13_source160;
+wire          irqarray13_source170;
+wire          irqarray13_source180;
+wire          irqarray13_source190;
+reg    [19:0] irqarray13_status_status = 20'd0;
+wire          irqarray13_status_we;
+reg           irqarray13_status_re = 1'd0;
+wire          irqarray13_source01;
+wire          irqarray13_source11;
+wire          irqarray13_source21;
+wire          irqarray13_source31;
+wire          irqarray13_source41;
+wire          irqarray13_source51;
+wire          irqarray13_source61;
+wire          irqarray13_source71;
+wire          irqarray13_source81;
+wire          irqarray13_source91;
+wire          irqarray13_source101;
+wire          irqarray13_source111;
+wire          irqarray13_source121;
+wire          irqarray13_source131;
+wire          irqarray13_source141;
+wire          irqarray13_source151;
+wire          irqarray13_source161;
+wire          irqarray13_source171;
+wire          irqarray13_source181;
+wire          irqarray13_source191;
+reg    [19:0] irqarray13_pending_status = 20'd0;
+wire          irqarray13_pending_we;
+reg           irqarray13_pending_re = 1'd0;
+reg    [19:0] irqarray13_pending_r = 20'd0;
+wire          irqarray13_source02;
+wire          irqarray13_source12;
+wire          irqarray13_source22;
+wire          irqarray13_source32;
+wire          irqarray13_source42;
+wire          irqarray13_source52;
+wire          irqarray13_source62;
+wire          irqarray13_source72;
+wire          irqarray13_source82;
+wire          irqarray13_source92;
+wire          irqarray13_source102;
+wire          irqarray13_source112;
+wire          irqarray13_source122;
+wire          irqarray13_source132;
+wire          irqarray13_source142;
+wire          irqarray13_source152;
+wire          irqarray13_source162;
+wire          irqarray13_source172;
+wire          irqarray13_source182;
+wire          irqarray13_source192;
+reg    [19:0] irqarray13_enable_storage = 20'd0;
+reg           irqarray13_enable_re = 1'd0;
+wire          irqarray14_irq;
+wire   [19:0] irqarray14_interrupts;
+reg    [19:0] irqarray14_trigger = 20'd0;
+reg    [19:0] irqarray14_storage = 20'd0;
+reg           irqarray14_re = 1'd0;
+wire          irqarray14_eventsourceflex280_status;
+reg           irqarray14_eventsourceflex280_pending = 1'd0;
+reg           irqarray14_eventsourceflex280_clear = 1'd0;
+wire          irqarray14_eventsourceflex281_status;
+reg           irqarray14_eventsourceflex281_pending = 1'd0;
+reg           irqarray14_eventsourceflex281_clear = 1'd0;
+wire          irqarray14_eventsourceflex282_status;
+reg           irqarray14_eventsourceflex282_pending = 1'd0;
+reg           irqarray14_eventsourceflex282_clear = 1'd0;
+wire          irqarray14_eventsourceflex283_status;
+reg           irqarray14_eventsourceflex283_pending = 1'd0;
+reg           irqarray14_eventsourceflex283_clear = 1'd0;
+wire          irqarray14_eventsourceflex284_status;
+reg           irqarray14_eventsourceflex284_pending = 1'd0;
+reg           irqarray14_eventsourceflex284_clear = 1'd0;
+wire          irqarray14_eventsourceflex285_status;
+reg           irqarray14_eventsourceflex285_pending = 1'd0;
+reg           irqarray14_eventsourceflex285_clear = 1'd0;
+wire          irqarray14_eventsourceflex286_status;
+reg           irqarray14_eventsourceflex286_pending = 1'd0;
+reg           irqarray14_eventsourceflex286_clear = 1'd0;
+wire          irqarray14_eventsourceflex287_status;
+reg           irqarray14_eventsourceflex287_pending = 1'd0;
+reg           irqarray14_eventsourceflex287_clear = 1'd0;
+wire          irqarray14_eventsourceflex288_status;
+reg           irqarray14_eventsourceflex288_pending = 1'd0;
+reg           irqarray14_eventsourceflex288_clear = 1'd0;
+wire          irqarray14_eventsourceflex289_status;
+reg           irqarray14_eventsourceflex289_pending = 1'd0;
+reg           irqarray14_eventsourceflex289_clear = 1'd0;
+wire          irqarray14_eventsourceflex290_status;
+reg           irqarray14_eventsourceflex290_pending = 1'd0;
+reg           irqarray14_eventsourceflex290_clear = 1'd0;
+wire          irqarray14_eventsourceflex291_status;
+reg           irqarray14_eventsourceflex291_pending = 1'd0;
+reg           irqarray14_eventsourceflex291_clear = 1'd0;
+wire          irqarray14_eventsourceflex292_status;
+reg           irqarray14_eventsourceflex292_pending = 1'd0;
+reg           irqarray14_eventsourceflex292_clear = 1'd0;
+wire          irqarray14_eventsourceflex293_status;
+reg           irqarray14_eventsourceflex293_pending = 1'd0;
+reg           irqarray14_eventsourceflex293_clear = 1'd0;
+wire          irqarray14_eventsourceflex294_status;
+reg           irqarray14_eventsourceflex294_pending = 1'd0;
+reg           irqarray14_eventsourceflex294_clear = 1'd0;
+wire          irqarray14_eventsourceflex295_status;
+reg           irqarray14_eventsourceflex295_pending = 1'd0;
+reg           irqarray14_eventsourceflex295_clear = 1'd0;
+wire          irqarray14_eventsourceflex296_status;
+reg           irqarray14_eventsourceflex296_pending = 1'd0;
+reg           irqarray14_eventsourceflex296_clear = 1'd0;
+wire          irqarray14_eventsourceflex297_status;
+reg           irqarray14_eventsourceflex297_pending = 1'd0;
+reg           irqarray14_eventsourceflex297_clear = 1'd0;
+wire          irqarray14_eventsourceflex298_status;
+reg           irqarray14_eventsourceflex298_pending = 1'd0;
+reg           irqarray14_eventsourceflex298_clear = 1'd0;
+wire          irqarray14_eventsourceflex299_status;
+reg           irqarray14_eventsourceflex299_pending = 1'd0;
+reg           irqarray14_eventsourceflex299_clear = 1'd0;
+wire          irqarray14_source00;
+wire          irqarray14_source10;
+wire          irqarray14_source20;
+wire          irqarray14_source30;
+wire          irqarray14_source40;
+wire          irqarray14_source50;
+wire          irqarray14_source60;
+wire          irqarray14_source70;
+wire          irqarray14_source80;
+wire          irqarray14_source90;
+wire          irqarray14_source100;
+wire          irqarray14_source110;
+wire          irqarray14_source120;
+wire          irqarray14_source130;
+wire          irqarray14_source140;
+wire          irqarray14_source150;
+wire          irqarray14_source160;
+wire          irqarray14_source170;
+wire          irqarray14_source180;
+wire          irqarray14_source190;
+reg    [19:0] irqarray14_status_status = 20'd0;
+wire          irqarray14_status_we;
+reg           irqarray14_status_re = 1'd0;
+wire          irqarray14_source01;
+wire          irqarray14_source11;
+wire          irqarray14_source21;
+wire          irqarray14_source31;
+wire          irqarray14_source41;
+wire          irqarray14_source51;
+wire          irqarray14_source61;
+wire          irqarray14_source71;
+wire          irqarray14_source81;
+wire          irqarray14_source91;
+wire          irqarray14_source101;
+wire          irqarray14_source111;
+wire          irqarray14_source121;
+wire          irqarray14_source131;
+wire          irqarray14_source141;
+wire          irqarray14_source151;
+wire          irqarray14_source161;
+wire          irqarray14_source171;
+wire          irqarray14_source181;
+wire          irqarray14_source191;
+reg    [19:0] irqarray14_pending_status = 20'd0;
+wire          irqarray14_pending_we;
+reg           irqarray14_pending_re = 1'd0;
+reg    [19:0] irqarray14_pending_r = 20'd0;
+wire          irqarray14_source02;
+wire          irqarray14_source12;
+wire          irqarray14_source22;
+wire          irqarray14_source32;
+wire          irqarray14_source42;
+wire          irqarray14_source52;
+wire          irqarray14_source62;
+wire          irqarray14_source72;
+wire          irqarray14_source82;
+wire          irqarray14_source92;
+wire          irqarray14_source102;
+wire          irqarray14_source112;
+wire          irqarray14_source122;
+wire          irqarray14_source132;
+wire          irqarray14_source142;
+wire          irqarray14_source152;
+wire          irqarray14_source162;
+wire          irqarray14_source172;
+wire          irqarray14_source182;
+wire          irqarray14_source192;
+reg    [19:0] irqarray14_enable_storage = 20'd0;
+reg           irqarray14_enable_re = 1'd0;
+wire          irqarray15_irq;
+wire   [19:0] irqarray15_interrupts;
+reg    [19:0] irqarray15_trigger = 20'd0;
+reg    [19:0] irqarray15_storage = 20'd0;
+reg           irqarray15_re = 1'd0;
+wire          irqarray15_eventsourceflex300_status;
+reg           irqarray15_eventsourceflex300_pending = 1'd0;
+reg           irqarray15_eventsourceflex300_clear = 1'd0;
+wire          irqarray15_eventsourceflex301_status;
+reg           irqarray15_eventsourceflex301_pending = 1'd0;
+reg           irqarray15_eventsourceflex301_clear = 1'd0;
+wire          irqarray15_eventsourceflex302_status;
+reg           irqarray15_eventsourceflex302_pending = 1'd0;
+reg           irqarray15_eventsourceflex302_clear = 1'd0;
+wire          irqarray15_eventsourceflex303_status;
+reg           irqarray15_eventsourceflex303_pending = 1'd0;
+reg           irqarray15_eventsourceflex303_clear = 1'd0;
+wire          irqarray15_eventsourceflex304_status;
+reg           irqarray15_eventsourceflex304_pending = 1'd0;
+reg           irqarray15_eventsourceflex304_clear = 1'd0;
+wire          irqarray15_eventsourceflex305_status;
+reg           irqarray15_eventsourceflex305_pending = 1'd0;
+reg           irqarray15_eventsourceflex305_clear = 1'd0;
+wire          irqarray15_eventsourceflex306_status;
+reg           irqarray15_eventsourceflex306_pending = 1'd0;
+reg           irqarray15_eventsourceflex306_clear = 1'd0;
+wire          irqarray15_eventsourceflex307_status;
+reg           irqarray15_eventsourceflex307_pending = 1'd0;
+reg           irqarray15_eventsourceflex307_clear = 1'd0;
+wire          irqarray15_eventsourceflex308_status;
+reg           irqarray15_eventsourceflex308_pending = 1'd0;
+reg           irqarray15_eventsourceflex308_clear = 1'd0;
+wire          irqarray15_eventsourceflex309_status;
+reg           irqarray15_eventsourceflex309_pending = 1'd0;
+reg           irqarray15_eventsourceflex309_clear = 1'd0;
+wire          irqarray15_eventsourceflex310_status;
+reg           irqarray15_eventsourceflex310_pending = 1'd0;
+reg           irqarray15_eventsourceflex310_clear = 1'd0;
+wire          irqarray15_eventsourceflex311_status;
+reg           irqarray15_eventsourceflex311_pending = 1'd0;
+reg           irqarray15_eventsourceflex311_clear = 1'd0;
+wire          irqarray15_eventsourceflex312_status;
+reg           irqarray15_eventsourceflex312_pending = 1'd0;
+reg           irqarray15_eventsourceflex312_clear = 1'd0;
+wire          irqarray15_eventsourceflex313_status;
+reg           irqarray15_eventsourceflex313_pending = 1'd0;
+reg           irqarray15_eventsourceflex313_clear = 1'd0;
+wire          irqarray15_eventsourceflex314_status;
+reg           irqarray15_eventsourceflex314_pending = 1'd0;
+reg           irqarray15_eventsourceflex314_clear = 1'd0;
+wire          irqarray15_eventsourceflex315_status;
+reg           irqarray15_eventsourceflex315_pending = 1'd0;
+reg           irqarray15_eventsourceflex315_clear = 1'd0;
+wire          irqarray15_eventsourceflex316_status;
+reg           irqarray15_eventsourceflex316_pending = 1'd0;
+reg           irqarray15_eventsourceflex316_clear = 1'd0;
+wire          irqarray15_eventsourceflex317_status;
+reg           irqarray15_eventsourceflex317_pending = 1'd0;
+reg           irqarray15_eventsourceflex317_clear = 1'd0;
+wire          irqarray15_eventsourceflex318_status;
+reg           irqarray15_eventsourceflex318_pending = 1'd0;
+reg           irqarray15_eventsourceflex318_clear = 1'd0;
+wire          irqarray15_eventsourceflex319_status;
+reg           irqarray15_eventsourceflex319_pending = 1'd0;
+reg           irqarray15_eventsourceflex319_clear = 1'd0;
+wire          irqarray15_source00;
+wire          irqarray15_source10;
+wire          irqarray15_source20;
+wire          irqarray15_source30;
+wire          irqarray15_source40;
+wire          irqarray15_source50;
+wire          irqarray15_source60;
+wire          irqarray15_source70;
+wire          irqarray15_source80;
+wire          irqarray15_source90;
+wire          irqarray15_source100;
+wire          irqarray15_source110;
+wire          irqarray15_source120;
+wire          irqarray15_source130;
+wire          irqarray15_source140;
+wire          irqarray15_source150;
+wire          irqarray15_source160;
+wire          irqarray15_source170;
+wire          irqarray15_source180;
+wire          irqarray15_source190;
+reg    [19:0] irqarray15_status_status = 20'd0;
+wire          irqarray15_status_we;
+reg           irqarray15_status_re = 1'd0;
+wire          irqarray15_source01;
+wire          irqarray15_source11;
+wire          irqarray15_source21;
+wire          irqarray15_source31;
+wire          irqarray15_source41;
+wire          irqarray15_source51;
+wire          irqarray15_source61;
+wire          irqarray15_source71;
+wire          irqarray15_source81;
+wire          irqarray15_source91;
+wire          irqarray15_source101;
+wire          irqarray15_source111;
+wire          irqarray15_source121;
+wire          irqarray15_source131;
+wire          irqarray15_source141;
+wire          irqarray15_source151;
+wire          irqarray15_source161;
+wire          irqarray15_source171;
+wire          irqarray15_source181;
+wire          irqarray15_source191;
+reg    [19:0] irqarray15_pending_status = 20'd0;
+wire          irqarray15_pending_we;
+reg           irqarray15_pending_re = 1'd0;
+reg    [19:0] irqarray15_pending_r = 20'd0;
+wire          irqarray15_source02;
+wire          irqarray15_source12;
+wire          irqarray15_source22;
+wire          irqarray15_source32;
+wire          irqarray15_source42;
+wire          irqarray15_source52;
+wire          irqarray15_source62;
+wire          irqarray15_source72;
+wire          irqarray15_source82;
+wire          irqarray15_source92;
+wire          irqarray15_source102;
+wire          irqarray15_source112;
+wire          irqarray15_source122;
+wire          irqarray15_source132;
+wire          irqarray15_source142;
+wire          irqarray15_source152;
+wire          irqarray15_source162;
+wire          irqarray15_source172;
+wire          irqarray15_source182;
+wire          irqarray15_source192;
+reg    [19:0] irqarray15_enable_storage = 20'd0;
+reg           irqarray15_enable_re = 1'd0;
+wire          irqarray16_irq;
+wire   [19:0] irqarray16_interrupts;
+reg    [19:0] irqarray16_trigger = 20'd0;
+reg    [19:0] irqarray16_storage = 20'd0;
+reg           irqarray16_re = 1'd0;
+wire          irqarray16_eventsourceflex320_status;
+reg           irqarray16_eventsourceflex320_pending = 1'd0;
+reg           irqarray16_eventsourceflex320_clear = 1'd0;
+wire          irqarray16_eventsourceflex321_status;
+reg           irqarray16_eventsourceflex321_pending = 1'd0;
+reg           irqarray16_eventsourceflex321_clear = 1'd0;
+wire          irqarray16_eventsourceflex322_status;
+reg           irqarray16_eventsourceflex322_pending = 1'd0;
+reg           irqarray16_eventsourceflex322_clear = 1'd0;
+wire          irqarray16_eventsourceflex323_status;
+reg           irqarray16_eventsourceflex323_pending = 1'd0;
+reg           irqarray16_eventsourceflex323_clear = 1'd0;
+wire          irqarray16_eventsourceflex324_status;
+reg           irqarray16_eventsourceflex324_pending = 1'd0;
+reg           irqarray16_eventsourceflex324_clear = 1'd0;
+wire          irqarray16_eventsourceflex325_status;
+reg           irqarray16_eventsourceflex325_pending = 1'd0;
+reg           irqarray16_eventsourceflex325_clear = 1'd0;
+wire          irqarray16_eventsourceflex326_status;
+reg           irqarray16_eventsourceflex326_pending = 1'd0;
+reg           irqarray16_eventsourceflex326_clear = 1'd0;
+wire          irqarray16_eventsourceflex327_status;
+reg           irqarray16_eventsourceflex327_pending = 1'd0;
+reg           irqarray16_eventsourceflex327_clear = 1'd0;
+wire          irqarray16_eventsourceflex328_status;
+reg           irqarray16_eventsourceflex328_pending = 1'd0;
+reg           irqarray16_eventsourceflex328_clear = 1'd0;
+wire          irqarray16_eventsourceflex329_status;
+reg           irqarray16_eventsourceflex329_pending = 1'd0;
+reg           irqarray16_eventsourceflex329_clear = 1'd0;
+wire          irqarray16_eventsourceflex330_status;
+reg           irqarray16_eventsourceflex330_pending = 1'd0;
+reg           irqarray16_eventsourceflex330_clear = 1'd0;
+wire          irqarray16_eventsourceflex331_status;
+reg           irqarray16_eventsourceflex331_pending = 1'd0;
+reg           irqarray16_eventsourceflex331_clear = 1'd0;
+wire          irqarray16_eventsourceflex332_status;
+reg           irqarray16_eventsourceflex332_pending = 1'd0;
+reg           irqarray16_eventsourceflex332_clear = 1'd0;
+wire          irqarray16_eventsourceflex333_status;
+reg           irqarray16_eventsourceflex333_pending = 1'd0;
+reg           irqarray16_eventsourceflex333_clear = 1'd0;
+wire          irqarray16_eventsourceflex334_status;
+reg           irqarray16_eventsourceflex334_pending = 1'd0;
+reg           irqarray16_eventsourceflex334_clear = 1'd0;
+wire          irqarray16_eventsourceflex335_status;
+reg           irqarray16_eventsourceflex335_pending = 1'd0;
+reg           irqarray16_eventsourceflex335_clear = 1'd0;
+wire          irqarray16_eventsourceflex336_status;
+reg           irqarray16_eventsourceflex336_pending = 1'd0;
+reg           irqarray16_eventsourceflex336_clear = 1'd0;
+wire          irqarray16_eventsourceflex337_status;
+reg           irqarray16_eventsourceflex337_pending = 1'd0;
+reg           irqarray16_eventsourceflex337_clear = 1'd0;
+wire          irqarray16_eventsourceflex338_status;
+reg           irqarray16_eventsourceflex338_pending = 1'd0;
+reg           irqarray16_eventsourceflex338_clear = 1'd0;
+wire          irqarray16_eventsourceflex339_status;
+reg           irqarray16_eventsourceflex339_pending = 1'd0;
+reg           irqarray16_eventsourceflex339_clear = 1'd0;
+wire          irqarray16_source00;
+wire          irqarray16_source10;
+wire          irqarray16_source20;
+wire          irqarray16_source30;
+wire          irqarray16_source40;
+wire          irqarray16_source50;
+wire          irqarray16_source60;
+wire          irqarray16_source70;
+wire          irqarray16_source80;
+wire          irqarray16_source90;
+wire          irqarray16_source100;
+wire          irqarray16_source110;
+wire          irqarray16_source120;
+wire          irqarray16_source130;
+wire          irqarray16_source140;
+wire          irqarray16_source150;
+wire          irqarray16_source160;
+wire          irqarray16_source170;
+wire          irqarray16_source180;
+wire          irqarray16_source190;
+reg    [19:0] irqarray16_status_status = 20'd0;
+wire          irqarray16_status_we;
+reg           irqarray16_status_re = 1'd0;
+wire          irqarray16_source01;
+wire          irqarray16_source11;
+wire          irqarray16_source21;
+wire          irqarray16_source31;
+wire          irqarray16_source41;
+wire          irqarray16_source51;
+wire          irqarray16_source61;
+wire          irqarray16_source71;
+wire          irqarray16_source81;
+wire          irqarray16_source91;
+wire          irqarray16_source101;
+wire          irqarray16_source111;
+wire          irqarray16_source121;
+wire          irqarray16_source131;
+wire          irqarray16_source141;
+wire          irqarray16_source151;
+wire          irqarray16_source161;
+wire          irqarray16_source171;
+wire          irqarray16_source181;
+wire          irqarray16_source191;
+reg    [19:0] irqarray16_pending_status = 20'd0;
+wire          irqarray16_pending_we;
+reg           irqarray16_pending_re = 1'd0;
+reg    [19:0] irqarray16_pending_r = 20'd0;
+wire          irqarray16_source02;
+wire          irqarray16_source12;
+wire          irqarray16_source22;
+wire          irqarray16_source32;
+wire          irqarray16_source42;
+wire          irqarray16_source52;
+wire          irqarray16_source62;
+wire          irqarray16_source72;
+wire          irqarray16_source82;
+wire          irqarray16_source92;
+wire          irqarray16_source102;
+wire          irqarray16_source112;
+wire          irqarray16_source122;
+wire          irqarray16_source132;
+wire          irqarray16_source142;
+wire          irqarray16_source152;
+wire          irqarray16_source162;
+wire          irqarray16_source172;
+wire          irqarray16_source182;
+wire          irqarray16_source192;
+reg    [19:0] irqarray16_enable_storage = 20'd0;
+reg           irqarray16_enable_re = 1'd0;
+wire          irqarray17_irq;
+wire   [19:0] irqarray17_interrupts;
+reg    [19:0] irqarray17_trigger = 20'd0;
+reg    [19:0] irqarray17_storage = 20'd0;
+reg           irqarray17_re = 1'd0;
+wire          irqarray17_eventsourceflex340_status;
+reg           irqarray17_eventsourceflex340_pending = 1'd0;
+reg           irqarray17_eventsourceflex340_clear = 1'd0;
+wire          irqarray17_eventsourceflex341_status;
+reg           irqarray17_eventsourceflex341_pending = 1'd0;
+reg           irqarray17_eventsourceflex341_clear = 1'd0;
+wire          irqarray17_eventsourceflex342_status;
+reg           irqarray17_eventsourceflex342_pending = 1'd0;
+reg           irqarray17_eventsourceflex342_clear = 1'd0;
+wire          irqarray17_eventsourceflex343_status;
+reg           irqarray17_eventsourceflex343_pending = 1'd0;
+reg           irqarray17_eventsourceflex343_clear = 1'd0;
+wire          irqarray17_eventsourceflex344_status;
+reg           irqarray17_eventsourceflex344_pending = 1'd0;
+reg           irqarray17_eventsourceflex344_clear = 1'd0;
+wire          irqarray17_eventsourceflex345_status;
+reg           irqarray17_eventsourceflex345_pending = 1'd0;
+reg           irqarray17_eventsourceflex345_clear = 1'd0;
+wire          irqarray17_eventsourceflex346_status;
+reg           irqarray17_eventsourceflex346_pending = 1'd0;
+reg           irqarray17_eventsourceflex346_clear = 1'd0;
+wire          irqarray17_eventsourceflex347_status;
+reg           irqarray17_eventsourceflex347_pending = 1'd0;
+reg           irqarray17_eventsourceflex347_clear = 1'd0;
+wire          irqarray17_eventsourceflex348_status;
+reg           irqarray17_eventsourceflex348_pending = 1'd0;
+reg           irqarray17_eventsourceflex348_clear = 1'd0;
+wire          irqarray17_eventsourceflex349_status;
+reg           irqarray17_eventsourceflex349_pending = 1'd0;
+reg           irqarray17_eventsourceflex349_clear = 1'd0;
+wire          irqarray17_eventsourceflex350_status;
+reg           irqarray17_eventsourceflex350_pending = 1'd0;
+reg           irqarray17_eventsourceflex350_clear = 1'd0;
+wire          irqarray17_eventsourceflex351_status;
+reg           irqarray17_eventsourceflex351_pending = 1'd0;
+reg           irqarray17_eventsourceflex351_clear = 1'd0;
+wire          irqarray17_eventsourceflex352_status;
+reg           irqarray17_eventsourceflex352_pending = 1'd0;
+reg           irqarray17_eventsourceflex352_clear = 1'd0;
+wire          irqarray17_eventsourceflex353_status;
+reg           irqarray17_eventsourceflex353_pending = 1'd0;
+reg           irqarray17_eventsourceflex353_clear = 1'd0;
+wire          irqarray17_eventsourceflex354_status;
+reg           irqarray17_eventsourceflex354_pending = 1'd0;
+reg           irqarray17_eventsourceflex354_clear = 1'd0;
+wire          irqarray17_eventsourceflex355_status;
+reg           irqarray17_eventsourceflex355_pending = 1'd0;
+reg           irqarray17_eventsourceflex355_clear = 1'd0;
+wire          irqarray17_eventsourceflex356_status;
+reg           irqarray17_eventsourceflex356_pending = 1'd0;
+reg           irqarray17_eventsourceflex356_clear = 1'd0;
+wire          irqarray17_eventsourceflex357_status;
+reg           irqarray17_eventsourceflex357_pending = 1'd0;
+reg           irqarray17_eventsourceflex357_clear = 1'd0;
+wire          irqarray17_eventsourceflex358_status;
+reg           irqarray17_eventsourceflex358_pending = 1'd0;
+reg           irqarray17_eventsourceflex358_clear = 1'd0;
+wire          irqarray17_eventsourceflex359_status;
+reg           irqarray17_eventsourceflex359_pending = 1'd0;
+reg           irqarray17_eventsourceflex359_clear = 1'd0;
+wire          irqarray17_source00;
+wire          irqarray17_source10;
+wire          irqarray17_source20;
+wire          irqarray17_source30;
+wire          irqarray17_source40;
+wire          irqarray17_source50;
+wire          irqarray17_source60;
+wire          irqarray17_source70;
+wire          irqarray17_source80;
+wire          irqarray17_source90;
+wire          irqarray17_source100;
+wire          irqarray17_source110;
+wire          irqarray17_source120;
+wire          irqarray17_source130;
+wire          irqarray17_source140;
+wire          irqarray17_source150;
+wire          irqarray17_source160;
+wire          irqarray17_source170;
+wire          irqarray17_source180;
+wire          irqarray17_source190;
+reg    [19:0] irqarray17_status_status = 20'd0;
+wire          irqarray17_status_we;
+reg           irqarray17_status_re = 1'd0;
+wire          irqarray17_source01;
+wire          irqarray17_source11;
+wire          irqarray17_source21;
+wire          irqarray17_source31;
+wire          irqarray17_source41;
+wire          irqarray17_source51;
+wire          irqarray17_source61;
+wire          irqarray17_source71;
+wire          irqarray17_source81;
+wire          irqarray17_source91;
+wire          irqarray17_source101;
+wire          irqarray17_source111;
+wire          irqarray17_source121;
+wire          irqarray17_source131;
+wire          irqarray17_source141;
+wire          irqarray17_source151;
+wire          irqarray17_source161;
+wire          irqarray17_source171;
+wire          irqarray17_source181;
+wire          irqarray17_source191;
+reg    [19:0] irqarray17_pending_status = 20'd0;
+wire          irqarray17_pending_we;
+reg           irqarray17_pending_re = 1'd0;
+reg    [19:0] irqarray17_pending_r = 20'd0;
+wire          irqarray17_source02;
+wire          irqarray17_source12;
+wire          irqarray17_source22;
+wire          irqarray17_source32;
+wire          irqarray17_source42;
+wire          irqarray17_source52;
+wire          irqarray17_source62;
+wire          irqarray17_source72;
+wire          irqarray17_source82;
+wire          irqarray17_source92;
+wire          irqarray17_source102;
+wire          irqarray17_source112;
+wire          irqarray17_source122;
+wire          irqarray17_source132;
+wire          irqarray17_source142;
+wire          irqarray17_source152;
+wire          irqarray17_source162;
+wire          irqarray17_source172;
+wire          irqarray17_source182;
+wire          irqarray17_source192;
+reg    [19:0] irqarray17_enable_storage = 20'd0;
+reg           irqarray17_enable_re = 1'd0;
+wire          irqarray18_irq;
+wire   [19:0] irqarray18_interrupts;
+reg    [19:0] irqarray18_trigger = 20'd0;
+reg    [19:0] irqarray18_storage = 20'd0;
+reg           irqarray18_re = 1'd0;
+wire          irqarray18_eventsourceflex360_status;
+reg           irqarray18_eventsourceflex360_pending = 1'd0;
+reg           irqarray18_eventsourceflex360_clear = 1'd0;
+wire          irqarray18_eventsourceflex361_status;
+reg           irqarray18_eventsourceflex361_pending = 1'd0;
+reg           irqarray18_eventsourceflex361_clear = 1'd0;
+wire          irqarray18_eventsourceflex362_status;
+reg           irqarray18_eventsourceflex362_pending = 1'd0;
+reg           irqarray18_eventsourceflex362_clear = 1'd0;
+wire          irqarray18_eventsourceflex363_status;
+reg           irqarray18_eventsourceflex363_pending = 1'd0;
+reg           irqarray18_eventsourceflex363_clear = 1'd0;
+wire          irqarray18_eventsourceflex364_status;
+reg           irqarray18_eventsourceflex364_pending = 1'd0;
+reg           irqarray18_eventsourceflex364_clear = 1'd0;
+wire          irqarray18_eventsourceflex365_status;
+reg           irqarray18_eventsourceflex365_pending = 1'd0;
+reg           irqarray18_eventsourceflex365_clear = 1'd0;
+wire          irqarray18_eventsourceflex366_status;
+reg           irqarray18_eventsourceflex366_pending = 1'd0;
+reg           irqarray18_eventsourceflex366_clear = 1'd0;
+wire          irqarray18_eventsourceflex367_status;
+reg           irqarray18_eventsourceflex367_pending = 1'd0;
+reg           irqarray18_eventsourceflex367_clear = 1'd0;
+wire          irqarray18_eventsourceflex368_status;
+reg           irqarray18_eventsourceflex368_pending = 1'd0;
+reg           irqarray18_eventsourceflex368_clear = 1'd0;
+wire          irqarray18_eventsourceflex369_status;
+reg           irqarray18_eventsourceflex369_pending = 1'd0;
+reg           irqarray18_eventsourceflex369_clear = 1'd0;
+wire          irqarray18_eventsourceflex370_status;
+reg           irqarray18_eventsourceflex370_pending = 1'd0;
+reg           irqarray18_eventsourceflex370_clear = 1'd0;
+wire          irqarray18_eventsourceflex371_status;
+reg           irqarray18_eventsourceflex371_pending = 1'd0;
+reg           irqarray18_eventsourceflex371_clear = 1'd0;
+wire          irqarray18_eventsourceflex372_status;
+reg           irqarray18_eventsourceflex372_pending = 1'd0;
+reg           irqarray18_eventsourceflex372_clear = 1'd0;
+wire          irqarray18_eventsourceflex373_status;
+reg           irqarray18_eventsourceflex373_pending = 1'd0;
+reg           irqarray18_eventsourceflex373_clear = 1'd0;
+wire          irqarray18_eventsourceflex374_status;
+reg           irqarray18_eventsourceflex374_pending = 1'd0;
+reg           irqarray18_eventsourceflex374_clear = 1'd0;
+wire          irqarray18_eventsourceflex375_status;
+reg           irqarray18_eventsourceflex375_pending = 1'd0;
+reg           irqarray18_eventsourceflex375_clear = 1'd0;
+wire          irqarray18_eventsourceflex376_status;
+reg           irqarray18_eventsourceflex376_pending = 1'd0;
+reg           irqarray18_eventsourceflex376_clear = 1'd0;
+wire          irqarray18_eventsourceflex377_status;
+reg           irqarray18_eventsourceflex377_pending = 1'd0;
+reg           irqarray18_eventsourceflex377_clear = 1'd0;
+wire          irqarray18_eventsourceflex378_status;
+reg           irqarray18_eventsourceflex378_pending = 1'd0;
+reg           irqarray18_eventsourceflex378_clear = 1'd0;
+wire          irqarray18_eventsourceflex379_status;
+reg           irqarray18_eventsourceflex379_pending = 1'd0;
+reg           irqarray18_eventsourceflex379_clear = 1'd0;
+wire          irqarray18_source00;
+wire          irqarray18_source10;
+wire          irqarray18_source20;
+wire          irqarray18_source30;
+wire          irqarray18_source40;
+wire          irqarray18_source50;
+wire          irqarray18_source60;
+wire          irqarray18_source70;
+wire          irqarray18_source80;
+wire          irqarray18_source90;
+wire          irqarray18_source100;
+wire          irqarray18_source110;
+wire          irqarray18_source120;
+wire          irqarray18_source130;
+wire          irqarray18_source140;
+wire          irqarray18_source150;
+wire          irqarray18_source160;
+wire          irqarray18_source170;
+wire          irqarray18_source180;
+wire          irqarray18_source190;
+reg    [19:0] irqarray18_status_status = 20'd0;
+wire          irqarray18_status_we;
+reg           irqarray18_status_re = 1'd0;
+wire          irqarray18_source01;
+wire          irqarray18_source11;
+wire          irqarray18_source21;
+wire          irqarray18_source31;
+wire          irqarray18_source41;
+wire          irqarray18_source51;
+wire          irqarray18_source61;
+wire          irqarray18_source71;
+wire          irqarray18_source81;
+wire          irqarray18_source91;
+wire          irqarray18_source101;
+wire          irqarray18_source111;
+wire          irqarray18_source121;
+wire          irqarray18_source131;
+wire          irqarray18_source141;
+wire          irqarray18_source151;
+wire          irqarray18_source161;
+wire          irqarray18_source171;
+wire          irqarray18_source181;
+wire          irqarray18_source191;
+reg    [19:0] irqarray18_pending_status = 20'd0;
+wire          irqarray18_pending_we;
+reg           irqarray18_pending_re = 1'd0;
+reg    [19:0] irqarray18_pending_r = 20'd0;
+wire          irqarray18_source02;
+wire          irqarray18_source12;
+wire          irqarray18_source22;
+wire          irqarray18_source32;
+wire          irqarray18_source42;
+wire          irqarray18_source52;
+wire          irqarray18_source62;
+wire          irqarray18_source72;
+wire          irqarray18_source82;
+wire          irqarray18_source92;
+wire          irqarray18_source102;
+wire          irqarray18_source112;
+wire          irqarray18_source122;
+wire          irqarray18_source132;
+wire          irqarray18_source142;
+wire          irqarray18_source152;
+wire          irqarray18_source162;
+wire          irqarray18_source172;
+wire          irqarray18_source182;
+wire          irqarray18_source192;
+reg    [19:0] irqarray18_enable_storage = 20'd0;
+reg           irqarray18_enable_re = 1'd0;
+wire          irqarray19_irq;
+wire   [19:0] irqarray19_interrupts;
+reg    [19:0] irqarray19_trigger = 20'd0;
+reg    [19:0] irqarray19_storage = 20'd0;
+reg           irqarray19_re = 1'd0;
+wire          irqarray19_eventsourceflex380_status;
+reg           irqarray19_eventsourceflex380_pending = 1'd0;
+reg           irqarray19_eventsourceflex380_clear = 1'd0;
+wire          irqarray19_eventsourceflex381_status;
+reg           irqarray19_eventsourceflex381_pending = 1'd0;
+reg           irqarray19_eventsourceflex381_clear = 1'd0;
+wire          irqarray19_eventsourceflex382_status;
+reg           irqarray19_eventsourceflex382_pending = 1'd0;
+reg           irqarray19_eventsourceflex382_clear = 1'd0;
+wire          irqarray19_eventsourceflex383_status;
+reg           irqarray19_eventsourceflex383_pending = 1'd0;
+reg           irqarray19_eventsourceflex383_clear = 1'd0;
+wire          irqarray19_eventsourceflex384_status;
+reg           irqarray19_eventsourceflex384_pending = 1'd0;
+reg           irqarray19_eventsourceflex384_clear = 1'd0;
+wire          irqarray19_eventsourceflex385_status;
+reg           irqarray19_eventsourceflex385_pending = 1'd0;
+reg           irqarray19_eventsourceflex385_clear = 1'd0;
+wire          irqarray19_eventsourceflex386_status;
+reg           irqarray19_eventsourceflex386_pending = 1'd0;
+reg           irqarray19_eventsourceflex386_clear = 1'd0;
+wire          irqarray19_eventsourceflex387_status;
+reg           irqarray19_eventsourceflex387_pending = 1'd0;
+reg           irqarray19_eventsourceflex387_clear = 1'd0;
+wire          irqarray19_eventsourceflex388_status;
+reg           irqarray19_eventsourceflex388_pending = 1'd0;
+reg           irqarray19_eventsourceflex388_clear = 1'd0;
+wire          irqarray19_eventsourceflex389_status;
+reg           irqarray19_eventsourceflex389_pending = 1'd0;
+reg           irqarray19_eventsourceflex389_clear = 1'd0;
+wire          irqarray19_eventsourceflex390_status;
+reg           irqarray19_eventsourceflex390_pending = 1'd0;
+reg           irqarray19_eventsourceflex390_clear = 1'd0;
+wire          irqarray19_eventsourceflex391_status;
+reg           irqarray19_eventsourceflex391_pending = 1'd0;
+reg           irqarray19_eventsourceflex391_clear = 1'd0;
+wire          irqarray19_eventsourceflex392_status;
+reg           irqarray19_eventsourceflex392_pending = 1'd0;
+reg           irqarray19_eventsourceflex392_clear = 1'd0;
+wire          irqarray19_eventsourceflex393_status;
+reg           irqarray19_eventsourceflex393_pending = 1'd0;
+reg           irqarray19_eventsourceflex393_clear = 1'd0;
+wire          irqarray19_eventsourceflex394_status;
+reg           irqarray19_eventsourceflex394_pending = 1'd0;
+reg           irqarray19_eventsourceflex394_clear = 1'd0;
+wire          irqarray19_eventsourceflex395_status;
+reg           irqarray19_eventsourceflex395_pending = 1'd0;
+reg           irqarray19_eventsourceflex395_clear = 1'd0;
+wire          irqarray19_eventsourceflex396_status;
+reg           irqarray19_eventsourceflex396_pending = 1'd0;
+reg           irqarray19_eventsourceflex396_clear = 1'd0;
+wire          irqarray19_eventsourceflex397_status;
+reg           irqarray19_eventsourceflex397_pending = 1'd0;
+reg           irqarray19_eventsourceflex397_clear = 1'd0;
+wire          irqarray19_eventsourceflex398_status;
+reg           irqarray19_eventsourceflex398_pending = 1'd0;
+reg           irqarray19_eventsourceflex398_clear = 1'd0;
+wire          irqarray19_eventsourceflex399_status;
+reg           irqarray19_eventsourceflex399_pending = 1'd0;
+reg           irqarray19_eventsourceflex399_clear = 1'd0;
+wire          irqarray19_source00;
+wire          irqarray19_source10;
+wire          irqarray19_source20;
+wire          irqarray19_source30;
+wire          irqarray19_source40;
+wire          irqarray19_source50;
+wire          irqarray19_source60;
+wire          irqarray19_source70;
+wire          irqarray19_source80;
+wire          irqarray19_source90;
+wire          irqarray19_source100;
+wire          irqarray19_source110;
+wire          irqarray19_source120;
+wire          irqarray19_source130;
+wire          irqarray19_source140;
+wire          irqarray19_source150;
+wire          irqarray19_source160;
+wire          irqarray19_source170;
+wire          irqarray19_source180;
+wire          irqarray19_source190;
+reg    [19:0] irqarray19_status_status = 20'd0;
+wire          irqarray19_status_we;
+reg           irqarray19_status_re = 1'd0;
+wire          irqarray19_source01;
+wire          irqarray19_source11;
+wire          irqarray19_source21;
+wire          irqarray19_source31;
+wire          irqarray19_source41;
+wire          irqarray19_source51;
+wire          irqarray19_source61;
+wire          irqarray19_source71;
+wire          irqarray19_source81;
+wire          irqarray19_source91;
+wire          irqarray19_source101;
+wire          irqarray19_source111;
+wire          irqarray19_source121;
+wire          irqarray19_source131;
+wire          irqarray19_source141;
+wire          irqarray19_source151;
+wire          irqarray19_source161;
+wire          irqarray19_source171;
+wire          irqarray19_source181;
+wire          irqarray19_source191;
+reg    [19:0] irqarray19_pending_status = 20'd0;
+wire          irqarray19_pending_we;
+reg           irqarray19_pending_re = 1'd0;
+reg    [19:0] irqarray19_pending_r = 20'd0;
+wire          irqarray19_source02;
+wire          irqarray19_source12;
+wire          irqarray19_source22;
+wire          irqarray19_source32;
+wire          irqarray19_source42;
+wire          irqarray19_source52;
+wire          irqarray19_source62;
+wire          irqarray19_source72;
+wire          irqarray19_source82;
+wire          irqarray19_source92;
+wire          irqarray19_source102;
+wire          irqarray19_source112;
+wire          irqarray19_source122;
+wire          irqarray19_source132;
+wire          irqarray19_source142;
+wire          irqarray19_source152;
+wire          irqarray19_source162;
+wire          irqarray19_source172;
+wire          irqarray19_source182;
+wire          irqarray19_source192;
+reg    [19:0] irqarray19_enable_storage = 20'd0;
+reg           irqarray19_enable_re = 1'd0;
 reg    [18:0] ticktimer_prescaler = 19'd400000;
 reg    [63:0] ticktimer_timer0 = 64'd0;
 reg           ticktimer_pause0 = 1'd0;
@@ -801,10 +3500,22 @@ wire          interface2_we;
 wire   [31:0] interface2_dat_w;
 reg    [31:0] interface2_dat_r = 32'd0;
 wire          interface2_re;
-reg           csrbank2_pc_re = 1'd0;
-wire   [31:0] csrbank2_pc_r;
-reg           csrbank2_pc_we = 1'd0;
-wire   [31:0] csrbank2_pc_w;
+reg           csrbank2_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank2_ev_soft0_r;
+reg           csrbank2_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank2_ev_soft0_w;
+reg           csrbank2_ev_status_re = 1'd0;
+wire   [19:0] csrbank2_ev_status_r;
+reg           csrbank2_ev_status_we = 1'd0;
+wire   [19:0] csrbank2_ev_status_w;
+reg           csrbank2_ev_pending_re = 1'd0;
+wire   [19:0] csrbank2_ev_pending_r;
+reg           csrbank2_ev_pending_we = 1'd0;
+wire   [19:0] csrbank2_ev_pending_w;
+reg           csrbank2_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank2_ev_enable0_r;
+reg           csrbank2_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank2_ev_enable0_w;
 wire          csrbank2_sel;
 wire          csrbank2_re;
 wire   [15:0] interface3_adr;
@@ -812,40 +3523,488 @@ wire          interface3_we;
 wire   [31:0] interface3_dat_w;
 reg    [31:0] interface3_dat_r = 32'd0;
 wire          interface3_re;
-reg           csrbank3_control0_re = 1'd0;
-wire          csrbank3_control0_r;
-reg           csrbank3_control0_we = 1'd0;
-wire          csrbank3_control0_w;
-reg           csrbank3_time1_re = 1'd0;
-wire   [31:0] csrbank3_time1_r;
-reg           csrbank3_time1_we = 1'd0;
-wire   [31:0] csrbank3_time1_w;
-reg           csrbank3_time0_re = 1'd0;
-wire   [31:0] csrbank3_time0_r;
-reg           csrbank3_time0_we = 1'd0;
-wire   [31:0] csrbank3_time0_w;
-reg           csrbank3_msleep_target1_re = 1'd0;
-wire   [31:0] csrbank3_msleep_target1_r;
-reg           csrbank3_msleep_target1_we = 1'd0;
-wire   [31:0] csrbank3_msleep_target1_w;
-reg           csrbank3_msleep_target0_re = 1'd0;
-wire   [31:0] csrbank3_msleep_target0_r;
-reg           csrbank3_msleep_target0_we = 1'd0;
-wire   [31:0] csrbank3_msleep_target0_w;
+reg           csrbank3_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank3_ev_soft0_r;
+reg           csrbank3_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank3_ev_soft0_w;
 reg           csrbank3_ev_status_re = 1'd0;
-wire          csrbank3_ev_status_r;
+wire   [19:0] csrbank3_ev_status_r;
 reg           csrbank3_ev_status_we = 1'd0;
-wire          csrbank3_ev_status_w;
+wire   [19:0] csrbank3_ev_status_w;
 reg           csrbank3_ev_pending_re = 1'd0;
-wire          csrbank3_ev_pending_r;
+wire   [19:0] csrbank3_ev_pending_r;
 reg           csrbank3_ev_pending_we = 1'd0;
-wire          csrbank3_ev_pending_w;
+wire   [19:0] csrbank3_ev_pending_w;
 reg           csrbank3_ev_enable0_re = 1'd0;
-wire          csrbank3_ev_enable0_r;
+wire   [19:0] csrbank3_ev_enable0_r;
 reg           csrbank3_ev_enable0_we = 1'd0;
-wire          csrbank3_ev_enable0_w;
+wire   [19:0] csrbank3_ev_enable0_w;
 wire          csrbank3_sel;
 wire          csrbank3_re;
+wire   [15:0] interface4_adr;
+wire          interface4_we;
+wire   [31:0] interface4_dat_w;
+reg    [31:0] interface4_dat_r = 32'd0;
+wire          interface4_re;
+reg           csrbank4_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank4_ev_soft0_r;
+reg           csrbank4_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank4_ev_soft0_w;
+reg           csrbank4_ev_status_re = 1'd0;
+wire   [19:0] csrbank4_ev_status_r;
+reg           csrbank4_ev_status_we = 1'd0;
+wire   [19:0] csrbank4_ev_status_w;
+reg           csrbank4_ev_pending_re = 1'd0;
+wire   [19:0] csrbank4_ev_pending_r;
+reg           csrbank4_ev_pending_we = 1'd0;
+wire   [19:0] csrbank4_ev_pending_w;
+reg           csrbank4_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank4_ev_enable0_r;
+reg           csrbank4_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank4_ev_enable0_w;
+wire          csrbank4_sel;
+wire          csrbank4_re;
+wire   [15:0] interface5_adr;
+wire          interface5_we;
+wire   [31:0] interface5_dat_w;
+reg    [31:0] interface5_dat_r = 32'd0;
+wire          interface5_re;
+reg           csrbank5_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank5_ev_soft0_r;
+reg           csrbank5_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank5_ev_soft0_w;
+reg           csrbank5_ev_status_re = 1'd0;
+wire   [19:0] csrbank5_ev_status_r;
+reg           csrbank5_ev_status_we = 1'd0;
+wire   [19:0] csrbank5_ev_status_w;
+reg           csrbank5_ev_pending_re = 1'd0;
+wire   [19:0] csrbank5_ev_pending_r;
+reg           csrbank5_ev_pending_we = 1'd0;
+wire   [19:0] csrbank5_ev_pending_w;
+reg           csrbank5_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank5_ev_enable0_r;
+reg           csrbank5_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank5_ev_enable0_w;
+wire          csrbank5_sel;
+wire          csrbank5_re;
+wire   [15:0] interface6_adr;
+wire          interface6_we;
+wire   [31:0] interface6_dat_w;
+reg    [31:0] interface6_dat_r = 32'd0;
+wire          interface6_re;
+reg           csrbank6_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank6_ev_soft0_r;
+reg           csrbank6_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank6_ev_soft0_w;
+reg           csrbank6_ev_status_re = 1'd0;
+wire   [19:0] csrbank6_ev_status_r;
+reg           csrbank6_ev_status_we = 1'd0;
+wire   [19:0] csrbank6_ev_status_w;
+reg           csrbank6_ev_pending_re = 1'd0;
+wire   [19:0] csrbank6_ev_pending_r;
+reg           csrbank6_ev_pending_we = 1'd0;
+wire   [19:0] csrbank6_ev_pending_w;
+reg           csrbank6_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank6_ev_enable0_r;
+reg           csrbank6_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank6_ev_enable0_w;
+wire          csrbank6_sel;
+wire          csrbank6_re;
+wire   [15:0] interface7_adr;
+wire          interface7_we;
+wire   [31:0] interface7_dat_w;
+reg    [31:0] interface7_dat_r = 32'd0;
+wire          interface7_re;
+reg           csrbank7_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank7_ev_soft0_r;
+reg           csrbank7_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank7_ev_soft0_w;
+reg           csrbank7_ev_status_re = 1'd0;
+wire   [19:0] csrbank7_ev_status_r;
+reg           csrbank7_ev_status_we = 1'd0;
+wire   [19:0] csrbank7_ev_status_w;
+reg           csrbank7_ev_pending_re = 1'd0;
+wire   [19:0] csrbank7_ev_pending_r;
+reg           csrbank7_ev_pending_we = 1'd0;
+wire   [19:0] csrbank7_ev_pending_w;
+reg           csrbank7_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank7_ev_enable0_r;
+reg           csrbank7_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank7_ev_enable0_w;
+wire          csrbank7_sel;
+wire          csrbank7_re;
+wire   [15:0] interface8_adr;
+wire          interface8_we;
+wire   [31:0] interface8_dat_w;
+reg    [31:0] interface8_dat_r = 32'd0;
+wire          interface8_re;
+reg           csrbank8_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank8_ev_soft0_r;
+reg           csrbank8_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank8_ev_soft0_w;
+reg           csrbank8_ev_status_re = 1'd0;
+wire   [19:0] csrbank8_ev_status_r;
+reg           csrbank8_ev_status_we = 1'd0;
+wire   [19:0] csrbank8_ev_status_w;
+reg           csrbank8_ev_pending_re = 1'd0;
+wire   [19:0] csrbank8_ev_pending_r;
+reg           csrbank8_ev_pending_we = 1'd0;
+wire   [19:0] csrbank8_ev_pending_w;
+reg           csrbank8_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank8_ev_enable0_r;
+reg           csrbank8_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank8_ev_enable0_w;
+wire          csrbank8_sel;
+wire          csrbank8_re;
+wire   [15:0] interface9_adr;
+wire          interface9_we;
+wire   [31:0] interface9_dat_w;
+reg    [31:0] interface9_dat_r = 32'd0;
+wire          interface9_re;
+reg           csrbank9_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank9_ev_soft0_r;
+reg           csrbank9_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank9_ev_soft0_w;
+reg           csrbank9_ev_status_re = 1'd0;
+wire   [19:0] csrbank9_ev_status_r;
+reg           csrbank9_ev_status_we = 1'd0;
+wire   [19:0] csrbank9_ev_status_w;
+reg           csrbank9_ev_pending_re = 1'd0;
+wire   [19:0] csrbank9_ev_pending_r;
+reg           csrbank9_ev_pending_we = 1'd0;
+wire   [19:0] csrbank9_ev_pending_w;
+reg           csrbank9_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank9_ev_enable0_r;
+reg           csrbank9_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank9_ev_enable0_w;
+wire          csrbank9_sel;
+wire          csrbank9_re;
+wire   [15:0] interface10_adr;
+wire          interface10_we;
+wire   [31:0] interface10_dat_w;
+reg    [31:0] interface10_dat_r = 32'd0;
+wire          interface10_re;
+reg           csrbank10_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank10_ev_soft0_r;
+reg           csrbank10_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank10_ev_soft0_w;
+reg           csrbank10_ev_status_re = 1'd0;
+wire   [19:0] csrbank10_ev_status_r;
+reg           csrbank10_ev_status_we = 1'd0;
+wire   [19:0] csrbank10_ev_status_w;
+reg           csrbank10_ev_pending_re = 1'd0;
+wire   [19:0] csrbank10_ev_pending_r;
+reg           csrbank10_ev_pending_we = 1'd0;
+wire   [19:0] csrbank10_ev_pending_w;
+reg           csrbank10_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank10_ev_enable0_r;
+reg           csrbank10_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank10_ev_enable0_w;
+wire          csrbank10_sel;
+wire          csrbank10_re;
+wire   [15:0] interface11_adr;
+wire          interface11_we;
+wire   [31:0] interface11_dat_w;
+reg    [31:0] interface11_dat_r = 32'd0;
+wire          interface11_re;
+reg           csrbank11_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank11_ev_soft0_r;
+reg           csrbank11_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank11_ev_soft0_w;
+reg           csrbank11_ev_status_re = 1'd0;
+wire   [19:0] csrbank11_ev_status_r;
+reg           csrbank11_ev_status_we = 1'd0;
+wire   [19:0] csrbank11_ev_status_w;
+reg           csrbank11_ev_pending_re = 1'd0;
+wire   [19:0] csrbank11_ev_pending_r;
+reg           csrbank11_ev_pending_we = 1'd0;
+wire   [19:0] csrbank11_ev_pending_w;
+reg           csrbank11_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank11_ev_enable0_r;
+reg           csrbank11_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank11_ev_enable0_w;
+wire          csrbank11_sel;
+wire          csrbank11_re;
+wire   [15:0] interface12_adr;
+wire          interface12_we;
+wire   [31:0] interface12_dat_w;
+reg    [31:0] interface12_dat_r = 32'd0;
+wire          interface12_re;
+reg           csrbank12_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank12_ev_soft0_r;
+reg           csrbank12_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank12_ev_soft0_w;
+reg           csrbank12_ev_status_re = 1'd0;
+wire   [19:0] csrbank12_ev_status_r;
+reg           csrbank12_ev_status_we = 1'd0;
+wire   [19:0] csrbank12_ev_status_w;
+reg           csrbank12_ev_pending_re = 1'd0;
+wire   [19:0] csrbank12_ev_pending_r;
+reg           csrbank12_ev_pending_we = 1'd0;
+wire   [19:0] csrbank12_ev_pending_w;
+reg           csrbank12_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank12_ev_enable0_r;
+reg           csrbank12_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank12_ev_enable0_w;
+wire          csrbank12_sel;
+wire          csrbank12_re;
+wire   [15:0] interface13_adr;
+wire          interface13_we;
+wire   [31:0] interface13_dat_w;
+reg    [31:0] interface13_dat_r = 32'd0;
+wire          interface13_re;
+reg           csrbank13_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank13_ev_soft0_r;
+reg           csrbank13_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank13_ev_soft0_w;
+reg           csrbank13_ev_status_re = 1'd0;
+wire   [19:0] csrbank13_ev_status_r;
+reg           csrbank13_ev_status_we = 1'd0;
+wire   [19:0] csrbank13_ev_status_w;
+reg           csrbank13_ev_pending_re = 1'd0;
+wire   [19:0] csrbank13_ev_pending_r;
+reg           csrbank13_ev_pending_we = 1'd0;
+wire   [19:0] csrbank13_ev_pending_w;
+reg           csrbank13_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank13_ev_enable0_r;
+reg           csrbank13_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank13_ev_enable0_w;
+wire          csrbank13_sel;
+wire          csrbank13_re;
+wire   [15:0] interface14_adr;
+wire          interface14_we;
+wire   [31:0] interface14_dat_w;
+reg    [31:0] interface14_dat_r = 32'd0;
+wire          interface14_re;
+reg           csrbank14_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank14_ev_soft0_r;
+reg           csrbank14_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank14_ev_soft0_w;
+reg           csrbank14_ev_status_re = 1'd0;
+wire   [19:0] csrbank14_ev_status_r;
+reg           csrbank14_ev_status_we = 1'd0;
+wire   [19:0] csrbank14_ev_status_w;
+reg           csrbank14_ev_pending_re = 1'd0;
+wire   [19:0] csrbank14_ev_pending_r;
+reg           csrbank14_ev_pending_we = 1'd0;
+wire   [19:0] csrbank14_ev_pending_w;
+reg           csrbank14_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank14_ev_enable0_r;
+reg           csrbank14_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank14_ev_enable0_w;
+wire          csrbank14_sel;
+wire          csrbank14_re;
+wire   [15:0] interface15_adr;
+wire          interface15_we;
+wire   [31:0] interface15_dat_w;
+reg    [31:0] interface15_dat_r = 32'd0;
+wire          interface15_re;
+reg           csrbank15_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank15_ev_soft0_r;
+reg           csrbank15_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank15_ev_soft0_w;
+reg           csrbank15_ev_status_re = 1'd0;
+wire   [19:0] csrbank15_ev_status_r;
+reg           csrbank15_ev_status_we = 1'd0;
+wire   [19:0] csrbank15_ev_status_w;
+reg           csrbank15_ev_pending_re = 1'd0;
+wire   [19:0] csrbank15_ev_pending_r;
+reg           csrbank15_ev_pending_we = 1'd0;
+wire   [19:0] csrbank15_ev_pending_w;
+reg           csrbank15_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank15_ev_enable0_r;
+reg           csrbank15_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank15_ev_enable0_w;
+wire          csrbank15_sel;
+wire          csrbank15_re;
+wire   [15:0] interface16_adr;
+wire          interface16_we;
+wire   [31:0] interface16_dat_w;
+reg    [31:0] interface16_dat_r = 32'd0;
+wire          interface16_re;
+reg           csrbank16_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank16_ev_soft0_r;
+reg           csrbank16_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank16_ev_soft0_w;
+reg           csrbank16_ev_status_re = 1'd0;
+wire   [19:0] csrbank16_ev_status_r;
+reg           csrbank16_ev_status_we = 1'd0;
+wire   [19:0] csrbank16_ev_status_w;
+reg           csrbank16_ev_pending_re = 1'd0;
+wire   [19:0] csrbank16_ev_pending_r;
+reg           csrbank16_ev_pending_we = 1'd0;
+wire   [19:0] csrbank16_ev_pending_w;
+reg           csrbank16_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank16_ev_enable0_r;
+reg           csrbank16_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank16_ev_enable0_w;
+wire          csrbank16_sel;
+wire          csrbank16_re;
+wire   [15:0] interface17_adr;
+wire          interface17_we;
+wire   [31:0] interface17_dat_w;
+reg    [31:0] interface17_dat_r = 32'd0;
+wire          interface17_re;
+reg           csrbank17_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank17_ev_soft0_r;
+reg           csrbank17_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank17_ev_soft0_w;
+reg           csrbank17_ev_status_re = 1'd0;
+wire   [19:0] csrbank17_ev_status_r;
+reg           csrbank17_ev_status_we = 1'd0;
+wire   [19:0] csrbank17_ev_status_w;
+reg           csrbank17_ev_pending_re = 1'd0;
+wire   [19:0] csrbank17_ev_pending_r;
+reg           csrbank17_ev_pending_we = 1'd0;
+wire   [19:0] csrbank17_ev_pending_w;
+reg           csrbank17_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank17_ev_enable0_r;
+reg           csrbank17_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank17_ev_enable0_w;
+wire          csrbank17_sel;
+wire          csrbank17_re;
+wire   [15:0] interface18_adr;
+wire          interface18_we;
+wire   [31:0] interface18_dat_w;
+reg    [31:0] interface18_dat_r = 32'd0;
+wire          interface18_re;
+reg           csrbank18_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank18_ev_soft0_r;
+reg           csrbank18_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank18_ev_soft0_w;
+reg           csrbank18_ev_status_re = 1'd0;
+wire   [19:0] csrbank18_ev_status_r;
+reg           csrbank18_ev_status_we = 1'd0;
+wire   [19:0] csrbank18_ev_status_w;
+reg           csrbank18_ev_pending_re = 1'd0;
+wire   [19:0] csrbank18_ev_pending_r;
+reg           csrbank18_ev_pending_we = 1'd0;
+wire   [19:0] csrbank18_ev_pending_w;
+reg           csrbank18_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank18_ev_enable0_r;
+reg           csrbank18_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank18_ev_enable0_w;
+wire          csrbank18_sel;
+wire          csrbank18_re;
+wire   [15:0] interface19_adr;
+wire          interface19_we;
+wire   [31:0] interface19_dat_w;
+reg    [31:0] interface19_dat_r = 32'd0;
+wire          interface19_re;
+reg           csrbank19_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank19_ev_soft0_r;
+reg           csrbank19_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank19_ev_soft0_w;
+reg           csrbank19_ev_status_re = 1'd0;
+wire   [19:0] csrbank19_ev_status_r;
+reg           csrbank19_ev_status_we = 1'd0;
+wire   [19:0] csrbank19_ev_status_w;
+reg           csrbank19_ev_pending_re = 1'd0;
+wire   [19:0] csrbank19_ev_pending_r;
+reg           csrbank19_ev_pending_we = 1'd0;
+wire   [19:0] csrbank19_ev_pending_w;
+reg           csrbank19_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank19_ev_enable0_r;
+reg           csrbank19_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank19_ev_enable0_w;
+wire          csrbank19_sel;
+wire          csrbank19_re;
+wire   [15:0] interface20_adr;
+wire          interface20_we;
+wire   [31:0] interface20_dat_w;
+reg    [31:0] interface20_dat_r = 32'd0;
+wire          interface20_re;
+reg           csrbank20_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank20_ev_soft0_r;
+reg           csrbank20_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank20_ev_soft0_w;
+reg           csrbank20_ev_status_re = 1'd0;
+wire   [19:0] csrbank20_ev_status_r;
+reg           csrbank20_ev_status_we = 1'd0;
+wire   [19:0] csrbank20_ev_status_w;
+reg           csrbank20_ev_pending_re = 1'd0;
+wire   [19:0] csrbank20_ev_pending_r;
+reg           csrbank20_ev_pending_we = 1'd0;
+wire   [19:0] csrbank20_ev_pending_w;
+reg           csrbank20_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank20_ev_enable0_r;
+reg           csrbank20_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank20_ev_enable0_w;
+wire          csrbank20_sel;
+wire          csrbank20_re;
+wire   [15:0] interface21_adr;
+wire          interface21_we;
+wire   [31:0] interface21_dat_w;
+reg    [31:0] interface21_dat_r = 32'd0;
+wire          interface21_re;
+reg           csrbank21_ev_soft0_re = 1'd0;
+wire   [19:0] csrbank21_ev_soft0_r;
+reg           csrbank21_ev_soft0_we = 1'd0;
+wire   [19:0] csrbank21_ev_soft0_w;
+reg           csrbank21_ev_status_re = 1'd0;
+wire   [19:0] csrbank21_ev_status_r;
+reg           csrbank21_ev_status_we = 1'd0;
+wire   [19:0] csrbank21_ev_status_w;
+reg           csrbank21_ev_pending_re = 1'd0;
+wire   [19:0] csrbank21_ev_pending_r;
+reg           csrbank21_ev_pending_we = 1'd0;
+wire   [19:0] csrbank21_ev_pending_w;
+reg           csrbank21_ev_enable0_re = 1'd0;
+wire   [19:0] csrbank21_ev_enable0_r;
+reg           csrbank21_ev_enable0_we = 1'd0;
+wire   [19:0] csrbank21_ev_enable0_w;
+wire          csrbank21_sel;
+wire          csrbank21_re;
+wire   [15:0] interface22_adr;
+wire          interface22_we;
+wire   [31:0] interface22_dat_w;
+reg    [31:0] interface22_dat_r = 32'd0;
+wire          interface22_re;
+reg           csrbank22_pc_re = 1'd0;
+wire   [31:0] csrbank22_pc_r;
+reg           csrbank22_pc_we = 1'd0;
+wire   [31:0] csrbank22_pc_w;
+wire          csrbank22_sel;
+wire          csrbank22_re;
+wire   [15:0] interface23_adr;
+wire          interface23_we;
+wire   [31:0] interface23_dat_w;
+reg    [31:0] interface23_dat_r = 32'd0;
+wire          interface23_re;
+reg           csrbank23_control0_re = 1'd0;
+wire          csrbank23_control0_r;
+reg           csrbank23_control0_we = 1'd0;
+wire          csrbank23_control0_w;
+reg           csrbank23_time1_re = 1'd0;
+wire   [31:0] csrbank23_time1_r;
+reg           csrbank23_time1_we = 1'd0;
+wire   [31:0] csrbank23_time1_w;
+reg           csrbank23_time0_re = 1'd0;
+wire   [31:0] csrbank23_time0_r;
+reg           csrbank23_time0_we = 1'd0;
+wire   [31:0] csrbank23_time0_w;
+reg           csrbank23_msleep_target1_re = 1'd0;
+wire   [31:0] csrbank23_msleep_target1_r;
+reg           csrbank23_msleep_target1_we = 1'd0;
+wire   [31:0] csrbank23_msleep_target1_w;
+reg           csrbank23_msleep_target0_re = 1'd0;
+wire   [31:0] csrbank23_msleep_target0_r;
+reg           csrbank23_msleep_target0_we = 1'd0;
+wire   [31:0] csrbank23_msleep_target0_w;
+reg           csrbank23_ev_status_re = 1'd0;
+wire          csrbank23_ev_status_r;
+reg           csrbank23_ev_status_we = 1'd0;
+wire          csrbank23_ev_status_w;
+reg           csrbank23_ev_pending_re = 1'd0;
+wire          csrbank23_ev_pending_r;
+reg           csrbank23_ev_pending_we = 1'd0;
+wire          csrbank23_ev_pending_w;
+reg           csrbank23_ev_enable0_re = 1'd0;
+wire          csrbank23_ev_enable0_r;
+reg           csrbank23_ev_enable0_we = 1'd0;
+wire          csrbank23_ev_enable0_w;
+wire          csrbank23_sel;
+wire          csrbank23_re;
 wire   [15:0] csr_interconnect_adr;
 wire          csr_interconnect_we;
 wire   [31:0] csr_interconnect_dat_w;
@@ -1010,7 +4169,30 @@ assign cramsoc_dbus_r_param_id = dbus_axi_rid;
 assign cramsoc_dbus_r_param_user = dbus_axi_ruser;
 assign cramsoc_dbus_r_last = dbus_axi_rlast;
 assign dbus_axi_rready = cramsoc_dbus_r_ready;
-assign cramsoc_interrupt = interrupt;
+always @(*) begin
+    cramsoc_interrupt <= 32'd0;
+    cramsoc_interrupt[0] <= irqarray0_irq;
+    cramsoc_interrupt[1] <= irqarray1_irq;
+    cramsoc_interrupt[10] <= irqarray10_irq;
+    cramsoc_interrupt[11] <= irqarray11_irq;
+    cramsoc_interrupt[12] <= irqarray12_irq;
+    cramsoc_interrupt[13] <= irqarray13_irq;
+    cramsoc_interrupt[14] <= irqarray14_irq;
+    cramsoc_interrupt[15] <= irqarray15_irq;
+    cramsoc_interrupt[16] <= irqarray16_irq;
+    cramsoc_interrupt[17] <= irqarray17_irq;
+    cramsoc_interrupt[18] <= irqarray18_irq;
+    cramsoc_interrupt[19] <= irqarray19_irq;
+    cramsoc_interrupt[2] <= irqarray2_irq;
+    cramsoc_interrupt[3] <= irqarray3_irq;
+    cramsoc_interrupt[4] <= irqarray4_irq;
+    cramsoc_interrupt[5] <= irqarray5_irq;
+    cramsoc_interrupt[6] <= irqarray6_irq;
+    cramsoc_interrupt[7] <= irqarray7_irq;
+    cramsoc_interrupt[8] <= irqarray8_irq;
+    cramsoc_interrupt[9] <= irqarray9_irq;
+    cramsoc_interrupt[20] <= ticktimer_irq;
+end
 assign sys_clk = aclk;
 assign por_clk = aclk;
 assign sys_rst = int_rst;
@@ -1141,12 +4323,3652 @@ always @(*) begin
         cramsoc_vexriscvaxi_reset_mux <= cramsoc_vexriscvaxi;
     end
 end
-assign status = latched_value;
+assign resetvalue_status = resetvalue_latched_value;
 assign coreuser_asid_rd_adr = cramsoc_satp_asid;
 assign coreuser_coreuser_asid = coreuser_asid_rd_dat_r;
 assign coreuser_asid_wr_adr = coreuser_asid0;
 assign coreuser_asid_wr_dat_w = coreuser_trusted;
 assign coreuser_asid_wr_we = ((~coreuser_protect) & coreuser_set_asid_re);
+assign irqarray0_interrupts = irqarray_bank0;
+assign irqarray0_source00 = irqarray0_eventsourceflex0_status;
+assign irqarray0_source01 = irqarray0_eventsourceflex0_pending;
+always @(*) begin
+    irqarray0_eventsourceflex0_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[0])) begin
+        irqarray0_eventsourceflex0_clear <= 1'd1;
+    end
+end
+assign irqarray0_source10 = irqarray0_eventsourceflex1_status;
+assign irqarray0_source11 = irqarray0_eventsourceflex1_pending;
+always @(*) begin
+    irqarray0_eventsourceflex1_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[1])) begin
+        irqarray0_eventsourceflex1_clear <= 1'd1;
+    end
+end
+assign irqarray0_source20 = irqarray0_eventsourceflex2_status;
+assign irqarray0_source21 = irqarray0_eventsourceflex2_pending;
+always @(*) begin
+    irqarray0_eventsourceflex2_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[2])) begin
+        irqarray0_eventsourceflex2_clear <= 1'd1;
+    end
+end
+assign irqarray0_source30 = irqarray0_eventsourceflex3_status;
+assign irqarray0_source31 = irqarray0_eventsourceflex3_pending;
+always @(*) begin
+    irqarray0_eventsourceflex3_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[3])) begin
+        irqarray0_eventsourceflex3_clear <= 1'd1;
+    end
+end
+assign irqarray0_source40 = irqarray0_eventsourceflex4_status;
+assign irqarray0_source41 = irqarray0_eventsourceflex4_pending;
+always @(*) begin
+    irqarray0_eventsourceflex4_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[4])) begin
+        irqarray0_eventsourceflex4_clear <= 1'd1;
+    end
+end
+assign irqarray0_source50 = irqarray0_eventsourceflex5_status;
+assign irqarray0_source51 = irqarray0_eventsourceflex5_pending;
+always @(*) begin
+    irqarray0_eventsourceflex5_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[5])) begin
+        irqarray0_eventsourceflex5_clear <= 1'd1;
+    end
+end
+assign irqarray0_source60 = irqarray0_eventsourceflex6_status;
+assign irqarray0_source61 = irqarray0_eventsourceflex6_pending;
+always @(*) begin
+    irqarray0_eventsourceflex6_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[6])) begin
+        irqarray0_eventsourceflex6_clear <= 1'd1;
+    end
+end
+assign irqarray0_source70 = irqarray0_eventsourceflex7_status;
+assign irqarray0_source71 = irqarray0_eventsourceflex7_pending;
+always @(*) begin
+    irqarray0_eventsourceflex7_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[7])) begin
+        irqarray0_eventsourceflex7_clear <= 1'd1;
+    end
+end
+assign irqarray0_source80 = irqarray0_eventsourceflex8_status;
+assign irqarray0_source81 = irqarray0_eventsourceflex8_pending;
+always @(*) begin
+    irqarray0_eventsourceflex8_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[8])) begin
+        irqarray0_eventsourceflex8_clear <= 1'd1;
+    end
+end
+assign irqarray0_source90 = irqarray0_eventsourceflex9_status;
+assign irqarray0_source91 = irqarray0_eventsourceflex9_pending;
+always @(*) begin
+    irqarray0_eventsourceflex9_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[9])) begin
+        irqarray0_eventsourceflex9_clear <= 1'd1;
+    end
+end
+assign irqarray0_source100 = irqarray0_eventsourceflex10_status;
+assign irqarray0_source101 = irqarray0_eventsourceflex10_pending;
+always @(*) begin
+    irqarray0_eventsourceflex10_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[10])) begin
+        irqarray0_eventsourceflex10_clear <= 1'd1;
+    end
+end
+assign irqarray0_source110 = irqarray0_eventsourceflex11_status;
+assign irqarray0_source111 = irqarray0_eventsourceflex11_pending;
+always @(*) begin
+    irqarray0_eventsourceflex11_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[11])) begin
+        irqarray0_eventsourceflex11_clear <= 1'd1;
+    end
+end
+assign irqarray0_source120 = irqarray0_eventsourceflex12_status;
+assign irqarray0_source121 = irqarray0_eventsourceflex12_pending;
+always @(*) begin
+    irqarray0_eventsourceflex12_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[12])) begin
+        irqarray0_eventsourceflex12_clear <= 1'd1;
+    end
+end
+assign irqarray0_source130 = irqarray0_eventsourceflex13_status;
+assign irqarray0_source131 = irqarray0_eventsourceflex13_pending;
+always @(*) begin
+    irqarray0_eventsourceflex13_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[13])) begin
+        irqarray0_eventsourceflex13_clear <= 1'd1;
+    end
+end
+assign irqarray0_source140 = irqarray0_eventsourceflex14_status;
+assign irqarray0_source141 = irqarray0_eventsourceflex14_pending;
+always @(*) begin
+    irqarray0_eventsourceflex14_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[14])) begin
+        irqarray0_eventsourceflex14_clear <= 1'd1;
+    end
+end
+assign irqarray0_source150 = irqarray0_eventsourceflex15_status;
+assign irqarray0_source151 = irqarray0_eventsourceflex15_pending;
+always @(*) begin
+    irqarray0_eventsourceflex15_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[15])) begin
+        irqarray0_eventsourceflex15_clear <= 1'd1;
+    end
+end
+assign irqarray0_source160 = irqarray0_eventsourceflex16_status;
+assign irqarray0_source161 = irqarray0_eventsourceflex16_pending;
+always @(*) begin
+    irqarray0_eventsourceflex16_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[16])) begin
+        irqarray0_eventsourceflex16_clear <= 1'd1;
+    end
+end
+assign irqarray0_source170 = irqarray0_eventsourceflex17_status;
+assign irqarray0_source171 = irqarray0_eventsourceflex17_pending;
+always @(*) begin
+    irqarray0_eventsourceflex17_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[17])) begin
+        irqarray0_eventsourceflex17_clear <= 1'd1;
+    end
+end
+assign irqarray0_source180 = irqarray0_eventsourceflex18_status;
+assign irqarray0_source181 = irqarray0_eventsourceflex18_pending;
+always @(*) begin
+    irqarray0_eventsourceflex18_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[18])) begin
+        irqarray0_eventsourceflex18_clear <= 1'd1;
+    end
+end
+assign irqarray0_source190 = irqarray0_eventsourceflex19_status;
+assign irqarray0_source191 = irqarray0_eventsourceflex19_pending;
+always @(*) begin
+    irqarray0_eventsourceflex19_clear <= 1'd0;
+    if ((irqarray0_pending_re & irqarray0_pending_r[19])) begin
+        irqarray0_eventsourceflex19_clear <= 1'd1;
+    end
+end
+assign irqarray0_irq = ((((((((((((((((((((irqarray0_pending_status[0] & irqarray0_enable_storage[0]) | (irqarray0_pending_status[1] & irqarray0_enable_storage[1])) | (irqarray0_pending_status[2] & irqarray0_enable_storage[2])) | (irqarray0_pending_status[3] & irqarray0_enable_storage[3])) | (irqarray0_pending_status[4] & irqarray0_enable_storage[4])) | (irqarray0_pending_status[5] & irqarray0_enable_storage[5])) | (irqarray0_pending_status[6] & irqarray0_enable_storage[6])) | (irqarray0_pending_status[7] & irqarray0_enable_storage[7])) | (irqarray0_pending_status[8] & irqarray0_enable_storage[8])) | (irqarray0_pending_status[9] & irqarray0_enable_storage[9])) | (irqarray0_pending_status[10] & irqarray0_enable_storage[10])) | (irqarray0_pending_status[11] & irqarray0_enable_storage[11])) | (irqarray0_pending_status[12] & irqarray0_enable_storage[12])) | (irqarray0_pending_status[13] & irqarray0_enable_storage[13])) | (irqarray0_pending_status[14] & irqarray0_enable_storage[14])) | (irqarray0_pending_status[15] & irqarray0_enable_storage[15])) | (irqarray0_pending_status[16] & irqarray0_enable_storage[16])) | (irqarray0_pending_status[17] & irqarray0_enable_storage[17])) | (irqarray0_pending_status[18] & irqarray0_enable_storage[18])) | (irqarray0_pending_status[19] & irqarray0_enable_storage[19]));
+assign irqarray0_eventsourceflex0_status = (irqarray0_interrupts[0] | irqarray0_trigger[0]);
+assign irqarray0_eventsourceflex1_status = (irqarray0_interrupts[1] | irqarray0_trigger[1]);
+assign irqarray0_eventsourceflex2_status = (irqarray0_interrupts[2] | irqarray0_trigger[2]);
+assign irqarray0_eventsourceflex3_status = (irqarray0_interrupts[3] | irqarray0_trigger[3]);
+assign irqarray0_eventsourceflex4_status = (irqarray0_interrupts[4] | irqarray0_trigger[4]);
+assign irqarray0_eventsourceflex5_status = (irqarray0_interrupts[5] | irqarray0_trigger[5]);
+assign irqarray0_eventsourceflex6_status = (irqarray0_interrupts[6] | irqarray0_trigger[6]);
+assign irqarray0_eventsourceflex7_status = (irqarray0_interrupts[7] | irqarray0_trigger[7]);
+assign irqarray0_eventsourceflex8_status = (irqarray0_interrupts[8] | irqarray0_trigger[8]);
+assign irqarray0_eventsourceflex9_status = (irqarray0_interrupts[9] | irqarray0_trigger[9]);
+assign irqarray0_eventsourceflex10_status = (irqarray0_interrupts[10] | irqarray0_trigger[10]);
+assign irqarray0_eventsourceflex11_status = (irqarray0_interrupts[11] | irqarray0_trigger[11]);
+assign irqarray0_eventsourceflex12_status = (irqarray0_interrupts[12] | irqarray0_trigger[12]);
+assign irqarray0_eventsourceflex13_status = (irqarray0_interrupts[13] | irqarray0_trigger[13]);
+assign irqarray0_eventsourceflex14_status = (irqarray0_interrupts[14] | irqarray0_trigger[14]);
+assign irqarray0_eventsourceflex15_status = (irqarray0_interrupts[15] | irqarray0_trigger[15]);
+assign irqarray0_eventsourceflex16_status = (irqarray0_interrupts[16] | irqarray0_trigger[16]);
+assign irqarray0_eventsourceflex17_status = (irqarray0_interrupts[17] | irqarray0_trigger[17]);
+assign irqarray0_eventsourceflex18_status = (irqarray0_interrupts[18] | irqarray0_trigger[18]);
+assign irqarray0_eventsourceflex19_status = (irqarray0_interrupts[19] | irqarray0_trigger[19]);
+assign irqarray1_interrupts = irqarray_bank1;
+assign irqarray1_source00 = irqarray1_eventsourceflex20_status;
+assign irqarray1_source01 = irqarray1_eventsourceflex20_pending;
+always @(*) begin
+    irqarray1_eventsourceflex20_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[0])) begin
+        irqarray1_eventsourceflex20_clear <= 1'd1;
+    end
+end
+assign irqarray1_source10 = irqarray1_eventsourceflex21_status;
+assign irqarray1_source11 = irqarray1_eventsourceflex21_pending;
+always @(*) begin
+    irqarray1_eventsourceflex21_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[1])) begin
+        irqarray1_eventsourceflex21_clear <= 1'd1;
+    end
+end
+assign irqarray1_source20 = irqarray1_eventsourceflex22_status;
+assign irqarray1_source21 = irqarray1_eventsourceflex22_pending;
+always @(*) begin
+    irqarray1_eventsourceflex22_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[2])) begin
+        irqarray1_eventsourceflex22_clear <= 1'd1;
+    end
+end
+assign irqarray1_source30 = irqarray1_eventsourceflex23_status;
+assign irqarray1_source31 = irqarray1_eventsourceflex23_pending;
+always @(*) begin
+    irqarray1_eventsourceflex23_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[3])) begin
+        irqarray1_eventsourceflex23_clear <= 1'd1;
+    end
+end
+assign irqarray1_source40 = irqarray1_eventsourceflex24_status;
+assign irqarray1_source41 = irqarray1_eventsourceflex24_pending;
+always @(*) begin
+    irqarray1_eventsourceflex24_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[4])) begin
+        irqarray1_eventsourceflex24_clear <= 1'd1;
+    end
+end
+assign irqarray1_source50 = irqarray1_eventsourceflex25_status;
+assign irqarray1_source51 = irqarray1_eventsourceflex25_pending;
+always @(*) begin
+    irqarray1_eventsourceflex25_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[5])) begin
+        irqarray1_eventsourceflex25_clear <= 1'd1;
+    end
+end
+assign irqarray1_source60 = irqarray1_eventsourceflex26_status;
+assign irqarray1_source61 = irqarray1_eventsourceflex26_pending;
+always @(*) begin
+    irqarray1_eventsourceflex26_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[6])) begin
+        irqarray1_eventsourceflex26_clear <= 1'd1;
+    end
+end
+assign irqarray1_source70 = irqarray1_eventsourceflex27_status;
+assign irqarray1_source71 = irqarray1_eventsourceflex27_pending;
+always @(*) begin
+    irqarray1_eventsourceflex27_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[7])) begin
+        irqarray1_eventsourceflex27_clear <= 1'd1;
+    end
+end
+assign irqarray1_source80 = irqarray1_eventsourceflex28_status;
+assign irqarray1_source81 = irqarray1_eventsourceflex28_pending;
+always @(*) begin
+    irqarray1_eventsourceflex28_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[8])) begin
+        irqarray1_eventsourceflex28_clear <= 1'd1;
+    end
+end
+assign irqarray1_source90 = irqarray1_eventsourceflex29_status;
+assign irqarray1_source91 = irqarray1_eventsourceflex29_pending;
+always @(*) begin
+    irqarray1_eventsourceflex29_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[9])) begin
+        irqarray1_eventsourceflex29_clear <= 1'd1;
+    end
+end
+assign irqarray1_source100 = irqarray1_eventsourceflex30_status;
+assign irqarray1_source101 = irqarray1_eventsourceflex30_pending;
+always @(*) begin
+    irqarray1_eventsourceflex30_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[10])) begin
+        irqarray1_eventsourceflex30_clear <= 1'd1;
+    end
+end
+assign irqarray1_source110 = irqarray1_eventsourceflex31_status;
+assign irqarray1_source111 = irqarray1_eventsourceflex31_pending;
+always @(*) begin
+    irqarray1_eventsourceflex31_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[11])) begin
+        irqarray1_eventsourceflex31_clear <= 1'd1;
+    end
+end
+assign irqarray1_source120 = irqarray1_eventsourceflex32_status;
+assign irqarray1_source121 = irqarray1_eventsourceflex32_pending;
+always @(*) begin
+    irqarray1_eventsourceflex32_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[12])) begin
+        irqarray1_eventsourceflex32_clear <= 1'd1;
+    end
+end
+assign irqarray1_source130 = irqarray1_eventsourceflex33_status;
+assign irqarray1_source131 = irqarray1_eventsourceflex33_pending;
+always @(*) begin
+    irqarray1_eventsourceflex33_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[13])) begin
+        irqarray1_eventsourceflex33_clear <= 1'd1;
+    end
+end
+assign irqarray1_source140 = irqarray1_eventsourceflex34_status;
+assign irqarray1_source141 = irqarray1_eventsourceflex34_pending;
+always @(*) begin
+    irqarray1_eventsourceflex34_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[14])) begin
+        irqarray1_eventsourceflex34_clear <= 1'd1;
+    end
+end
+assign irqarray1_source150 = irqarray1_eventsourceflex35_status;
+assign irqarray1_source151 = irqarray1_eventsourceflex35_pending;
+always @(*) begin
+    irqarray1_eventsourceflex35_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[15])) begin
+        irqarray1_eventsourceflex35_clear <= 1'd1;
+    end
+end
+assign irqarray1_source160 = irqarray1_eventsourceflex36_status;
+assign irqarray1_source161 = irqarray1_eventsourceflex36_pending;
+always @(*) begin
+    irqarray1_eventsourceflex36_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[16])) begin
+        irqarray1_eventsourceflex36_clear <= 1'd1;
+    end
+end
+assign irqarray1_source170 = irqarray1_eventsourceflex37_status;
+assign irqarray1_source171 = irqarray1_eventsourceflex37_pending;
+always @(*) begin
+    irqarray1_eventsourceflex37_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[17])) begin
+        irqarray1_eventsourceflex37_clear <= 1'd1;
+    end
+end
+assign irqarray1_source180 = irqarray1_eventsourceflex38_status;
+assign irqarray1_source181 = irqarray1_eventsourceflex38_pending;
+always @(*) begin
+    irqarray1_eventsourceflex38_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[18])) begin
+        irqarray1_eventsourceflex38_clear <= 1'd1;
+    end
+end
+assign irqarray1_source190 = irqarray1_eventsourceflex39_status;
+assign irqarray1_source191 = irqarray1_eventsourceflex39_pending;
+always @(*) begin
+    irqarray1_eventsourceflex39_clear <= 1'd0;
+    if ((irqarray1_pending_re & irqarray1_pending_r[19])) begin
+        irqarray1_eventsourceflex39_clear <= 1'd1;
+    end
+end
+assign irqarray1_irq = ((((((((((((((((((((irqarray1_pending_status[0] & irqarray1_enable_storage[0]) | (irqarray1_pending_status[1] & irqarray1_enable_storage[1])) | (irqarray1_pending_status[2] & irqarray1_enable_storage[2])) | (irqarray1_pending_status[3] & irqarray1_enable_storage[3])) | (irqarray1_pending_status[4] & irqarray1_enable_storage[4])) | (irqarray1_pending_status[5] & irqarray1_enable_storage[5])) | (irqarray1_pending_status[6] & irqarray1_enable_storage[6])) | (irqarray1_pending_status[7] & irqarray1_enable_storage[7])) | (irqarray1_pending_status[8] & irqarray1_enable_storage[8])) | (irqarray1_pending_status[9] & irqarray1_enable_storage[9])) | (irqarray1_pending_status[10] & irqarray1_enable_storage[10])) | (irqarray1_pending_status[11] & irqarray1_enable_storage[11])) | (irqarray1_pending_status[12] & irqarray1_enable_storage[12])) | (irqarray1_pending_status[13] & irqarray1_enable_storage[13])) | (irqarray1_pending_status[14] & irqarray1_enable_storage[14])) | (irqarray1_pending_status[15] & irqarray1_enable_storage[15])) | (irqarray1_pending_status[16] & irqarray1_enable_storage[16])) | (irqarray1_pending_status[17] & irqarray1_enable_storage[17])) | (irqarray1_pending_status[18] & irqarray1_enable_storage[18])) | (irqarray1_pending_status[19] & irqarray1_enable_storage[19]));
+assign irqarray1_eventsourceflex20_status = (irqarray1_interrupts[0] | irqarray1_trigger[0]);
+assign irqarray1_eventsourceflex21_status = (irqarray1_interrupts[1] | irqarray1_trigger[1]);
+assign irqarray1_eventsourceflex22_status = (irqarray1_interrupts[2] | irqarray1_trigger[2]);
+assign irqarray1_eventsourceflex23_status = (irqarray1_interrupts[3] | irqarray1_trigger[3]);
+assign irqarray1_eventsourceflex24_status = (irqarray1_interrupts[4] | irqarray1_trigger[4]);
+assign irqarray1_eventsourceflex25_status = (irqarray1_interrupts[5] | irqarray1_trigger[5]);
+assign irqarray1_eventsourceflex26_status = (irqarray1_interrupts[6] | irqarray1_trigger[6]);
+assign irqarray1_eventsourceflex27_status = (irqarray1_interrupts[7] | irqarray1_trigger[7]);
+assign irqarray1_eventsourceflex28_status = (irqarray1_interrupts[8] | irqarray1_trigger[8]);
+assign irqarray1_eventsourceflex29_status = (irqarray1_interrupts[9] | irqarray1_trigger[9]);
+assign irqarray1_eventsourceflex30_status = (irqarray1_interrupts[10] | irqarray1_trigger[10]);
+assign irqarray1_eventsourceflex31_status = (irqarray1_interrupts[11] | irqarray1_trigger[11]);
+assign irqarray1_eventsourceflex32_status = (irqarray1_interrupts[12] | irqarray1_trigger[12]);
+assign irqarray1_eventsourceflex33_status = (irqarray1_interrupts[13] | irqarray1_trigger[13]);
+assign irqarray1_eventsourceflex34_status = (irqarray1_interrupts[14] | irqarray1_trigger[14]);
+assign irqarray1_eventsourceflex35_status = (irqarray1_interrupts[15] | irqarray1_trigger[15]);
+assign irqarray1_eventsourceflex36_status = (irqarray1_interrupts[16] | irqarray1_trigger[16]);
+assign irqarray1_eventsourceflex37_status = (irqarray1_interrupts[17] | irqarray1_trigger[17]);
+assign irqarray1_eventsourceflex38_status = (irqarray1_interrupts[18] | irqarray1_trigger[18]);
+assign irqarray1_eventsourceflex39_status = (irqarray1_interrupts[19] | irqarray1_trigger[19]);
+assign irqarray2_interrupts = irqarray_bank2;
+assign irqarray2_source00 = irqarray2_eventsourceflex40_status;
+assign irqarray2_source01 = irqarray2_eventsourceflex40_pending;
+always @(*) begin
+    irqarray2_eventsourceflex40_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[0])) begin
+        irqarray2_eventsourceflex40_clear <= 1'd1;
+    end
+end
+assign irqarray2_source10 = irqarray2_eventsourceflex41_status;
+assign irqarray2_source11 = irqarray2_eventsourceflex41_pending;
+always @(*) begin
+    irqarray2_eventsourceflex41_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[1])) begin
+        irqarray2_eventsourceflex41_clear <= 1'd1;
+    end
+end
+assign irqarray2_source20 = irqarray2_eventsourceflex42_status;
+assign irqarray2_source21 = irqarray2_eventsourceflex42_pending;
+always @(*) begin
+    irqarray2_eventsourceflex42_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[2])) begin
+        irqarray2_eventsourceflex42_clear <= 1'd1;
+    end
+end
+assign irqarray2_source30 = irqarray2_eventsourceflex43_status;
+assign irqarray2_source31 = irqarray2_eventsourceflex43_pending;
+always @(*) begin
+    irqarray2_eventsourceflex43_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[3])) begin
+        irqarray2_eventsourceflex43_clear <= 1'd1;
+    end
+end
+assign irqarray2_source40 = irqarray2_eventsourceflex44_status;
+assign irqarray2_source41 = irqarray2_eventsourceflex44_pending;
+always @(*) begin
+    irqarray2_eventsourceflex44_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[4])) begin
+        irqarray2_eventsourceflex44_clear <= 1'd1;
+    end
+end
+assign irqarray2_source50 = irqarray2_eventsourceflex45_status;
+assign irqarray2_source51 = irqarray2_eventsourceflex45_pending;
+always @(*) begin
+    irqarray2_eventsourceflex45_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[5])) begin
+        irqarray2_eventsourceflex45_clear <= 1'd1;
+    end
+end
+assign irqarray2_source60 = irqarray2_eventsourceflex46_status;
+assign irqarray2_source61 = irqarray2_eventsourceflex46_pending;
+always @(*) begin
+    irqarray2_eventsourceflex46_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[6])) begin
+        irqarray2_eventsourceflex46_clear <= 1'd1;
+    end
+end
+assign irqarray2_source70 = irqarray2_eventsourceflex47_status;
+assign irqarray2_source71 = irqarray2_eventsourceflex47_pending;
+always @(*) begin
+    irqarray2_eventsourceflex47_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[7])) begin
+        irqarray2_eventsourceflex47_clear <= 1'd1;
+    end
+end
+assign irqarray2_source80 = irqarray2_eventsourceflex48_status;
+assign irqarray2_source81 = irqarray2_eventsourceflex48_pending;
+always @(*) begin
+    irqarray2_eventsourceflex48_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[8])) begin
+        irqarray2_eventsourceflex48_clear <= 1'd1;
+    end
+end
+assign irqarray2_source90 = irqarray2_eventsourceflex49_status;
+assign irqarray2_source91 = irqarray2_eventsourceflex49_pending;
+always @(*) begin
+    irqarray2_eventsourceflex49_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[9])) begin
+        irqarray2_eventsourceflex49_clear <= 1'd1;
+    end
+end
+assign irqarray2_source100 = irqarray2_eventsourceflex50_status;
+assign irqarray2_source101 = irqarray2_eventsourceflex50_pending;
+always @(*) begin
+    irqarray2_eventsourceflex50_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[10])) begin
+        irqarray2_eventsourceflex50_clear <= 1'd1;
+    end
+end
+assign irqarray2_source110 = irqarray2_eventsourceflex51_status;
+assign irqarray2_source111 = irqarray2_eventsourceflex51_pending;
+always @(*) begin
+    irqarray2_eventsourceflex51_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[11])) begin
+        irqarray2_eventsourceflex51_clear <= 1'd1;
+    end
+end
+assign irqarray2_source120 = irqarray2_eventsourceflex52_status;
+assign irqarray2_source121 = irqarray2_eventsourceflex52_pending;
+always @(*) begin
+    irqarray2_eventsourceflex52_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[12])) begin
+        irqarray2_eventsourceflex52_clear <= 1'd1;
+    end
+end
+assign irqarray2_source130 = irqarray2_eventsourceflex53_status;
+assign irqarray2_source131 = irqarray2_eventsourceflex53_pending;
+always @(*) begin
+    irqarray2_eventsourceflex53_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[13])) begin
+        irqarray2_eventsourceflex53_clear <= 1'd1;
+    end
+end
+assign irqarray2_source140 = irqarray2_eventsourceflex54_status;
+assign irqarray2_source141 = irqarray2_eventsourceflex54_pending;
+always @(*) begin
+    irqarray2_eventsourceflex54_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[14])) begin
+        irqarray2_eventsourceflex54_clear <= 1'd1;
+    end
+end
+assign irqarray2_source150 = irqarray2_eventsourceflex55_status;
+assign irqarray2_source151 = irqarray2_eventsourceflex55_pending;
+always @(*) begin
+    irqarray2_eventsourceflex55_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[15])) begin
+        irqarray2_eventsourceflex55_clear <= 1'd1;
+    end
+end
+assign irqarray2_source160 = irqarray2_eventsourceflex56_status;
+assign irqarray2_source161 = irqarray2_eventsourceflex56_pending;
+always @(*) begin
+    irqarray2_eventsourceflex56_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[16])) begin
+        irqarray2_eventsourceflex56_clear <= 1'd1;
+    end
+end
+assign irqarray2_source170 = irqarray2_eventsourceflex57_status;
+assign irqarray2_source171 = irqarray2_eventsourceflex57_pending;
+always @(*) begin
+    irqarray2_eventsourceflex57_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[17])) begin
+        irqarray2_eventsourceflex57_clear <= 1'd1;
+    end
+end
+assign irqarray2_source180 = irqarray2_eventsourceflex58_status;
+assign irqarray2_source181 = irqarray2_eventsourceflex58_pending;
+always @(*) begin
+    irqarray2_eventsourceflex58_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[18])) begin
+        irqarray2_eventsourceflex58_clear <= 1'd1;
+    end
+end
+assign irqarray2_source190 = irqarray2_eventsourceflex59_status;
+assign irqarray2_source191 = irqarray2_eventsourceflex59_pending;
+always @(*) begin
+    irqarray2_eventsourceflex59_clear <= 1'd0;
+    if ((irqarray2_pending_re & irqarray2_pending_r[19])) begin
+        irqarray2_eventsourceflex59_clear <= 1'd1;
+    end
+end
+assign irqarray2_irq = ((((((((((((((((((((irqarray2_pending_status[0] & irqarray2_enable_storage[0]) | (irqarray2_pending_status[1] & irqarray2_enable_storage[1])) | (irqarray2_pending_status[2] & irqarray2_enable_storage[2])) | (irqarray2_pending_status[3] & irqarray2_enable_storage[3])) | (irqarray2_pending_status[4] & irqarray2_enable_storage[4])) | (irqarray2_pending_status[5] & irqarray2_enable_storage[5])) | (irqarray2_pending_status[6] & irqarray2_enable_storage[6])) | (irqarray2_pending_status[7] & irqarray2_enable_storage[7])) | (irqarray2_pending_status[8] & irqarray2_enable_storage[8])) | (irqarray2_pending_status[9] & irqarray2_enable_storage[9])) | (irqarray2_pending_status[10] & irqarray2_enable_storage[10])) | (irqarray2_pending_status[11] & irqarray2_enable_storage[11])) | (irqarray2_pending_status[12] & irqarray2_enable_storage[12])) | (irqarray2_pending_status[13] & irqarray2_enable_storage[13])) | (irqarray2_pending_status[14] & irqarray2_enable_storage[14])) | (irqarray2_pending_status[15] & irqarray2_enable_storage[15])) | (irqarray2_pending_status[16] & irqarray2_enable_storage[16])) | (irqarray2_pending_status[17] & irqarray2_enable_storage[17])) | (irqarray2_pending_status[18] & irqarray2_enable_storage[18])) | (irqarray2_pending_status[19] & irqarray2_enable_storage[19]));
+assign irqarray2_eventsourceflex40_status = (irqarray2_interrupts[0] | irqarray2_trigger[0]);
+assign irqarray2_eventsourceflex41_status = (irqarray2_interrupts[1] | irqarray2_trigger[1]);
+assign irqarray2_eventsourceflex42_status = (irqarray2_interrupts[2] | irqarray2_trigger[2]);
+assign irqarray2_eventsourceflex43_status = (irqarray2_interrupts[3] | irqarray2_trigger[3]);
+assign irqarray2_eventsourceflex44_status = (irqarray2_interrupts[4] | irqarray2_trigger[4]);
+assign irqarray2_eventsourceflex45_status = (irqarray2_interrupts[5] | irqarray2_trigger[5]);
+assign irqarray2_eventsourceflex46_status = (irqarray2_interrupts[6] | irqarray2_trigger[6]);
+assign irqarray2_eventsourceflex47_status = (irqarray2_interrupts[7] | irqarray2_trigger[7]);
+assign irqarray2_eventsourceflex48_status = (irqarray2_interrupts[8] | irqarray2_trigger[8]);
+assign irqarray2_eventsourceflex49_status = (irqarray2_interrupts[9] | irqarray2_trigger[9]);
+assign irqarray2_eventsourceflex50_status = (irqarray2_interrupts[10] | irqarray2_trigger[10]);
+assign irqarray2_eventsourceflex51_status = (irqarray2_interrupts[11] | irqarray2_trigger[11]);
+assign irqarray2_eventsourceflex52_status = (irqarray2_interrupts[12] | irqarray2_trigger[12]);
+assign irqarray2_eventsourceflex53_status = (irqarray2_interrupts[13] | irqarray2_trigger[13]);
+assign irqarray2_eventsourceflex54_status = (irqarray2_interrupts[14] | irqarray2_trigger[14]);
+assign irqarray2_eventsourceflex55_status = (irqarray2_interrupts[15] | irqarray2_trigger[15]);
+assign irqarray2_eventsourceflex56_status = (irqarray2_interrupts[16] | irqarray2_trigger[16]);
+assign irqarray2_eventsourceflex57_status = (irqarray2_interrupts[17] | irqarray2_trigger[17]);
+assign irqarray2_eventsourceflex58_status = (irqarray2_interrupts[18] | irqarray2_trigger[18]);
+assign irqarray2_eventsourceflex59_status = (irqarray2_interrupts[19] | irqarray2_trigger[19]);
+assign irqarray3_interrupts = irqarray_bank3;
+assign irqarray3_source00 = irqarray3_eventsourceflex60_status;
+assign irqarray3_source01 = irqarray3_eventsourceflex60_pending;
+always @(*) begin
+    irqarray3_eventsourceflex60_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[0])) begin
+        irqarray3_eventsourceflex60_clear <= 1'd1;
+    end
+end
+assign irqarray3_source10 = irqarray3_eventsourceflex61_status;
+assign irqarray3_source11 = irqarray3_eventsourceflex61_pending;
+always @(*) begin
+    irqarray3_eventsourceflex61_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[1])) begin
+        irqarray3_eventsourceflex61_clear <= 1'd1;
+    end
+end
+assign irqarray3_source20 = irqarray3_eventsourceflex62_status;
+assign irqarray3_source21 = irqarray3_eventsourceflex62_pending;
+always @(*) begin
+    irqarray3_eventsourceflex62_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[2])) begin
+        irqarray3_eventsourceflex62_clear <= 1'd1;
+    end
+end
+assign irqarray3_source30 = irqarray3_eventsourceflex63_status;
+assign irqarray3_source31 = irqarray3_eventsourceflex63_pending;
+always @(*) begin
+    irqarray3_eventsourceflex63_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[3])) begin
+        irqarray3_eventsourceflex63_clear <= 1'd1;
+    end
+end
+assign irqarray3_source40 = irqarray3_eventsourceflex64_status;
+assign irqarray3_source41 = irqarray3_eventsourceflex64_pending;
+always @(*) begin
+    irqarray3_eventsourceflex64_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[4])) begin
+        irqarray3_eventsourceflex64_clear <= 1'd1;
+    end
+end
+assign irqarray3_source50 = irqarray3_eventsourceflex65_status;
+assign irqarray3_source51 = irqarray3_eventsourceflex65_pending;
+always @(*) begin
+    irqarray3_eventsourceflex65_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[5])) begin
+        irqarray3_eventsourceflex65_clear <= 1'd1;
+    end
+end
+assign irqarray3_source60 = irqarray3_eventsourceflex66_status;
+assign irqarray3_source61 = irqarray3_eventsourceflex66_pending;
+always @(*) begin
+    irqarray3_eventsourceflex66_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[6])) begin
+        irqarray3_eventsourceflex66_clear <= 1'd1;
+    end
+end
+assign irqarray3_source70 = irqarray3_eventsourceflex67_status;
+assign irqarray3_source71 = irqarray3_eventsourceflex67_pending;
+always @(*) begin
+    irqarray3_eventsourceflex67_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[7])) begin
+        irqarray3_eventsourceflex67_clear <= 1'd1;
+    end
+end
+assign irqarray3_source80 = irqarray3_eventsourceflex68_status;
+assign irqarray3_source81 = irqarray3_eventsourceflex68_pending;
+always @(*) begin
+    irqarray3_eventsourceflex68_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[8])) begin
+        irqarray3_eventsourceflex68_clear <= 1'd1;
+    end
+end
+assign irqarray3_source90 = irqarray3_eventsourceflex69_status;
+assign irqarray3_source91 = irqarray3_eventsourceflex69_pending;
+always @(*) begin
+    irqarray3_eventsourceflex69_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[9])) begin
+        irqarray3_eventsourceflex69_clear <= 1'd1;
+    end
+end
+assign irqarray3_source100 = irqarray3_eventsourceflex70_status;
+assign irqarray3_source101 = irqarray3_eventsourceflex70_pending;
+always @(*) begin
+    irqarray3_eventsourceflex70_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[10])) begin
+        irqarray3_eventsourceflex70_clear <= 1'd1;
+    end
+end
+assign irqarray3_source110 = irqarray3_eventsourceflex71_status;
+assign irqarray3_source111 = irqarray3_eventsourceflex71_pending;
+always @(*) begin
+    irqarray3_eventsourceflex71_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[11])) begin
+        irqarray3_eventsourceflex71_clear <= 1'd1;
+    end
+end
+assign irqarray3_source120 = irqarray3_eventsourceflex72_status;
+assign irqarray3_source121 = irqarray3_eventsourceflex72_pending;
+always @(*) begin
+    irqarray3_eventsourceflex72_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[12])) begin
+        irqarray3_eventsourceflex72_clear <= 1'd1;
+    end
+end
+assign irqarray3_source130 = irqarray3_eventsourceflex73_status;
+assign irqarray3_source131 = irqarray3_eventsourceflex73_pending;
+always @(*) begin
+    irqarray3_eventsourceflex73_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[13])) begin
+        irqarray3_eventsourceflex73_clear <= 1'd1;
+    end
+end
+assign irqarray3_source140 = irqarray3_eventsourceflex74_status;
+assign irqarray3_source141 = irqarray3_eventsourceflex74_pending;
+always @(*) begin
+    irqarray3_eventsourceflex74_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[14])) begin
+        irqarray3_eventsourceflex74_clear <= 1'd1;
+    end
+end
+assign irqarray3_source150 = irqarray3_eventsourceflex75_status;
+assign irqarray3_source151 = irqarray3_eventsourceflex75_pending;
+always @(*) begin
+    irqarray3_eventsourceflex75_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[15])) begin
+        irqarray3_eventsourceflex75_clear <= 1'd1;
+    end
+end
+assign irqarray3_source160 = irqarray3_eventsourceflex76_status;
+assign irqarray3_source161 = irqarray3_eventsourceflex76_pending;
+always @(*) begin
+    irqarray3_eventsourceflex76_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[16])) begin
+        irqarray3_eventsourceflex76_clear <= 1'd1;
+    end
+end
+assign irqarray3_source170 = irqarray3_eventsourceflex77_status;
+assign irqarray3_source171 = irqarray3_eventsourceflex77_pending;
+always @(*) begin
+    irqarray3_eventsourceflex77_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[17])) begin
+        irqarray3_eventsourceflex77_clear <= 1'd1;
+    end
+end
+assign irqarray3_source180 = irqarray3_eventsourceflex78_status;
+assign irqarray3_source181 = irqarray3_eventsourceflex78_pending;
+always @(*) begin
+    irqarray3_eventsourceflex78_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[18])) begin
+        irqarray3_eventsourceflex78_clear <= 1'd1;
+    end
+end
+assign irqarray3_source190 = irqarray3_eventsourceflex79_status;
+assign irqarray3_source191 = irqarray3_eventsourceflex79_pending;
+always @(*) begin
+    irqarray3_eventsourceflex79_clear <= 1'd0;
+    if ((irqarray3_pending_re & irqarray3_pending_r[19])) begin
+        irqarray3_eventsourceflex79_clear <= 1'd1;
+    end
+end
+assign irqarray3_irq = ((((((((((((((((((((irqarray3_pending_status[0] & irqarray3_enable_storage[0]) | (irqarray3_pending_status[1] & irqarray3_enable_storage[1])) | (irqarray3_pending_status[2] & irqarray3_enable_storage[2])) | (irqarray3_pending_status[3] & irqarray3_enable_storage[3])) | (irqarray3_pending_status[4] & irqarray3_enable_storage[4])) | (irqarray3_pending_status[5] & irqarray3_enable_storage[5])) | (irqarray3_pending_status[6] & irqarray3_enable_storage[6])) | (irqarray3_pending_status[7] & irqarray3_enable_storage[7])) | (irqarray3_pending_status[8] & irqarray3_enable_storage[8])) | (irqarray3_pending_status[9] & irqarray3_enable_storage[9])) | (irqarray3_pending_status[10] & irqarray3_enable_storage[10])) | (irqarray3_pending_status[11] & irqarray3_enable_storage[11])) | (irqarray3_pending_status[12] & irqarray3_enable_storage[12])) | (irqarray3_pending_status[13] & irqarray3_enable_storage[13])) | (irqarray3_pending_status[14] & irqarray3_enable_storage[14])) | (irqarray3_pending_status[15] & irqarray3_enable_storage[15])) | (irqarray3_pending_status[16] & irqarray3_enable_storage[16])) | (irqarray3_pending_status[17] & irqarray3_enable_storage[17])) | (irqarray3_pending_status[18] & irqarray3_enable_storage[18])) | (irqarray3_pending_status[19] & irqarray3_enable_storage[19]));
+assign irqarray3_eventsourceflex60_status = (irqarray3_interrupts[0] | irqarray3_trigger[0]);
+assign irqarray3_eventsourceflex61_status = (irqarray3_interrupts[1] | irqarray3_trigger[1]);
+assign irqarray3_eventsourceflex62_status = (irqarray3_interrupts[2] | irqarray3_trigger[2]);
+assign irqarray3_eventsourceflex63_status = (irqarray3_interrupts[3] | irqarray3_trigger[3]);
+assign irqarray3_eventsourceflex64_status = (irqarray3_interrupts[4] | irqarray3_trigger[4]);
+assign irqarray3_eventsourceflex65_status = (irqarray3_interrupts[5] | irqarray3_trigger[5]);
+assign irqarray3_eventsourceflex66_status = (irqarray3_interrupts[6] | irqarray3_trigger[6]);
+assign irqarray3_eventsourceflex67_status = (irqarray3_interrupts[7] | irqarray3_trigger[7]);
+assign irqarray3_eventsourceflex68_status = (irqarray3_interrupts[8] | irqarray3_trigger[8]);
+assign irqarray3_eventsourceflex69_status = (irqarray3_interrupts[9] | irqarray3_trigger[9]);
+assign irqarray3_eventsourceflex70_status = (irqarray3_interrupts[10] | irqarray3_trigger[10]);
+assign irqarray3_eventsourceflex71_status = (irqarray3_interrupts[11] | irqarray3_trigger[11]);
+assign irqarray3_eventsourceflex72_status = (irqarray3_interrupts[12] | irqarray3_trigger[12]);
+assign irqarray3_eventsourceflex73_status = (irqarray3_interrupts[13] | irqarray3_trigger[13]);
+assign irqarray3_eventsourceflex74_status = (irqarray3_interrupts[14] | irqarray3_trigger[14]);
+assign irqarray3_eventsourceflex75_status = (irqarray3_interrupts[15] | irqarray3_trigger[15]);
+assign irqarray3_eventsourceflex76_status = (irqarray3_interrupts[16] | irqarray3_trigger[16]);
+assign irqarray3_eventsourceflex77_status = (irqarray3_interrupts[17] | irqarray3_trigger[17]);
+assign irqarray3_eventsourceflex78_status = (irqarray3_interrupts[18] | irqarray3_trigger[18]);
+assign irqarray3_eventsourceflex79_status = (irqarray3_interrupts[19] | irqarray3_trigger[19]);
+assign irqarray4_interrupts = irqarray_bank4;
+assign irqarray4_source00 = irqarray4_eventsourceflex80_status;
+assign irqarray4_source01 = irqarray4_eventsourceflex80_pending;
+always @(*) begin
+    irqarray4_eventsourceflex80_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[0])) begin
+        irqarray4_eventsourceflex80_clear <= 1'd1;
+    end
+end
+assign irqarray4_source10 = irqarray4_eventsourceflex81_status;
+assign irqarray4_source11 = irqarray4_eventsourceflex81_pending;
+always @(*) begin
+    irqarray4_eventsourceflex81_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[1])) begin
+        irqarray4_eventsourceflex81_clear <= 1'd1;
+    end
+end
+assign irqarray4_source20 = irqarray4_eventsourceflex82_status;
+assign irqarray4_source21 = irqarray4_eventsourceflex82_pending;
+always @(*) begin
+    irqarray4_eventsourceflex82_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[2])) begin
+        irqarray4_eventsourceflex82_clear <= 1'd1;
+    end
+end
+assign irqarray4_source30 = irqarray4_eventsourceflex83_status;
+assign irqarray4_source31 = irqarray4_eventsourceflex83_pending;
+always @(*) begin
+    irqarray4_eventsourceflex83_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[3])) begin
+        irqarray4_eventsourceflex83_clear <= 1'd1;
+    end
+end
+assign irqarray4_source40 = irqarray4_eventsourceflex84_status;
+assign irqarray4_source41 = irqarray4_eventsourceflex84_pending;
+always @(*) begin
+    irqarray4_eventsourceflex84_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[4])) begin
+        irqarray4_eventsourceflex84_clear <= 1'd1;
+    end
+end
+assign irqarray4_source50 = irqarray4_eventsourceflex85_status;
+assign irqarray4_source51 = irqarray4_eventsourceflex85_pending;
+always @(*) begin
+    irqarray4_eventsourceflex85_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[5])) begin
+        irqarray4_eventsourceflex85_clear <= 1'd1;
+    end
+end
+assign irqarray4_source60 = irqarray4_eventsourceflex86_status;
+assign irqarray4_source61 = irqarray4_eventsourceflex86_pending;
+always @(*) begin
+    irqarray4_eventsourceflex86_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[6])) begin
+        irqarray4_eventsourceflex86_clear <= 1'd1;
+    end
+end
+assign irqarray4_source70 = irqarray4_eventsourceflex87_status;
+assign irqarray4_source71 = irqarray4_eventsourceflex87_pending;
+always @(*) begin
+    irqarray4_eventsourceflex87_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[7])) begin
+        irqarray4_eventsourceflex87_clear <= 1'd1;
+    end
+end
+assign irqarray4_source80 = irqarray4_eventsourceflex88_status;
+assign irqarray4_source81 = irqarray4_eventsourceflex88_pending;
+always @(*) begin
+    irqarray4_eventsourceflex88_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[8])) begin
+        irqarray4_eventsourceflex88_clear <= 1'd1;
+    end
+end
+assign irqarray4_source90 = irqarray4_eventsourceflex89_status;
+assign irqarray4_source91 = irqarray4_eventsourceflex89_pending;
+always @(*) begin
+    irqarray4_eventsourceflex89_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[9])) begin
+        irqarray4_eventsourceflex89_clear <= 1'd1;
+    end
+end
+assign irqarray4_source100 = irqarray4_eventsourceflex90_status;
+assign irqarray4_source101 = irqarray4_eventsourceflex90_pending;
+always @(*) begin
+    irqarray4_eventsourceflex90_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[10])) begin
+        irqarray4_eventsourceflex90_clear <= 1'd1;
+    end
+end
+assign irqarray4_source110 = irqarray4_eventsourceflex91_status;
+assign irqarray4_source111 = irqarray4_eventsourceflex91_pending;
+always @(*) begin
+    irqarray4_eventsourceflex91_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[11])) begin
+        irqarray4_eventsourceflex91_clear <= 1'd1;
+    end
+end
+assign irqarray4_source120 = irqarray4_eventsourceflex92_status;
+assign irqarray4_source121 = irqarray4_eventsourceflex92_pending;
+always @(*) begin
+    irqarray4_eventsourceflex92_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[12])) begin
+        irqarray4_eventsourceflex92_clear <= 1'd1;
+    end
+end
+assign irqarray4_source130 = irqarray4_eventsourceflex93_status;
+assign irqarray4_source131 = irqarray4_eventsourceflex93_pending;
+always @(*) begin
+    irqarray4_eventsourceflex93_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[13])) begin
+        irqarray4_eventsourceflex93_clear <= 1'd1;
+    end
+end
+assign irqarray4_source140 = irqarray4_eventsourceflex94_status;
+assign irqarray4_source141 = irqarray4_eventsourceflex94_pending;
+always @(*) begin
+    irqarray4_eventsourceflex94_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[14])) begin
+        irqarray4_eventsourceflex94_clear <= 1'd1;
+    end
+end
+assign irqarray4_source150 = irqarray4_eventsourceflex95_status;
+assign irqarray4_source151 = irqarray4_eventsourceflex95_pending;
+always @(*) begin
+    irqarray4_eventsourceflex95_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[15])) begin
+        irqarray4_eventsourceflex95_clear <= 1'd1;
+    end
+end
+assign irqarray4_source160 = irqarray4_eventsourceflex96_status;
+assign irqarray4_source161 = irqarray4_eventsourceflex96_pending;
+always @(*) begin
+    irqarray4_eventsourceflex96_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[16])) begin
+        irqarray4_eventsourceflex96_clear <= 1'd1;
+    end
+end
+assign irqarray4_source170 = irqarray4_eventsourceflex97_status;
+assign irqarray4_source171 = irqarray4_eventsourceflex97_pending;
+always @(*) begin
+    irqarray4_eventsourceflex97_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[17])) begin
+        irqarray4_eventsourceflex97_clear <= 1'd1;
+    end
+end
+assign irqarray4_source180 = irqarray4_eventsourceflex98_status;
+assign irqarray4_source181 = irqarray4_eventsourceflex98_pending;
+always @(*) begin
+    irqarray4_eventsourceflex98_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[18])) begin
+        irqarray4_eventsourceflex98_clear <= 1'd1;
+    end
+end
+assign irqarray4_source190 = irqarray4_eventsourceflex99_status;
+assign irqarray4_source191 = irqarray4_eventsourceflex99_pending;
+always @(*) begin
+    irqarray4_eventsourceflex99_clear <= 1'd0;
+    if ((irqarray4_pending_re & irqarray4_pending_r[19])) begin
+        irqarray4_eventsourceflex99_clear <= 1'd1;
+    end
+end
+assign irqarray4_irq = ((((((((((((((((((((irqarray4_pending_status[0] & irqarray4_enable_storage[0]) | (irqarray4_pending_status[1] & irqarray4_enable_storage[1])) | (irqarray4_pending_status[2] & irqarray4_enable_storage[2])) | (irqarray4_pending_status[3] & irqarray4_enable_storage[3])) | (irqarray4_pending_status[4] & irqarray4_enable_storage[4])) | (irqarray4_pending_status[5] & irqarray4_enable_storage[5])) | (irqarray4_pending_status[6] & irqarray4_enable_storage[6])) | (irqarray4_pending_status[7] & irqarray4_enable_storage[7])) | (irqarray4_pending_status[8] & irqarray4_enable_storage[8])) | (irqarray4_pending_status[9] & irqarray4_enable_storage[9])) | (irqarray4_pending_status[10] & irqarray4_enable_storage[10])) | (irqarray4_pending_status[11] & irqarray4_enable_storage[11])) | (irqarray4_pending_status[12] & irqarray4_enable_storage[12])) | (irqarray4_pending_status[13] & irqarray4_enable_storage[13])) | (irqarray4_pending_status[14] & irqarray4_enable_storage[14])) | (irqarray4_pending_status[15] & irqarray4_enable_storage[15])) | (irqarray4_pending_status[16] & irqarray4_enable_storage[16])) | (irqarray4_pending_status[17] & irqarray4_enable_storage[17])) | (irqarray4_pending_status[18] & irqarray4_enable_storage[18])) | (irqarray4_pending_status[19] & irqarray4_enable_storage[19]));
+assign irqarray4_eventsourceflex80_status = (irqarray4_interrupts[0] | irqarray4_trigger[0]);
+assign irqarray4_eventsourceflex81_status = (irqarray4_interrupts[1] | irqarray4_trigger[1]);
+assign irqarray4_eventsourceflex82_status = (irqarray4_interrupts[2] | irqarray4_trigger[2]);
+assign irqarray4_eventsourceflex83_status = (irqarray4_interrupts[3] | irqarray4_trigger[3]);
+assign irqarray4_eventsourceflex84_status = (irqarray4_interrupts[4] | irqarray4_trigger[4]);
+assign irqarray4_eventsourceflex85_status = (irqarray4_interrupts[5] | irqarray4_trigger[5]);
+assign irqarray4_eventsourceflex86_status = (irqarray4_interrupts[6] | irqarray4_trigger[6]);
+assign irqarray4_eventsourceflex87_status = (irqarray4_interrupts[7] | irqarray4_trigger[7]);
+assign irqarray4_eventsourceflex88_status = (irqarray4_interrupts[8] | irqarray4_trigger[8]);
+assign irqarray4_eventsourceflex89_status = (irqarray4_interrupts[9] | irqarray4_trigger[9]);
+assign irqarray4_eventsourceflex90_status = (irqarray4_interrupts[10] | irqarray4_trigger[10]);
+assign irqarray4_eventsourceflex91_status = (irqarray4_interrupts[11] | irqarray4_trigger[11]);
+assign irqarray4_eventsourceflex92_status = (irqarray4_interrupts[12] | irqarray4_trigger[12]);
+assign irqarray4_eventsourceflex93_status = (irqarray4_interrupts[13] | irqarray4_trigger[13]);
+assign irqarray4_eventsourceflex94_status = (irqarray4_interrupts[14] | irqarray4_trigger[14]);
+assign irqarray4_eventsourceflex95_status = (irqarray4_interrupts[15] | irqarray4_trigger[15]);
+assign irqarray4_eventsourceflex96_status = (irqarray4_interrupts[16] | irqarray4_trigger[16]);
+assign irqarray4_eventsourceflex97_status = (irqarray4_interrupts[17] | irqarray4_trigger[17]);
+assign irqarray4_eventsourceflex98_status = (irqarray4_interrupts[18] | irqarray4_trigger[18]);
+assign irqarray4_eventsourceflex99_status = (irqarray4_interrupts[19] | irqarray4_trigger[19]);
+assign irqarray5_interrupts = irqarray_bank5;
+assign irqarray5_source00 = irqarray5_eventsourceflex100_status;
+assign irqarray5_source01 = irqarray5_eventsourceflex100_pending;
+always @(*) begin
+    irqarray5_eventsourceflex100_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[0])) begin
+        irqarray5_eventsourceflex100_clear <= 1'd1;
+    end
+end
+assign irqarray5_source10 = irqarray5_eventsourceflex101_status;
+assign irqarray5_source11 = irqarray5_eventsourceflex101_pending;
+always @(*) begin
+    irqarray5_eventsourceflex101_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[1])) begin
+        irqarray5_eventsourceflex101_clear <= 1'd1;
+    end
+end
+assign irqarray5_source20 = irqarray5_eventsourceflex102_status;
+assign irqarray5_source21 = irqarray5_eventsourceflex102_pending;
+always @(*) begin
+    irqarray5_eventsourceflex102_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[2])) begin
+        irqarray5_eventsourceflex102_clear <= 1'd1;
+    end
+end
+assign irqarray5_source30 = irqarray5_eventsourceflex103_status;
+assign irqarray5_source31 = irqarray5_eventsourceflex103_pending;
+always @(*) begin
+    irqarray5_eventsourceflex103_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[3])) begin
+        irqarray5_eventsourceflex103_clear <= 1'd1;
+    end
+end
+assign irqarray5_source40 = irqarray5_eventsourceflex104_status;
+assign irqarray5_source41 = irqarray5_eventsourceflex104_pending;
+always @(*) begin
+    irqarray5_eventsourceflex104_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[4])) begin
+        irqarray5_eventsourceflex104_clear <= 1'd1;
+    end
+end
+assign irqarray5_source50 = irqarray5_eventsourceflex105_status;
+assign irqarray5_source51 = irqarray5_eventsourceflex105_pending;
+always @(*) begin
+    irqarray5_eventsourceflex105_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[5])) begin
+        irqarray5_eventsourceflex105_clear <= 1'd1;
+    end
+end
+assign irqarray5_source60 = irqarray5_eventsourceflex106_status;
+assign irqarray5_source61 = irqarray5_eventsourceflex106_pending;
+always @(*) begin
+    irqarray5_eventsourceflex106_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[6])) begin
+        irqarray5_eventsourceflex106_clear <= 1'd1;
+    end
+end
+assign irqarray5_source70 = irqarray5_eventsourceflex107_status;
+assign irqarray5_source71 = irqarray5_eventsourceflex107_pending;
+always @(*) begin
+    irqarray5_eventsourceflex107_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[7])) begin
+        irqarray5_eventsourceflex107_clear <= 1'd1;
+    end
+end
+assign irqarray5_source80 = irqarray5_eventsourceflex108_status;
+assign irqarray5_source81 = irqarray5_eventsourceflex108_pending;
+always @(*) begin
+    irqarray5_eventsourceflex108_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[8])) begin
+        irqarray5_eventsourceflex108_clear <= 1'd1;
+    end
+end
+assign irqarray5_source90 = irqarray5_eventsourceflex109_status;
+assign irqarray5_source91 = irqarray5_eventsourceflex109_pending;
+always @(*) begin
+    irqarray5_eventsourceflex109_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[9])) begin
+        irqarray5_eventsourceflex109_clear <= 1'd1;
+    end
+end
+assign irqarray5_source100 = irqarray5_eventsourceflex110_status;
+assign irqarray5_source101 = irqarray5_eventsourceflex110_pending;
+always @(*) begin
+    irqarray5_eventsourceflex110_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[10])) begin
+        irqarray5_eventsourceflex110_clear <= 1'd1;
+    end
+end
+assign irqarray5_source110 = irqarray5_eventsourceflex111_status;
+assign irqarray5_source111 = irqarray5_eventsourceflex111_pending;
+always @(*) begin
+    irqarray5_eventsourceflex111_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[11])) begin
+        irqarray5_eventsourceflex111_clear <= 1'd1;
+    end
+end
+assign irqarray5_source120 = irqarray5_eventsourceflex112_status;
+assign irqarray5_source121 = irqarray5_eventsourceflex112_pending;
+always @(*) begin
+    irqarray5_eventsourceflex112_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[12])) begin
+        irqarray5_eventsourceflex112_clear <= 1'd1;
+    end
+end
+assign irqarray5_source130 = irqarray5_eventsourceflex113_status;
+assign irqarray5_source131 = irqarray5_eventsourceflex113_pending;
+always @(*) begin
+    irqarray5_eventsourceflex113_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[13])) begin
+        irqarray5_eventsourceflex113_clear <= 1'd1;
+    end
+end
+assign irqarray5_source140 = irqarray5_eventsourceflex114_status;
+assign irqarray5_source141 = irqarray5_eventsourceflex114_pending;
+always @(*) begin
+    irqarray5_eventsourceflex114_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[14])) begin
+        irqarray5_eventsourceflex114_clear <= 1'd1;
+    end
+end
+assign irqarray5_source150 = irqarray5_eventsourceflex115_status;
+assign irqarray5_source151 = irqarray5_eventsourceflex115_pending;
+always @(*) begin
+    irqarray5_eventsourceflex115_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[15])) begin
+        irqarray5_eventsourceflex115_clear <= 1'd1;
+    end
+end
+assign irqarray5_source160 = irqarray5_eventsourceflex116_status;
+assign irqarray5_source161 = irqarray5_eventsourceflex116_pending;
+always @(*) begin
+    irqarray5_eventsourceflex116_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[16])) begin
+        irqarray5_eventsourceflex116_clear <= 1'd1;
+    end
+end
+assign irqarray5_source170 = irqarray5_eventsourceflex117_status;
+assign irqarray5_source171 = irqarray5_eventsourceflex117_pending;
+always @(*) begin
+    irqarray5_eventsourceflex117_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[17])) begin
+        irqarray5_eventsourceflex117_clear <= 1'd1;
+    end
+end
+assign irqarray5_source180 = irqarray5_eventsourceflex118_status;
+assign irqarray5_source181 = irqarray5_eventsourceflex118_pending;
+always @(*) begin
+    irqarray5_eventsourceflex118_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[18])) begin
+        irqarray5_eventsourceflex118_clear <= 1'd1;
+    end
+end
+assign irqarray5_source190 = irqarray5_eventsourceflex119_status;
+assign irqarray5_source191 = irqarray5_eventsourceflex119_pending;
+always @(*) begin
+    irqarray5_eventsourceflex119_clear <= 1'd0;
+    if ((irqarray5_pending_re & irqarray5_pending_r[19])) begin
+        irqarray5_eventsourceflex119_clear <= 1'd1;
+    end
+end
+assign irqarray5_irq = ((((((((((((((((((((irqarray5_pending_status[0] & irqarray5_enable_storage[0]) | (irqarray5_pending_status[1] & irqarray5_enable_storage[1])) | (irqarray5_pending_status[2] & irqarray5_enable_storage[2])) | (irqarray5_pending_status[3] & irqarray5_enable_storage[3])) | (irqarray5_pending_status[4] & irqarray5_enable_storage[4])) | (irqarray5_pending_status[5] & irqarray5_enable_storage[5])) | (irqarray5_pending_status[6] & irqarray5_enable_storage[6])) | (irqarray5_pending_status[7] & irqarray5_enable_storage[7])) | (irqarray5_pending_status[8] & irqarray5_enable_storage[8])) | (irqarray5_pending_status[9] & irqarray5_enable_storage[9])) | (irqarray5_pending_status[10] & irqarray5_enable_storage[10])) | (irqarray5_pending_status[11] & irqarray5_enable_storage[11])) | (irqarray5_pending_status[12] & irqarray5_enable_storage[12])) | (irqarray5_pending_status[13] & irqarray5_enable_storage[13])) | (irqarray5_pending_status[14] & irqarray5_enable_storage[14])) | (irqarray5_pending_status[15] & irqarray5_enable_storage[15])) | (irqarray5_pending_status[16] & irqarray5_enable_storage[16])) | (irqarray5_pending_status[17] & irqarray5_enable_storage[17])) | (irqarray5_pending_status[18] & irqarray5_enable_storage[18])) | (irqarray5_pending_status[19] & irqarray5_enable_storage[19]));
+assign irqarray5_eventsourceflex100_status = (irqarray5_interrupts[0] | irqarray5_trigger[0]);
+assign irqarray5_eventsourceflex101_status = (irqarray5_interrupts[1] | irqarray5_trigger[1]);
+assign irqarray5_eventsourceflex102_status = (irqarray5_interrupts[2] | irqarray5_trigger[2]);
+assign irqarray5_eventsourceflex103_status = (irqarray5_interrupts[3] | irqarray5_trigger[3]);
+assign irqarray5_eventsourceflex104_status = (irqarray5_interrupts[4] | irqarray5_trigger[4]);
+assign irqarray5_eventsourceflex105_status = (irqarray5_interrupts[5] | irqarray5_trigger[5]);
+assign irqarray5_eventsourceflex106_status = (irqarray5_interrupts[6] | irqarray5_trigger[6]);
+assign irqarray5_eventsourceflex107_status = (irqarray5_interrupts[7] | irqarray5_trigger[7]);
+assign irqarray5_eventsourceflex108_status = (irqarray5_interrupts[8] | irqarray5_trigger[8]);
+assign irqarray5_eventsourceflex109_status = (irqarray5_interrupts[9] | irqarray5_trigger[9]);
+assign irqarray5_eventsourceflex110_status = (irqarray5_interrupts[10] | irqarray5_trigger[10]);
+assign irqarray5_eventsourceflex111_status = (irqarray5_interrupts[11] | irqarray5_trigger[11]);
+assign irqarray5_eventsourceflex112_status = (irqarray5_interrupts[12] | irqarray5_trigger[12]);
+assign irqarray5_eventsourceflex113_status = (irqarray5_interrupts[13] | irqarray5_trigger[13]);
+assign irqarray5_eventsourceflex114_status = (irqarray5_interrupts[14] | irqarray5_trigger[14]);
+assign irqarray5_eventsourceflex115_status = (irqarray5_interrupts[15] | irqarray5_trigger[15]);
+assign irqarray5_eventsourceflex116_status = (irqarray5_interrupts[16] | irqarray5_trigger[16]);
+assign irqarray5_eventsourceflex117_status = (irqarray5_interrupts[17] | irqarray5_trigger[17]);
+assign irqarray5_eventsourceflex118_status = (irqarray5_interrupts[18] | irqarray5_trigger[18]);
+assign irqarray5_eventsourceflex119_status = (irqarray5_interrupts[19] | irqarray5_trigger[19]);
+assign irqarray6_interrupts = irqarray_bank6;
+assign irqarray6_source00 = irqarray6_eventsourceflex120_status;
+assign irqarray6_source01 = irqarray6_eventsourceflex120_pending;
+always @(*) begin
+    irqarray6_eventsourceflex120_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[0])) begin
+        irqarray6_eventsourceflex120_clear <= 1'd1;
+    end
+end
+assign irqarray6_source10 = irqarray6_eventsourceflex121_status;
+assign irqarray6_source11 = irqarray6_eventsourceflex121_pending;
+always @(*) begin
+    irqarray6_eventsourceflex121_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[1])) begin
+        irqarray6_eventsourceflex121_clear <= 1'd1;
+    end
+end
+assign irqarray6_source20 = irqarray6_eventsourceflex122_status;
+assign irqarray6_source21 = irqarray6_eventsourceflex122_pending;
+always @(*) begin
+    irqarray6_eventsourceflex122_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[2])) begin
+        irqarray6_eventsourceflex122_clear <= 1'd1;
+    end
+end
+assign irqarray6_source30 = irqarray6_eventsourceflex123_status;
+assign irqarray6_source31 = irqarray6_eventsourceflex123_pending;
+always @(*) begin
+    irqarray6_eventsourceflex123_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[3])) begin
+        irqarray6_eventsourceflex123_clear <= 1'd1;
+    end
+end
+assign irqarray6_source40 = irqarray6_eventsourceflex124_status;
+assign irqarray6_source41 = irqarray6_eventsourceflex124_pending;
+always @(*) begin
+    irqarray6_eventsourceflex124_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[4])) begin
+        irqarray6_eventsourceflex124_clear <= 1'd1;
+    end
+end
+assign irqarray6_source50 = irqarray6_eventsourceflex125_status;
+assign irqarray6_source51 = irqarray6_eventsourceflex125_pending;
+always @(*) begin
+    irqarray6_eventsourceflex125_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[5])) begin
+        irqarray6_eventsourceflex125_clear <= 1'd1;
+    end
+end
+assign irqarray6_source60 = irqarray6_eventsourceflex126_status;
+assign irqarray6_source61 = irqarray6_eventsourceflex126_pending;
+always @(*) begin
+    irqarray6_eventsourceflex126_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[6])) begin
+        irqarray6_eventsourceflex126_clear <= 1'd1;
+    end
+end
+assign irqarray6_source70 = irqarray6_eventsourceflex127_status;
+assign irqarray6_source71 = irqarray6_eventsourceflex127_pending;
+always @(*) begin
+    irqarray6_eventsourceflex127_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[7])) begin
+        irqarray6_eventsourceflex127_clear <= 1'd1;
+    end
+end
+assign irqarray6_source80 = irqarray6_eventsourceflex128_status;
+assign irqarray6_source81 = irqarray6_eventsourceflex128_pending;
+always @(*) begin
+    irqarray6_eventsourceflex128_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[8])) begin
+        irqarray6_eventsourceflex128_clear <= 1'd1;
+    end
+end
+assign irqarray6_source90 = irqarray6_eventsourceflex129_status;
+assign irqarray6_source91 = irqarray6_eventsourceflex129_pending;
+always @(*) begin
+    irqarray6_eventsourceflex129_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[9])) begin
+        irqarray6_eventsourceflex129_clear <= 1'd1;
+    end
+end
+assign irqarray6_source100 = irqarray6_eventsourceflex130_status;
+assign irqarray6_source101 = irqarray6_eventsourceflex130_pending;
+always @(*) begin
+    irqarray6_eventsourceflex130_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[10])) begin
+        irqarray6_eventsourceflex130_clear <= 1'd1;
+    end
+end
+assign irqarray6_source110 = irqarray6_eventsourceflex131_status;
+assign irqarray6_source111 = irqarray6_eventsourceflex131_pending;
+always @(*) begin
+    irqarray6_eventsourceflex131_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[11])) begin
+        irqarray6_eventsourceflex131_clear <= 1'd1;
+    end
+end
+assign irqarray6_source120 = irqarray6_eventsourceflex132_status;
+assign irqarray6_source121 = irqarray6_eventsourceflex132_pending;
+always @(*) begin
+    irqarray6_eventsourceflex132_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[12])) begin
+        irqarray6_eventsourceflex132_clear <= 1'd1;
+    end
+end
+assign irqarray6_source130 = irqarray6_eventsourceflex133_status;
+assign irqarray6_source131 = irqarray6_eventsourceflex133_pending;
+always @(*) begin
+    irqarray6_eventsourceflex133_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[13])) begin
+        irqarray6_eventsourceflex133_clear <= 1'd1;
+    end
+end
+assign irqarray6_source140 = irqarray6_eventsourceflex134_status;
+assign irqarray6_source141 = irqarray6_eventsourceflex134_pending;
+always @(*) begin
+    irqarray6_eventsourceflex134_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[14])) begin
+        irqarray6_eventsourceflex134_clear <= 1'd1;
+    end
+end
+assign irqarray6_source150 = irqarray6_eventsourceflex135_status;
+assign irqarray6_source151 = irqarray6_eventsourceflex135_pending;
+always @(*) begin
+    irqarray6_eventsourceflex135_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[15])) begin
+        irqarray6_eventsourceflex135_clear <= 1'd1;
+    end
+end
+assign irqarray6_source160 = irqarray6_eventsourceflex136_status;
+assign irqarray6_source161 = irqarray6_eventsourceflex136_pending;
+always @(*) begin
+    irqarray6_eventsourceflex136_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[16])) begin
+        irqarray6_eventsourceflex136_clear <= 1'd1;
+    end
+end
+assign irqarray6_source170 = irqarray6_eventsourceflex137_status;
+assign irqarray6_source171 = irqarray6_eventsourceflex137_pending;
+always @(*) begin
+    irqarray6_eventsourceflex137_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[17])) begin
+        irqarray6_eventsourceflex137_clear <= 1'd1;
+    end
+end
+assign irqarray6_source180 = irqarray6_eventsourceflex138_status;
+assign irqarray6_source181 = irqarray6_eventsourceflex138_pending;
+always @(*) begin
+    irqarray6_eventsourceflex138_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[18])) begin
+        irqarray6_eventsourceflex138_clear <= 1'd1;
+    end
+end
+assign irqarray6_source190 = irqarray6_eventsourceflex139_status;
+assign irqarray6_source191 = irqarray6_eventsourceflex139_pending;
+always @(*) begin
+    irqarray6_eventsourceflex139_clear <= 1'd0;
+    if ((irqarray6_pending_re & irqarray6_pending_r[19])) begin
+        irqarray6_eventsourceflex139_clear <= 1'd1;
+    end
+end
+assign irqarray6_irq = ((((((((((((((((((((irqarray6_pending_status[0] & irqarray6_enable_storage[0]) | (irqarray6_pending_status[1] & irqarray6_enable_storage[1])) | (irqarray6_pending_status[2] & irqarray6_enable_storage[2])) | (irqarray6_pending_status[3] & irqarray6_enable_storage[3])) | (irqarray6_pending_status[4] & irqarray6_enable_storage[4])) | (irqarray6_pending_status[5] & irqarray6_enable_storage[5])) | (irqarray6_pending_status[6] & irqarray6_enable_storage[6])) | (irqarray6_pending_status[7] & irqarray6_enable_storage[7])) | (irqarray6_pending_status[8] & irqarray6_enable_storage[8])) | (irqarray6_pending_status[9] & irqarray6_enable_storage[9])) | (irqarray6_pending_status[10] & irqarray6_enable_storage[10])) | (irqarray6_pending_status[11] & irqarray6_enable_storage[11])) | (irqarray6_pending_status[12] & irqarray6_enable_storage[12])) | (irqarray6_pending_status[13] & irqarray6_enable_storage[13])) | (irqarray6_pending_status[14] & irqarray6_enable_storage[14])) | (irqarray6_pending_status[15] & irqarray6_enable_storage[15])) | (irqarray6_pending_status[16] & irqarray6_enable_storage[16])) | (irqarray6_pending_status[17] & irqarray6_enable_storage[17])) | (irqarray6_pending_status[18] & irqarray6_enable_storage[18])) | (irqarray6_pending_status[19] & irqarray6_enable_storage[19]));
+assign irqarray6_eventsourceflex120_status = (irqarray6_interrupts[0] | irqarray6_trigger[0]);
+assign irqarray6_eventsourceflex121_status = (irqarray6_interrupts[1] | irqarray6_trigger[1]);
+assign irqarray6_eventsourceflex122_status = (irqarray6_interrupts[2] | irqarray6_trigger[2]);
+assign irqarray6_eventsourceflex123_status = (irqarray6_interrupts[3] | irqarray6_trigger[3]);
+assign irqarray6_eventsourceflex124_status = (irqarray6_interrupts[4] | irqarray6_trigger[4]);
+assign irqarray6_eventsourceflex125_status = (irqarray6_interrupts[5] | irqarray6_trigger[5]);
+assign irqarray6_eventsourceflex126_status = (irqarray6_interrupts[6] | irqarray6_trigger[6]);
+assign irqarray6_eventsourceflex127_status = (irqarray6_interrupts[7] | irqarray6_trigger[7]);
+assign irqarray6_eventsourceflex128_status = (irqarray6_interrupts[8] | irqarray6_trigger[8]);
+assign irqarray6_eventsourceflex129_status = (irqarray6_interrupts[9] | irqarray6_trigger[9]);
+assign irqarray6_eventsourceflex130_status = (irqarray6_interrupts[10] | irqarray6_trigger[10]);
+assign irqarray6_eventsourceflex131_status = (irqarray6_interrupts[11] | irqarray6_trigger[11]);
+assign irqarray6_eventsourceflex132_status = (irqarray6_interrupts[12] | irqarray6_trigger[12]);
+assign irqarray6_eventsourceflex133_status = (irqarray6_interrupts[13] | irqarray6_trigger[13]);
+assign irqarray6_eventsourceflex134_status = (irqarray6_interrupts[14] | irqarray6_trigger[14]);
+assign irqarray6_eventsourceflex135_status = (irqarray6_interrupts[15] | irqarray6_trigger[15]);
+assign irqarray6_eventsourceflex136_status = (irqarray6_interrupts[16] | irqarray6_trigger[16]);
+assign irqarray6_eventsourceflex137_status = (irqarray6_interrupts[17] | irqarray6_trigger[17]);
+assign irqarray6_eventsourceflex138_status = (irqarray6_interrupts[18] | irqarray6_trigger[18]);
+assign irqarray6_eventsourceflex139_status = (irqarray6_interrupts[19] | irqarray6_trigger[19]);
+assign irqarray7_interrupts = irqarray_bank7;
+assign irqarray7_source00 = irqarray7_eventsourceflex140_status;
+assign irqarray7_source01 = irqarray7_eventsourceflex140_pending;
+always @(*) begin
+    irqarray7_eventsourceflex140_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[0])) begin
+        irqarray7_eventsourceflex140_clear <= 1'd1;
+    end
+end
+assign irqarray7_source10 = irqarray7_eventsourceflex141_status;
+assign irqarray7_source11 = irqarray7_eventsourceflex141_pending;
+always @(*) begin
+    irqarray7_eventsourceflex141_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[1])) begin
+        irqarray7_eventsourceflex141_clear <= 1'd1;
+    end
+end
+assign irqarray7_source20 = irqarray7_eventsourceflex142_status;
+assign irqarray7_source21 = irqarray7_eventsourceflex142_pending;
+always @(*) begin
+    irqarray7_eventsourceflex142_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[2])) begin
+        irqarray7_eventsourceflex142_clear <= 1'd1;
+    end
+end
+assign irqarray7_source30 = irqarray7_eventsourceflex143_status;
+assign irqarray7_source31 = irqarray7_eventsourceflex143_pending;
+always @(*) begin
+    irqarray7_eventsourceflex143_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[3])) begin
+        irqarray7_eventsourceflex143_clear <= 1'd1;
+    end
+end
+assign irqarray7_source40 = irqarray7_eventsourceflex144_status;
+assign irqarray7_source41 = irqarray7_eventsourceflex144_pending;
+always @(*) begin
+    irqarray7_eventsourceflex144_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[4])) begin
+        irqarray7_eventsourceflex144_clear <= 1'd1;
+    end
+end
+assign irqarray7_source50 = irqarray7_eventsourceflex145_status;
+assign irqarray7_source51 = irqarray7_eventsourceflex145_pending;
+always @(*) begin
+    irqarray7_eventsourceflex145_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[5])) begin
+        irqarray7_eventsourceflex145_clear <= 1'd1;
+    end
+end
+assign irqarray7_source60 = irqarray7_eventsourceflex146_status;
+assign irqarray7_source61 = irqarray7_eventsourceflex146_pending;
+always @(*) begin
+    irqarray7_eventsourceflex146_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[6])) begin
+        irqarray7_eventsourceflex146_clear <= 1'd1;
+    end
+end
+assign irqarray7_source70 = irqarray7_eventsourceflex147_status;
+assign irqarray7_source71 = irqarray7_eventsourceflex147_pending;
+always @(*) begin
+    irqarray7_eventsourceflex147_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[7])) begin
+        irqarray7_eventsourceflex147_clear <= 1'd1;
+    end
+end
+assign irqarray7_source80 = irqarray7_eventsourceflex148_status;
+assign irqarray7_source81 = irqarray7_eventsourceflex148_pending;
+always @(*) begin
+    irqarray7_eventsourceflex148_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[8])) begin
+        irqarray7_eventsourceflex148_clear <= 1'd1;
+    end
+end
+assign irqarray7_source90 = irqarray7_eventsourceflex149_status;
+assign irqarray7_source91 = irqarray7_eventsourceflex149_pending;
+always @(*) begin
+    irqarray7_eventsourceflex149_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[9])) begin
+        irqarray7_eventsourceflex149_clear <= 1'd1;
+    end
+end
+assign irqarray7_source100 = irqarray7_eventsourceflex150_status;
+assign irqarray7_source101 = irqarray7_eventsourceflex150_pending;
+always @(*) begin
+    irqarray7_eventsourceflex150_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[10])) begin
+        irqarray7_eventsourceflex150_clear <= 1'd1;
+    end
+end
+assign irqarray7_source110 = irqarray7_eventsourceflex151_status;
+assign irqarray7_source111 = irqarray7_eventsourceflex151_pending;
+always @(*) begin
+    irqarray7_eventsourceflex151_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[11])) begin
+        irqarray7_eventsourceflex151_clear <= 1'd1;
+    end
+end
+assign irqarray7_source120 = irqarray7_eventsourceflex152_status;
+assign irqarray7_source121 = irqarray7_eventsourceflex152_pending;
+always @(*) begin
+    irqarray7_eventsourceflex152_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[12])) begin
+        irqarray7_eventsourceflex152_clear <= 1'd1;
+    end
+end
+assign irqarray7_source130 = irqarray7_eventsourceflex153_status;
+assign irqarray7_source131 = irqarray7_eventsourceflex153_pending;
+always @(*) begin
+    irqarray7_eventsourceflex153_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[13])) begin
+        irqarray7_eventsourceflex153_clear <= 1'd1;
+    end
+end
+assign irqarray7_source140 = irqarray7_eventsourceflex154_status;
+assign irqarray7_source141 = irqarray7_eventsourceflex154_pending;
+always @(*) begin
+    irqarray7_eventsourceflex154_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[14])) begin
+        irqarray7_eventsourceflex154_clear <= 1'd1;
+    end
+end
+assign irqarray7_source150 = irqarray7_eventsourceflex155_status;
+assign irqarray7_source151 = irqarray7_eventsourceflex155_pending;
+always @(*) begin
+    irqarray7_eventsourceflex155_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[15])) begin
+        irqarray7_eventsourceflex155_clear <= 1'd1;
+    end
+end
+assign irqarray7_source160 = irqarray7_eventsourceflex156_status;
+assign irqarray7_source161 = irqarray7_eventsourceflex156_pending;
+always @(*) begin
+    irqarray7_eventsourceflex156_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[16])) begin
+        irqarray7_eventsourceflex156_clear <= 1'd1;
+    end
+end
+assign irqarray7_source170 = irqarray7_eventsourceflex157_status;
+assign irqarray7_source171 = irqarray7_eventsourceflex157_pending;
+always @(*) begin
+    irqarray7_eventsourceflex157_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[17])) begin
+        irqarray7_eventsourceflex157_clear <= 1'd1;
+    end
+end
+assign irqarray7_source180 = irqarray7_eventsourceflex158_status;
+assign irqarray7_source181 = irqarray7_eventsourceflex158_pending;
+always @(*) begin
+    irqarray7_eventsourceflex158_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[18])) begin
+        irqarray7_eventsourceflex158_clear <= 1'd1;
+    end
+end
+assign irqarray7_source190 = irqarray7_eventsourceflex159_status;
+assign irqarray7_source191 = irqarray7_eventsourceflex159_pending;
+always @(*) begin
+    irqarray7_eventsourceflex159_clear <= 1'd0;
+    if ((irqarray7_pending_re & irqarray7_pending_r[19])) begin
+        irqarray7_eventsourceflex159_clear <= 1'd1;
+    end
+end
+assign irqarray7_irq = ((((((((((((((((((((irqarray7_pending_status[0] & irqarray7_enable_storage[0]) | (irqarray7_pending_status[1] & irqarray7_enable_storage[1])) | (irqarray7_pending_status[2] & irqarray7_enable_storage[2])) | (irqarray7_pending_status[3] & irqarray7_enable_storage[3])) | (irqarray7_pending_status[4] & irqarray7_enable_storage[4])) | (irqarray7_pending_status[5] & irqarray7_enable_storage[5])) | (irqarray7_pending_status[6] & irqarray7_enable_storage[6])) | (irqarray7_pending_status[7] & irqarray7_enable_storage[7])) | (irqarray7_pending_status[8] & irqarray7_enable_storage[8])) | (irqarray7_pending_status[9] & irqarray7_enable_storage[9])) | (irqarray7_pending_status[10] & irqarray7_enable_storage[10])) | (irqarray7_pending_status[11] & irqarray7_enable_storage[11])) | (irqarray7_pending_status[12] & irqarray7_enable_storage[12])) | (irqarray7_pending_status[13] & irqarray7_enable_storage[13])) | (irqarray7_pending_status[14] & irqarray7_enable_storage[14])) | (irqarray7_pending_status[15] & irqarray7_enable_storage[15])) | (irqarray7_pending_status[16] & irqarray7_enable_storage[16])) | (irqarray7_pending_status[17] & irqarray7_enable_storage[17])) | (irqarray7_pending_status[18] & irqarray7_enable_storage[18])) | (irqarray7_pending_status[19] & irqarray7_enable_storage[19]));
+assign irqarray7_eventsourceflex140_status = (irqarray7_interrupts[0] | irqarray7_trigger[0]);
+assign irqarray7_eventsourceflex141_status = (irqarray7_interrupts[1] | irqarray7_trigger[1]);
+assign irqarray7_eventsourceflex142_status = (irqarray7_interrupts[2] | irqarray7_trigger[2]);
+assign irqarray7_eventsourceflex143_status = (irqarray7_interrupts[3] | irqarray7_trigger[3]);
+assign irqarray7_eventsourceflex144_status = (irqarray7_interrupts[4] | irqarray7_trigger[4]);
+assign irqarray7_eventsourceflex145_status = (irqarray7_interrupts[5] | irqarray7_trigger[5]);
+assign irqarray7_eventsourceflex146_status = (irqarray7_interrupts[6] | irqarray7_trigger[6]);
+assign irqarray7_eventsourceflex147_status = (irqarray7_interrupts[7] | irqarray7_trigger[7]);
+assign irqarray7_eventsourceflex148_status = (irqarray7_interrupts[8] | irqarray7_trigger[8]);
+assign irqarray7_eventsourceflex149_status = (irqarray7_interrupts[9] | irqarray7_trigger[9]);
+assign irqarray7_eventsourceflex150_status = (irqarray7_interrupts[10] | irqarray7_trigger[10]);
+assign irqarray7_eventsourceflex151_status = (irqarray7_interrupts[11] | irqarray7_trigger[11]);
+assign irqarray7_eventsourceflex152_status = (irqarray7_interrupts[12] | irqarray7_trigger[12]);
+assign irqarray7_eventsourceflex153_status = (irqarray7_interrupts[13] | irqarray7_trigger[13]);
+assign irqarray7_eventsourceflex154_status = (irqarray7_interrupts[14] | irqarray7_trigger[14]);
+assign irqarray7_eventsourceflex155_status = (irqarray7_interrupts[15] | irqarray7_trigger[15]);
+assign irqarray7_eventsourceflex156_status = (irqarray7_interrupts[16] | irqarray7_trigger[16]);
+assign irqarray7_eventsourceflex157_status = (irqarray7_interrupts[17] | irqarray7_trigger[17]);
+assign irqarray7_eventsourceflex158_status = (irqarray7_interrupts[18] | irqarray7_trigger[18]);
+assign irqarray7_eventsourceflex159_status = (irqarray7_interrupts[19] | irqarray7_trigger[19]);
+assign irqarray8_interrupts = irqarray_bank8;
+assign irqarray8_source00 = irqarray8_eventsourceflex160_status;
+assign irqarray8_source01 = irqarray8_eventsourceflex160_pending;
+always @(*) begin
+    irqarray8_eventsourceflex160_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[0])) begin
+        irqarray8_eventsourceflex160_clear <= 1'd1;
+    end
+end
+assign irqarray8_source10 = irqarray8_eventsourceflex161_status;
+assign irqarray8_source11 = irqarray8_eventsourceflex161_pending;
+always @(*) begin
+    irqarray8_eventsourceflex161_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[1])) begin
+        irqarray8_eventsourceflex161_clear <= 1'd1;
+    end
+end
+assign irqarray8_source20 = irqarray8_eventsourceflex162_status;
+assign irqarray8_source21 = irqarray8_eventsourceflex162_pending;
+always @(*) begin
+    irqarray8_eventsourceflex162_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[2])) begin
+        irqarray8_eventsourceflex162_clear <= 1'd1;
+    end
+end
+assign irqarray8_source30 = irqarray8_eventsourceflex163_status;
+assign irqarray8_source31 = irqarray8_eventsourceflex163_pending;
+always @(*) begin
+    irqarray8_eventsourceflex163_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[3])) begin
+        irqarray8_eventsourceflex163_clear <= 1'd1;
+    end
+end
+assign irqarray8_source40 = irqarray8_eventsourceflex164_status;
+assign irqarray8_source41 = irqarray8_eventsourceflex164_pending;
+always @(*) begin
+    irqarray8_eventsourceflex164_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[4])) begin
+        irqarray8_eventsourceflex164_clear <= 1'd1;
+    end
+end
+assign irqarray8_source50 = irqarray8_eventsourceflex165_status;
+assign irqarray8_source51 = irqarray8_eventsourceflex165_pending;
+always @(*) begin
+    irqarray8_eventsourceflex165_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[5])) begin
+        irqarray8_eventsourceflex165_clear <= 1'd1;
+    end
+end
+assign irqarray8_source60 = irqarray8_eventsourceflex166_status;
+assign irqarray8_source61 = irqarray8_eventsourceflex166_pending;
+always @(*) begin
+    irqarray8_eventsourceflex166_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[6])) begin
+        irqarray8_eventsourceflex166_clear <= 1'd1;
+    end
+end
+assign irqarray8_source70 = irqarray8_eventsourceflex167_status;
+assign irqarray8_source71 = irqarray8_eventsourceflex167_pending;
+always @(*) begin
+    irqarray8_eventsourceflex167_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[7])) begin
+        irqarray8_eventsourceflex167_clear <= 1'd1;
+    end
+end
+assign irqarray8_source80 = irqarray8_eventsourceflex168_status;
+assign irqarray8_source81 = irqarray8_eventsourceflex168_pending;
+always @(*) begin
+    irqarray8_eventsourceflex168_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[8])) begin
+        irqarray8_eventsourceflex168_clear <= 1'd1;
+    end
+end
+assign irqarray8_source90 = irqarray8_eventsourceflex169_status;
+assign irqarray8_source91 = irqarray8_eventsourceflex169_pending;
+always @(*) begin
+    irqarray8_eventsourceflex169_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[9])) begin
+        irqarray8_eventsourceflex169_clear <= 1'd1;
+    end
+end
+assign irqarray8_source100 = irqarray8_eventsourceflex170_status;
+assign irqarray8_source101 = irqarray8_eventsourceflex170_pending;
+always @(*) begin
+    irqarray8_eventsourceflex170_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[10])) begin
+        irqarray8_eventsourceflex170_clear <= 1'd1;
+    end
+end
+assign irqarray8_source110 = irqarray8_eventsourceflex171_status;
+assign irqarray8_source111 = irqarray8_eventsourceflex171_pending;
+always @(*) begin
+    irqarray8_eventsourceflex171_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[11])) begin
+        irqarray8_eventsourceflex171_clear <= 1'd1;
+    end
+end
+assign irqarray8_source120 = irqarray8_eventsourceflex172_status;
+assign irqarray8_source121 = irqarray8_eventsourceflex172_pending;
+always @(*) begin
+    irqarray8_eventsourceflex172_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[12])) begin
+        irqarray8_eventsourceflex172_clear <= 1'd1;
+    end
+end
+assign irqarray8_source130 = irqarray8_eventsourceflex173_status;
+assign irqarray8_source131 = irqarray8_eventsourceflex173_pending;
+always @(*) begin
+    irqarray8_eventsourceflex173_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[13])) begin
+        irqarray8_eventsourceflex173_clear <= 1'd1;
+    end
+end
+assign irqarray8_source140 = irqarray8_eventsourceflex174_status;
+assign irqarray8_source141 = irqarray8_eventsourceflex174_pending;
+always @(*) begin
+    irqarray8_eventsourceflex174_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[14])) begin
+        irqarray8_eventsourceflex174_clear <= 1'd1;
+    end
+end
+assign irqarray8_source150 = irqarray8_eventsourceflex175_status;
+assign irqarray8_source151 = irqarray8_eventsourceflex175_pending;
+always @(*) begin
+    irqarray8_eventsourceflex175_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[15])) begin
+        irqarray8_eventsourceflex175_clear <= 1'd1;
+    end
+end
+assign irqarray8_source160 = irqarray8_eventsourceflex176_status;
+assign irqarray8_source161 = irqarray8_eventsourceflex176_pending;
+always @(*) begin
+    irqarray8_eventsourceflex176_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[16])) begin
+        irqarray8_eventsourceflex176_clear <= 1'd1;
+    end
+end
+assign irqarray8_source170 = irqarray8_eventsourceflex177_status;
+assign irqarray8_source171 = irqarray8_eventsourceflex177_pending;
+always @(*) begin
+    irqarray8_eventsourceflex177_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[17])) begin
+        irqarray8_eventsourceflex177_clear <= 1'd1;
+    end
+end
+assign irqarray8_source180 = irqarray8_eventsourceflex178_status;
+assign irqarray8_source181 = irqarray8_eventsourceflex178_pending;
+always @(*) begin
+    irqarray8_eventsourceflex178_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[18])) begin
+        irqarray8_eventsourceflex178_clear <= 1'd1;
+    end
+end
+assign irqarray8_source190 = irqarray8_eventsourceflex179_status;
+assign irqarray8_source191 = irqarray8_eventsourceflex179_pending;
+always @(*) begin
+    irqarray8_eventsourceflex179_clear <= 1'd0;
+    if ((irqarray8_pending_re & irqarray8_pending_r[19])) begin
+        irqarray8_eventsourceflex179_clear <= 1'd1;
+    end
+end
+assign irqarray8_irq = ((((((((((((((((((((irqarray8_pending_status[0] & irqarray8_enable_storage[0]) | (irqarray8_pending_status[1] & irqarray8_enable_storage[1])) | (irqarray8_pending_status[2] & irqarray8_enable_storage[2])) | (irqarray8_pending_status[3] & irqarray8_enable_storage[3])) | (irqarray8_pending_status[4] & irqarray8_enable_storage[4])) | (irqarray8_pending_status[5] & irqarray8_enable_storage[5])) | (irqarray8_pending_status[6] & irqarray8_enable_storage[6])) | (irqarray8_pending_status[7] & irqarray8_enable_storage[7])) | (irqarray8_pending_status[8] & irqarray8_enable_storage[8])) | (irqarray8_pending_status[9] & irqarray8_enable_storage[9])) | (irqarray8_pending_status[10] & irqarray8_enable_storage[10])) | (irqarray8_pending_status[11] & irqarray8_enable_storage[11])) | (irqarray8_pending_status[12] & irqarray8_enable_storage[12])) | (irqarray8_pending_status[13] & irqarray8_enable_storage[13])) | (irqarray8_pending_status[14] & irqarray8_enable_storage[14])) | (irqarray8_pending_status[15] & irqarray8_enable_storage[15])) | (irqarray8_pending_status[16] & irqarray8_enable_storage[16])) | (irqarray8_pending_status[17] & irqarray8_enable_storage[17])) | (irqarray8_pending_status[18] & irqarray8_enable_storage[18])) | (irqarray8_pending_status[19] & irqarray8_enable_storage[19]));
+assign irqarray8_eventsourceflex160_status = (irqarray8_interrupts[0] | irqarray8_trigger[0]);
+assign irqarray8_eventsourceflex161_status = (irqarray8_interrupts[1] | irqarray8_trigger[1]);
+assign irqarray8_eventsourceflex162_status = (irqarray8_interrupts[2] | irqarray8_trigger[2]);
+assign irqarray8_eventsourceflex163_status = (irqarray8_interrupts[3] | irqarray8_trigger[3]);
+assign irqarray8_eventsourceflex164_status = (irqarray8_interrupts[4] | irqarray8_trigger[4]);
+assign irqarray8_eventsourceflex165_status = (irqarray8_interrupts[5] | irqarray8_trigger[5]);
+assign irqarray8_eventsourceflex166_status = (irqarray8_interrupts[6] | irqarray8_trigger[6]);
+assign irqarray8_eventsourceflex167_status = (irqarray8_interrupts[7] | irqarray8_trigger[7]);
+assign irqarray8_eventsourceflex168_status = (irqarray8_interrupts[8] | irqarray8_trigger[8]);
+assign irqarray8_eventsourceflex169_status = (irqarray8_interrupts[9] | irqarray8_trigger[9]);
+assign irqarray8_eventsourceflex170_status = (irqarray8_interrupts[10] | irqarray8_trigger[10]);
+assign irqarray8_eventsourceflex171_status = (irqarray8_interrupts[11] | irqarray8_trigger[11]);
+assign irqarray8_eventsourceflex172_status = (irqarray8_interrupts[12] | irqarray8_trigger[12]);
+assign irqarray8_eventsourceflex173_status = (irqarray8_interrupts[13] | irqarray8_trigger[13]);
+assign irqarray8_eventsourceflex174_status = (irqarray8_interrupts[14] | irqarray8_trigger[14]);
+assign irqarray8_eventsourceflex175_status = (irqarray8_interrupts[15] | irqarray8_trigger[15]);
+assign irqarray8_eventsourceflex176_status = (irqarray8_interrupts[16] | irqarray8_trigger[16]);
+assign irqarray8_eventsourceflex177_status = (irqarray8_interrupts[17] | irqarray8_trigger[17]);
+assign irqarray8_eventsourceflex178_status = (irqarray8_interrupts[18] | irqarray8_trigger[18]);
+assign irqarray8_eventsourceflex179_status = (irqarray8_interrupts[19] | irqarray8_trigger[19]);
+assign irqarray9_interrupts = irqarray_bank9;
+assign irqarray9_source00 = irqarray9_eventsourceflex180_status;
+assign irqarray9_source01 = irqarray9_eventsourceflex180_pending;
+always @(*) begin
+    irqarray9_eventsourceflex180_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[0])) begin
+        irqarray9_eventsourceflex180_clear <= 1'd1;
+    end
+end
+assign irqarray9_source10 = irqarray9_eventsourceflex181_status;
+assign irqarray9_source11 = irqarray9_eventsourceflex181_pending;
+always @(*) begin
+    irqarray9_eventsourceflex181_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[1])) begin
+        irqarray9_eventsourceflex181_clear <= 1'd1;
+    end
+end
+assign irqarray9_source20 = irqarray9_eventsourceflex182_status;
+assign irqarray9_source21 = irqarray9_eventsourceflex182_pending;
+always @(*) begin
+    irqarray9_eventsourceflex182_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[2])) begin
+        irqarray9_eventsourceflex182_clear <= 1'd1;
+    end
+end
+assign irqarray9_source30 = irqarray9_eventsourceflex183_status;
+assign irqarray9_source31 = irqarray9_eventsourceflex183_pending;
+always @(*) begin
+    irqarray9_eventsourceflex183_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[3])) begin
+        irqarray9_eventsourceflex183_clear <= 1'd1;
+    end
+end
+assign irqarray9_source40 = irqarray9_eventsourceflex184_status;
+assign irqarray9_source41 = irqarray9_eventsourceflex184_pending;
+always @(*) begin
+    irqarray9_eventsourceflex184_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[4])) begin
+        irqarray9_eventsourceflex184_clear <= 1'd1;
+    end
+end
+assign irqarray9_source50 = irqarray9_eventsourceflex185_status;
+assign irqarray9_source51 = irqarray9_eventsourceflex185_pending;
+always @(*) begin
+    irqarray9_eventsourceflex185_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[5])) begin
+        irqarray9_eventsourceflex185_clear <= 1'd1;
+    end
+end
+assign irqarray9_source60 = irqarray9_eventsourceflex186_status;
+assign irqarray9_source61 = irqarray9_eventsourceflex186_pending;
+always @(*) begin
+    irqarray9_eventsourceflex186_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[6])) begin
+        irqarray9_eventsourceflex186_clear <= 1'd1;
+    end
+end
+assign irqarray9_source70 = irqarray9_eventsourceflex187_status;
+assign irqarray9_source71 = irqarray9_eventsourceflex187_pending;
+always @(*) begin
+    irqarray9_eventsourceflex187_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[7])) begin
+        irqarray9_eventsourceflex187_clear <= 1'd1;
+    end
+end
+assign irqarray9_source80 = irqarray9_eventsourceflex188_status;
+assign irqarray9_source81 = irqarray9_eventsourceflex188_pending;
+always @(*) begin
+    irqarray9_eventsourceflex188_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[8])) begin
+        irqarray9_eventsourceflex188_clear <= 1'd1;
+    end
+end
+assign irqarray9_source90 = irqarray9_eventsourceflex189_status;
+assign irqarray9_source91 = irqarray9_eventsourceflex189_pending;
+always @(*) begin
+    irqarray9_eventsourceflex189_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[9])) begin
+        irqarray9_eventsourceflex189_clear <= 1'd1;
+    end
+end
+assign irqarray9_source100 = irqarray9_eventsourceflex190_status;
+assign irqarray9_source101 = irqarray9_eventsourceflex190_pending;
+always @(*) begin
+    irqarray9_eventsourceflex190_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[10])) begin
+        irqarray9_eventsourceflex190_clear <= 1'd1;
+    end
+end
+assign irqarray9_source110 = irqarray9_eventsourceflex191_status;
+assign irqarray9_source111 = irqarray9_eventsourceflex191_pending;
+always @(*) begin
+    irqarray9_eventsourceflex191_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[11])) begin
+        irqarray9_eventsourceflex191_clear <= 1'd1;
+    end
+end
+assign irqarray9_source120 = irqarray9_eventsourceflex192_status;
+assign irqarray9_source121 = irqarray9_eventsourceflex192_pending;
+always @(*) begin
+    irqarray9_eventsourceflex192_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[12])) begin
+        irqarray9_eventsourceflex192_clear <= 1'd1;
+    end
+end
+assign irqarray9_source130 = irqarray9_eventsourceflex193_status;
+assign irqarray9_source131 = irqarray9_eventsourceflex193_pending;
+always @(*) begin
+    irqarray9_eventsourceflex193_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[13])) begin
+        irqarray9_eventsourceflex193_clear <= 1'd1;
+    end
+end
+assign irqarray9_source140 = irqarray9_eventsourceflex194_status;
+assign irqarray9_source141 = irqarray9_eventsourceflex194_pending;
+always @(*) begin
+    irqarray9_eventsourceflex194_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[14])) begin
+        irqarray9_eventsourceflex194_clear <= 1'd1;
+    end
+end
+assign irqarray9_source150 = irqarray9_eventsourceflex195_status;
+assign irqarray9_source151 = irqarray9_eventsourceflex195_pending;
+always @(*) begin
+    irqarray9_eventsourceflex195_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[15])) begin
+        irqarray9_eventsourceflex195_clear <= 1'd1;
+    end
+end
+assign irqarray9_source160 = irqarray9_eventsourceflex196_status;
+assign irqarray9_source161 = irqarray9_eventsourceflex196_pending;
+always @(*) begin
+    irqarray9_eventsourceflex196_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[16])) begin
+        irqarray9_eventsourceflex196_clear <= 1'd1;
+    end
+end
+assign irqarray9_source170 = irqarray9_eventsourceflex197_status;
+assign irqarray9_source171 = irqarray9_eventsourceflex197_pending;
+always @(*) begin
+    irqarray9_eventsourceflex197_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[17])) begin
+        irqarray9_eventsourceflex197_clear <= 1'd1;
+    end
+end
+assign irqarray9_source180 = irqarray9_eventsourceflex198_status;
+assign irqarray9_source181 = irqarray9_eventsourceflex198_pending;
+always @(*) begin
+    irqarray9_eventsourceflex198_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[18])) begin
+        irqarray9_eventsourceflex198_clear <= 1'd1;
+    end
+end
+assign irqarray9_source190 = irqarray9_eventsourceflex199_status;
+assign irqarray9_source191 = irqarray9_eventsourceflex199_pending;
+always @(*) begin
+    irqarray9_eventsourceflex199_clear <= 1'd0;
+    if ((irqarray9_pending_re & irqarray9_pending_r[19])) begin
+        irqarray9_eventsourceflex199_clear <= 1'd1;
+    end
+end
+assign irqarray9_irq = ((((((((((((((((((((irqarray9_pending_status[0] & irqarray9_enable_storage[0]) | (irqarray9_pending_status[1] & irqarray9_enable_storage[1])) | (irqarray9_pending_status[2] & irqarray9_enable_storage[2])) | (irqarray9_pending_status[3] & irqarray9_enable_storage[3])) | (irqarray9_pending_status[4] & irqarray9_enable_storage[4])) | (irqarray9_pending_status[5] & irqarray9_enable_storage[5])) | (irqarray9_pending_status[6] & irqarray9_enable_storage[6])) | (irqarray9_pending_status[7] & irqarray9_enable_storage[7])) | (irqarray9_pending_status[8] & irqarray9_enable_storage[8])) | (irqarray9_pending_status[9] & irqarray9_enable_storage[9])) | (irqarray9_pending_status[10] & irqarray9_enable_storage[10])) | (irqarray9_pending_status[11] & irqarray9_enable_storage[11])) | (irqarray9_pending_status[12] & irqarray9_enable_storage[12])) | (irqarray9_pending_status[13] & irqarray9_enable_storage[13])) | (irqarray9_pending_status[14] & irqarray9_enable_storage[14])) | (irqarray9_pending_status[15] & irqarray9_enable_storage[15])) | (irqarray9_pending_status[16] & irqarray9_enable_storage[16])) | (irqarray9_pending_status[17] & irqarray9_enable_storage[17])) | (irqarray9_pending_status[18] & irqarray9_enable_storage[18])) | (irqarray9_pending_status[19] & irqarray9_enable_storage[19]));
+assign irqarray9_eventsourceflex180_status = (irqarray9_interrupts[0] | irqarray9_trigger[0]);
+assign irqarray9_eventsourceflex181_status = (irqarray9_interrupts[1] | irqarray9_trigger[1]);
+assign irqarray9_eventsourceflex182_status = (irqarray9_interrupts[2] | irqarray9_trigger[2]);
+assign irqarray9_eventsourceflex183_status = (irqarray9_interrupts[3] | irqarray9_trigger[3]);
+assign irqarray9_eventsourceflex184_status = (irqarray9_interrupts[4] | irqarray9_trigger[4]);
+assign irqarray9_eventsourceflex185_status = (irqarray9_interrupts[5] | irqarray9_trigger[5]);
+assign irqarray9_eventsourceflex186_status = (irqarray9_interrupts[6] | irqarray9_trigger[6]);
+assign irqarray9_eventsourceflex187_status = (irqarray9_interrupts[7] | irqarray9_trigger[7]);
+assign irqarray9_eventsourceflex188_status = (irqarray9_interrupts[8] | irqarray9_trigger[8]);
+assign irqarray9_eventsourceflex189_status = (irqarray9_interrupts[9] | irqarray9_trigger[9]);
+assign irqarray9_eventsourceflex190_status = (irqarray9_interrupts[10] | irqarray9_trigger[10]);
+assign irqarray9_eventsourceflex191_status = (irqarray9_interrupts[11] | irqarray9_trigger[11]);
+assign irqarray9_eventsourceflex192_status = (irqarray9_interrupts[12] | irqarray9_trigger[12]);
+assign irqarray9_eventsourceflex193_status = (irqarray9_interrupts[13] | irqarray9_trigger[13]);
+assign irqarray9_eventsourceflex194_status = (irqarray9_interrupts[14] | irqarray9_trigger[14]);
+assign irqarray9_eventsourceflex195_status = (irqarray9_interrupts[15] | irqarray9_trigger[15]);
+assign irqarray9_eventsourceflex196_status = (irqarray9_interrupts[16] | irqarray9_trigger[16]);
+assign irqarray9_eventsourceflex197_status = (irqarray9_interrupts[17] | irqarray9_trigger[17]);
+assign irqarray9_eventsourceflex198_status = (irqarray9_interrupts[18] | irqarray9_trigger[18]);
+assign irqarray9_eventsourceflex199_status = (irqarray9_interrupts[19] | irqarray9_trigger[19]);
+assign irqarray10_interrupts = irqarray_bank10;
+assign irqarray10_source00 = irqarray10_eventsourceflex200_status;
+assign irqarray10_source01 = irqarray10_eventsourceflex200_pending;
+always @(*) begin
+    irqarray10_eventsourceflex200_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[0])) begin
+        irqarray10_eventsourceflex200_clear <= 1'd1;
+    end
+end
+assign irqarray10_source10 = irqarray10_eventsourceflex201_status;
+assign irqarray10_source11 = irqarray10_eventsourceflex201_pending;
+always @(*) begin
+    irqarray10_eventsourceflex201_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[1])) begin
+        irqarray10_eventsourceflex201_clear <= 1'd1;
+    end
+end
+assign irqarray10_source20 = irqarray10_eventsourceflex202_status;
+assign irqarray10_source21 = irqarray10_eventsourceflex202_pending;
+always @(*) begin
+    irqarray10_eventsourceflex202_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[2])) begin
+        irqarray10_eventsourceflex202_clear <= 1'd1;
+    end
+end
+assign irqarray10_source30 = irqarray10_eventsourceflex203_status;
+assign irqarray10_source31 = irqarray10_eventsourceflex203_pending;
+always @(*) begin
+    irqarray10_eventsourceflex203_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[3])) begin
+        irqarray10_eventsourceflex203_clear <= 1'd1;
+    end
+end
+assign irqarray10_source40 = irqarray10_eventsourceflex204_status;
+assign irqarray10_source41 = irqarray10_eventsourceflex204_pending;
+always @(*) begin
+    irqarray10_eventsourceflex204_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[4])) begin
+        irqarray10_eventsourceflex204_clear <= 1'd1;
+    end
+end
+assign irqarray10_source50 = irqarray10_eventsourceflex205_status;
+assign irqarray10_source51 = irqarray10_eventsourceflex205_pending;
+always @(*) begin
+    irqarray10_eventsourceflex205_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[5])) begin
+        irqarray10_eventsourceflex205_clear <= 1'd1;
+    end
+end
+assign irqarray10_source60 = irqarray10_eventsourceflex206_status;
+assign irqarray10_source61 = irqarray10_eventsourceflex206_pending;
+always @(*) begin
+    irqarray10_eventsourceflex206_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[6])) begin
+        irqarray10_eventsourceflex206_clear <= 1'd1;
+    end
+end
+assign irqarray10_source70 = irqarray10_eventsourceflex207_status;
+assign irqarray10_source71 = irqarray10_eventsourceflex207_pending;
+always @(*) begin
+    irqarray10_eventsourceflex207_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[7])) begin
+        irqarray10_eventsourceflex207_clear <= 1'd1;
+    end
+end
+assign irqarray10_source80 = irqarray10_eventsourceflex208_status;
+assign irqarray10_source81 = irqarray10_eventsourceflex208_pending;
+always @(*) begin
+    irqarray10_eventsourceflex208_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[8])) begin
+        irqarray10_eventsourceflex208_clear <= 1'd1;
+    end
+end
+assign irqarray10_source90 = irqarray10_eventsourceflex209_status;
+assign irqarray10_source91 = irqarray10_eventsourceflex209_pending;
+always @(*) begin
+    irqarray10_eventsourceflex209_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[9])) begin
+        irqarray10_eventsourceflex209_clear <= 1'd1;
+    end
+end
+assign irqarray10_source100 = irqarray10_eventsourceflex210_status;
+assign irqarray10_source101 = irqarray10_eventsourceflex210_pending;
+always @(*) begin
+    irqarray10_eventsourceflex210_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[10])) begin
+        irqarray10_eventsourceflex210_clear <= 1'd1;
+    end
+end
+assign irqarray10_source110 = irqarray10_eventsourceflex211_status;
+assign irqarray10_source111 = irqarray10_eventsourceflex211_pending;
+always @(*) begin
+    irqarray10_eventsourceflex211_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[11])) begin
+        irqarray10_eventsourceflex211_clear <= 1'd1;
+    end
+end
+assign irqarray10_source120 = irqarray10_eventsourceflex212_status;
+assign irqarray10_source121 = irqarray10_eventsourceflex212_pending;
+always @(*) begin
+    irqarray10_eventsourceflex212_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[12])) begin
+        irqarray10_eventsourceflex212_clear <= 1'd1;
+    end
+end
+assign irqarray10_source130 = irqarray10_eventsourceflex213_status;
+assign irqarray10_source131 = irqarray10_eventsourceflex213_pending;
+always @(*) begin
+    irqarray10_eventsourceflex213_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[13])) begin
+        irqarray10_eventsourceflex213_clear <= 1'd1;
+    end
+end
+assign irqarray10_source140 = irqarray10_eventsourceflex214_status;
+assign irqarray10_source141 = irqarray10_eventsourceflex214_pending;
+always @(*) begin
+    irqarray10_eventsourceflex214_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[14])) begin
+        irqarray10_eventsourceflex214_clear <= 1'd1;
+    end
+end
+assign irqarray10_source150 = irqarray10_eventsourceflex215_status;
+assign irqarray10_source151 = irqarray10_eventsourceflex215_pending;
+always @(*) begin
+    irqarray10_eventsourceflex215_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[15])) begin
+        irqarray10_eventsourceflex215_clear <= 1'd1;
+    end
+end
+assign irqarray10_source160 = irqarray10_eventsourceflex216_status;
+assign irqarray10_source161 = irqarray10_eventsourceflex216_pending;
+always @(*) begin
+    irqarray10_eventsourceflex216_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[16])) begin
+        irqarray10_eventsourceflex216_clear <= 1'd1;
+    end
+end
+assign irqarray10_source170 = irqarray10_eventsourceflex217_status;
+assign irqarray10_source171 = irqarray10_eventsourceflex217_pending;
+always @(*) begin
+    irqarray10_eventsourceflex217_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[17])) begin
+        irqarray10_eventsourceflex217_clear <= 1'd1;
+    end
+end
+assign irqarray10_source180 = irqarray10_eventsourceflex218_status;
+assign irqarray10_source181 = irqarray10_eventsourceflex218_pending;
+always @(*) begin
+    irqarray10_eventsourceflex218_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[18])) begin
+        irqarray10_eventsourceflex218_clear <= 1'd1;
+    end
+end
+assign irqarray10_source190 = irqarray10_eventsourceflex219_status;
+assign irqarray10_source191 = irqarray10_eventsourceflex219_pending;
+always @(*) begin
+    irqarray10_eventsourceflex219_clear <= 1'd0;
+    if ((irqarray10_pending_re & irqarray10_pending_r[19])) begin
+        irqarray10_eventsourceflex219_clear <= 1'd1;
+    end
+end
+assign irqarray10_irq = ((((((((((((((((((((irqarray10_pending_status[0] & irqarray10_enable_storage[0]) | (irqarray10_pending_status[1] & irqarray10_enable_storage[1])) | (irqarray10_pending_status[2] & irqarray10_enable_storage[2])) | (irqarray10_pending_status[3] & irqarray10_enable_storage[3])) | (irqarray10_pending_status[4] & irqarray10_enable_storage[4])) | (irqarray10_pending_status[5] & irqarray10_enable_storage[5])) | (irqarray10_pending_status[6] & irqarray10_enable_storage[6])) | (irqarray10_pending_status[7] & irqarray10_enable_storage[7])) | (irqarray10_pending_status[8] & irqarray10_enable_storage[8])) | (irqarray10_pending_status[9] & irqarray10_enable_storage[9])) | (irqarray10_pending_status[10] & irqarray10_enable_storage[10])) | (irqarray10_pending_status[11] & irqarray10_enable_storage[11])) | (irqarray10_pending_status[12] & irqarray10_enable_storage[12])) | (irqarray10_pending_status[13] & irqarray10_enable_storage[13])) | (irqarray10_pending_status[14] & irqarray10_enable_storage[14])) | (irqarray10_pending_status[15] & irqarray10_enable_storage[15])) | (irqarray10_pending_status[16] & irqarray10_enable_storage[16])) | (irqarray10_pending_status[17] & irqarray10_enable_storage[17])) | (irqarray10_pending_status[18] & irqarray10_enable_storage[18])) | (irqarray10_pending_status[19] & irqarray10_enable_storage[19]));
+assign irqarray10_eventsourceflex200_status = (irqarray10_interrupts[0] | irqarray10_trigger[0]);
+assign irqarray10_eventsourceflex201_status = (irqarray10_interrupts[1] | irqarray10_trigger[1]);
+assign irqarray10_eventsourceflex202_status = (irqarray10_interrupts[2] | irqarray10_trigger[2]);
+assign irqarray10_eventsourceflex203_status = (irqarray10_interrupts[3] | irqarray10_trigger[3]);
+assign irqarray10_eventsourceflex204_status = (irqarray10_interrupts[4] | irqarray10_trigger[4]);
+assign irqarray10_eventsourceflex205_status = (irqarray10_interrupts[5] | irqarray10_trigger[5]);
+assign irqarray10_eventsourceflex206_status = (irqarray10_interrupts[6] | irqarray10_trigger[6]);
+assign irqarray10_eventsourceflex207_status = (irqarray10_interrupts[7] | irqarray10_trigger[7]);
+assign irqarray10_eventsourceflex208_status = (irqarray10_interrupts[8] | irqarray10_trigger[8]);
+assign irqarray10_eventsourceflex209_status = (irqarray10_interrupts[9] | irqarray10_trigger[9]);
+assign irqarray10_eventsourceflex210_status = (irqarray10_interrupts[10] | irqarray10_trigger[10]);
+assign irqarray10_eventsourceflex211_status = (irqarray10_interrupts[11] | irqarray10_trigger[11]);
+assign irqarray10_eventsourceflex212_status = (irqarray10_interrupts[12] | irqarray10_trigger[12]);
+assign irqarray10_eventsourceflex213_status = (irqarray10_interrupts[13] | irqarray10_trigger[13]);
+assign irqarray10_eventsourceflex214_status = (irqarray10_interrupts[14] | irqarray10_trigger[14]);
+assign irqarray10_eventsourceflex215_status = (irqarray10_interrupts[15] | irqarray10_trigger[15]);
+assign irqarray10_eventsourceflex216_status = (irqarray10_interrupts[16] | irqarray10_trigger[16]);
+assign irqarray10_eventsourceflex217_status = (irqarray10_interrupts[17] | irqarray10_trigger[17]);
+assign irqarray10_eventsourceflex218_status = (irqarray10_interrupts[18] | irqarray10_trigger[18]);
+assign irqarray10_eventsourceflex219_status = (irqarray10_interrupts[19] | irqarray10_trigger[19]);
+assign irqarray11_interrupts = irqarray_bank11;
+assign irqarray11_source00 = irqarray11_eventsourceflex220_status;
+assign irqarray11_source01 = irqarray11_eventsourceflex220_pending;
+always @(*) begin
+    irqarray11_eventsourceflex220_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[0])) begin
+        irqarray11_eventsourceflex220_clear <= 1'd1;
+    end
+end
+assign irqarray11_source10 = irqarray11_eventsourceflex221_status;
+assign irqarray11_source11 = irqarray11_eventsourceflex221_pending;
+always @(*) begin
+    irqarray11_eventsourceflex221_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[1])) begin
+        irqarray11_eventsourceflex221_clear <= 1'd1;
+    end
+end
+assign irqarray11_source20 = irqarray11_eventsourceflex222_status;
+assign irqarray11_source21 = irqarray11_eventsourceflex222_pending;
+always @(*) begin
+    irqarray11_eventsourceflex222_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[2])) begin
+        irqarray11_eventsourceflex222_clear <= 1'd1;
+    end
+end
+assign irqarray11_source30 = irqarray11_eventsourceflex223_status;
+assign irqarray11_source31 = irqarray11_eventsourceflex223_pending;
+always @(*) begin
+    irqarray11_eventsourceflex223_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[3])) begin
+        irqarray11_eventsourceflex223_clear <= 1'd1;
+    end
+end
+assign irqarray11_source40 = irqarray11_eventsourceflex224_status;
+assign irqarray11_source41 = irqarray11_eventsourceflex224_pending;
+always @(*) begin
+    irqarray11_eventsourceflex224_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[4])) begin
+        irqarray11_eventsourceflex224_clear <= 1'd1;
+    end
+end
+assign irqarray11_source50 = irqarray11_eventsourceflex225_status;
+assign irqarray11_source51 = irqarray11_eventsourceflex225_pending;
+always @(*) begin
+    irqarray11_eventsourceflex225_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[5])) begin
+        irqarray11_eventsourceflex225_clear <= 1'd1;
+    end
+end
+assign irqarray11_source60 = irqarray11_eventsourceflex226_status;
+assign irqarray11_source61 = irqarray11_eventsourceflex226_pending;
+always @(*) begin
+    irqarray11_eventsourceflex226_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[6])) begin
+        irqarray11_eventsourceflex226_clear <= 1'd1;
+    end
+end
+assign irqarray11_source70 = irqarray11_eventsourceflex227_status;
+assign irqarray11_source71 = irqarray11_eventsourceflex227_pending;
+always @(*) begin
+    irqarray11_eventsourceflex227_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[7])) begin
+        irqarray11_eventsourceflex227_clear <= 1'd1;
+    end
+end
+assign irqarray11_source80 = irqarray11_eventsourceflex228_status;
+assign irqarray11_source81 = irqarray11_eventsourceflex228_pending;
+always @(*) begin
+    irqarray11_eventsourceflex228_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[8])) begin
+        irqarray11_eventsourceflex228_clear <= 1'd1;
+    end
+end
+assign irqarray11_source90 = irqarray11_eventsourceflex229_status;
+assign irqarray11_source91 = irqarray11_eventsourceflex229_pending;
+always @(*) begin
+    irqarray11_eventsourceflex229_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[9])) begin
+        irqarray11_eventsourceflex229_clear <= 1'd1;
+    end
+end
+assign irqarray11_source100 = irqarray11_eventsourceflex230_status;
+assign irqarray11_source101 = irqarray11_eventsourceflex230_pending;
+always @(*) begin
+    irqarray11_eventsourceflex230_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[10])) begin
+        irqarray11_eventsourceflex230_clear <= 1'd1;
+    end
+end
+assign irqarray11_source110 = irqarray11_eventsourceflex231_status;
+assign irqarray11_source111 = irqarray11_eventsourceflex231_pending;
+always @(*) begin
+    irqarray11_eventsourceflex231_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[11])) begin
+        irqarray11_eventsourceflex231_clear <= 1'd1;
+    end
+end
+assign irqarray11_source120 = irqarray11_eventsourceflex232_status;
+assign irqarray11_source121 = irqarray11_eventsourceflex232_pending;
+always @(*) begin
+    irqarray11_eventsourceflex232_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[12])) begin
+        irqarray11_eventsourceflex232_clear <= 1'd1;
+    end
+end
+assign irqarray11_source130 = irqarray11_eventsourceflex233_status;
+assign irqarray11_source131 = irqarray11_eventsourceflex233_pending;
+always @(*) begin
+    irqarray11_eventsourceflex233_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[13])) begin
+        irqarray11_eventsourceflex233_clear <= 1'd1;
+    end
+end
+assign irqarray11_source140 = irqarray11_eventsourceflex234_status;
+assign irqarray11_source141 = irqarray11_eventsourceflex234_pending;
+always @(*) begin
+    irqarray11_eventsourceflex234_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[14])) begin
+        irqarray11_eventsourceflex234_clear <= 1'd1;
+    end
+end
+assign irqarray11_source150 = irqarray11_eventsourceflex235_status;
+assign irqarray11_source151 = irqarray11_eventsourceflex235_pending;
+always @(*) begin
+    irqarray11_eventsourceflex235_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[15])) begin
+        irqarray11_eventsourceflex235_clear <= 1'd1;
+    end
+end
+assign irqarray11_source160 = irqarray11_eventsourceflex236_status;
+assign irqarray11_source161 = irqarray11_eventsourceflex236_pending;
+always @(*) begin
+    irqarray11_eventsourceflex236_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[16])) begin
+        irqarray11_eventsourceflex236_clear <= 1'd1;
+    end
+end
+assign irqarray11_source170 = irqarray11_eventsourceflex237_status;
+assign irqarray11_source171 = irqarray11_eventsourceflex237_pending;
+always @(*) begin
+    irqarray11_eventsourceflex237_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[17])) begin
+        irqarray11_eventsourceflex237_clear <= 1'd1;
+    end
+end
+assign irqarray11_source180 = irqarray11_eventsourceflex238_status;
+assign irqarray11_source181 = irqarray11_eventsourceflex238_pending;
+always @(*) begin
+    irqarray11_eventsourceflex238_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[18])) begin
+        irqarray11_eventsourceflex238_clear <= 1'd1;
+    end
+end
+assign irqarray11_source190 = irqarray11_eventsourceflex239_status;
+assign irqarray11_source191 = irqarray11_eventsourceflex239_pending;
+always @(*) begin
+    irqarray11_eventsourceflex239_clear <= 1'd0;
+    if ((irqarray11_pending_re & irqarray11_pending_r[19])) begin
+        irqarray11_eventsourceflex239_clear <= 1'd1;
+    end
+end
+assign irqarray11_irq = ((((((((((((((((((((irqarray11_pending_status[0] & irqarray11_enable_storage[0]) | (irqarray11_pending_status[1] & irqarray11_enable_storage[1])) | (irqarray11_pending_status[2] & irqarray11_enable_storage[2])) | (irqarray11_pending_status[3] & irqarray11_enable_storage[3])) | (irqarray11_pending_status[4] & irqarray11_enable_storage[4])) | (irqarray11_pending_status[5] & irqarray11_enable_storage[5])) | (irqarray11_pending_status[6] & irqarray11_enable_storage[6])) | (irqarray11_pending_status[7] & irqarray11_enable_storage[7])) | (irqarray11_pending_status[8] & irqarray11_enable_storage[8])) | (irqarray11_pending_status[9] & irqarray11_enable_storage[9])) | (irqarray11_pending_status[10] & irqarray11_enable_storage[10])) | (irqarray11_pending_status[11] & irqarray11_enable_storage[11])) | (irqarray11_pending_status[12] & irqarray11_enable_storage[12])) | (irqarray11_pending_status[13] & irqarray11_enable_storage[13])) | (irqarray11_pending_status[14] & irqarray11_enable_storage[14])) | (irqarray11_pending_status[15] & irqarray11_enable_storage[15])) | (irqarray11_pending_status[16] & irqarray11_enable_storage[16])) | (irqarray11_pending_status[17] & irqarray11_enable_storage[17])) | (irqarray11_pending_status[18] & irqarray11_enable_storage[18])) | (irqarray11_pending_status[19] & irqarray11_enable_storage[19]));
+assign irqarray11_eventsourceflex220_status = (irqarray11_interrupts[0] | irqarray11_trigger[0]);
+assign irqarray11_eventsourceflex221_status = (irqarray11_interrupts[1] | irqarray11_trigger[1]);
+assign irqarray11_eventsourceflex222_status = (irqarray11_interrupts[2] | irqarray11_trigger[2]);
+assign irqarray11_eventsourceflex223_status = (irqarray11_interrupts[3] | irqarray11_trigger[3]);
+assign irqarray11_eventsourceflex224_status = (irqarray11_interrupts[4] | irqarray11_trigger[4]);
+assign irqarray11_eventsourceflex225_status = (irqarray11_interrupts[5] | irqarray11_trigger[5]);
+assign irqarray11_eventsourceflex226_status = (irqarray11_interrupts[6] | irqarray11_trigger[6]);
+assign irqarray11_eventsourceflex227_status = (irqarray11_interrupts[7] | irqarray11_trigger[7]);
+assign irqarray11_eventsourceflex228_status = (irqarray11_interrupts[8] | irqarray11_trigger[8]);
+assign irqarray11_eventsourceflex229_status = (irqarray11_interrupts[9] | irqarray11_trigger[9]);
+assign irqarray11_eventsourceflex230_status = (irqarray11_interrupts[10] | irqarray11_trigger[10]);
+assign irqarray11_eventsourceflex231_status = (irqarray11_interrupts[11] | irqarray11_trigger[11]);
+assign irqarray11_eventsourceflex232_status = (irqarray11_interrupts[12] | irqarray11_trigger[12]);
+assign irqarray11_eventsourceflex233_status = (irqarray11_interrupts[13] | irqarray11_trigger[13]);
+assign irqarray11_eventsourceflex234_status = (irqarray11_interrupts[14] | irqarray11_trigger[14]);
+assign irqarray11_eventsourceflex235_status = (irqarray11_interrupts[15] | irqarray11_trigger[15]);
+assign irqarray11_eventsourceflex236_status = (irqarray11_interrupts[16] | irqarray11_trigger[16]);
+assign irqarray11_eventsourceflex237_status = (irqarray11_interrupts[17] | irqarray11_trigger[17]);
+assign irqarray11_eventsourceflex238_status = (irqarray11_interrupts[18] | irqarray11_trigger[18]);
+assign irqarray11_eventsourceflex239_status = (irqarray11_interrupts[19] | irqarray11_trigger[19]);
+assign irqarray12_interrupts = irqarray_bank12;
+assign irqarray12_source00 = irqarray12_eventsourceflex240_status;
+assign irqarray12_source01 = irqarray12_eventsourceflex240_pending;
+always @(*) begin
+    irqarray12_eventsourceflex240_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[0])) begin
+        irqarray12_eventsourceflex240_clear <= 1'd1;
+    end
+end
+assign irqarray12_source10 = irqarray12_eventsourceflex241_status;
+assign irqarray12_source11 = irqarray12_eventsourceflex241_pending;
+always @(*) begin
+    irqarray12_eventsourceflex241_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[1])) begin
+        irqarray12_eventsourceflex241_clear <= 1'd1;
+    end
+end
+assign irqarray12_source20 = irqarray12_eventsourceflex242_status;
+assign irqarray12_source21 = irqarray12_eventsourceflex242_pending;
+always @(*) begin
+    irqarray12_eventsourceflex242_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[2])) begin
+        irqarray12_eventsourceflex242_clear <= 1'd1;
+    end
+end
+assign irqarray12_source30 = irqarray12_eventsourceflex243_status;
+assign irqarray12_source31 = irqarray12_eventsourceflex243_pending;
+always @(*) begin
+    irqarray12_eventsourceflex243_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[3])) begin
+        irqarray12_eventsourceflex243_clear <= 1'd1;
+    end
+end
+assign irqarray12_source40 = irqarray12_eventsourceflex244_status;
+assign irqarray12_source41 = irqarray12_eventsourceflex244_pending;
+always @(*) begin
+    irqarray12_eventsourceflex244_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[4])) begin
+        irqarray12_eventsourceflex244_clear <= 1'd1;
+    end
+end
+assign irqarray12_source50 = irqarray12_eventsourceflex245_status;
+assign irqarray12_source51 = irqarray12_eventsourceflex245_pending;
+always @(*) begin
+    irqarray12_eventsourceflex245_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[5])) begin
+        irqarray12_eventsourceflex245_clear <= 1'd1;
+    end
+end
+assign irqarray12_source60 = irqarray12_eventsourceflex246_status;
+assign irqarray12_source61 = irqarray12_eventsourceflex246_pending;
+always @(*) begin
+    irqarray12_eventsourceflex246_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[6])) begin
+        irqarray12_eventsourceflex246_clear <= 1'd1;
+    end
+end
+assign irqarray12_source70 = irqarray12_eventsourceflex247_status;
+assign irqarray12_source71 = irqarray12_eventsourceflex247_pending;
+always @(*) begin
+    irqarray12_eventsourceflex247_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[7])) begin
+        irqarray12_eventsourceflex247_clear <= 1'd1;
+    end
+end
+assign irqarray12_source80 = irqarray12_eventsourceflex248_status;
+assign irqarray12_source81 = irqarray12_eventsourceflex248_pending;
+always @(*) begin
+    irqarray12_eventsourceflex248_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[8])) begin
+        irqarray12_eventsourceflex248_clear <= 1'd1;
+    end
+end
+assign irqarray12_source90 = irqarray12_eventsourceflex249_status;
+assign irqarray12_source91 = irqarray12_eventsourceflex249_pending;
+always @(*) begin
+    irqarray12_eventsourceflex249_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[9])) begin
+        irqarray12_eventsourceflex249_clear <= 1'd1;
+    end
+end
+assign irqarray12_source100 = irqarray12_eventsourceflex250_status;
+assign irqarray12_source101 = irqarray12_eventsourceflex250_pending;
+always @(*) begin
+    irqarray12_eventsourceflex250_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[10])) begin
+        irqarray12_eventsourceflex250_clear <= 1'd1;
+    end
+end
+assign irqarray12_source110 = irqarray12_eventsourceflex251_status;
+assign irqarray12_source111 = irqarray12_eventsourceflex251_pending;
+always @(*) begin
+    irqarray12_eventsourceflex251_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[11])) begin
+        irqarray12_eventsourceflex251_clear <= 1'd1;
+    end
+end
+assign irqarray12_source120 = irqarray12_eventsourceflex252_status;
+assign irqarray12_source121 = irqarray12_eventsourceflex252_pending;
+always @(*) begin
+    irqarray12_eventsourceflex252_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[12])) begin
+        irqarray12_eventsourceflex252_clear <= 1'd1;
+    end
+end
+assign irqarray12_source130 = irqarray12_eventsourceflex253_status;
+assign irqarray12_source131 = irqarray12_eventsourceflex253_pending;
+always @(*) begin
+    irqarray12_eventsourceflex253_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[13])) begin
+        irqarray12_eventsourceflex253_clear <= 1'd1;
+    end
+end
+assign irqarray12_source140 = irqarray12_eventsourceflex254_status;
+assign irqarray12_source141 = irqarray12_eventsourceflex254_pending;
+always @(*) begin
+    irqarray12_eventsourceflex254_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[14])) begin
+        irqarray12_eventsourceflex254_clear <= 1'd1;
+    end
+end
+assign irqarray12_source150 = irqarray12_eventsourceflex255_status;
+assign irqarray12_source151 = irqarray12_eventsourceflex255_pending;
+always @(*) begin
+    irqarray12_eventsourceflex255_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[15])) begin
+        irqarray12_eventsourceflex255_clear <= 1'd1;
+    end
+end
+assign irqarray12_source160 = irqarray12_eventsourceflex256_status;
+assign irqarray12_source161 = irqarray12_eventsourceflex256_pending;
+always @(*) begin
+    irqarray12_eventsourceflex256_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[16])) begin
+        irqarray12_eventsourceflex256_clear <= 1'd1;
+    end
+end
+assign irqarray12_source170 = irqarray12_eventsourceflex257_status;
+assign irqarray12_source171 = irqarray12_eventsourceflex257_pending;
+always @(*) begin
+    irqarray12_eventsourceflex257_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[17])) begin
+        irqarray12_eventsourceflex257_clear <= 1'd1;
+    end
+end
+assign irqarray12_source180 = irqarray12_eventsourceflex258_status;
+assign irqarray12_source181 = irqarray12_eventsourceflex258_pending;
+always @(*) begin
+    irqarray12_eventsourceflex258_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[18])) begin
+        irqarray12_eventsourceflex258_clear <= 1'd1;
+    end
+end
+assign irqarray12_source190 = irqarray12_eventsourceflex259_status;
+assign irqarray12_source191 = irqarray12_eventsourceflex259_pending;
+always @(*) begin
+    irqarray12_eventsourceflex259_clear <= 1'd0;
+    if ((irqarray12_pending_re & irqarray12_pending_r[19])) begin
+        irqarray12_eventsourceflex259_clear <= 1'd1;
+    end
+end
+assign irqarray12_irq = ((((((((((((((((((((irqarray12_pending_status[0] & irqarray12_enable_storage[0]) | (irqarray12_pending_status[1] & irqarray12_enable_storage[1])) | (irqarray12_pending_status[2] & irqarray12_enable_storage[2])) | (irqarray12_pending_status[3] & irqarray12_enable_storage[3])) | (irqarray12_pending_status[4] & irqarray12_enable_storage[4])) | (irqarray12_pending_status[5] & irqarray12_enable_storage[5])) | (irqarray12_pending_status[6] & irqarray12_enable_storage[6])) | (irqarray12_pending_status[7] & irqarray12_enable_storage[7])) | (irqarray12_pending_status[8] & irqarray12_enable_storage[8])) | (irqarray12_pending_status[9] & irqarray12_enable_storage[9])) | (irqarray12_pending_status[10] & irqarray12_enable_storage[10])) | (irqarray12_pending_status[11] & irqarray12_enable_storage[11])) | (irqarray12_pending_status[12] & irqarray12_enable_storage[12])) | (irqarray12_pending_status[13] & irqarray12_enable_storage[13])) | (irqarray12_pending_status[14] & irqarray12_enable_storage[14])) | (irqarray12_pending_status[15] & irqarray12_enable_storage[15])) | (irqarray12_pending_status[16] & irqarray12_enable_storage[16])) | (irqarray12_pending_status[17] & irqarray12_enable_storage[17])) | (irqarray12_pending_status[18] & irqarray12_enable_storage[18])) | (irqarray12_pending_status[19] & irqarray12_enable_storage[19]));
+assign irqarray12_eventsourceflex240_status = (irqarray12_interrupts[0] | irqarray12_trigger[0]);
+assign irqarray12_eventsourceflex241_status = (irqarray12_interrupts[1] | irqarray12_trigger[1]);
+assign irqarray12_eventsourceflex242_status = (irqarray12_interrupts[2] | irqarray12_trigger[2]);
+assign irqarray12_eventsourceflex243_status = (irqarray12_interrupts[3] | irqarray12_trigger[3]);
+assign irqarray12_eventsourceflex244_status = (irqarray12_interrupts[4] | irqarray12_trigger[4]);
+assign irqarray12_eventsourceflex245_status = (irqarray12_interrupts[5] | irqarray12_trigger[5]);
+assign irqarray12_eventsourceflex246_status = (irqarray12_interrupts[6] | irqarray12_trigger[6]);
+assign irqarray12_eventsourceflex247_status = (irqarray12_interrupts[7] | irqarray12_trigger[7]);
+assign irqarray12_eventsourceflex248_status = (irqarray12_interrupts[8] | irqarray12_trigger[8]);
+assign irqarray12_eventsourceflex249_status = (irqarray12_interrupts[9] | irqarray12_trigger[9]);
+assign irqarray12_eventsourceflex250_status = (irqarray12_interrupts[10] | irqarray12_trigger[10]);
+assign irqarray12_eventsourceflex251_status = (irqarray12_interrupts[11] | irqarray12_trigger[11]);
+assign irqarray12_eventsourceflex252_status = (irqarray12_interrupts[12] | irqarray12_trigger[12]);
+assign irqarray12_eventsourceflex253_status = (irqarray12_interrupts[13] | irqarray12_trigger[13]);
+assign irqarray12_eventsourceflex254_status = (irqarray12_interrupts[14] | irqarray12_trigger[14]);
+assign irqarray12_eventsourceflex255_status = (irqarray12_interrupts[15] | irqarray12_trigger[15]);
+assign irqarray12_eventsourceflex256_status = (irqarray12_interrupts[16] | irqarray12_trigger[16]);
+assign irqarray12_eventsourceflex257_status = (irqarray12_interrupts[17] | irqarray12_trigger[17]);
+assign irqarray12_eventsourceflex258_status = (irqarray12_interrupts[18] | irqarray12_trigger[18]);
+assign irqarray12_eventsourceflex259_status = (irqarray12_interrupts[19] | irqarray12_trigger[19]);
+assign irqarray13_interrupts = irqarray_bank13;
+assign irqarray13_source00 = irqarray13_eventsourceflex260_status;
+assign irqarray13_source01 = irqarray13_eventsourceflex260_pending;
+always @(*) begin
+    irqarray13_eventsourceflex260_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[0])) begin
+        irqarray13_eventsourceflex260_clear <= 1'd1;
+    end
+end
+assign irqarray13_source10 = irqarray13_eventsourceflex261_status;
+assign irqarray13_source11 = irqarray13_eventsourceflex261_pending;
+always @(*) begin
+    irqarray13_eventsourceflex261_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[1])) begin
+        irqarray13_eventsourceflex261_clear <= 1'd1;
+    end
+end
+assign irqarray13_source20 = irqarray13_eventsourceflex262_status;
+assign irqarray13_source21 = irqarray13_eventsourceflex262_pending;
+always @(*) begin
+    irqarray13_eventsourceflex262_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[2])) begin
+        irqarray13_eventsourceflex262_clear <= 1'd1;
+    end
+end
+assign irqarray13_source30 = irqarray13_eventsourceflex263_status;
+assign irqarray13_source31 = irqarray13_eventsourceflex263_pending;
+always @(*) begin
+    irqarray13_eventsourceflex263_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[3])) begin
+        irqarray13_eventsourceflex263_clear <= 1'd1;
+    end
+end
+assign irqarray13_source40 = irqarray13_eventsourceflex264_status;
+assign irqarray13_source41 = irqarray13_eventsourceflex264_pending;
+always @(*) begin
+    irqarray13_eventsourceflex264_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[4])) begin
+        irqarray13_eventsourceflex264_clear <= 1'd1;
+    end
+end
+assign irqarray13_source50 = irqarray13_eventsourceflex265_status;
+assign irqarray13_source51 = irqarray13_eventsourceflex265_pending;
+always @(*) begin
+    irqarray13_eventsourceflex265_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[5])) begin
+        irqarray13_eventsourceflex265_clear <= 1'd1;
+    end
+end
+assign irqarray13_source60 = irqarray13_eventsourceflex266_status;
+assign irqarray13_source61 = irqarray13_eventsourceflex266_pending;
+always @(*) begin
+    irqarray13_eventsourceflex266_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[6])) begin
+        irqarray13_eventsourceflex266_clear <= 1'd1;
+    end
+end
+assign irqarray13_source70 = irqarray13_eventsourceflex267_status;
+assign irqarray13_source71 = irqarray13_eventsourceflex267_pending;
+always @(*) begin
+    irqarray13_eventsourceflex267_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[7])) begin
+        irqarray13_eventsourceflex267_clear <= 1'd1;
+    end
+end
+assign irqarray13_source80 = irqarray13_eventsourceflex268_status;
+assign irqarray13_source81 = irqarray13_eventsourceflex268_pending;
+always @(*) begin
+    irqarray13_eventsourceflex268_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[8])) begin
+        irqarray13_eventsourceflex268_clear <= 1'd1;
+    end
+end
+assign irqarray13_source90 = irqarray13_eventsourceflex269_status;
+assign irqarray13_source91 = irqarray13_eventsourceflex269_pending;
+always @(*) begin
+    irqarray13_eventsourceflex269_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[9])) begin
+        irqarray13_eventsourceflex269_clear <= 1'd1;
+    end
+end
+assign irqarray13_source100 = irqarray13_eventsourceflex270_status;
+assign irqarray13_source101 = irqarray13_eventsourceflex270_pending;
+always @(*) begin
+    irqarray13_eventsourceflex270_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[10])) begin
+        irqarray13_eventsourceflex270_clear <= 1'd1;
+    end
+end
+assign irqarray13_source110 = irqarray13_eventsourceflex271_status;
+assign irqarray13_source111 = irqarray13_eventsourceflex271_pending;
+always @(*) begin
+    irqarray13_eventsourceflex271_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[11])) begin
+        irqarray13_eventsourceflex271_clear <= 1'd1;
+    end
+end
+assign irqarray13_source120 = irqarray13_eventsourceflex272_status;
+assign irqarray13_source121 = irqarray13_eventsourceflex272_pending;
+always @(*) begin
+    irqarray13_eventsourceflex272_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[12])) begin
+        irqarray13_eventsourceflex272_clear <= 1'd1;
+    end
+end
+assign irqarray13_source130 = irqarray13_eventsourceflex273_status;
+assign irqarray13_source131 = irqarray13_eventsourceflex273_pending;
+always @(*) begin
+    irqarray13_eventsourceflex273_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[13])) begin
+        irqarray13_eventsourceflex273_clear <= 1'd1;
+    end
+end
+assign irqarray13_source140 = irqarray13_eventsourceflex274_status;
+assign irqarray13_source141 = irqarray13_eventsourceflex274_pending;
+always @(*) begin
+    irqarray13_eventsourceflex274_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[14])) begin
+        irqarray13_eventsourceflex274_clear <= 1'd1;
+    end
+end
+assign irqarray13_source150 = irqarray13_eventsourceflex275_status;
+assign irqarray13_source151 = irqarray13_eventsourceflex275_pending;
+always @(*) begin
+    irqarray13_eventsourceflex275_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[15])) begin
+        irqarray13_eventsourceflex275_clear <= 1'd1;
+    end
+end
+assign irqarray13_source160 = irqarray13_eventsourceflex276_status;
+assign irqarray13_source161 = irqarray13_eventsourceflex276_pending;
+always @(*) begin
+    irqarray13_eventsourceflex276_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[16])) begin
+        irqarray13_eventsourceflex276_clear <= 1'd1;
+    end
+end
+assign irqarray13_source170 = irqarray13_eventsourceflex277_status;
+assign irqarray13_source171 = irqarray13_eventsourceflex277_pending;
+always @(*) begin
+    irqarray13_eventsourceflex277_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[17])) begin
+        irqarray13_eventsourceflex277_clear <= 1'd1;
+    end
+end
+assign irqarray13_source180 = irqarray13_eventsourceflex278_status;
+assign irqarray13_source181 = irqarray13_eventsourceflex278_pending;
+always @(*) begin
+    irqarray13_eventsourceflex278_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[18])) begin
+        irqarray13_eventsourceflex278_clear <= 1'd1;
+    end
+end
+assign irqarray13_source190 = irqarray13_eventsourceflex279_status;
+assign irqarray13_source191 = irqarray13_eventsourceflex279_pending;
+always @(*) begin
+    irqarray13_eventsourceflex279_clear <= 1'd0;
+    if ((irqarray13_pending_re & irqarray13_pending_r[19])) begin
+        irqarray13_eventsourceflex279_clear <= 1'd1;
+    end
+end
+assign irqarray13_irq = ((((((((((((((((((((irqarray13_pending_status[0] & irqarray13_enable_storage[0]) | (irqarray13_pending_status[1] & irqarray13_enable_storage[1])) | (irqarray13_pending_status[2] & irqarray13_enable_storage[2])) | (irqarray13_pending_status[3] & irqarray13_enable_storage[3])) | (irqarray13_pending_status[4] & irqarray13_enable_storage[4])) | (irqarray13_pending_status[5] & irqarray13_enable_storage[5])) | (irqarray13_pending_status[6] & irqarray13_enable_storage[6])) | (irqarray13_pending_status[7] & irqarray13_enable_storage[7])) | (irqarray13_pending_status[8] & irqarray13_enable_storage[8])) | (irqarray13_pending_status[9] & irqarray13_enable_storage[9])) | (irqarray13_pending_status[10] & irqarray13_enable_storage[10])) | (irqarray13_pending_status[11] & irqarray13_enable_storage[11])) | (irqarray13_pending_status[12] & irqarray13_enable_storage[12])) | (irqarray13_pending_status[13] & irqarray13_enable_storage[13])) | (irqarray13_pending_status[14] & irqarray13_enable_storage[14])) | (irqarray13_pending_status[15] & irqarray13_enable_storage[15])) | (irqarray13_pending_status[16] & irqarray13_enable_storage[16])) | (irqarray13_pending_status[17] & irqarray13_enable_storage[17])) | (irqarray13_pending_status[18] & irqarray13_enable_storage[18])) | (irqarray13_pending_status[19] & irqarray13_enable_storage[19]));
+assign irqarray13_eventsourceflex260_status = (irqarray13_interrupts[0] | irqarray13_trigger[0]);
+assign irqarray13_eventsourceflex261_status = (irqarray13_interrupts[1] | irqarray13_trigger[1]);
+assign irqarray13_eventsourceflex262_status = (irqarray13_interrupts[2] | irqarray13_trigger[2]);
+assign irqarray13_eventsourceflex263_status = (irqarray13_interrupts[3] | irqarray13_trigger[3]);
+assign irqarray13_eventsourceflex264_status = (irqarray13_interrupts[4] | irqarray13_trigger[4]);
+assign irqarray13_eventsourceflex265_status = (irqarray13_interrupts[5] | irqarray13_trigger[5]);
+assign irqarray13_eventsourceflex266_status = (irqarray13_interrupts[6] | irqarray13_trigger[6]);
+assign irqarray13_eventsourceflex267_status = (irqarray13_interrupts[7] | irqarray13_trigger[7]);
+assign irqarray13_eventsourceflex268_status = (irqarray13_interrupts[8] | irqarray13_trigger[8]);
+assign irqarray13_eventsourceflex269_status = (irqarray13_interrupts[9] | irqarray13_trigger[9]);
+assign irqarray13_eventsourceflex270_status = (irqarray13_interrupts[10] | irqarray13_trigger[10]);
+assign irqarray13_eventsourceflex271_status = (irqarray13_interrupts[11] | irqarray13_trigger[11]);
+assign irqarray13_eventsourceflex272_status = (irqarray13_interrupts[12] | irqarray13_trigger[12]);
+assign irqarray13_eventsourceflex273_status = (irqarray13_interrupts[13] | irqarray13_trigger[13]);
+assign irqarray13_eventsourceflex274_status = (irqarray13_interrupts[14] | irqarray13_trigger[14]);
+assign irqarray13_eventsourceflex275_status = (irqarray13_interrupts[15] | irqarray13_trigger[15]);
+assign irqarray13_eventsourceflex276_status = (irqarray13_interrupts[16] | irqarray13_trigger[16]);
+assign irqarray13_eventsourceflex277_status = (irqarray13_interrupts[17] | irqarray13_trigger[17]);
+assign irqarray13_eventsourceflex278_status = (irqarray13_interrupts[18] | irqarray13_trigger[18]);
+assign irqarray13_eventsourceflex279_status = (irqarray13_interrupts[19] | irqarray13_trigger[19]);
+assign irqarray14_interrupts = irqarray_bank14;
+assign irqarray14_source00 = irqarray14_eventsourceflex280_status;
+assign irqarray14_source01 = irqarray14_eventsourceflex280_pending;
+always @(*) begin
+    irqarray14_eventsourceflex280_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[0])) begin
+        irqarray14_eventsourceflex280_clear <= 1'd1;
+    end
+end
+assign irqarray14_source10 = irqarray14_eventsourceflex281_status;
+assign irqarray14_source11 = irqarray14_eventsourceflex281_pending;
+always @(*) begin
+    irqarray14_eventsourceflex281_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[1])) begin
+        irqarray14_eventsourceflex281_clear <= 1'd1;
+    end
+end
+assign irqarray14_source20 = irqarray14_eventsourceflex282_status;
+assign irqarray14_source21 = irqarray14_eventsourceflex282_pending;
+always @(*) begin
+    irqarray14_eventsourceflex282_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[2])) begin
+        irqarray14_eventsourceflex282_clear <= 1'd1;
+    end
+end
+assign irqarray14_source30 = irqarray14_eventsourceflex283_status;
+assign irqarray14_source31 = irqarray14_eventsourceflex283_pending;
+always @(*) begin
+    irqarray14_eventsourceflex283_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[3])) begin
+        irqarray14_eventsourceflex283_clear <= 1'd1;
+    end
+end
+assign irqarray14_source40 = irqarray14_eventsourceflex284_status;
+assign irqarray14_source41 = irqarray14_eventsourceflex284_pending;
+always @(*) begin
+    irqarray14_eventsourceflex284_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[4])) begin
+        irqarray14_eventsourceflex284_clear <= 1'd1;
+    end
+end
+assign irqarray14_source50 = irqarray14_eventsourceflex285_status;
+assign irqarray14_source51 = irqarray14_eventsourceflex285_pending;
+always @(*) begin
+    irqarray14_eventsourceflex285_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[5])) begin
+        irqarray14_eventsourceflex285_clear <= 1'd1;
+    end
+end
+assign irqarray14_source60 = irqarray14_eventsourceflex286_status;
+assign irqarray14_source61 = irqarray14_eventsourceflex286_pending;
+always @(*) begin
+    irqarray14_eventsourceflex286_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[6])) begin
+        irqarray14_eventsourceflex286_clear <= 1'd1;
+    end
+end
+assign irqarray14_source70 = irqarray14_eventsourceflex287_status;
+assign irqarray14_source71 = irqarray14_eventsourceflex287_pending;
+always @(*) begin
+    irqarray14_eventsourceflex287_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[7])) begin
+        irqarray14_eventsourceflex287_clear <= 1'd1;
+    end
+end
+assign irqarray14_source80 = irqarray14_eventsourceflex288_status;
+assign irqarray14_source81 = irqarray14_eventsourceflex288_pending;
+always @(*) begin
+    irqarray14_eventsourceflex288_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[8])) begin
+        irqarray14_eventsourceflex288_clear <= 1'd1;
+    end
+end
+assign irqarray14_source90 = irqarray14_eventsourceflex289_status;
+assign irqarray14_source91 = irqarray14_eventsourceflex289_pending;
+always @(*) begin
+    irqarray14_eventsourceflex289_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[9])) begin
+        irqarray14_eventsourceflex289_clear <= 1'd1;
+    end
+end
+assign irqarray14_source100 = irqarray14_eventsourceflex290_status;
+assign irqarray14_source101 = irqarray14_eventsourceflex290_pending;
+always @(*) begin
+    irqarray14_eventsourceflex290_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[10])) begin
+        irqarray14_eventsourceflex290_clear <= 1'd1;
+    end
+end
+assign irqarray14_source110 = irqarray14_eventsourceflex291_status;
+assign irqarray14_source111 = irqarray14_eventsourceflex291_pending;
+always @(*) begin
+    irqarray14_eventsourceflex291_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[11])) begin
+        irqarray14_eventsourceflex291_clear <= 1'd1;
+    end
+end
+assign irqarray14_source120 = irqarray14_eventsourceflex292_status;
+assign irqarray14_source121 = irqarray14_eventsourceflex292_pending;
+always @(*) begin
+    irqarray14_eventsourceflex292_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[12])) begin
+        irqarray14_eventsourceflex292_clear <= 1'd1;
+    end
+end
+assign irqarray14_source130 = irqarray14_eventsourceflex293_status;
+assign irqarray14_source131 = irqarray14_eventsourceflex293_pending;
+always @(*) begin
+    irqarray14_eventsourceflex293_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[13])) begin
+        irqarray14_eventsourceflex293_clear <= 1'd1;
+    end
+end
+assign irqarray14_source140 = irqarray14_eventsourceflex294_status;
+assign irqarray14_source141 = irqarray14_eventsourceflex294_pending;
+always @(*) begin
+    irqarray14_eventsourceflex294_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[14])) begin
+        irqarray14_eventsourceflex294_clear <= 1'd1;
+    end
+end
+assign irqarray14_source150 = irqarray14_eventsourceflex295_status;
+assign irqarray14_source151 = irqarray14_eventsourceflex295_pending;
+always @(*) begin
+    irqarray14_eventsourceflex295_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[15])) begin
+        irqarray14_eventsourceflex295_clear <= 1'd1;
+    end
+end
+assign irqarray14_source160 = irqarray14_eventsourceflex296_status;
+assign irqarray14_source161 = irqarray14_eventsourceflex296_pending;
+always @(*) begin
+    irqarray14_eventsourceflex296_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[16])) begin
+        irqarray14_eventsourceflex296_clear <= 1'd1;
+    end
+end
+assign irqarray14_source170 = irqarray14_eventsourceflex297_status;
+assign irqarray14_source171 = irqarray14_eventsourceflex297_pending;
+always @(*) begin
+    irqarray14_eventsourceflex297_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[17])) begin
+        irqarray14_eventsourceflex297_clear <= 1'd1;
+    end
+end
+assign irqarray14_source180 = irqarray14_eventsourceflex298_status;
+assign irqarray14_source181 = irqarray14_eventsourceflex298_pending;
+always @(*) begin
+    irqarray14_eventsourceflex298_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[18])) begin
+        irqarray14_eventsourceflex298_clear <= 1'd1;
+    end
+end
+assign irqarray14_source190 = irqarray14_eventsourceflex299_status;
+assign irqarray14_source191 = irqarray14_eventsourceflex299_pending;
+always @(*) begin
+    irqarray14_eventsourceflex299_clear <= 1'd0;
+    if ((irqarray14_pending_re & irqarray14_pending_r[19])) begin
+        irqarray14_eventsourceflex299_clear <= 1'd1;
+    end
+end
+assign irqarray14_irq = ((((((((((((((((((((irqarray14_pending_status[0] & irqarray14_enable_storage[0]) | (irqarray14_pending_status[1] & irqarray14_enable_storage[1])) | (irqarray14_pending_status[2] & irqarray14_enable_storage[2])) | (irqarray14_pending_status[3] & irqarray14_enable_storage[3])) | (irqarray14_pending_status[4] & irqarray14_enable_storage[4])) | (irqarray14_pending_status[5] & irqarray14_enable_storage[5])) | (irqarray14_pending_status[6] & irqarray14_enable_storage[6])) | (irqarray14_pending_status[7] & irqarray14_enable_storage[7])) | (irqarray14_pending_status[8] & irqarray14_enable_storage[8])) | (irqarray14_pending_status[9] & irqarray14_enable_storage[9])) | (irqarray14_pending_status[10] & irqarray14_enable_storage[10])) | (irqarray14_pending_status[11] & irqarray14_enable_storage[11])) | (irqarray14_pending_status[12] & irqarray14_enable_storage[12])) | (irqarray14_pending_status[13] & irqarray14_enable_storage[13])) | (irqarray14_pending_status[14] & irqarray14_enable_storage[14])) | (irqarray14_pending_status[15] & irqarray14_enable_storage[15])) | (irqarray14_pending_status[16] & irqarray14_enable_storage[16])) | (irqarray14_pending_status[17] & irqarray14_enable_storage[17])) | (irqarray14_pending_status[18] & irqarray14_enable_storage[18])) | (irqarray14_pending_status[19] & irqarray14_enable_storage[19]));
+assign irqarray14_eventsourceflex280_status = (irqarray14_interrupts[0] | irqarray14_trigger[0]);
+assign irqarray14_eventsourceflex281_status = (irqarray14_interrupts[1] | irqarray14_trigger[1]);
+assign irqarray14_eventsourceflex282_status = (irqarray14_interrupts[2] | irqarray14_trigger[2]);
+assign irqarray14_eventsourceflex283_status = (irqarray14_interrupts[3] | irqarray14_trigger[3]);
+assign irqarray14_eventsourceflex284_status = (irqarray14_interrupts[4] | irqarray14_trigger[4]);
+assign irqarray14_eventsourceflex285_status = (irqarray14_interrupts[5] | irqarray14_trigger[5]);
+assign irqarray14_eventsourceflex286_status = (irqarray14_interrupts[6] | irqarray14_trigger[6]);
+assign irqarray14_eventsourceflex287_status = (irqarray14_interrupts[7] | irqarray14_trigger[7]);
+assign irqarray14_eventsourceflex288_status = (irqarray14_interrupts[8] | irqarray14_trigger[8]);
+assign irqarray14_eventsourceflex289_status = (irqarray14_interrupts[9] | irqarray14_trigger[9]);
+assign irqarray14_eventsourceflex290_status = (irqarray14_interrupts[10] | irqarray14_trigger[10]);
+assign irqarray14_eventsourceflex291_status = (irqarray14_interrupts[11] | irqarray14_trigger[11]);
+assign irqarray14_eventsourceflex292_status = (irqarray14_interrupts[12] | irqarray14_trigger[12]);
+assign irqarray14_eventsourceflex293_status = (irqarray14_interrupts[13] | irqarray14_trigger[13]);
+assign irqarray14_eventsourceflex294_status = (irqarray14_interrupts[14] | irqarray14_trigger[14]);
+assign irqarray14_eventsourceflex295_status = (irqarray14_interrupts[15] | irqarray14_trigger[15]);
+assign irqarray14_eventsourceflex296_status = (irqarray14_interrupts[16] | irqarray14_trigger[16]);
+assign irqarray14_eventsourceflex297_status = (irqarray14_interrupts[17] | irqarray14_trigger[17]);
+assign irqarray14_eventsourceflex298_status = (irqarray14_interrupts[18] | irqarray14_trigger[18]);
+assign irqarray14_eventsourceflex299_status = (irqarray14_interrupts[19] | irqarray14_trigger[19]);
+assign irqarray15_interrupts = irqarray_bank15;
+assign irqarray15_source00 = irqarray15_eventsourceflex300_status;
+assign irqarray15_source01 = irqarray15_eventsourceflex300_pending;
+always @(*) begin
+    irqarray15_eventsourceflex300_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[0])) begin
+        irqarray15_eventsourceflex300_clear <= 1'd1;
+    end
+end
+assign irqarray15_source10 = irqarray15_eventsourceflex301_status;
+assign irqarray15_source11 = irqarray15_eventsourceflex301_pending;
+always @(*) begin
+    irqarray15_eventsourceflex301_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[1])) begin
+        irqarray15_eventsourceflex301_clear <= 1'd1;
+    end
+end
+assign irqarray15_source20 = irqarray15_eventsourceflex302_status;
+assign irqarray15_source21 = irqarray15_eventsourceflex302_pending;
+always @(*) begin
+    irqarray15_eventsourceflex302_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[2])) begin
+        irqarray15_eventsourceflex302_clear <= 1'd1;
+    end
+end
+assign irqarray15_source30 = irqarray15_eventsourceflex303_status;
+assign irqarray15_source31 = irqarray15_eventsourceflex303_pending;
+always @(*) begin
+    irqarray15_eventsourceflex303_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[3])) begin
+        irqarray15_eventsourceflex303_clear <= 1'd1;
+    end
+end
+assign irqarray15_source40 = irqarray15_eventsourceflex304_status;
+assign irqarray15_source41 = irqarray15_eventsourceflex304_pending;
+always @(*) begin
+    irqarray15_eventsourceflex304_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[4])) begin
+        irqarray15_eventsourceflex304_clear <= 1'd1;
+    end
+end
+assign irqarray15_source50 = irqarray15_eventsourceflex305_status;
+assign irqarray15_source51 = irqarray15_eventsourceflex305_pending;
+always @(*) begin
+    irqarray15_eventsourceflex305_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[5])) begin
+        irqarray15_eventsourceflex305_clear <= 1'd1;
+    end
+end
+assign irqarray15_source60 = irqarray15_eventsourceflex306_status;
+assign irqarray15_source61 = irqarray15_eventsourceflex306_pending;
+always @(*) begin
+    irqarray15_eventsourceflex306_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[6])) begin
+        irqarray15_eventsourceflex306_clear <= 1'd1;
+    end
+end
+assign irqarray15_source70 = irqarray15_eventsourceflex307_status;
+assign irqarray15_source71 = irqarray15_eventsourceflex307_pending;
+always @(*) begin
+    irqarray15_eventsourceflex307_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[7])) begin
+        irqarray15_eventsourceflex307_clear <= 1'd1;
+    end
+end
+assign irqarray15_source80 = irqarray15_eventsourceflex308_status;
+assign irqarray15_source81 = irqarray15_eventsourceflex308_pending;
+always @(*) begin
+    irqarray15_eventsourceflex308_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[8])) begin
+        irqarray15_eventsourceflex308_clear <= 1'd1;
+    end
+end
+assign irqarray15_source90 = irqarray15_eventsourceflex309_status;
+assign irqarray15_source91 = irqarray15_eventsourceflex309_pending;
+always @(*) begin
+    irqarray15_eventsourceflex309_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[9])) begin
+        irqarray15_eventsourceflex309_clear <= 1'd1;
+    end
+end
+assign irqarray15_source100 = irqarray15_eventsourceflex310_status;
+assign irqarray15_source101 = irqarray15_eventsourceflex310_pending;
+always @(*) begin
+    irqarray15_eventsourceflex310_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[10])) begin
+        irqarray15_eventsourceflex310_clear <= 1'd1;
+    end
+end
+assign irqarray15_source110 = irqarray15_eventsourceflex311_status;
+assign irqarray15_source111 = irqarray15_eventsourceflex311_pending;
+always @(*) begin
+    irqarray15_eventsourceflex311_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[11])) begin
+        irqarray15_eventsourceflex311_clear <= 1'd1;
+    end
+end
+assign irqarray15_source120 = irqarray15_eventsourceflex312_status;
+assign irqarray15_source121 = irqarray15_eventsourceflex312_pending;
+always @(*) begin
+    irqarray15_eventsourceflex312_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[12])) begin
+        irqarray15_eventsourceflex312_clear <= 1'd1;
+    end
+end
+assign irqarray15_source130 = irqarray15_eventsourceflex313_status;
+assign irqarray15_source131 = irqarray15_eventsourceflex313_pending;
+always @(*) begin
+    irqarray15_eventsourceflex313_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[13])) begin
+        irqarray15_eventsourceflex313_clear <= 1'd1;
+    end
+end
+assign irqarray15_source140 = irqarray15_eventsourceflex314_status;
+assign irqarray15_source141 = irqarray15_eventsourceflex314_pending;
+always @(*) begin
+    irqarray15_eventsourceflex314_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[14])) begin
+        irqarray15_eventsourceflex314_clear <= 1'd1;
+    end
+end
+assign irqarray15_source150 = irqarray15_eventsourceflex315_status;
+assign irqarray15_source151 = irqarray15_eventsourceflex315_pending;
+always @(*) begin
+    irqarray15_eventsourceflex315_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[15])) begin
+        irqarray15_eventsourceflex315_clear <= 1'd1;
+    end
+end
+assign irqarray15_source160 = irqarray15_eventsourceflex316_status;
+assign irqarray15_source161 = irqarray15_eventsourceflex316_pending;
+always @(*) begin
+    irqarray15_eventsourceflex316_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[16])) begin
+        irqarray15_eventsourceflex316_clear <= 1'd1;
+    end
+end
+assign irqarray15_source170 = irqarray15_eventsourceflex317_status;
+assign irqarray15_source171 = irqarray15_eventsourceflex317_pending;
+always @(*) begin
+    irqarray15_eventsourceflex317_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[17])) begin
+        irqarray15_eventsourceflex317_clear <= 1'd1;
+    end
+end
+assign irqarray15_source180 = irqarray15_eventsourceflex318_status;
+assign irqarray15_source181 = irqarray15_eventsourceflex318_pending;
+always @(*) begin
+    irqarray15_eventsourceflex318_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[18])) begin
+        irqarray15_eventsourceflex318_clear <= 1'd1;
+    end
+end
+assign irqarray15_source190 = irqarray15_eventsourceflex319_status;
+assign irqarray15_source191 = irqarray15_eventsourceflex319_pending;
+always @(*) begin
+    irqarray15_eventsourceflex319_clear <= 1'd0;
+    if ((irqarray15_pending_re & irqarray15_pending_r[19])) begin
+        irqarray15_eventsourceflex319_clear <= 1'd1;
+    end
+end
+assign irqarray15_irq = ((((((((((((((((((((irqarray15_pending_status[0] & irqarray15_enable_storage[0]) | (irqarray15_pending_status[1] & irqarray15_enable_storage[1])) | (irqarray15_pending_status[2] & irqarray15_enable_storage[2])) | (irqarray15_pending_status[3] & irqarray15_enable_storage[3])) | (irqarray15_pending_status[4] & irqarray15_enable_storage[4])) | (irqarray15_pending_status[5] & irqarray15_enable_storage[5])) | (irqarray15_pending_status[6] & irqarray15_enable_storage[6])) | (irqarray15_pending_status[7] & irqarray15_enable_storage[7])) | (irqarray15_pending_status[8] & irqarray15_enable_storage[8])) | (irqarray15_pending_status[9] & irqarray15_enable_storage[9])) | (irqarray15_pending_status[10] & irqarray15_enable_storage[10])) | (irqarray15_pending_status[11] & irqarray15_enable_storage[11])) | (irqarray15_pending_status[12] & irqarray15_enable_storage[12])) | (irqarray15_pending_status[13] & irqarray15_enable_storage[13])) | (irqarray15_pending_status[14] & irqarray15_enable_storage[14])) | (irqarray15_pending_status[15] & irqarray15_enable_storage[15])) | (irqarray15_pending_status[16] & irqarray15_enable_storage[16])) | (irqarray15_pending_status[17] & irqarray15_enable_storage[17])) | (irqarray15_pending_status[18] & irqarray15_enable_storage[18])) | (irqarray15_pending_status[19] & irqarray15_enable_storage[19]));
+assign irqarray15_eventsourceflex300_status = (irqarray15_interrupts[0] | irqarray15_trigger[0]);
+assign irqarray15_eventsourceflex301_status = (irqarray15_interrupts[1] | irqarray15_trigger[1]);
+assign irqarray15_eventsourceflex302_status = (irqarray15_interrupts[2] | irqarray15_trigger[2]);
+assign irqarray15_eventsourceflex303_status = (irqarray15_interrupts[3] | irqarray15_trigger[3]);
+assign irqarray15_eventsourceflex304_status = (irqarray15_interrupts[4] | irqarray15_trigger[4]);
+assign irqarray15_eventsourceflex305_status = (irqarray15_interrupts[5] | irqarray15_trigger[5]);
+assign irqarray15_eventsourceflex306_status = (irqarray15_interrupts[6] | irqarray15_trigger[6]);
+assign irqarray15_eventsourceflex307_status = (irqarray15_interrupts[7] | irqarray15_trigger[7]);
+assign irqarray15_eventsourceflex308_status = (irqarray15_interrupts[8] | irqarray15_trigger[8]);
+assign irqarray15_eventsourceflex309_status = (irqarray15_interrupts[9] | irqarray15_trigger[9]);
+assign irqarray15_eventsourceflex310_status = (irqarray15_interrupts[10] | irqarray15_trigger[10]);
+assign irqarray15_eventsourceflex311_status = (irqarray15_interrupts[11] | irqarray15_trigger[11]);
+assign irqarray15_eventsourceflex312_status = (irqarray15_interrupts[12] | irqarray15_trigger[12]);
+assign irqarray15_eventsourceflex313_status = (irqarray15_interrupts[13] | irqarray15_trigger[13]);
+assign irqarray15_eventsourceflex314_status = (irqarray15_interrupts[14] | irqarray15_trigger[14]);
+assign irqarray15_eventsourceflex315_status = (irqarray15_interrupts[15] | irqarray15_trigger[15]);
+assign irqarray15_eventsourceflex316_status = (irqarray15_interrupts[16] | irqarray15_trigger[16]);
+assign irqarray15_eventsourceflex317_status = (irqarray15_interrupts[17] | irqarray15_trigger[17]);
+assign irqarray15_eventsourceflex318_status = (irqarray15_interrupts[18] | irqarray15_trigger[18]);
+assign irqarray15_eventsourceflex319_status = (irqarray15_interrupts[19] | irqarray15_trigger[19]);
+assign irqarray16_interrupts = irqarray_bank16;
+assign irqarray16_source00 = irqarray16_eventsourceflex320_status;
+assign irqarray16_source01 = irqarray16_eventsourceflex320_pending;
+always @(*) begin
+    irqarray16_eventsourceflex320_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[0])) begin
+        irqarray16_eventsourceflex320_clear <= 1'd1;
+    end
+end
+assign irqarray16_source10 = irqarray16_eventsourceflex321_status;
+assign irqarray16_source11 = irqarray16_eventsourceflex321_pending;
+always @(*) begin
+    irqarray16_eventsourceflex321_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[1])) begin
+        irqarray16_eventsourceflex321_clear <= 1'd1;
+    end
+end
+assign irqarray16_source20 = irqarray16_eventsourceflex322_status;
+assign irqarray16_source21 = irqarray16_eventsourceflex322_pending;
+always @(*) begin
+    irqarray16_eventsourceflex322_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[2])) begin
+        irqarray16_eventsourceflex322_clear <= 1'd1;
+    end
+end
+assign irqarray16_source30 = irqarray16_eventsourceflex323_status;
+assign irqarray16_source31 = irqarray16_eventsourceflex323_pending;
+always @(*) begin
+    irqarray16_eventsourceflex323_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[3])) begin
+        irqarray16_eventsourceflex323_clear <= 1'd1;
+    end
+end
+assign irqarray16_source40 = irqarray16_eventsourceflex324_status;
+assign irqarray16_source41 = irqarray16_eventsourceflex324_pending;
+always @(*) begin
+    irqarray16_eventsourceflex324_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[4])) begin
+        irqarray16_eventsourceflex324_clear <= 1'd1;
+    end
+end
+assign irqarray16_source50 = irqarray16_eventsourceflex325_status;
+assign irqarray16_source51 = irqarray16_eventsourceflex325_pending;
+always @(*) begin
+    irqarray16_eventsourceflex325_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[5])) begin
+        irqarray16_eventsourceflex325_clear <= 1'd1;
+    end
+end
+assign irqarray16_source60 = irqarray16_eventsourceflex326_status;
+assign irqarray16_source61 = irqarray16_eventsourceflex326_pending;
+always @(*) begin
+    irqarray16_eventsourceflex326_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[6])) begin
+        irqarray16_eventsourceflex326_clear <= 1'd1;
+    end
+end
+assign irqarray16_source70 = irqarray16_eventsourceflex327_status;
+assign irqarray16_source71 = irqarray16_eventsourceflex327_pending;
+always @(*) begin
+    irqarray16_eventsourceflex327_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[7])) begin
+        irqarray16_eventsourceflex327_clear <= 1'd1;
+    end
+end
+assign irqarray16_source80 = irqarray16_eventsourceflex328_status;
+assign irqarray16_source81 = irqarray16_eventsourceflex328_pending;
+always @(*) begin
+    irqarray16_eventsourceflex328_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[8])) begin
+        irqarray16_eventsourceflex328_clear <= 1'd1;
+    end
+end
+assign irqarray16_source90 = irqarray16_eventsourceflex329_status;
+assign irqarray16_source91 = irqarray16_eventsourceflex329_pending;
+always @(*) begin
+    irqarray16_eventsourceflex329_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[9])) begin
+        irqarray16_eventsourceflex329_clear <= 1'd1;
+    end
+end
+assign irqarray16_source100 = irqarray16_eventsourceflex330_status;
+assign irqarray16_source101 = irqarray16_eventsourceflex330_pending;
+always @(*) begin
+    irqarray16_eventsourceflex330_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[10])) begin
+        irqarray16_eventsourceflex330_clear <= 1'd1;
+    end
+end
+assign irqarray16_source110 = irqarray16_eventsourceflex331_status;
+assign irqarray16_source111 = irqarray16_eventsourceflex331_pending;
+always @(*) begin
+    irqarray16_eventsourceflex331_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[11])) begin
+        irqarray16_eventsourceflex331_clear <= 1'd1;
+    end
+end
+assign irqarray16_source120 = irqarray16_eventsourceflex332_status;
+assign irqarray16_source121 = irqarray16_eventsourceflex332_pending;
+always @(*) begin
+    irqarray16_eventsourceflex332_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[12])) begin
+        irqarray16_eventsourceflex332_clear <= 1'd1;
+    end
+end
+assign irqarray16_source130 = irqarray16_eventsourceflex333_status;
+assign irqarray16_source131 = irqarray16_eventsourceflex333_pending;
+always @(*) begin
+    irqarray16_eventsourceflex333_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[13])) begin
+        irqarray16_eventsourceflex333_clear <= 1'd1;
+    end
+end
+assign irqarray16_source140 = irqarray16_eventsourceflex334_status;
+assign irqarray16_source141 = irqarray16_eventsourceflex334_pending;
+always @(*) begin
+    irqarray16_eventsourceflex334_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[14])) begin
+        irqarray16_eventsourceflex334_clear <= 1'd1;
+    end
+end
+assign irqarray16_source150 = irqarray16_eventsourceflex335_status;
+assign irqarray16_source151 = irqarray16_eventsourceflex335_pending;
+always @(*) begin
+    irqarray16_eventsourceflex335_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[15])) begin
+        irqarray16_eventsourceflex335_clear <= 1'd1;
+    end
+end
+assign irqarray16_source160 = irqarray16_eventsourceflex336_status;
+assign irqarray16_source161 = irqarray16_eventsourceflex336_pending;
+always @(*) begin
+    irqarray16_eventsourceflex336_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[16])) begin
+        irqarray16_eventsourceflex336_clear <= 1'd1;
+    end
+end
+assign irqarray16_source170 = irqarray16_eventsourceflex337_status;
+assign irqarray16_source171 = irqarray16_eventsourceflex337_pending;
+always @(*) begin
+    irqarray16_eventsourceflex337_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[17])) begin
+        irqarray16_eventsourceflex337_clear <= 1'd1;
+    end
+end
+assign irqarray16_source180 = irqarray16_eventsourceflex338_status;
+assign irqarray16_source181 = irqarray16_eventsourceflex338_pending;
+always @(*) begin
+    irqarray16_eventsourceflex338_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[18])) begin
+        irqarray16_eventsourceflex338_clear <= 1'd1;
+    end
+end
+assign irqarray16_source190 = irqarray16_eventsourceflex339_status;
+assign irqarray16_source191 = irqarray16_eventsourceflex339_pending;
+always @(*) begin
+    irqarray16_eventsourceflex339_clear <= 1'd0;
+    if ((irqarray16_pending_re & irqarray16_pending_r[19])) begin
+        irqarray16_eventsourceflex339_clear <= 1'd1;
+    end
+end
+assign irqarray16_irq = ((((((((((((((((((((irqarray16_pending_status[0] & irqarray16_enable_storage[0]) | (irqarray16_pending_status[1] & irqarray16_enable_storage[1])) | (irqarray16_pending_status[2] & irqarray16_enable_storage[2])) | (irqarray16_pending_status[3] & irqarray16_enable_storage[3])) | (irqarray16_pending_status[4] & irqarray16_enable_storage[4])) | (irqarray16_pending_status[5] & irqarray16_enable_storage[5])) | (irqarray16_pending_status[6] & irqarray16_enable_storage[6])) | (irqarray16_pending_status[7] & irqarray16_enable_storage[7])) | (irqarray16_pending_status[8] & irqarray16_enable_storage[8])) | (irqarray16_pending_status[9] & irqarray16_enable_storage[9])) | (irqarray16_pending_status[10] & irqarray16_enable_storage[10])) | (irqarray16_pending_status[11] & irqarray16_enable_storage[11])) | (irqarray16_pending_status[12] & irqarray16_enable_storage[12])) | (irqarray16_pending_status[13] & irqarray16_enable_storage[13])) | (irqarray16_pending_status[14] & irqarray16_enable_storage[14])) | (irqarray16_pending_status[15] & irqarray16_enable_storage[15])) | (irqarray16_pending_status[16] & irqarray16_enable_storage[16])) | (irqarray16_pending_status[17] & irqarray16_enable_storage[17])) | (irqarray16_pending_status[18] & irqarray16_enable_storage[18])) | (irqarray16_pending_status[19] & irqarray16_enable_storage[19]));
+assign irqarray16_eventsourceflex320_status = (irqarray16_interrupts[0] | irqarray16_trigger[0]);
+assign irqarray16_eventsourceflex321_status = (irqarray16_interrupts[1] | irqarray16_trigger[1]);
+assign irqarray16_eventsourceflex322_status = (irqarray16_interrupts[2] | irqarray16_trigger[2]);
+assign irqarray16_eventsourceflex323_status = (irqarray16_interrupts[3] | irqarray16_trigger[3]);
+assign irqarray16_eventsourceflex324_status = (irqarray16_interrupts[4] | irqarray16_trigger[4]);
+assign irqarray16_eventsourceflex325_status = (irqarray16_interrupts[5] | irqarray16_trigger[5]);
+assign irqarray16_eventsourceflex326_status = (irqarray16_interrupts[6] | irqarray16_trigger[6]);
+assign irqarray16_eventsourceflex327_status = (irqarray16_interrupts[7] | irqarray16_trigger[7]);
+assign irqarray16_eventsourceflex328_status = (irqarray16_interrupts[8] | irqarray16_trigger[8]);
+assign irqarray16_eventsourceflex329_status = (irqarray16_interrupts[9] | irqarray16_trigger[9]);
+assign irqarray16_eventsourceflex330_status = (irqarray16_interrupts[10] | irqarray16_trigger[10]);
+assign irqarray16_eventsourceflex331_status = (irqarray16_interrupts[11] | irqarray16_trigger[11]);
+assign irqarray16_eventsourceflex332_status = (irqarray16_interrupts[12] | irqarray16_trigger[12]);
+assign irqarray16_eventsourceflex333_status = (irqarray16_interrupts[13] | irqarray16_trigger[13]);
+assign irqarray16_eventsourceflex334_status = (irqarray16_interrupts[14] | irqarray16_trigger[14]);
+assign irqarray16_eventsourceflex335_status = (irqarray16_interrupts[15] | irqarray16_trigger[15]);
+assign irqarray16_eventsourceflex336_status = (irqarray16_interrupts[16] | irqarray16_trigger[16]);
+assign irqarray16_eventsourceflex337_status = (irqarray16_interrupts[17] | irqarray16_trigger[17]);
+assign irqarray16_eventsourceflex338_status = (irqarray16_interrupts[18] | irqarray16_trigger[18]);
+assign irqarray16_eventsourceflex339_status = (irqarray16_interrupts[19] | irqarray16_trigger[19]);
+assign irqarray17_interrupts = irqarray_bank17;
+assign irqarray17_source00 = irqarray17_eventsourceflex340_status;
+assign irqarray17_source01 = irqarray17_eventsourceflex340_pending;
+always @(*) begin
+    irqarray17_eventsourceflex340_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[0])) begin
+        irqarray17_eventsourceflex340_clear <= 1'd1;
+    end
+end
+assign irqarray17_source10 = irqarray17_eventsourceflex341_status;
+assign irqarray17_source11 = irqarray17_eventsourceflex341_pending;
+always @(*) begin
+    irqarray17_eventsourceflex341_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[1])) begin
+        irqarray17_eventsourceflex341_clear <= 1'd1;
+    end
+end
+assign irqarray17_source20 = irqarray17_eventsourceflex342_status;
+assign irqarray17_source21 = irqarray17_eventsourceflex342_pending;
+always @(*) begin
+    irqarray17_eventsourceflex342_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[2])) begin
+        irqarray17_eventsourceflex342_clear <= 1'd1;
+    end
+end
+assign irqarray17_source30 = irqarray17_eventsourceflex343_status;
+assign irqarray17_source31 = irqarray17_eventsourceflex343_pending;
+always @(*) begin
+    irqarray17_eventsourceflex343_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[3])) begin
+        irqarray17_eventsourceflex343_clear <= 1'd1;
+    end
+end
+assign irqarray17_source40 = irqarray17_eventsourceflex344_status;
+assign irqarray17_source41 = irqarray17_eventsourceflex344_pending;
+always @(*) begin
+    irqarray17_eventsourceflex344_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[4])) begin
+        irqarray17_eventsourceflex344_clear <= 1'd1;
+    end
+end
+assign irqarray17_source50 = irqarray17_eventsourceflex345_status;
+assign irqarray17_source51 = irqarray17_eventsourceflex345_pending;
+always @(*) begin
+    irqarray17_eventsourceflex345_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[5])) begin
+        irqarray17_eventsourceflex345_clear <= 1'd1;
+    end
+end
+assign irqarray17_source60 = irqarray17_eventsourceflex346_status;
+assign irqarray17_source61 = irqarray17_eventsourceflex346_pending;
+always @(*) begin
+    irqarray17_eventsourceflex346_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[6])) begin
+        irqarray17_eventsourceflex346_clear <= 1'd1;
+    end
+end
+assign irqarray17_source70 = irqarray17_eventsourceflex347_status;
+assign irqarray17_source71 = irqarray17_eventsourceflex347_pending;
+always @(*) begin
+    irqarray17_eventsourceflex347_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[7])) begin
+        irqarray17_eventsourceflex347_clear <= 1'd1;
+    end
+end
+assign irqarray17_source80 = irqarray17_eventsourceflex348_status;
+assign irqarray17_source81 = irqarray17_eventsourceflex348_pending;
+always @(*) begin
+    irqarray17_eventsourceflex348_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[8])) begin
+        irqarray17_eventsourceflex348_clear <= 1'd1;
+    end
+end
+assign irqarray17_source90 = irqarray17_eventsourceflex349_status;
+assign irqarray17_source91 = irqarray17_eventsourceflex349_pending;
+always @(*) begin
+    irqarray17_eventsourceflex349_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[9])) begin
+        irqarray17_eventsourceflex349_clear <= 1'd1;
+    end
+end
+assign irqarray17_source100 = irqarray17_eventsourceflex350_status;
+assign irqarray17_source101 = irqarray17_eventsourceflex350_pending;
+always @(*) begin
+    irqarray17_eventsourceflex350_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[10])) begin
+        irqarray17_eventsourceflex350_clear <= 1'd1;
+    end
+end
+assign irqarray17_source110 = irqarray17_eventsourceflex351_status;
+assign irqarray17_source111 = irqarray17_eventsourceflex351_pending;
+always @(*) begin
+    irqarray17_eventsourceflex351_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[11])) begin
+        irqarray17_eventsourceflex351_clear <= 1'd1;
+    end
+end
+assign irqarray17_source120 = irqarray17_eventsourceflex352_status;
+assign irqarray17_source121 = irqarray17_eventsourceflex352_pending;
+always @(*) begin
+    irqarray17_eventsourceflex352_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[12])) begin
+        irqarray17_eventsourceflex352_clear <= 1'd1;
+    end
+end
+assign irqarray17_source130 = irqarray17_eventsourceflex353_status;
+assign irqarray17_source131 = irqarray17_eventsourceflex353_pending;
+always @(*) begin
+    irqarray17_eventsourceflex353_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[13])) begin
+        irqarray17_eventsourceflex353_clear <= 1'd1;
+    end
+end
+assign irqarray17_source140 = irqarray17_eventsourceflex354_status;
+assign irqarray17_source141 = irqarray17_eventsourceflex354_pending;
+always @(*) begin
+    irqarray17_eventsourceflex354_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[14])) begin
+        irqarray17_eventsourceflex354_clear <= 1'd1;
+    end
+end
+assign irqarray17_source150 = irqarray17_eventsourceflex355_status;
+assign irqarray17_source151 = irqarray17_eventsourceflex355_pending;
+always @(*) begin
+    irqarray17_eventsourceflex355_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[15])) begin
+        irqarray17_eventsourceflex355_clear <= 1'd1;
+    end
+end
+assign irqarray17_source160 = irqarray17_eventsourceflex356_status;
+assign irqarray17_source161 = irqarray17_eventsourceflex356_pending;
+always @(*) begin
+    irqarray17_eventsourceflex356_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[16])) begin
+        irqarray17_eventsourceflex356_clear <= 1'd1;
+    end
+end
+assign irqarray17_source170 = irqarray17_eventsourceflex357_status;
+assign irqarray17_source171 = irqarray17_eventsourceflex357_pending;
+always @(*) begin
+    irqarray17_eventsourceflex357_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[17])) begin
+        irqarray17_eventsourceflex357_clear <= 1'd1;
+    end
+end
+assign irqarray17_source180 = irqarray17_eventsourceflex358_status;
+assign irqarray17_source181 = irqarray17_eventsourceflex358_pending;
+always @(*) begin
+    irqarray17_eventsourceflex358_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[18])) begin
+        irqarray17_eventsourceflex358_clear <= 1'd1;
+    end
+end
+assign irqarray17_source190 = irqarray17_eventsourceflex359_status;
+assign irqarray17_source191 = irqarray17_eventsourceflex359_pending;
+always @(*) begin
+    irqarray17_eventsourceflex359_clear <= 1'd0;
+    if ((irqarray17_pending_re & irqarray17_pending_r[19])) begin
+        irqarray17_eventsourceflex359_clear <= 1'd1;
+    end
+end
+assign irqarray17_irq = ((((((((((((((((((((irqarray17_pending_status[0] & irqarray17_enable_storage[0]) | (irqarray17_pending_status[1] & irqarray17_enable_storage[1])) | (irqarray17_pending_status[2] & irqarray17_enable_storage[2])) | (irqarray17_pending_status[3] & irqarray17_enable_storage[3])) | (irqarray17_pending_status[4] & irqarray17_enable_storage[4])) | (irqarray17_pending_status[5] & irqarray17_enable_storage[5])) | (irqarray17_pending_status[6] & irqarray17_enable_storage[6])) | (irqarray17_pending_status[7] & irqarray17_enable_storage[7])) | (irqarray17_pending_status[8] & irqarray17_enable_storage[8])) | (irqarray17_pending_status[9] & irqarray17_enable_storage[9])) | (irqarray17_pending_status[10] & irqarray17_enable_storage[10])) | (irqarray17_pending_status[11] & irqarray17_enable_storage[11])) | (irqarray17_pending_status[12] & irqarray17_enable_storage[12])) | (irqarray17_pending_status[13] & irqarray17_enable_storage[13])) | (irqarray17_pending_status[14] & irqarray17_enable_storage[14])) | (irqarray17_pending_status[15] & irqarray17_enable_storage[15])) | (irqarray17_pending_status[16] & irqarray17_enable_storage[16])) | (irqarray17_pending_status[17] & irqarray17_enable_storage[17])) | (irqarray17_pending_status[18] & irqarray17_enable_storage[18])) | (irqarray17_pending_status[19] & irqarray17_enable_storage[19]));
+assign irqarray17_eventsourceflex340_status = (irqarray17_interrupts[0] | irqarray17_trigger[0]);
+assign irqarray17_eventsourceflex341_status = (irqarray17_interrupts[1] | irqarray17_trigger[1]);
+assign irqarray17_eventsourceflex342_status = (irqarray17_interrupts[2] | irqarray17_trigger[2]);
+assign irqarray17_eventsourceflex343_status = (irqarray17_interrupts[3] | irqarray17_trigger[3]);
+assign irqarray17_eventsourceflex344_status = (irqarray17_interrupts[4] | irqarray17_trigger[4]);
+assign irqarray17_eventsourceflex345_status = (irqarray17_interrupts[5] | irqarray17_trigger[5]);
+assign irqarray17_eventsourceflex346_status = (irqarray17_interrupts[6] | irqarray17_trigger[6]);
+assign irqarray17_eventsourceflex347_status = (irqarray17_interrupts[7] | irqarray17_trigger[7]);
+assign irqarray17_eventsourceflex348_status = (irqarray17_interrupts[8] | irqarray17_trigger[8]);
+assign irqarray17_eventsourceflex349_status = (irqarray17_interrupts[9] | irqarray17_trigger[9]);
+assign irqarray17_eventsourceflex350_status = (irqarray17_interrupts[10] | irqarray17_trigger[10]);
+assign irqarray17_eventsourceflex351_status = (irqarray17_interrupts[11] | irqarray17_trigger[11]);
+assign irqarray17_eventsourceflex352_status = (irqarray17_interrupts[12] | irqarray17_trigger[12]);
+assign irqarray17_eventsourceflex353_status = (irqarray17_interrupts[13] | irqarray17_trigger[13]);
+assign irqarray17_eventsourceflex354_status = (irqarray17_interrupts[14] | irqarray17_trigger[14]);
+assign irqarray17_eventsourceflex355_status = (irqarray17_interrupts[15] | irqarray17_trigger[15]);
+assign irqarray17_eventsourceflex356_status = (irqarray17_interrupts[16] | irqarray17_trigger[16]);
+assign irqarray17_eventsourceflex357_status = (irqarray17_interrupts[17] | irqarray17_trigger[17]);
+assign irqarray17_eventsourceflex358_status = (irqarray17_interrupts[18] | irqarray17_trigger[18]);
+assign irqarray17_eventsourceflex359_status = (irqarray17_interrupts[19] | irqarray17_trigger[19]);
+assign irqarray18_interrupts = irqarray_bank18;
+assign irqarray18_source00 = irqarray18_eventsourceflex360_status;
+assign irqarray18_source01 = irqarray18_eventsourceflex360_pending;
+always @(*) begin
+    irqarray18_eventsourceflex360_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[0])) begin
+        irqarray18_eventsourceflex360_clear <= 1'd1;
+    end
+end
+assign irqarray18_source10 = irqarray18_eventsourceflex361_status;
+assign irqarray18_source11 = irqarray18_eventsourceflex361_pending;
+always @(*) begin
+    irqarray18_eventsourceflex361_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[1])) begin
+        irqarray18_eventsourceflex361_clear <= 1'd1;
+    end
+end
+assign irqarray18_source20 = irqarray18_eventsourceflex362_status;
+assign irqarray18_source21 = irqarray18_eventsourceflex362_pending;
+always @(*) begin
+    irqarray18_eventsourceflex362_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[2])) begin
+        irqarray18_eventsourceflex362_clear <= 1'd1;
+    end
+end
+assign irqarray18_source30 = irqarray18_eventsourceflex363_status;
+assign irqarray18_source31 = irqarray18_eventsourceflex363_pending;
+always @(*) begin
+    irqarray18_eventsourceflex363_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[3])) begin
+        irqarray18_eventsourceflex363_clear <= 1'd1;
+    end
+end
+assign irqarray18_source40 = irqarray18_eventsourceflex364_status;
+assign irqarray18_source41 = irqarray18_eventsourceflex364_pending;
+always @(*) begin
+    irqarray18_eventsourceflex364_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[4])) begin
+        irqarray18_eventsourceflex364_clear <= 1'd1;
+    end
+end
+assign irqarray18_source50 = irqarray18_eventsourceflex365_status;
+assign irqarray18_source51 = irqarray18_eventsourceflex365_pending;
+always @(*) begin
+    irqarray18_eventsourceflex365_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[5])) begin
+        irqarray18_eventsourceflex365_clear <= 1'd1;
+    end
+end
+assign irqarray18_source60 = irqarray18_eventsourceflex366_status;
+assign irqarray18_source61 = irqarray18_eventsourceflex366_pending;
+always @(*) begin
+    irqarray18_eventsourceflex366_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[6])) begin
+        irqarray18_eventsourceflex366_clear <= 1'd1;
+    end
+end
+assign irqarray18_source70 = irqarray18_eventsourceflex367_status;
+assign irqarray18_source71 = irqarray18_eventsourceflex367_pending;
+always @(*) begin
+    irqarray18_eventsourceflex367_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[7])) begin
+        irqarray18_eventsourceflex367_clear <= 1'd1;
+    end
+end
+assign irqarray18_source80 = irqarray18_eventsourceflex368_status;
+assign irqarray18_source81 = irqarray18_eventsourceflex368_pending;
+always @(*) begin
+    irqarray18_eventsourceflex368_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[8])) begin
+        irqarray18_eventsourceflex368_clear <= 1'd1;
+    end
+end
+assign irqarray18_source90 = irqarray18_eventsourceflex369_status;
+assign irqarray18_source91 = irqarray18_eventsourceflex369_pending;
+always @(*) begin
+    irqarray18_eventsourceflex369_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[9])) begin
+        irqarray18_eventsourceflex369_clear <= 1'd1;
+    end
+end
+assign irqarray18_source100 = irqarray18_eventsourceflex370_status;
+assign irqarray18_source101 = irqarray18_eventsourceflex370_pending;
+always @(*) begin
+    irqarray18_eventsourceflex370_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[10])) begin
+        irqarray18_eventsourceflex370_clear <= 1'd1;
+    end
+end
+assign irqarray18_source110 = irqarray18_eventsourceflex371_status;
+assign irqarray18_source111 = irqarray18_eventsourceflex371_pending;
+always @(*) begin
+    irqarray18_eventsourceflex371_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[11])) begin
+        irqarray18_eventsourceflex371_clear <= 1'd1;
+    end
+end
+assign irqarray18_source120 = irqarray18_eventsourceflex372_status;
+assign irqarray18_source121 = irqarray18_eventsourceflex372_pending;
+always @(*) begin
+    irqarray18_eventsourceflex372_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[12])) begin
+        irqarray18_eventsourceflex372_clear <= 1'd1;
+    end
+end
+assign irqarray18_source130 = irqarray18_eventsourceflex373_status;
+assign irqarray18_source131 = irqarray18_eventsourceflex373_pending;
+always @(*) begin
+    irqarray18_eventsourceflex373_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[13])) begin
+        irqarray18_eventsourceflex373_clear <= 1'd1;
+    end
+end
+assign irqarray18_source140 = irqarray18_eventsourceflex374_status;
+assign irqarray18_source141 = irqarray18_eventsourceflex374_pending;
+always @(*) begin
+    irqarray18_eventsourceflex374_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[14])) begin
+        irqarray18_eventsourceflex374_clear <= 1'd1;
+    end
+end
+assign irqarray18_source150 = irqarray18_eventsourceflex375_status;
+assign irqarray18_source151 = irqarray18_eventsourceflex375_pending;
+always @(*) begin
+    irqarray18_eventsourceflex375_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[15])) begin
+        irqarray18_eventsourceflex375_clear <= 1'd1;
+    end
+end
+assign irqarray18_source160 = irqarray18_eventsourceflex376_status;
+assign irqarray18_source161 = irqarray18_eventsourceflex376_pending;
+always @(*) begin
+    irqarray18_eventsourceflex376_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[16])) begin
+        irqarray18_eventsourceflex376_clear <= 1'd1;
+    end
+end
+assign irqarray18_source170 = irqarray18_eventsourceflex377_status;
+assign irqarray18_source171 = irqarray18_eventsourceflex377_pending;
+always @(*) begin
+    irqarray18_eventsourceflex377_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[17])) begin
+        irqarray18_eventsourceflex377_clear <= 1'd1;
+    end
+end
+assign irqarray18_source180 = irqarray18_eventsourceflex378_status;
+assign irqarray18_source181 = irqarray18_eventsourceflex378_pending;
+always @(*) begin
+    irqarray18_eventsourceflex378_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[18])) begin
+        irqarray18_eventsourceflex378_clear <= 1'd1;
+    end
+end
+assign irqarray18_source190 = irqarray18_eventsourceflex379_status;
+assign irqarray18_source191 = irqarray18_eventsourceflex379_pending;
+always @(*) begin
+    irqarray18_eventsourceflex379_clear <= 1'd0;
+    if ((irqarray18_pending_re & irqarray18_pending_r[19])) begin
+        irqarray18_eventsourceflex379_clear <= 1'd1;
+    end
+end
+assign irqarray18_irq = ((((((((((((((((((((irqarray18_pending_status[0] & irqarray18_enable_storage[0]) | (irqarray18_pending_status[1] & irqarray18_enable_storage[1])) | (irqarray18_pending_status[2] & irqarray18_enable_storage[2])) | (irqarray18_pending_status[3] & irqarray18_enable_storage[3])) | (irqarray18_pending_status[4] & irqarray18_enable_storage[4])) | (irqarray18_pending_status[5] & irqarray18_enable_storage[5])) | (irqarray18_pending_status[6] & irqarray18_enable_storage[6])) | (irqarray18_pending_status[7] & irqarray18_enable_storage[7])) | (irqarray18_pending_status[8] & irqarray18_enable_storage[8])) | (irqarray18_pending_status[9] & irqarray18_enable_storage[9])) | (irqarray18_pending_status[10] & irqarray18_enable_storage[10])) | (irqarray18_pending_status[11] & irqarray18_enable_storage[11])) | (irqarray18_pending_status[12] & irqarray18_enable_storage[12])) | (irqarray18_pending_status[13] & irqarray18_enable_storage[13])) | (irqarray18_pending_status[14] & irqarray18_enable_storage[14])) | (irqarray18_pending_status[15] & irqarray18_enable_storage[15])) | (irqarray18_pending_status[16] & irqarray18_enable_storage[16])) | (irqarray18_pending_status[17] & irqarray18_enable_storage[17])) | (irqarray18_pending_status[18] & irqarray18_enable_storage[18])) | (irqarray18_pending_status[19] & irqarray18_enable_storage[19]));
+assign irqarray18_eventsourceflex360_status = (irqarray18_interrupts[0] | irqarray18_trigger[0]);
+assign irqarray18_eventsourceflex361_status = (irqarray18_interrupts[1] | irqarray18_trigger[1]);
+assign irqarray18_eventsourceflex362_status = (irqarray18_interrupts[2] | irqarray18_trigger[2]);
+assign irqarray18_eventsourceflex363_status = (irqarray18_interrupts[3] | irqarray18_trigger[3]);
+assign irqarray18_eventsourceflex364_status = (irqarray18_interrupts[4] | irqarray18_trigger[4]);
+assign irqarray18_eventsourceflex365_status = (irqarray18_interrupts[5] | irqarray18_trigger[5]);
+assign irqarray18_eventsourceflex366_status = (irqarray18_interrupts[6] | irqarray18_trigger[6]);
+assign irqarray18_eventsourceflex367_status = (irqarray18_interrupts[7] | irqarray18_trigger[7]);
+assign irqarray18_eventsourceflex368_status = (irqarray18_interrupts[8] | irqarray18_trigger[8]);
+assign irqarray18_eventsourceflex369_status = (irqarray18_interrupts[9] | irqarray18_trigger[9]);
+assign irqarray18_eventsourceflex370_status = (irqarray18_interrupts[10] | irqarray18_trigger[10]);
+assign irqarray18_eventsourceflex371_status = (irqarray18_interrupts[11] | irqarray18_trigger[11]);
+assign irqarray18_eventsourceflex372_status = (irqarray18_interrupts[12] | irqarray18_trigger[12]);
+assign irqarray18_eventsourceflex373_status = (irqarray18_interrupts[13] | irqarray18_trigger[13]);
+assign irqarray18_eventsourceflex374_status = (irqarray18_interrupts[14] | irqarray18_trigger[14]);
+assign irqarray18_eventsourceflex375_status = (irqarray18_interrupts[15] | irqarray18_trigger[15]);
+assign irqarray18_eventsourceflex376_status = (irqarray18_interrupts[16] | irqarray18_trigger[16]);
+assign irqarray18_eventsourceflex377_status = (irqarray18_interrupts[17] | irqarray18_trigger[17]);
+assign irqarray18_eventsourceflex378_status = (irqarray18_interrupts[18] | irqarray18_trigger[18]);
+assign irqarray18_eventsourceflex379_status = (irqarray18_interrupts[19] | irqarray18_trigger[19]);
+assign irqarray19_interrupts = irqarray_bank19;
+assign irqarray19_source00 = irqarray19_eventsourceflex380_status;
+assign irqarray19_source01 = irqarray19_eventsourceflex380_pending;
+always @(*) begin
+    irqarray19_eventsourceflex380_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[0])) begin
+        irqarray19_eventsourceflex380_clear <= 1'd1;
+    end
+end
+assign irqarray19_source10 = irqarray19_eventsourceflex381_status;
+assign irqarray19_source11 = irqarray19_eventsourceflex381_pending;
+always @(*) begin
+    irqarray19_eventsourceflex381_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[1])) begin
+        irqarray19_eventsourceflex381_clear <= 1'd1;
+    end
+end
+assign irqarray19_source20 = irqarray19_eventsourceflex382_status;
+assign irqarray19_source21 = irqarray19_eventsourceflex382_pending;
+always @(*) begin
+    irqarray19_eventsourceflex382_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[2])) begin
+        irqarray19_eventsourceflex382_clear <= 1'd1;
+    end
+end
+assign irqarray19_source30 = irqarray19_eventsourceflex383_status;
+assign irqarray19_source31 = irqarray19_eventsourceflex383_pending;
+always @(*) begin
+    irqarray19_eventsourceflex383_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[3])) begin
+        irqarray19_eventsourceflex383_clear <= 1'd1;
+    end
+end
+assign irqarray19_source40 = irqarray19_eventsourceflex384_status;
+assign irqarray19_source41 = irqarray19_eventsourceflex384_pending;
+always @(*) begin
+    irqarray19_eventsourceflex384_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[4])) begin
+        irqarray19_eventsourceflex384_clear <= 1'd1;
+    end
+end
+assign irqarray19_source50 = irqarray19_eventsourceflex385_status;
+assign irqarray19_source51 = irqarray19_eventsourceflex385_pending;
+always @(*) begin
+    irqarray19_eventsourceflex385_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[5])) begin
+        irqarray19_eventsourceflex385_clear <= 1'd1;
+    end
+end
+assign irqarray19_source60 = irqarray19_eventsourceflex386_status;
+assign irqarray19_source61 = irqarray19_eventsourceflex386_pending;
+always @(*) begin
+    irqarray19_eventsourceflex386_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[6])) begin
+        irqarray19_eventsourceflex386_clear <= 1'd1;
+    end
+end
+assign irqarray19_source70 = irqarray19_eventsourceflex387_status;
+assign irqarray19_source71 = irqarray19_eventsourceflex387_pending;
+always @(*) begin
+    irqarray19_eventsourceflex387_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[7])) begin
+        irqarray19_eventsourceflex387_clear <= 1'd1;
+    end
+end
+assign irqarray19_source80 = irqarray19_eventsourceflex388_status;
+assign irqarray19_source81 = irqarray19_eventsourceflex388_pending;
+always @(*) begin
+    irqarray19_eventsourceflex388_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[8])) begin
+        irqarray19_eventsourceflex388_clear <= 1'd1;
+    end
+end
+assign irqarray19_source90 = irqarray19_eventsourceflex389_status;
+assign irqarray19_source91 = irqarray19_eventsourceflex389_pending;
+always @(*) begin
+    irqarray19_eventsourceflex389_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[9])) begin
+        irqarray19_eventsourceflex389_clear <= 1'd1;
+    end
+end
+assign irqarray19_source100 = irqarray19_eventsourceflex390_status;
+assign irqarray19_source101 = irqarray19_eventsourceflex390_pending;
+always @(*) begin
+    irqarray19_eventsourceflex390_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[10])) begin
+        irqarray19_eventsourceflex390_clear <= 1'd1;
+    end
+end
+assign irqarray19_source110 = irqarray19_eventsourceflex391_status;
+assign irqarray19_source111 = irqarray19_eventsourceflex391_pending;
+always @(*) begin
+    irqarray19_eventsourceflex391_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[11])) begin
+        irqarray19_eventsourceflex391_clear <= 1'd1;
+    end
+end
+assign irqarray19_source120 = irqarray19_eventsourceflex392_status;
+assign irqarray19_source121 = irqarray19_eventsourceflex392_pending;
+always @(*) begin
+    irqarray19_eventsourceflex392_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[12])) begin
+        irqarray19_eventsourceflex392_clear <= 1'd1;
+    end
+end
+assign irqarray19_source130 = irqarray19_eventsourceflex393_status;
+assign irqarray19_source131 = irqarray19_eventsourceflex393_pending;
+always @(*) begin
+    irqarray19_eventsourceflex393_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[13])) begin
+        irqarray19_eventsourceflex393_clear <= 1'd1;
+    end
+end
+assign irqarray19_source140 = irqarray19_eventsourceflex394_status;
+assign irqarray19_source141 = irqarray19_eventsourceflex394_pending;
+always @(*) begin
+    irqarray19_eventsourceflex394_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[14])) begin
+        irqarray19_eventsourceflex394_clear <= 1'd1;
+    end
+end
+assign irqarray19_source150 = irqarray19_eventsourceflex395_status;
+assign irqarray19_source151 = irqarray19_eventsourceflex395_pending;
+always @(*) begin
+    irqarray19_eventsourceflex395_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[15])) begin
+        irqarray19_eventsourceflex395_clear <= 1'd1;
+    end
+end
+assign irqarray19_source160 = irqarray19_eventsourceflex396_status;
+assign irqarray19_source161 = irqarray19_eventsourceflex396_pending;
+always @(*) begin
+    irqarray19_eventsourceflex396_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[16])) begin
+        irqarray19_eventsourceflex396_clear <= 1'd1;
+    end
+end
+assign irqarray19_source170 = irqarray19_eventsourceflex397_status;
+assign irqarray19_source171 = irqarray19_eventsourceflex397_pending;
+always @(*) begin
+    irqarray19_eventsourceflex397_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[17])) begin
+        irqarray19_eventsourceflex397_clear <= 1'd1;
+    end
+end
+assign irqarray19_source180 = irqarray19_eventsourceflex398_status;
+assign irqarray19_source181 = irqarray19_eventsourceflex398_pending;
+always @(*) begin
+    irqarray19_eventsourceflex398_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[18])) begin
+        irqarray19_eventsourceflex398_clear <= 1'd1;
+    end
+end
+assign irqarray19_source190 = irqarray19_eventsourceflex399_status;
+assign irqarray19_source191 = irqarray19_eventsourceflex399_pending;
+always @(*) begin
+    irqarray19_eventsourceflex399_clear <= 1'd0;
+    if ((irqarray19_pending_re & irqarray19_pending_r[19])) begin
+        irqarray19_eventsourceflex399_clear <= 1'd1;
+    end
+end
+assign irqarray19_irq = ((((((((((((((((((((irqarray19_pending_status[0] & irqarray19_enable_storage[0]) | (irqarray19_pending_status[1] & irqarray19_enable_storage[1])) | (irqarray19_pending_status[2] & irqarray19_enable_storage[2])) | (irqarray19_pending_status[3] & irqarray19_enable_storage[3])) | (irqarray19_pending_status[4] & irqarray19_enable_storage[4])) | (irqarray19_pending_status[5] & irqarray19_enable_storage[5])) | (irqarray19_pending_status[6] & irqarray19_enable_storage[6])) | (irqarray19_pending_status[7] & irqarray19_enable_storage[7])) | (irqarray19_pending_status[8] & irqarray19_enable_storage[8])) | (irqarray19_pending_status[9] & irqarray19_enable_storage[9])) | (irqarray19_pending_status[10] & irqarray19_enable_storage[10])) | (irqarray19_pending_status[11] & irqarray19_enable_storage[11])) | (irqarray19_pending_status[12] & irqarray19_enable_storage[12])) | (irqarray19_pending_status[13] & irqarray19_enable_storage[13])) | (irqarray19_pending_status[14] & irqarray19_enable_storage[14])) | (irqarray19_pending_status[15] & irqarray19_enable_storage[15])) | (irqarray19_pending_status[16] & irqarray19_enable_storage[16])) | (irqarray19_pending_status[17] & irqarray19_enable_storage[17])) | (irqarray19_pending_status[18] & irqarray19_enable_storage[18])) | (irqarray19_pending_status[19] & irqarray19_enable_storage[19]));
+assign irqarray19_eventsourceflex380_status = (irqarray19_interrupts[0] | irqarray19_trigger[0]);
+assign irqarray19_eventsourceflex381_status = (irqarray19_interrupts[1] | irqarray19_trigger[1]);
+assign irqarray19_eventsourceflex382_status = (irqarray19_interrupts[2] | irqarray19_trigger[2]);
+assign irqarray19_eventsourceflex383_status = (irqarray19_interrupts[3] | irqarray19_trigger[3]);
+assign irqarray19_eventsourceflex384_status = (irqarray19_interrupts[4] | irqarray19_trigger[4]);
+assign irqarray19_eventsourceflex385_status = (irqarray19_interrupts[5] | irqarray19_trigger[5]);
+assign irqarray19_eventsourceflex386_status = (irqarray19_interrupts[6] | irqarray19_trigger[6]);
+assign irqarray19_eventsourceflex387_status = (irqarray19_interrupts[7] | irqarray19_trigger[7]);
+assign irqarray19_eventsourceflex388_status = (irqarray19_interrupts[8] | irqarray19_trigger[8]);
+assign irqarray19_eventsourceflex389_status = (irqarray19_interrupts[9] | irqarray19_trigger[9]);
+assign irqarray19_eventsourceflex390_status = (irqarray19_interrupts[10] | irqarray19_trigger[10]);
+assign irqarray19_eventsourceflex391_status = (irqarray19_interrupts[11] | irqarray19_trigger[11]);
+assign irqarray19_eventsourceflex392_status = (irqarray19_interrupts[12] | irqarray19_trigger[12]);
+assign irqarray19_eventsourceflex393_status = (irqarray19_interrupts[13] | irqarray19_trigger[13]);
+assign irqarray19_eventsourceflex394_status = (irqarray19_interrupts[14] | irqarray19_trigger[14]);
+assign irqarray19_eventsourceflex395_status = (irqarray19_interrupts[15] | irqarray19_trigger[15]);
+assign irqarray19_eventsourceflex396_status = (irqarray19_interrupts[16] | irqarray19_trigger[16]);
+assign irqarray19_eventsourceflex397_status = (irqarray19_interrupts[17] | irqarray19_trigger[17]);
+assign irqarray19_eventsourceflex398_status = (irqarray19_interrupts[18] | irqarray19_trigger[18]);
+assign irqarray19_eventsourceflex399_status = (irqarray19_interrupts[19] | irqarray19_trigger[19]);
 assign ticktimer_load_xfer_i = ticktimer_load;
 assign ticktimer_timer_sync_i = ticktimer_timer0;
 assign ticktimer_timer1 = ticktimer_timer_sync_o;
@@ -1236,9 +8058,8 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
-    cramsoc_next_state <= 2'd0;
-    cramsoc_last_was_read_next_value <= 1'd0;
     cramsoc_adr <= 16'd0;
+    cramsoc_last_was_read_next_value <= 1'd0;
     cramsoc_last_was_read_next_value_ce <= 1'd0;
     cramsoc_r_payload_data <= 32'd0;
     cramsoc_r_payload_resp <= 2'd0;
@@ -1248,6 +8069,7 @@ always @(*) begin
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
     cramsoc_nocomb_axl_ar_ready <= 1'd0;
     cramsoc_nocomb_axl_b_valid <= 1'd0;
+    cramsoc_next_state <= 2'd0;
     cramsoc_next_state <= cramsoc_state;
     case (cramsoc_state)
         1'd1: begin
@@ -1310,8 +8132,8 @@ always @(*) begin
 end
 assign csrbank0_get_asid_value0_r = interface0_dat_w[0];
 always @(*) begin
-    csrbank0_get_asid_value0_we <= 1'd0;
     csrbank0_get_asid_value0_re <= 1'd0;
+    csrbank0_get_asid_value0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_adr[9:0] == 2'd2))) begin
         csrbank0_get_asid_value0_re <= interface0_we;
         csrbank0_get_asid_value0_we <= csrbank0_re;
@@ -1319,8 +8141,8 @@ always @(*) begin
 end
 assign csrbank0_control0_r = interface0_dat_w[3:0];
 always @(*) begin
-    csrbank0_control0_re <= 1'd0;
     csrbank0_control0_we <= 1'd0;
+    csrbank0_control0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_adr[9:0] == 2'd3))) begin
         csrbank0_control0_re <= interface0_we;
         csrbank0_control0_we <= csrbank0_re;
@@ -1346,8 +8168,8 @@ always @(*) begin
 end
 assign csrbank0_window_ah0_r = interface0_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_ah0_re <= 1'd0;
     csrbank0_window_ah0_we <= 1'd0;
+    csrbank0_window_ah0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_adr[9:0] == 3'd6))) begin
         csrbank0_window_ah0_re <= interface0_we;
         csrbank0_window_ah0_we <= csrbank0_re;
@@ -1355,8 +8177,8 @@ always @(*) begin
 end
 assign csrbank0_window_bl0_r = interface0_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_bl0_we <= 1'd0;
     csrbank0_window_bl0_re <= 1'd0;
+    csrbank0_window_bl0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_adr[9:0] == 3'd7))) begin
         csrbank0_window_bl0_re <= interface0_we;
         csrbank0_window_bl0_we <= csrbank0_re;
@@ -1421,89 +8243,2409 @@ assign csrbank1_rtest_w = csr_rtest_status[31:0];
 assign csr_rtest_we = csrbank1_rtest_we;
 assign csrbank2_sel = (interface2_adr[15:10] == 2'd2);
 assign csrbank2_re = interface2_re;
-assign csrbank2_pc_r = interface2_dat_w[31:0];
+assign csrbank2_ev_soft0_r = interface2_dat_w[19:0];
 always @(*) begin
-    csrbank2_pc_re <= 1'd0;
-    csrbank2_pc_we <= 1'd0;
+    csrbank2_ev_soft0_re <= 1'd0;
+    csrbank2_ev_soft0_we <= 1'd0;
     if ((csrbank2_sel & (interface2_adr[9:0] == 1'd0))) begin
-        csrbank2_pc_re <= interface2_we;
-        csrbank2_pc_we <= csrbank2_re;
+        csrbank2_ev_soft0_re <= interface2_we;
+        csrbank2_ev_soft0_we <= csrbank2_re;
     end
 end
-assign csrbank2_pc_w = status[31:0];
-assign we = csrbank2_pc_we;
+assign csrbank2_ev_status_r = interface2_dat_w[19:0];
+always @(*) begin
+    csrbank2_ev_status_we <= 1'd0;
+    csrbank2_ev_status_re <= 1'd0;
+    if ((csrbank2_sel & (interface2_adr[9:0] == 1'd1))) begin
+        csrbank2_ev_status_re <= interface2_we;
+        csrbank2_ev_status_we <= csrbank2_re;
+    end
+end
+assign csrbank2_ev_pending_r = interface2_dat_w[19:0];
+always @(*) begin
+    csrbank2_ev_pending_re <= 1'd0;
+    csrbank2_ev_pending_we <= 1'd0;
+    if ((csrbank2_sel & (interface2_adr[9:0] == 2'd2))) begin
+        csrbank2_ev_pending_re <= interface2_we;
+        csrbank2_ev_pending_we <= csrbank2_re;
+    end
+end
+assign csrbank2_ev_enable0_r = interface2_dat_w[19:0];
+always @(*) begin
+    csrbank2_ev_enable0_re <= 1'd0;
+    csrbank2_ev_enable0_we <= 1'd0;
+    if ((csrbank2_sel & (interface2_adr[9:0] == 2'd3))) begin
+        csrbank2_ev_enable0_re <= interface2_we;
+        csrbank2_ev_enable0_we <= csrbank2_re;
+    end
+end
+always @(*) begin
+    irqarray0_trigger <= 20'd0;
+    if (irqarray0_re) begin
+        irqarray0_trigger <= irqarray0_storage[19:0];
+    end
+end
+assign csrbank2_ev_soft0_w = irqarray0_storage[19:0];
+always @(*) begin
+    irqarray0_status_status <= 20'd0;
+    irqarray0_status_status[0] <= irqarray0_source00;
+    irqarray0_status_status[1] <= irqarray0_source10;
+    irqarray0_status_status[2] <= irqarray0_source20;
+    irqarray0_status_status[3] <= irqarray0_source30;
+    irqarray0_status_status[4] <= irqarray0_source40;
+    irqarray0_status_status[5] <= irqarray0_source50;
+    irqarray0_status_status[6] <= irqarray0_source60;
+    irqarray0_status_status[7] <= irqarray0_source70;
+    irqarray0_status_status[8] <= irqarray0_source80;
+    irqarray0_status_status[9] <= irqarray0_source90;
+    irqarray0_status_status[10] <= irqarray0_source100;
+    irqarray0_status_status[11] <= irqarray0_source110;
+    irqarray0_status_status[12] <= irqarray0_source120;
+    irqarray0_status_status[13] <= irqarray0_source130;
+    irqarray0_status_status[14] <= irqarray0_source140;
+    irqarray0_status_status[15] <= irqarray0_source150;
+    irqarray0_status_status[16] <= irqarray0_source160;
+    irqarray0_status_status[17] <= irqarray0_source170;
+    irqarray0_status_status[18] <= irqarray0_source180;
+    irqarray0_status_status[19] <= irqarray0_source190;
+end
+assign csrbank2_ev_status_w = irqarray0_status_status[19:0];
+assign irqarray0_status_we = csrbank2_ev_status_we;
+always @(*) begin
+    irqarray0_pending_status <= 20'd0;
+    irqarray0_pending_status[0] <= irqarray0_source01;
+    irqarray0_pending_status[1] <= irqarray0_source11;
+    irqarray0_pending_status[2] <= irqarray0_source21;
+    irqarray0_pending_status[3] <= irqarray0_source31;
+    irqarray0_pending_status[4] <= irqarray0_source41;
+    irqarray0_pending_status[5] <= irqarray0_source51;
+    irqarray0_pending_status[6] <= irqarray0_source61;
+    irqarray0_pending_status[7] <= irqarray0_source71;
+    irqarray0_pending_status[8] <= irqarray0_source81;
+    irqarray0_pending_status[9] <= irqarray0_source91;
+    irqarray0_pending_status[10] <= irqarray0_source101;
+    irqarray0_pending_status[11] <= irqarray0_source111;
+    irqarray0_pending_status[12] <= irqarray0_source121;
+    irqarray0_pending_status[13] <= irqarray0_source131;
+    irqarray0_pending_status[14] <= irqarray0_source141;
+    irqarray0_pending_status[15] <= irqarray0_source151;
+    irqarray0_pending_status[16] <= irqarray0_source161;
+    irqarray0_pending_status[17] <= irqarray0_source171;
+    irqarray0_pending_status[18] <= irqarray0_source181;
+    irqarray0_pending_status[19] <= irqarray0_source191;
+end
+assign csrbank2_ev_pending_w = irqarray0_pending_status[19:0];
+assign irqarray0_pending_we = csrbank2_ev_pending_we;
+assign irqarray0_source02 = irqarray0_enable_storage[0];
+assign irqarray0_source12 = irqarray0_enable_storage[1];
+assign irqarray0_source22 = irqarray0_enable_storage[2];
+assign irqarray0_source32 = irqarray0_enable_storage[3];
+assign irqarray0_source42 = irqarray0_enable_storage[4];
+assign irqarray0_source52 = irqarray0_enable_storage[5];
+assign irqarray0_source62 = irqarray0_enable_storage[6];
+assign irqarray0_source72 = irqarray0_enable_storage[7];
+assign irqarray0_source82 = irqarray0_enable_storage[8];
+assign irqarray0_source92 = irqarray0_enable_storage[9];
+assign irqarray0_source102 = irqarray0_enable_storage[10];
+assign irqarray0_source112 = irqarray0_enable_storage[11];
+assign irqarray0_source122 = irqarray0_enable_storage[12];
+assign irqarray0_source132 = irqarray0_enable_storage[13];
+assign irqarray0_source142 = irqarray0_enable_storage[14];
+assign irqarray0_source152 = irqarray0_enable_storage[15];
+assign irqarray0_source162 = irqarray0_enable_storage[16];
+assign irqarray0_source172 = irqarray0_enable_storage[17];
+assign irqarray0_source182 = irqarray0_enable_storage[18];
+assign irqarray0_source192 = irqarray0_enable_storage[19];
+assign csrbank2_ev_enable0_w = irqarray0_enable_storage[19:0];
 assign csrbank3_sel = (interface3_adr[15:10] == 2'd3);
 assign csrbank3_re = interface3_re;
-assign csrbank3_control0_r = interface3_dat_w[0];
+assign csrbank3_ev_soft0_r = interface3_dat_w[19:0];
 always @(*) begin
-    csrbank3_control0_we <= 1'd0;
-    csrbank3_control0_re <= 1'd0;
+    csrbank3_ev_soft0_re <= 1'd0;
+    csrbank3_ev_soft0_we <= 1'd0;
     if ((csrbank3_sel & (interface3_adr[9:0] == 1'd0))) begin
-        csrbank3_control0_re <= interface3_we;
-        csrbank3_control0_we <= csrbank3_re;
+        csrbank3_ev_soft0_re <= interface3_we;
+        csrbank3_ev_soft0_we <= csrbank3_re;
     end
 end
-assign csrbank3_time1_r = interface3_dat_w[31:0];
+assign csrbank3_ev_status_r = interface3_dat_w[19:0];
 always @(*) begin
-    csrbank3_time1_we <= 1'd0;
-    csrbank3_time1_re <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 1'd1))) begin
-        csrbank3_time1_re <= interface3_we;
-        csrbank3_time1_we <= csrbank3_re;
-    end
-end
-assign csrbank3_time0_r = interface3_dat_w[31:0];
-always @(*) begin
-    csrbank3_time0_re <= 1'd0;
-    csrbank3_time0_we <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd2))) begin
-        csrbank3_time0_re <= interface3_we;
-        csrbank3_time0_we <= csrbank3_re;
-    end
-end
-assign csrbank3_msleep_target1_r = interface3_dat_w[31:0];
-always @(*) begin
-    csrbank3_msleep_target1_re <= 1'd0;
-    csrbank3_msleep_target1_we <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd3))) begin
-        csrbank3_msleep_target1_re <= interface3_we;
-        csrbank3_msleep_target1_we <= csrbank3_re;
-    end
-end
-assign csrbank3_msleep_target0_r = interface3_dat_w[31:0];
-always @(*) begin
-    csrbank3_msleep_target0_we <= 1'd0;
-    csrbank3_msleep_target0_re <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd4))) begin
-        csrbank3_msleep_target0_re <= interface3_we;
-        csrbank3_msleep_target0_we <= csrbank3_re;
-    end
-end
-assign csrbank3_ev_status_r = interface3_dat_w[0];
-always @(*) begin
-    csrbank3_ev_status_re <= 1'd0;
     csrbank3_ev_status_we <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd5))) begin
+    csrbank3_ev_status_re <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 1'd1))) begin
         csrbank3_ev_status_re <= interface3_we;
         csrbank3_ev_status_we <= csrbank3_re;
     end
 end
-assign csrbank3_ev_pending_r = interface3_dat_w[0];
+assign csrbank3_ev_pending_r = interface3_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_pending_re <= 1'd0;
     csrbank3_ev_pending_we <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd6))) begin
+    csrbank3_ev_pending_re <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd2))) begin
         csrbank3_ev_pending_re <= interface3_we;
         csrbank3_ev_pending_we <= csrbank3_re;
     end
 end
-assign csrbank3_ev_enable0_r = interface3_dat_w[0];
+assign csrbank3_ev_enable0_r = interface3_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_enable0_we <= 1'd0;
     csrbank3_ev_enable0_re <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 3'd7))) begin
+    csrbank3_ev_enable0_we <= 1'd0;
+    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd3))) begin
         csrbank3_ev_enable0_re <= interface3_we;
         csrbank3_ev_enable0_we <= csrbank3_re;
+    end
+end
+always @(*) begin
+    irqarray1_trigger <= 20'd0;
+    if (irqarray1_re) begin
+        irqarray1_trigger <= irqarray1_storage[19:0];
+    end
+end
+assign csrbank3_ev_soft0_w = irqarray1_storage[19:0];
+always @(*) begin
+    irqarray1_status_status <= 20'd0;
+    irqarray1_status_status[0] <= irqarray1_source00;
+    irqarray1_status_status[1] <= irqarray1_source10;
+    irqarray1_status_status[2] <= irqarray1_source20;
+    irqarray1_status_status[3] <= irqarray1_source30;
+    irqarray1_status_status[4] <= irqarray1_source40;
+    irqarray1_status_status[5] <= irqarray1_source50;
+    irqarray1_status_status[6] <= irqarray1_source60;
+    irqarray1_status_status[7] <= irqarray1_source70;
+    irqarray1_status_status[8] <= irqarray1_source80;
+    irqarray1_status_status[9] <= irqarray1_source90;
+    irqarray1_status_status[10] <= irqarray1_source100;
+    irqarray1_status_status[11] <= irqarray1_source110;
+    irqarray1_status_status[12] <= irqarray1_source120;
+    irqarray1_status_status[13] <= irqarray1_source130;
+    irqarray1_status_status[14] <= irqarray1_source140;
+    irqarray1_status_status[15] <= irqarray1_source150;
+    irqarray1_status_status[16] <= irqarray1_source160;
+    irqarray1_status_status[17] <= irqarray1_source170;
+    irqarray1_status_status[18] <= irqarray1_source180;
+    irqarray1_status_status[19] <= irqarray1_source190;
+end
+assign csrbank3_ev_status_w = irqarray1_status_status[19:0];
+assign irqarray1_status_we = csrbank3_ev_status_we;
+always @(*) begin
+    irqarray1_pending_status <= 20'd0;
+    irqarray1_pending_status[0] <= irqarray1_source01;
+    irqarray1_pending_status[1] <= irqarray1_source11;
+    irqarray1_pending_status[2] <= irqarray1_source21;
+    irqarray1_pending_status[3] <= irqarray1_source31;
+    irqarray1_pending_status[4] <= irqarray1_source41;
+    irqarray1_pending_status[5] <= irqarray1_source51;
+    irqarray1_pending_status[6] <= irqarray1_source61;
+    irqarray1_pending_status[7] <= irqarray1_source71;
+    irqarray1_pending_status[8] <= irqarray1_source81;
+    irqarray1_pending_status[9] <= irqarray1_source91;
+    irqarray1_pending_status[10] <= irqarray1_source101;
+    irqarray1_pending_status[11] <= irqarray1_source111;
+    irqarray1_pending_status[12] <= irqarray1_source121;
+    irqarray1_pending_status[13] <= irqarray1_source131;
+    irqarray1_pending_status[14] <= irqarray1_source141;
+    irqarray1_pending_status[15] <= irqarray1_source151;
+    irqarray1_pending_status[16] <= irqarray1_source161;
+    irqarray1_pending_status[17] <= irqarray1_source171;
+    irqarray1_pending_status[18] <= irqarray1_source181;
+    irqarray1_pending_status[19] <= irqarray1_source191;
+end
+assign csrbank3_ev_pending_w = irqarray1_pending_status[19:0];
+assign irqarray1_pending_we = csrbank3_ev_pending_we;
+assign irqarray1_source02 = irqarray1_enable_storage[0];
+assign irqarray1_source12 = irqarray1_enable_storage[1];
+assign irqarray1_source22 = irqarray1_enable_storage[2];
+assign irqarray1_source32 = irqarray1_enable_storage[3];
+assign irqarray1_source42 = irqarray1_enable_storage[4];
+assign irqarray1_source52 = irqarray1_enable_storage[5];
+assign irqarray1_source62 = irqarray1_enable_storage[6];
+assign irqarray1_source72 = irqarray1_enable_storage[7];
+assign irqarray1_source82 = irqarray1_enable_storage[8];
+assign irqarray1_source92 = irqarray1_enable_storage[9];
+assign irqarray1_source102 = irqarray1_enable_storage[10];
+assign irqarray1_source112 = irqarray1_enable_storage[11];
+assign irqarray1_source122 = irqarray1_enable_storage[12];
+assign irqarray1_source132 = irqarray1_enable_storage[13];
+assign irqarray1_source142 = irqarray1_enable_storage[14];
+assign irqarray1_source152 = irqarray1_enable_storage[15];
+assign irqarray1_source162 = irqarray1_enable_storage[16];
+assign irqarray1_source172 = irqarray1_enable_storage[17];
+assign irqarray1_source182 = irqarray1_enable_storage[18];
+assign irqarray1_source192 = irqarray1_enable_storage[19];
+assign csrbank3_ev_enable0_w = irqarray1_enable_storage[19:0];
+assign csrbank4_sel = (interface4_adr[15:10] == 3'd4);
+assign csrbank4_re = interface4_re;
+assign csrbank4_ev_soft0_r = interface4_dat_w[19:0];
+always @(*) begin
+    csrbank4_ev_soft0_we <= 1'd0;
+    csrbank4_ev_soft0_re <= 1'd0;
+    if ((csrbank4_sel & (interface4_adr[9:0] == 1'd0))) begin
+        csrbank4_ev_soft0_re <= interface4_we;
+        csrbank4_ev_soft0_we <= csrbank4_re;
+    end
+end
+assign csrbank4_ev_status_r = interface4_dat_w[19:0];
+always @(*) begin
+    csrbank4_ev_status_re <= 1'd0;
+    csrbank4_ev_status_we <= 1'd0;
+    if ((csrbank4_sel & (interface4_adr[9:0] == 1'd1))) begin
+        csrbank4_ev_status_re <= interface4_we;
+        csrbank4_ev_status_we <= csrbank4_re;
+    end
+end
+assign csrbank4_ev_pending_r = interface4_dat_w[19:0];
+always @(*) begin
+    csrbank4_ev_pending_we <= 1'd0;
+    csrbank4_ev_pending_re <= 1'd0;
+    if ((csrbank4_sel & (interface4_adr[9:0] == 2'd2))) begin
+        csrbank4_ev_pending_re <= interface4_we;
+        csrbank4_ev_pending_we <= csrbank4_re;
+    end
+end
+assign csrbank4_ev_enable0_r = interface4_dat_w[19:0];
+always @(*) begin
+    csrbank4_ev_enable0_we <= 1'd0;
+    csrbank4_ev_enable0_re <= 1'd0;
+    if ((csrbank4_sel & (interface4_adr[9:0] == 2'd3))) begin
+        csrbank4_ev_enable0_re <= interface4_we;
+        csrbank4_ev_enable0_we <= csrbank4_re;
+    end
+end
+always @(*) begin
+    irqarray10_trigger <= 20'd0;
+    if (irqarray10_re) begin
+        irqarray10_trigger <= irqarray10_storage[19:0];
+    end
+end
+assign csrbank4_ev_soft0_w = irqarray10_storage[19:0];
+always @(*) begin
+    irqarray10_status_status <= 20'd0;
+    irqarray10_status_status[0] <= irqarray10_source00;
+    irqarray10_status_status[1] <= irqarray10_source10;
+    irqarray10_status_status[2] <= irqarray10_source20;
+    irqarray10_status_status[3] <= irqarray10_source30;
+    irqarray10_status_status[4] <= irqarray10_source40;
+    irqarray10_status_status[5] <= irqarray10_source50;
+    irqarray10_status_status[6] <= irqarray10_source60;
+    irqarray10_status_status[7] <= irqarray10_source70;
+    irqarray10_status_status[8] <= irqarray10_source80;
+    irqarray10_status_status[9] <= irqarray10_source90;
+    irqarray10_status_status[10] <= irqarray10_source100;
+    irqarray10_status_status[11] <= irqarray10_source110;
+    irqarray10_status_status[12] <= irqarray10_source120;
+    irqarray10_status_status[13] <= irqarray10_source130;
+    irqarray10_status_status[14] <= irqarray10_source140;
+    irqarray10_status_status[15] <= irqarray10_source150;
+    irqarray10_status_status[16] <= irqarray10_source160;
+    irqarray10_status_status[17] <= irqarray10_source170;
+    irqarray10_status_status[18] <= irqarray10_source180;
+    irqarray10_status_status[19] <= irqarray10_source190;
+end
+assign csrbank4_ev_status_w = irqarray10_status_status[19:0];
+assign irqarray10_status_we = csrbank4_ev_status_we;
+always @(*) begin
+    irqarray10_pending_status <= 20'd0;
+    irqarray10_pending_status[0] <= irqarray10_source01;
+    irqarray10_pending_status[1] <= irqarray10_source11;
+    irqarray10_pending_status[2] <= irqarray10_source21;
+    irqarray10_pending_status[3] <= irqarray10_source31;
+    irqarray10_pending_status[4] <= irqarray10_source41;
+    irqarray10_pending_status[5] <= irqarray10_source51;
+    irqarray10_pending_status[6] <= irqarray10_source61;
+    irqarray10_pending_status[7] <= irqarray10_source71;
+    irqarray10_pending_status[8] <= irqarray10_source81;
+    irqarray10_pending_status[9] <= irqarray10_source91;
+    irqarray10_pending_status[10] <= irqarray10_source101;
+    irqarray10_pending_status[11] <= irqarray10_source111;
+    irqarray10_pending_status[12] <= irqarray10_source121;
+    irqarray10_pending_status[13] <= irqarray10_source131;
+    irqarray10_pending_status[14] <= irqarray10_source141;
+    irqarray10_pending_status[15] <= irqarray10_source151;
+    irqarray10_pending_status[16] <= irqarray10_source161;
+    irqarray10_pending_status[17] <= irqarray10_source171;
+    irqarray10_pending_status[18] <= irqarray10_source181;
+    irqarray10_pending_status[19] <= irqarray10_source191;
+end
+assign csrbank4_ev_pending_w = irqarray10_pending_status[19:0];
+assign irqarray10_pending_we = csrbank4_ev_pending_we;
+assign irqarray10_source02 = irqarray10_enable_storage[0];
+assign irqarray10_source12 = irqarray10_enable_storage[1];
+assign irqarray10_source22 = irqarray10_enable_storage[2];
+assign irqarray10_source32 = irqarray10_enable_storage[3];
+assign irqarray10_source42 = irqarray10_enable_storage[4];
+assign irqarray10_source52 = irqarray10_enable_storage[5];
+assign irqarray10_source62 = irqarray10_enable_storage[6];
+assign irqarray10_source72 = irqarray10_enable_storage[7];
+assign irqarray10_source82 = irqarray10_enable_storage[8];
+assign irqarray10_source92 = irqarray10_enable_storage[9];
+assign irqarray10_source102 = irqarray10_enable_storage[10];
+assign irqarray10_source112 = irqarray10_enable_storage[11];
+assign irqarray10_source122 = irqarray10_enable_storage[12];
+assign irqarray10_source132 = irqarray10_enable_storage[13];
+assign irqarray10_source142 = irqarray10_enable_storage[14];
+assign irqarray10_source152 = irqarray10_enable_storage[15];
+assign irqarray10_source162 = irqarray10_enable_storage[16];
+assign irqarray10_source172 = irqarray10_enable_storage[17];
+assign irqarray10_source182 = irqarray10_enable_storage[18];
+assign irqarray10_source192 = irqarray10_enable_storage[19];
+assign csrbank4_ev_enable0_w = irqarray10_enable_storage[19:0];
+assign csrbank5_sel = (interface5_adr[15:10] == 3'd5);
+assign csrbank5_re = interface5_re;
+assign csrbank5_ev_soft0_r = interface5_dat_w[19:0];
+always @(*) begin
+    csrbank5_ev_soft0_we <= 1'd0;
+    csrbank5_ev_soft0_re <= 1'd0;
+    if ((csrbank5_sel & (interface5_adr[9:0] == 1'd0))) begin
+        csrbank5_ev_soft0_re <= interface5_we;
+        csrbank5_ev_soft0_we <= csrbank5_re;
+    end
+end
+assign csrbank5_ev_status_r = interface5_dat_w[19:0];
+always @(*) begin
+    csrbank5_ev_status_re <= 1'd0;
+    csrbank5_ev_status_we <= 1'd0;
+    if ((csrbank5_sel & (interface5_adr[9:0] == 1'd1))) begin
+        csrbank5_ev_status_re <= interface5_we;
+        csrbank5_ev_status_we <= csrbank5_re;
+    end
+end
+assign csrbank5_ev_pending_r = interface5_dat_w[19:0];
+always @(*) begin
+    csrbank5_ev_pending_re <= 1'd0;
+    csrbank5_ev_pending_we <= 1'd0;
+    if ((csrbank5_sel & (interface5_adr[9:0] == 2'd2))) begin
+        csrbank5_ev_pending_re <= interface5_we;
+        csrbank5_ev_pending_we <= csrbank5_re;
+    end
+end
+assign csrbank5_ev_enable0_r = interface5_dat_w[19:0];
+always @(*) begin
+    csrbank5_ev_enable0_we <= 1'd0;
+    csrbank5_ev_enable0_re <= 1'd0;
+    if ((csrbank5_sel & (interface5_adr[9:0] == 2'd3))) begin
+        csrbank5_ev_enable0_re <= interface5_we;
+        csrbank5_ev_enable0_we <= csrbank5_re;
+    end
+end
+always @(*) begin
+    irqarray11_trigger <= 20'd0;
+    if (irqarray11_re) begin
+        irqarray11_trigger <= irqarray11_storage[19:0];
+    end
+end
+assign csrbank5_ev_soft0_w = irqarray11_storage[19:0];
+always @(*) begin
+    irqarray11_status_status <= 20'd0;
+    irqarray11_status_status[0] <= irqarray11_source00;
+    irqarray11_status_status[1] <= irqarray11_source10;
+    irqarray11_status_status[2] <= irqarray11_source20;
+    irqarray11_status_status[3] <= irqarray11_source30;
+    irqarray11_status_status[4] <= irqarray11_source40;
+    irqarray11_status_status[5] <= irqarray11_source50;
+    irqarray11_status_status[6] <= irqarray11_source60;
+    irqarray11_status_status[7] <= irqarray11_source70;
+    irqarray11_status_status[8] <= irqarray11_source80;
+    irqarray11_status_status[9] <= irqarray11_source90;
+    irqarray11_status_status[10] <= irqarray11_source100;
+    irqarray11_status_status[11] <= irqarray11_source110;
+    irqarray11_status_status[12] <= irqarray11_source120;
+    irqarray11_status_status[13] <= irqarray11_source130;
+    irqarray11_status_status[14] <= irqarray11_source140;
+    irqarray11_status_status[15] <= irqarray11_source150;
+    irqarray11_status_status[16] <= irqarray11_source160;
+    irqarray11_status_status[17] <= irqarray11_source170;
+    irqarray11_status_status[18] <= irqarray11_source180;
+    irqarray11_status_status[19] <= irqarray11_source190;
+end
+assign csrbank5_ev_status_w = irqarray11_status_status[19:0];
+assign irqarray11_status_we = csrbank5_ev_status_we;
+always @(*) begin
+    irqarray11_pending_status <= 20'd0;
+    irqarray11_pending_status[0] <= irqarray11_source01;
+    irqarray11_pending_status[1] <= irqarray11_source11;
+    irqarray11_pending_status[2] <= irqarray11_source21;
+    irqarray11_pending_status[3] <= irqarray11_source31;
+    irqarray11_pending_status[4] <= irqarray11_source41;
+    irqarray11_pending_status[5] <= irqarray11_source51;
+    irqarray11_pending_status[6] <= irqarray11_source61;
+    irqarray11_pending_status[7] <= irqarray11_source71;
+    irqarray11_pending_status[8] <= irqarray11_source81;
+    irqarray11_pending_status[9] <= irqarray11_source91;
+    irqarray11_pending_status[10] <= irqarray11_source101;
+    irqarray11_pending_status[11] <= irqarray11_source111;
+    irqarray11_pending_status[12] <= irqarray11_source121;
+    irqarray11_pending_status[13] <= irqarray11_source131;
+    irqarray11_pending_status[14] <= irqarray11_source141;
+    irqarray11_pending_status[15] <= irqarray11_source151;
+    irqarray11_pending_status[16] <= irqarray11_source161;
+    irqarray11_pending_status[17] <= irqarray11_source171;
+    irqarray11_pending_status[18] <= irqarray11_source181;
+    irqarray11_pending_status[19] <= irqarray11_source191;
+end
+assign csrbank5_ev_pending_w = irqarray11_pending_status[19:0];
+assign irqarray11_pending_we = csrbank5_ev_pending_we;
+assign irqarray11_source02 = irqarray11_enable_storage[0];
+assign irqarray11_source12 = irqarray11_enable_storage[1];
+assign irqarray11_source22 = irqarray11_enable_storage[2];
+assign irqarray11_source32 = irqarray11_enable_storage[3];
+assign irqarray11_source42 = irqarray11_enable_storage[4];
+assign irqarray11_source52 = irqarray11_enable_storage[5];
+assign irqarray11_source62 = irqarray11_enable_storage[6];
+assign irqarray11_source72 = irqarray11_enable_storage[7];
+assign irqarray11_source82 = irqarray11_enable_storage[8];
+assign irqarray11_source92 = irqarray11_enable_storage[9];
+assign irqarray11_source102 = irqarray11_enable_storage[10];
+assign irqarray11_source112 = irqarray11_enable_storage[11];
+assign irqarray11_source122 = irqarray11_enable_storage[12];
+assign irqarray11_source132 = irqarray11_enable_storage[13];
+assign irqarray11_source142 = irqarray11_enable_storage[14];
+assign irqarray11_source152 = irqarray11_enable_storage[15];
+assign irqarray11_source162 = irqarray11_enable_storage[16];
+assign irqarray11_source172 = irqarray11_enable_storage[17];
+assign irqarray11_source182 = irqarray11_enable_storage[18];
+assign irqarray11_source192 = irqarray11_enable_storage[19];
+assign csrbank5_ev_enable0_w = irqarray11_enable_storage[19:0];
+assign csrbank6_sel = (interface6_adr[15:10] == 3'd6);
+assign csrbank6_re = interface6_re;
+assign csrbank6_ev_soft0_r = interface6_dat_w[19:0];
+always @(*) begin
+    csrbank6_ev_soft0_re <= 1'd0;
+    csrbank6_ev_soft0_we <= 1'd0;
+    if ((csrbank6_sel & (interface6_adr[9:0] == 1'd0))) begin
+        csrbank6_ev_soft0_re <= interface6_we;
+        csrbank6_ev_soft0_we <= csrbank6_re;
+    end
+end
+assign csrbank6_ev_status_r = interface6_dat_w[19:0];
+always @(*) begin
+    csrbank6_ev_status_we <= 1'd0;
+    csrbank6_ev_status_re <= 1'd0;
+    if ((csrbank6_sel & (interface6_adr[9:0] == 1'd1))) begin
+        csrbank6_ev_status_re <= interface6_we;
+        csrbank6_ev_status_we <= csrbank6_re;
+    end
+end
+assign csrbank6_ev_pending_r = interface6_dat_w[19:0];
+always @(*) begin
+    csrbank6_ev_pending_re <= 1'd0;
+    csrbank6_ev_pending_we <= 1'd0;
+    if ((csrbank6_sel & (interface6_adr[9:0] == 2'd2))) begin
+        csrbank6_ev_pending_re <= interface6_we;
+        csrbank6_ev_pending_we <= csrbank6_re;
+    end
+end
+assign csrbank6_ev_enable0_r = interface6_dat_w[19:0];
+always @(*) begin
+    csrbank6_ev_enable0_re <= 1'd0;
+    csrbank6_ev_enable0_we <= 1'd0;
+    if ((csrbank6_sel & (interface6_adr[9:0] == 2'd3))) begin
+        csrbank6_ev_enable0_re <= interface6_we;
+        csrbank6_ev_enable0_we <= csrbank6_re;
+    end
+end
+always @(*) begin
+    irqarray12_trigger <= 20'd0;
+    if (irqarray12_re) begin
+        irqarray12_trigger <= irqarray12_storage[19:0];
+    end
+end
+assign csrbank6_ev_soft0_w = irqarray12_storage[19:0];
+always @(*) begin
+    irqarray12_status_status <= 20'd0;
+    irqarray12_status_status[0] <= irqarray12_source00;
+    irqarray12_status_status[1] <= irqarray12_source10;
+    irqarray12_status_status[2] <= irqarray12_source20;
+    irqarray12_status_status[3] <= irqarray12_source30;
+    irqarray12_status_status[4] <= irqarray12_source40;
+    irqarray12_status_status[5] <= irqarray12_source50;
+    irqarray12_status_status[6] <= irqarray12_source60;
+    irqarray12_status_status[7] <= irqarray12_source70;
+    irqarray12_status_status[8] <= irqarray12_source80;
+    irqarray12_status_status[9] <= irqarray12_source90;
+    irqarray12_status_status[10] <= irqarray12_source100;
+    irqarray12_status_status[11] <= irqarray12_source110;
+    irqarray12_status_status[12] <= irqarray12_source120;
+    irqarray12_status_status[13] <= irqarray12_source130;
+    irqarray12_status_status[14] <= irqarray12_source140;
+    irqarray12_status_status[15] <= irqarray12_source150;
+    irqarray12_status_status[16] <= irqarray12_source160;
+    irqarray12_status_status[17] <= irqarray12_source170;
+    irqarray12_status_status[18] <= irqarray12_source180;
+    irqarray12_status_status[19] <= irqarray12_source190;
+end
+assign csrbank6_ev_status_w = irqarray12_status_status[19:0];
+assign irqarray12_status_we = csrbank6_ev_status_we;
+always @(*) begin
+    irqarray12_pending_status <= 20'd0;
+    irqarray12_pending_status[0] <= irqarray12_source01;
+    irqarray12_pending_status[1] <= irqarray12_source11;
+    irqarray12_pending_status[2] <= irqarray12_source21;
+    irqarray12_pending_status[3] <= irqarray12_source31;
+    irqarray12_pending_status[4] <= irqarray12_source41;
+    irqarray12_pending_status[5] <= irqarray12_source51;
+    irqarray12_pending_status[6] <= irqarray12_source61;
+    irqarray12_pending_status[7] <= irqarray12_source71;
+    irqarray12_pending_status[8] <= irqarray12_source81;
+    irqarray12_pending_status[9] <= irqarray12_source91;
+    irqarray12_pending_status[10] <= irqarray12_source101;
+    irqarray12_pending_status[11] <= irqarray12_source111;
+    irqarray12_pending_status[12] <= irqarray12_source121;
+    irqarray12_pending_status[13] <= irqarray12_source131;
+    irqarray12_pending_status[14] <= irqarray12_source141;
+    irqarray12_pending_status[15] <= irqarray12_source151;
+    irqarray12_pending_status[16] <= irqarray12_source161;
+    irqarray12_pending_status[17] <= irqarray12_source171;
+    irqarray12_pending_status[18] <= irqarray12_source181;
+    irqarray12_pending_status[19] <= irqarray12_source191;
+end
+assign csrbank6_ev_pending_w = irqarray12_pending_status[19:0];
+assign irqarray12_pending_we = csrbank6_ev_pending_we;
+assign irqarray12_source02 = irqarray12_enable_storage[0];
+assign irqarray12_source12 = irqarray12_enable_storage[1];
+assign irqarray12_source22 = irqarray12_enable_storage[2];
+assign irqarray12_source32 = irqarray12_enable_storage[3];
+assign irqarray12_source42 = irqarray12_enable_storage[4];
+assign irqarray12_source52 = irqarray12_enable_storage[5];
+assign irqarray12_source62 = irqarray12_enable_storage[6];
+assign irqarray12_source72 = irqarray12_enable_storage[7];
+assign irqarray12_source82 = irqarray12_enable_storage[8];
+assign irqarray12_source92 = irqarray12_enable_storage[9];
+assign irqarray12_source102 = irqarray12_enable_storage[10];
+assign irqarray12_source112 = irqarray12_enable_storage[11];
+assign irqarray12_source122 = irqarray12_enable_storage[12];
+assign irqarray12_source132 = irqarray12_enable_storage[13];
+assign irqarray12_source142 = irqarray12_enable_storage[14];
+assign irqarray12_source152 = irqarray12_enable_storage[15];
+assign irqarray12_source162 = irqarray12_enable_storage[16];
+assign irqarray12_source172 = irqarray12_enable_storage[17];
+assign irqarray12_source182 = irqarray12_enable_storage[18];
+assign irqarray12_source192 = irqarray12_enable_storage[19];
+assign csrbank6_ev_enable0_w = irqarray12_enable_storage[19:0];
+assign csrbank7_sel = (interface7_adr[15:10] == 3'd7);
+assign csrbank7_re = interface7_re;
+assign csrbank7_ev_soft0_r = interface7_dat_w[19:0];
+always @(*) begin
+    csrbank7_ev_soft0_re <= 1'd0;
+    csrbank7_ev_soft0_we <= 1'd0;
+    if ((csrbank7_sel & (interface7_adr[9:0] == 1'd0))) begin
+        csrbank7_ev_soft0_re <= interface7_we;
+        csrbank7_ev_soft0_we <= csrbank7_re;
+    end
+end
+assign csrbank7_ev_status_r = interface7_dat_w[19:0];
+always @(*) begin
+    csrbank7_ev_status_we <= 1'd0;
+    csrbank7_ev_status_re <= 1'd0;
+    if ((csrbank7_sel & (interface7_adr[9:0] == 1'd1))) begin
+        csrbank7_ev_status_re <= interface7_we;
+        csrbank7_ev_status_we <= csrbank7_re;
+    end
+end
+assign csrbank7_ev_pending_r = interface7_dat_w[19:0];
+always @(*) begin
+    csrbank7_ev_pending_we <= 1'd0;
+    csrbank7_ev_pending_re <= 1'd0;
+    if ((csrbank7_sel & (interface7_adr[9:0] == 2'd2))) begin
+        csrbank7_ev_pending_re <= interface7_we;
+        csrbank7_ev_pending_we <= csrbank7_re;
+    end
+end
+assign csrbank7_ev_enable0_r = interface7_dat_w[19:0];
+always @(*) begin
+    csrbank7_ev_enable0_re <= 1'd0;
+    csrbank7_ev_enable0_we <= 1'd0;
+    if ((csrbank7_sel & (interface7_adr[9:0] == 2'd3))) begin
+        csrbank7_ev_enable0_re <= interface7_we;
+        csrbank7_ev_enable0_we <= csrbank7_re;
+    end
+end
+always @(*) begin
+    irqarray13_trigger <= 20'd0;
+    if (irqarray13_re) begin
+        irqarray13_trigger <= irqarray13_storage[19:0];
+    end
+end
+assign csrbank7_ev_soft0_w = irqarray13_storage[19:0];
+always @(*) begin
+    irqarray13_status_status <= 20'd0;
+    irqarray13_status_status[0] <= irqarray13_source00;
+    irqarray13_status_status[1] <= irqarray13_source10;
+    irqarray13_status_status[2] <= irqarray13_source20;
+    irqarray13_status_status[3] <= irqarray13_source30;
+    irqarray13_status_status[4] <= irqarray13_source40;
+    irqarray13_status_status[5] <= irqarray13_source50;
+    irqarray13_status_status[6] <= irqarray13_source60;
+    irqarray13_status_status[7] <= irqarray13_source70;
+    irqarray13_status_status[8] <= irqarray13_source80;
+    irqarray13_status_status[9] <= irqarray13_source90;
+    irqarray13_status_status[10] <= irqarray13_source100;
+    irqarray13_status_status[11] <= irqarray13_source110;
+    irqarray13_status_status[12] <= irqarray13_source120;
+    irqarray13_status_status[13] <= irqarray13_source130;
+    irqarray13_status_status[14] <= irqarray13_source140;
+    irqarray13_status_status[15] <= irqarray13_source150;
+    irqarray13_status_status[16] <= irqarray13_source160;
+    irqarray13_status_status[17] <= irqarray13_source170;
+    irqarray13_status_status[18] <= irqarray13_source180;
+    irqarray13_status_status[19] <= irqarray13_source190;
+end
+assign csrbank7_ev_status_w = irqarray13_status_status[19:0];
+assign irqarray13_status_we = csrbank7_ev_status_we;
+always @(*) begin
+    irqarray13_pending_status <= 20'd0;
+    irqarray13_pending_status[0] <= irqarray13_source01;
+    irqarray13_pending_status[1] <= irqarray13_source11;
+    irqarray13_pending_status[2] <= irqarray13_source21;
+    irqarray13_pending_status[3] <= irqarray13_source31;
+    irqarray13_pending_status[4] <= irqarray13_source41;
+    irqarray13_pending_status[5] <= irqarray13_source51;
+    irqarray13_pending_status[6] <= irqarray13_source61;
+    irqarray13_pending_status[7] <= irqarray13_source71;
+    irqarray13_pending_status[8] <= irqarray13_source81;
+    irqarray13_pending_status[9] <= irqarray13_source91;
+    irqarray13_pending_status[10] <= irqarray13_source101;
+    irqarray13_pending_status[11] <= irqarray13_source111;
+    irqarray13_pending_status[12] <= irqarray13_source121;
+    irqarray13_pending_status[13] <= irqarray13_source131;
+    irqarray13_pending_status[14] <= irqarray13_source141;
+    irqarray13_pending_status[15] <= irqarray13_source151;
+    irqarray13_pending_status[16] <= irqarray13_source161;
+    irqarray13_pending_status[17] <= irqarray13_source171;
+    irqarray13_pending_status[18] <= irqarray13_source181;
+    irqarray13_pending_status[19] <= irqarray13_source191;
+end
+assign csrbank7_ev_pending_w = irqarray13_pending_status[19:0];
+assign irqarray13_pending_we = csrbank7_ev_pending_we;
+assign irqarray13_source02 = irqarray13_enable_storage[0];
+assign irqarray13_source12 = irqarray13_enable_storage[1];
+assign irqarray13_source22 = irqarray13_enable_storage[2];
+assign irqarray13_source32 = irqarray13_enable_storage[3];
+assign irqarray13_source42 = irqarray13_enable_storage[4];
+assign irqarray13_source52 = irqarray13_enable_storage[5];
+assign irqarray13_source62 = irqarray13_enable_storage[6];
+assign irqarray13_source72 = irqarray13_enable_storage[7];
+assign irqarray13_source82 = irqarray13_enable_storage[8];
+assign irqarray13_source92 = irqarray13_enable_storage[9];
+assign irqarray13_source102 = irqarray13_enable_storage[10];
+assign irqarray13_source112 = irqarray13_enable_storage[11];
+assign irqarray13_source122 = irqarray13_enable_storage[12];
+assign irqarray13_source132 = irqarray13_enable_storage[13];
+assign irqarray13_source142 = irqarray13_enable_storage[14];
+assign irqarray13_source152 = irqarray13_enable_storage[15];
+assign irqarray13_source162 = irqarray13_enable_storage[16];
+assign irqarray13_source172 = irqarray13_enable_storage[17];
+assign irqarray13_source182 = irqarray13_enable_storage[18];
+assign irqarray13_source192 = irqarray13_enable_storage[19];
+assign csrbank7_ev_enable0_w = irqarray13_enable_storage[19:0];
+assign csrbank8_sel = (interface8_adr[15:10] == 4'd8);
+assign csrbank8_re = interface8_re;
+assign csrbank8_ev_soft0_r = interface8_dat_w[19:0];
+always @(*) begin
+    csrbank8_ev_soft0_we <= 1'd0;
+    csrbank8_ev_soft0_re <= 1'd0;
+    if ((csrbank8_sel & (interface8_adr[9:0] == 1'd0))) begin
+        csrbank8_ev_soft0_re <= interface8_we;
+        csrbank8_ev_soft0_we <= csrbank8_re;
+    end
+end
+assign csrbank8_ev_status_r = interface8_dat_w[19:0];
+always @(*) begin
+    csrbank8_ev_status_re <= 1'd0;
+    csrbank8_ev_status_we <= 1'd0;
+    if ((csrbank8_sel & (interface8_adr[9:0] == 1'd1))) begin
+        csrbank8_ev_status_re <= interface8_we;
+        csrbank8_ev_status_we <= csrbank8_re;
+    end
+end
+assign csrbank8_ev_pending_r = interface8_dat_w[19:0];
+always @(*) begin
+    csrbank8_ev_pending_we <= 1'd0;
+    csrbank8_ev_pending_re <= 1'd0;
+    if ((csrbank8_sel & (interface8_adr[9:0] == 2'd2))) begin
+        csrbank8_ev_pending_re <= interface8_we;
+        csrbank8_ev_pending_we <= csrbank8_re;
+    end
+end
+assign csrbank8_ev_enable0_r = interface8_dat_w[19:0];
+always @(*) begin
+    csrbank8_ev_enable0_we <= 1'd0;
+    csrbank8_ev_enable0_re <= 1'd0;
+    if ((csrbank8_sel & (interface8_adr[9:0] == 2'd3))) begin
+        csrbank8_ev_enable0_re <= interface8_we;
+        csrbank8_ev_enable0_we <= csrbank8_re;
+    end
+end
+always @(*) begin
+    irqarray14_trigger <= 20'd0;
+    if (irqarray14_re) begin
+        irqarray14_trigger <= irqarray14_storage[19:0];
+    end
+end
+assign csrbank8_ev_soft0_w = irqarray14_storage[19:0];
+always @(*) begin
+    irqarray14_status_status <= 20'd0;
+    irqarray14_status_status[0] <= irqarray14_source00;
+    irqarray14_status_status[1] <= irqarray14_source10;
+    irqarray14_status_status[2] <= irqarray14_source20;
+    irqarray14_status_status[3] <= irqarray14_source30;
+    irqarray14_status_status[4] <= irqarray14_source40;
+    irqarray14_status_status[5] <= irqarray14_source50;
+    irqarray14_status_status[6] <= irqarray14_source60;
+    irqarray14_status_status[7] <= irqarray14_source70;
+    irqarray14_status_status[8] <= irqarray14_source80;
+    irqarray14_status_status[9] <= irqarray14_source90;
+    irqarray14_status_status[10] <= irqarray14_source100;
+    irqarray14_status_status[11] <= irqarray14_source110;
+    irqarray14_status_status[12] <= irqarray14_source120;
+    irqarray14_status_status[13] <= irqarray14_source130;
+    irqarray14_status_status[14] <= irqarray14_source140;
+    irqarray14_status_status[15] <= irqarray14_source150;
+    irqarray14_status_status[16] <= irqarray14_source160;
+    irqarray14_status_status[17] <= irqarray14_source170;
+    irqarray14_status_status[18] <= irqarray14_source180;
+    irqarray14_status_status[19] <= irqarray14_source190;
+end
+assign csrbank8_ev_status_w = irqarray14_status_status[19:0];
+assign irqarray14_status_we = csrbank8_ev_status_we;
+always @(*) begin
+    irqarray14_pending_status <= 20'd0;
+    irqarray14_pending_status[0] <= irqarray14_source01;
+    irqarray14_pending_status[1] <= irqarray14_source11;
+    irqarray14_pending_status[2] <= irqarray14_source21;
+    irqarray14_pending_status[3] <= irqarray14_source31;
+    irqarray14_pending_status[4] <= irqarray14_source41;
+    irqarray14_pending_status[5] <= irqarray14_source51;
+    irqarray14_pending_status[6] <= irqarray14_source61;
+    irqarray14_pending_status[7] <= irqarray14_source71;
+    irqarray14_pending_status[8] <= irqarray14_source81;
+    irqarray14_pending_status[9] <= irqarray14_source91;
+    irqarray14_pending_status[10] <= irqarray14_source101;
+    irqarray14_pending_status[11] <= irqarray14_source111;
+    irqarray14_pending_status[12] <= irqarray14_source121;
+    irqarray14_pending_status[13] <= irqarray14_source131;
+    irqarray14_pending_status[14] <= irqarray14_source141;
+    irqarray14_pending_status[15] <= irqarray14_source151;
+    irqarray14_pending_status[16] <= irqarray14_source161;
+    irqarray14_pending_status[17] <= irqarray14_source171;
+    irqarray14_pending_status[18] <= irqarray14_source181;
+    irqarray14_pending_status[19] <= irqarray14_source191;
+end
+assign csrbank8_ev_pending_w = irqarray14_pending_status[19:0];
+assign irqarray14_pending_we = csrbank8_ev_pending_we;
+assign irqarray14_source02 = irqarray14_enable_storage[0];
+assign irqarray14_source12 = irqarray14_enable_storage[1];
+assign irqarray14_source22 = irqarray14_enable_storage[2];
+assign irqarray14_source32 = irqarray14_enable_storage[3];
+assign irqarray14_source42 = irqarray14_enable_storage[4];
+assign irqarray14_source52 = irqarray14_enable_storage[5];
+assign irqarray14_source62 = irqarray14_enable_storage[6];
+assign irqarray14_source72 = irqarray14_enable_storage[7];
+assign irqarray14_source82 = irqarray14_enable_storage[8];
+assign irqarray14_source92 = irqarray14_enable_storage[9];
+assign irqarray14_source102 = irqarray14_enable_storage[10];
+assign irqarray14_source112 = irqarray14_enable_storage[11];
+assign irqarray14_source122 = irqarray14_enable_storage[12];
+assign irqarray14_source132 = irqarray14_enable_storage[13];
+assign irqarray14_source142 = irqarray14_enable_storage[14];
+assign irqarray14_source152 = irqarray14_enable_storage[15];
+assign irqarray14_source162 = irqarray14_enable_storage[16];
+assign irqarray14_source172 = irqarray14_enable_storage[17];
+assign irqarray14_source182 = irqarray14_enable_storage[18];
+assign irqarray14_source192 = irqarray14_enable_storage[19];
+assign csrbank8_ev_enable0_w = irqarray14_enable_storage[19:0];
+assign csrbank9_sel = (interface9_adr[15:10] == 4'd9);
+assign csrbank9_re = interface9_re;
+assign csrbank9_ev_soft0_r = interface9_dat_w[19:0];
+always @(*) begin
+    csrbank9_ev_soft0_we <= 1'd0;
+    csrbank9_ev_soft0_re <= 1'd0;
+    if ((csrbank9_sel & (interface9_adr[9:0] == 1'd0))) begin
+        csrbank9_ev_soft0_re <= interface9_we;
+        csrbank9_ev_soft0_we <= csrbank9_re;
+    end
+end
+assign csrbank9_ev_status_r = interface9_dat_w[19:0];
+always @(*) begin
+    csrbank9_ev_status_re <= 1'd0;
+    csrbank9_ev_status_we <= 1'd0;
+    if ((csrbank9_sel & (interface9_adr[9:0] == 1'd1))) begin
+        csrbank9_ev_status_re <= interface9_we;
+        csrbank9_ev_status_we <= csrbank9_re;
+    end
+end
+assign csrbank9_ev_pending_r = interface9_dat_w[19:0];
+always @(*) begin
+    csrbank9_ev_pending_re <= 1'd0;
+    csrbank9_ev_pending_we <= 1'd0;
+    if ((csrbank9_sel & (interface9_adr[9:0] == 2'd2))) begin
+        csrbank9_ev_pending_re <= interface9_we;
+        csrbank9_ev_pending_we <= csrbank9_re;
+    end
+end
+assign csrbank9_ev_enable0_r = interface9_dat_w[19:0];
+always @(*) begin
+    csrbank9_ev_enable0_we <= 1'd0;
+    csrbank9_ev_enable0_re <= 1'd0;
+    if ((csrbank9_sel & (interface9_adr[9:0] == 2'd3))) begin
+        csrbank9_ev_enable0_re <= interface9_we;
+        csrbank9_ev_enable0_we <= csrbank9_re;
+    end
+end
+always @(*) begin
+    irqarray15_trigger <= 20'd0;
+    if (irqarray15_re) begin
+        irqarray15_trigger <= irqarray15_storage[19:0];
+    end
+end
+assign csrbank9_ev_soft0_w = irqarray15_storage[19:0];
+always @(*) begin
+    irqarray15_status_status <= 20'd0;
+    irqarray15_status_status[0] <= irqarray15_source00;
+    irqarray15_status_status[1] <= irqarray15_source10;
+    irqarray15_status_status[2] <= irqarray15_source20;
+    irqarray15_status_status[3] <= irqarray15_source30;
+    irqarray15_status_status[4] <= irqarray15_source40;
+    irqarray15_status_status[5] <= irqarray15_source50;
+    irqarray15_status_status[6] <= irqarray15_source60;
+    irqarray15_status_status[7] <= irqarray15_source70;
+    irqarray15_status_status[8] <= irqarray15_source80;
+    irqarray15_status_status[9] <= irqarray15_source90;
+    irqarray15_status_status[10] <= irqarray15_source100;
+    irqarray15_status_status[11] <= irqarray15_source110;
+    irqarray15_status_status[12] <= irqarray15_source120;
+    irqarray15_status_status[13] <= irqarray15_source130;
+    irqarray15_status_status[14] <= irqarray15_source140;
+    irqarray15_status_status[15] <= irqarray15_source150;
+    irqarray15_status_status[16] <= irqarray15_source160;
+    irqarray15_status_status[17] <= irqarray15_source170;
+    irqarray15_status_status[18] <= irqarray15_source180;
+    irqarray15_status_status[19] <= irqarray15_source190;
+end
+assign csrbank9_ev_status_w = irqarray15_status_status[19:0];
+assign irqarray15_status_we = csrbank9_ev_status_we;
+always @(*) begin
+    irqarray15_pending_status <= 20'd0;
+    irqarray15_pending_status[0] <= irqarray15_source01;
+    irqarray15_pending_status[1] <= irqarray15_source11;
+    irqarray15_pending_status[2] <= irqarray15_source21;
+    irqarray15_pending_status[3] <= irqarray15_source31;
+    irqarray15_pending_status[4] <= irqarray15_source41;
+    irqarray15_pending_status[5] <= irqarray15_source51;
+    irqarray15_pending_status[6] <= irqarray15_source61;
+    irqarray15_pending_status[7] <= irqarray15_source71;
+    irqarray15_pending_status[8] <= irqarray15_source81;
+    irqarray15_pending_status[9] <= irqarray15_source91;
+    irqarray15_pending_status[10] <= irqarray15_source101;
+    irqarray15_pending_status[11] <= irqarray15_source111;
+    irqarray15_pending_status[12] <= irqarray15_source121;
+    irqarray15_pending_status[13] <= irqarray15_source131;
+    irqarray15_pending_status[14] <= irqarray15_source141;
+    irqarray15_pending_status[15] <= irqarray15_source151;
+    irqarray15_pending_status[16] <= irqarray15_source161;
+    irqarray15_pending_status[17] <= irqarray15_source171;
+    irqarray15_pending_status[18] <= irqarray15_source181;
+    irqarray15_pending_status[19] <= irqarray15_source191;
+end
+assign csrbank9_ev_pending_w = irqarray15_pending_status[19:0];
+assign irqarray15_pending_we = csrbank9_ev_pending_we;
+assign irqarray15_source02 = irqarray15_enable_storage[0];
+assign irqarray15_source12 = irqarray15_enable_storage[1];
+assign irqarray15_source22 = irqarray15_enable_storage[2];
+assign irqarray15_source32 = irqarray15_enable_storage[3];
+assign irqarray15_source42 = irqarray15_enable_storage[4];
+assign irqarray15_source52 = irqarray15_enable_storage[5];
+assign irqarray15_source62 = irqarray15_enable_storage[6];
+assign irqarray15_source72 = irqarray15_enable_storage[7];
+assign irqarray15_source82 = irqarray15_enable_storage[8];
+assign irqarray15_source92 = irqarray15_enable_storage[9];
+assign irqarray15_source102 = irqarray15_enable_storage[10];
+assign irqarray15_source112 = irqarray15_enable_storage[11];
+assign irqarray15_source122 = irqarray15_enable_storage[12];
+assign irqarray15_source132 = irqarray15_enable_storage[13];
+assign irqarray15_source142 = irqarray15_enable_storage[14];
+assign irqarray15_source152 = irqarray15_enable_storage[15];
+assign irqarray15_source162 = irqarray15_enable_storage[16];
+assign irqarray15_source172 = irqarray15_enable_storage[17];
+assign irqarray15_source182 = irqarray15_enable_storage[18];
+assign irqarray15_source192 = irqarray15_enable_storage[19];
+assign csrbank9_ev_enable0_w = irqarray15_enable_storage[19:0];
+assign csrbank10_sel = (interface10_adr[15:10] == 4'd10);
+assign csrbank10_re = interface10_re;
+assign csrbank10_ev_soft0_r = interface10_dat_w[19:0];
+always @(*) begin
+    csrbank10_ev_soft0_re <= 1'd0;
+    csrbank10_ev_soft0_we <= 1'd0;
+    if ((csrbank10_sel & (interface10_adr[9:0] == 1'd0))) begin
+        csrbank10_ev_soft0_re <= interface10_we;
+        csrbank10_ev_soft0_we <= csrbank10_re;
+    end
+end
+assign csrbank10_ev_status_r = interface10_dat_w[19:0];
+always @(*) begin
+    csrbank10_ev_status_we <= 1'd0;
+    csrbank10_ev_status_re <= 1'd0;
+    if ((csrbank10_sel & (interface10_adr[9:0] == 1'd1))) begin
+        csrbank10_ev_status_re <= interface10_we;
+        csrbank10_ev_status_we <= csrbank10_re;
+    end
+end
+assign csrbank10_ev_pending_r = interface10_dat_w[19:0];
+always @(*) begin
+    csrbank10_ev_pending_re <= 1'd0;
+    csrbank10_ev_pending_we <= 1'd0;
+    if ((csrbank10_sel & (interface10_adr[9:0] == 2'd2))) begin
+        csrbank10_ev_pending_re <= interface10_we;
+        csrbank10_ev_pending_we <= csrbank10_re;
+    end
+end
+assign csrbank10_ev_enable0_r = interface10_dat_w[19:0];
+always @(*) begin
+    csrbank10_ev_enable0_re <= 1'd0;
+    csrbank10_ev_enable0_we <= 1'd0;
+    if ((csrbank10_sel & (interface10_adr[9:0] == 2'd3))) begin
+        csrbank10_ev_enable0_re <= interface10_we;
+        csrbank10_ev_enable0_we <= csrbank10_re;
+    end
+end
+always @(*) begin
+    irqarray16_trigger <= 20'd0;
+    if (irqarray16_re) begin
+        irqarray16_trigger <= irqarray16_storage[19:0];
+    end
+end
+assign csrbank10_ev_soft0_w = irqarray16_storage[19:0];
+always @(*) begin
+    irqarray16_status_status <= 20'd0;
+    irqarray16_status_status[0] <= irqarray16_source00;
+    irqarray16_status_status[1] <= irqarray16_source10;
+    irqarray16_status_status[2] <= irqarray16_source20;
+    irqarray16_status_status[3] <= irqarray16_source30;
+    irqarray16_status_status[4] <= irqarray16_source40;
+    irqarray16_status_status[5] <= irqarray16_source50;
+    irqarray16_status_status[6] <= irqarray16_source60;
+    irqarray16_status_status[7] <= irqarray16_source70;
+    irqarray16_status_status[8] <= irqarray16_source80;
+    irqarray16_status_status[9] <= irqarray16_source90;
+    irqarray16_status_status[10] <= irqarray16_source100;
+    irqarray16_status_status[11] <= irqarray16_source110;
+    irqarray16_status_status[12] <= irqarray16_source120;
+    irqarray16_status_status[13] <= irqarray16_source130;
+    irqarray16_status_status[14] <= irqarray16_source140;
+    irqarray16_status_status[15] <= irqarray16_source150;
+    irqarray16_status_status[16] <= irqarray16_source160;
+    irqarray16_status_status[17] <= irqarray16_source170;
+    irqarray16_status_status[18] <= irqarray16_source180;
+    irqarray16_status_status[19] <= irqarray16_source190;
+end
+assign csrbank10_ev_status_w = irqarray16_status_status[19:0];
+assign irqarray16_status_we = csrbank10_ev_status_we;
+always @(*) begin
+    irqarray16_pending_status <= 20'd0;
+    irqarray16_pending_status[0] <= irqarray16_source01;
+    irqarray16_pending_status[1] <= irqarray16_source11;
+    irqarray16_pending_status[2] <= irqarray16_source21;
+    irqarray16_pending_status[3] <= irqarray16_source31;
+    irqarray16_pending_status[4] <= irqarray16_source41;
+    irqarray16_pending_status[5] <= irqarray16_source51;
+    irqarray16_pending_status[6] <= irqarray16_source61;
+    irqarray16_pending_status[7] <= irqarray16_source71;
+    irqarray16_pending_status[8] <= irqarray16_source81;
+    irqarray16_pending_status[9] <= irqarray16_source91;
+    irqarray16_pending_status[10] <= irqarray16_source101;
+    irqarray16_pending_status[11] <= irqarray16_source111;
+    irqarray16_pending_status[12] <= irqarray16_source121;
+    irqarray16_pending_status[13] <= irqarray16_source131;
+    irqarray16_pending_status[14] <= irqarray16_source141;
+    irqarray16_pending_status[15] <= irqarray16_source151;
+    irqarray16_pending_status[16] <= irqarray16_source161;
+    irqarray16_pending_status[17] <= irqarray16_source171;
+    irqarray16_pending_status[18] <= irqarray16_source181;
+    irqarray16_pending_status[19] <= irqarray16_source191;
+end
+assign csrbank10_ev_pending_w = irqarray16_pending_status[19:0];
+assign irqarray16_pending_we = csrbank10_ev_pending_we;
+assign irqarray16_source02 = irqarray16_enable_storage[0];
+assign irqarray16_source12 = irqarray16_enable_storage[1];
+assign irqarray16_source22 = irqarray16_enable_storage[2];
+assign irqarray16_source32 = irqarray16_enable_storage[3];
+assign irqarray16_source42 = irqarray16_enable_storage[4];
+assign irqarray16_source52 = irqarray16_enable_storage[5];
+assign irqarray16_source62 = irqarray16_enable_storage[6];
+assign irqarray16_source72 = irqarray16_enable_storage[7];
+assign irqarray16_source82 = irqarray16_enable_storage[8];
+assign irqarray16_source92 = irqarray16_enable_storage[9];
+assign irqarray16_source102 = irqarray16_enable_storage[10];
+assign irqarray16_source112 = irqarray16_enable_storage[11];
+assign irqarray16_source122 = irqarray16_enable_storage[12];
+assign irqarray16_source132 = irqarray16_enable_storage[13];
+assign irqarray16_source142 = irqarray16_enable_storage[14];
+assign irqarray16_source152 = irqarray16_enable_storage[15];
+assign irqarray16_source162 = irqarray16_enable_storage[16];
+assign irqarray16_source172 = irqarray16_enable_storage[17];
+assign irqarray16_source182 = irqarray16_enable_storage[18];
+assign irqarray16_source192 = irqarray16_enable_storage[19];
+assign csrbank10_ev_enable0_w = irqarray16_enable_storage[19:0];
+assign csrbank11_sel = (interface11_adr[15:10] == 4'd11);
+assign csrbank11_re = interface11_re;
+assign csrbank11_ev_soft0_r = interface11_dat_w[19:0];
+always @(*) begin
+    csrbank11_ev_soft0_re <= 1'd0;
+    csrbank11_ev_soft0_we <= 1'd0;
+    if ((csrbank11_sel & (interface11_adr[9:0] == 1'd0))) begin
+        csrbank11_ev_soft0_re <= interface11_we;
+        csrbank11_ev_soft0_we <= csrbank11_re;
+    end
+end
+assign csrbank11_ev_status_r = interface11_dat_w[19:0];
+always @(*) begin
+    csrbank11_ev_status_we <= 1'd0;
+    csrbank11_ev_status_re <= 1'd0;
+    if ((csrbank11_sel & (interface11_adr[9:0] == 1'd1))) begin
+        csrbank11_ev_status_re <= interface11_we;
+        csrbank11_ev_status_we <= csrbank11_re;
+    end
+end
+assign csrbank11_ev_pending_r = interface11_dat_w[19:0];
+always @(*) begin
+    csrbank11_ev_pending_we <= 1'd0;
+    csrbank11_ev_pending_re <= 1'd0;
+    if ((csrbank11_sel & (interface11_adr[9:0] == 2'd2))) begin
+        csrbank11_ev_pending_re <= interface11_we;
+        csrbank11_ev_pending_we <= csrbank11_re;
+    end
+end
+assign csrbank11_ev_enable0_r = interface11_dat_w[19:0];
+always @(*) begin
+    csrbank11_ev_enable0_re <= 1'd0;
+    csrbank11_ev_enable0_we <= 1'd0;
+    if ((csrbank11_sel & (interface11_adr[9:0] == 2'd3))) begin
+        csrbank11_ev_enable0_re <= interface11_we;
+        csrbank11_ev_enable0_we <= csrbank11_re;
+    end
+end
+always @(*) begin
+    irqarray17_trigger <= 20'd0;
+    if (irqarray17_re) begin
+        irqarray17_trigger <= irqarray17_storage[19:0];
+    end
+end
+assign csrbank11_ev_soft0_w = irqarray17_storage[19:0];
+always @(*) begin
+    irqarray17_status_status <= 20'd0;
+    irqarray17_status_status[0] <= irqarray17_source00;
+    irqarray17_status_status[1] <= irqarray17_source10;
+    irqarray17_status_status[2] <= irqarray17_source20;
+    irqarray17_status_status[3] <= irqarray17_source30;
+    irqarray17_status_status[4] <= irqarray17_source40;
+    irqarray17_status_status[5] <= irqarray17_source50;
+    irqarray17_status_status[6] <= irqarray17_source60;
+    irqarray17_status_status[7] <= irqarray17_source70;
+    irqarray17_status_status[8] <= irqarray17_source80;
+    irqarray17_status_status[9] <= irqarray17_source90;
+    irqarray17_status_status[10] <= irqarray17_source100;
+    irqarray17_status_status[11] <= irqarray17_source110;
+    irqarray17_status_status[12] <= irqarray17_source120;
+    irqarray17_status_status[13] <= irqarray17_source130;
+    irqarray17_status_status[14] <= irqarray17_source140;
+    irqarray17_status_status[15] <= irqarray17_source150;
+    irqarray17_status_status[16] <= irqarray17_source160;
+    irqarray17_status_status[17] <= irqarray17_source170;
+    irqarray17_status_status[18] <= irqarray17_source180;
+    irqarray17_status_status[19] <= irqarray17_source190;
+end
+assign csrbank11_ev_status_w = irqarray17_status_status[19:0];
+assign irqarray17_status_we = csrbank11_ev_status_we;
+always @(*) begin
+    irqarray17_pending_status <= 20'd0;
+    irqarray17_pending_status[0] <= irqarray17_source01;
+    irqarray17_pending_status[1] <= irqarray17_source11;
+    irqarray17_pending_status[2] <= irqarray17_source21;
+    irqarray17_pending_status[3] <= irqarray17_source31;
+    irqarray17_pending_status[4] <= irqarray17_source41;
+    irqarray17_pending_status[5] <= irqarray17_source51;
+    irqarray17_pending_status[6] <= irqarray17_source61;
+    irqarray17_pending_status[7] <= irqarray17_source71;
+    irqarray17_pending_status[8] <= irqarray17_source81;
+    irqarray17_pending_status[9] <= irqarray17_source91;
+    irqarray17_pending_status[10] <= irqarray17_source101;
+    irqarray17_pending_status[11] <= irqarray17_source111;
+    irqarray17_pending_status[12] <= irqarray17_source121;
+    irqarray17_pending_status[13] <= irqarray17_source131;
+    irqarray17_pending_status[14] <= irqarray17_source141;
+    irqarray17_pending_status[15] <= irqarray17_source151;
+    irqarray17_pending_status[16] <= irqarray17_source161;
+    irqarray17_pending_status[17] <= irqarray17_source171;
+    irqarray17_pending_status[18] <= irqarray17_source181;
+    irqarray17_pending_status[19] <= irqarray17_source191;
+end
+assign csrbank11_ev_pending_w = irqarray17_pending_status[19:0];
+assign irqarray17_pending_we = csrbank11_ev_pending_we;
+assign irqarray17_source02 = irqarray17_enable_storage[0];
+assign irqarray17_source12 = irqarray17_enable_storage[1];
+assign irqarray17_source22 = irqarray17_enable_storage[2];
+assign irqarray17_source32 = irqarray17_enable_storage[3];
+assign irqarray17_source42 = irqarray17_enable_storage[4];
+assign irqarray17_source52 = irqarray17_enable_storage[5];
+assign irqarray17_source62 = irqarray17_enable_storage[6];
+assign irqarray17_source72 = irqarray17_enable_storage[7];
+assign irqarray17_source82 = irqarray17_enable_storage[8];
+assign irqarray17_source92 = irqarray17_enable_storage[9];
+assign irqarray17_source102 = irqarray17_enable_storage[10];
+assign irqarray17_source112 = irqarray17_enable_storage[11];
+assign irqarray17_source122 = irqarray17_enable_storage[12];
+assign irqarray17_source132 = irqarray17_enable_storage[13];
+assign irqarray17_source142 = irqarray17_enable_storage[14];
+assign irqarray17_source152 = irqarray17_enable_storage[15];
+assign irqarray17_source162 = irqarray17_enable_storage[16];
+assign irqarray17_source172 = irqarray17_enable_storage[17];
+assign irqarray17_source182 = irqarray17_enable_storage[18];
+assign irqarray17_source192 = irqarray17_enable_storage[19];
+assign csrbank11_ev_enable0_w = irqarray17_enable_storage[19:0];
+assign csrbank12_sel = (interface12_adr[15:10] == 4'd12);
+assign csrbank12_re = interface12_re;
+assign csrbank12_ev_soft0_r = interface12_dat_w[19:0];
+always @(*) begin
+    csrbank12_ev_soft0_we <= 1'd0;
+    csrbank12_ev_soft0_re <= 1'd0;
+    if ((csrbank12_sel & (interface12_adr[9:0] == 1'd0))) begin
+        csrbank12_ev_soft0_re <= interface12_we;
+        csrbank12_ev_soft0_we <= csrbank12_re;
+    end
+end
+assign csrbank12_ev_status_r = interface12_dat_w[19:0];
+always @(*) begin
+    csrbank12_ev_status_re <= 1'd0;
+    csrbank12_ev_status_we <= 1'd0;
+    if ((csrbank12_sel & (interface12_adr[9:0] == 1'd1))) begin
+        csrbank12_ev_status_re <= interface12_we;
+        csrbank12_ev_status_we <= csrbank12_re;
+    end
+end
+assign csrbank12_ev_pending_r = interface12_dat_w[19:0];
+always @(*) begin
+    csrbank12_ev_pending_we <= 1'd0;
+    csrbank12_ev_pending_re <= 1'd0;
+    if ((csrbank12_sel & (interface12_adr[9:0] == 2'd2))) begin
+        csrbank12_ev_pending_re <= interface12_we;
+        csrbank12_ev_pending_we <= csrbank12_re;
+    end
+end
+assign csrbank12_ev_enable0_r = interface12_dat_w[19:0];
+always @(*) begin
+    csrbank12_ev_enable0_we <= 1'd0;
+    csrbank12_ev_enable0_re <= 1'd0;
+    if ((csrbank12_sel & (interface12_adr[9:0] == 2'd3))) begin
+        csrbank12_ev_enable0_re <= interface12_we;
+        csrbank12_ev_enable0_we <= csrbank12_re;
+    end
+end
+always @(*) begin
+    irqarray18_trigger <= 20'd0;
+    if (irqarray18_re) begin
+        irqarray18_trigger <= irqarray18_storage[19:0];
+    end
+end
+assign csrbank12_ev_soft0_w = irqarray18_storage[19:0];
+always @(*) begin
+    irqarray18_status_status <= 20'd0;
+    irqarray18_status_status[0] <= irqarray18_source00;
+    irqarray18_status_status[1] <= irqarray18_source10;
+    irqarray18_status_status[2] <= irqarray18_source20;
+    irqarray18_status_status[3] <= irqarray18_source30;
+    irqarray18_status_status[4] <= irqarray18_source40;
+    irqarray18_status_status[5] <= irqarray18_source50;
+    irqarray18_status_status[6] <= irqarray18_source60;
+    irqarray18_status_status[7] <= irqarray18_source70;
+    irqarray18_status_status[8] <= irqarray18_source80;
+    irqarray18_status_status[9] <= irqarray18_source90;
+    irqarray18_status_status[10] <= irqarray18_source100;
+    irqarray18_status_status[11] <= irqarray18_source110;
+    irqarray18_status_status[12] <= irqarray18_source120;
+    irqarray18_status_status[13] <= irqarray18_source130;
+    irqarray18_status_status[14] <= irqarray18_source140;
+    irqarray18_status_status[15] <= irqarray18_source150;
+    irqarray18_status_status[16] <= irqarray18_source160;
+    irqarray18_status_status[17] <= irqarray18_source170;
+    irqarray18_status_status[18] <= irqarray18_source180;
+    irqarray18_status_status[19] <= irqarray18_source190;
+end
+assign csrbank12_ev_status_w = irqarray18_status_status[19:0];
+assign irqarray18_status_we = csrbank12_ev_status_we;
+always @(*) begin
+    irqarray18_pending_status <= 20'd0;
+    irqarray18_pending_status[0] <= irqarray18_source01;
+    irqarray18_pending_status[1] <= irqarray18_source11;
+    irqarray18_pending_status[2] <= irqarray18_source21;
+    irqarray18_pending_status[3] <= irqarray18_source31;
+    irqarray18_pending_status[4] <= irqarray18_source41;
+    irqarray18_pending_status[5] <= irqarray18_source51;
+    irqarray18_pending_status[6] <= irqarray18_source61;
+    irqarray18_pending_status[7] <= irqarray18_source71;
+    irqarray18_pending_status[8] <= irqarray18_source81;
+    irqarray18_pending_status[9] <= irqarray18_source91;
+    irqarray18_pending_status[10] <= irqarray18_source101;
+    irqarray18_pending_status[11] <= irqarray18_source111;
+    irqarray18_pending_status[12] <= irqarray18_source121;
+    irqarray18_pending_status[13] <= irqarray18_source131;
+    irqarray18_pending_status[14] <= irqarray18_source141;
+    irqarray18_pending_status[15] <= irqarray18_source151;
+    irqarray18_pending_status[16] <= irqarray18_source161;
+    irqarray18_pending_status[17] <= irqarray18_source171;
+    irqarray18_pending_status[18] <= irqarray18_source181;
+    irqarray18_pending_status[19] <= irqarray18_source191;
+end
+assign csrbank12_ev_pending_w = irqarray18_pending_status[19:0];
+assign irqarray18_pending_we = csrbank12_ev_pending_we;
+assign irqarray18_source02 = irqarray18_enable_storage[0];
+assign irqarray18_source12 = irqarray18_enable_storage[1];
+assign irqarray18_source22 = irqarray18_enable_storage[2];
+assign irqarray18_source32 = irqarray18_enable_storage[3];
+assign irqarray18_source42 = irqarray18_enable_storage[4];
+assign irqarray18_source52 = irqarray18_enable_storage[5];
+assign irqarray18_source62 = irqarray18_enable_storage[6];
+assign irqarray18_source72 = irqarray18_enable_storage[7];
+assign irqarray18_source82 = irqarray18_enable_storage[8];
+assign irqarray18_source92 = irqarray18_enable_storage[9];
+assign irqarray18_source102 = irqarray18_enable_storage[10];
+assign irqarray18_source112 = irqarray18_enable_storage[11];
+assign irqarray18_source122 = irqarray18_enable_storage[12];
+assign irqarray18_source132 = irqarray18_enable_storage[13];
+assign irqarray18_source142 = irqarray18_enable_storage[14];
+assign irqarray18_source152 = irqarray18_enable_storage[15];
+assign irqarray18_source162 = irqarray18_enable_storage[16];
+assign irqarray18_source172 = irqarray18_enable_storage[17];
+assign irqarray18_source182 = irqarray18_enable_storage[18];
+assign irqarray18_source192 = irqarray18_enable_storage[19];
+assign csrbank12_ev_enable0_w = irqarray18_enable_storage[19:0];
+assign csrbank13_sel = (interface13_adr[15:10] == 4'd13);
+assign csrbank13_re = interface13_re;
+assign csrbank13_ev_soft0_r = interface13_dat_w[19:0];
+always @(*) begin
+    csrbank13_ev_soft0_we <= 1'd0;
+    csrbank13_ev_soft0_re <= 1'd0;
+    if ((csrbank13_sel & (interface13_adr[9:0] == 1'd0))) begin
+        csrbank13_ev_soft0_re <= interface13_we;
+        csrbank13_ev_soft0_we <= csrbank13_re;
+    end
+end
+assign csrbank13_ev_status_r = interface13_dat_w[19:0];
+always @(*) begin
+    csrbank13_ev_status_re <= 1'd0;
+    csrbank13_ev_status_we <= 1'd0;
+    if ((csrbank13_sel & (interface13_adr[9:0] == 1'd1))) begin
+        csrbank13_ev_status_re <= interface13_we;
+        csrbank13_ev_status_we <= csrbank13_re;
+    end
+end
+assign csrbank13_ev_pending_r = interface13_dat_w[19:0];
+always @(*) begin
+    csrbank13_ev_pending_re <= 1'd0;
+    csrbank13_ev_pending_we <= 1'd0;
+    if ((csrbank13_sel & (interface13_adr[9:0] == 2'd2))) begin
+        csrbank13_ev_pending_re <= interface13_we;
+        csrbank13_ev_pending_we <= csrbank13_re;
+    end
+end
+assign csrbank13_ev_enable0_r = interface13_dat_w[19:0];
+always @(*) begin
+    csrbank13_ev_enable0_we <= 1'd0;
+    csrbank13_ev_enable0_re <= 1'd0;
+    if ((csrbank13_sel & (interface13_adr[9:0] == 2'd3))) begin
+        csrbank13_ev_enable0_re <= interface13_we;
+        csrbank13_ev_enable0_we <= csrbank13_re;
+    end
+end
+always @(*) begin
+    irqarray19_trigger <= 20'd0;
+    if (irqarray19_re) begin
+        irqarray19_trigger <= irqarray19_storage[19:0];
+    end
+end
+assign csrbank13_ev_soft0_w = irqarray19_storage[19:0];
+always @(*) begin
+    irqarray19_status_status <= 20'd0;
+    irqarray19_status_status[0] <= irqarray19_source00;
+    irqarray19_status_status[1] <= irqarray19_source10;
+    irqarray19_status_status[2] <= irqarray19_source20;
+    irqarray19_status_status[3] <= irqarray19_source30;
+    irqarray19_status_status[4] <= irqarray19_source40;
+    irqarray19_status_status[5] <= irqarray19_source50;
+    irqarray19_status_status[6] <= irqarray19_source60;
+    irqarray19_status_status[7] <= irqarray19_source70;
+    irqarray19_status_status[8] <= irqarray19_source80;
+    irqarray19_status_status[9] <= irqarray19_source90;
+    irqarray19_status_status[10] <= irqarray19_source100;
+    irqarray19_status_status[11] <= irqarray19_source110;
+    irqarray19_status_status[12] <= irqarray19_source120;
+    irqarray19_status_status[13] <= irqarray19_source130;
+    irqarray19_status_status[14] <= irqarray19_source140;
+    irqarray19_status_status[15] <= irqarray19_source150;
+    irqarray19_status_status[16] <= irqarray19_source160;
+    irqarray19_status_status[17] <= irqarray19_source170;
+    irqarray19_status_status[18] <= irqarray19_source180;
+    irqarray19_status_status[19] <= irqarray19_source190;
+end
+assign csrbank13_ev_status_w = irqarray19_status_status[19:0];
+assign irqarray19_status_we = csrbank13_ev_status_we;
+always @(*) begin
+    irqarray19_pending_status <= 20'd0;
+    irqarray19_pending_status[0] <= irqarray19_source01;
+    irqarray19_pending_status[1] <= irqarray19_source11;
+    irqarray19_pending_status[2] <= irqarray19_source21;
+    irqarray19_pending_status[3] <= irqarray19_source31;
+    irqarray19_pending_status[4] <= irqarray19_source41;
+    irqarray19_pending_status[5] <= irqarray19_source51;
+    irqarray19_pending_status[6] <= irqarray19_source61;
+    irqarray19_pending_status[7] <= irqarray19_source71;
+    irqarray19_pending_status[8] <= irqarray19_source81;
+    irqarray19_pending_status[9] <= irqarray19_source91;
+    irqarray19_pending_status[10] <= irqarray19_source101;
+    irqarray19_pending_status[11] <= irqarray19_source111;
+    irqarray19_pending_status[12] <= irqarray19_source121;
+    irqarray19_pending_status[13] <= irqarray19_source131;
+    irqarray19_pending_status[14] <= irqarray19_source141;
+    irqarray19_pending_status[15] <= irqarray19_source151;
+    irqarray19_pending_status[16] <= irqarray19_source161;
+    irqarray19_pending_status[17] <= irqarray19_source171;
+    irqarray19_pending_status[18] <= irqarray19_source181;
+    irqarray19_pending_status[19] <= irqarray19_source191;
+end
+assign csrbank13_ev_pending_w = irqarray19_pending_status[19:0];
+assign irqarray19_pending_we = csrbank13_ev_pending_we;
+assign irqarray19_source02 = irqarray19_enable_storage[0];
+assign irqarray19_source12 = irqarray19_enable_storage[1];
+assign irqarray19_source22 = irqarray19_enable_storage[2];
+assign irqarray19_source32 = irqarray19_enable_storage[3];
+assign irqarray19_source42 = irqarray19_enable_storage[4];
+assign irqarray19_source52 = irqarray19_enable_storage[5];
+assign irqarray19_source62 = irqarray19_enable_storage[6];
+assign irqarray19_source72 = irqarray19_enable_storage[7];
+assign irqarray19_source82 = irqarray19_enable_storage[8];
+assign irqarray19_source92 = irqarray19_enable_storage[9];
+assign irqarray19_source102 = irqarray19_enable_storage[10];
+assign irqarray19_source112 = irqarray19_enable_storage[11];
+assign irqarray19_source122 = irqarray19_enable_storage[12];
+assign irqarray19_source132 = irqarray19_enable_storage[13];
+assign irqarray19_source142 = irqarray19_enable_storage[14];
+assign irqarray19_source152 = irqarray19_enable_storage[15];
+assign irqarray19_source162 = irqarray19_enable_storage[16];
+assign irqarray19_source172 = irqarray19_enable_storage[17];
+assign irqarray19_source182 = irqarray19_enable_storage[18];
+assign irqarray19_source192 = irqarray19_enable_storage[19];
+assign csrbank13_ev_enable0_w = irqarray19_enable_storage[19:0];
+assign csrbank14_sel = (interface14_adr[15:10] == 4'd14);
+assign csrbank14_re = interface14_re;
+assign csrbank14_ev_soft0_r = interface14_dat_w[19:0];
+always @(*) begin
+    csrbank14_ev_soft0_re <= 1'd0;
+    csrbank14_ev_soft0_we <= 1'd0;
+    if ((csrbank14_sel & (interface14_adr[9:0] == 1'd0))) begin
+        csrbank14_ev_soft0_re <= interface14_we;
+        csrbank14_ev_soft0_we <= csrbank14_re;
+    end
+end
+assign csrbank14_ev_status_r = interface14_dat_w[19:0];
+always @(*) begin
+    csrbank14_ev_status_we <= 1'd0;
+    csrbank14_ev_status_re <= 1'd0;
+    if ((csrbank14_sel & (interface14_adr[9:0] == 1'd1))) begin
+        csrbank14_ev_status_re <= interface14_we;
+        csrbank14_ev_status_we <= csrbank14_re;
+    end
+end
+assign csrbank14_ev_pending_r = interface14_dat_w[19:0];
+always @(*) begin
+    csrbank14_ev_pending_re <= 1'd0;
+    csrbank14_ev_pending_we <= 1'd0;
+    if ((csrbank14_sel & (interface14_adr[9:0] == 2'd2))) begin
+        csrbank14_ev_pending_re <= interface14_we;
+        csrbank14_ev_pending_we <= csrbank14_re;
+    end
+end
+assign csrbank14_ev_enable0_r = interface14_dat_w[19:0];
+always @(*) begin
+    csrbank14_ev_enable0_re <= 1'd0;
+    csrbank14_ev_enable0_we <= 1'd0;
+    if ((csrbank14_sel & (interface14_adr[9:0] == 2'd3))) begin
+        csrbank14_ev_enable0_re <= interface14_we;
+        csrbank14_ev_enable0_we <= csrbank14_re;
+    end
+end
+always @(*) begin
+    irqarray2_trigger <= 20'd0;
+    if (irqarray2_re) begin
+        irqarray2_trigger <= irqarray2_storage[19:0];
+    end
+end
+assign csrbank14_ev_soft0_w = irqarray2_storage[19:0];
+always @(*) begin
+    irqarray2_status_status <= 20'd0;
+    irqarray2_status_status[0] <= irqarray2_source00;
+    irqarray2_status_status[1] <= irqarray2_source10;
+    irqarray2_status_status[2] <= irqarray2_source20;
+    irqarray2_status_status[3] <= irqarray2_source30;
+    irqarray2_status_status[4] <= irqarray2_source40;
+    irqarray2_status_status[5] <= irqarray2_source50;
+    irqarray2_status_status[6] <= irqarray2_source60;
+    irqarray2_status_status[7] <= irqarray2_source70;
+    irqarray2_status_status[8] <= irqarray2_source80;
+    irqarray2_status_status[9] <= irqarray2_source90;
+    irqarray2_status_status[10] <= irqarray2_source100;
+    irqarray2_status_status[11] <= irqarray2_source110;
+    irqarray2_status_status[12] <= irqarray2_source120;
+    irqarray2_status_status[13] <= irqarray2_source130;
+    irqarray2_status_status[14] <= irqarray2_source140;
+    irqarray2_status_status[15] <= irqarray2_source150;
+    irqarray2_status_status[16] <= irqarray2_source160;
+    irqarray2_status_status[17] <= irqarray2_source170;
+    irqarray2_status_status[18] <= irqarray2_source180;
+    irqarray2_status_status[19] <= irqarray2_source190;
+end
+assign csrbank14_ev_status_w = irqarray2_status_status[19:0];
+assign irqarray2_status_we = csrbank14_ev_status_we;
+always @(*) begin
+    irqarray2_pending_status <= 20'd0;
+    irqarray2_pending_status[0] <= irqarray2_source01;
+    irqarray2_pending_status[1] <= irqarray2_source11;
+    irqarray2_pending_status[2] <= irqarray2_source21;
+    irqarray2_pending_status[3] <= irqarray2_source31;
+    irqarray2_pending_status[4] <= irqarray2_source41;
+    irqarray2_pending_status[5] <= irqarray2_source51;
+    irqarray2_pending_status[6] <= irqarray2_source61;
+    irqarray2_pending_status[7] <= irqarray2_source71;
+    irqarray2_pending_status[8] <= irqarray2_source81;
+    irqarray2_pending_status[9] <= irqarray2_source91;
+    irqarray2_pending_status[10] <= irqarray2_source101;
+    irqarray2_pending_status[11] <= irqarray2_source111;
+    irqarray2_pending_status[12] <= irqarray2_source121;
+    irqarray2_pending_status[13] <= irqarray2_source131;
+    irqarray2_pending_status[14] <= irqarray2_source141;
+    irqarray2_pending_status[15] <= irqarray2_source151;
+    irqarray2_pending_status[16] <= irqarray2_source161;
+    irqarray2_pending_status[17] <= irqarray2_source171;
+    irqarray2_pending_status[18] <= irqarray2_source181;
+    irqarray2_pending_status[19] <= irqarray2_source191;
+end
+assign csrbank14_ev_pending_w = irqarray2_pending_status[19:0];
+assign irqarray2_pending_we = csrbank14_ev_pending_we;
+assign irqarray2_source02 = irqarray2_enable_storage[0];
+assign irqarray2_source12 = irqarray2_enable_storage[1];
+assign irqarray2_source22 = irqarray2_enable_storage[2];
+assign irqarray2_source32 = irqarray2_enable_storage[3];
+assign irqarray2_source42 = irqarray2_enable_storage[4];
+assign irqarray2_source52 = irqarray2_enable_storage[5];
+assign irqarray2_source62 = irqarray2_enable_storage[6];
+assign irqarray2_source72 = irqarray2_enable_storage[7];
+assign irqarray2_source82 = irqarray2_enable_storage[8];
+assign irqarray2_source92 = irqarray2_enable_storage[9];
+assign irqarray2_source102 = irqarray2_enable_storage[10];
+assign irqarray2_source112 = irqarray2_enable_storage[11];
+assign irqarray2_source122 = irqarray2_enable_storage[12];
+assign irqarray2_source132 = irqarray2_enable_storage[13];
+assign irqarray2_source142 = irqarray2_enable_storage[14];
+assign irqarray2_source152 = irqarray2_enable_storage[15];
+assign irqarray2_source162 = irqarray2_enable_storage[16];
+assign irqarray2_source172 = irqarray2_enable_storage[17];
+assign irqarray2_source182 = irqarray2_enable_storage[18];
+assign irqarray2_source192 = irqarray2_enable_storage[19];
+assign csrbank14_ev_enable0_w = irqarray2_enable_storage[19:0];
+assign csrbank15_sel = (interface15_adr[15:10] == 4'd15);
+assign csrbank15_re = interface15_re;
+assign csrbank15_ev_soft0_r = interface15_dat_w[19:0];
+always @(*) begin
+    csrbank15_ev_soft0_re <= 1'd0;
+    csrbank15_ev_soft0_we <= 1'd0;
+    if ((csrbank15_sel & (interface15_adr[9:0] == 1'd0))) begin
+        csrbank15_ev_soft0_re <= interface15_we;
+        csrbank15_ev_soft0_we <= csrbank15_re;
+    end
+end
+assign csrbank15_ev_status_r = interface15_dat_w[19:0];
+always @(*) begin
+    csrbank15_ev_status_we <= 1'd0;
+    csrbank15_ev_status_re <= 1'd0;
+    if ((csrbank15_sel & (interface15_adr[9:0] == 1'd1))) begin
+        csrbank15_ev_status_re <= interface15_we;
+        csrbank15_ev_status_we <= csrbank15_re;
+    end
+end
+assign csrbank15_ev_pending_r = interface15_dat_w[19:0];
+always @(*) begin
+    csrbank15_ev_pending_we <= 1'd0;
+    csrbank15_ev_pending_re <= 1'd0;
+    if ((csrbank15_sel & (interface15_adr[9:0] == 2'd2))) begin
+        csrbank15_ev_pending_re <= interface15_we;
+        csrbank15_ev_pending_we <= csrbank15_re;
+    end
+end
+assign csrbank15_ev_enable0_r = interface15_dat_w[19:0];
+always @(*) begin
+    csrbank15_ev_enable0_re <= 1'd0;
+    csrbank15_ev_enable0_we <= 1'd0;
+    if ((csrbank15_sel & (interface15_adr[9:0] == 2'd3))) begin
+        csrbank15_ev_enable0_re <= interface15_we;
+        csrbank15_ev_enable0_we <= csrbank15_re;
+    end
+end
+always @(*) begin
+    irqarray3_trigger <= 20'd0;
+    if (irqarray3_re) begin
+        irqarray3_trigger <= irqarray3_storage[19:0];
+    end
+end
+assign csrbank15_ev_soft0_w = irqarray3_storage[19:0];
+always @(*) begin
+    irqarray3_status_status <= 20'd0;
+    irqarray3_status_status[0] <= irqarray3_source00;
+    irqarray3_status_status[1] <= irqarray3_source10;
+    irqarray3_status_status[2] <= irqarray3_source20;
+    irqarray3_status_status[3] <= irqarray3_source30;
+    irqarray3_status_status[4] <= irqarray3_source40;
+    irqarray3_status_status[5] <= irqarray3_source50;
+    irqarray3_status_status[6] <= irqarray3_source60;
+    irqarray3_status_status[7] <= irqarray3_source70;
+    irqarray3_status_status[8] <= irqarray3_source80;
+    irqarray3_status_status[9] <= irqarray3_source90;
+    irqarray3_status_status[10] <= irqarray3_source100;
+    irqarray3_status_status[11] <= irqarray3_source110;
+    irqarray3_status_status[12] <= irqarray3_source120;
+    irqarray3_status_status[13] <= irqarray3_source130;
+    irqarray3_status_status[14] <= irqarray3_source140;
+    irqarray3_status_status[15] <= irqarray3_source150;
+    irqarray3_status_status[16] <= irqarray3_source160;
+    irqarray3_status_status[17] <= irqarray3_source170;
+    irqarray3_status_status[18] <= irqarray3_source180;
+    irqarray3_status_status[19] <= irqarray3_source190;
+end
+assign csrbank15_ev_status_w = irqarray3_status_status[19:0];
+assign irqarray3_status_we = csrbank15_ev_status_we;
+always @(*) begin
+    irqarray3_pending_status <= 20'd0;
+    irqarray3_pending_status[0] <= irqarray3_source01;
+    irqarray3_pending_status[1] <= irqarray3_source11;
+    irqarray3_pending_status[2] <= irqarray3_source21;
+    irqarray3_pending_status[3] <= irqarray3_source31;
+    irqarray3_pending_status[4] <= irqarray3_source41;
+    irqarray3_pending_status[5] <= irqarray3_source51;
+    irqarray3_pending_status[6] <= irqarray3_source61;
+    irqarray3_pending_status[7] <= irqarray3_source71;
+    irqarray3_pending_status[8] <= irqarray3_source81;
+    irqarray3_pending_status[9] <= irqarray3_source91;
+    irqarray3_pending_status[10] <= irqarray3_source101;
+    irqarray3_pending_status[11] <= irqarray3_source111;
+    irqarray3_pending_status[12] <= irqarray3_source121;
+    irqarray3_pending_status[13] <= irqarray3_source131;
+    irqarray3_pending_status[14] <= irqarray3_source141;
+    irqarray3_pending_status[15] <= irqarray3_source151;
+    irqarray3_pending_status[16] <= irqarray3_source161;
+    irqarray3_pending_status[17] <= irqarray3_source171;
+    irqarray3_pending_status[18] <= irqarray3_source181;
+    irqarray3_pending_status[19] <= irqarray3_source191;
+end
+assign csrbank15_ev_pending_w = irqarray3_pending_status[19:0];
+assign irqarray3_pending_we = csrbank15_ev_pending_we;
+assign irqarray3_source02 = irqarray3_enable_storage[0];
+assign irqarray3_source12 = irqarray3_enable_storage[1];
+assign irqarray3_source22 = irqarray3_enable_storage[2];
+assign irqarray3_source32 = irqarray3_enable_storage[3];
+assign irqarray3_source42 = irqarray3_enable_storage[4];
+assign irqarray3_source52 = irqarray3_enable_storage[5];
+assign irqarray3_source62 = irqarray3_enable_storage[6];
+assign irqarray3_source72 = irqarray3_enable_storage[7];
+assign irqarray3_source82 = irqarray3_enable_storage[8];
+assign irqarray3_source92 = irqarray3_enable_storage[9];
+assign irqarray3_source102 = irqarray3_enable_storage[10];
+assign irqarray3_source112 = irqarray3_enable_storage[11];
+assign irqarray3_source122 = irqarray3_enable_storage[12];
+assign irqarray3_source132 = irqarray3_enable_storage[13];
+assign irqarray3_source142 = irqarray3_enable_storage[14];
+assign irqarray3_source152 = irqarray3_enable_storage[15];
+assign irqarray3_source162 = irqarray3_enable_storage[16];
+assign irqarray3_source172 = irqarray3_enable_storage[17];
+assign irqarray3_source182 = irqarray3_enable_storage[18];
+assign irqarray3_source192 = irqarray3_enable_storage[19];
+assign csrbank15_ev_enable0_w = irqarray3_enable_storage[19:0];
+assign csrbank16_sel = (interface16_adr[15:10] == 5'd16);
+assign csrbank16_re = interface16_re;
+assign csrbank16_ev_soft0_r = interface16_dat_w[19:0];
+always @(*) begin
+    csrbank16_ev_soft0_we <= 1'd0;
+    csrbank16_ev_soft0_re <= 1'd0;
+    if ((csrbank16_sel & (interface16_adr[9:0] == 1'd0))) begin
+        csrbank16_ev_soft0_re <= interface16_we;
+        csrbank16_ev_soft0_we <= csrbank16_re;
+    end
+end
+assign csrbank16_ev_status_r = interface16_dat_w[19:0];
+always @(*) begin
+    csrbank16_ev_status_re <= 1'd0;
+    csrbank16_ev_status_we <= 1'd0;
+    if ((csrbank16_sel & (interface16_adr[9:0] == 1'd1))) begin
+        csrbank16_ev_status_re <= interface16_we;
+        csrbank16_ev_status_we <= csrbank16_re;
+    end
+end
+assign csrbank16_ev_pending_r = interface16_dat_w[19:0];
+always @(*) begin
+    csrbank16_ev_pending_we <= 1'd0;
+    csrbank16_ev_pending_re <= 1'd0;
+    if ((csrbank16_sel & (interface16_adr[9:0] == 2'd2))) begin
+        csrbank16_ev_pending_re <= interface16_we;
+        csrbank16_ev_pending_we <= csrbank16_re;
+    end
+end
+assign csrbank16_ev_enable0_r = interface16_dat_w[19:0];
+always @(*) begin
+    csrbank16_ev_enable0_we <= 1'd0;
+    csrbank16_ev_enable0_re <= 1'd0;
+    if ((csrbank16_sel & (interface16_adr[9:0] == 2'd3))) begin
+        csrbank16_ev_enable0_re <= interface16_we;
+        csrbank16_ev_enable0_we <= csrbank16_re;
+    end
+end
+always @(*) begin
+    irqarray4_trigger <= 20'd0;
+    if (irqarray4_re) begin
+        irqarray4_trigger <= irqarray4_storage[19:0];
+    end
+end
+assign csrbank16_ev_soft0_w = irqarray4_storage[19:0];
+always @(*) begin
+    irqarray4_status_status <= 20'd0;
+    irqarray4_status_status[0] <= irqarray4_source00;
+    irqarray4_status_status[1] <= irqarray4_source10;
+    irqarray4_status_status[2] <= irqarray4_source20;
+    irqarray4_status_status[3] <= irqarray4_source30;
+    irqarray4_status_status[4] <= irqarray4_source40;
+    irqarray4_status_status[5] <= irqarray4_source50;
+    irqarray4_status_status[6] <= irqarray4_source60;
+    irqarray4_status_status[7] <= irqarray4_source70;
+    irqarray4_status_status[8] <= irqarray4_source80;
+    irqarray4_status_status[9] <= irqarray4_source90;
+    irqarray4_status_status[10] <= irqarray4_source100;
+    irqarray4_status_status[11] <= irqarray4_source110;
+    irqarray4_status_status[12] <= irqarray4_source120;
+    irqarray4_status_status[13] <= irqarray4_source130;
+    irqarray4_status_status[14] <= irqarray4_source140;
+    irqarray4_status_status[15] <= irqarray4_source150;
+    irqarray4_status_status[16] <= irqarray4_source160;
+    irqarray4_status_status[17] <= irqarray4_source170;
+    irqarray4_status_status[18] <= irqarray4_source180;
+    irqarray4_status_status[19] <= irqarray4_source190;
+end
+assign csrbank16_ev_status_w = irqarray4_status_status[19:0];
+assign irqarray4_status_we = csrbank16_ev_status_we;
+always @(*) begin
+    irqarray4_pending_status <= 20'd0;
+    irqarray4_pending_status[0] <= irqarray4_source01;
+    irqarray4_pending_status[1] <= irqarray4_source11;
+    irqarray4_pending_status[2] <= irqarray4_source21;
+    irqarray4_pending_status[3] <= irqarray4_source31;
+    irqarray4_pending_status[4] <= irqarray4_source41;
+    irqarray4_pending_status[5] <= irqarray4_source51;
+    irqarray4_pending_status[6] <= irqarray4_source61;
+    irqarray4_pending_status[7] <= irqarray4_source71;
+    irqarray4_pending_status[8] <= irqarray4_source81;
+    irqarray4_pending_status[9] <= irqarray4_source91;
+    irqarray4_pending_status[10] <= irqarray4_source101;
+    irqarray4_pending_status[11] <= irqarray4_source111;
+    irqarray4_pending_status[12] <= irqarray4_source121;
+    irqarray4_pending_status[13] <= irqarray4_source131;
+    irqarray4_pending_status[14] <= irqarray4_source141;
+    irqarray4_pending_status[15] <= irqarray4_source151;
+    irqarray4_pending_status[16] <= irqarray4_source161;
+    irqarray4_pending_status[17] <= irqarray4_source171;
+    irqarray4_pending_status[18] <= irqarray4_source181;
+    irqarray4_pending_status[19] <= irqarray4_source191;
+end
+assign csrbank16_ev_pending_w = irqarray4_pending_status[19:0];
+assign irqarray4_pending_we = csrbank16_ev_pending_we;
+assign irqarray4_source02 = irqarray4_enable_storage[0];
+assign irqarray4_source12 = irqarray4_enable_storage[1];
+assign irqarray4_source22 = irqarray4_enable_storage[2];
+assign irqarray4_source32 = irqarray4_enable_storage[3];
+assign irqarray4_source42 = irqarray4_enable_storage[4];
+assign irqarray4_source52 = irqarray4_enable_storage[5];
+assign irqarray4_source62 = irqarray4_enable_storage[6];
+assign irqarray4_source72 = irqarray4_enable_storage[7];
+assign irqarray4_source82 = irqarray4_enable_storage[8];
+assign irqarray4_source92 = irqarray4_enable_storage[9];
+assign irqarray4_source102 = irqarray4_enable_storage[10];
+assign irqarray4_source112 = irqarray4_enable_storage[11];
+assign irqarray4_source122 = irqarray4_enable_storage[12];
+assign irqarray4_source132 = irqarray4_enable_storage[13];
+assign irqarray4_source142 = irqarray4_enable_storage[14];
+assign irqarray4_source152 = irqarray4_enable_storage[15];
+assign irqarray4_source162 = irqarray4_enable_storage[16];
+assign irqarray4_source172 = irqarray4_enable_storage[17];
+assign irqarray4_source182 = irqarray4_enable_storage[18];
+assign irqarray4_source192 = irqarray4_enable_storage[19];
+assign csrbank16_ev_enable0_w = irqarray4_enable_storage[19:0];
+assign csrbank17_sel = (interface17_adr[15:10] == 5'd17);
+assign csrbank17_re = interface17_re;
+assign csrbank17_ev_soft0_r = interface17_dat_w[19:0];
+always @(*) begin
+    csrbank17_ev_soft0_we <= 1'd0;
+    csrbank17_ev_soft0_re <= 1'd0;
+    if ((csrbank17_sel & (interface17_adr[9:0] == 1'd0))) begin
+        csrbank17_ev_soft0_re <= interface17_we;
+        csrbank17_ev_soft0_we <= csrbank17_re;
+    end
+end
+assign csrbank17_ev_status_r = interface17_dat_w[19:0];
+always @(*) begin
+    csrbank17_ev_status_re <= 1'd0;
+    csrbank17_ev_status_we <= 1'd0;
+    if ((csrbank17_sel & (interface17_adr[9:0] == 1'd1))) begin
+        csrbank17_ev_status_re <= interface17_we;
+        csrbank17_ev_status_we <= csrbank17_re;
+    end
+end
+assign csrbank17_ev_pending_r = interface17_dat_w[19:0];
+always @(*) begin
+    csrbank17_ev_pending_re <= 1'd0;
+    csrbank17_ev_pending_we <= 1'd0;
+    if ((csrbank17_sel & (interface17_adr[9:0] == 2'd2))) begin
+        csrbank17_ev_pending_re <= interface17_we;
+        csrbank17_ev_pending_we <= csrbank17_re;
+    end
+end
+assign csrbank17_ev_enable0_r = interface17_dat_w[19:0];
+always @(*) begin
+    csrbank17_ev_enable0_we <= 1'd0;
+    csrbank17_ev_enable0_re <= 1'd0;
+    if ((csrbank17_sel & (interface17_adr[9:0] == 2'd3))) begin
+        csrbank17_ev_enable0_re <= interface17_we;
+        csrbank17_ev_enable0_we <= csrbank17_re;
+    end
+end
+always @(*) begin
+    irqarray5_trigger <= 20'd0;
+    if (irqarray5_re) begin
+        irqarray5_trigger <= irqarray5_storage[19:0];
+    end
+end
+assign csrbank17_ev_soft0_w = irqarray5_storage[19:0];
+always @(*) begin
+    irqarray5_status_status <= 20'd0;
+    irqarray5_status_status[0] <= irqarray5_source00;
+    irqarray5_status_status[1] <= irqarray5_source10;
+    irqarray5_status_status[2] <= irqarray5_source20;
+    irqarray5_status_status[3] <= irqarray5_source30;
+    irqarray5_status_status[4] <= irqarray5_source40;
+    irqarray5_status_status[5] <= irqarray5_source50;
+    irqarray5_status_status[6] <= irqarray5_source60;
+    irqarray5_status_status[7] <= irqarray5_source70;
+    irqarray5_status_status[8] <= irqarray5_source80;
+    irqarray5_status_status[9] <= irqarray5_source90;
+    irqarray5_status_status[10] <= irqarray5_source100;
+    irqarray5_status_status[11] <= irqarray5_source110;
+    irqarray5_status_status[12] <= irqarray5_source120;
+    irqarray5_status_status[13] <= irqarray5_source130;
+    irqarray5_status_status[14] <= irqarray5_source140;
+    irqarray5_status_status[15] <= irqarray5_source150;
+    irqarray5_status_status[16] <= irqarray5_source160;
+    irqarray5_status_status[17] <= irqarray5_source170;
+    irqarray5_status_status[18] <= irqarray5_source180;
+    irqarray5_status_status[19] <= irqarray5_source190;
+end
+assign csrbank17_ev_status_w = irqarray5_status_status[19:0];
+assign irqarray5_status_we = csrbank17_ev_status_we;
+always @(*) begin
+    irqarray5_pending_status <= 20'd0;
+    irqarray5_pending_status[0] <= irqarray5_source01;
+    irqarray5_pending_status[1] <= irqarray5_source11;
+    irqarray5_pending_status[2] <= irqarray5_source21;
+    irqarray5_pending_status[3] <= irqarray5_source31;
+    irqarray5_pending_status[4] <= irqarray5_source41;
+    irqarray5_pending_status[5] <= irqarray5_source51;
+    irqarray5_pending_status[6] <= irqarray5_source61;
+    irqarray5_pending_status[7] <= irqarray5_source71;
+    irqarray5_pending_status[8] <= irqarray5_source81;
+    irqarray5_pending_status[9] <= irqarray5_source91;
+    irqarray5_pending_status[10] <= irqarray5_source101;
+    irqarray5_pending_status[11] <= irqarray5_source111;
+    irqarray5_pending_status[12] <= irqarray5_source121;
+    irqarray5_pending_status[13] <= irqarray5_source131;
+    irqarray5_pending_status[14] <= irqarray5_source141;
+    irqarray5_pending_status[15] <= irqarray5_source151;
+    irqarray5_pending_status[16] <= irqarray5_source161;
+    irqarray5_pending_status[17] <= irqarray5_source171;
+    irqarray5_pending_status[18] <= irqarray5_source181;
+    irqarray5_pending_status[19] <= irqarray5_source191;
+end
+assign csrbank17_ev_pending_w = irqarray5_pending_status[19:0];
+assign irqarray5_pending_we = csrbank17_ev_pending_we;
+assign irqarray5_source02 = irqarray5_enable_storage[0];
+assign irqarray5_source12 = irqarray5_enable_storage[1];
+assign irqarray5_source22 = irqarray5_enable_storage[2];
+assign irqarray5_source32 = irqarray5_enable_storage[3];
+assign irqarray5_source42 = irqarray5_enable_storage[4];
+assign irqarray5_source52 = irqarray5_enable_storage[5];
+assign irqarray5_source62 = irqarray5_enable_storage[6];
+assign irqarray5_source72 = irqarray5_enable_storage[7];
+assign irqarray5_source82 = irqarray5_enable_storage[8];
+assign irqarray5_source92 = irqarray5_enable_storage[9];
+assign irqarray5_source102 = irqarray5_enable_storage[10];
+assign irqarray5_source112 = irqarray5_enable_storage[11];
+assign irqarray5_source122 = irqarray5_enable_storage[12];
+assign irqarray5_source132 = irqarray5_enable_storage[13];
+assign irqarray5_source142 = irqarray5_enable_storage[14];
+assign irqarray5_source152 = irqarray5_enable_storage[15];
+assign irqarray5_source162 = irqarray5_enable_storage[16];
+assign irqarray5_source172 = irqarray5_enable_storage[17];
+assign irqarray5_source182 = irqarray5_enable_storage[18];
+assign irqarray5_source192 = irqarray5_enable_storage[19];
+assign csrbank17_ev_enable0_w = irqarray5_enable_storage[19:0];
+assign csrbank18_sel = (interface18_adr[15:10] == 5'd18);
+assign csrbank18_re = interface18_re;
+assign csrbank18_ev_soft0_r = interface18_dat_w[19:0];
+always @(*) begin
+    csrbank18_ev_soft0_re <= 1'd0;
+    csrbank18_ev_soft0_we <= 1'd0;
+    if ((csrbank18_sel & (interface18_adr[9:0] == 1'd0))) begin
+        csrbank18_ev_soft0_re <= interface18_we;
+        csrbank18_ev_soft0_we <= csrbank18_re;
+    end
+end
+assign csrbank18_ev_status_r = interface18_dat_w[19:0];
+always @(*) begin
+    csrbank18_ev_status_we <= 1'd0;
+    csrbank18_ev_status_re <= 1'd0;
+    if ((csrbank18_sel & (interface18_adr[9:0] == 1'd1))) begin
+        csrbank18_ev_status_re <= interface18_we;
+        csrbank18_ev_status_we <= csrbank18_re;
+    end
+end
+assign csrbank18_ev_pending_r = interface18_dat_w[19:0];
+always @(*) begin
+    csrbank18_ev_pending_re <= 1'd0;
+    csrbank18_ev_pending_we <= 1'd0;
+    if ((csrbank18_sel & (interface18_adr[9:0] == 2'd2))) begin
+        csrbank18_ev_pending_re <= interface18_we;
+        csrbank18_ev_pending_we <= csrbank18_re;
+    end
+end
+assign csrbank18_ev_enable0_r = interface18_dat_w[19:0];
+always @(*) begin
+    csrbank18_ev_enable0_re <= 1'd0;
+    csrbank18_ev_enable0_we <= 1'd0;
+    if ((csrbank18_sel & (interface18_adr[9:0] == 2'd3))) begin
+        csrbank18_ev_enable0_re <= interface18_we;
+        csrbank18_ev_enable0_we <= csrbank18_re;
+    end
+end
+always @(*) begin
+    irqarray6_trigger <= 20'd0;
+    if (irqarray6_re) begin
+        irqarray6_trigger <= irqarray6_storage[19:0];
+    end
+end
+assign csrbank18_ev_soft0_w = irqarray6_storage[19:0];
+always @(*) begin
+    irqarray6_status_status <= 20'd0;
+    irqarray6_status_status[0] <= irqarray6_source00;
+    irqarray6_status_status[1] <= irqarray6_source10;
+    irqarray6_status_status[2] <= irqarray6_source20;
+    irqarray6_status_status[3] <= irqarray6_source30;
+    irqarray6_status_status[4] <= irqarray6_source40;
+    irqarray6_status_status[5] <= irqarray6_source50;
+    irqarray6_status_status[6] <= irqarray6_source60;
+    irqarray6_status_status[7] <= irqarray6_source70;
+    irqarray6_status_status[8] <= irqarray6_source80;
+    irqarray6_status_status[9] <= irqarray6_source90;
+    irqarray6_status_status[10] <= irqarray6_source100;
+    irqarray6_status_status[11] <= irqarray6_source110;
+    irqarray6_status_status[12] <= irqarray6_source120;
+    irqarray6_status_status[13] <= irqarray6_source130;
+    irqarray6_status_status[14] <= irqarray6_source140;
+    irqarray6_status_status[15] <= irqarray6_source150;
+    irqarray6_status_status[16] <= irqarray6_source160;
+    irqarray6_status_status[17] <= irqarray6_source170;
+    irqarray6_status_status[18] <= irqarray6_source180;
+    irqarray6_status_status[19] <= irqarray6_source190;
+end
+assign csrbank18_ev_status_w = irqarray6_status_status[19:0];
+assign irqarray6_status_we = csrbank18_ev_status_we;
+always @(*) begin
+    irqarray6_pending_status <= 20'd0;
+    irqarray6_pending_status[0] <= irqarray6_source01;
+    irqarray6_pending_status[1] <= irqarray6_source11;
+    irqarray6_pending_status[2] <= irqarray6_source21;
+    irqarray6_pending_status[3] <= irqarray6_source31;
+    irqarray6_pending_status[4] <= irqarray6_source41;
+    irqarray6_pending_status[5] <= irqarray6_source51;
+    irqarray6_pending_status[6] <= irqarray6_source61;
+    irqarray6_pending_status[7] <= irqarray6_source71;
+    irqarray6_pending_status[8] <= irqarray6_source81;
+    irqarray6_pending_status[9] <= irqarray6_source91;
+    irqarray6_pending_status[10] <= irqarray6_source101;
+    irqarray6_pending_status[11] <= irqarray6_source111;
+    irqarray6_pending_status[12] <= irqarray6_source121;
+    irqarray6_pending_status[13] <= irqarray6_source131;
+    irqarray6_pending_status[14] <= irqarray6_source141;
+    irqarray6_pending_status[15] <= irqarray6_source151;
+    irqarray6_pending_status[16] <= irqarray6_source161;
+    irqarray6_pending_status[17] <= irqarray6_source171;
+    irqarray6_pending_status[18] <= irqarray6_source181;
+    irqarray6_pending_status[19] <= irqarray6_source191;
+end
+assign csrbank18_ev_pending_w = irqarray6_pending_status[19:0];
+assign irqarray6_pending_we = csrbank18_ev_pending_we;
+assign irqarray6_source02 = irqarray6_enable_storage[0];
+assign irqarray6_source12 = irqarray6_enable_storage[1];
+assign irqarray6_source22 = irqarray6_enable_storage[2];
+assign irqarray6_source32 = irqarray6_enable_storage[3];
+assign irqarray6_source42 = irqarray6_enable_storage[4];
+assign irqarray6_source52 = irqarray6_enable_storage[5];
+assign irqarray6_source62 = irqarray6_enable_storage[6];
+assign irqarray6_source72 = irqarray6_enable_storage[7];
+assign irqarray6_source82 = irqarray6_enable_storage[8];
+assign irqarray6_source92 = irqarray6_enable_storage[9];
+assign irqarray6_source102 = irqarray6_enable_storage[10];
+assign irqarray6_source112 = irqarray6_enable_storage[11];
+assign irqarray6_source122 = irqarray6_enable_storage[12];
+assign irqarray6_source132 = irqarray6_enable_storage[13];
+assign irqarray6_source142 = irqarray6_enable_storage[14];
+assign irqarray6_source152 = irqarray6_enable_storage[15];
+assign irqarray6_source162 = irqarray6_enable_storage[16];
+assign irqarray6_source172 = irqarray6_enable_storage[17];
+assign irqarray6_source182 = irqarray6_enable_storage[18];
+assign irqarray6_source192 = irqarray6_enable_storage[19];
+assign csrbank18_ev_enable0_w = irqarray6_enable_storage[19:0];
+assign csrbank19_sel = (interface19_adr[15:10] == 5'd19);
+assign csrbank19_re = interface19_re;
+assign csrbank19_ev_soft0_r = interface19_dat_w[19:0];
+always @(*) begin
+    csrbank19_ev_soft0_re <= 1'd0;
+    csrbank19_ev_soft0_we <= 1'd0;
+    if ((csrbank19_sel & (interface19_adr[9:0] == 1'd0))) begin
+        csrbank19_ev_soft0_re <= interface19_we;
+        csrbank19_ev_soft0_we <= csrbank19_re;
+    end
+end
+assign csrbank19_ev_status_r = interface19_dat_w[19:0];
+always @(*) begin
+    csrbank19_ev_status_we <= 1'd0;
+    csrbank19_ev_status_re <= 1'd0;
+    if ((csrbank19_sel & (interface19_adr[9:0] == 1'd1))) begin
+        csrbank19_ev_status_re <= interface19_we;
+        csrbank19_ev_status_we <= csrbank19_re;
+    end
+end
+assign csrbank19_ev_pending_r = interface19_dat_w[19:0];
+always @(*) begin
+    csrbank19_ev_pending_we <= 1'd0;
+    csrbank19_ev_pending_re <= 1'd0;
+    if ((csrbank19_sel & (interface19_adr[9:0] == 2'd2))) begin
+        csrbank19_ev_pending_re <= interface19_we;
+        csrbank19_ev_pending_we <= csrbank19_re;
+    end
+end
+assign csrbank19_ev_enable0_r = interface19_dat_w[19:0];
+always @(*) begin
+    csrbank19_ev_enable0_re <= 1'd0;
+    csrbank19_ev_enable0_we <= 1'd0;
+    if ((csrbank19_sel & (interface19_adr[9:0] == 2'd3))) begin
+        csrbank19_ev_enable0_re <= interface19_we;
+        csrbank19_ev_enable0_we <= csrbank19_re;
+    end
+end
+always @(*) begin
+    irqarray7_trigger <= 20'd0;
+    if (irqarray7_re) begin
+        irqarray7_trigger <= irqarray7_storage[19:0];
+    end
+end
+assign csrbank19_ev_soft0_w = irqarray7_storage[19:0];
+always @(*) begin
+    irqarray7_status_status <= 20'd0;
+    irqarray7_status_status[0] <= irqarray7_source00;
+    irqarray7_status_status[1] <= irqarray7_source10;
+    irqarray7_status_status[2] <= irqarray7_source20;
+    irqarray7_status_status[3] <= irqarray7_source30;
+    irqarray7_status_status[4] <= irqarray7_source40;
+    irqarray7_status_status[5] <= irqarray7_source50;
+    irqarray7_status_status[6] <= irqarray7_source60;
+    irqarray7_status_status[7] <= irqarray7_source70;
+    irqarray7_status_status[8] <= irqarray7_source80;
+    irqarray7_status_status[9] <= irqarray7_source90;
+    irqarray7_status_status[10] <= irqarray7_source100;
+    irqarray7_status_status[11] <= irqarray7_source110;
+    irqarray7_status_status[12] <= irqarray7_source120;
+    irqarray7_status_status[13] <= irqarray7_source130;
+    irqarray7_status_status[14] <= irqarray7_source140;
+    irqarray7_status_status[15] <= irqarray7_source150;
+    irqarray7_status_status[16] <= irqarray7_source160;
+    irqarray7_status_status[17] <= irqarray7_source170;
+    irqarray7_status_status[18] <= irqarray7_source180;
+    irqarray7_status_status[19] <= irqarray7_source190;
+end
+assign csrbank19_ev_status_w = irqarray7_status_status[19:0];
+assign irqarray7_status_we = csrbank19_ev_status_we;
+always @(*) begin
+    irqarray7_pending_status <= 20'd0;
+    irqarray7_pending_status[0] <= irqarray7_source01;
+    irqarray7_pending_status[1] <= irqarray7_source11;
+    irqarray7_pending_status[2] <= irqarray7_source21;
+    irqarray7_pending_status[3] <= irqarray7_source31;
+    irqarray7_pending_status[4] <= irqarray7_source41;
+    irqarray7_pending_status[5] <= irqarray7_source51;
+    irqarray7_pending_status[6] <= irqarray7_source61;
+    irqarray7_pending_status[7] <= irqarray7_source71;
+    irqarray7_pending_status[8] <= irqarray7_source81;
+    irqarray7_pending_status[9] <= irqarray7_source91;
+    irqarray7_pending_status[10] <= irqarray7_source101;
+    irqarray7_pending_status[11] <= irqarray7_source111;
+    irqarray7_pending_status[12] <= irqarray7_source121;
+    irqarray7_pending_status[13] <= irqarray7_source131;
+    irqarray7_pending_status[14] <= irqarray7_source141;
+    irqarray7_pending_status[15] <= irqarray7_source151;
+    irqarray7_pending_status[16] <= irqarray7_source161;
+    irqarray7_pending_status[17] <= irqarray7_source171;
+    irqarray7_pending_status[18] <= irqarray7_source181;
+    irqarray7_pending_status[19] <= irqarray7_source191;
+end
+assign csrbank19_ev_pending_w = irqarray7_pending_status[19:0];
+assign irqarray7_pending_we = csrbank19_ev_pending_we;
+assign irqarray7_source02 = irqarray7_enable_storage[0];
+assign irqarray7_source12 = irqarray7_enable_storage[1];
+assign irqarray7_source22 = irqarray7_enable_storage[2];
+assign irqarray7_source32 = irqarray7_enable_storage[3];
+assign irqarray7_source42 = irqarray7_enable_storage[4];
+assign irqarray7_source52 = irqarray7_enable_storage[5];
+assign irqarray7_source62 = irqarray7_enable_storage[6];
+assign irqarray7_source72 = irqarray7_enable_storage[7];
+assign irqarray7_source82 = irqarray7_enable_storage[8];
+assign irqarray7_source92 = irqarray7_enable_storage[9];
+assign irqarray7_source102 = irqarray7_enable_storage[10];
+assign irqarray7_source112 = irqarray7_enable_storage[11];
+assign irqarray7_source122 = irqarray7_enable_storage[12];
+assign irqarray7_source132 = irqarray7_enable_storage[13];
+assign irqarray7_source142 = irqarray7_enable_storage[14];
+assign irqarray7_source152 = irqarray7_enable_storage[15];
+assign irqarray7_source162 = irqarray7_enable_storage[16];
+assign irqarray7_source172 = irqarray7_enable_storage[17];
+assign irqarray7_source182 = irqarray7_enable_storage[18];
+assign irqarray7_source192 = irqarray7_enable_storage[19];
+assign csrbank19_ev_enable0_w = irqarray7_enable_storage[19:0];
+assign csrbank20_sel = (interface20_adr[15:10] == 5'd20);
+assign csrbank20_re = interface20_re;
+assign csrbank20_ev_soft0_r = interface20_dat_w[19:0];
+always @(*) begin
+    csrbank20_ev_soft0_we <= 1'd0;
+    csrbank20_ev_soft0_re <= 1'd0;
+    if ((csrbank20_sel & (interface20_adr[9:0] == 1'd0))) begin
+        csrbank20_ev_soft0_re <= interface20_we;
+        csrbank20_ev_soft0_we <= csrbank20_re;
+    end
+end
+assign csrbank20_ev_status_r = interface20_dat_w[19:0];
+always @(*) begin
+    csrbank20_ev_status_re <= 1'd0;
+    csrbank20_ev_status_we <= 1'd0;
+    if ((csrbank20_sel & (interface20_adr[9:0] == 1'd1))) begin
+        csrbank20_ev_status_re <= interface20_we;
+        csrbank20_ev_status_we <= csrbank20_re;
+    end
+end
+assign csrbank20_ev_pending_r = interface20_dat_w[19:0];
+always @(*) begin
+    csrbank20_ev_pending_we <= 1'd0;
+    csrbank20_ev_pending_re <= 1'd0;
+    if ((csrbank20_sel & (interface20_adr[9:0] == 2'd2))) begin
+        csrbank20_ev_pending_re <= interface20_we;
+        csrbank20_ev_pending_we <= csrbank20_re;
+    end
+end
+assign csrbank20_ev_enable0_r = interface20_dat_w[19:0];
+always @(*) begin
+    csrbank20_ev_enable0_we <= 1'd0;
+    csrbank20_ev_enable0_re <= 1'd0;
+    if ((csrbank20_sel & (interface20_adr[9:0] == 2'd3))) begin
+        csrbank20_ev_enable0_re <= interface20_we;
+        csrbank20_ev_enable0_we <= csrbank20_re;
+    end
+end
+always @(*) begin
+    irqarray8_trigger <= 20'd0;
+    if (irqarray8_re) begin
+        irqarray8_trigger <= irqarray8_storage[19:0];
+    end
+end
+assign csrbank20_ev_soft0_w = irqarray8_storage[19:0];
+always @(*) begin
+    irqarray8_status_status <= 20'd0;
+    irqarray8_status_status[0] <= irqarray8_source00;
+    irqarray8_status_status[1] <= irqarray8_source10;
+    irqarray8_status_status[2] <= irqarray8_source20;
+    irqarray8_status_status[3] <= irqarray8_source30;
+    irqarray8_status_status[4] <= irqarray8_source40;
+    irqarray8_status_status[5] <= irqarray8_source50;
+    irqarray8_status_status[6] <= irqarray8_source60;
+    irqarray8_status_status[7] <= irqarray8_source70;
+    irqarray8_status_status[8] <= irqarray8_source80;
+    irqarray8_status_status[9] <= irqarray8_source90;
+    irqarray8_status_status[10] <= irqarray8_source100;
+    irqarray8_status_status[11] <= irqarray8_source110;
+    irqarray8_status_status[12] <= irqarray8_source120;
+    irqarray8_status_status[13] <= irqarray8_source130;
+    irqarray8_status_status[14] <= irqarray8_source140;
+    irqarray8_status_status[15] <= irqarray8_source150;
+    irqarray8_status_status[16] <= irqarray8_source160;
+    irqarray8_status_status[17] <= irqarray8_source170;
+    irqarray8_status_status[18] <= irqarray8_source180;
+    irqarray8_status_status[19] <= irqarray8_source190;
+end
+assign csrbank20_ev_status_w = irqarray8_status_status[19:0];
+assign irqarray8_status_we = csrbank20_ev_status_we;
+always @(*) begin
+    irqarray8_pending_status <= 20'd0;
+    irqarray8_pending_status[0] <= irqarray8_source01;
+    irqarray8_pending_status[1] <= irqarray8_source11;
+    irqarray8_pending_status[2] <= irqarray8_source21;
+    irqarray8_pending_status[3] <= irqarray8_source31;
+    irqarray8_pending_status[4] <= irqarray8_source41;
+    irqarray8_pending_status[5] <= irqarray8_source51;
+    irqarray8_pending_status[6] <= irqarray8_source61;
+    irqarray8_pending_status[7] <= irqarray8_source71;
+    irqarray8_pending_status[8] <= irqarray8_source81;
+    irqarray8_pending_status[9] <= irqarray8_source91;
+    irqarray8_pending_status[10] <= irqarray8_source101;
+    irqarray8_pending_status[11] <= irqarray8_source111;
+    irqarray8_pending_status[12] <= irqarray8_source121;
+    irqarray8_pending_status[13] <= irqarray8_source131;
+    irqarray8_pending_status[14] <= irqarray8_source141;
+    irqarray8_pending_status[15] <= irqarray8_source151;
+    irqarray8_pending_status[16] <= irqarray8_source161;
+    irqarray8_pending_status[17] <= irqarray8_source171;
+    irqarray8_pending_status[18] <= irqarray8_source181;
+    irqarray8_pending_status[19] <= irqarray8_source191;
+end
+assign csrbank20_ev_pending_w = irqarray8_pending_status[19:0];
+assign irqarray8_pending_we = csrbank20_ev_pending_we;
+assign irqarray8_source02 = irqarray8_enable_storage[0];
+assign irqarray8_source12 = irqarray8_enable_storage[1];
+assign irqarray8_source22 = irqarray8_enable_storage[2];
+assign irqarray8_source32 = irqarray8_enable_storage[3];
+assign irqarray8_source42 = irqarray8_enable_storage[4];
+assign irqarray8_source52 = irqarray8_enable_storage[5];
+assign irqarray8_source62 = irqarray8_enable_storage[6];
+assign irqarray8_source72 = irqarray8_enable_storage[7];
+assign irqarray8_source82 = irqarray8_enable_storage[8];
+assign irqarray8_source92 = irqarray8_enable_storage[9];
+assign irqarray8_source102 = irqarray8_enable_storage[10];
+assign irqarray8_source112 = irqarray8_enable_storage[11];
+assign irqarray8_source122 = irqarray8_enable_storage[12];
+assign irqarray8_source132 = irqarray8_enable_storage[13];
+assign irqarray8_source142 = irqarray8_enable_storage[14];
+assign irqarray8_source152 = irqarray8_enable_storage[15];
+assign irqarray8_source162 = irqarray8_enable_storage[16];
+assign irqarray8_source172 = irqarray8_enable_storage[17];
+assign irqarray8_source182 = irqarray8_enable_storage[18];
+assign irqarray8_source192 = irqarray8_enable_storage[19];
+assign csrbank20_ev_enable0_w = irqarray8_enable_storage[19:0];
+assign csrbank21_sel = (interface21_adr[15:10] == 5'd21);
+assign csrbank21_re = interface21_re;
+assign csrbank21_ev_soft0_r = interface21_dat_w[19:0];
+always @(*) begin
+    csrbank21_ev_soft0_we <= 1'd0;
+    csrbank21_ev_soft0_re <= 1'd0;
+    if ((csrbank21_sel & (interface21_adr[9:0] == 1'd0))) begin
+        csrbank21_ev_soft0_re <= interface21_we;
+        csrbank21_ev_soft0_we <= csrbank21_re;
+    end
+end
+assign csrbank21_ev_status_r = interface21_dat_w[19:0];
+always @(*) begin
+    csrbank21_ev_status_re <= 1'd0;
+    csrbank21_ev_status_we <= 1'd0;
+    if ((csrbank21_sel & (interface21_adr[9:0] == 1'd1))) begin
+        csrbank21_ev_status_re <= interface21_we;
+        csrbank21_ev_status_we <= csrbank21_re;
+    end
+end
+assign csrbank21_ev_pending_r = interface21_dat_w[19:0];
+always @(*) begin
+    csrbank21_ev_pending_re <= 1'd0;
+    csrbank21_ev_pending_we <= 1'd0;
+    if ((csrbank21_sel & (interface21_adr[9:0] == 2'd2))) begin
+        csrbank21_ev_pending_re <= interface21_we;
+        csrbank21_ev_pending_we <= csrbank21_re;
+    end
+end
+assign csrbank21_ev_enable0_r = interface21_dat_w[19:0];
+always @(*) begin
+    csrbank21_ev_enable0_we <= 1'd0;
+    csrbank21_ev_enable0_re <= 1'd0;
+    if ((csrbank21_sel & (interface21_adr[9:0] == 2'd3))) begin
+        csrbank21_ev_enable0_re <= interface21_we;
+        csrbank21_ev_enable0_we <= csrbank21_re;
+    end
+end
+always @(*) begin
+    irqarray9_trigger <= 20'd0;
+    if (irqarray9_re) begin
+        irqarray9_trigger <= irqarray9_storage[19:0];
+    end
+end
+assign csrbank21_ev_soft0_w = irqarray9_storage[19:0];
+always @(*) begin
+    irqarray9_status_status <= 20'd0;
+    irqarray9_status_status[0] <= irqarray9_source00;
+    irqarray9_status_status[1] <= irqarray9_source10;
+    irqarray9_status_status[2] <= irqarray9_source20;
+    irqarray9_status_status[3] <= irqarray9_source30;
+    irqarray9_status_status[4] <= irqarray9_source40;
+    irqarray9_status_status[5] <= irqarray9_source50;
+    irqarray9_status_status[6] <= irqarray9_source60;
+    irqarray9_status_status[7] <= irqarray9_source70;
+    irqarray9_status_status[8] <= irqarray9_source80;
+    irqarray9_status_status[9] <= irqarray9_source90;
+    irqarray9_status_status[10] <= irqarray9_source100;
+    irqarray9_status_status[11] <= irqarray9_source110;
+    irqarray9_status_status[12] <= irqarray9_source120;
+    irqarray9_status_status[13] <= irqarray9_source130;
+    irqarray9_status_status[14] <= irqarray9_source140;
+    irqarray9_status_status[15] <= irqarray9_source150;
+    irqarray9_status_status[16] <= irqarray9_source160;
+    irqarray9_status_status[17] <= irqarray9_source170;
+    irqarray9_status_status[18] <= irqarray9_source180;
+    irqarray9_status_status[19] <= irqarray9_source190;
+end
+assign csrbank21_ev_status_w = irqarray9_status_status[19:0];
+assign irqarray9_status_we = csrbank21_ev_status_we;
+always @(*) begin
+    irqarray9_pending_status <= 20'd0;
+    irqarray9_pending_status[0] <= irqarray9_source01;
+    irqarray9_pending_status[1] <= irqarray9_source11;
+    irqarray9_pending_status[2] <= irqarray9_source21;
+    irqarray9_pending_status[3] <= irqarray9_source31;
+    irqarray9_pending_status[4] <= irqarray9_source41;
+    irqarray9_pending_status[5] <= irqarray9_source51;
+    irqarray9_pending_status[6] <= irqarray9_source61;
+    irqarray9_pending_status[7] <= irqarray9_source71;
+    irqarray9_pending_status[8] <= irqarray9_source81;
+    irqarray9_pending_status[9] <= irqarray9_source91;
+    irqarray9_pending_status[10] <= irqarray9_source101;
+    irqarray9_pending_status[11] <= irqarray9_source111;
+    irqarray9_pending_status[12] <= irqarray9_source121;
+    irqarray9_pending_status[13] <= irqarray9_source131;
+    irqarray9_pending_status[14] <= irqarray9_source141;
+    irqarray9_pending_status[15] <= irqarray9_source151;
+    irqarray9_pending_status[16] <= irqarray9_source161;
+    irqarray9_pending_status[17] <= irqarray9_source171;
+    irqarray9_pending_status[18] <= irqarray9_source181;
+    irqarray9_pending_status[19] <= irqarray9_source191;
+end
+assign csrbank21_ev_pending_w = irqarray9_pending_status[19:0];
+assign irqarray9_pending_we = csrbank21_ev_pending_we;
+assign irqarray9_source02 = irqarray9_enable_storage[0];
+assign irqarray9_source12 = irqarray9_enable_storage[1];
+assign irqarray9_source22 = irqarray9_enable_storage[2];
+assign irqarray9_source32 = irqarray9_enable_storage[3];
+assign irqarray9_source42 = irqarray9_enable_storage[4];
+assign irqarray9_source52 = irqarray9_enable_storage[5];
+assign irqarray9_source62 = irqarray9_enable_storage[6];
+assign irqarray9_source72 = irqarray9_enable_storage[7];
+assign irqarray9_source82 = irqarray9_enable_storage[8];
+assign irqarray9_source92 = irqarray9_enable_storage[9];
+assign irqarray9_source102 = irqarray9_enable_storage[10];
+assign irqarray9_source112 = irqarray9_enable_storage[11];
+assign irqarray9_source122 = irqarray9_enable_storage[12];
+assign irqarray9_source132 = irqarray9_enable_storage[13];
+assign irqarray9_source142 = irqarray9_enable_storage[14];
+assign irqarray9_source152 = irqarray9_enable_storage[15];
+assign irqarray9_source162 = irqarray9_enable_storage[16];
+assign irqarray9_source172 = irqarray9_enable_storage[17];
+assign irqarray9_source182 = irqarray9_enable_storage[18];
+assign irqarray9_source192 = irqarray9_enable_storage[19];
+assign csrbank21_ev_enable0_w = irqarray9_enable_storage[19:0];
+assign csrbank22_sel = (interface22_adr[15:10] == 5'd22);
+assign csrbank22_re = interface22_re;
+assign csrbank22_pc_r = interface22_dat_w[31:0];
+always @(*) begin
+    csrbank22_pc_re <= 1'd0;
+    csrbank22_pc_we <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 1'd0))) begin
+        csrbank22_pc_re <= interface22_we;
+        csrbank22_pc_we <= csrbank22_re;
+    end
+end
+assign csrbank22_pc_w = resetvalue_status[31:0];
+assign resetvalue_we = csrbank22_pc_we;
+assign csrbank23_sel = (interface23_adr[15:10] == 5'd23);
+assign csrbank23_re = interface23_re;
+assign csrbank23_control0_r = interface23_dat_w[0];
+always @(*) begin
+    csrbank23_control0_we <= 1'd0;
+    csrbank23_control0_re <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 1'd0))) begin
+        csrbank23_control0_re <= interface23_we;
+        csrbank23_control0_we <= csrbank23_re;
+    end
+end
+assign csrbank23_time1_r = interface23_dat_w[31:0];
+always @(*) begin
+    csrbank23_time1_re <= 1'd0;
+    csrbank23_time1_we <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 1'd1))) begin
+        csrbank23_time1_re <= interface23_we;
+        csrbank23_time1_we <= csrbank23_re;
+    end
+end
+assign csrbank23_time0_r = interface23_dat_w[31:0];
+always @(*) begin
+    csrbank23_time0_re <= 1'd0;
+    csrbank23_time0_we <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 2'd2))) begin
+        csrbank23_time0_re <= interface23_we;
+        csrbank23_time0_we <= csrbank23_re;
+    end
+end
+assign csrbank23_msleep_target1_r = interface23_dat_w[31:0];
+always @(*) begin
+    csrbank23_msleep_target1_we <= 1'd0;
+    csrbank23_msleep_target1_re <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 2'd3))) begin
+        csrbank23_msleep_target1_re <= interface23_we;
+        csrbank23_msleep_target1_we <= csrbank23_re;
+    end
+end
+assign csrbank23_msleep_target0_r = interface23_dat_w[31:0];
+always @(*) begin
+    csrbank23_msleep_target0_re <= 1'd0;
+    csrbank23_msleep_target0_we <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd4))) begin
+        csrbank23_msleep_target0_re <= interface23_we;
+        csrbank23_msleep_target0_we <= csrbank23_re;
+    end
+end
+assign csrbank23_ev_status_r = interface23_dat_w[0];
+always @(*) begin
+    csrbank23_ev_status_re <= 1'd0;
+    csrbank23_ev_status_we <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd5))) begin
+        csrbank23_ev_status_re <= interface23_we;
+        csrbank23_ev_status_we <= csrbank23_re;
+    end
+end
+assign csrbank23_ev_pending_r = interface23_dat_w[0];
+always @(*) begin
+    csrbank23_ev_pending_we <= 1'd0;
+    csrbank23_ev_pending_re <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd6))) begin
+        csrbank23_ev_pending_re <= interface23_we;
+        csrbank23_ev_pending_we <= csrbank23_re;
+    end
+end
+assign csrbank23_ev_enable0_r = interface23_dat_w[0];
+always @(*) begin
+    csrbank23_ev_enable0_re <= 1'd0;
+    csrbank23_ev_enable0_we <= 1'd0;
+    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd7))) begin
+        csrbank23_ev_enable0_re <= interface23_we;
+        csrbank23_ev_enable0_we <= csrbank23_re;
     end
 end
 always @(*) begin
@@ -1512,20 +10654,20 @@ always @(*) begin
         ticktimer_reset <= ticktimer_control_storage;
     end
 end
-assign csrbank3_control0_w = ticktimer_control_storage;
-assign csrbank3_time1_w = ticktimer_time_status[63:32];
-assign csrbank3_time0_w = ticktimer_time_status[31:0];
-assign ticktimer_time_we = csrbank3_time0_we;
-assign csrbank3_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
-assign csrbank3_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
+assign csrbank23_control0_w = ticktimer_control_storage;
+assign csrbank23_time1_w = ticktimer_time_status[63:32];
+assign csrbank23_time0_w = ticktimer_time_status[31:0];
+assign ticktimer_time_we = csrbank23_time0_we;
+assign csrbank23_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
+assign csrbank23_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
 assign ticktimer_status_status = ticktimer_alarm0;
-assign csrbank3_ev_status_w = ticktimer_status_status;
-assign ticktimer_status_we = csrbank3_ev_status_we;
+assign csrbank23_ev_status_w = ticktimer_status_status;
+assign ticktimer_status_we = csrbank23_ev_status_we;
 assign ticktimer_pending_status = ticktimer_alarm1;
-assign csrbank3_ev_pending_w = ticktimer_pending_status;
-assign ticktimer_pending_we = csrbank3_ev_pending_we;
+assign csrbank23_ev_pending_w = ticktimer_pending_status;
+assign ticktimer_pending_we = csrbank23_ev_pending_we;
 assign ticktimer_alarm2 = ticktimer_enable_storage;
-assign csrbank3_ev_enable0_w = ticktimer_enable_storage;
+assign csrbank23_ev_enable0_w = ticktimer_enable_storage;
 assign csr_interconnect_adr = cramsoc_adr;
 assign csr_interconnect_we = cramsoc_we;
 assign csr_interconnect_dat_w = cramsoc_dat_w;
@@ -1535,19 +10677,99 @@ assign interface0_adr = csr_interconnect_adr;
 assign interface1_adr = csr_interconnect_adr;
 assign interface2_adr = csr_interconnect_adr;
 assign interface3_adr = csr_interconnect_adr;
+assign interface4_adr = csr_interconnect_adr;
+assign interface5_adr = csr_interconnect_adr;
+assign interface6_adr = csr_interconnect_adr;
+assign interface7_adr = csr_interconnect_adr;
+assign interface8_adr = csr_interconnect_adr;
+assign interface9_adr = csr_interconnect_adr;
+assign interface10_adr = csr_interconnect_adr;
+assign interface11_adr = csr_interconnect_adr;
+assign interface12_adr = csr_interconnect_adr;
+assign interface13_adr = csr_interconnect_adr;
+assign interface14_adr = csr_interconnect_adr;
+assign interface15_adr = csr_interconnect_adr;
+assign interface16_adr = csr_interconnect_adr;
+assign interface17_adr = csr_interconnect_adr;
+assign interface18_adr = csr_interconnect_adr;
+assign interface19_adr = csr_interconnect_adr;
+assign interface20_adr = csr_interconnect_adr;
+assign interface21_adr = csr_interconnect_adr;
+assign interface22_adr = csr_interconnect_adr;
+assign interface23_adr = csr_interconnect_adr;
 assign interface0_we = csr_interconnect_we;
 assign interface1_we = csr_interconnect_we;
 assign interface2_we = csr_interconnect_we;
 assign interface3_we = csr_interconnect_we;
+assign interface4_we = csr_interconnect_we;
+assign interface5_we = csr_interconnect_we;
+assign interface6_we = csr_interconnect_we;
+assign interface7_we = csr_interconnect_we;
+assign interface8_we = csr_interconnect_we;
+assign interface9_we = csr_interconnect_we;
+assign interface10_we = csr_interconnect_we;
+assign interface11_we = csr_interconnect_we;
+assign interface12_we = csr_interconnect_we;
+assign interface13_we = csr_interconnect_we;
+assign interface14_we = csr_interconnect_we;
+assign interface15_we = csr_interconnect_we;
+assign interface16_we = csr_interconnect_we;
+assign interface17_we = csr_interconnect_we;
+assign interface18_we = csr_interconnect_we;
+assign interface19_we = csr_interconnect_we;
+assign interface20_we = csr_interconnect_we;
+assign interface21_we = csr_interconnect_we;
+assign interface22_we = csr_interconnect_we;
+assign interface23_we = csr_interconnect_we;
 assign interface0_dat_w = csr_interconnect_dat_w;
 assign interface1_dat_w = csr_interconnect_dat_w;
 assign interface2_dat_w = csr_interconnect_dat_w;
 assign interface3_dat_w = csr_interconnect_dat_w;
-assign csr_interconnect_dat_r = (((interface0_dat_r | interface1_dat_r) | interface2_dat_r) | interface3_dat_r);
+assign interface4_dat_w = csr_interconnect_dat_w;
+assign interface5_dat_w = csr_interconnect_dat_w;
+assign interface6_dat_w = csr_interconnect_dat_w;
+assign interface7_dat_w = csr_interconnect_dat_w;
+assign interface8_dat_w = csr_interconnect_dat_w;
+assign interface9_dat_w = csr_interconnect_dat_w;
+assign interface10_dat_w = csr_interconnect_dat_w;
+assign interface11_dat_w = csr_interconnect_dat_w;
+assign interface12_dat_w = csr_interconnect_dat_w;
+assign interface13_dat_w = csr_interconnect_dat_w;
+assign interface14_dat_w = csr_interconnect_dat_w;
+assign interface15_dat_w = csr_interconnect_dat_w;
+assign interface16_dat_w = csr_interconnect_dat_w;
+assign interface17_dat_w = csr_interconnect_dat_w;
+assign interface18_dat_w = csr_interconnect_dat_w;
+assign interface19_dat_w = csr_interconnect_dat_w;
+assign interface20_dat_w = csr_interconnect_dat_w;
+assign interface21_dat_w = csr_interconnect_dat_w;
+assign interface22_dat_w = csr_interconnect_dat_w;
+assign interface23_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = (((((((((((((((((((((((interface0_dat_r | interface1_dat_r) | interface2_dat_r) | interface3_dat_r) | interface4_dat_r) | interface5_dat_r) | interface6_dat_r) | interface7_dat_r) | interface8_dat_r) | interface9_dat_r) | interface10_dat_r) | interface11_dat_r) | interface12_dat_r) | interface13_dat_r) | interface14_dat_r) | interface15_dat_r) | interface16_dat_r) | interface17_dat_r) | interface18_dat_r) | interface19_dat_r) | interface20_dat_r) | interface21_dat_r) | interface22_dat_r) | interface23_dat_r);
 assign interface0_re = csr_interconnect_re;
 assign interface1_re = csr_interconnect_re;
 assign interface2_re = csr_interconnect_re;
 assign interface3_re = csr_interconnect_re;
+assign interface4_re = csr_interconnect_re;
+assign interface5_re = csr_interconnect_re;
+assign interface6_re = csr_interconnect_re;
+assign interface7_re = csr_interconnect_re;
+assign interface8_re = csr_interconnect_re;
+assign interface9_re = csr_interconnect_re;
+assign interface10_re = csr_interconnect_re;
+assign interface11_re = csr_interconnect_re;
+assign interface12_re = csr_interconnect_re;
+assign interface13_re = csr_interconnect_re;
+assign interface14_re = csr_interconnect_re;
+assign interface15_re = csr_interconnect_re;
+assign interface16_re = csr_interconnect_re;
+assign interface17_re = csr_interconnect_re;
+assign interface18_re = csr_interconnect_re;
+assign interface19_re = csr_interconnect_re;
+assign interface20_re = csr_interconnect_re;
+assign interface21_re = csr_interconnect_re;
+assign interface22_re = csr_interconnect_re;
+assign interface23_re = csr_interconnect_re;
 assign slice_proxy0 = cramsoc_corecsr_aw_payload_addr[31:2];
 assign slice_proxy1 = cramsoc_corecsr_ar_payload_addr[31:2];
 always @(*) begin
@@ -1903,12 +11125,12 @@ always @(posedge sys_clk) begin
     end
     if (sys_rst) begin
         if (trimming_reset_ena_1) begin
-            latched_value <= trimming_reset_1;
+            resetvalue_latched_value <= trimming_reset_1;
         end else begin
-            latched_value <= 31'd1610612736;
+            resetvalue_latched_value <= 31'd1610612736;
         end
     end else begin
-        latched_value <= latched_value;
+        resetvalue_latched_value <= resetvalue_latched_value;
     end
     if (coreuser_protect_storage) begin
         coreuser_protect <= 1'd1;
@@ -1938,6 +11160,3606 @@ always @(posedge sys_clk) begin
         coreuser_window_bh <= coreuser_ppn3;
     end
     coreuser <= (((~cramsoc_satp_mode) | (~coreuser_enable1)) | (((coreuser_coreuser_asid | (~coreuser_require_asid)) & ((~coreuser_require_ppn_a) | ((cramsoc_satp_ppn >= coreuser_window_al) & (cramsoc_satp_ppn <= coreuser_window_ah)))) & ((~coreuser_require_ppn_b) | ((cramsoc_satp_ppn >= coreuser_window_bl) & (cramsoc_satp_ppn <= coreuser_window_bh)))));
+    if ((irqarray0_interrupts[0] | irqarray0_trigger[0])) begin
+        irqarray0_eventsourceflex0_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex0_clear) begin
+            irqarray0_eventsourceflex0_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex0_pending <= irqarray0_eventsourceflex0_pending;
+        end
+    end
+    if ((irqarray0_interrupts[1] | irqarray0_trigger[1])) begin
+        irqarray0_eventsourceflex1_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex1_clear) begin
+            irqarray0_eventsourceflex1_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex1_pending <= irqarray0_eventsourceflex1_pending;
+        end
+    end
+    if ((irqarray0_interrupts[2] | irqarray0_trigger[2])) begin
+        irqarray0_eventsourceflex2_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex2_clear) begin
+            irqarray0_eventsourceflex2_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex2_pending <= irqarray0_eventsourceflex2_pending;
+        end
+    end
+    if ((irqarray0_interrupts[3] | irqarray0_trigger[3])) begin
+        irqarray0_eventsourceflex3_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex3_clear) begin
+            irqarray0_eventsourceflex3_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex3_pending <= irqarray0_eventsourceflex3_pending;
+        end
+    end
+    if ((irqarray0_interrupts[4] | irqarray0_trigger[4])) begin
+        irqarray0_eventsourceflex4_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex4_clear) begin
+            irqarray0_eventsourceflex4_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex4_pending <= irqarray0_eventsourceflex4_pending;
+        end
+    end
+    if ((irqarray0_interrupts[5] | irqarray0_trigger[5])) begin
+        irqarray0_eventsourceflex5_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex5_clear) begin
+            irqarray0_eventsourceflex5_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex5_pending <= irqarray0_eventsourceflex5_pending;
+        end
+    end
+    if ((irqarray0_interrupts[6] | irqarray0_trigger[6])) begin
+        irqarray0_eventsourceflex6_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex6_clear) begin
+            irqarray0_eventsourceflex6_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex6_pending <= irqarray0_eventsourceflex6_pending;
+        end
+    end
+    if ((irqarray0_interrupts[7] | irqarray0_trigger[7])) begin
+        irqarray0_eventsourceflex7_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex7_clear) begin
+            irqarray0_eventsourceflex7_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex7_pending <= irqarray0_eventsourceflex7_pending;
+        end
+    end
+    if ((irqarray0_interrupts[8] | irqarray0_trigger[8])) begin
+        irqarray0_eventsourceflex8_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex8_clear) begin
+            irqarray0_eventsourceflex8_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex8_pending <= irqarray0_eventsourceflex8_pending;
+        end
+    end
+    if ((irqarray0_interrupts[9] | irqarray0_trigger[9])) begin
+        irqarray0_eventsourceflex9_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex9_clear) begin
+            irqarray0_eventsourceflex9_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex9_pending <= irqarray0_eventsourceflex9_pending;
+        end
+    end
+    if ((irqarray0_interrupts[10] | irqarray0_trigger[10])) begin
+        irqarray0_eventsourceflex10_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex10_clear) begin
+            irqarray0_eventsourceflex10_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex10_pending <= irqarray0_eventsourceflex10_pending;
+        end
+    end
+    if ((irqarray0_interrupts[11] | irqarray0_trigger[11])) begin
+        irqarray0_eventsourceflex11_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex11_clear) begin
+            irqarray0_eventsourceflex11_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex11_pending <= irqarray0_eventsourceflex11_pending;
+        end
+    end
+    if ((irqarray0_interrupts[12] | irqarray0_trigger[12])) begin
+        irqarray0_eventsourceflex12_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex12_clear) begin
+            irqarray0_eventsourceflex12_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex12_pending <= irqarray0_eventsourceflex12_pending;
+        end
+    end
+    if ((irqarray0_interrupts[13] | irqarray0_trigger[13])) begin
+        irqarray0_eventsourceflex13_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex13_clear) begin
+            irqarray0_eventsourceflex13_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex13_pending <= irqarray0_eventsourceflex13_pending;
+        end
+    end
+    if ((irqarray0_interrupts[14] | irqarray0_trigger[14])) begin
+        irqarray0_eventsourceflex14_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex14_clear) begin
+            irqarray0_eventsourceflex14_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex14_pending <= irqarray0_eventsourceflex14_pending;
+        end
+    end
+    if ((irqarray0_interrupts[15] | irqarray0_trigger[15])) begin
+        irqarray0_eventsourceflex15_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex15_clear) begin
+            irqarray0_eventsourceflex15_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex15_pending <= irqarray0_eventsourceflex15_pending;
+        end
+    end
+    if ((irqarray0_interrupts[16] | irqarray0_trigger[16])) begin
+        irqarray0_eventsourceflex16_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex16_clear) begin
+            irqarray0_eventsourceflex16_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex16_pending <= irqarray0_eventsourceflex16_pending;
+        end
+    end
+    if ((irqarray0_interrupts[17] | irqarray0_trigger[17])) begin
+        irqarray0_eventsourceflex17_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex17_clear) begin
+            irqarray0_eventsourceflex17_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex17_pending <= irqarray0_eventsourceflex17_pending;
+        end
+    end
+    if ((irqarray0_interrupts[18] | irqarray0_trigger[18])) begin
+        irqarray0_eventsourceflex18_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex18_clear) begin
+            irqarray0_eventsourceflex18_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex18_pending <= irqarray0_eventsourceflex18_pending;
+        end
+    end
+    if ((irqarray0_interrupts[19] | irqarray0_trigger[19])) begin
+        irqarray0_eventsourceflex19_pending <= 1'd1;
+    end else begin
+        if (irqarray0_eventsourceflex19_clear) begin
+            irqarray0_eventsourceflex19_pending <= 1'd0;
+        end else begin
+            irqarray0_eventsourceflex19_pending <= irqarray0_eventsourceflex19_pending;
+        end
+    end
+    if ((irqarray1_interrupts[0] | irqarray1_trigger[0])) begin
+        irqarray1_eventsourceflex20_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex20_clear) begin
+            irqarray1_eventsourceflex20_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex20_pending <= irqarray1_eventsourceflex20_pending;
+        end
+    end
+    if ((irqarray1_interrupts[1] | irqarray1_trigger[1])) begin
+        irqarray1_eventsourceflex21_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex21_clear) begin
+            irqarray1_eventsourceflex21_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex21_pending <= irqarray1_eventsourceflex21_pending;
+        end
+    end
+    if ((irqarray1_interrupts[2] | irqarray1_trigger[2])) begin
+        irqarray1_eventsourceflex22_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex22_clear) begin
+            irqarray1_eventsourceflex22_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex22_pending <= irqarray1_eventsourceflex22_pending;
+        end
+    end
+    if ((irqarray1_interrupts[3] | irqarray1_trigger[3])) begin
+        irqarray1_eventsourceflex23_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex23_clear) begin
+            irqarray1_eventsourceflex23_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex23_pending <= irqarray1_eventsourceflex23_pending;
+        end
+    end
+    if ((irqarray1_interrupts[4] | irqarray1_trigger[4])) begin
+        irqarray1_eventsourceflex24_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex24_clear) begin
+            irqarray1_eventsourceflex24_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex24_pending <= irqarray1_eventsourceflex24_pending;
+        end
+    end
+    if ((irqarray1_interrupts[5] | irqarray1_trigger[5])) begin
+        irqarray1_eventsourceflex25_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex25_clear) begin
+            irqarray1_eventsourceflex25_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex25_pending <= irqarray1_eventsourceflex25_pending;
+        end
+    end
+    if ((irqarray1_interrupts[6] | irqarray1_trigger[6])) begin
+        irqarray1_eventsourceflex26_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex26_clear) begin
+            irqarray1_eventsourceflex26_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex26_pending <= irqarray1_eventsourceflex26_pending;
+        end
+    end
+    if ((irqarray1_interrupts[7] | irqarray1_trigger[7])) begin
+        irqarray1_eventsourceflex27_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex27_clear) begin
+            irqarray1_eventsourceflex27_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex27_pending <= irqarray1_eventsourceflex27_pending;
+        end
+    end
+    if ((irqarray1_interrupts[8] | irqarray1_trigger[8])) begin
+        irqarray1_eventsourceflex28_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex28_clear) begin
+            irqarray1_eventsourceflex28_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex28_pending <= irqarray1_eventsourceflex28_pending;
+        end
+    end
+    if ((irqarray1_interrupts[9] | irqarray1_trigger[9])) begin
+        irqarray1_eventsourceflex29_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex29_clear) begin
+            irqarray1_eventsourceflex29_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex29_pending <= irqarray1_eventsourceflex29_pending;
+        end
+    end
+    if ((irqarray1_interrupts[10] | irqarray1_trigger[10])) begin
+        irqarray1_eventsourceflex30_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex30_clear) begin
+            irqarray1_eventsourceflex30_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex30_pending <= irqarray1_eventsourceflex30_pending;
+        end
+    end
+    if ((irqarray1_interrupts[11] | irqarray1_trigger[11])) begin
+        irqarray1_eventsourceflex31_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex31_clear) begin
+            irqarray1_eventsourceflex31_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex31_pending <= irqarray1_eventsourceflex31_pending;
+        end
+    end
+    if ((irqarray1_interrupts[12] | irqarray1_trigger[12])) begin
+        irqarray1_eventsourceflex32_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex32_clear) begin
+            irqarray1_eventsourceflex32_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex32_pending <= irqarray1_eventsourceflex32_pending;
+        end
+    end
+    if ((irqarray1_interrupts[13] | irqarray1_trigger[13])) begin
+        irqarray1_eventsourceflex33_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex33_clear) begin
+            irqarray1_eventsourceflex33_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex33_pending <= irqarray1_eventsourceflex33_pending;
+        end
+    end
+    if ((irqarray1_interrupts[14] | irqarray1_trigger[14])) begin
+        irqarray1_eventsourceflex34_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex34_clear) begin
+            irqarray1_eventsourceflex34_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex34_pending <= irqarray1_eventsourceflex34_pending;
+        end
+    end
+    if ((irqarray1_interrupts[15] | irqarray1_trigger[15])) begin
+        irqarray1_eventsourceflex35_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex35_clear) begin
+            irqarray1_eventsourceflex35_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex35_pending <= irqarray1_eventsourceflex35_pending;
+        end
+    end
+    if ((irqarray1_interrupts[16] | irqarray1_trigger[16])) begin
+        irqarray1_eventsourceflex36_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex36_clear) begin
+            irqarray1_eventsourceflex36_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex36_pending <= irqarray1_eventsourceflex36_pending;
+        end
+    end
+    if ((irqarray1_interrupts[17] | irqarray1_trigger[17])) begin
+        irqarray1_eventsourceflex37_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex37_clear) begin
+            irqarray1_eventsourceflex37_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex37_pending <= irqarray1_eventsourceflex37_pending;
+        end
+    end
+    if ((irqarray1_interrupts[18] | irqarray1_trigger[18])) begin
+        irqarray1_eventsourceflex38_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex38_clear) begin
+            irqarray1_eventsourceflex38_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex38_pending <= irqarray1_eventsourceflex38_pending;
+        end
+    end
+    if ((irqarray1_interrupts[19] | irqarray1_trigger[19])) begin
+        irqarray1_eventsourceflex39_pending <= 1'd1;
+    end else begin
+        if (irqarray1_eventsourceflex39_clear) begin
+            irqarray1_eventsourceflex39_pending <= 1'd0;
+        end else begin
+            irqarray1_eventsourceflex39_pending <= irqarray1_eventsourceflex39_pending;
+        end
+    end
+    if ((irqarray2_interrupts[0] | irqarray2_trigger[0])) begin
+        irqarray2_eventsourceflex40_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex40_clear) begin
+            irqarray2_eventsourceflex40_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex40_pending <= irqarray2_eventsourceflex40_pending;
+        end
+    end
+    if ((irqarray2_interrupts[1] | irqarray2_trigger[1])) begin
+        irqarray2_eventsourceflex41_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex41_clear) begin
+            irqarray2_eventsourceflex41_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex41_pending <= irqarray2_eventsourceflex41_pending;
+        end
+    end
+    if ((irqarray2_interrupts[2] | irqarray2_trigger[2])) begin
+        irqarray2_eventsourceflex42_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex42_clear) begin
+            irqarray2_eventsourceflex42_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex42_pending <= irqarray2_eventsourceflex42_pending;
+        end
+    end
+    if ((irqarray2_interrupts[3] | irqarray2_trigger[3])) begin
+        irqarray2_eventsourceflex43_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex43_clear) begin
+            irqarray2_eventsourceflex43_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex43_pending <= irqarray2_eventsourceflex43_pending;
+        end
+    end
+    if ((irqarray2_interrupts[4] | irqarray2_trigger[4])) begin
+        irqarray2_eventsourceflex44_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex44_clear) begin
+            irqarray2_eventsourceflex44_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex44_pending <= irqarray2_eventsourceflex44_pending;
+        end
+    end
+    if ((irqarray2_interrupts[5] | irqarray2_trigger[5])) begin
+        irqarray2_eventsourceflex45_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex45_clear) begin
+            irqarray2_eventsourceflex45_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex45_pending <= irqarray2_eventsourceflex45_pending;
+        end
+    end
+    if ((irqarray2_interrupts[6] | irqarray2_trigger[6])) begin
+        irqarray2_eventsourceflex46_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex46_clear) begin
+            irqarray2_eventsourceflex46_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex46_pending <= irqarray2_eventsourceflex46_pending;
+        end
+    end
+    if ((irqarray2_interrupts[7] | irqarray2_trigger[7])) begin
+        irqarray2_eventsourceflex47_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex47_clear) begin
+            irqarray2_eventsourceflex47_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex47_pending <= irqarray2_eventsourceflex47_pending;
+        end
+    end
+    if ((irqarray2_interrupts[8] | irqarray2_trigger[8])) begin
+        irqarray2_eventsourceflex48_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex48_clear) begin
+            irqarray2_eventsourceflex48_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex48_pending <= irqarray2_eventsourceflex48_pending;
+        end
+    end
+    if ((irqarray2_interrupts[9] | irqarray2_trigger[9])) begin
+        irqarray2_eventsourceflex49_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex49_clear) begin
+            irqarray2_eventsourceflex49_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex49_pending <= irqarray2_eventsourceflex49_pending;
+        end
+    end
+    if ((irqarray2_interrupts[10] | irqarray2_trigger[10])) begin
+        irqarray2_eventsourceflex50_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex50_clear) begin
+            irqarray2_eventsourceflex50_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex50_pending <= irqarray2_eventsourceflex50_pending;
+        end
+    end
+    if ((irqarray2_interrupts[11] | irqarray2_trigger[11])) begin
+        irqarray2_eventsourceflex51_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex51_clear) begin
+            irqarray2_eventsourceflex51_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex51_pending <= irqarray2_eventsourceflex51_pending;
+        end
+    end
+    if ((irqarray2_interrupts[12] | irqarray2_trigger[12])) begin
+        irqarray2_eventsourceflex52_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex52_clear) begin
+            irqarray2_eventsourceflex52_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex52_pending <= irqarray2_eventsourceflex52_pending;
+        end
+    end
+    if ((irqarray2_interrupts[13] | irqarray2_trigger[13])) begin
+        irqarray2_eventsourceflex53_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex53_clear) begin
+            irqarray2_eventsourceflex53_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex53_pending <= irqarray2_eventsourceflex53_pending;
+        end
+    end
+    if ((irqarray2_interrupts[14] | irqarray2_trigger[14])) begin
+        irqarray2_eventsourceflex54_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex54_clear) begin
+            irqarray2_eventsourceflex54_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex54_pending <= irqarray2_eventsourceflex54_pending;
+        end
+    end
+    if ((irqarray2_interrupts[15] | irqarray2_trigger[15])) begin
+        irqarray2_eventsourceflex55_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex55_clear) begin
+            irqarray2_eventsourceflex55_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex55_pending <= irqarray2_eventsourceflex55_pending;
+        end
+    end
+    if ((irqarray2_interrupts[16] | irqarray2_trigger[16])) begin
+        irqarray2_eventsourceflex56_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex56_clear) begin
+            irqarray2_eventsourceflex56_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex56_pending <= irqarray2_eventsourceflex56_pending;
+        end
+    end
+    if ((irqarray2_interrupts[17] | irqarray2_trigger[17])) begin
+        irqarray2_eventsourceflex57_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex57_clear) begin
+            irqarray2_eventsourceflex57_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex57_pending <= irqarray2_eventsourceflex57_pending;
+        end
+    end
+    if ((irqarray2_interrupts[18] | irqarray2_trigger[18])) begin
+        irqarray2_eventsourceflex58_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex58_clear) begin
+            irqarray2_eventsourceflex58_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex58_pending <= irqarray2_eventsourceflex58_pending;
+        end
+    end
+    if ((irqarray2_interrupts[19] | irqarray2_trigger[19])) begin
+        irqarray2_eventsourceflex59_pending <= 1'd1;
+    end else begin
+        if (irqarray2_eventsourceflex59_clear) begin
+            irqarray2_eventsourceflex59_pending <= 1'd0;
+        end else begin
+            irqarray2_eventsourceflex59_pending <= irqarray2_eventsourceflex59_pending;
+        end
+    end
+    if ((irqarray3_interrupts[0] | irqarray3_trigger[0])) begin
+        irqarray3_eventsourceflex60_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex60_clear) begin
+            irqarray3_eventsourceflex60_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex60_pending <= irqarray3_eventsourceflex60_pending;
+        end
+    end
+    if ((irqarray3_interrupts[1] | irqarray3_trigger[1])) begin
+        irqarray3_eventsourceflex61_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex61_clear) begin
+            irqarray3_eventsourceflex61_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex61_pending <= irqarray3_eventsourceflex61_pending;
+        end
+    end
+    if ((irqarray3_interrupts[2] | irqarray3_trigger[2])) begin
+        irqarray3_eventsourceflex62_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex62_clear) begin
+            irqarray3_eventsourceflex62_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex62_pending <= irqarray3_eventsourceflex62_pending;
+        end
+    end
+    if ((irqarray3_interrupts[3] | irqarray3_trigger[3])) begin
+        irqarray3_eventsourceflex63_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex63_clear) begin
+            irqarray3_eventsourceflex63_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex63_pending <= irqarray3_eventsourceflex63_pending;
+        end
+    end
+    if ((irqarray3_interrupts[4] | irqarray3_trigger[4])) begin
+        irqarray3_eventsourceflex64_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex64_clear) begin
+            irqarray3_eventsourceflex64_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex64_pending <= irqarray3_eventsourceflex64_pending;
+        end
+    end
+    if ((irqarray3_interrupts[5] | irqarray3_trigger[5])) begin
+        irqarray3_eventsourceflex65_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex65_clear) begin
+            irqarray3_eventsourceflex65_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex65_pending <= irqarray3_eventsourceflex65_pending;
+        end
+    end
+    if ((irqarray3_interrupts[6] | irqarray3_trigger[6])) begin
+        irqarray3_eventsourceflex66_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex66_clear) begin
+            irqarray3_eventsourceflex66_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex66_pending <= irqarray3_eventsourceflex66_pending;
+        end
+    end
+    if ((irqarray3_interrupts[7] | irqarray3_trigger[7])) begin
+        irqarray3_eventsourceflex67_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex67_clear) begin
+            irqarray3_eventsourceflex67_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex67_pending <= irqarray3_eventsourceflex67_pending;
+        end
+    end
+    if ((irqarray3_interrupts[8] | irqarray3_trigger[8])) begin
+        irqarray3_eventsourceflex68_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex68_clear) begin
+            irqarray3_eventsourceflex68_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex68_pending <= irqarray3_eventsourceflex68_pending;
+        end
+    end
+    if ((irqarray3_interrupts[9] | irqarray3_trigger[9])) begin
+        irqarray3_eventsourceflex69_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex69_clear) begin
+            irqarray3_eventsourceflex69_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex69_pending <= irqarray3_eventsourceflex69_pending;
+        end
+    end
+    if ((irqarray3_interrupts[10] | irqarray3_trigger[10])) begin
+        irqarray3_eventsourceflex70_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex70_clear) begin
+            irqarray3_eventsourceflex70_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex70_pending <= irqarray3_eventsourceflex70_pending;
+        end
+    end
+    if ((irqarray3_interrupts[11] | irqarray3_trigger[11])) begin
+        irqarray3_eventsourceflex71_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex71_clear) begin
+            irqarray3_eventsourceflex71_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex71_pending <= irqarray3_eventsourceflex71_pending;
+        end
+    end
+    if ((irqarray3_interrupts[12] | irqarray3_trigger[12])) begin
+        irqarray3_eventsourceflex72_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex72_clear) begin
+            irqarray3_eventsourceflex72_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex72_pending <= irqarray3_eventsourceflex72_pending;
+        end
+    end
+    if ((irqarray3_interrupts[13] | irqarray3_trigger[13])) begin
+        irqarray3_eventsourceflex73_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex73_clear) begin
+            irqarray3_eventsourceflex73_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex73_pending <= irqarray3_eventsourceflex73_pending;
+        end
+    end
+    if ((irqarray3_interrupts[14] | irqarray3_trigger[14])) begin
+        irqarray3_eventsourceflex74_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex74_clear) begin
+            irqarray3_eventsourceflex74_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex74_pending <= irqarray3_eventsourceflex74_pending;
+        end
+    end
+    if ((irqarray3_interrupts[15] | irqarray3_trigger[15])) begin
+        irqarray3_eventsourceflex75_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex75_clear) begin
+            irqarray3_eventsourceflex75_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex75_pending <= irqarray3_eventsourceflex75_pending;
+        end
+    end
+    if ((irqarray3_interrupts[16] | irqarray3_trigger[16])) begin
+        irqarray3_eventsourceflex76_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex76_clear) begin
+            irqarray3_eventsourceflex76_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex76_pending <= irqarray3_eventsourceflex76_pending;
+        end
+    end
+    if ((irqarray3_interrupts[17] | irqarray3_trigger[17])) begin
+        irqarray3_eventsourceflex77_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex77_clear) begin
+            irqarray3_eventsourceflex77_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex77_pending <= irqarray3_eventsourceflex77_pending;
+        end
+    end
+    if ((irqarray3_interrupts[18] | irqarray3_trigger[18])) begin
+        irqarray3_eventsourceflex78_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex78_clear) begin
+            irqarray3_eventsourceflex78_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex78_pending <= irqarray3_eventsourceflex78_pending;
+        end
+    end
+    if ((irqarray3_interrupts[19] | irqarray3_trigger[19])) begin
+        irqarray3_eventsourceflex79_pending <= 1'd1;
+    end else begin
+        if (irqarray3_eventsourceflex79_clear) begin
+            irqarray3_eventsourceflex79_pending <= 1'd0;
+        end else begin
+            irqarray3_eventsourceflex79_pending <= irqarray3_eventsourceflex79_pending;
+        end
+    end
+    if ((irqarray4_interrupts[0] | irqarray4_trigger[0])) begin
+        irqarray4_eventsourceflex80_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex80_clear) begin
+            irqarray4_eventsourceflex80_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex80_pending <= irqarray4_eventsourceflex80_pending;
+        end
+    end
+    if ((irqarray4_interrupts[1] | irqarray4_trigger[1])) begin
+        irqarray4_eventsourceflex81_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex81_clear) begin
+            irqarray4_eventsourceflex81_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex81_pending <= irqarray4_eventsourceflex81_pending;
+        end
+    end
+    if ((irqarray4_interrupts[2] | irqarray4_trigger[2])) begin
+        irqarray4_eventsourceflex82_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex82_clear) begin
+            irqarray4_eventsourceflex82_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex82_pending <= irqarray4_eventsourceflex82_pending;
+        end
+    end
+    if ((irqarray4_interrupts[3] | irqarray4_trigger[3])) begin
+        irqarray4_eventsourceflex83_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex83_clear) begin
+            irqarray4_eventsourceflex83_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex83_pending <= irqarray4_eventsourceflex83_pending;
+        end
+    end
+    if ((irqarray4_interrupts[4] | irqarray4_trigger[4])) begin
+        irqarray4_eventsourceflex84_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex84_clear) begin
+            irqarray4_eventsourceflex84_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex84_pending <= irqarray4_eventsourceflex84_pending;
+        end
+    end
+    if ((irqarray4_interrupts[5] | irqarray4_trigger[5])) begin
+        irqarray4_eventsourceflex85_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex85_clear) begin
+            irqarray4_eventsourceflex85_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex85_pending <= irqarray4_eventsourceflex85_pending;
+        end
+    end
+    if ((irqarray4_interrupts[6] | irqarray4_trigger[6])) begin
+        irqarray4_eventsourceflex86_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex86_clear) begin
+            irqarray4_eventsourceflex86_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex86_pending <= irqarray4_eventsourceflex86_pending;
+        end
+    end
+    if ((irqarray4_interrupts[7] | irqarray4_trigger[7])) begin
+        irqarray4_eventsourceflex87_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex87_clear) begin
+            irqarray4_eventsourceflex87_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex87_pending <= irqarray4_eventsourceflex87_pending;
+        end
+    end
+    if ((irqarray4_interrupts[8] | irqarray4_trigger[8])) begin
+        irqarray4_eventsourceflex88_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex88_clear) begin
+            irqarray4_eventsourceflex88_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex88_pending <= irqarray4_eventsourceflex88_pending;
+        end
+    end
+    if ((irqarray4_interrupts[9] | irqarray4_trigger[9])) begin
+        irqarray4_eventsourceflex89_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex89_clear) begin
+            irqarray4_eventsourceflex89_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex89_pending <= irqarray4_eventsourceflex89_pending;
+        end
+    end
+    if ((irqarray4_interrupts[10] | irqarray4_trigger[10])) begin
+        irqarray4_eventsourceflex90_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex90_clear) begin
+            irqarray4_eventsourceflex90_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex90_pending <= irqarray4_eventsourceflex90_pending;
+        end
+    end
+    if ((irqarray4_interrupts[11] | irqarray4_trigger[11])) begin
+        irqarray4_eventsourceflex91_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex91_clear) begin
+            irqarray4_eventsourceflex91_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex91_pending <= irqarray4_eventsourceflex91_pending;
+        end
+    end
+    if ((irqarray4_interrupts[12] | irqarray4_trigger[12])) begin
+        irqarray4_eventsourceflex92_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex92_clear) begin
+            irqarray4_eventsourceflex92_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex92_pending <= irqarray4_eventsourceflex92_pending;
+        end
+    end
+    if ((irqarray4_interrupts[13] | irqarray4_trigger[13])) begin
+        irqarray4_eventsourceflex93_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex93_clear) begin
+            irqarray4_eventsourceflex93_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex93_pending <= irqarray4_eventsourceflex93_pending;
+        end
+    end
+    if ((irqarray4_interrupts[14] | irqarray4_trigger[14])) begin
+        irqarray4_eventsourceflex94_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex94_clear) begin
+            irqarray4_eventsourceflex94_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex94_pending <= irqarray4_eventsourceflex94_pending;
+        end
+    end
+    if ((irqarray4_interrupts[15] | irqarray4_trigger[15])) begin
+        irqarray4_eventsourceflex95_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex95_clear) begin
+            irqarray4_eventsourceflex95_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex95_pending <= irqarray4_eventsourceflex95_pending;
+        end
+    end
+    if ((irqarray4_interrupts[16] | irqarray4_trigger[16])) begin
+        irqarray4_eventsourceflex96_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex96_clear) begin
+            irqarray4_eventsourceflex96_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex96_pending <= irqarray4_eventsourceflex96_pending;
+        end
+    end
+    if ((irqarray4_interrupts[17] | irqarray4_trigger[17])) begin
+        irqarray4_eventsourceflex97_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex97_clear) begin
+            irqarray4_eventsourceflex97_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex97_pending <= irqarray4_eventsourceflex97_pending;
+        end
+    end
+    if ((irqarray4_interrupts[18] | irqarray4_trigger[18])) begin
+        irqarray4_eventsourceflex98_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex98_clear) begin
+            irqarray4_eventsourceflex98_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex98_pending <= irqarray4_eventsourceflex98_pending;
+        end
+    end
+    if ((irqarray4_interrupts[19] | irqarray4_trigger[19])) begin
+        irqarray4_eventsourceflex99_pending <= 1'd1;
+    end else begin
+        if (irqarray4_eventsourceflex99_clear) begin
+            irqarray4_eventsourceflex99_pending <= 1'd0;
+        end else begin
+            irqarray4_eventsourceflex99_pending <= irqarray4_eventsourceflex99_pending;
+        end
+    end
+    if ((irqarray5_interrupts[0] | irqarray5_trigger[0])) begin
+        irqarray5_eventsourceflex100_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex100_clear) begin
+            irqarray5_eventsourceflex100_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex100_pending <= irqarray5_eventsourceflex100_pending;
+        end
+    end
+    if ((irqarray5_interrupts[1] | irqarray5_trigger[1])) begin
+        irqarray5_eventsourceflex101_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex101_clear) begin
+            irqarray5_eventsourceflex101_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex101_pending <= irqarray5_eventsourceflex101_pending;
+        end
+    end
+    if ((irqarray5_interrupts[2] | irqarray5_trigger[2])) begin
+        irqarray5_eventsourceflex102_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex102_clear) begin
+            irqarray5_eventsourceflex102_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex102_pending <= irqarray5_eventsourceflex102_pending;
+        end
+    end
+    if ((irqarray5_interrupts[3] | irqarray5_trigger[3])) begin
+        irqarray5_eventsourceflex103_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex103_clear) begin
+            irqarray5_eventsourceflex103_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex103_pending <= irqarray5_eventsourceflex103_pending;
+        end
+    end
+    if ((irqarray5_interrupts[4] | irqarray5_trigger[4])) begin
+        irqarray5_eventsourceflex104_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex104_clear) begin
+            irqarray5_eventsourceflex104_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex104_pending <= irqarray5_eventsourceflex104_pending;
+        end
+    end
+    if ((irqarray5_interrupts[5] | irqarray5_trigger[5])) begin
+        irqarray5_eventsourceflex105_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex105_clear) begin
+            irqarray5_eventsourceflex105_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex105_pending <= irqarray5_eventsourceflex105_pending;
+        end
+    end
+    if ((irqarray5_interrupts[6] | irqarray5_trigger[6])) begin
+        irqarray5_eventsourceflex106_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex106_clear) begin
+            irqarray5_eventsourceflex106_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex106_pending <= irqarray5_eventsourceflex106_pending;
+        end
+    end
+    if ((irqarray5_interrupts[7] | irqarray5_trigger[7])) begin
+        irqarray5_eventsourceflex107_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex107_clear) begin
+            irqarray5_eventsourceflex107_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex107_pending <= irqarray5_eventsourceflex107_pending;
+        end
+    end
+    if ((irqarray5_interrupts[8] | irqarray5_trigger[8])) begin
+        irqarray5_eventsourceflex108_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex108_clear) begin
+            irqarray5_eventsourceflex108_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex108_pending <= irqarray5_eventsourceflex108_pending;
+        end
+    end
+    if ((irqarray5_interrupts[9] | irqarray5_trigger[9])) begin
+        irqarray5_eventsourceflex109_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex109_clear) begin
+            irqarray5_eventsourceflex109_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex109_pending <= irqarray5_eventsourceflex109_pending;
+        end
+    end
+    if ((irqarray5_interrupts[10] | irqarray5_trigger[10])) begin
+        irqarray5_eventsourceflex110_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex110_clear) begin
+            irqarray5_eventsourceflex110_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex110_pending <= irqarray5_eventsourceflex110_pending;
+        end
+    end
+    if ((irqarray5_interrupts[11] | irqarray5_trigger[11])) begin
+        irqarray5_eventsourceflex111_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex111_clear) begin
+            irqarray5_eventsourceflex111_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex111_pending <= irqarray5_eventsourceflex111_pending;
+        end
+    end
+    if ((irqarray5_interrupts[12] | irqarray5_trigger[12])) begin
+        irqarray5_eventsourceflex112_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex112_clear) begin
+            irqarray5_eventsourceflex112_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex112_pending <= irqarray5_eventsourceflex112_pending;
+        end
+    end
+    if ((irqarray5_interrupts[13] | irqarray5_trigger[13])) begin
+        irqarray5_eventsourceflex113_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex113_clear) begin
+            irqarray5_eventsourceflex113_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex113_pending <= irqarray5_eventsourceflex113_pending;
+        end
+    end
+    if ((irqarray5_interrupts[14] | irqarray5_trigger[14])) begin
+        irqarray5_eventsourceflex114_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex114_clear) begin
+            irqarray5_eventsourceflex114_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex114_pending <= irqarray5_eventsourceflex114_pending;
+        end
+    end
+    if ((irqarray5_interrupts[15] | irqarray5_trigger[15])) begin
+        irqarray5_eventsourceflex115_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex115_clear) begin
+            irqarray5_eventsourceflex115_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex115_pending <= irqarray5_eventsourceflex115_pending;
+        end
+    end
+    if ((irqarray5_interrupts[16] | irqarray5_trigger[16])) begin
+        irqarray5_eventsourceflex116_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex116_clear) begin
+            irqarray5_eventsourceflex116_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex116_pending <= irqarray5_eventsourceflex116_pending;
+        end
+    end
+    if ((irqarray5_interrupts[17] | irqarray5_trigger[17])) begin
+        irqarray5_eventsourceflex117_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex117_clear) begin
+            irqarray5_eventsourceflex117_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex117_pending <= irqarray5_eventsourceflex117_pending;
+        end
+    end
+    if ((irqarray5_interrupts[18] | irqarray5_trigger[18])) begin
+        irqarray5_eventsourceflex118_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex118_clear) begin
+            irqarray5_eventsourceflex118_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex118_pending <= irqarray5_eventsourceflex118_pending;
+        end
+    end
+    if ((irqarray5_interrupts[19] | irqarray5_trigger[19])) begin
+        irqarray5_eventsourceflex119_pending <= 1'd1;
+    end else begin
+        if (irqarray5_eventsourceflex119_clear) begin
+            irqarray5_eventsourceflex119_pending <= 1'd0;
+        end else begin
+            irqarray5_eventsourceflex119_pending <= irqarray5_eventsourceflex119_pending;
+        end
+    end
+    if ((irqarray6_interrupts[0] | irqarray6_trigger[0])) begin
+        irqarray6_eventsourceflex120_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex120_clear) begin
+            irqarray6_eventsourceflex120_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex120_pending <= irqarray6_eventsourceflex120_pending;
+        end
+    end
+    if ((irqarray6_interrupts[1] | irqarray6_trigger[1])) begin
+        irqarray6_eventsourceflex121_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex121_clear) begin
+            irqarray6_eventsourceflex121_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex121_pending <= irqarray6_eventsourceflex121_pending;
+        end
+    end
+    if ((irqarray6_interrupts[2] | irqarray6_trigger[2])) begin
+        irqarray6_eventsourceflex122_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex122_clear) begin
+            irqarray6_eventsourceflex122_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex122_pending <= irqarray6_eventsourceflex122_pending;
+        end
+    end
+    if ((irqarray6_interrupts[3] | irqarray6_trigger[3])) begin
+        irqarray6_eventsourceflex123_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex123_clear) begin
+            irqarray6_eventsourceflex123_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex123_pending <= irqarray6_eventsourceflex123_pending;
+        end
+    end
+    if ((irqarray6_interrupts[4] | irqarray6_trigger[4])) begin
+        irqarray6_eventsourceflex124_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex124_clear) begin
+            irqarray6_eventsourceflex124_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex124_pending <= irqarray6_eventsourceflex124_pending;
+        end
+    end
+    if ((irqarray6_interrupts[5] | irqarray6_trigger[5])) begin
+        irqarray6_eventsourceflex125_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex125_clear) begin
+            irqarray6_eventsourceflex125_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex125_pending <= irqarray6_eventsourceflex125_pending;
+        end
+    end
+    if ((irqarray6_interrupts[6] | irqarray6_trigger[6])) begin
+        irqarray6_eventsourceflex126_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex126_clear) begin
+            irqarray6_eventsourceflex126_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex126_pending <= irqarray6_eventsourceflex126_pending;
+        end
+    end
+    if ((irqarray6_interrupts[7] | irqarray6_trigger[7])) begin
+        irqarray6_eventsourceflex127_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex127_clear) begin
+            irqarray6_eventsourceflex127_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex127_pending <= irqarray6_eventsourceflex127_pending;
+        end
+    end
+    if ((irqarray6_interrupts[8] | irqarray6_trigger[8])) begin
+        irqarray6_eventsourceflex128_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex128_clear) begin
+            irqarray6_eventsourceflex128_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex128_pending <= irqarray6_eventsourceflex128_pending;
+        end
+    end
+    if ((irqarray6_interrupts[9] | irqarray6_trigger[9])) begin
+        irqarray6_eventsourceflex129_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex129_clear) begin
+            irqarray6_eventsourceflex129_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex129_pending <= irqarray6_eventsourceflex129_pending;
+        end
+    end
+    if ((irqarray6_interrupts[10] | irqarray6_trigger[10])) begin
+        irqarray6_eventsourceflex130_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex130_clear) begin
+            irqarray6_eventsourceflex130_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex130_pending <= irqarray6_eventsourceflex130_pending;
+        end
+    end
+    if ((irqarray6_interrupts[11] | irqarray6_trigger[11])) begin
+        irqarray6_eventsourceflex131_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex131_clear) begin
+            irqarray6_eventsourceflex131_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex131_pending <= irqarray6_eventsourceflex131_pending;
+        end
+    end
+    if ((irqarray6_interrupts[12] | irqarray6_trigger[12])) begin
+        irqarray6_eventsourceflex132_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex132_clear) begin
+            irqarray6_eventsourceflex132_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex132_pending <= irqarray6_eventsourceflex132_pending;
+        end
+    end
+    if ((irqarray6_interrupts[13] | irqarray6_trigger[13])) begin
+        irqarray6_eventsourceflex133_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex133_clear) begin
+            irqarray6_eventsourceflex133_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex133_pending <= irqarray6_eventsourceflex133_pending;
+        end
+    end
+    if ((irqarray6_interrupts[14] | irqarray6_trigger[14])) begin
+        irqarray6_eventsourceflex134_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex134_clear) begin
+            irqarray6_eventsourceflex134_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex134_pending <= irqarray6_eventsourceflex134_pending;
+        end
+    end
+    if ((irqarray6_interrupts[15] | irqarray6_trigger[15])) begin
+        irqarray6_eventsourceflex135_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex135_clear) begin
+            irqarray6_eventsourceflex135_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex135_pending <= irqarray6_eventsourceflex135_pending;
+        end
+    end
+    if ((irqarray6_interrupts[16] | irqarray6_trigger[16])) begin
+        irqarray6_eventsourceflex136_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex136_clear) begin
+            irqarray6_eventsourceflex136_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex136_pending <= irqarray6_eventsourceflex136_pending;
+        end
+    end
+    if ((irqarray6_interrupts[17] | irqarray6_trigger[17])) begin
+        irqarray6_eventsourceflex137_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex137_clear) begin
+            irqarray6_eventsourceflex137_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex137_pending <= irqarray6_eventsourceflex137_pending;
+        end
+    end
+    if ((irqarray6_interrupts[18] | irqarray6_trigger[18])) begin
+        irqarray6_eventsourceflex138_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex138_clear) begin
+            irqarray6_eventsourceflex138_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex138_pending <= irqarray6_eventsourceflex138_pending;
+        end
+    end
+    if ((irqarray6_interrupts[19] | irqarray6_trigger[19])) begin
+        irqarray6_eventsourceflex139_pending <= 1'd1;
+    end else begin
+        if (irqarray6_eventsourceflex139_clear) begin
+            irqarray6_eventsourceflex139_pending <= 1'd0;
+        end else begin
+            irqarray6_eventsourceflex139_pending <= irqarray6_eventsourceflex139_pending;
+        end
+    end
+    if ((irqarray7_interrupts[0] | irqarray7_trigger[0])) begin
+        irqarray7_eventsourceflex140_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex140_clear) begin
+            irqarray7_eventsourceflex140_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex140_pending <= irqarray7_eventsourceflex140_pending;
+        end
+    end
+    if ((irqarray7_interrupts[1] | irqarray7_trigger[1])) begin
+        irqarray7_eventsourceflex141_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex141_clear) begin
+            irqarray7_eventsourceflex141_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex141_pending <= irqarray7_eventsourceflex141_pending;
+        end
+    end
+    if ((irqarray7_interrupts[2] | irqarray7_trigger[2])) begin
+        irqarray7_eventsourceflex142_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex142_clear) begin
+            irqarray7_eventsourceflex142_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex142_pending <= irqarray7_eventsourceflex142_pending;
+        end
+    end
+    if ((irqarray7_interrupts[3] | irqarray7_trigger[3])) begin
+        irqarray7_eventsourceflex143_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex143_clear) begin
+            irqarray7_eventsourceflex143_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex143_pending <= irqarray7_eventsourceflex143_pending;
+        end
+    end
+    if ((irqarray7_interrupts[4] | irqarray7_trigger[4])) begin
+        irqarray7_eventsourceflex144_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex144_clear) begin
+            irqarray7_eventsourceflex144_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex144_pending <= irqarray7_eventsourceflex144_pending;
+        end
+    end
+    if ((irqarray7_interrupts[5] | irqarray7_trigger[5])) begin
+        irqarray7_eventsourceflex145_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex145_clear) begin
+            irqarray7_eventsourceflex145_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex145_pending <= irqarray7_eventsourceflex145_pending;
+        end
+    end
+    if ((irqarray7_interrupts[6] | irqarray7_trigger[6])) begin
+        irqarray7_eventsourceflex146_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex146_clear) begin
+            irqarray7_eventsourceflex146_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex146_pending <= irqarray7_eventsourceflex146_pending;
+        end
+    end
+    if ((irqarray7_interrupts[7] | irqarray7_trigger[7])) begin
+        irqarray7_eventsourceflex147_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex147_clear) begin
+            irqarray7_eventsourceflex147_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex147_pending <= irqarray7_eventsourceflex147_pending;
+        end
+    end
+    if ((irqarray7_interrupts[8] | irqarray7_trigger[8])) begin
+        irqarray7_eventsourceflex148_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex148_clear) begin
+            irqarray7_eventsourceflex148_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex148_pending <= irqarray7_eventsourceflex148_pending;
+        end
+    end
+    if ((irqarray7_interrupts[9] | irqarray7_trigger[9])) begin
+        irqarray7_eventsourceflex149_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex149_clear) begin
+            irqarray7_eventsourceflex149_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex149_pending <= irqarray7_eventsourceflex149_pending;
+        end
+    end
+    if ((irqarray7_interrupts[10] | irqarray7_trigger[10])) begin
+        irqarray7_eventsourceflex150_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex150_clear) begin
+            irqarray7_eventsourceflex150_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex150_pending <= irqarray7_eventsourceflex150_pending;
+        end
+    end
+    if ((irqarray7_interrupts[11] | irqarray7_trigger[11])) begin
+        irqarray7_eventsourceflex151_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex151_clear) begin
+            irqarray7_eventsourceflex151_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex151_pending <= irqarray7_eventsourceflex151_pending;
+        end
+    end
+    if ((irqarray7_interrupts[12] | irqarray7_trigger[12])) begin
+        irqarray7_eventsourceflex152_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex152_clear) begin
+            irqarray7_eventsourceflex152_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex152_pending <= irqarray7_eventsourceflex152_pending;
+        end
+    end
+    if ((irqarray7_interrupts[13] | irqarray7_trigger[13])) begin
+        irqarray7_eventsourceflex153_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex153_clear) begin
+            irqarray7_eventsourceflex153_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex153_pending <= irqarray7_eventsourceflex153_pending;
+        end
+    end
+    if ((irqarray7_interrupts[14] | irqarray7_trigger[14])) begin
+        irqarray7_eventsourceflex154_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex154_clear) begin
+            irqarray7_eventsourceflex154_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex154_pending <= irqarray7_eventsourceflex154_pending;
+        end
+    end
+    if ((irqarray7_interrupts[15] | irqarray7_trigger[15])) begin
+        irqarray7_eventsourceflex155_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex155_clear) begin
+            irqarray7_eventsourceflex155_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex155_pending <= irqarray7_eventsourceflex155_pending;
+        end
+    end
+    if ((irqarray7_interrupts[16] | irqarray7_trigger[16])) begin
+        irqarray7_eventsourceflex156_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex156_clear) begin
+            irqarray7_eventsourceflex156_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex156_pending <= irqarray7_eventsourceflex156_pending;
+        end
+    end
+    if ((irqarray7_interrupts[17] | irqarray7_trigger[17])) begin
+        irqarray7_eventsourceflex157_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex157_clear) begin
+            irqarray7_eventsourceflex157_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex157_pending <= irqarray7_eventsourceflex157_pending;
+        end
+    end
+    if ((irqarray7_interrupts[18] | irqarray7_trigger[18])) begin
+        irqarray7_eventsourceflex158_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex158_clear) begin
+            irqarray7_eventsourceflex158_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex158_pending <= irqarray7_eventsourceflex158_pending;
+        end
+    end
+    if ((irqarray7_interrupts[19] | irqarray7_trigger[19])) begin
+        irqarray7_eventsourceflex159_pending <= 1'd1;
+    end else begin
+        if (irqarray7_eventsourceflex159_clear) begin
+            irqarray7_eventsourceflex159_pending <= 1'd0;
+        end else begin
+            irqarray7_eventsourceflex159_pending <= irqarray7_eventsourceflex159_pending;
+        end
+    end
+    if ((irqarray8_interrupts[0] | irqarray8_trigger[0])) begin
+        irqarray8_eventsourceflex160_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex160_clear) begin
+            irqarray8_eventsourceflex160_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex160_pending <= irqarray8_eventsourceflex160_pending;
+        end
+    end
+    if ((irqarray8_interrupts[1] | irqarray8_trigger[1])) begin
+        irqarray8_eventsourceflex161_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex161_clear) begin
+            irqarray8_eventsourceflex161_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex161_pending <= irqarray8_eventsourceflex161_pending;
+        end
+    end
+    if ((irqarray8_interrupts[2] | irqarray8_trigger[2])) begin
+        irqarray8_eventsourceflex162_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex162_clear) begin
+            irqarray8_eventsourceflex162_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex162_pending <= irqarray8_eventsourceflex162_pending;
+        end
+    end
+    if ((irqarray8_interrupts[3] | irqarray8_trigger[3])) begin
+        irqarray8_eventsourceflex163_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex163_clear) begin
+            irqarray8_eventsourceflex163_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex163_pending <= irqarray8_eventsourceflex163_pending;
+        end
+    end
+    if ((irqarray8_interrupts[4] | irqarray8_trigger[4])) begin
+        irqarray8_eventsourceflex164_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex164_clear) begin
+            irqarray8_eventsourceflex164_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex164_pending <= irqarray8_eventsourceflex164_pending;
+        end
+    end
+    if ((irqarray8_interrupts[5] | irqarray8_trigger[5])) begin
+        irqarray8_eventsourceflex165_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex165_clear) begin
+            irqarray8_eventsourceflex165_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex165_pending <= irqarray8_eventsourceflex165_pending;
+        end
+    end
+    if ((irqarray8_interrupts[6] | irqarray8_trigger[6])) begin
+        irqarray8_eventsourceflex166_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex166_clear) begin
+            irqarray8_eventsourceflex166_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex166_pending <= irqarray8_eventsourceflex166_pending;
+        end
+    end
+    if ((irqarray8_interrupts[7] | irqarray8_trigger[7])) begin
+        irqarray8_eventsourceflex167_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex167_clear) begin
+            irqarray8_eventsourceflex167_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex167_pending <= irqarray8_eventsourceflex167_pending;
+        end
+    end
+    if ((irqarray8_interrupts[8] | irqarray8_trigger[8])) begin
+        irqarray8_eventsourceflex168_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex168_clear) begin
+            irqarray8_eventsourceflex168_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex168_pending <= irqarray8_eventsourceflex168_pending;
+        end
+    end
+    if ((irqarray8_interrupts[9] | irqarray8_trigger[9])) begin
+        irqarray8_eventsourceflex169_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex169_clear) begin
+            irqarray8_eventsourceflex169_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex169_pending <= irqarray8_eventsourceflex169_pending;
+        end
+    end
+    if ((irqarray8_interrupts[10] | irqarray8_trigger[10])) begin
+        irqarray8_eventsourceflex170_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex170_clear) begin
+            irqarray8_eventsourceflex170_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex170_pending <= irqarray8_eventsourceflex170_pending;
+        end
+    end
+    if ((irqarray8_interrupts[11] | irqarray8_trigger[11])) begin
+        irqarray8_eventsourceflex171_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex171_clear) begin
+            irqarray8_eventsourceflex171_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex171_pending <= irqarray8_eventsourceflex171_pending;
+        end
+    end
+    if ((irqarray8_interrupts[12] | irqarray8_trigger[12])) begin
+        irqarray8_eventsourceflex172_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex172_clear) begin
+            irqarray8_eventsourceflex172_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex172_pending <= irqarray8_eventsourceflex172_pending;
+        end
+    end
+    if ((irqarray8_interrupts[13] | irqarray8_trigger[13])) begin
+        irqarray8_eventsourceflex173_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex173_clear) begin
+            irqarray8_eventsourceflex173_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex173_pending <= irqarray8_eventsourceflex173_pending;
+        end
+    end
+    if ((irqarray8_interrupts[14] | irqarray8_trigger[14])) begin
+        irqarray8_eventsourceflex174_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex174_clear) begin
+            irqarray8_eventsourceflex174_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex174_pending <= irqarray8_eventsourceflex174_pending;
+        end
+    end
+    if ((irqarray8_interrupts[15] | irqarray8_trigger[15])) begin
+        irqarray8_eventsourceflex175_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex175_clear) begin
+            irqarray8_eventsourceflex175_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex175_pending <= irqarray8_eventsourceflex175_pending;
+        end
+    end
+    if ((irqarray8_interrupts[16] | irqarray8_trigger[16])) begin
+        irqarray8_eventsourceflex176_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex176_clear) begin
+            irqarray8_eventsourceflex176_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex176_pending <= irqarray8_eventsourceflex176_pending;
+        end
+    end
+    if ((irqarray8_interrupts[17] | irqarray8_trigger[17])) begin
+        irqarray8_eventsourceflex177_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex177_clear) begin
+            irqarray8_eventsourceflex177_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex177_pending <= irqarray8_eventsourceflex177_pending;
+        end
+    end
+    if ((irqarray8_interrupts[18] | irqarray8_trigger[18])) begin
+        irqarray8_eventsourceflex178_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex178_clear) begin
+            irqarray8_eventsourceflex178_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex178_pending <= irqarray8_eventsourceflex178_pending;
+        end
+    end
+    if ((irqarray8_interrupts[19] | irqarray8_trigger[19])) begin
+        irqarray8_eventsourceflex179_pending <= 1'd1;
+    end else begin
+        if (irqarray8_eventsourceflex179_clear) begin
+            irqarray8_eventsourceflex179_pending <= 1'd0;
+        end else begin
+            irqarray8_eventsourceflex179_pending <= irqarray8_eventsourceflex179_pending;
+        end
+    end
+    if ((irqarray9_interrupts[0] | irqarray9_trigger[0])) begin
+        irqarray9_eventsourceflex180_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex180_clear) begin
+            irqarray9_eventsourceflex180_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex180_pending <= irqarray9_eventsourceflex180_pending;
+        end
+    end
+    if ((irqarray9_interrupts[1] | irqarray9_trigger[1])) begin
+        irqarray9_eventsourceflex181_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex181_clear) begin
+            irqarray9_eventsourceflex181_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex181_pending <= irqarray9_eventsourceflex181_pending;
+        end
+    end
+    if ((irqarray9_interrupts[2] | irqarray9_trigger[2])) begin
+        irqarray9_eventsourceflex182_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex182_clear) begin
+            irqarray9_eventsourceflex182_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex182_pending <= irqarray9_eventsourceflex182_pending;
+        end
+    end
+    if ((irqarray9_interrupts[3] | irqarray9_trigger[3])) begin
+        irqarray9_eventsourceflex183_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex183_clear) begin
+            irqarray9_eventsourceflex183_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex183_pending <= irqarray9_eventsourceflex183_pending;
+        end
+    end
+    if ((irqarray9_interrupts[4] | irqarray9_trigger[4])) begin
+        irqarray9_eventsourceflex184_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex184_clear) begin
+            irqarray9_eventsourceflex184_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex184_pending <= irqarray9_eventsourceflex184_pending;
+        end
+    end
+    if ((irqarray9_interrupts[5] | irqarray9_trigger[5])) begin
+        irqarray9_eventsourceflex185_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex185_clear) begin
+            irqarray9_eventsourceflex185_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex185_pending <= irqarray9_eventsourceflex185_pending;
+        end
+    end
+    if ((irqarray9_interrupts[6] | irqarray9_trigger[6])) begin
+        irqarray9_eventsourceflex186_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex186_clear) begin
+            irqarray9_eventsourceflex186_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex186_pending <= irqarray9_eventsourceflex186_pending;
+        end
+    end
+    if ((irqarray9_interrupts[7] | irqarray9_trigger[7])) begin
+        irqarray9_eventsourceflex187_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex187_clear) begin
+            irqarray9_eventsourceflex187_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex187_pending <= irqarray9_eventsourceflex187_pending;
+        end
+    end
+    if ((irqarray9_interrupts[8] | irqarray9_trigger[8])) begin
+        irqarray9_eventsourceflex188_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex188_clear) begin
+            irqarray9_eventsourceflex188_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex188_pending <= irqarray9_eventsourceflex188_pending;
+        end
+    end
+    if ((irqarray9_interrupts[9] | irqarray9_trigger[9])) begin
+        irqarray9_eventsourceflex189_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex189_clear) begin
+            irqarray9_eventsourceflex189_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex189_pending <= irqarray9_eventsourceflex189_pending;
+        end
+    end
+    if ((irqarray9_interrupts[10] | irqarray9_trigger[10])) begin
+        irqarray9_eventsourceflex190_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex190_clear) begin
+            irqarray9_eventsourceflex190_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex190_pending <= irqarray9_eventsourceflex190_pending;
+        end
+    end
+    if ((irqarray9_interrupts[11] | irqarray9_trigger[11])) begin
+        irqarray9_eventsourceflex191_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex191_clear) begin
+            irqarray9_eventsourceflex191_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex191_pending <= irqarray9_eventsourceflex191_pending;
+        end
+    end
+    if ((irqarray9_interrupts[12] | irqarray9_trigger[12])) begin
+        irqarray9_eventsourceflex192_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex192_clear) begin
+            irqarray9_eventsourceflex192_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex192_pending <= irqarray9_eventsourceflex192_pending;
+        end
+    end
+    if ((irqarray9_interrupts[13] | irqarray9_trigger[13])) begin
+        irqarray9_eventsourceflex193_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex193_clear) begin
+            irqarray9_eventsourceflex193_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex193_pending <= irqarray9_eventsourceflex193_pending;
+        end
+    end
+    if ((irqarray9_interrupts[14] | irqarray9_trigger[14])) begin
+        irqarray9_eventsourceflex194_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex194_clear) begin
+            irqarray9_eventsourceflex194_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex194_pending <= irqarray9_eventsourceflex194_pending;
+        end
+    end
+    if ((irqarray9_interrupts[15] | irqarray9_trigger[15])) begin
+        irqarray9_eventsourceflex195_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex195_clear) begin
+            irqarray9_eventsourceflex195_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex195_pending <= irqarray9_eventsourceflex195_pending;
+        end
+    end
+    if ((irqarray9_interrupts[16] | irqarray9_trigger[16])) begin
+        irqarray9_eventsourceflex196_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex196_clear) begin
+            irqarray9_eventsourceflex196_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex196_pending <= irqarray9_eventsourceflex196_pending;
+        end
+    end
+    if ((irqarray9_interrupts[17] | irqarray9_trigger[17])) begin
+        irqarray9_eventsourceflex197_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex197_clear) begin
+            irqarray9_eventsourceflex197_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex197_pending <= irqarray9_eventsourceflex197_pending;
+        end
+    end
+    if ((irqarray9_interrupts[18] | irqarray9_trigger[18])) begin
+        irqarray9_eventsourceflex198_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex198_clear) begin
+            irqarray9_eventsourceflex198_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex198_pending <= irqarray9_eventsourceflex198_pending;
+        end
+    end
+    if ((irqarray9_interrupts[19] | irqarray9_trigger[19])) begin
+        irqarray9_eventsourceflex199_pending <= 1'd1;
+    end else begin
+        if (irqarray9_eventsourceflex199_clear) begin
+            irqarray9_eventsourceflex199_pending <= 1'd0;
+        end else begin
+            irqarray9_eventsourceflex199_pending <= irqarray9_eventsourceflex199_pending;
+        end
+    end
+    if ((irqarray10_interrupts[0] | irqarray10_trigger[0])) begin
+        irqarray10_eventsourceflex200_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex200_clear) begin
+            irqarray10_eventsourceflex200_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex200_pending <= irqarray10_eventsourceflex200_pending;
+        end
+    end
+    if ((irqarray10_interrupts[1] | irqarray10_trigger[1])) begin
+        irqarray10_eventsourceflex201_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex201_clear) begin
+            irqarray10_eventsourceflex201_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex201_pending <= irqarray10_eventsourceflex201_pending;
+        end
+    end
+    if ((irqarray10_interrupts[2] | irqarray10_trigger[2])) begin
+        irqarray10_eventsourceflex202_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex202_clear) begin
+            irqarray10_eventsourceflex202_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex202_pending <= irqarray10_eventsourceflex202_pending;
+        end
+    end
+    if ((irqarray10_interrupts[3] | irqarray10_trigger[3])) begin
+        irqarray10_eventsourceflex203_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex203_clear) begin
+            irqarray10_eventsourceflex203_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex203_pending <= irqarray10_eventsourceflex203_pending;
+        end
+    end
+    if ((irqarray10_interrupts[4] | irqarray10_trigger[4])) begin
+        irqarray10_eventsourceflex204_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex204_clear) begin
+            irqarray10_eventsourceflex204_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex204_pending <= irqarray10_eventsourceflex204_pending;
+        end
+    end
+    if ((irqarray10_interrupts[5] | irqarray10_trigger[5])) begin
+        irqarray10_eventsourceflex205_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex205_clear) begin
+            irqarray10_eventsourceflex205_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex205_pending <= irqarray10_eventsourceflex205_pending;
+        end
+    end
+    if ((irqarray10_interrupts[6] | irqarray10_trigger[6])) begin
+        irqarray10_eventsourceflex206_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex206_clear) begin
+            irqarray10_eventsourceflex206_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex206_pending <= irqarray10_eventsourceflex206_pending;
+        end
+    end
+    if ((irqarray10_interrupts[7] | irqarray10_trigger[7])) begin
+        irqarray10_eventsourceflex207_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex207_clear) begin
+            irqarray10_eventsourceflex207_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex207_pending <= irqarray10_eventsourceflex207_pending;
+        end
+    end
+    if ((irqarray10_interrupts[8] | irqarray10_trigger[8])) begin
+        irqarray10_eventsourceflex208_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex208_clear) begin
+            irqarray10_eventsourceflex208_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex208_pending <= irqarray10_eventsourceflex208_pending;
+        end
+    end
+    if ((irqarray10_interrupts[9] | irqarray10_trigger[9])) begin
+        irqarray10_eventsourceflex209_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex209_clear) begin
+            irqarray10_eventsourceflex209_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex209_pending <= irqarray10_eventsourceflex209_pending;
+        end
+    end
+    if ((irqarray10_interrupts[10] | irqarray10_trigger[10])) begin
+        irqarray10_eventsourceflex210_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex210_clear) begin
+            irqarray10_eventsourceflex210_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex210_pending <= irqarray10_eventsourceflex210_pending;
+        end
+    end
+    if ((irqarray10_interrupts[11] | irqarray10_trigger[11])) begin
+        irqarray10_eventsourceflex211_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex211_clear) begin
+            irqarray10_eventsourceflex211_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex211_pending <= irqarray10_eventsourceflex211_pending;
+        end
+    end
+    if ((irqarray10_interrupts[12] | irqarray10_trigger[12])) begin
+        irqarray10_eventsourceflex212_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex212_clear) begin
+            irqarray10_eventsourceflex212_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex212_pending <= irqarray10_eventsourceflex212_pending;
+        end
+    end
+    if ((irqarray10_interrupts[13] | irqarray10_trigger[13])) begin
+        irqarray10_eventsourceflex213_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex213_clear) begin
+            irqarray10_eventsourceflex213_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex213_pending <= irqarray10_eventsourceflex213_pending;
+        end
+    end
+    if ((irqarray10_interrupts[14] | irqarray10_trigger[14])) begin
+        irqarray10_eventsourceflex214_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex214_clear) begin
+            irqarray10_eventsourceflex214_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex214_pending <= irqarray10_eventsourceflex214_pending;
+        end
+    end
+    if ((irqarray10_interrupts[15] | irqarray10_trigger[15])) begin
+        irqarray10_eventsourceflex215_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex215_clear) begin
+            irqarray10_eventsourceflex215_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex215_pending <= irqarray10_eventsourceflex215_pending;
+        end
+    end
+    if ((irqarray10_interrupts[16] | irqarray10_trigger[16])) begin
+        irqarray10_eventsourceflex216_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex216_clear) begin
+            irqarray10_eventsourceflex216_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex216_pending <= irqarray10_eventsourceflex216_pending;
+        end
+    end
+    if ((irqarray10_interrupts[17] | irqarray10_trigger[17])) begin
+        irqarray10_eventsourceflex217_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex217_clear) begin
+            irqarray10_eventsourceflex217_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex217_pending <= irqarray10_eventsourceflex217_pending;
+        end
+    end
+    if ((irqarray10_interrupts[18] | irqarray10_trigger[18])) begin
+        irqarray10_eventsourceflex218_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex218_clear) begin
+            irqarray10_eventsourceflex218_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex218_pending <= irqarray10_eventsourceflex218_pending;
+        end
+    end
+    if ((irqarray10_interrupts[19] | irqarray10_trigger[19])) begin
+        irqarray10_eventsourceflex219_pending <= 1'd1;
+    end else begin
+        if (irqarray10_eventsourceflex219_clear) begin
+            irqarray10_eventsourceflex219_pending <= 1'd0;
+        end else begin
+            irqarray10_eventsourceflex219_pending <= irqarray10_eventsourceflex219_pending;
+        end
+    end
+    if ((irqarray11_interrupts[0] | irqarray11_trigger[0])) begin
+        irqarray11_eventsourceflex220_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex220_clear) begin
+            irqarray11_eventsourceflex220_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex220_pending <= irqarray11_eventsourceflex220_pending;
+        end
+    end
+    if ((irqarray11_interrupts[1] | irqarray11_trigger[1])) begin
+        irqarray11_eventsourceflex221_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex221_clear) begin
+            irqarray11_eventsourceflex221_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex221_pending <= irqarray11_eventsourceflex221_pending;
+        end
+    end
+    if ((irqarray11_interrupts[2] | irqarray11_trigger[2])) begin
+        irqarray11_eventsourceflex222_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex222_clear) begin
+            irqarray11_eventsourceflex222_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex222_pending <= irqarray11_eventsourceflex222_pending;
+        end
+    end
+    if ((irqarray11_interrupts[3] | irqarray11_trigger[3])) begin
+        irqarray11_eventsourceflex223_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex223_clear) begin
+            irqarray11_eventsourceflex223_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex223_pending <= irqarray11_eventsourceflex223_pending;
+        end
+    end
+    if ((irqarray11_interrupts[4] | irqarray11_trigger[4])) begin
+        irqarray11_eventsourceflex224_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex224_clear) begin
+            irqarray11_eventsourceflex224_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex224_pending <= irqarray11_eventsourceflex224_pending;
+        end
+    end
+    if ((irqarray11_interrupts[5] | irqarray11_trigger[5])) begin
+        irqarray11_eventsourceflex225_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex225_clear) begin
+            irqarray11_eventsourceflex225_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex225_pending <= irqarray11_eventsourceflex225_pending;
+        end
+    end
+    if ((irqarray11_interrupts[6] | irqarray11_trigger[6])) begin
+        irqarray11_eventsourceflex226_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex226_clear) begin
+            irqarray11_eventsourceflex226_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex226_pending <= irqarray11_eventsourceflex226_pending;
+        end
+    end
+    if ((irqarray11_interrupts[7] | irqarray11_trigger[7])) begin
+        irqarray11_eventsourceflex227_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex227_clear) begin
+            irqarray11_eventsourceflex227_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex227_pending <= irqarray11_eventsourceflex227_pending;
+        end
+    end
+    if ((irqarray11_interrupts[8] | irqarray11_trigger[8])) begin
+        irqarray11_eventsourceflex228_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex228_clear) begin
+            irqarray11_eventsourceflex228_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex228_pending <= irqarray11_eventsourceflex228_pending;
+        end
+    end
+    if ((irqarray11_interrupts[9] | irqarray11_trigger[9])) begin
+        irqarray11_eventsourceflex229_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex229_clear) begin
+            irqarray11_eventsourceflex229_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex229_pending <= irqarray11_eventsourceflex229_pending;
+        end
+    end
+    if ((irqarray11_interrupts[10] | irqarray11_trigger[10])) begin
+        irqarray11_eventsourceflex230_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex230_clear) begin
+            irqarray11_eventsourceflex230_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex230_pending <= irqarray11_eventsourceflex230_pending;
+        end
+    end
+    if ((irqarray11_interrupts[11] | irqarray11_trigger[11])) begin
+        irqarray11_eventsourceflex231_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex231_clear) begin
+            irqarray11_eventsourceflex231_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex231_pending <= irqarray11_eventsourceflex231_pending;
+        end
+    end
+    if ((irqarray11_interrupts[12] | irqarray11_trigger[12])) begin
+        irqarray11_eventsourceflex232_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex232_clear) begin
+            irqarray11_eventsourceflex232_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex232_pending <= irqarray11_eventsourceflex232_pending;
+        end
+    end
+    if ((irqarray11_interrupts[13] | irqarray11_trigger[13])) begin
+        irqarray11_eventsourceflex233_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex233_clear) begin
+            irqarray11_eventsourceflex233_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex233_pending <= irqarray11_eventsourceflex233_pending;
+        end
+    end
+    if ((irqarray11_interrupts[14] | irqarray11_trigger[14])) begin
+        irqarray11_eventsourceflex234_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex234_clear) begin
+            irqarray11_eventsourceflex234_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex234_pending <= irqarray11_eventsourceflex234_pending;
+        end
+    end
+    if ((irqarray11_interrupts[15] | irqarray11_trigger[15])) begin
+        irqarray11_eventsourceflex235_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex235_clear) begin
+            irqarray11_eventsourceflex235_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex235_pending <= irqarray11_eventsourceflex235_pending;
+        end
+    end
+    if ((irqarray11_interrupts[16] | irqarray11_trigger[16])) begin
+        irqarray11_eventsourceflex236_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex236_clear) begin
+            irqarray11_eventsourceflex236_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex236_pending <= irqarray11_eventsourceflex236_pending;
+        end
+    end
+    if ((irqarray11_interrupts[17] | irqarray11_trigger[17])) begin
+        irqarray11_eventsourceflex237_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex237_clear) begin
+            irqarray11_eventsourceflex237_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex237_pending <= irqarray11_eventsourceflex237_pending;
+        end
+    end
+    if ((irqarray11_interrupts[18] | irqarray11_trigger[18])) begin
+        irqarray11_eventsourceflex238_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex238_clear) begin
+            irqarray11_eventsourceflex238_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex238_pending <= irqarray11_eventsourceflex238_pending;
+        end
+    end
+    if ((irqarray11_interrupts[19] | irqarray11_trigger[19])) begin
+        irqarray11_eventsourceflex239_pending <= 1'd1;
+    end else begin
+        if (irqarray11_eventsourceflex239_clear) begin
+            irqarray11_eventsourceflex239_pending <= 1'd0;
+        end else begin
+            irqarray11_eventsourceflex239_pending <= irqarray11_eventsourceflex239_pending;
+        end
+    end
+    if ((irqarray12_interrupts[0] | irqarray12_trigger[0])) begin
+        irqarray12_eventsourceflex240_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex240_clear) begin
+            irqarray12_eventsourceflex240_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex240_pending <= irqarray12_eventsourceflex240_pending;
+        end
+    end
+    if ((irqarray12_interrupts[1] | irqarray12_trigger[1])) begin
+        irqarray12_eventsourceflex241_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex241_clear) begin
+            irqarray12_eventsourceflex241_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex241_pending <= irqarray12_eventsourceflex241_pending;
+        end
+    end
+    if ((irqarray12_interrupts[2] | irqarray12_trigger[2])) begin
+        irqarray12_eventsourceflex242_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex242_clear) begin
+            irqarray12_eventsourceflex242_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex242_pending <= irqarray12_eventsourceflex242_pending;
+        end
+    end
+    if ((irqarray12_interrupts[3] | irqarray12_trigger[3])) begin
+        irqarray12_eventsourceflex243_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex243_clear) begin
+            irqarray12_eventsourceflex243_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex243_pending <= irqarray12_eventsourceflex243_pending;
+        end
+    end
+    if ((irqarray12_interrupts[4] | irqarray12_trigger[4])) begin
+        irqarray12_eventsourceflex244_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex244_clear) begin
+            irqarray12_eventsourceflex244_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex244_pending <= irqarray12_eventsourceflex244_pending;
+        end
+    end
+    if ((irqarray12_interrupts[5] | irqarray12_trigger[5])) begin
+        irqarray12_eventsourceflex245_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex245_clear) begin
+            irqarray12_eventsourceflex245_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex245_pending <= irqarray12_eventsourceflex245_pending;
+        end
+    end
+    if ((irqarray12_interrupts[6] | irqarray12_trigger[6])) begin
+        irqarray12_eventsourceflex246_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex246_clear) begin
+            irqarray12_eventsourceflex246_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex246_pending <= irqarray12_eventsourceflex246_pending;
+        end
+    end
+    if ((irqarray12_interrupts[7] | irqarray12_trigger[7])) begin
+        irqarray12_eventsourceflex247_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex247_clear) begin
+            irqarray12_eventsourceflex247_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex247_pending <= irqarray12_eventsourceflex247_pending;
+        end
+    end
+    if ((irqarray12_interrupts[8] | irqarray12_trigger[8])) begin
+        irqarray12_eventsourceflex248_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex248_clear) begin
+            irqarray12_eventsourceflex248_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex248_pending <= irqarray12_eventsourceflex248_pending;
+        end
+    end
+    if ((irqarray12_interrupts[9] | irqarray12_trigger[9])) begin
+        irqarray12_eventsourceflex249_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex249_clear) begin
+            irqarray12_eventsourceflex249_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex249_pending <= irqarray12_eventsourceflex249_pending;
+        end
+    end
+    if ((irqarray12_interrupts[10] | irqarray12_trigger[10])) begin
+        irqarray12_eventsourceflex250_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex250_clear) begin
+            irqarray12_eventsourceflex250_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex250_pending <= irqarray12_eventsourceflex250_pending;
+        end
+    end
+    if ((irqarray12_interrupts[11] | irqarray12_trigger[11])) begin
+        irqarray12_eventsourceflex251_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex251_clear) begin
+            irqarray12_eventsourceflex251_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex251_pending <= irqarray12_eventsourceflex251_pending;
+        end
+    end
+    if ((irqarray12_interrupts[12] | irqarray12_trigger[12])) begin
+        irqarray12_eventsourceflex252_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex252_clear) begin
+            irqarray12_eventsourceflex252_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex252_pending <= irqarray12_eventsourceflex252_pending;
+        end
+    end
+    if ((irqarray12_interrupts[13] | irqarray12_trigger[13])) begin
+        irqarray12_eventsourceflex253_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex253_clear) begin
+            irqarray12_eventsourceflex253_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex253_pending <= irqarray12_eventsourceflex253_pending;
+        end
+    end
+    if ((irqarray12_interrupts[14] | irqarray12_trigger[14])) begin
+        irqarray12_eventsourceflex254_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex254_clear) begin
+            irqarray12_eventsourceflex254_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex254_pending <= irqarray12_eventsourceflex254_pending;
+        end
+    end
+    if ((irqarray12_interrupts[15] | irqarray12_trigger[15])) begin
+        irqarray12_eventsourceflex255_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex255_clear) begin
+            irqarray12_eventsourceflex255_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex255_pending <= irqarray12_eventsourceflex255_pending;
+        end
+    end
+    if ((irqarray12_interrupts[16] | irqarray12_trigger[16])) begin
+        irqarray12_eventsourceflex256_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex256_clear) begin
+            irqarray12_eventsourceflex256_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex256_pending <= irqarray12_eventsourceflex256_pending;
+        end
+    end
+    if ((irqarray12_interrupts[17] | irqarray12_trigger[17])) begin
+        irqarray12_eventsourceflex257_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex257_clear) begin
+            irqarray12_eventsourceflex257_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex257_pending <= irqarray12_eventsourceflex257_pending;
+        end
+    end
+    if ((irqarray12_interrupts[18] | irqarray12_trigger[18])) begin
+        irqarray12_eventsourceflex258_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex258_clear) begin
+            irqarray12_eventsourceflex258_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex258_pending <= irqarray12_eventsourceflex258_pending;
+        end
+    end
+    if ((irqarray12_interrupts[19] | irqarray12_trigger[19])) begin
+        irqarray12_eventsourceflex259_pending <= 1'd1;
+    end else begin
+        if (irqarray12_eventsourceflex259_clear) begin
+            irqarray12_eventsourceflex259_pending <= 1'd0;
+        end else begin
+            irqarray12_eventsourceflex259_pending <= irqarray12_eventsourceflex259_pending;
+        end
+    end
+    if ((irqarray13_interrupts[0] | irqarray13_trigger[0])) begin
+        irqarray13_eventsourceflex260_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex260_clear) begin
+            irqarray13_eventsourceflex260_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex260_pending <= irqarray13_eventsourceflex260_pending;
+        end
+    end
+    if ((irqarray13_interrupts[1] | irqarray13_trigger[1])) begin
+        irqarray13_eventsourceflex261_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex261_clear) begin
+            irqarray13_eventsourceflex261_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex261_pending <= irqarray13_eventsourceflex261_pending;
+        end
+    end
+    if ((irqarray13_interrupts[2] | irqarray13_trigger[2])) begin
+        irqarray13_eventsourceflex262_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex262_clear) begin
+            irqarray13_eventsourceflex262_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex262_pending <= irqarray13_eventsourceflex262_pending;
+        end
+    end
+    if ((irqarray13_interrupts[3] | irqarray13_trigger[3])) begin
+        irqarray13_eventsourceflex263_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex263_clear) begin
+            irqarray13_eventsourceflex263_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex263_pending <= irqarray13_eventsourceflex263_pending;
+        end
+    end
+    if ((irqarray13_interrupts[4] | irqarray13_trigger[4])) begin
+        irqarray13_eventsourceflex264_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex264_clear) begin
+            irqarray13_eventsourceflex264_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex264_pending <= irqarray13_eventsourceflex264_pending;
+        end
+    end
+    if ((irqarray13_interrupts[5] | irqarray13_trigger[5])) begin
+        irqarray13_eventsourceflex265_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex265_clear) begin
+            irqarray13_eventsourceflex265_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex265_pending <= irqarray13_eventsourceflex265_pending;
+        end
+    end
+    if ((irqarray13_interrupts[6] | irqarray13_trigger[6])) begin
+        irqarray13_eventsourceflex266_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex266_clear) begin
+            irqarray13_eventsourceflex266_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex266_pending <= irqarray13_eventsourceflex266_pending;
+        end
+    end
+    if ((irqarray13_interrupts[7] | irqarray13_trigger[7])) begin
+        irqarray13_eventsourceflex267_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex267_clear) begin
+            irqarray13_eventsourceflex267_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex267_pending <= irqarray13_eventsourceflex267_pending;
+        end
+    end
+    if ((irqarray13_interrupts[8] | irqarray13_trigger[8])) begin
+        irqarray13_eventsourceflex268_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex268_clear) begin
+            irqarray13_eventsourceflex268_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex268_pending <= irqarray13_eventsourceflex268_pending;
+        end
+    end
+    if ((irqarray13_interrupts[9] | irqarray13_trigger[9])) begin
+        irqarray13_eventsourceflex269_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex269_clear) begin
+            irqarray13_eventsourceflex269_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex269_pending <= irqarray13_eventsourceflex269_pending;
+        end
+    end
+    if ((irqarray13_interrupts[10] | irqarray13_trigger[10])) begin
+        irqarray13_eventsourceflex270_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex270_clear) begin
+            irqarray13_eventsourceflex270_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex270_pending <= irqarray13_eventsourceflex270_pending;
+        end
+    end
+    if ((irqarray13_interrupts[11] | irqarray13_trigger[11])) begin
+        irqarray13_eventsourceflex271_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex271_clear) begin
+            irqarray13_eventsourceflex271_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex271_pending <= irqarray13_eventsourceflex271_pending;
+        end
+    end
+    if ((irqarray13_interrupts[12] | irqarray13_trigger[12])) begin
+        irqarray13_eventsourceflex272_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex272_clear) begin
+            irqarray13_eventsourceflex272_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex272_pending <= irqarray13_eventsourceflex272_pending;
+        end
+    end
+    if ((irqarray13_interrupts[13] | irqarray13_trigger[13])) begin
+        irqarray13_eventsourceflex273_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex273_clear) begin
+            irqarray13_eventsourceflex273_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex273_pending <= irqarray13_eventsourceflex273_pending;
+        end
+    end
+    if ((irqarray13_interrupts[14] | irqarray13_trigger[14])) begin
+        irqarray13_eventsourceflex274_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex274_clear) begin
+            irqarray13_eventsourceflex274_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex274_pending <= irqarray13_eventsourceflex274_pending;
+        end
+    end
+    if ((irqarray13_interrupts[15] | irqarray13_trigger[15])) begin
+        irqarray13_eventsourceflex275_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex275_clear) begin
+            irqarray13_eventsourceflex275_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex275_pending <= irqarray13_eventsourceflex275_pending;
+        end
+    end
+    if ((irqarray13_interrupts[16] | irqarray13_trigger[16])) begin
+        irqarray13_eventsourceflex276_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex276_clear) begin
+            irqarray13_eventsourceflex276_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex276_pending <= irqarray13_eventsourceflex276_pending;
+        end
+    end
+    if ((irqarray13_interrupts[17] | irqarray13_trigger[17])) begin
+        irqarray13_eventsourceflex277_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex277_clear) begin
+            irqarray13_eventsourceflex277_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex277_pending <= irqarray13_eventsourceflex277_pending;
+        end
+    end
+    if ((irqarray13_interrupts[18] | irqarray13_trigger[18])) begin
+        irqarray13_eventsourceflex278_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex278_clear) begin
+            irqarray13_eventsourceflex278_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex278_pending <= irqarray13_eventsourceflex278_pending;
+        end
+    end
+    if ((irqarray13_interrupts[19] | irqarray13_trigger[19])) begin
+        irqarray13_eventsourceflex279_pending <= 1'd1;
+    end else begin
+        if (irqarray13_eventsourceflex279_clear) begin
+            irqarray13_eventsourceflex279_pending <= 1'd0;
+        end else begin
+            irqarray13_eventsourceflex279_pending <= irqarray13_eventsourceflex279_pending;
+        end
+    end
+    if ((irqarray14_interrupts[0] | irqarray14_trigger[0])) begin
+        irqarray14_eventsourceflex280_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex280_clear) begin
+            irqarray14_eventsourceflex280_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex280_pending <= irqarray14_eventsourceflex280_pending;
+        end
+    end
+    if ((irqarray14_interrupts[1] | irqarray14_trigger[1])) begin
+        irqarray14_eventsourceflex281_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex281_clear) begin
+            irqarray14_eventsourceflex281_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex281_pending <= irqarray14_eventsourceflex281_pending;
+        end
+    end
+    if ((irqarray14_interrupts[2] | irqarray14_trigger[2])) begin
+        irqarray14_eventsourceflex282_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex282_clear) begin
+            irqarray14_eventsourceflex282_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex282_pending <= irqarray14_eventsourceflex282_pending;
+        end
+    end
+    if ((irqarray14_interrupts[3] | irqarray14_trigger[3])) begin
+        irqarray14_eventsourceflex283_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex283_clear) begin
+            irqarray14_eventsourceflex283_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex283_pending <= irqarray14_eventsourceflex283_pending;
+        end
+    end
+    if ((irqarray14_interrupts[4] | irqarray14_trigger[4])) begin
+        irqarray14_eventsourceflex284_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex284_clear) begin
+            irqarray14_eventsourceflex284_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex284_pending <= irqarray14_eventsourceflex284_pending;
+        end
+    end
+    if ((irqarray14_interrupts[5] | irqarray14_trigger[5])) begin
+        irqarray14_eventsourceflex285_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex285_clear) begin
+            irqarray14_eventsourceflex285_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex285_pending <= irqarray14_eventsourceflex285_pending;
+        end
+    end
+    if ((irqarray14_interrupts[6] | irqarray14_trigger[6])) begin
+        irqarray14_eventsourceflex286_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex286_clear) begin
+            irqarray14_eventsourceflex286_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex286_pending <= irqarray14_eventsourceflex286_pending;
+        end
+    end
+    if ((irqarray14_interrupts[7] | irqarray14_trigger[7])) begin
+        irqarray14_eventsourceflex287_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex287_clear) begin
+            irqarray14_eventsourceflex287_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex287_pending <= irqarray14_eventsourceflex287_pending;
+        end
+    end
+    if ((irqarray14_interrupts[8] | irqarray14_trigger[8])) begin
+        irqarray14_eventsourceflex288_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex288_clear) begin
+            irqarray14_eventsourceflex288_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex288_pending <= irqarray14_eventsourceflex288_pending;
+        end
+    end
+    if ((irqarray14_interrupts[9] | irqarray14_trigger[9])) begin
+        irqarray14_eventsourceflex289_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex289_clear) begin
+            irqarray14_eventsourceflex289_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex289_pending <= irqarray14_eventsourceflex289_pending;
+        end
+    end
+    if ((irqarray14_interrupts[10] | irqarray14_trigger[10])) begin
+        irqarray14_eventsourceflex290_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex290_clear) begin
+            irqarray14_eventsourceflex290_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex290_pending <= irqarray14_eventsourceflex290_pending;
+        end
+    end
+    if ((irqarray14_interrupts[11] | irqarray14_trigger[11])) begin
+        irqarray14_eventsourceflex291_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex291_clear) begin
+            irqarray14_eventsourceflex291_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex291_pending <= irqarray14_eventsourceflex291_pending;
+        end
+    end
+    if ((irqarray14_interrupts[12] | irqarray14_trigger[12])) begin
+        irqarray14_eventsourceflex292_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex292_clear) begin
+            irqarray14_eventsourceflex292_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex292_pending <= irqarray14_eventsourceflex292_pending;
+        end
+    end
+    if ((irqarray14_interrupts[13] | irqarray14_trigger[13])) begin
+        irqarray14_eventsourceflex293_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex293_clear) begin
+            irqarray14_eventsourceflex293_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex293_pending <= irqarray14_eventsourceflex293_pending;
+        end
+    end
+    if ((irqarray14_interrupts[14] | irqarray14_trigger[14])) begin
+        irqarray14_eventsourceflex294_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex294_clear) begin
+            irqarray14_eventsourceflex294_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex294_pending <= irqarray14_eventsourceflex294_pending;
+        end
+    end
+    if ((irqarray14_interrupts[15] | irqarray14_trigger[15])) begin
+        irqarray14_eventsourceflex295_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex295_clear) begin
+            irqarray14_eventsourceflex295_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex295_pending <= irqarray14_eventsourceflex295_pending;
+        end
+    end
+    if ((irqarray14_interrupts[16] | irqarray14_trigger[16])) begin
+        irqarray14_eventsourceflex296_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex296_clear) begin
+            irqarray14_eventsourceflex296_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex296_pending <= irqarray14_eventsourceflex296_pending;
+        end
+    end
+    if ((irqarray14_interrupts[17] | irqarray14_trigger[17])) begin
+        irqarray14_eventsourceflex297_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex297_clear) begin
+            irqarray14_eventsourceflex297_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex297_pending <= irqarray14_eventsourceflex297_pending;
+        end
+    end
+    if ((irqarray14_interrupts[18] | irqarray14_trigger[18])) begin
+        irqarray14_eventsourceflex298_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex298_clear) begin
+            irqarray14_eventsourceflex298_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex298_pending <= irqarray14_eventsourceflex298_pending;
+        end
+    end
+    if ((irqarray14_interrupts[19] | irqarray14_trigger[19])) begin
+        irqarray14_eventsourceflex299_pending <= 1'd1;
+    end else begin
+        if (irqarray14_eventsourceflex299_clear) begin
+            irqarray14_eventsourceflex299_pending <= 1'd0;
+        end else begin
+            irqarray14_eventsourceflex299_pending <= irqarray14_eventsourceflex299_pending;
+        end
+    end
+    if ((irqarray15_interrupts[0] | irqarray15_trigger[0])) begin
+        irqarray15_eventsourceflex300_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex300_clear) begin
+            irqarray15_eventsourceflex300_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex300_pending <= irqarray15_eventsourceflex300_pending;
+        end
+    end
+    if ((irqarray15_interrupts[1] | irqarray15_trigger[1])) begin
+        irqarray15_eventsourceflex301_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex301_clear) begin
+            irqarray15_eventsourceflex301_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex301_pending <= irqarray15_eventsourceflex301_pending;
+        end
+    end
+    if ((irqarray15_interrupts[2] | irqarray15_trigger[2])) begin
+        irqarray15_eventsourceflex302_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex302_clear) begin
+            irqarray15_eventsourceflex302_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex302_pending <= irqarray15_eventsourceflex302_pending;
+        end
+    end
+    if ((irqarray15_interrupts[3] | irqarray15_trigger[3])) begin
+        irqarray15_eventsourceflex303_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex303_clear) begin
+            irqarray15_eventsourceflex303_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex303_pending <= irqarray15_eventsourceflex303_pending;
+        end
+    end
+    if ((irqarray15_interrupts[4] | irqarray15_trigger[4])) begin
+        irqarray15_eventsourceflex304_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex304_clear) begin
+            irqarray15_eventsourceflex304_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex304_pending <= irqarray15_eventsourceflex304_pending;
+        end
+    end
+    if ((irqarray15_interrupts[5] | irqarray15_trigger[5])) begin
+        irqarray15_eventsourceflex305_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex305_clear) begin
+            irqarray15_eventsourceflex305_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex305_pending <= irqarray15_eventsourceflex305_pending;
+        end
+    end
+    if ((irqarray15_interrupts[6] | irqarray15_trigger[6])) begin
+        irqarray15_eventsourceflex306_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex306_clear) begin
+            irqarray15_eventsourceflex306_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex306_pending <= irqarray15_eventsourceflex306_pending;
+        end
+    end
+    if ((irqarray15_interrupts[7] | irqarray15_trigger[7])) begin
+        irqarray15_eventsourceflex307_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex307_clear) begin
+            irqarray15_eventsourceflex307_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex307_pending <= irqarray15_eventsourceflex307_pending;
+        end
+    end
+    if ((irqarray15_interrupts[8] | irqarray15_trigger[8])) begin
+        irqarray15_eventsourceflex308_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex308_clear) begin
+            irqarray15_eventsourceflex308_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex308_pending <= irqarray15_eventsourceflex308_pending;
+        end
+    end
+    if ((irqarray15_interrupts[9] | irqarray15_trigger[9])) begin
+        irqarray15_eventsourceflex309_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex309_clear) begin
+            irqarray15_eventsourceflex309_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex309_pending <= irqarray15_eventsourceflex309_pending;
+        end
+    end
+    if ((irqarray15_interrupts[10] | irqarray15_trigger[10])) begin
+        irqarray15_eventsourceflex310_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex310_clear) begin
+            irqarray15_eventsourceflex310_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex310_pending <= irqarray15_eventsourceflex310_pending;
+        end
+    end
+    if ((irqarray15_interrupts[11] | irqarray15_trigger[11])) begin
+        irqarray15_eventsourceflex311_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex311_clear) begin
+            irqarray15_eventsourceflex311_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex311_pending <= irqarray15_eventsourceflex311_pending;
+        end
+    end
+    if ((irqarray15_interrupts[12] | irqarray15_trigger[12])) begin
+        irqarray15_eventsourceflex312_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex312_clear) begin
+            irqarray15_eventsourceflex312_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex312_pending <= irqarray15_eventsourceflex312_pending;
+        end
+    end
+    if ((irqarray15_interrupts[13] | irqarray15_trigger[13])) begin
+        irqarray15_eventsourceflex313_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex313_clear) begin
+            irqarray15_eventsourceflex313_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex313_pending <= irqarray15_eventsourceflex313_pending;
+        end
+    end
+    if ((irqarray15_interrupts[14] | irqarray15_trigger[14])) begin
+        irqarray15_eventsourceflex314_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex314_clear) begin
+            irqarray15_eventsourceflex314_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex314_pending <= irqarray15_eventsourceflex314_pending;
+        end
+    end
+    if ((irqarray15_interrupts[15] | irqarray15_trigger[15])) begin
+        irqarray15_eventsourceflex315_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex315_clear) begin
+            irqarray15_eventsourceflex315_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex315_pending <= irqarray15_eventsourceflex315_pending;
+        end
+    end
+    if ((irqarray15_interrupts[16] | irqarray15_trigger[16])) begin
+        irqarray15_eventsourceflex316_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex316_clear) begin
+            irqarray15_eventsourceflex316_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex316_pending <= irqarray15_eventsourceflex316_pending;
+        end
+    end
+    if ((irqarray15_interrupts[17] | irqarray15_trigger[17])) begin
+        irqarray15_eventsourceflex317_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex317_clear) begin
+            irqarray15_eventsourceflex317_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex317_pending <= irqarray15_eventsourceflex317_pending;
+        end
+    end
+    if ((irqarray15_interrupts[18] | irqarray15_trigger[18])) begin
+        irqarray15_eventsourceflex318_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex318_clear) begin
+            irqarray15_eventsourceflex318_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex318_pending <= irqarray15_eventsourceflex318_pending;
+        end
+    end
+    if ((irqarray15_interrupts[19] | irqarray15_trigger[19])) begin
+        irqarray15_eventsourceflex319_pending <= 1'd1;
+    end else begin
+        if (irqarray15_eventsourceflex319_clear) begin
+            irqarray15_eventsourceflex319_pending <= 1'd0;
+        end else begin
+            irqarray15_eventsourceflex319_pending <= irqarray15_eventsourceflex319_pending;
+        end
+    end
+    if ((irqarray16_interrupts[0] | irqarray16_trigger[0])) begin
+        irqarray16_eventsourceflex320_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex320_clear) begin
+            irqarray16_eventsourceflex320_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex320_pending <= irqarray16_eventsourceflex320_pending;
+        end
+    end
+    if ((irqarray16_interrupts[1] | irqarray16_trigger[1])) begin
+        irqarray16_eventsourceflex321_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex321_clear) begin
+            irqarray16_eventsourceflex321_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex321_pending <= irqarray16_eventsourceflex321_pending;
+        end
+    end
+    if ((irqarray16_interrupts[2] | irqarray16_trigger[2])) begin
+        irqarray16_eventsourceflex322_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex322_clear) begin
+            irqarray16_eventsourceflex322_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex322_pending <= irqarray16_eventsourceflex322_pending;
+        end
+    end
+    if ((irqarray16_interrupts[3] | irqarray16_trigger[3])) begin
+        irqarray16_eventsourceflex323_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex323_clear) begin
+            irqarray16_eventsourceflex323_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex323_pending <= irqarray16_eventsourceflex323_pending;
+        end
+    end
+    if ((irqarray16_interrupts[4] | irqarray16_trigger[4])) begin
+        irqarray16_eventsourceflex324_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex324_clear) begin
+            irqarray16_eventsourceflex324_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex324_pending <= irqarray16_eventsourceflex324_pending;
+        end
+    end
+    if ((irqarray16_interrupts[5] | irqarray16_trigger[5])) begin
+        irqarray16_eventsourceflex325_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex325_clear) begin
+            irqarray16_eventsourceflex325_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex325_pending <= irqarray16_eventsourceflex325_pending;
+        end
+    end
+    if ((irqarray16_interrupts[6] | irqarray16_trigger[6])) begin
+        irqarray16_eventsourceflex326_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex326_clear) begin
+            irqarray16_eventsourceflex326_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex326_pending <= irqarray16_eventsourceflex326_pending;
+        end
+    end
+    if ((irqarray16_interrupts[7] | irqarray16_trigger[7])) begin
+        irqarray16_eventsourceflex327_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex327_clear) begin
+            irqarray16_eventsourceflex327_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex327_pending <= irqarray16_eventsourceflex327_pending;
+        end
+    end
+    if ((irqarray16_interrupts[8] | irqarray16_trigger[8])) begin
+        irqarray16_eventsourceflex328_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex328_clear) begin
+            irqarray16_eventsourceflex328_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex328_pending <= irqarray16_eventsourceflex328_pending;
+        end
+    end
+    if ((irqarray16_interrupts[9] | irqarray16_trigger[9])) begin
+        irqarray16_eventsourceflex329_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex329_clear) begin
+            irqarray16_eventsourceflex329_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex329_pending <= irqarray16_eventsourceflex329_pending;
+        end
+    end
+    if ((irqarray16_interrupts[10] | irqarray16_trigger[10])) begin
+        irqarray16_eventsourceflex330_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex330_clear) begin
+            irqarray16_eventsourceflex330_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex330_pending <= irqarray16_eventsourceflex330_pending;
+        end
+    end
+    if ((irqarray16_interrupts[11] | irqarray16_trigger[11])) begin
+        irqarray16_eventsourceflex331_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex331_clear) begin
+            irqarray16_eventsourceflex331_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex331_pending <= irqarray16_eventsourceflex331_pending;
+        end
+    end
+    if ((irqarray16_interrupts[12] | irqarray16_trigger[12])) begin
+        irqarray16_eventsourceflex332_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex332_clear) begin
+            irqarray16_eventsourceflex332_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex332_pending <= irqarray16_eventsourceflex332_pending;
+        end
+    end
+    if ((irqarray16_interrupts[13] | irqarray16_trigger[13])) begin
+        irqarray16_eventsourceflex333_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex333_clear) begin
+            irqarray16_eventsourceflex333_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex333_pending <= irqarray16_eventsourceflex333_pending;
+        end
+    end
+    if ((irqarray16_interrupts[14] | irqarray16_trigger[14])) begin
+        irqarray16_eventsourceflex334_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex334_clear) begin
+            irqarray16_eventsourceflex334_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex334_pending <= irqarray16_eventsourceflex334_pending;
+        end
+    end
+    if ((irqarray16_interrupts[15] | irqarray16_trigger[15])) begin
+        irqarray16_eventsourceflex335_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex335_clear) begin
+            irqarray16_eventsourceflex335_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex335_pending <= irqarray16_eventsourceflex335_pending;
+        end
+    end
+    if ((irqarray16_interrupts[16] | irqarray16_trigger[16])) begin
+        irqarray16_eventsourceflex336_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex336_clear) begin
+            irqarray16_eventsourceflex336_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex336_pending <= irqarray16_eventsourceflex336_pending;
+        end
+    end
+    if ((irqarray16_interrupts[17] | irqarray16_trigger[17])) begin
+        irqarray16_eventsourceflex337_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex337_clear) begin
+            irqarray16_eventsourceflex337_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex337_pending <= irqarray16_eventsourceflex337_pending;
+        end
+    end
+    if ((irqarray16_interrupts[18] | irqarray16_trigger[18])) begin
+        irqarray16_eventsourceflex338_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex338_clear) begin
+            irqarray16_eventsourceflex338_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex338_pending <= irqarray16_eventsourceflex338_pending;
+        end
+    end
+    if ((irqarray16_interrupts[19] | irqarray16_trigger[19])) begin
+        irqarray16_eventsourceflex339_pending <= 1'd1;
+    end else begin
+        if (irqarray16_eventsourceflex339_clear) begin
+            irqarray16_eventsourceflex339_pending <= 1'd0;
+        end else begin
+            irqarray16_eventsourceflex339_pending <= irqarray16_eventsourceflex339_pending;
+        end
+    end
+    if ((irqarray17_interrupts[0] | irqarray17_trigger[0])) begin
+        irqarray17_eventsourceflex340_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex340_clear) begin
+            irqarray17_eventsourceflex340_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex340_pending <= irqarray17_eventsourceflex340_pending;
+        end
+    end
+    if ((irqarray17_interrupts[1] | irqarray17_trigger[1])) begin
+        irqarray17_eventsourceflex341_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex341_clear) begin
+            irqarray17_eventsourceflex341_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex341_pending <= irqarray17_eventsourceflex341_pending;
+        end
+    end
+    if ((irqarray17_interrupts[2] | irqarray17_trigger[2])) begin
+        irqarray17_eventsourceflex342_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex342_clear) begin
+            irqarray17_eventsourceflex342_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex342_pending <= irqarray17_eventsourceflex342_pending;
+        end
+    end
+    if ((irqarray17_interrupts[3] | irqarray17_trigger[3])) begin
+        irqarray17_eventsourceflex343_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex343_clear) begin
+            irqarray17_eventsourceflex343_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex343_pending <= irqarray17_eventsourceflex343_pending;
+        end
+    end
+    if ((irqarray17_interrupts[4] | irqarray17_trigger[4])) begin
+        irqarray17_eventsourceflex344_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex344_clear) begin
+            irqarray17_eventsourceflex344_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex344_pending <= irqarray17_eventsourceflex344_pending;
+        end
+    end
+    if ((irqarray17_interrupts[5] | irqarray17_trigger[5])) begin
+        irqarray17_eventsourceflex345_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex345_clear) begin
+            irqarray17_eventsourceflex345_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex345_pending <= irqarray17_eventsourceflex345_pending;
+        end
+    end
+    if ((irqarray17_interrupts[6] | irqarray17_trigger[6])) begin
+        irqarray17_eventsourceflex346_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex346_clear) begin
+            irqarray17_eventsourceflex346_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex346_pending <= irqarray17_eventsourceflex346_pending;
+        end
+    end
+    if ((irqarray17_interrupts[7] | irqarray17_trigger[7])) begin
+        irqarray17_eventsourceflex347_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex347_clear) begin
+            irqarray17_eventsourceflex347_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex347_pending <= irqarray17_eventsourceflex347_pending;
+        end
+    end
+    if ((irqarray17_interrupts[8] | irqarray17_trigger[8])) begin
+        irqarray17_eventsourceflex348_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex348_clear) begin
+            irqarray17_eventsourceflex348_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex348_pending <= irqarray17_eventsourceflex348_pending;
+        end
+    end
+    if ((irqarray17_interrupts[9] | irqarray17_trigger[9])) begin
+        irqarray17_eventsourceflex349_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex349_clear) begin
+            irqarray17_eventsourceflex349_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex349_pending <= irqarray17_eventsourceflex349_pending;
+        end
+    end
+    if ((irqarray17_interrupts[10] | irqarray17_trigger[10])) begin
+        irqarray17_eventsourceflex350_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex350_clear) begin
+            irqarray17_eventsourceflex350_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex350_pending <= irqarray17_eventsourceflex350_pending;
+        end
+    end
+    if ((irqarray17_interrupts[11] | irqarray17_trigger[11])) begin
+        irqarray17_eventsourceflex351_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex351_clear) begin
+            irqarray17_eventsourceflex351_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex351_pending <= irqarray17_eventsourceflex351_pending;
+        end
+    end
+    if ((irqarray17_interrupts[12] | irqarray17_trigger[12])) begin
+        irqarray17_eventsourceflex352_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex352_clear) begin
+            irqarray17_eventsourceflex352_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex352_pending <= irqarray17_eventsourceflex352_pending;
+        end
+    end
+    if ((irqarray17_interrupts[13] | irqarray17_trigger[13])) begin
+        irqarray17_eventsourceflex353_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex353_clear) begin
+            irqarray17_eventsourceflex353_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex353_pending <= irqarray17_eventsourceflex353_pending;
+        end
+    end
+    if ((irqarray17_interrupts[14] | irqarray17_trigger[14])) begin
+        irqarray17_eventsourceflex354_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex354_clear) begin
+            irqarray17_eventsourceflex354_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex354_pending <= irqarray17_eventsourceflex354_pending;
+        end
+    end
+    if ((irqarray17_interrupts[15] | irqarray17_trigger[15])) begin
+        irqarray17_eventsourceflex355_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex355_clear) begin
+            irqarray17_eventsourceflex355_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex355_pending <= irqarray17_eventsourceflex355_pending;
+        end
+    end
+    if ((irqarray17_interrupts[16] | irqarray17_trigger[16])) begin
+        irqarray17_eventsourceflex356_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex356_clear) begin
+            irqarray17_eventsourceflex356_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex356_pending <= irqarray17_eventsourceflex356_pending;
+        end
+    end
+    if ((irqarray17_interrupts[17] | irqarray17_trigger[17])) begin
+        irqarray17_eventsourceflex357_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex357_clear) begin
+            irqarray17_eventsourceflex357_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex357_pending <= irqarray17_eventsourceflex357_pending;
+        end
+    end
+    if ((irqarray17_interrupts[18] | irqarray17_trigger[18])) begin
+        irqarray17_eventsourceflex358_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex358_clear) begin
+            irqarray17_eventsourceflex358_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex358_pending <= irqarray17_eventsourceflex358_pending;
+        end
+    end
+    if ((irqarray17_interrupts[19] | irqarray17_trigger[19])) begin
+        irqarray17_eventsourceflex359_pending <= 1'd1;
+    end else begin
+        if (irqarray17_eventsourceflex359_clear) begin
+            irqarray17_eventsourceflex359_pending <= 1'd0;
+        end else begin
+            irqarray17_eventsourceflex359_pending <= irqarray17_eventsourceflex359_pending;
+        end
+    end
+    if ((irqarray18_interrupts[0] | irqarray18_trigger[0])) begin
+        irqarray18_eventsourceflex360_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex360_clear) begin
+            irqarray18_eventsourceflex360_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex360_pending <= irqarray18_eventsourceflex360_pending;
+        end
+    end
+    if ((irqarray18_interrupts[1] | irqarray18_trigger[1])) begin
+        irqarray18_eventsourceflex361_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex361_clear) begin
+            irqarray18_eventsourceflex361_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex361_pending <= irqarray18_eventsourceflex361_pending;
+        end
+    end
+    if ((irqarray18_interrupts[2] | irqarray18_trigger[2])) begin
+        irqarray18_eventsourceflex362_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex362_clear) begin
+            irqarray18_eventsourceflex362_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex362_pending <= irqarray18_eventsourceflex362_pending;
+        end
+    end
+    if ((irqarray18_interrupts[3] | irqarray18_trigger[3])) begin
+        irqarray18_eventsourceflex363_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex363_clear) begin
+            irqarray18_eventsourceflex363_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex363_pending <= irqarray18_eventsourceflex363_pending;
+        end
+    end
+    if ((irqarray18_interrupts[4] | irqarray18_trigger[4])) begin
+        irqarray18_eventsourceflex364_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex364_clear) begin
+            irqarray18_eventsourceflex364_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex364_pending <= irqarray18_eventsourceflex364_pending;
+        end
+    end
+    if ((irqarray18_interrupts[5] | irqarray18_trigger[5])) begin
+        irqarray18_eventsourceflex365_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex365_clear) begin
+            irqarray18_eventsourceflex365_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex365_pending <= irqarray18_eventsourceflex365_pending;
+        end
+    end
+    if ((irqarray18_interrupts[6] | irqarray18_trigger[6])) begin
+        irqarray18_eventsourceflex366_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex366_clear) begin
+            irqarray18_eventsourceflex366_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex366_pending <= irqarray18_eventsourceflex366_pending;
+        end
+    end
+    if ((irqarray18_interrupts[7] | irqarray18_trigger[7])) begin
+        irqarray18_eventsourceflex367_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex367_clear) begin
+            irqarray18_eventsourceflex367_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex367_pending <= irqarray18_eventsourceflex367_pending;
+        end
+    end
+    if ((irqarray18_interrupts[8] | irqarray18_trigger[8])) begin
+        irqarray18_eventsourceflex368_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex368_clear) begin
+            irqarray18_eventsourceflex368_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex368_pending <= irqarray18_eventsourceflex368_pending;
+        end
+    end
+    if ((irqarray18_interrupts[9] | irqarray18_trigger[9])) begin
+        irqarray18_eventsourceflex369_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex369_clear) begin
+            irqarray18_eventsourceflex369_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex369_pending <= irqarray18_eventsourceflex369_pending;
+        end
+    end
+    if ((irqarray18_interrupts[10] | irqarray18_trigger[10])) begin
+        irqarray18_eventsourceflex370_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex370_clear) begin
+            irqarray18_eventsourceflex370_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex370_pending <= irqarray18_eventsourceflex370_pending;
+        end
+    end
+    if ((irqarray18_interrupts[11] | irqarray18_trigger[11])) begin
+        irqarray18_eventsourceflex371_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex371_clear) begin
+            irqarray18_eventsourceflex371_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex371_pending <= irqarray18_eventsourceflex371_pending;
+        end
+    end
+    if ((irqarray18_interrupts[12] | irqarray18_trigger[12])) begin
+        irqarray18_eventsourceflex372_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex372_clear) begin
+            irqarray18_eventsourceflex372_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex372_pending <= irqarray18_eventsourceflex372_pending;
+        end
+    end
+    if ((irqarray18_interrupts[13] | irqarray18_trigger[13])) begin
+        irqarray18_eventsourceflex373_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex373_clear) begin
+            irqarray18_eventsourceflex373_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex373_pending <= irqarray18_eventsourceflex373_pending;
+        end
+    end
+    if ((irqarray18_interrupts[14] | irqarray18_trigger[14])) begin
+        irqarray18_eventsourceflex374_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex374_clear) begin
+            irqarray18_eventsourceflex374_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex374_pending <= irqarray18_eventsourceflex374_pending;
+        end
+    end
+    if ((irqarray18_interrupts[15] | irqarray18_trigger[15])) begin
+        irqarray18_eventsourceflex375_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex375_clear) begin
+            irqarray18_eventsourceflex375_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex375_pending <= irqarray18_eventsourceflex375_pending;
+        end
+    end
+    if ((irqarray18_interrupts[16] | irqarray18_trigger[16])) begin
+        irqarray18_eventsourceflex376_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex376_clear) begin
+            irqarray18_eventsourceflex376_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex376_pending <= irqarray18_eventsourceflex376_pending;
+        end
+    end
+    if ((irqarray18_interrupts[17] | irqarray18_trigger[17])) begin
+        irqarray18_eventsourceflex377_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex377_clear) begin
+            irqarray18_eventsourceflex377_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex377_pending <= irqarray18_eventsourceflex377_pending;
+        end
+    end
+    if ((irqarray18_interrupts[18] | irqarray18_trigger[18])) begin
+        irqarray18_eventsourceflex378_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex378_clear) begin
+            irqarray18_eventsourceflex378_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex378_pending <= irqarray18_eventsourceflex378_pending;
+        end
+    end
+    if ((irqarray18_interrupts[19] | irqarray18_trigger[19])) begin
+        irqarray18_eventsourceflex379_pending <= 1'd1;
+    end else begin
+        if (irqarray18_eventsourceflex379_clear) begin
+            irqarray18_eventsourceflex379_pending <= 1'd0;
+        end else begin
+            irqarray18_eventsourceflex379_pending <= irqarray18_eventsourceflex379_pending;
+        end
+    end
+    if ((irqarray19_interrupts[0] | irqarray19_trigger[0])) begin
+        irqarray19_eventsourceflex380_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex380_clear) begin
+            irqarray19_eventsourceflex380_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex380_pending <= irqarray19_eventsourceflex380_pending;
+        end
+    end
+    if ((irqarray19_interrupts[1] | irqarray19_trigger[1])) begin
+        irqarray19_eventsourceflex381_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex381_clear) begin
+            irqarray19_eventsourceflex381_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex381_pending <= irqarray19_eventsourceflex381_pending;
+        end
+    end
+    if ((irqarray19_interrupts[2] | irqarray19_trigger[2])) begin
+        irqarray19_eventsourceflex382_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex382_clear) begin
+            irqarray19_eventsourceflex382_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex382_pending <= irqarray19_eventsourceflex382_pending;
+        end
+    end
+    if ((irqarray19_interrupts[3] | irqarray19_trigger[3])) begin
+        irqarray19_eventsourceflex383_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex383_clear) begin
+            irqarray19_eventsourceflex383_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex383_pending <= irqarray19_eventsourceflex383_pending;
+        end
+    end
+    if ((irqarray19_interrupts[4] | irqarray19_trigger[4])) begin
+        irqarray19_eventsourceflex384_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex384_clear) begin
+            irqarray19_eventsourceflex384_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex384_pending <= irqarray19_eventsourceflex384_pending;
+        end
+    end
+    if ((irqarray19_interrupts[5] | irqarray19_trigger[5])) begin
+        irqarray19_eventsourceflex385_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex385_clear) begin
+            irqarray19_eventsourceflex385_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex385_pending <= irqarray19_eventsourceflex385_pending;
+        end
+    end
+    if ((irqarray19_interrupts[6] | irqarray19_trigger[6])) begin
+        irqarray19_eventsourceflex386_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex386_clear) begin
+            irqarray19_eventsourceflex386_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex386_pending <= irqarray19_eventsourceflex386_pending;
+        end
+    end
+    if ((irqarray19_interrupts[7] | irqarray19_trigger[7])) begin
+        irqarray19_eventsourceflex387_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex387_clear) begin
+            irqarray19_eventsourceflex387_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex387_pending <= irqarray19_eventsourceflex387_pending;
+        end
+    end
+    if ((irqarray19_interrupts[8] | irqarray19_trigger[8])) begin
+        irqarray19_eventsourceflex388_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex388_clear) begin
+            irqarray19_eventsourceflex388_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex388_pending <= irqarray19_eventsourceflex388_pending;
+        end
+    end
+    if ((irqarray19_interrupts[9] | irqarray19_trigger[9])) begin
+        irqarray19_eventsourceflex389_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex389_clear) begin
+            irqarray19_eventsourceflex389_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex389_pending <= irqarray19_eventsourceflex389_pending;
+        end
+    end
+    if ((irqarray19_interrupts[10] | irqarray19_trigger[10])) begin
+        irqarray19_eventsourceflex390_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex390_clear) begin
+            irqarray19_eventsourceflex390_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex390_pending <= irqarray19_eventsourceflex390_pending;
+        end
+    end
+    if ((irqarray19_interrupts[11] | irqarray19_trigger[11])) begin
+        irqarray19_eventsourceflex391_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex391_clear) begin
+            irqarray19_eventsourceflex391_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex391_pending <= irqarray19_eventsourceflex391_pending;
+        end
+    end
+    if ((irqarray19_interrupts[12] | irqarray19_trigger[12])) begin
+        irqarray19_eventsourceflex392_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex392_clear) begin
+            irqarray19_eventsourceflex392_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex392_pending <= irqarray19_eventsourceflex392_pending;
+        end
+    end
+    if ((irqarray19_interrupts[13] | irqarray19_trigger[13])) begin
+        irqarray19_eventsourceflex393_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex393_clear) begin
+            irqarray19_eventsourceflex393_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex393_pending <= irqarray19_eventsourceflex393_pending;
+        end
+    end
+    if ((irqarray19_interrupts[14] | irqarray19_trigger[14])) begin
+        irqarray19_eventsourceflex394_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex394_clear) begin
+            irqarray19_eventsourceflex394_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex394_pending <= irqarray19_eventsourceflex394_pending;
+        end
+    end
+    if ((irqarray19_interrupts[15] | irqarray19_trigger[15])) begin
+        irqarray19_eventsourceflex395_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex395_clear) begin
+            irqarray19_eventsourceflex395_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex395_pending <= irqarray19_eventsourceflex395_pending;
+        end
+    end
+    if ((irqarray19_interrupts[16] | irqarray19_trigger[16])) begin
+        irqarray19_eventsourceflex396_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex396_clear) begin
+            irqarray19_eventsourceflex396_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex396_pending <= irqarray19_eventsourceflex396_pending;
+        end
+    end
+    if ((irqarray19_interrupts[17] | irqarray19_trigger[17])) begin
+        irqarray19_eventsourceflex397_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex397_clear) begin
+            irqarray19_eventsourceflex397_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex397_pending <= irqarray19_eventsourceflex397_pending;
+        end
+    end
+    if ((irqarray19_interrupts[18] | irqarray19_trigger[18])) begin
+        irqarray19_eventsourceflex398_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex398_clear) begin
+            irqarray19_eventsourceflex398_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex398_pending <= irqarray19_eventsourceflex398_pending;
+        end
+    end
+    if ((irqarray19_interrupts[19] | irqarray19_trigger[19])) begin
+        irqarray19_eventsourceflex399_pending <= 1'd1;
+    end else begin
+        if (irqarray19_eventsourceflex399_clear) begin
+            irqarray19_eventsourceflex399_pending <= 1'd0;
+        end else begin
+            irqarray19_eventsourceflex399_pending <= irqarray19_eventsourceflex399_pending;
+        end
+    end
     if (ticktimer_msleep_target_re) begin
         ticktimer_lockout_alarm <= 1'd1;
     end else begin
@@ -2111,61 +14933,661 @@ always @(posedge sys_clk) begin
     if (csrbank2_sel) begin
         case (interface2_adr[9:0])
             1'd0: begin
-                interface2_dat_r <= csrbank2_pc_w;
+                interface2_dat_r <= csrbank2_ev_soft0_w;
+            end
+            1'd1: begin
+                interface2_dat_r <= csrbank2_ev_status_w;
+            end
+            2'd2: begin
+                interface2_dat_r <= csrbank2_ev_pending_w;
+            end
+            2'd3: begin
+                interface2_dat_r <= csrbank2_ev_enable0_w;
             end
         endcase
     end
-    re <= csrbank2_pc_re;
+    if (csrbank2_ev_soft0_re) begin
+        irqarray0_storage[19:0] <= csrbank2_ev_soft0_r;
+    end
+    irqarray0_re <= csrbank2_ev_soft0_re;
+    irqarray0_status_re <= csrbank2_ev_status_re;
+    if (csrbank2_ev_pending_re) begin
+        irqarray0_pending_r[19:0] <= csrbank2_ev_pending_r;
+    end
+    irqarray0_pending_re <= csrbank2_ev_pending_re;
+    if (csrbank2_ev_enable0_re) begin
+        irqarray0_enable_storage[19:0] <= csrbank2_ev_enable0_r;
+    end
+    irqarray0_enable_re <= csrbank2_ev_enable0_re;
     interface3_dat_r <= 1'd0;
     if (csrbank3_sel) begin
         case (interface3_adr[9:0])
             1'd0: begin
-                interface3_dat_r <= csrbank3_control0_w;
+                interface3_dat_r <= csrbank3_ev_soft0_w;
             end
             1'd1: begin
-                interface3_dat_r <= csrbank3_time1_w;
-            end
-            2'd2: begin
-                interface3_dat_r <= csrbank3_time0_w;
-            end
-            2'd3: begin
-                interface3_dat_r <= csrbank3_msleep_target1_w;
-            end
-            3'd4: begin
-                interface3_dat_r <= csrbank3_msleep_target0_w;
-            end
-            3'd5: begin
                 interface3_dat_r <= csrbank3_ev_status_w;
             end
-            3'd6: begin
+            2'd2: begin
                 interface3_dat_r <= csrbank3_ev_pending_w;
             end
-            3'd7: begin
+            2'd3: begin
                 interface3_dat_r <= csrbank3_ev_enable0_w;
             end
         endcase
     end
-    if (csrbank3_control0_re) begin
-        ticktimer_control_storage <= csrbank3_control0_r;
+    if (csrbank3_ev_soft0_re) begin
+        irqarray1_storage[19:0] <= csrbank3_ev_soft0_r;
     end
-    ticktimer_control_re <= csrbank3_control0_re;
-    ticktimer_time_re <= csrbank3_time0_re;
-    if (csrbank3_msleep_target1_re) begin
-        ticktimer_msleep_target_storage[63:32] <= csrbank3_msleep_target1_r;
-    end
-    if (csrbank3_msleep_target0_re) begin
-        ticktimer_msleep_target_storage[31:0] <= csrbank3_msleep_target0_r;
-    end
-    ticktimer_msleep_target_re <= csrbank3_msleep_target0_re;
-    ticktimer_status_re <= csrbank3_ev_status_re;
+    irqarray1_re <= csrbank3_ev_soft0_re;
+    irqarray1_status_re <= csrbank3_ev_status_re;
     if (csrbank3_ev_pending_re) begin
-        ticktimer_pending_r <= csrbank3_ev_pending_r;
+        irqarray1_pending_r[19:0] <= csrbank3_ev_pending_r;
     end
-    ticktimer_pending_re <= csrbank3_ev_pending_re;
+    irqarray1_pending_re <= csrbank3_ev_pending_re;
     if (csrbank3_ev_enable0_re) begin
-        ticktimer_enable_storage <= csrbank3_ev_enable0_r;
+        irqarray1_enable_storage[19:0] <= csrbank3_ev_enable0_r;
     end
-    ticktimer_enable_re <= csrbank3_ev_enable0_re;
+    irqarray1_enable_re <= csrbank3_ev_enable0_re;
+    interface4_dat_r <= 1'd0;
+    if (csrbank4_sel) begin
+        case (interface4_adr[9:0])
+            1'd0: begin
+                interface4_dat_r <= csrbank4_ev_soft0_w;
+            end
+            1'd1: begin
+                interface4_dat_r <= csrbank4_ev_status_w;
+            end
+            2'd2: begin
+                interface4_dat_r <= csrbank4_ev_pending_w;
+            end
+            2'd3: begin
+                interface4_dat_r <= csrbank4_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank4_ev_soft0_re) begin
+        irqarray10_storage[19:0] <= csrbank4_ev_soft0_r;
+    end
+    irqarray10_re <= csrbank4_ev_soft0_re;
+    irqarray10_status_re <= csrbank4_ev_status_re;
+    if (csrbank4_ev_pending_re) begin
+        irqarray10_pending_r[19:0] <= csrbank4_ev_pending_r;
+    end
+    irqarray10_pending_re <= csrbank4_ev_pending_re;
+    if (csrbank4_ev_enable0_re) begin
+        irqarray10_enable_storage[19:0] <= csrbank4_ev_enable0_r;
+    end
+    irqarray10_enable_re <= csrbank4_ev_enable0_re;
+    interface5_dat_r <= 1'd0;
+    if (csrbank5_sel) begin
+        case (interface5_adr[9:0])
+            1'd0: begin
+                interface5_dat_r <= csrbank5_ev_soft0_w;
+            end
+            1'd1: begin
+                interface5_dat_r <= csrbank5_ev_status_w;
+            end
+            2'd2: begin
+                interface5_dat_r <= csrbank5_ev_pending_w;
+            end
+            2'd3: begin
+                interface5_dat_r <= csrbank5_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank5_ev_soft0_re) begin
+        irqarray11_storage[19:0] <= csrbank5_ev_soft0_r;
+    end
+    irqarray11_re <= csrbank5_ev_soft0_re;
+    irqarray11_status_re <= csrbank5_ev_status_re;
+    if (csrbank5_ev_pending_re) begin
+        irqarray11_pending_r[19:0] <= csrbank5_ev_pending_r;
+    end
+    irqarray11_pending_re <= csrbank5_ev_pending_re;
+    if (csrbank5_ev_enable0_re) begin
+        irqarray11_enable_storage[19:0] <= csrbank5_ev_enable0_r;
+    end
+    irqarray11_enable_re <= csrbank5_ev_enable0_re;
+    interface6_dat_r <= 1'd0;
+    if (csrbank6_sel) begin
+        case (interface6_adr[9:0])
+            1'd0: begin
+                interface6_dat_r <= csrbank6_ev_soft0_w;
+            end
+            1'd1: begin
+                interface6_dat_r <= csrbank6_ev_status_w;
+            end
+            2'd2: begin
+                interface6_dat_r <= csrbank6_ev_pending_w;
+            end
+            2'd3: begin
+                interface6_dat_r <= csrbank6_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank6_ev_soft0_re) begin
+        irqarray12_storage[19:0] <= csrbank6_ev_soft0_r;
+    end
+    irqarray12_re <= csrbank6_ev_soft0_re;
+    irqarray12_status_re <= csrbank6_ev_status_re;
+    if (csrbank6_ev_pending_re) begin
+        irqarray12_pending_r[19:0] <= csrbank6_ev_pending_r;
+    end
+    irqarray12_pending_re <= csrbank6_ev_pending_re;
+    if (csrbank6_ev_enable0_re) begin
+        irqarray12_enable_storage[19:0] <= csrbank6_ev_enable0_r;
+    end
+    irqarray12_enable_re <= csrbank6_ev_enable0_re;
+    interface7_dat_r <= 1'd0;
+    if (csrbank7_sel) begin
+        case (interface7_adr[9:0])
+            1'd0: begin
+                interface7_dat_r <= csrbank7_ev_soft0_w;
+            end
+            1'd1: begin
+                interface7_dat_r <= csrbank7_ev_status_w;
+            end
+            2'd2: begin
+                interface7_dat_r <= csrbank7_ev_pending_w;
+            end
+            2'd3: begin
+                interface7_dat_r <= csrbank7_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank7_ev_soft0_re) begin
+        irqarray13_storage[19:0] <= csrbank7_ev_soft0_r;
+    end
+    irqarray13_re <= csrbank7_ev_soft0_re;
+    irqarray13_status_re <= csrbank7_ev_status_re;
+    if (csrbank7_ev_pending_re) begin
+        irqarray13_pending_r[19:0] <= csrbank7_ev_pending_r;
+    end
+    irqarray13_pending_re <= csrbank7_ev_pending_re;
+    if (csrbank7_ev_enable0_re) begin
+        irqarray13_enable_storage[19:0] <= csrbank7_ev_enable0_r;
+    end
+    irqarray13_enable_re <= csrbank7_ev_enable0_re;
+    interface8_dat_r <= 1'd0;
+    if (csrbank8_sel) begin
+        case (interface8_adr[9:0])
+            1'd0: begin
+                interface8_dat_r <= csrbank8_ev_soft0_w;
+            end
+            1'd1: begin
+                interface8_dat_r <= csrbank8_ev_status_w;
+            end
+            2'd2: begin
+                interface8_dat_r <= csrbank8_ev_pending_w;
+            end
+            2'd3: begin
+                interface8_dat_r <= csrbank8_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank8_ev_soft0_re) begin
+        irqarray14_storage[19:0] <= csrbank8_ev_soft0_r;
+    end
+    irqarray14_re <= csrbank8_ev_soft0_re;
+    irqarray14_status_re <= csrbank8_ev_status_re;
+    if (csrbank8_ev_pending_re) begin
+        irqarray14_pending_r[19:0] <= csrbank8_ev_pending_r;
+    end
+    irqarray14_pending_re <= csrbank8_ev_pending_re;
+    if (csrbank8_ev_enable0_re) begin
+        irqarray14_enable_storage[19:0] <= csrbank8_ev_enable0_r;
+    end
+    irqarray14_enable_re <= csrbank8_ev_enable0_re;
+    interface9_dat_r <= 1'd0;
+    if (csrbank9_sel) begin
+        case (interface9_adr[9:0])
+            1'd0: begin
+                interface9_dat_r <= csrbank9_ev_soft0_w;
+            end
+            1'd1: begin
+                interface9_dat_r <= csrbank9_ev_status_w;
+            end
+            2'd2: begin
+                interface9_dat_r <= csrbank9_ev_pending_w;
+            end
+            2'd3: begin
+                interface9_dat_r <= csrbank9_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank9_ev_soft0_re) begin
+        irqarray15_storage[19:0] <= csrbank9_ev_soft0_r;
+    end
+    irqarray15_re <= csrbank9_ev_soft0_re;
+    irqarray15_status_re <= csrbank9_ev_status_re;
+    if (csrbank9_ev_pending_re) begin
+        irqarray15_pending_r[19:0] <= csrbank9_ev_pending_r;
+    end
+    irqarray15_pending_re <= csrbank9_ev_pending_re;
+    if (csrbank9_ev_enable0_re) begin
+        irqarray15_enable_storage[19:0] <= csrbank9_ev_enable0_r;
+    end
+    irqarray15_enable_re <= csrbank9_ev_enable0_re;
+    interface10_dat_r <= 1'd0;
+    if (csrbank10_sel) begin
+        case (interface10_adr[9:0])
+            1'd0: begin
+                interface10_dat_r <= csrbank10_ev_soft0_w;
+            end
+            1'd1: begin
+                interface10_dat_r <= csrbank10_ev_status_w;
+            end
+            2'd2: begin
+                interface10_dat_r <= csrbank10_ev_pending_w;
+            end
+            2'd3: begin
+                interface10_dat_r <= csrbank10_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank10_ev_soft0_re) begin
+        irqarray16_storage[19:0] <= csrbank10_ev_soft0_r;
+    end
+    irqarray16_re <= csrbank10_ev_soft0_re;
+    irqarray16_status_re <= csrbank10_ev_status_re;
+    if (csrbank10_ev_pending_re) begin
+        irqarray16_pending_r[19:0] <= csrbank10_ev_pending_r;
+    end
+    irqarray16_pending_re <= csrbank10_ev_pending_re;
+    if (csrbank10_ev_enable0_re) begin
+        irqarray16_enable_storage[19:0] <= csrbank10_ev_enable0_r;
+    end
+    irqarray16_enable_re <= csrbank10_ev_enable0_re;
+    interface11_dat_r <= 1'd0;
+    if (csrbank11_sel) begin
+        case (interface11_adr[9:0])
+            1'd0: begin
+                interface11_dat_r <= csrbank11_ev_soft0_w;
+            end
+            1'd1: begin
+                interface11_dat_r <= csrbank11_ev_status_w;
+            end
+            2'd2: begin
+                interface11_dat_r <= csrbank11_ev_pending_w;
+            end
+            2'd3: begin
+                interface11_dat_r <= csrbank11_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank11_ev_soft0_re) begin
+        irqarray17_storage[19:0] <= csrbank11_ev_soft0_r;
+    end
+    irqarray17_re <= csrbank11_ev_soft0_re;
+    irqarray17_status_re <= csrbank11_ev_status_re;
+    if (csrbank11_ev_pending_re) begin
+        irqarray17_pending_r[19:0] <= csrbank11_ev_pending_r;
+    end
+    irqarray17_pending_re <= csrbank11_ev_pending_re;
+    if (csrbank11_ev_enable0_re) begin
+        irqarray17_enable_storage[19:0] <= csrbank11_ev_enable0_r;
+    end
+    irqarray17_enable_re <= csrbank11_ev_enable0_re;
+    interface12_dat_r <= 1'd0;
+    if (csrbank12_sel) begin
+        case (interface12_adr[9:0])
+            1'd0: begin
+                interface12_dat_r <= csrbank12_ev_soft0_w;
+            end
+            1'd1: begin
+                interface12_dat_r <= csrbank12_ev_status_w;
+            end
+            2'd2: begin
+                interface12_dat_r <= csrbank12_ev_pending_w;
+            end
+            2'd3: begin
+                interface12_dat_r <= csrbank12_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank12_ev_soft0_re) begin
+        irqarray18_storage[19:0] <= csrbank12_ev_soft0_r;
+    end
+    irqarray18_re <= csrbank12_ev_soft0_re;
+    irqarray18_status_re <= csrbank12_ev_status_re;
+    if (csrbank12_ev_pending_re) begin
+        irqarray18_pending_r[19:0] <= csrbank12_ev_pending_r;
+    end
+    irqarray18_pending_re <= csrbank12_ev_pending_re;
+    if (csrbank12_ev_enable0_re) begin
+        irqarray18_enable_storage[19:0] <= csrbank12_ev_enable0_r;
+    end
+    irqarray18_enable_re <= csrbank12_ev_enable0_re;
+    interface13_dat_r <= 1'd0;
+    if (csrbank13_sel) begin
+        case (interface13_adr[9:0])
+            1'd0: begin
+                interface13_dat_r <= csrbank13_ev_soft0_w;
+            end
+            1'd1: begin
+                interface13_dat_r <= csrbank13_ev_status_w;
+            end
+            2'd2: begin
+                interface13_dat_r <= csrbank13_ev_pending_w;
+            end
+            2'd3: begin
+                interface13_dat_r <= csrbank13_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank13_ev_soft0_re) begin
+        irqarray19_storage[19:0] <= csrbank13_ev_soft0_r;
+    end
+    irqarray19_re <= csrbank13_ev_soft0_re;
+    irqarray19_status_re <= csrbank13_ev_status_re;
+    if (csrbank13_ev_pending_re) begin
+        irqarray19_pending_r[19:0] <= csrbank13_ev_pending_r;
+    end
+    irqarray19_pending_re <= csrbank13_ev_pending_re;
+    if (csrbank13_ev_enable0_re) begin
+        irqarray19_enable_storage[19:0] <= csrbank13_ev_enable0_r;
+    end
+    irqarray19_enable_re <= csrbank13_ev_enable0_re;
+    interface14_dat_r <= 1'd0;
+    if (csrbank14_sel) begin
+        case (interface14_adr[9:0])
+            1'd0: begin
+                interface14_dat_r <= csrbank14_ev_soft0_w;
+            end
+            1'd1: begin
+                interface14_dat_r <= csrbank14_ev_status_w;
+            end
+            2'd2: begin
+                interface14_dat_r <= csrbank14_ev_pending_w;
+            end
+            2'd3: begin
+                interface14_dat_r <= csrbank14_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank14_ev_soft0_re) begin
+        irqarray2_storage[19:0] <= csrbank14_ev_soft0_r;
+    end
+    irqarray2_re <= csrbank14_ev_soft0_re;
+    irqarray2_status_re <= csrbank14_ev_status_re;
+    if (csrbank14_ev_pending_re) begin
+        irqarray2_pending_r[19:0] <= csrbank14_ev_pending_r;
+    end
+    irqarray2_pending_re <= csrbank14_ev_pending_re;
+    if (csrbank14_ev_enable0_re) begin
+        irqarray2_enable_storage[19:0] <= csrbank14_ev_enable0_r;
+    end
+    irqarray2_enable_re <= csrbank14_ev_enable0_re;
+    interface15_dat_r <= 1'd0;
+    if (csrbank15_sel) begin
+        case (interface15_adr[9:0])
+            1'd0: begin
+                interface15_dat_r <= csrbank15_ev_soft0_w;
+            end
+            1'd1: begin
+                interface15_dat_r <= csrbank15_ev_status_w;
+            end
+            2'd2: begin
+                interface15_dat_r <= csrbank15_ev_pending_w;
+            end
+            2'd3: begin
+                interface15_dat_r <= csrbank15_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank15_ev_soft0_re) begin
+        irqarray3_storage[19:0] <= csrbank15_ev_soft0_r;
+    end
+    irqarray3_re <= csrbank15_ev_soft0_re;
+    irqarray3_status_re <= csrbank15_ev_status_re;
+    if (csrbank15_ev_pending_re) begin
+        irqarray3_pending_r[19:0] <= csrbank15_ev_pending_r;
+    end
+    irqarray3_pending_re <= csrbank15_ev_pending_re;
+    if (csrbank15_ev_enable0_re) begin
+        irqarray3_enable_storage[19:0] <= csrbank15_ev_enable0_r;
+    end
+    irqarray3_enable_re <= csrbank15_ev_enable0_re;
+    interface16_dat_r <= 1'd0;
+    if (csrbank16_sel) begin
+        case (interface16_adr[9:0])
+            1'd0: begin
+                interface16_dat_r <= csrbank16_ev_soft0_w;
+            end
+            1'd1: begin
+                interface16_dat_r <= csrbank16_ev_status_w;
+            end
+            2'd2: begin
+                interface16_dat_r <= csrbank16_ev_pending_w;
+            end
+            2'd3: begin
+                interface16_dat_r <= csrbank16_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank16_ev_soft0_re) begin
+        irqarray4_storage[19:0] <= csrbank16_ev_soft0_r;
+    end
+    irqarray4_re <= csrbank16_ev_soft0_re;
+    irqarray4_status_re <= csrbank16_ev_status_re;
+    if (csrbank16_ev_pending_re) begin
+        irqarray4_pending_r[19:0] <= csrbank16_ev_pending_r;
+    end
+    irqarray4_pending_re <= csrbank16_ev_pending_re;
+    if (csrbank16_ev_enable0_re) begin
+        irqarray4_enable_storage[19:0] <= csrbank16_ev_enable0_r;
+    end
+    irqarray4_enable_re <= csrbank16_ev_enable0_re;
+    interface17_dat_r <= 1'd0;
+    if (csrbank17_sel) begin
+        case (interface17_adr[9:0])
+            1'd0: begin
+                interface17_dat_r <= csrbank17_ev_soft0_w;
+            end
+            1'd1: begin
+                interface17_dat_r <= csrbank17_ev_status_w;
+            end
+            2'd2: begin
+                interface17_dat_r <= csrbank17_ev_pending_w;
+            end
+            2'd3: begin
+                interface17_dat_r <= csrbank17_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank17_ev_soft0_re) begin
+        irqarray5_storage[19:0] <= csrbank17_ev_soft0_r;
+    end
+    irqarray5_re <= csrbank17_ev_soft0_re;
+    irqarray5_status_re <= csrbank17_ev_status_re;
+    if (csrbank17_ev_pending_re) begin
+        irqarray5_pending_r[19:0] <= csrbank17_ev_pending_r;
+    end
+    irqarray5_pending_re <= csrbank17_ev_pending_re;
+    if (csrbank17_ev_enable0_re) begin
+        irqarray5_enable_storage[19:0] <= csrbank17_ev_enable0_r;
+    end
+    irqarray5_enable_re <= csrbank17_ev_enable0_re;
+    interface18_dat_r <= 1'd0;
+    if (csrbank18_sel) begin
+        case (interface18_adr[9:0])
+            1'd0: begin
+                interface18_dat_r <= csrbank18_ev_soft0_w;
+            end
+            1'd1: begin
+                interface18_dat_r <= csrbank18_ev_status_w;
+            end
+            2'd2: begin
+                interface18_dat_r <= csrbank18_ev_pending_w;
+            end
+            2'd3: begin
+                interface18_dat_r <= csrbank18_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank18_ev_soft0_re) begin
+        irqarray6_storage[19:0] <= csrbank18_ev_soft0_r;
+    end
+    irqarray6_re <= csrbank18_ev_soft0_re;
+    irqarray6_status_re <= csrbank18_ev_status_re;
+    if (csrbank18_ev_pending_re) begin
+        irqarray6_pending_r[19:0] <= csrbank18_ev_pending_r;
+    end
+    irqarray6_pending_re <= csrbank18_ev_pending_re;
+    if (csrbank18_ev_enable0_re) begin
+        irqarray6_enable_storage[19:0] <= csrbank18_ev_enable0_r;
+    end
+    irqarray6_enable_re <= csrbank18_ev_enable0_re;
+    interface19_dat_r <= 1'd0;
+    if (csrbank19_sel) begin
+        case (interface19_adr[9:0])
+            1'd0: begin
+                interface19_dat_r <= csrbank19_ev_soft0_w;
+            end
+            1'd1: begin
+                interface19_dat_r <= csrbank19_ev_status_w;
+            end
+            2'd2: begin
+                interface19_dat_r <= csrbank19_ev_pending_w;
+            end
+            2'd3: begin
+                interface19_dat_r <= csrbank19_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank19_ev_soft0_re) begin
+        irqarray7_storage[19:0] <= csrbank19_ev_soft0_r;
+    end
+    irqarray7_re <= csrbank19_ev_soft0_re;
+    irqarray7_status_re <= csrbank19_ev_status_re;
+    if (csrbank19_ev_pending_re) begin
+        irqarray7_pending_r[19:0] <= csrbank19_ev_pending_r;
+    end
+    irqarray7_pending_re <= csrbank19_ev_pending_re;
+    if (csrbank19_ev_enable0_re) begin
+        irqarray7_enable_storage[19:0] <= csrbank19_ev_enable0_r;
+    end
+    irqarray7_enable_re <= csrbank19_ev_enable0_re;
+    interface20_dat_r <= 1'd0;
+    if (csrbank20_sel) begin
+        case (interface20_adr[9:0])
+            1'd0: begin
+                interface20_dat_r <= csrbank20_ev_soft0_w;
+            end
+            1'd1: begin
+                interface20_dat_r <= csrbank20_ev_status_w;
+            end
+            2'd2: begin
+                interface20_dat_r <= csrbank20_ev_pending_w;
+            end
+            2'd3: begin
+                interface20_dat_r <= csrbank20_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank20_ev_soft0_re) begin
+        irqarray8_storage[19:0] <= csrbank20_ev_soft0_r;
+    end
+    irqarray8_re <= csrbank20_ev_soft0_re;
+    irqarray8_status_re <= csrbank20_ev_status_re;
+    if (csrbank20_ev_pending_re) begin
+        irqarray8_pending_r[19:0] <= csrbank20_ev_pending_r;
+    end
+    irqarray8_pending_re <= csrbank20_ev_pending_re;
+    if (csrbank20_ev_enable0_re) begin
+        irqarray8_enable_storage[19:0] <= csrbank20_ev_enable0_r;
+    end
+    irqarray8_enable_re <= csrbank20_ev_enable0_re;
+    interface21_dat_r <= 1'd0;
+    if (csrbank21_sel) begin
+        case (interface21_adr[9:0])
+            1'd0: begin
+                interface21_dat_r <= csrbank21_ev_soft0_w;
+            end
+            1'd1: begin
+                interface21_dat_r <= csrbank21_ev_status_w;
+            end
+            2'd2: begin
+                interface21_dat_r <= csrbank21_ev_pending_w;
+            end
+            2'd3: begin
+                interface21_dat_r <= csrbank21_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank21_ev_soft0_re) begin
+        irqarray9_storage[19:0] <= csrbank21_ev_soft0_r;
+    end
+    irqarray9_re <= csrbank21_ev_soft0_re;
+    irqarray9_status_re <= csrbank21_ev_status_re;
+    if (csrbank21_ev_pending_re) begin
+        irqarray9_pending_r[19:0] <= csrbank21_ev_pending_r;
+    end
+    irqarray9_pending_re <= csrbank21_ev_pending_re;
+    if (csrbank21_ev_enable0_re) begin
+        irqarray9_enable_storage[19:0] <= csrbank21_ev_enable0_r;
+    end
+    irqarray9_enable_re <= csrbank21_ev_enable0_re;
+    interface22_dat_r <= 1'd0;
+    if (csrbank22_sel) begin
+        case (interface22_adr[9:0])
+            1'd0: begin
+                interface22_dat_r <= csrbank22_pc_w;
+            end
+        endcase
+    end
+    resetvalue_re <= csrbank22_pc_re;
+    interface23_dat_r <= 1'd0;
+    if (csrbank23_sel) begin
+        case (interface23_adr[9:0])
+            1'd0: begin
+                interface23_dat_r <= csrbank23_control0_w;
+            end
+            1'd1: begin
+                interface23_dat_r <= csrbank23_time1_w;
+            end
+            2'd2: begin
+                interface23_dat_r <= csrbank23_time0_w;
+            end
+            2'd3: begin
+                interface23_dat_r <= csrbank23_msleep_target1_w;
+            end
+            3'd4: begin
+                interface23_dat_r <= csrbank23_msleep_target0_w;
+            end
+            3'd5: begin
+                interface23_dat_r <= csrbank23_ev_status_w;
+            end
+            3'd6: begin
+                interface23_dat_r <= csrbank23_ev_pending_w;
+            end
+            3'd7: begin
+                interface23_dat_r <= csrbank23_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank23_control0_re) begin
+        ticktimer_control_storage <= csrbank23_control0_r;
+    end
+    ticktimer_control_re <= csrbank23_control0_re;
+    ticktimer_time_re <= csrbank23_time0_re;
+    if (csrbank23_msleep_target1_re) begin
+        ticktimer_msleep_target_storage[63:32] <= csrbank23_msleep_target1_r;
+    end
+    if (csrbank23_msleep_target0_re) begin
+        ticktimer_msleep_target_storage[31:0] <= csrbank23_msleep_target0_r;
+    end
+    ticktimer_msleep_target_re <= csrbank23_msleep_target0_re;
+    ticktimer_status_re <= csrbank23_ev_status_re;
+    if (csrbank23_ev_pending_re) begin
+        ticktimer_pending_r <= csrbank23_ev_pending_r;
+    end
+    ticktimer_pending_re <= csrbank23_ev_pending_re;
+    if (csrbank23_ev_enable0_re) begin
+        ticktimer_enable_storage <= csrbank23_ev_enable0_r;
+    end
+    ticktimer_enable_re <= csrbank23_ev_enable0_re;
     if (sys_rst) begin
         cramsoc_peripherals_aw_ready <= 1'd0;
         cramsoc_peripherals_w_ready <= 1'd0;
@@ -2177,7 +15599,7 @@ always @(posedge sys_clk) begin
         cramsoc_peripherals_r_payload_data <= 32'd0;
         debug_reset <= 1'd0;
         reset_debug_logic <= 1'd0;
-        re <= 1'd0;
+        resetvalue_re <= 1'd0;
         p_axi_awvalid <= 1'd0;
         p_axi_awaddr <= 32'd0;
         p_axi_awprot <= 3'd0;
@@ -2217,6 +15639,546 @@ always @(posedge sys_clk) begin
         coreuser_window_ah <= 22'd0;
         coreuser_window_bl <= 22'd0;
         coreuser_window_bh <= 22'd0;
+        irqarray0_storage <= 20'd0;
+        irqarray0_re <= 1'd0;
+        irqarray0_eventsourceflex0_pending <= 1'd0;
+        irqarray0_eventsourceflex1_pending <= 1'd0;
+        irqarray0_eventsourceflex2_pending <= 1'd0;
+        irqarray0_eventsourceflex3_pending <= 1'd0;
+        irqarray0_eventsourceflex4_pending <= 1'd0;
+        irqarray0_eventsourceflex5_pending <= 1'd0;
+        irqarray0_eventsourceflex6_pending <= 1'd0;
+        irqarray0_eventsourceflex7_pending <= 1'd0;
+        irqarray0_eventsourceflex8_pending <= 1'd0;
+        irqarray0_eventsourceflex9_pending <= 1'd0;
+        irqarray0_eventsourceflex10_pending <= 1'd0;
+        irqarray0_eventsourceflex11_pending <= 1'd0;
+        irqarray0_eventsourceflex12_pending <= 1'd0;
+        irqarray0_eventsourceflex13_pending <= 1'd0;
+        irqarray0_eventsourceflex14_pending <= 1'd0;
+        irqarray0_eventsourceflex15_pending <= 1'd0;
+        irqarray0_eventsourceflex16_pending <= 1'd0;
+        irqarray0_eventsourceflex17_pending <= 1'd0;
+        irqarray0_eventsourceflex18_pending <= 1'd0;
+        irqarray0_eventsourceflex19_pending <= 1'd0;
+        irqarray0_status_re <= 1'd0;
+        irqarray0_pending_re <= 1'd0;
+        irqarray0_pending_r <= 20'd0;
+        irqarray0_enable_storage <= 20'd0;
+        irqarray0_enable_re <= 1'd0;
+        irqarray1_storage <= 20'd0;
+        irqarray1_re <= 1'd0;
+        irqarray1_eventsourceflex20_pending <= 1'd0;
+        irqarray1_eventsourceflex21_pending <= 1'd0;
+        irqarray1_eventsourceflex22_pending <= 1'd0;
+        irqarray1_eventsourceflex23_pending <= 1'd0;
+        irqarray1_eventsourceflex24_pending <= 1'd0;
+        irqarray1_eventsourceflex25_pending <= 1'd0;
+        irqarray1_eventsourceflex26_pending <= 1'd0;
+        irqarray1_eventsourceflex27_pending <= 1'd0;
+        irqarray1_eventsourceflex28_pending <= 1'd0;
+        irqarray1_eventsourceflex29_pending <= 1'd0;
+        irqarray1_eventsourceflex30_pending <= 1'd0;
+        irqarray1_eventsourceflex31_pending <= 1'd0;
+        irqarray1_eventsourceflex32_pending <= 1'd0;
+        irqarray1_eventsourceflex33_pending <= 1'd0;
+        irqarray1_eventsourceflex34_pending <= 1'd0;
+        irqarray1_eventsourceflex35_pending <= 1'd0;
+        irqarray1_eventsourceflex36_pending <= 1'd0;
+        irqarray1_eventsourceflex37_pending <= 1'd0;
+        irqarray1_eventsourceflex38_pending <= 1'd0;
+        irqarray1_eventsourceflex39_pending <= 1'd0;
+        irqarray1_status_re <= 1'd0;
+        irqarray1_pending_re <= 1'd0;
+        irqarray1_pending_r <= 20'd0;
+        irqarray1_enable_storage <= 20'd0;
+        irqarray1_enable_re <= 1'd0;
+        irqarray2_storage <= 20'd0;
+        irqarray2_re <= 1'd0;
+        irqarray2_eventsourceflex40_pending <= 1'd0;
+        irqarray2_eventsourceflex41_pending <= 1'd0;
+        irqarray2_eventsourceflex42_pending <= 1'd0;
+        irqarray2_eventsourceflex43_pending <= 1'd0;
+        irqarray2_eventsourceflex44_pending <= 1'd0;
+        irqarray2_eventsourceflex45_pending <= 1'd0;
+        irqarray2_eventsourceflex46_pending <= 1'd0;
+        irqarray2_eventsourceflex47_pending <= 1'd0;
+        irqarray2_eventsourceflex48_pending <= 1'd0;
+        irqarray2_eventsourceflex49_pending <= 1'd0;
+        irqarray2_eventsourceflex50_pending <= 1'd0;
+        irqarray2_eventsourceflex51_pending <= 1'd0;
+        irqarray2_eventsourceflex52_pending <= 1'd0;
+        irqarray2_eventsourceflex53_pending <= 1'd0;
+        irqarray2_eventsourceflex54_pending <= 1'd0;
+        irqarray2_eventsourceflex55_pending <= 1'd0;
+        irqarray2_eventsourceflex56_pending <= 1'd0;
+        irqarray2_eventsourceflex57_pending <= 1'd0;
+        irqarray2_eventsourceflex58_pending <= 1'd0;
+        irqarray2_eventsourceflex59_pending <= 1'd0;
+        irqarray2_status_re <= 1'd0;
+        irqarray2_pending_re <= 1'd0;
+        irqarray2_pending_r <= 20'd0;
+        irqarray2_enable_storage <= 20'd0;
+        irqarray2_enable_re <= 1'd0;
+        irqarray3_storage <= 20'd0;
+        irqarray3_re <= 1'd0;
+        irqarray3_eventsourceflex60_pending <= 1'd0;
+        irqarray3_eventsourceflex61_pending <= 1'd0;
+        irqarray3_eventsourceflex62_pending <= 1'd0;
+        irqarray3_eventsourceflex63_pending <= 1'd0;
+        irqarray3_eventsourceflex64_pending <= 1'd0;
+        irqarray3_eventsourceflex65_pending <= 1'd0;
+        irqarray3_eventsourceflex66_pending <= 1'd0;
+        irqarray3_eventsourceflex67_pending <= 1'd0;
+        irqarray3_eventsourceflex68_pending <= 1'd0;
+        irqarray3_eventsourceflex69_pending <= 1'd0;
+        irqarray3_eventsourceflex70_pending <= 1'd0;
+        irqarray3_eventsourceflex71_pending <= 1'd0;
+        irqarray3_eventsourceflex72_pending <= 1'd0;
+        irqarray3_eventsourceflex73_pending <= 1'd0;
+        irqarray3_eventsourceflex74_pending <= 1'd0;
+        irqarray3_eventsourceflex75_pending <= 1'd0;
+        irqarray3_eventsourceflex76_pending <= 1'd0;
+        irqarray3_eventsourceflex77_pending <= 1'd0;
+        irqarray3_eventsourceflex78_pending <= 1'd0;
+        irqarray3_eventsourceflex79_pending <= 1'd0;
+        irqarray3_status_re <= 1'd0;
+        irqarray3_pending_re <= 1'd0;
+        irqarray3_pending_r <= 20'd0;
+        irqarray3_enable_storage <= 20'd0;
+        irqarray3_enable_re <= 1'd0;
+        irqarray4_storage <= 20'd0;
+        irqarray4_re <= 1'd0;
+        irqarray4_eventsourceflex80_pending <= 1'd0;
+        irqarray4_eventsourceflex81_pending <= 1'd0;
+        irqarray4_eventsourceflex82_pending <= 1'd0;
+        irqarray4_eventsourceflex83_pending <= 1'd0;
+        irqarray4_eventsourceflex84_pending <= 1'd0;
+        irqarray4_eventsourceflex85_pending <= 1'd0;
+        irqarray4_eventsourceflex86_pending <= 1'd0;
+        irqarray4_eventsourceflex87_pending <= 1'd0;
+        irqarray4_eventsourceflex88_pending <= 1'd0;
+        irqarray4_eventsourceflex89_pending <= 1'd0;
+        irqarray4_eventsourceflex90_pending <= 1'd0;
+        irqarray4_eventsourceflex91_pending <= 1'd0;
+        irqarray4_eventsourceflex92_pending <= 1'd0;
+        irqarray4_eventsourceflex93_pending <= 1'd0;
+        irqarray4_eventsourceflex94_pending <= 1'd0;
+        irqarray4_eventsourceflex95_pending <= 1'd0;
+        irqarray4_eventsourceflex96_pending <= 1'd0;
+        irqarray4_eventsourceflex97_pending <= 1'd0;
+        irqarray4_eventsourceflex98_pending <= 1'd0;
+        irqarray4_eventsourceflex99_pending <= 1'd0;
+        irqarray4_status_re <= 1'd0;
+        irqarray4_pending_re <= 1'd0;
+        irqarray4_pending_r <= 20'd0;
+        irqarray4_enable_storage <= 20'd0;
+        irqarray4_enable_re <= 1'd0;
+        irqarray5_storage <= 20'd0;
+        irqarray5_re <= 1'd0;
+        irqarray5_eventsourceflex100_pending <= 1'd0;
+        irqarray5_eventsourceflex101_pending <= 1'd0;
+        irqarray5_eventsourceflex102_pending <= 1'd0;
+        irqarray5_eventsourceflex103_pending <= 1'd0;
+        irqarray5_eventsourceflex104_pending <= 1'd0;
+        irqarray5_eventsourceflex105_pending <= 1'd0;
+        irqarray5_eventsourceflex106_pending <= 1'd0;
+        irqarray5_eventsourceflex107_pending <= 1'd0;
+        irqarray5_eventsourceflex108_pending <= 1'd0;
+        irqarray5_eventsourceflex109_pending <= 1'd0;
+        irqarray5_eventsourceflex110_pending <= 1'd0;
+        irqarray5_eventsourceflex111_pending <= 1'd0;
+        irqarray5_eventsourceflex112_pending <= 1'd0;
+        irqarray5_eventsourceflex113_pending <= 1'd0;
+        irqarray5_eventsourceflex114_pending <= 1'd0;
+        irqarray5_eventsourceflex115_pending <= 1'd0;
+        irqarray5_eventsourceflex116_pending <= 1'd0;
+        irqarray5_eventsourceflex117_pending <= 1'd0;
+        irqarray5_eventsourceflex118_pending <= 1'd0;
+        irqarray5_eventsourceflex119_pending <= 1'd0;
+        irqarray5_status_re <= 1'd0;
+        irqarray5_pending_re <= 1'd0;
+        irqarray5_pending_r <= 20'd0;
+        irqarray5_enable_storage <= 20'd0;
+        irqarray5_enable_re <= 1'd0;
+        irqarray6_storage <= 20'd0;
+        irqarray6_re <= 1'd0;
+        irqarray6_eventsourceflex120_pending <= 1'd0;
+        irqarray6_eventsourceflex121_pending <= 1'd0;
+        irqarray6_eventsourceflex122_pending <= 1'd0;
+        irqarray6_eventsourceflex123_pending <= 1'd0;
+        irqarray6_eventsourceflex124_pending <= 1'd0;
+        irqarray6_eventsourceflex125_pending <= 1'd0;
+        irqarray6_eventsourceflex126_pending <= 1'd0;
+        irqarray6_eventsourceflex127_pending <= 1'd0;
+        irqarray6_eventsourceflex128_pending <= 1'd0;
+        irqarray6_eventsourceflex129_pending <= 1'd0;
+        irqarray6_eventsourceflex130_pending <= 1'd0;
+        irqarray6_eventsourceflex131_pending <= 1'd0;
+        irqarray6_eventsourceflex132_pending <= 1'd0;
+        irqarray6_eventsourceflex133_pending <= 1'd0;
+        irqarray6_eventsourceflex134_pending <= 1'd0;
+        irqarray6_eventsourceflex135_pending <= 1'd0;
+        irqarray6_eventsourceflex136_pending <= 1'd0;
+        irqarray6_eventsourceflex137_pending <= 1'd0;
+        irqarray6_eventsourceflex138_pending <= 1'd0;
+        irqarray6_eventsourceflex139_pending <= 1'd0;
+        irqarray6_status_re <= 1'd0;
+        irqarray6_pending_re <= 1'd0;
+        irqarray6_pending_r <= 20'd0;
+        irqarray6_enable_storage <= 20'd0;
+        irqarray6_enable_re <= 1'd0;
+        irqarray7_storage <= 20'd0;
+        irqarray7_re <= 1'd0;
+        irqarray7_eventsourceflex140_pending <= 1'd0;
+        irqarray7_eventsourceflex141_pending <= 1'd0;
+        irqarray7_eventsourceflex142_pending <= 1'd0;
+        irqarray7_eventsourceflex143_pending <= 1'd0;
+        irqarray7_eventsourceflex144_pending <= 1'd0;
+        irqarray7_eventsourceflex145_pending <= 1'd0;
+        irqarray7_eventsourceflex146_pending <= 1'd0;
+        irqarray7_eventsourceflex147_pending <= 1'd0;
+        irqarray7_eventsourceflex148_pending <= 1'd0;
+        irqarray7_eventsourceflex149_pending <= 1'd0;
+        irqarray7_eventsourceflex150_pending <= 1'd0;
+        irqarray7_eventsourceflex151_pending <= 1'd0;
+        irqarray7_eventsourceflex152_pending <= 1'd0;
+        irqarray7_eventsourceflex153_pending <= 1'd0;
+        irqarray7_eventsourceflex154_pending <= 1'd0;
+        irqarray7_eventsourceflex155_pending <= 1'd0;
+        irqarray7_eventsourceflex156_pending <= 1'd0;
+        irqarray7_eventsourceflex157_pending <= 1'd0;
+        irqarray7_eventsourceflex158_pending <= 1'd0;
+        irqarray7_eventsourceflex159_pending <= 1'd0;
+        irqarray7_status_re <= 1'd0;
+        irqarray7_pending_re <= 1'd0;
+        irqarray7_pending_r <= 20'd0;
+        irqarray7_enable_storage <= 20'd0;
+        irqarray7_enable_re <= 1'd0;
+        irqarray8_storage <= 20'd0;
+        irqarray8_re <= 1'd0;
+        irqarray8_eventsourceflex160_pending <= 1'd0;
+        irqarray8_eventsourceflex161_pending <= 1'd0;
+        irqarray8_eventsourceflex162_pending <= 1'd0;
+        irqarray8_eventsourceflex163_pending <= 1'd0;
+        irqarray8_eventsourceflex164_pending <= 1'd0;
+        irqarray8_eventsourceflex165_pending <= 1'd0;
+        irqarray8_eventsourceflex166_pending <= 1'd0;
+        irqarray8_eventsourceflex167_pending <= 1'd0;
+        irqarray8_eventsourceflex168_pending <= 1'd0;
+        irqarray8_eventsourceflex169_pending <= 1'd0;
+        irqarray8_eventsourceflex170_pending <= 1'd0;
+        irqarray8_eventsourceflex171_pending <= 1'd0;
+        irqarray8_eventsourceflex172_pending <= 1'd0;
+        irqarray8_eventsourceflex173_pending <= 1'd0;
+        irqarray8_eventsourceflex174_pending <= 1'd0;
+        irqarray8_eventsourceflex175_pending <= 1'd0;
+        irqarray8_eventsourceflex176_pending <= 1'd0;
+        irqarray8_eventsourceflex177_pending <= 1'd0;
+        irqarray8_eventsourceflex178_pending <= 1'd0;
+        irqarray8_eventsourceflex179_pending <= 1'd0;
+        irqarray8_status_re <= 1'd0;
+        irqarray8_pending_re <= 1'd0;
+        irqarray8_pending_r <= 20'd0;
+        irqarray8_enable_storage <= 20'd0;
+        irqarray8_enable_re <= 1'd0;
+        irqarray9_storage <= 20'd0;
+        irqarray9_re <= 1'd0;
+        irqarray9_eventsourceflex180_pending <= 1'd0;
+        irqarray9_eventsourceflex181_pending <= 1'd0;
+        irqarray9_eventsourceflex182_pending <= 1'd0;
+        irqarray9_eventsourceflex183_pending <= 1'd0;
+        irqarray9_eventsourceflex184_pending <= 1'd0;
+        irqarray9_eventsourceflex185_pending <= 1'd0;
+        irqarray9_eventsourceflex186_pending <= 1'd0;
+        irqarray9_eventsourceflex187_pending <= 1'd0;
+        irqarray9_eventsourceflex188_pending <= 1'd0;
+        irqarray9_eventsourceflex189_pending <= 1'd0;
+        irqarray9_eventsourceflex190_pending <= 1'd0;
+        irqarray9_eventsourceflex191_pending <= 1'd0;
+        irqarray9_eventsourceflex192_pending <= 1'd0;
+        irqarray9_eventsourceflex193_pending <= 1'd0;
+        irqarray9_eventsourceflex194_pending <= 1'd0;
+        irqarray9_eventsourceflex195_pending <= 1'd0;
+        irqarray9_eventsourceflex196_pending <= 1'd0;
+        irqarray9_eventsourceflex197_pending <= 1'd0;
+        irqarray9_eventsourceflex198_pending <= 1'd0;
+        irqarray9_eventsourceflex199_pending <= 1'd0;
+        irqarray9_status_re <= 1'd0;
+        irqarray9_pending_re <= 1'd0;
+        irqarray9_pending_r <= 20'd0;
+        irqarray9_enable_storage <= 20'd0;
+        irqarray9_enable_re <= 1'd0;
+        irqarray10_storage <= 20'd0;
+        irqarray10_re <= 1'd0;
+        irqarray10_eventsourceflex200_pending <= 1'd0;
+        irqarray10_eventsourceflex201_pending <= 1'd0;
+        irqarray10_eventsourceflex202_pending <= 1'd0;
+        irqarray10_eventsourceflex203_pending <= 1'd0;
+        irqarray10_eventsourceflex204_pending <= 1'd0;
+        irqarray10_eventsourceflex205_pending <= 1'd0;
+        irqarray10_eventsourceflex206_pending <= 1'd0;
+        irqarray10_eventsourceflex207_pending <= 1'd0;
+        irqarray10_eventsourceflex208_pending <= 1'd0;
+        irqarray10_eventsourceflex209_pending <= 1'd0;
+        irqarray10_eventsourceflex210_pending <= 1'd0;
+        irqarray10_eventsourceflex211_pending <= 1'd0;
+        irqarray10_eventsourceflex212_pending <= 1'd0;
+        irqarray10_eventsourceflex213_pending <= 1'd0;
+        irqarray10_eventsourceflex214_pending <= 1'd0;
+        irqarray10_eventsourceflex215_pending <= 1'd0;
+        irqarray10_eventsourceflex216_pending <= 1'd0;
+        irqarray10_eventsourceflex217_pending <= 1'd0;
+        irqarray10_eventsourceflex218_pending <= 1'd0;
+        irqarray10_eventsourceflex219_pending <= 1'd0;
+        irqarray10_status_re <= 1'd0;
+        irqarray10_pending_re <= 1'd0;
+        irqarray10_pending_r <= 20'd0;
+        irqarray10_enable_storage <= 20'd0;
+        irqarray10_enable_re <= 1'd0;
+        irqarray11_storage <= 20'd0;
+        irqarray11_re <= 1'd0;
+        irqarray11_eventsourceflex220_pending <= 1'd0;
+        irqarray11_eventsourceflex221_pending <= 1'd0;
+        irqarray11_eventsourceflex222_pending <= 1'd0;
+        irqarray11_eventsourceflex223_pending <= 1'd0;
+        irqarray11_eventsourceflex224_pending <= 1'd0;
+        irqarray11_eventsourceflex225_pending <= 1'd0;
+        irqarray11_eventsourceflex226_pending <= 1'd0;
+        irqarray11_eventsourceflex227_pending <= 1'd0;
+        irqarray11_eventsourceflex228_pending <= 1'd0;
+        irqarray11_eventsourceflex229_pending <= 1'd0;
+        irqarray11_eventsourceflex230_pending <= 1'd0;
+        irqarray11_eventsourceflex231_pending <= 1'd0;
+        irqarray11_eventsourceflex232_pending <= 1'd0;
+        irqarray11_eventsourceflex233_pending <= 1'd0;
+        irqarray11_eventsourceflex234_pending <= 1'd0;
+        irqarray11_eventsourceflex235_pending <= 1'd0;
+        irqarray11_eventsourceflex236_pending <= 1'd0;
+        irqarray11_eventsourceflex237_pending <= 1'd0;
+        irqarray11_eventsourceflex238_pending <= 1'd0;
+        irqarray11_eventsourceflex239_pending <= 1'd0;
+        irqarray11_status_re <= 1'd0;
+        irqarray11_pending_re <= 1'd0;
+        irqarray11_pending_r <= 20'd0;
+        irqarray11_enable_storage <= 20'd0;
+        irqarray11_enable_re <= 1'd0;
+        irqarray12_storage <= 20'd0;
+        irqarray12_re <= 1'd0;
+        irqarray12_eventsourceflex240_pending <= 1'd0;
+        irqarray12_eventsourceflex241_pending <= 1'd0;
+        irqarray12_eventsourceflex242_pending <= 1'd0;
+        irqarray12_eventsourceflex243_pending <= 1'd0;
+        irqarray12_eventsourceflex244_pending <= 1'd0;
+        irqarray12_eventsourceflex245_pending <= 1'd0;
+        irqarray12_eventsourceflex246_pending <= 1'd0;
+        irqarray12_eventsourceflex247_pending <= 1'd0;
+        irqarray12_eventsourceflex248_pending <= 1'd0;
+        irqarray12_eventsourceflex249_pending <= 1'd0;
+        irqarray12_eventsourceflex250_pending <= 1'd0;
+        irqarray12_eventsourceflex251_pending <= 1'd0;
+        irqarray12_eventsourceflex252_pending <= 1'd0;
+        irqarray12_eventsourceflex253_pending <= 1'd0;
+        irqarray12_eventsourceflex254_pending <= 1'd0;
+        irqarray12_eventsourceflex255_pending <= 1'd0;
+        irqarray12_eventsourceflex256_pending <= 1'd0;
+        irqarray12_eventsourceflex257_pending <= 1'd0;
+        irqarray12_eventsourceflex258_pending <= 1'd0;
+        irqarray12_eventsourceflex259_pending <= 1'd0;
+        irqarray12_status_re <= 1'd0;
+        irqarray12_pending_re <= 1'd0;
+        irqarray12_pending_r <= 20'd0;
+        irqarray12_enable_storage <= 20'd0;
+        irqarray12_enable_re <= 1'd0;
+        irqarray13_storage <= 20'd0;
+        irqarray13_re <= 1'd0;
+        irqarray13_eventsourceflex260_pending <= 1'd0;
+        irqarray13_eventsourceflex261_pending <= 1'd0;
+        irqarray13_eventsourceflex262_pending <= 1'd0;
+        irqarray13_eventsourceflex263_pending <= 1'd0;
+        irqarray13_eventsourceflex264_pending <= 1'd0;
+        irqarray13_eventsourceflex265_pending <= 1'd0;
+        irqarray13_eventsourceflex266_pending <= 1'd0;
+        irqarray13_eventsourceflex267_pending <= 1'd0;
+        irqarray13_eventsourceflex268_pending <= 1'd0;
+        irqarray13_eventsourceflex269_pending <= 1'd0;
+        irqarray13_eventsourceflex270_pending <= 1'd0;
+        irqarray13_eventsourceflex271_pending <= 1'd0;
+        irqarray13_eventsourceflex272_pending <= 1'd0;
+        irqarray13_eventsourceflex273_pending <= 1'd0;
+        irqarray13_eventsourceflex274_pending <= 1'd0;
+        irqarray13_eventsourceflex275_pending <= 1'd0;
+        irqarray13_eventsourceflex276_pending <= 1'd0;
+        irqarray13_eventsourceflex277_pending <= 1'd0;
+        irqarray13_eventsourceflex278_pending <= 1'd0;
+        irqarray13_eventsourceflex279_pending <= 1'd0;
+        irqarray13_status_re <= 1'd0;
+        irqarray13_pending_re <= 1'd0;
+        irqarray13_pending_r <= 20'd0;
+        irqarray13_enable_storage <= 20'd0;
+        irqarray13_enable_re <= 1'd0;
+        irqarray14_storage <= 20'd0;
+        irqarray14_re <= 1'd0;
+        irqarray14_eventsourceflex280_pending <= 1'd0;
+        irqarray14_eventsourceflex281_pending <= 1'd0;
+        irqarray14_eventsourceflex282_pending <= 1'd0;
+        irqarray14_eventsourceflex283_pending <= 1'd0;
+        irqarray14_eventsourceflex284_pending <= 1'd0;
+        irqarray14_eventsourceflex285_pending <= 1'd0;
+        irqarray14_eventsourceflex286_pending <= 1'd0;
+        irqarray14_eventsourceflex287_pending <= 1'd0;
+        irqarray14_eventsourceflex288_pending <= 1'd0;
+        irqarray14_eventsourceflex289_pending <= 1'd0;
+        irqarray14_eventsourceflex290_pending <= 1'd0;
+        irqarray14_eventsourceflex291_pending <= 1'd0;
+        irqarray14_eventsourceflex292_pending <= 1'd0;
+        irqarray14_eventsourceflex293_pending <= 1'd0;
+        irqarray14_eventsourceflex294_pending <= 1'd0;
+        irqarray14_eventsourceflex295_pending <= 1'd0;
+        irqarray14_eventsourceflex296_pending <= 1'd0;
+        irqarray14_eventsourceflex297_pending <= 1'd0;
+        irqarray14_eventsourceflex298_pending <= 1'd0;
+        irqarray14_eventsourceflex299_pending <= 1'd0;
+        irqarray14_status_re <= 1'd0;
+        irqarray14_pending_re <= 1'd0;
+        irqarray14_pending_r <= 20'd0;
+        irqarray14_enable_storage <= 20'd0;
+        irqarray14_enable_re <= 1'd0;
+        irqarray15_storage <= 20'd0;
+        irqarray15_re <= 1'd0;
+        irqarray15_eventsourceflex300_pending <= 1'd0;
+        irqarray15_eventsourceflex301_pending <= 1'd0;
+        irqarray15_eventsourceflex302_pending <= 1'd0;
+        irqarray15_eventsourceflex303_pending <= 1'd0;
+        irqarray15_eventsourceflex304_pending <= 1'd0;
+        irqarray15_eventsourceflex305_pending <= 1'd0;
+        irqarray15_eventsourceflex306_pending <= 1'd0;
+        irqarray15_eventsourceflex307_pending <= 1'd0;
+        irqarray15_eventsourceflex308_pending <= 1'd0;
+        irqarray15_eventsourceflex309_pending <= 1'd0;
+        irqarray15_eventsourceflex310_pending <= 1'd0;
+        irqarray15_eventsourceflex311_pending <= 1'd0;
+        irqarray15_eventsourceflex312_pending <= 1'd0;
+        irqarray15_eventsourceflex313_pending <= 1'd0;
+        irqarray15_eventsourceflex314_pending <= 1'd0;
+        irqarray15_eventsourceflex315_pending <= 1'd0;
+        irqarray15_eventsourceflex316_pending <= 1'd0;
+        irqarray15_eventsourceflex317_pending <= 1'd0;
+        irqarray15_eventsourceflex318_pending <= 1'd0;
+        irqarray15_eventsourceflex319_pending <= 1'd0;
+        irqarray15_status_re <= 1'd0;
+        irqarray15_pending_re <= 1'd0;
+        irqarray15_pending_r <= 20'd0;
+        irqarray15_enable_storage <= 20'd0;
+        irqarray15_enable_re <= 1'd0;
+        irqarray16_storage <= 20'd0;
+        irqarray16_re <= 1'd0;
+        irqarray16_eventsourceflex320_pending <= 1'd0;
+        irqarray16_eventsourceflex321_pending <= 1'd0;
+        irqarray16_eventsourceflex322_pending <= 1'd0;
+        irqarray16_eventsourceflex323_pending <= 1'd0;
+        irqarray16_eventsourceflex324_pending <= 1'd0;
+        irqarray16_eventsourceflex325_pending <= 1'd0;
+        irqarray16_eventsourceflex326_pending <= 1'd0;
+        irqarray16_eventsourceflex327_pending <= 1'd0;
+        irqarray16_eventsourceflex328_pending <= 1'd0;
+        irqarray16_eventsourceflex329_pending <= 1'd0;
+        irqarray16_eventsourceflex330_pending <= 1'd0;
+        irqarray16_eventsourceflex331_pending <= 1'd0;
+        irqarray16_eventsourceflex332_pending <= 1'd0;
+        irqarray16_eventsourceflex333_pending <= 1'd0;
+        irqarray16_eventsourceflex334_pending <= 1'd0;
+        irqarray16_eventsourceflex335_pending <= 1'd0;
+        irqarray16_eventsourceflex336_pending <= 1'd0;
+        irqarray16_eventsourceflex337_pending <= 1'd0;
+        irqarray16_eventsourceflex338_pending <= 1'd0;
+        irqarray16_eventsourceflex339_pending <= 1'd0;
+        irqarray16_status_re <= 1'd0;
+        irqarray16_pending_re <= 1'd0;
+        irqarray16_pending_r <= 20'd0;
+        irqarray16_enable_storage <= 20'd0;
+        irqarray16_enable_re <= 1'd0;
+        irqarray17_storage <= 20'd0;
+        irqarray17_re <= 1'd0;
+        irqarray17_eventsourceflex340_pending <= 1'd0;
+        irqarray17_eventsourceflex341_pending <= 1'd0;
+        irqarray17_eventsourceflex342_pending <= 1'd0;
+        irqarray17_eventsourceflex343_pending <= 1'd0;
+        irqarray17_eventsourceflex344_pending <= 1'd0;
+        irqarray17_eventsourceflex345_pending <= 1'd0;
+        irqarray17_eventsourceflex346_pending <= 1'd0;
+        irqarray17_eventsourceflex347_pending <= 1'd0;
+        irqarray17_eventsourceflex348_pending <= 1'd0;
+        irqarray17_eventsourceflex349_pending <= 1'd0;
+        irqarray17_eventsourceflex350_pending <= 1'd0;
+        irqarray17_eventsourceflex351_pending <= 1'd0;
+        irqarray17_eventsourceflex352_pending <= 1'd0;
+        irqarray17_eventsourceflex353_pending <= 1'd0;
+        irqarray17_eventsourceflex354_pending <= 1'd0;
+        irqarray17_eventsourceflex355_pending <= 1'd0;
+        irqarray17_eventsourceflex356_pending <= 1'd0;
+        irqarray17_eventsourceflex357_pending <= 1'd0;
+        irqarray17_eventsourceflex358_pending <= 1'd0;
+        irqarray17_eventsourceflex359_pending <= 1'd0;
+        irqarray17_status_re <= 1'd0;
+        irqarray17_pending_re <= 1'd0;
+        irqarray17_pending_r <= 20'd0;
+        irqarray17_enable_storage <= 20'd0;
+        irqarray17_enable_re <= 1'd0;
+        irqarray18_storage <= 20'd0;
+        irqarray18_re <= 1'd0;
+        irqarray18_eventsourceflex360_pending <= 1'd0;
+        irqarray18_eventsourceflex361_pending <= 1'd0;
+        irqarray18_eventsourceflex362_pending <= 1'd0;
+        irqarray18_eventsourceflex363_pending <= 1'd0;
+        irqarray18_eventsourceflex364_pending <= 1'd0;
+        irqarray18_eventsourceflex365_pending <= 1'd0;
+        irqarray18_eventsourceflex366_pending <= 1'd0;
+        irqarray18_eventsourceflex367_pending <= 1'd0;
+        irqarray18_eventsourceflex368_pending <= 1'd0;
+        irqarray18_eventsourceflex369_pending <= 1'd0;
+        irqarray18_eventsourceflex370_pending <= 1'd0;
+        irqarray18_eventsourceflex371_pending <= 1'd0;
+        irqarray18_eventsourceflex372_pending <= 1'd0;
+        irqarray18_eventsourceflex373_pending <= 1'd0;
+        irqarray18_eventsourceflex374_pending <= 1'd0;
+        irqarray18_eventsourceflex375_pending <= 1'd0;
+        irqarray18_eventsourceflex376_pending <= 1'd0;
+        irqarray18_eventsourceflex377_pending <= 1'd0;
+        irqarray18_eventsourceflex378_pending <= 1'd0;
+        irqarray18_eventsourceflex379_pending <= 1'd0;
+        irqarray18_status_re <= 1'd0;
+        irqarray18_pending_re <= 1'd0;
+        irqarray18_pending_r <= 20'd0;
+        irqarray18_enable_storage <= 20'd0;
+        irqarray18_enable_re <= 1'd0;
+        irqarray19_storage <= 20'd0;
+        irqarray19_re <= 1'd0;
+        irqarray19_eventsourceflex380_pending <= 1'd0;
+        irqarray19_eventsourceflex381_pending <= 1'd0;
+        irqarray19_eventsourceflex382_pending <= 1'd0;
+        irqarray19_eventsourceflex383_pending <= 1'd0;
+        irqarray19_eventsourceflex384_pending <= 1'd0;
+        irqarray19_eventsourceflex385_pending <= 1'd0;
+        irqarray19_eventsourceflex386_pending <= 1'd0;
+        irqarray19_eventsourceflex387_pending <= 1'd0;
+        irqarray19_eventsourceflex388_pending <= 1'd0;
+        irqarray19_eventsourceflex389_pending <= 1'd0;
+        irqarray19_eventsourceflex390_pending <= 1'd0;
+        irqarray19_eventsourceflex391_pending <= 1'd0;
+        irqarray19_eventsourceflex392_pending <= 1'd0;
+        irqarray19_eventsourceflex393_pending <= 1'd0;
+        irqarray19_eventsourceflex394_pending <= 1'd0;
+        irqarray19_eventsourceflex395_pending <= 1'd0;
+        irqarray19_eventsourceflex396_pending <= 1'd0;
+        irqarray19_eventsourceflex397_pending <= 1'd0;
+        irqarray19_eventsourceflex398_pending <= 1'd0;
+        irqarray19_eventsourceflex399_pending <= 1'd0;
+        irqarray19_status_re <= 1'd0;
+        irqarray19_pending_re <= 1'd0;
+        irqarray19_pending_r <= 20'd0;
+        irqarray19_enable_storage <= 20'd0;
+        irqarray19_enable_re <= 1'd0;
         ticktimer_load_xfer_blind <= 1'd0;
         ticktimer_timer_sync_ping_o1 <= 1'd0;
         ticktimer_resume_sync_starter <= 1'd1;
@@ -2432,7 +16394,7 @@ axi_crossbar #(
 	.BUSER_ENABLE(1'd0),
 	.BUSER_WIDTH(4'd9),
 	.DATA_WIDTH(6'd32),
-	.M_ADDR_WIDTH(96'd534955578244951179295),
+	.M_ADDR_WIDTH(96'd534955578244951179292),
 	.M_AR_REG_TYPE(6'd21),
 	.M_AW_REG_TYPE(6'd21),
 	.M_BASE_ADDR(96'd29710560949190194873990381568),
@@ -2621,5 +16583,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2022-12-23 02:18:02.
+//  Auto-Generated by LiteX on 2022-12-26 14:40:37.
 //------------------------------------------------------------------------------

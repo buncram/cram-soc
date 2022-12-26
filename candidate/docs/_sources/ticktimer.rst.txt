@@ -44,27 +44,27 @@ Register Listing for TICKTIMER
 +------------------------------------------------------------+----------------------------------------------+
 | Register                                                   | Address                                      |
 +============================================================+==============================================+
-| :ref:`TICKTIMER_CONTROL <TICKTIMER_CONTROL>`               | :ref:`0x58003000 <TICKTIMER_CONTROL>`        |
+| :ref:`TICKTIMER_CONTROL <TICKTIMER_CONTROL>`               | :ref:`0x58017000 <TICKTIMER_CONTROL>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_TIME1 <TICKTIMER_TIME1>`                   | :ref:`0x58003004 <TICKTIMER_TIME1>`          |
+| :ref:`TICKTIMER_TIME1 <TICKTIMER_TIME1>`                   | :ref:`0x58017004 <TICKTIMER_TIME1>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_TIME0 <TICKTIMER_TIME0>`                   | :ref:`0x58003008 <TICKTIMER_TIME0>`          |
+| :ref:`TICKTIMER_TIME0 <TICKTIMER_TIME0>`                   | :ref:`0x58017008 <TICKTIMER_TIME0>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_MSLEEP_TARGET1 <TICKTIMER_MSLEEP_TARGET1>` | :ref:`0x5800300c <TICKTIMER_MSLEEP_TARGET1>` |
+| :ref:`TICKTIMER_MSLEEP_TARGET1 <TICKTIMER_MSLEEP_TARGET1>` | :ref:`0x5801700c <TICKTIMER_MSLEEP_TARGET1>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_MSLEEP_TARGET0 <TICKTIMER_MSLEEP_TARGET0>` | :ref:`0x58003010 <TICKTIMER_MSLEEP_TARGET0>` |
+| :ref:`TICKTIMER_MSLEEP_TARGET0 <TICKTIMER_MSLEEP_TARGET0>` | :ref:`0x58017010 <TICKTIMER_MSLEEP_TARGET0>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_EV_STATUS <TICKTIMER_EV_STATUS>`           | :ref:`0x58003014 <TICKTIMER_EV_STATUS>`      |
+| :ref:`TICKTIMER_EV_STATUS <TICKTIMER_EV_STATUS>`           | :ref:`0x58017014 <TICKTIMER_EV_STATUS>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_EV_PENDING <TICKTIMER_EV_PENDING>`         | :ref:`0x58003018 <TICKTIMER_EV_PENDING>`     |
+| :ref:`TICKTIMER_EV_PENDING <TICKTIMER_EV_PENDING>`         | :ref:`0x58017018 <TICKTIMER_EV_PENDING>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_EV_ENABLE <TICKTIMER_EV_ENABLE>`           | :ref:`0x5800301c <TICKTIMER_EV_ENABLE>`      |
+| :ref:`TICKTIMER_EV_ENABLE <TICKTIMER_EV_ENABLE>`           | :ref:`0x5801701c <TICKTIMER_EV_ENABLE>`      |
 +------------------------------------------------------------+----------------------------------------------+
 
 TICKTIMER_CONTROL
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x0 = 0x58003000`
+`Address: 0x58017000 + 0x0 = 0x58017000`
 
 
     .. wavedrom::
@@ -90,7 +90,7 @@ TICKTIMER_CONTROL
 TICKTIMER_TIME1
 ^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x4 = 0x58003004`
+`Address: 0x58017000 + 0x4 = 0x58017004`
 
     Bits 32-63 of `TICKTIMER_TIME`. Elapsed time in systicks
 
@@ -107,7 +107,7 @@ TICKTIMER_TIME1
 TICKTIMER_TIME0
 ^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x8 = 0x58003008`
+`Address: 0x58017000 + 0x8 = 0x58017008`
 
     Bits 0-31 of `TICKTIMER_TIME`.
 
@@ -124,7 +124,7 @@ TICKTIMER_TIME0
 TICKTIMER_MSLEEP_TARGET1
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0xc = 0x5800300c`
+`Address: 0x58017000 + 0xc = 0x5801700c`
 
     Bits 32-63 of `TICKTIMER_MSLEEP_TARGET`. Target time in 0.5ms ticks
 
@@ -141,7 +141,7 @@ TICKTIMER_MSLEEP_TARGET1
 TICKTIMER_MSLEEP_TARGET0
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x10 = 0x58003010`
+`Address: 0x58017000 + 0x10 = 0x58017010`
 
     Bits 0-31 of `TICKTIMER_MSLEEP_TARGET`.
 
@@ -158,7 +158,7 @@ TICKTIMER_MSLEEP_TARGET0
 TICKTIMER_EV_STATUS
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x14 = 0x58003014`
+`Address: 0x58017000 + 0x14 = 0x58017014`
 
     This register contains the current raw level of the alarm event trigger.  Writes
     to this register have no effect.
@@ -183,7 +183,7 @@ TICKTIMER_EV_STATUS
 TICKTIMER_EV_PENDING
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x18 = 0x58003018`
+`Address: 0x58017000 + 0x18 = 0x58017018`
 
     When a  alarm event occurs, the corresponding bit will be set in this register.
     To clear the Event, set the corresponding bit in this register.
@@ -209,7 +209,7 @@ TICKTIMER_EV_PENDING
 TICKTIMER_EV_ENABLE
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x1c = 0x5800301c`
+`Address: 0x58017000 + 0x1c = 0x5801701c`
 
     This register enables the corresponding alarm events.  Write a ``0`` to this
     register to disable individual events.
