@@ -87,6 +87,226 @@ class CsrTest(Module, AutoCSR, AutoDoc):
             self.csr_rtest.status.eq(self.csr_wtest.storage + 0x1000_0000)
         ]
 
+# Mailbox ------------------------------------------------------------------------------------------
+class Mailbox(Module, AutoCSR, AutoDoc):
+    def __init__(self, fifo_depth=1024):
+        self.intro = ModuleDoc("""Mailbox: An inter-CPU mailbox
+The `Mailbox` is a bi-directional, inter-CPU mailbox for delivering messages between CPUs
+without requiring shared memory.
+
+A single message consists of a packet up to {} words long, where each word is 32 bits in length.
+
+Both CPUs are considered as "peers"; each can initiate a packet at-will.
+""".format(fifo_depth))
+        self.data_transfer = ModuleDoc("""Data Transfer Protocol
+The protocol has two levels, one at a MAC level, and one at an APP level.
+
+The MAC level protocol controls synchronization of data transfer, and the transfer of single, fully-formed
+packets between the devices. The MAC protocol is implemented by this hardware block.
+
+The APP protocol is managed by the operating system, and can be considered advisory as
+just one of many ways to use this system to communicate between CPUs. However, it helps to ground
+the protocol in an APP framework as some details of the MAC impact the APP framework, especially
+around synchronization and conflict avoidance.
+
+Each peer has a channel to write data to the other peer, using 32 bits `dat`, one `valid` to
+indicate when data is available, and `ready` to indicate when the data has been latched by
+the corresponding peer's hardware FIFO. Generally, `valid`/`ready` is managed exclusively by
+hardware state machines and the host CPUs are not aware of these signals; they mainly exist
+to avoid overflowing the FIFO in the case that one is pipelining multiple packets through
+the interface.
+
+There is an additional `done` signal which is asserted for exactly one cycle, and it indicates
+to the other peer that the sender has finished writing all the data for a given packet. The `done`
+signal is provided so that the corresponding peer does not need to busy-monitor the FIFO depth.
+
+    .. wavedrom::
+        :caption: Sending four words of data, followed by a `done`.
+
+        { "signal" : [
+            {"name": "clk",       "wave": "p........" },
+            {"name": "dat",       "wave": "x=.x===xx", "data" : ["D0", "D1", "D2", "D3", "D4"]},
+            {"name": "valid",     "wave": "01.01..0."},
+            {"name": "ready",     "wave": "0.101..0."},
+            {"name": "done",      "wave": "0......10"},
+        ]}
+
+The above example shows a packet with a length of four words being transmitted. The first word
+takes an extra cycle to be acknowledged; the remaining three are immediately accepted. The `done`
+signal could come as early as simultaneously with the last `ready`, but in practice it comes a couple
+cycles later since it would be triggered by a write from the CPU to the `done` register.
+
+The data transfer protocol is symmetric across the peers.
+        """)
+        self.abort_doc = ModuleDoc("""Abort Protocol
+The abort protocol is used to recover the protocol to a known state: all FIFOs empty, and both hosts
+state machines in an idle state. This is accomplished by cross-wiring `w_abort` on the sending
+peer to `r_abort` on the corresponding peer. Either peer can assert `w_abort`, and it must stay asserted
+until `r_abort` is pulsed to acknowledged the abort condition. At the conclusion of the protocol,
+both FIFOs are empty and their protocol state machines are idle.
+
+    .. wavedrom::
+        :caption: Normal abort
+
+        { "config": {skin : "default"},
+        "signal" : [
+            {"name": "clk",         "wave": "p........" },
+            {"name": "w_abort",     "wave": "01....0.."},
+            {"name": "r_abort",     "wave": "0....10.."},
+            {},
+            {"name": "w_state",     "wave": "==...==..", "data" : ["XXX", "REQ", "ACK", "IDLE"]},
+            {"name": "w_fifo",      "wave": "x=.......", "data" : ["EMPTY"]},
+            {},
+            {"name": "r_state",     "wave": "=..=.==..", "data" : ["XXX", "PROC", "ACK", "IDLE"]},
+            {"name": "r_fifo",      "wave": "x....=...", "data" : ["EMPTY"]},
+        ]}
+
+In the diagram above, `w_abort` is asserted; on the rising edge of `w_abort`, we see that the `w_fifo`
+is already empty and the state machine is in the `REQ` (requesting abort) state.
+
+The corresponding peer's `r_state` machine may take an arbitrarily long period of time to leave its
+current state and enter a `PROC` or processing state, where it is cleaning up from the abort. Once
+it can guarantee its FIFOs are empty and is ready to transition to idle, it pulses `r_abort` for exactly
+one cycle and both machines transition to an `IDLE`/empty FIFO state.
+
+In order to make the case work where both peers attempt to initiate an abort at the same time, the
+initiator guarantees that on asserting `w_abort` it is immediately ready to act on an `r_abort` pulse.
+This means the hardware guarantees two things:
+
+- All FIFOs are cleared by the request
+- The incoming `abort` response line is prevented from generating an interrupt
+
+    .. wavedrom::
+        :caption: Edge case: simultaneous abort
+
+        { "config": {skin : "default"},
+        "signal" : [
+            {"name": "clk",         "wave": "p........" },
+            {"name": "w_abort",     "wave": "0.10....."},
+            {"name": "r_abort",     "wave": "0.10....."},
+            {},
+            {"name": "w_state",     "wave": "=.==.....", "data" : ["XXX", "REQ", "IDLE"]},
+            {"name": "w_fifo",      "wave": "x.=......", "data" : ["EMPTY"]},
+            {"name": "w_abort_ack", "wave": "xx1......"},
+            {},
+            {"name": "r_state",     "wave": "=.==.....", "data" : ["XXX", "REQ", "IDLE"]},
+            {"name": "r_fifo",      "wave": "x.=......", "data" : ["EMPTY"]},
+            {"name": "r_abort_ack", "wave": "xx1......"},
+        ]}
+
+Above is the rare edge case of a cycle-perfect simultaneous abort request. It "just works", and
+both devices immediately transition from `REQ`->`IDLE`.
+
+    .. wavedrom::
+        :caption: Edge case: semi-simultaneous abort
+
+        { "config": {skin : "default"},
+        "signal" : [
+            {"name": "clk",         "wave": "p........" },
+            {"name": "w_abort",     "wave": "0.1.0...."},
+          {"name": "r_abort",     "wave": "0..10....", "node": "...a....."},
+            {},
+            {"name": "w_state",     "wave": "=.===....", "data" : ["XXX", "REQ", "ACK", "IDLE"]},
+            {"name": "w_fifo",      "wave": "x.=......", "data" : ["EMPTY"]},
+            {"name": "w_abort_ack", "wave": "xx0......"},
+            {},
+            {"name": "r_state",     "wave": "=..==....", "data" : ["XXX", "REQ", "IDLE"]},
+            {"name": "r_fifo",      "wave": "x..=.....", "data" : ["EMPTY"]},
+            {"name": "r_abort_ack", "wave": "xxx1....."},
+            {"name": "r_abort_int", "wave": "0.....1..", "node": "......b.."},
+        ],
+          "edge" : ['a~>b race condition']}
+
+Above is the more practical edge case where one peer has initiated an abort, and the other
+is preparing to initiate at the same time, but is perhaps a cycle or two later. In this case
+the first initiator goes through the `ACK` cycle. However, the second initiator would kick off
+an abort-loop if it does not first mask its abort interrupt before attempting to initiate its
+abort. A failure to mask the interrupt would mean the receiver may respond to the incoming request
+as a new request, even though it should have been an acknowledgement.
+
+A race condition is still unavoidable because it takes time for a CPU to decide to initiate an
+abort; during the processing of the "store" instruction, an abort interrupt could come in,
+and generate a late "race condition" interrupt. Thus an `abort_acknowledged` bit is generated,
+which is set on the peer that is the later of the two asserting the abort signal, or by both if they
+happen to be perfectly simultaneously. This bit should be checked
+by the peer when handling an interrupt. This signal, when asserted, means an incoming abort signal
+was already acknowledged, and the latest interrupt should be disregraded.
+        """)
+
+        self.abort_doc = ModuleDoc("""Application Protocol
+
+The application protocol wraps a packet format around each packet. The general format of
+a packet is as follows:
+
+* Word 0
+
+  * Bit 31 - set if a response; cleared if initiating
+  * Bit 30:16 - sequence number
+  * Bit 15:10 - tag
+  * Bit 9:0 - length in words of the packet, excluding word 0
+
+The sequence number allows responses to occur out of order with respect to requests.
+
+The tag encodes the operation intended by the packet. Within the tag, further meaning
+may be ascribed to later fields in the packet. As an example, a `tag` of 0 could indicate
+an RPC, and in this case `word 1` would encode the desired system call, and then
+the subsequent words would encode arguments to that system call. After processing the data,
+the response to this system call would be returned to the corresponding peer, using the same
+`tag` and `sequence number`, but with the `response` bit set.
+
+Further definition of the protocol would extend from here, for example, a `send` of data
+could use a tag of `1`, and the response would be with the same tag
+and sequence number to acknowledge that the sent data was accepted, with the length
+field specifying the number of words that were accepted.
+""")
+        depth_bits = log2_int(fifo_depth)
+        layout = [
+            # data going to the peer. `valid` indicates data is ready to be written; `ready` acknowledges the current write
+            ("w_dat", 32, DIR_M_TO_S),
+            ("w_valid", 1, DIR_M_TO_S),
+            ("w_ready", 1, DIR_S_TO_M),
+            # Interrupt signal to peer. A single pulse used to indicate when the full packet is in the FIFO.
+            ("w_done", 1, DIR_M_TO_S),
+            # data coming from the peer
+            ("r_dat", 32, DIR_S_TO_M),
+            ("r_valid", 1, DIR_S_TO_M),
+            ("r_ready", 1, DIR_M_TO_S),
+            # Interrupt signal from peer. A single pulse used to indicate when the full packet is in the FIFO.
+            ("r_done", 1, DIR_S_TO_M),
+            # bi-directional sync signal. This can be used at any time to recover the protocol to a known state.
+            # The signal is cross-wired, e.g. `w_abort` on one peer connects to `r_abort` on the other.
+            # Either peer can assert `w_abort`, and it must stay asserted until `r_abort` is pulsed to acknowledge the abort.
+            # Asserting `w_abort` immediately clears the sender's FIFO, and blocks new data from being loaded until `r_abort` is asserted.
+            # In the case that both happen to simultaneously assert `w_abort`, the protocol completes in one cycle.
+            ("w_abort", 1, DIR_M_TO_S),
+            ("r_abort", 1, DIR_S_TO_M),
+        ]
+        self.wdata = CSRStorage(32, name="wdata", description="Write data to outgoing FIFO.")
+        self.rdata = CSRStatus(32, name="rdata", description="Read data from incoming FIFO.")
+        self.submodules.ev = ev = EventManager()
+        self.ev.int = EventSourcePulse(name="int", description="Triggers when a full packet is available")
+        self.ev.abort = EventSourceProcess(name="abort", description="Triggers when abort is asserted by the peer", edge="rising")
+        self.ev.finalize()
+        self.status = CSRStatus(fields=[
+            CSRField(name="rx_words", size=depth_bits, description="Number of words available to read"),
+            CSRField(name="tx_avail", size=depth_bits, description="Number of words free to write"),
+            CSRField(name="abort_in_progress", size=1, description="This bit is set if an `aborting` event was initiated and is still in progress."),
+            CSRField(name="abort_ack", size=1,
+            description="""This bit is set by the peer that acknowledged the incoming abort
+(the later of the two, in case of an imperfect race condition). The abort response handler should
+check this bit; if it is set, no new acknowledgement shall be issued. The bit is cleared
+when an initiator initiates a new abort. The initiator shall also ignore the state of this
+bit if it is intending to initiate a new abort cycle.""")
+        ])
+        self.control = CSRStorage(fields=[
+            CSRField(name="abort", size=1, description=
+            """Write `1` to this field to both initiate and acknowledge an abort.
+Empties both FIFOs, asserts `aborting`, and prevents an interrupt from being generated by
+an incoming abort request. New reads & writes are ignored until `aborted` is asserted
+from the peer.""", pulse=True)
+        ])
+        self.packet = CSRStorage(1, name="done", description="Writing a `1` to this field indicates that the packet is done. There is no need to clear this register after writing.")
+
 # Interrupts ------------------------------------------------------------------------------------
 class EventSourceFlex(Module, _EventSource):
     def __init__(self, trigger, soft_trigger, name=None, description=None):
@@ -484,6 +704,10 @@ class cramSoC(SoCCore):
         # Ticktimer --------------------------------------------------------------------------------
         self.submodules.ticktimer = ticktimer.TickTimer(2000, 800e6)
         self.irq.add("ticktimer")
+
+        # Mailbox ----------------------------------------------------------------------------------
+        self.submodules.mailbox = Mailbox(fifo_depth=1024)
+        self.irq.add("mailbox")
 
         # CSR bus test loopback register -----------------------------------------------------------
         self.submodules.csrtest = CsrTest()
