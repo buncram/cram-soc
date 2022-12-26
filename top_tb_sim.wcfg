@@ -11,169 +11,843 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="133333333fs"></ZoomStartTime>
-      <ZoomEndTime time="933333334fs"></ZoomEndTime>
-      <Cursor1Time time="800000000fs"></Cursor1Time>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="2,628.574358 us"></ZoomEndTime>
+      <Cursor1Time time="433.995900 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="378"></NameColumnWidth>
-      <ValueColumnWidth column_width="76"></ValueColumnWidth>
+      <NameColumnWidth column_width="260"></NameColumnWidth>
+      <ValueColumnWidth column_width="75"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="39" />
-   <wvobject type="logic" fp_name="/top_tb/dut/sys_rst">
+   <WVObjectSize size="207" />
+   <wvobject fp_name="/top_tb/trst" type="logic">
+      <obj_property name="ElementShortName">trst</obj_property>
+      <obj_property name="ObjectShortName">trst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/cramsoc_satp_mode" type="logic">
+      <obj_property name="ElementShortName">cramsoc_satp_mode</obj_property>
+      <obj_property name="ObjectShortName">cramsoc_satp_mode</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/cramsoc_satp_asid" type="array">
+      <obj_property name="ElementShortName">cramsoc_satp_asid[8:0]</obj_property>
+      <obj_property name="ObjectShortName">cramsoc_satp_asid[8:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/cramsoc_satp_ppn" type="array">
+      <obj_property name="ElementShortName">cramsoc_satp_ppn[21:0]</obj_property>
+      <obj_property name="ObjectShortName">cramsoc_satp_ppn[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/sys_rst" type="logic">
       <obj_property name="ElementShortName">sys_rst</obj_property>
       <obj_property name="ObjectShortName">sys_rst</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/sys_clk">
+   <wvobject fp_name="/top_tb/dut/sys_clk" type="logic">
       <obj_property name="ElementShortName">sys_clk</obj_property>
       <obj_property name="ObjectShortName">sys_clk</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/success">
+   <wvobject fp_name="/top_tb/success" type="logic">
       <obj_property name="ElementShortName">success</obj_property>
       <obj_property name="ObjectShortName">success</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/report">
-      <obj_property name="ElementShortName">report[15:0]</obj_property>
-      <obj_property name="ObjectShortName">report[15:0]</obj_property>
+   <wvobject fp_name="/top_tb/report" type="array">
+      <obj_property name="ElementShortName">report[31:0]</obj_property>
+      <obj_property name="ObjectShortName">report[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/VexRiscv/decode_to_execute_INSTRUCTION">
-      <obj_property name="ElementShortName">decode_to_execute_INSTRUCTION[31:0]</obj_property>
-      <obj_property name="ObjectShortName">decode_to_execute_INSTRUCTION[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/coreuser" type="logic">
+      <obj_property name="ElementShortName">coreuser</obj_property>
+      <obj_property name="ObjectShortName">coreuser</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/VexRiscv/decode_to_execute_PC">
-      <obj_property name="ElementShortName">decode_to_execute_PC[31:0]</obj_property>
-      <obj_property name="ObjectShortName">decode_to_execute_PC[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/trimming_reset" type="array">
+      <obj_property name="ElementShortName">trimming_reset[31:0]</obj_property>
+      <obj_property name="ObjectShortName">trimming_reset[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/VexRiscv/decode_to_execute_RS1">
-      <obj_property name="ElementShortName">decode_to_execute_RS1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">decode_to_execute_RS1[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/trimming_reset_ena" type="logic">
+      <obj_property name="ElementShortName">trimming_reset_ena</obj_property>
+      <obj_property name="ObjectShortName">trimming_reset_ena</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/VexRiscv/decode_to_execute_RS2">
-      <obj_property name="ElementShortName">decode_to_execute_RS2[31:0]</obj_property>
-      <obj_property name="ObjectShortName">decode_to_execute_RS2[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/execute_IS_RVC" type="logic">
+      <obj_property name="ElementShortName">execute_IS_RVC</obj_property>
+      <obj_property name="ObjectShortName">execute_IS_RVC</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/shared_adr">
-      <obj_property name="ElementShortName">shared_adr[29:0]</obj_property>
-      <obj_property name="ObjectShortName">shared_adr[29:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/execute_PC" type="array">
+      <obj_property name="ElementShortName">execute_PC[31:0]</obj_property>
+      <obj_property name="ObjectShortName">execute_PC[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/shared_dat_w">
-      <obj_property name="ElementShortName">shared_dat_w[31:0]</obj_property>
-      <obj_property name="ObjectShortName">shared_dat_w[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/execute_INSTRUCTION" type="array">
+      <obj_property name="ElementShortName">execute_INSTRUCTION[31:0]</obj_property>
+      <obj_property name="ObjectShortName">execute_INSTRUCTION[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/shared_dat_r">
-      <obj_property name="ElementShortName">shared_dat_r[31:0]</obj_property>
-      <obj_property name="ObjectShortName">shared_dat_r[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/execute_ENV_CTRL" type="array">
+      <obj_property name="ElementShortName">execute_ENV_CTRL[2:0]</obj_property>
+      <obj_property name="ObjectShortName">execute_ENV_CTRL[2:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/shared_sel">
-      <obj_property name="ElementShortName">shared_sel[3:0]</obj_property>
-      <obj_property name="ObjectShortName">shared_sel[3:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/decode_RegFilePlugin_regFileReadAddress1" type="array">
+      <obj_property name="ElementShortName">decode_RegFilePlugin_regFileReadAddress1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">decode_RegFilePlugin_regFileReadAddress1[4:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/shared_cyc">
-      <obj_property name="ElementShortName">shared_cyc</obj_property>
-      <obj_property name="ObjectShortName">shared_cyc</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/decode_RegFilePlugin_regFileReadAddress2" type="array">
+      <obj_property name="ElementShortName">decode_RegFilePlugin_regFileReadAddress2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">decode_RegFilePlugin_regFileReadAddress2[4:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/shared_stb">
-      <obj_property name="ElementShortName">shared_stb</obj_property>
-      <obj_property name="ObjectShortName">shared_stb</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/decode_RegFilePlugin_rs1Data" type="array">
+      <obj_property name="ElementShortName">decode_RegFilePlugin_rs1Data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">decode_RegFilePlugin_rs1Data[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/shared_ack">
-      <obj_property name="ElementShortName">shared_ack</obj_property>
-      <obj_property name="ObjectShortName">shared_ack</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/decode_RegFilePlugin_rs2Data" type="array">
+      <obj_property name="ElementShortName">decode_RegFilePlugin_rs2Data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">decode_RegFilePlugin_rs2Data[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/shared_we">
-      <obj_property name="ElementShortName">shared_we</obj_property>
-      <obj_property name="ObjectShortName">shared_we</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/execute_REGFILE_WRITE_VALID" type="logic">
+      <obj_property name="ElementShortName">execute_REGFILE_WRITE_VALID</obj_property>
+      <obj_property name="ObjectShortName">execute_REGFILE_WRITE_VALID</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/shared_cti">
-      <obj_property name="ElementShortName">shared_cti[2:0]</obj_property>
-      <obj_property name="ObjectShortName">shared_cti[2:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/execute_REGFILE_WRITE_DATA" type="array">
+      <obj_property name="ElementShortName">execute_REGFILE_WRITE_DATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">execute_REGFILE_WRITE_DATA[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/shared_bte">
-      <obj_property name="ElementShortName">shared_bte[1:0]</obj_property>
-      <obj_property name="ObjectShortName">shared_bte[1:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/MmuPlugin_shared_state_1" type="array">
+      <obj_property name="ElementShortName">MmuPlugin_shared_state_1[2:0]</obj_property>
+      <obj_property name="ObjectShortName">MmuPlugin_shared_state_1[2:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/si">
-      <obj_property name="ElementShortName">si</obj_property>
-      <obj_property name="ObjectShortName">si</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/MmuPlugin_shared_state_1_string" type="array">
+      <obj_property name="ElementShortName">MmuPlugin_shared_state_1_string[47:0]</obj_property>
+      <obj_property name="ObjectShortName">MmuPlugin_shared_state_1_string[47:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/sclk">
-      <obj_property name="ElementShortName">sclk</obj_property>
-      <obj_property name="ObjectShortName">sclk</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/IBusCachedPlugin_mmuBus_cmd_0_virtualAddress" type="array">
+      <obj_property name="ElementShortName">IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IBusCachedPlugin_mmuBus_cmd_0_virtualAddress[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/scs">
-      <obj_property name="ElementShortName">scs</obj_property>
-      <obj_property name="ObjectShortName">scs</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/IBusCachedPlugin_mmuBus_rsp_physicalAddress" type="array">
+      <obj_property name="ElementShortName">IBusCachedPlugin_mmuBus_rsp_physicalAddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IBusCachedPlugin_mmuBus_rsp_physicalAddress[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/memlcd_update_line">
-      <obj_property name="ElementShortName">memlcd_update_line[9:0]</obj_property>
-      <obj_property name="ObjectShortName">memlcd_update_line[9:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/DBusCachedPlugin_mmuBus_cmd_0_virtualAddress" type="array">
+      <obj_property name="ElementShortName">DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DBusCachedPlugin_mmuBus_cmd_0_virtualAddress[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/memlcd_update_addr">
-      <obj_property name="ElementShortName">memlcd_update_addr[14:0]</obj_property>
-      <obj_property name="ObjectShortName">memlcd_update_addr[14:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/DBusCachedPlugin_mmuBus_rsp_physicalAddress" type="array">
+      <obj_property name="ElementShortName">DBusCachedPlugin_mmuBus_rsp_physicalAddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DBusCachedPlugin_mmuBus_rsp_physicalAddress[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/memlcd_modeshift">
-      <obj_property name="ElementShortName">memlcd_modeshift[15:0]</obj_property>
-      <obj_property name="ObjectShortName">memlcd_modeshift[15:0]</obj_property>
+   <wvobject type="divider" fp_name="divider193">
+      <obj_property name="label">CPU exceptions</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/memlcd_mode">
-      <obj_property name="ElementShortName">memlcd_mode[5:0]</obj_property>
-      <obj_property name="ObjectShortName">memlcd_mode[5:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/externalInterruptArray" type="array">
+      <obj_property name="ElementShortName">externalInterruptArray[31:0]</obj_property>
+      <obj_property name="ObjectShortName">externalInterruptArray[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/memlcd_pixshift">
-      <obj_property name="ElementShortName">memlcd_pixshift[31:0]</obj_property>
-      <obj_property name="ObjectShortName">memlcd_pixshift[31:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/externalInterruptS" type="logic">
+      <obj_property name="ElementShortName">externalInterruptS</obj_property>
+      <obj_property name="ObjectShortName">externalInterruptS</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/top_tb/dut/memlcd_pixcount">
-      <obj_property name="ElementShortName">memlcd_pixcount[8:0]</obj_property>
-      <obj_property name="ObjectShortName">memlcd_pixcount[8:0]</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/debugReset" type="logic">
+      <obj_property name="ElementShortName">debugReset</obj_property>
+      <obj_property name="ObjectShortName">debugReset</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_UpdateAll">
-      <obj_property name="ElementShortName">memlcd_UpdateAll</obj_property>
-      <obj_property name="ObjectShortName">memlcd_UpdateAll</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_allowInterrupts" type="logic">
+      <obj_property name="ElementShortName">CsrPlugin_allowInterrupts</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_allowInterrupts</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_UpdateDirty">
-      <obj_property name="ElementShortName">memlcd_UpdateDirty</obj_property>
-      <obj_property name="ObjectShortName">memlcd_UpdateDirty</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_mcause_interrupt" type="logic">
+      <obj_property name="ElementShortName">CsrPlugin_mcause_interrupt</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_mcause_interrupt</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_busy_status">
-      <obj_property name="ElementShortName">memlcd_busy_status</obj_property>
-      <obj_property name="ObjectShortName">memlcd_busy_status</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_scause_interrupt" type="logic">
+      <obj_property name="ElementShortName">CsrPlugin_scause_interrupt</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_scause_interrupt</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_busy_status_fsm0_next_value0">
-      <obj_property name="ElementShortName">memlcd_busy_status_fsm0_next_value0</obj_property>
-      <obj_property name="ObjectShortName">memlcd_busy_status_fsm0_next_value0</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_interrupt_valid" type="logic">
+      <obj_property name="ElementShortName">CsrPlugin_interrupt_valid</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_interrupt_valid</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_busy_status_fsm0_next_value_ce0">
-      <obj_property name="ElementShortName">memlcd_busy_status_fsm0_next_value_ce0</obj_property>
-      <obj_property name="ObjectShortName">memlcd_busy_status_fsm0_next_value_ce0</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_interrupt_code" type="array">
+      <obj_property name="ElementShortName">CsrPlugin_interrupt_code[3:0]</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_interrupt_code[3:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_busy_we">
-      <obj_property name="ElementShortName">memlcd_busy_we</obj_property>
-      <obj_property name="ObjectShortName">memlcd_busy_we</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_interrupt_targetPrivilege" type="array">
+      <obj_property name="ElementShortName">CsrPlugin_interrupt_targetPrivilege[1:0]</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_interrupt_targetPrivilege[1:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_done_clear">
-      <obj_property name="ElementShortName">memlcd_done_clear</obj_property>
-      <obj_property name="ObjectShortName">memlcd_done_clear</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_interruptJump" type="logic">
+      <obj_property name="ElementShortName">CsrPlugin_interruptJump</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_interruptJump</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_done_old_trigger">
-      <obj_property name="ElementShortName">memlcd_done_old_trigger</obj_property>
-      <obj_property name="ObjectShortName">memlcd_done_old_trigger</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/externalInterruptArray_regNext" type="array">
+      <obj_property name="ElementShortName">externalInterruptArray_regNext[31:0]</obj_property>
+      <obj_property name="ObjectShortName">externalInterruptArray_regNext[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_done_pending">
-      <obj_property name="ElementShortName">memlcd_done_pending</obj_property>
-      <obj_property name="ObjectShortName">memlcd_done_pending</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/_zz_externalInterrupt" type="array">
+      <obj_property name="ElementShortName">_zz_externalInterrupt[31:0]</obj_property>
+      <obj_property name="ObjectShortName">_zz_externalInterrupt[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_done_status">
-      <obj_property name="ElementShortName">memlcd_done_status</obj_property>
-      <obj_property name="ObjectShortName">memlcd_done_status</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/_zz_externalInterruptS" type="array">
+      <obj_property name="ElementShortName">_zz_externalInterruptS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">_zz_externalInterruptS[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_done_trigger">
-      <obj_property name="ElementShortName">memlcd_done_trigger</obj_property>
-      <obj_property name="ObjectShortName">memlcd_done_trigger</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_selfException_valid" type="logic">
+      <obj_property name="ElementShortName">CsrPlugin_selfException_valid</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_selfException_valid</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/top_tb/dut/memlcd_linedone">
-      <obj_property name="ElementShortName">memlcd_linedone</obj_property>
-      <obj_property name="ObjectShortName">memlcd_linedone</obj_property>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/CsrPlugin_selfException_payload_code" type="array">
+      <obj_property name="ElementShortName">CsrPlugin_selfException_payload_code[3:0]</obj_property>
+      <obj_property name="ObjectShortName">CsrPlugin_selfException_payload_code[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/irqarray_bank0" type="array">
+      <obj_property name="ElementShortName">irqarray_bank0[19:0]</obj_property>
+      <obj_property name="ObjectShortName">irqarray_bank0[19:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/irqarray_bank1" type="array">
+      <obj_property name="ElementShortName">irqarray_bank1[19:0]</obj_property>
+      <obj_property name="ObjectShortName">irqarray_bank1[19:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/irqarray_bank2" type="array">
+      <obj_property name="ElementShortName">irqarray_bank2[19:0]</obj_property>
+      <obj_property name="ObjectShortName">irqarray_bank2[19:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider186">
+      <obj_property name="label">CPU Ibus AXI</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_payload_addr" type="array">
+      <obj_property name="ElementShortName">iBusAxi_ar_payload_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_payload_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_payload_burst" type="array">
+      <obj_property name="ElementShortName">iBusAxi_ar_payload_burst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_payload_burst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_payload_cache" type="array">
+      <obj_property name="ElementShortName">iBusAxi_ar_payload_cache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_payload_cache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_payload_id" type="array">
+      <obj_property name="ElementShortName">iBusAxi_ar_payload_id[0:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_payload_id[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_payload_len" type="array">
+      <obj_property name="ElementShortName">iBusAxi_ar_payload_len[7:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_payload_len[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_payload_size" type="array">
+      <obj_property name="ElementShortName">iBusAxi_ar_payload_size[2:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_payload_size[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_ready" type="logic">
+      <obj_property name="ElementShortName">iBusAxi_ar_ready</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_ar_valid" type="logic">
+      <obj_property name="ElementShortName">iBusAxi_ar_valid</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_ar_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_r_payload_data" type="array">
+      <obj_property name="ElementShortName">iBusAxi_r_payload_data[63:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_r_payload_data[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_r_payload_id" type="array">
+      <obj_property name="ElementShortName">iBusAxi_r_payload_id[0:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_r_payload_id[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_r_payload_last" type="logic">
+      <obj_property name="ElementShortName">iBusAxi_r_payload_last</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_r_payload_last</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_r_payload_resp" type="array">
+      <obj_property name="ElementShortName">iBusAxi_r_payload_resp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_r_payload_resp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_r_ready" type="logic">
+      <obj_property name="ElementShortName">iBusAxi_r_ready</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_r_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/iBusAxi_r_valid" type="logic">
+      <obj_property name="ElementShortName">iBusAxi_r_valid</obj_property>
+      <obj_property name="ObjectShortName">iBusAxi_r_valid</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider187">
+      <obj_property name="label">ReRAM AXILite</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_awvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_awvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_awready" type="logic">
+      <obj_property name="ElementShortName">s_axi_awready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_awaddr" type="array">
+      <obj_property name="ElementShortName">s_axi_awaddr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awaddr[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_wdata" type="array">
+      <obj_property name="ElementShortName">s_axi_wdata[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wdata[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_awlen" type="array">
+      <obj_property name="ElementShortName">s_axi_awlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_awsize" type="array">
+      <obj_property name="ElementShortName">s_axi_awsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_awburst" type="array">
+      <obj_property name="ElementShortName">s_axi_awburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_wstrb" type="array">
+      <obj_property name="ElementShortName">s_axi_wstrb[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wstrb[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_arvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_arvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_arready" type="logic">
+      <obj_property name="ElementShortName">s_axi_arready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_araddr" type="array">
+      <obj_property name="ElementShortName">s_axi_araddr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_araddr[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_rdata" type="array">
+      <obj_property name="ElementShortName">s_axi_rdata[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rdata[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_rvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_rvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_rready" type="logic">
+      <obj_property name="ElementShortName">s_axi_rready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_arlen" type="array">
+      <obj_property name="ElementShortName">s_axi_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_arsize" type="array">
+      <obj_property name="ElementShortName">s_axi_arsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_arburst" type="array">
+      <obj_property name="ElementShortName">s_axi_arburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_bvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_bvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram/s_axi_bready" type="logic">
+      <obj_property name="ElementShortName">s_axi_bready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider279">
+      <obj_property name="label">CPU Dbus AXI</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_payload_addr" type="array">
+      <obj_property name="ElementShortName">dBusAxi_ar_payload_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_payload_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_payload_burst" type="array">
+      <obj_property name="ElementShortName">dBusAxi_ar_payload_burst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_payload_burst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_payload_cache" type="array">
+      <obj_property name="ElementShortName">dBusAxi_ar_payload_cache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_payload_cache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_payload_id" type="array">
+      <obj_property name="ElementShortName">dBusAxi_ar_payload_id[0:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_payload_id[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_payload_len" type="array">
+      <obj_property name="ElementShortName">dBusAxi_ar_payload_len[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_payload_len[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_payload_size" type="array">
+      <obj_property name="ElementShortName">dBusAxi_ar_payload_size[2:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_payload_size[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_ready" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_ar_ready</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_ar_valid" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_ar_valid</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_ar_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_r_payload_data" type="array">
+      <obj_property name="ElementShortName">dBusAxi_r_payload_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_r_payload_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_r_payload_id" type="array">
+      <obj_property name="ElementShortName">dBusAxi_r_payload_id[0:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_r_payload_id[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_r_payload_last" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_r_payload_last</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_r_payload_last</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_r_payload_resp" type="array">
+      <obj_property name="ElementShortName">dBusAxi_r_payload_resp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_r_payload_resp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_r_ready" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_r_ready</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_r_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_r_valid" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_r_valid</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_r_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_payload_cache" type="array">
+      <obj_property name="ElementShortName">dBusAxi_aw_payload_cache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_payload_cache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_payload_id" type="array">
+      <obj_property name="ElementShortName">dBusAxi_aw_payload_id[0:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_payload_id[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_payload_len" type="array">
+      <obj_property name="ElementShortName">dBusAxi_aw_payload_len[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_payload_len[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_payload_size" type="array">
+      <obj_property name="ElementShortName">dBusAxi_aw_payload_size[2:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_payload_size[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_payload_burst" type="array">
+      <obj_property name="ElementShortName">dBusAxi_aw_payload_burst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_payload_burst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_payload_addr" type="array">
+      <obj_property name="ElementShortName">dBusAxi_aw_payload_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_payload_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_ready" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_aw_ready</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_aw_valid" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_aw_valid</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_aw_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_w_payload_data" type="array">
+      <obj_property name="ElementShortName">dBusAxi_w_payload_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_w_payload_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_w_payload_strb" type="array">
+      <obj_property name="ElementShortName">dBusAxi_w_payload_strb[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_w_payload_strb[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_w_valid" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_w_valid</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_w_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_w_ready" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_w_ready</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_w_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_w_payload_last" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_w_payload_last</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_w_payload_last</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_b_payload_id" type="array">
+      <obj_property name="ElementShortName">dBusAxi_b_payload_id[0:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_b_payload_id[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_b_payload_resp" type="array">
+      <obj_property name="ElementShortName">dBusAxi_b_payload_resp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_b_payload_resp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_b_ready" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_b_ready</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_b_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/VexRiscvAxi4/dBusAxi_b_valid" type="logic">
+      <obj_property name="ElementShortName">dBusAxi_b_valid</obj_property>
+      <obj_property name="ObjectShortName">dBusAxi_b_valid</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider278">
+      <obj_property name="label">SRAM axi</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/mem_wr_en" type="logic">
+      <obj_property name="ElementShortName">mem_wr_en</obj_property>
+      <obj_property name="ObjectShortName">mem_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/write_addr_reg" type="array">
+      <obj_property name="ElementShortName">write_addr_reg[15:0]</obj_property>
+      <obj_property name="ObjectShortName">write_addr_reg[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/write_addr_valid" type="array">
+      <obj_property name="ElementShortName">write_addr_valid[12:0]</obj_property>
+      <obj_property name="ObjectShortName">write_addr_valid[12:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_wdata" type="array">
+      <obj_property name="ElementShortName">s_axi_wdata[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wdata[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_wstrb" type="array">
+      <obj_property name="ElementShortName">s_axi_wstrb[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wstrb[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_awaddr" type="array">
+      <obj_property name="ElementShortName">s_axi_awaddr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awaddr[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_awlen" type="array">
+      <obj_property name="ElementShortName">s_axi_awlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_awburst" type="array">
+      <obj_property name="ElementShortName">s_axi_awburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_awvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_awvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_awready" type="logic">
+      <obj_property name="ElementShortName">s_axi_awready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_wlast" type="logic">
+      <obj_property name="ElementShortName">s_axi_wlast</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_wvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_wvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_wready" type="logic">
+      <obj_property name="ElementShortName">s_axi_wready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_araddr" type="array">
+      <obj_property name="ElementShortName">s_axi_araddr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_araddr[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/mem_rd_en" type="logic">
+      <obj_property name="ElementShortName">mem_rd_en</obj_property>
+      <obj_property name="ObjectShortName">mem_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/read_addr_reg" type="array">
+      <obj_property name="ElementShortName">read_addr_reg[15:0]</obj_property>
+      <obj_property name="ObjectShortName">read_addr_reg[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/read_addr_valid" type="array">
+      <obj_property name="ElementShortName">read_addr_valid[12:0]</obj_property>
+      <obj_property name="ObjectShortName">read_addr_valid[12:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_rdata" type="array">
+      <obj_property name="ElementShortName">s_axi_rdata[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rdata[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_rvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_rvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_rready" type="logic">
+      <obj_property name="ElementShortName">s_axi_rready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_arlen" type="array">
+      <obj_property name="ElementShortName">s_axi_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_arsize" type="array">
+      <obj_property name="ElementShortName">s_axi_arsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_arburst" type="array">
+      <obj_property name="ElementShortName">s_axi_arburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_arvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_arvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/axi_ram_1/s_axi_arready" type="logic">
+      <obj_property name="ElementShortName">s_axi_arready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider277">
+      <obj_property name="label">p_axi</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_awvalid" type="logic">
+      <obj_property name="ElementShortName">p_axi_awvalid</obj_property>
+      <obj_property name="ObjectShortName">p_axi_awvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_awready" type="logic">
+      <obj_property name="ElementShortName">p_axi_awready</obj_property>
+      <obj_property name="ObjectShortName">p_axi_awready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_awaddr" type="array">
+      <obj_property name="ElementShortName">p_axi_awaddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_awaddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_awprot" type="array">
+      <obj_property name="ElementShortName">p_axi_awprot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_awprot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_wvalid" type="logic">
+      <obj_property name="ElementShortName">p_axi_wvalid</obj_property>
+      <obj_property name="ObjectShortName">p_axi_wvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_wready" type="logic">
+      <obj_property name="ElementShortName">p_axi_wready</obj_property>
+      <obj_property name="ObjectShortName">p_axi_wready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_wdata" type="array">
+      <obj_property name="ElementShortName">p_axi_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_wstrb" type="array">
+      <obj_property name="ElementShortName">p_axi_wstrb[3:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_wstrb[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_bvalid" type="logic">
+      <obj_property name="ElementShortName">p_axi_bvalid</obj_property>
+      <obj_property name="ObjectShortName">p_axi_bvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_bready" type="logic">
+      <obj_property name="ElementShortName">p_axi_bready</obj_property>
+      <obj_property name="ObjectShortName">p_axi_bready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_bresp" type="array">
+      <obj_property name="ElementShortName">p_axi_bresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_bresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_arvalid" type="logic">
+      <obj_property name="ElementShortName">p_axi_arvalid</obj_property>
+      <obj_property name="ObjectShortName">p_axi_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_arready" type="logic">
+      <obj_property name="ElementShortName">p_axi_arready</obj_property>
+      <obj_property name="ObjectShortName">p_axi_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_araddr" type="array">
+      <obj_property name="ElementShortName">p_axi_araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_arprot" type="array">
+      <obj_property name="ElementShortName">p_axi_arprot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_arprot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_rvalid" type="logic">
+      <obj_property name="ElementShortName">p_axi_rvalid</obj_property>
+      <obj_property name="ObjectShortName">p_axi_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_rready" type="logic">
+      <obj_property name="ElementShortName">p_axi_rready</obj_property>
+      <obj_property name="ObjectShortName">p_axi_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_rresp" type="array">
+      <obj_property name="ElementShortName">p_axi_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/p_axi_rdata" type="array">
+      <obj_property name="ElementShortName">p_axi_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">p_axi_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider202">
+      <obj_property name="label">debug</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser" type="logic">
+      <obj_property name="ElementShortName">coreuser</obj_property>
+      <obj_property name="ObjectShortName">coreuser</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid0" type="array">
+      <obj_property name="ElementShortName">coreuser_asid0[8:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid0[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_trusted" type="logic">
+      <obj_property name="ElementShortName">coreuser_trusted</obj_property>
+      <obj_property name="ObjectShortName">coreuser_trusted</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_set_asid_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_set_asid_storage[9:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_set_asid_storage[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_set_asid_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_set_asid_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_set_asid_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid1" type="array">
+      <obj_property name="ElementShortName">coreuser_asid1[8:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid1[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_get_asid_addr_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_get_asid_addr_storage[8:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_get_asid_addr_storage[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_get_asid_addr_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_get_asid_addr_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_get_asid_addr_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_value" type="logic">
+      <obj_property name="ElementShortName">coreuser_value</obj_property>
+      <obj_property name="ObjectShortName">coreuser_value</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_get_asid_value_storage" type="logic">
+      <obj_property name="ElementShortName">coreuser_get_asid_value_storage</obj_property>
+      <obj_property name="ObjectShortName">coreuser_get_asid_value_storage</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_get_asid_value_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_get_asid_value_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_get_asid_value_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_enable0" type="logic">
+      <obj_property name="ElementShortName">coreuser_enable0</obj_property>
+      <obj_property name="ObjectShortName">coreuser_enable0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid2" type="logic">
+      <obj_property name="ElementShortName">coreuser_asid2</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_ppn_a" type="logic">
+      <obj_property name="ElementShortName">coreuser_ppn_a</obj_property>
+      <obj_property name="ObjectShortName">coreuser_ppn_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_ppn_b" type="logic">
+      <obj_property name="ElementShortName">coreuser_ppn_b</obj_property>
+      <obj_property name="ObjectShortName">coreuser_ppn_b</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_control_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_control_storage[3:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_control_storage[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_control_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_control_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_control_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_protect_storage" type="logic">
+      <obj_property name="ElementShortName">coreuser_protect_storage</obj_property>
+      <obj_property name="ObjectShortName">coreuser_protect_storage</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_protect_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_protect_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_protect_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_ppn0" type="array">
+      <obj_property name="ElementShortName">coreuser_ppn0[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_ppn0[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_al_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_window_al_storage[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_al_storage[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_al_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_window_al_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_al_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_ppn1" type="array">
+      <obj_property name="ElementShortName">coreuser_ppn1[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_ppn1[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_ah_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_window_ah_storage[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_ah_storage[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_ah_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_window_ah_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_ah_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_ppn2" type="array">
+      <obj_property name="ElementShortName">coreuser_ppn2[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_ppn2[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_bl_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_window_bl_storage[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_bl_storage[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_bl_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_window_bl_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_bl_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_ppn3" type="array">
+      <obj_property name="ElementShortName">coreuser_ppn3[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_ppn3[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_bh_storage" type="array">
+      <obj_property name="ElementShortName">coreuser_window_bh_storage[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_bh_storage[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_bh_re" type="logic">
+      <obj_property name="ElementShortName">coreuser_window_bh_re</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_bh_re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_protect" type="logic">
+      <obj_property name="ElementShortName">coreuser_protect</obj_property>
+      <obj_property name="ObjectShortName">coreuser_protect</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_enable1" type="logic">
+      <obj_property name="ElementShortName">coreuser_enable1</obj_property>
+      <obj_property name="ObjectShortName">coreuser_enable1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_require_asid" type="logic">
+      <obj_property name="ElementShortName">coreuser_require_asid</obj_property>
+      <obj_property name="ObjectShortName">coreuser_require_asid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_require_ppn_a" type="logic">
+      <obj_property name="ElementShortName">coreuser_require_ppn_a</obj_property>
+      <obj_property name="ObjectShortName">coreuser_require_ppn_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_require_ppn_b" type="logic">
+      <obj_property name="ElementShortName">coreuser_require_ppn_b</obj_property>
+      <obj_property name="ObjectShortName">coreuser_require_ppn_b</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid_rd_adr" type="array">
+      <obj_property name="ElementShortName">coreuser_asid_rd_adr[8:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid_rd_adr[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid_rd_dat_r" type="logic">
+      <obj_property name="ElementShortName">coreuser_asid_rd_dat_r</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid_rd_dat_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid_wr_adr" type="array">
+      <obj_property name="ElementShortName">coreuser_asid_wr_adr[8:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid_wr_adr[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid_wr_dat_r" type="logic">
+      <obj_property name="ElementShortName">coreuser_asid_wr_dat_r</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid_wr_dat_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid_wr_we" type="logic">
+      <obj_property name="ElementShortName">coreuser_asid_wr_we</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid_wr_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_asid_wr_dat_w" type="logic">
+      <obj_property name="ElementShortName">coreuser_asid_wr_dat_w</obj_property>
+      <obj_property name="ObjectShortName">coreuser_asid_wr_dat_w</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_coreuser_asid" type="logic">
+      <obj_property name="ElementShortName">coreuser_coreuser_asid</obj_property>
+      <obj_property name="ObjectShortName">coreuser_coreuser_asid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_al" type="array">
+      <obj_property name="ElementShortName">coreuser_window_al[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_al[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_ah" type="array">
+      <obj_property name="ElementShortName">coreuser_window_ah[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_ah[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_bl" type="array">
+      <obj_property name="ElementShortName">coreuser_window_bl[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_bl[21:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/dut/cram_axi/coreuser_window_bh" type="array">
+      <obj_property name="ElementShortName">coreuser_window_bh[21:0]</obj_property>
+      <obj_property name="ObjectShortName">coreuser_window_bh[21:0]</obj_property>
    </wvobject>
 </wave_config>
