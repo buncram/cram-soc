@@ -1,7 +1,6 @@
 #!/bin/bash
-cd .. && sphinx-build -M html build/gateware/build/documentation/ build/gateware/build/documentation/_build
-
-cd candidate
+rm -rf ../build/gateware/build/documentation/_build
+sphinx-build -M html ../build/gateware/build/documentation/ ../build/gateware/build/documentation/_build
 
 cp ../sim_support/ram_1w_1ra.v .
 cp ../sim_support/ram_1w_1rs.v .
