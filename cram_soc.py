@@ -484,7 +484,20 @@ class CramSoC(SoCMini):
                 # o_CFGMCLK   = self.cfgmclk,
             ),
         ]
+
+        # Cramium platform -------------------------------------------------------------------------
         trimming = platform.request("trimming")
+        zero_irq = Signal(20)
+        self.irqtest0 = CSRStorage(fields=[
+            CSRField(
+                name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=False
+            )
+        ])
+        self.irqtest1 = CSRStorage(fields=[
+            CSRField(
+                name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=True
+            )
+        ])
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",
@@ -617,9 +630,28 @@ class CramSoC(SoCMini):
             i_jtag_tms            = jtag_cpu.tms      ,
             i_jtag_tck            = jtag_cpu.tck      ,
             i_jtag_trst           = jtag_cpu.trst     ,
-            i_interrupt           = interrupt,
 
             o_coreuser            = sim.coreuser      ,
+            i_irqarray_bank0      = self.irqtest0.fields.trigger,
+            i_irqarray_bank1      = self.irqtest1.fields.trigger,
+            i_irqarray_bank2      = zero_irq,
+            i_irqarray_bank3      = zero_irq,
+            i_irqarray_bank4      = zero_irq,
+            i_irqarray_bank5      = zero_irq,
+            i_irqarray_bank6      = zero_irq,
+            i_irqarray_bank7      = zero_irq,
+            i_irqarray_bank8      = zero_irq,
+            i_irqarray_bank9      = zero_irq,
+            i_irqarray_bank10      = zero_irq,
+            i_irqarray_bank11      = zero_irq,
+            i_irqarray_bank12      = zero_irq,
+            i_irqarray_bank13      = zero_irq,
+            i_irqarray_bank14      = zero_irq,
+            i_irqarray_bank15      = zero_irq,
+            i_irqarray_bank16      = zero_irq,
+            i_irqarray_bank17      = zero_irq,
+            i_irqarray_bank18      = zero_irq,
+            i_irqarray_bank19      = zero_irq,
         )
 
     def add_custom_ram(self, custom_bus, name, origin, size, contents=[], mode="rwx"):
