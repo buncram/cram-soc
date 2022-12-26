@@ -38,7 +38,9 @@ reg tdi;
 initial tck = 0;
 initial tms = 0;
 initial tdi = 0;
-initial trst = 0;
+always @(posedge clk12) begin
+    trst <= reset;
+end
 
 reg serial_rx;
 initial serial_rx = 1;
