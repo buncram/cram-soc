@@ -33,6 +33,8 @@ use core::mem::size_of;
 
 mod debug;
 mod satp;
+mod irqs;
+
 /*
     Notes about printing:
       - the println! and write! macros are actually quite expensive in the context of a 32kiB ROM (~4k overhead??)
@@ -541,9 +543,15 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
 
-        // ---------- coreuser test --------------
+        // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
+        report.wfo(utra::main::REPORT_REPORT, 0x5a1d_6060);
+        // ---------- exception setup ------------------
+        irqs::irq_setup();
+        // ---------- coreuser test --------------------
         satp::satp_test();
+        // ---------- exception test -------------------
+        irqs::irq_test();
 
         // ---------- CPU CSR tests --------------
         report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
@@ -649,7 +657,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         }
 
         // ----------- bus tests -------------
-        const BASE_ADDR: u32 = 0x6100_8000;
+        const BASE_ADDR: u32 = satp::PT_LIMIT as u32; // don't overwrite our PT data
         // 'random' access test
         let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 512);
         ramtest_lfsr(&mut test_slice, 3);

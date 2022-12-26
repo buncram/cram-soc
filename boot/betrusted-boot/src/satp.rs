@@ -26,6 +26,10 @@ const SRAM_PT_PA: usize = 0x6100_1000;
 const CODE_PT_PA: usize = 0x6100_2000;
 const CSR_PT_PA: usize  = 0x6100_3000;
 const PERI_PT_PA: usize = 0x6100_4000;
+// exception handler pages. Mapped 1:1 PA:VA, so no explicit remapping needed as RAM area is already mapped.
+const _SCRATCH_PAGE: usize = 0x6100_5000;
+const _EXCEPTION_STACK_LIMIT: usize = 0x6100_6000; // the start of stack is this + 0x1000 & grows down
+pub const PT_LIMIT: usize = 0x6100_7000;
 
 // VAs
 const CODE_VA: usize = 0x0000_0000;
@@ -84,7 +88,7 @@ pub fn satp_setup() {
         set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
     }
     // map peripherals
-    const CSR_LEN: usize = 0xA000;
+    const CSR_LEN: usize = 0x2_0000;
     const PERI_LEN: usize = 0xA000;
     for offset in (0..CSR_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R | FLG_U);
@@ -202,6 +206,7 @@ pub fn satp_test() {
     // now try changing the SATP around and see that the coreuser value updates
     // since we are in supervisor mode we can diddle with this at will, normally
     // user processes can't change this
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0001);
     for asid in 0..512 {
         let satp: u32 =
         0x8000_0000
@@ -229,10 +234,13 @@ pub fn satp_test() {
     }
 
     // switch to user mode
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0002);
     to_user_mode();
 
-    // attempt to change ASID. This should be ignored!
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0001);
+    // attempt to change ASID. This should be ignored or cause a trap, depending on the config of the device!
+    // confirmed that without interrupts configured this has no effect; although it causes the following three
+    // instructions to be ignored on the error.
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0003);
     let satp: u32 =
     0x8000_0000
     | 4 << 22
@@ -250,7 +258,7 @@ pub fn satp_test() {
             satp_val = in(reg) satp,
         );
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0002);
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0004);
 
     report.wfo(utra::main::REPORT_REPORT, 0x5a1d_600d);
 }
