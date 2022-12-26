@@ -246,6 +246,7 @@ class SimRunner():
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/common.v") + " run" + os.path.sep) # "cp sim_support/common.v run/"
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("sim_support/prims.v") + " run" + os.path.sep)
 
         # initialize with a default waveform that contains the most basic execution tracing
         if os.path.isfile('run/top_tb_sim.wcfg') != True:
@@ -268,6 +269,7 @@ class SimRunner():
         # compile
         deps = [
             "cd run && {}xvlog {}".format(VIVADO_PATH, os.path.normpath("../sim_support/glbl.v")),
+            "cd run && {}xvlog -d ASIC_TARGET prims.v".format(VIVADO_PATH),
             "cd run && {}xvlog cram_soc.v".format(VIVADO_PATH),
             "cd run && {}xvlog cram_axi.v".format(VIVADO_PATH),
             "cd run && {}xvlog ram_1w_1ra.v".format(VIVADO_PATH),

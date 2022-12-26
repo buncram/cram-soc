@@ -255,13 +255,16 @@ the `satp` setting and user code execution.
         ])
         # one-way door for protecting block from updates
         protect = Signal()
-        self.sync += [
-            If(self.protect.storage,
-                protect.eq(1)
-            ).Else(
-                protect.eq(protect)
-            )
-        ]
+        # instantiate as an explicitly reset FF since this signal *must* have a defined reset behavior
+        self.specials += Instance(
+            "fdre_cosim",
+            i_C=ClockSignal(),
+            i_D=1,
+            i_R_n=~ResetSignal(),
+            o_Q=protect,
+            i_CE=self.protect.storage,
+        )
+
         enable = Signal()
         require_asid = Signal()
         require_ppn_a = Signal()
