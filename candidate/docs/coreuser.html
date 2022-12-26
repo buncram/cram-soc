@@ -51,12 +51,15 @@ of having two windows is not so that the OS can specify only two processes as <c
 the OS should design to allocate all CoreUser processes within a single range that is protected
 by a single window. The alternate window is provided only so that the OS can have a scratch space to
 re-organize or shuffle around process spaces at a higher level.</p>
-<p>The <cite>CoreUser</cite> signal is not cycle-precise; it will assert roughly 2 cycles after the current
-instruction being executed. Thus the signal is meant to be indicative and best used in conjunction
-with a virtual memory enabled OS where a kernel context swap (which takes several cycles) is considered to
-be non-trusted code. This ensures a break-before-make behavior in the kernel when changing contexts, thus removing
-the opportunity for malicious processes to use their first few instructions to intervene and access
-sensitive hardware.</p>
+<p>The <cite>CoreUser</cite> signal is not cycle-precise; it will assert roughly 2 cycles after the <cite>satp</cite> is updated.
+Furthermore, the <cite>satp</cite> ASID field is an advisory field that isn’t used by CPU hardware to enforce
+page access. You can think of <cite>coreuser</cite> as a signal that the kernel can control to indicate if the
+context we are swapping into should be trusted. Fortunately, any update to <cite>satp</cite> in a virtual memory OS
+should be followed by an <cite>sfence</cite> instruction (to invalidate TLB mappings etc.), which gives time for
+the <cite>coreuser</cite> signal to propagate through the pipeline.</p>
+<p>Thus in practice by the time the first instruction of user code runs, <cite>coreuser</cite> should be set properly.
+However, from  a security audit perspective, it is important to keep in mind that there is a race condition between
+the <cite>satp</cite> setting and user code execution.</p>
 <section id="register-listing-for-coreuser">
 <h2>Register Listing for COREUSER<a class="headerlink" href="#register-listing-for-coreuser" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
