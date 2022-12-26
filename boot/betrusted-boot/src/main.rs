@@ -573,6 +573,9 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             report.wfo(utra::main::REPORT_REPORT, 0xc520_dead);
         }
 
+        // ---------- wfi test -------------------------
+        irqs::wfi_test();
+
         // ----------- caching tests -------------
         // test of the 0x500F cache flush instruction - this requires manual inspection of the report values
         report.wfo(utra::main::REPORT_REPORT, 0x000c_ac7e);

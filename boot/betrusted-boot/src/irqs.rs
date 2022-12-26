@@ -36,6 +36,12 @@ pub fn irq_setup() {
     enable_irq(utra::irqarray0::IRQARRAY0_IRQ);
     enable_irq(utra::irqarray1::IRQARRAY1_IRQ);
     enable_irq(utra::irqarray2::IRQARRAY2_IRQ);
+    // for wfi testing
+    let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
+    irqarray19.wo(utra::irqarray19::EV_ENABLE, 0xFFFF_FFFF);
+    enable_irq(utra::irqarray19::IRQARRAY19_IRQ);
+
+    // must enable external interrupts on the CPU for any of the above to matter
     unsafe{sie::set_sext()};
 
     report.wfo(utra::main::REPORT_REPORT, 0x1dcd_600d);
@@ -58,6 +64,15 @@ pub fn irq_test() {
     let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
     irqarray2.wfo(utra::irqarray2::EV_SOFT_TRIGGER, 0x80);
     report.wfo(utra::main::REPORT_REPORT, 0x3dcd_600d);
+}
+
+pub fn wfi_test() {
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x03f1_0000);
+    unsafe { core::arch::asm!(
+        "wfi",
+    ); }
+    report.wfo(utra::main::REPORT_REPORT, 0x03f1_600d);
 }
 
 // Notes: 403 CPU cycles to enter the handler (~4us wall-clock @ 100MHz).
@@ -246,6 +261,13 @@ pub extern "C" fn trap_handler(
             report.wfo(utra::main::REPORT_REPORT, pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
             irqarray2.wo(utra::irqarray2::EV_PENDING, pending);
             // software interrupt should not require a 0-write to reset it
+        }
+        if (irqs_pending & (1 << 19)) != 0 {
+            // handle wfi wakeup signal
+            let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
+            let pending = irqarray19.r(utra::irqarray19::EV_PENDING);
+            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
+            irqarray19.wo(utra::irqarray19::EV_PENDING, pending);
         }
     }
 
