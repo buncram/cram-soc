@@ -498,6 +498,20 @@ class CramSoC(SoCMini):
                 name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=True
             )
         ])
+        # wfi breakout
+        wfi_active = Signal()
+        wfi_loopback = Signal(20)
+        wfi_delay = Signal(7, reset=64) # coded as a one-shot
+        self.sync += [
+            If(wfi_active & (wfi_delay > 0),
+                wfi_delay.eq(wfi_delay - 1),
+            ),
+            If(wfi_delay == 1,
+                wfi_loopback.eq(1), # creates an exactly one-cycle wide wfi wakeup trigger
+            ).Else(
+                wfi_loopback.eq(0),
+            )
+        ]
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",
@@ -651,7 +665,9 @@ class CramSoC(SoCMini):
             i_irqarray_bank16      = zero_irq,
             i_irqarray_bank17      = zero_irq,
             i_irqarray_bank18      = zero_irq,
-            i_irqarray_bank19      = zero_irq,
+            i_irqarray_bank19      = wfi_loopback,
+
+            o_wfi_active           = wfi_active,
         )
 
     def add_custom_ram(self, custom_bus, name, origin, size, contents=[], mode="rwx"):

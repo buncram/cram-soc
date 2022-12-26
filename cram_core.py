@@ -50,6 +50,8 @@ def get_common_ios():
         ("trimming_reset_ena", 0, Pins(1)),
         # coreuser signal
         ("coreuser", 0, Pins(1)),
+        # wfi active signal
+        ("wfi_active", 0, Pins(1)),
     ]
     irqs = ["irqarray", 0]
     for bank in range(IRQ_BANKS):
@@ -211,12 +213,16 @@ the OS should design to allocate all CoreUser processes within a single range th
 by a single window. The alternate window is provided only so that the OS can have a scratch space to
 re-organize or shuffle around process spaces at a higher level.
 
-The `CoreUser` signal is not cycle-precise; it will assert roughly 2 cycles after the current
-instruction being executed. Thus the signal is meant to be indicative and best used in conjunction
-with a virtual memory enabled OS where a kernel context swap (which takes several cycles) is considered to
-be non-trusted code. This ensures a break-before-make behavior in the kernel when changing contexts, thus removing
-the opportunity for malicious processes to use their first few instructions to intervene and access
-sensitive hardware.
+The `CoreUser` signal is not cycle-precise; it will assert roughly 2 cycles after the `satp` is updated.
+Furthermore, the `satp` ASID field is an advisory field that isn't used by CPU hardware to enforce
+page access. You can think of `coreuser` as a signal that the kernel can control to indicate if the
+context we are swapping into should be trusted. Fortunately, any update to `satp` in a virtual memory OS
+should be followed by an `sfence` instruction (to invalidate TLB mappings etc.), which gives time for
+the `coreuser` signal to propagate through the pipeline.
+
+Thus in practice by the time the first instruction of user code runs, `coreuser` should be set properly.
+However, from  a security audit perspective, it is important to keep in mind that there is a race condition between
+the `satp` setting and user code execution.
         """)
         self.set_asid = CSRStorage(fields=[
             CSRField("asid", size=9, description="ASID to set. Writing to this register commits the value in `trusted` to the specified `asid` value"),
@@ -460,6 +466,10 @@ class cramSoC(SoCCore):
 
         # CoreUser computation ---------------------------------------------------------------------
         self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
+
+        # WFI breakout -----------------------------------------------------------------------------
+        wfi_active = platform.request("wfi_active")
+        self.comb += wfi_active.eq(self.cpu.wfi_active)
 
         # Interrupt Array --------------------------------------------------------------------------
         irqpins = platform.request("irqarray")
