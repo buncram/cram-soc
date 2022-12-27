@@ -102,18 +102,11 @@ the <cite>satp</cite> setting and user code execution.</p>
 <h3>COREUSER_SET_ASID<a class="headerlink" href="#coreuser-set-asid" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x0 = 0x58000000</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "asid",  "bits": 9},
-        {"name": "trusted",  "bits": 1},
-        {"bits": 22}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id1">
+<img alt="_images/wavedrom-142ae58c-e0bc-4781-b5d4-242eea265620.svg" src="_images/wavedrom-142ae58c-e0bc-4781-b5d4-242eea265620.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_SET_ASID</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -139,17 +132,11 @@ specified <cite>asid</cite> value</p></td>
 <h3>COREUSER_GET_ASID_ADDR<a class="headerlink" href="#coreuser-get-asid-addr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x4 = 0x58000004</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "asid",  "bits": 9},
-        {"bits": 23}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id2">
+<img alt="_images/wavedrom-a7cc43a7-54e6-4d03-8991-15be60a58445.svg" src="_images/wavedrom-a7cc43a7-54e6-4d03-8991-15be60a58445.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_GET_ASID_ADDR</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -170,17 +157,11 @@ specified <cite>asid</cite> value</p></td>
 <h3>COREUSER_GET_ASID_VALUE<a class="headerlink" href="#coreuser-get-asid-value" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x8 = 0x58000008</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "value",  "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id3">
+<img alt="_images/wavedrom-dfe402af-a244-49b5-8827-b41d43dfb60b.svg" src="_images/wavedrom-dfe402af-a244-49b5-8827-b41d43dfb60b.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_GET_ASID_VALUE</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -201,20 +182,11 @@ specified <cite>asid</cite> value</p></td>
 <h3>COREUSER_CONTROL<a class="headerlink" href="#coreuser-control" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0xc = 0x5800000c</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "enable",  "bits": 1},
-        {"name": "asid",  "bits": 1},
-        {"name": "ppn_a",  "bits": 1},
-        {"name": "ppn_b",  "bits": 1},
-        {"bits": 28}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id4">
+<img alt="_images/wavedrom-f366b02d-0d5a-4c27-95d6-7ac075795ec3.svg" src="_images/wavedrom-f366b02d-0d5a-4c27-95d6-7ac075795ec3.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_CONTROL</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -252,34 +224,22 @@ cleared to <cite>0</cite>, the <cite>CoreUser</cite> signal is always valid. Def
 <blockquote>
 <div><p>Writing <cite>1</cite> to this bit prevents any further updates to CoreUser configuration
 status. Can only be reversed with a system reset.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "protect", "bits": 1},
-        {"bits": 31},
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id5">
+<img alt="_images/wavedrom-01c175d7-c1ee-4b22-baa9-a322870986db.svg" src="_images/wavedrom-01c175d7-c1ee-4b22-baa9-a322870986db.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_PROTECT</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 </section>
 <section id="coreuser-window-al">
 <h3>COREUSER_WINDOW_AL<a class="headerlink" href="#coreuser-window-al" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x14 = 0x58000014</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "ppn",  "bits": 22},
-        {"bits": 10}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id6">
+<img alt="_images/wavedrom-787c545c-3c7d-44af-b01d-1901fb057a61.svg" src="_images/wavedrom-787c545c-3c7d-44af-b01d-1901fb057a61.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_AL</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -301,17 +261,11 @@ to this value</p></td>
 <h3>COREUSER_WINDOW_AH<a class="headerlink" href="#coreuser-window-ah" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x18 = 0x58000018</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "ppn",  "bits": 22},
-        {"bits": 10}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id7">
+<img alt="_images/wavedrom-13ab2717-5476-4c27-953b-9e64fdbd2547.svg" src="_images/wavedrom-13ab2717-5476-4c27-953b-9e64fdbd2547.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_AH</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -334,17 +288,11 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
 <h3>COREUSER_WINDOW_BL<a class="headerlink" href="#coreuser-window-bl" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x1c = 0x5800001c</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "ppn",  "bits": 22},
-        {"bits": 10}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id8">
+<img alt="_images/wavedrom-3531f9cb-f1be-4bff-ab15-9eb2af26fd9a.svg" src="_images/wavedrom-3531f9cb-f1be-4bff-ab15-9eb2af26fd9a.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_BL</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -366,17 +314,11 @@ to this value</p></td>
 <h3>COREUSER_WINDOW_BH<a class="headerlink" href="#coreuser-window-bh" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x20 = 0x58000020</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "ppn",  "bits": 22},
-        {"bits": 10}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id9">
+<img alt="_images/wavedrom-092a6fba-3946-4e24-8966-1fee8817978d.svg" src="_images/wavedrom-092a6fba-3946-4e24-8966-1fee8817978d.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_BH</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>

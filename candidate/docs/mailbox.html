@@ -65,18 +65,11 @@ the interface.</p>
 to the other peer that the sender has finished writing all the data for a given packet. The <cite>done</cite>
 signal is provided so that the corresponding peer does not need to busy-monitor the FIFO depth.</p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{ "signal" : [
-    {"name": "clk",       "wave": "p........" },
-    {"name": "dat",       "wave": "x=.x===xx", "data" : ["D0", "D1", "D2", "D3", "D4"]},
-    {"name": "valid",     "wave": "01.01..0."},
-    {"name": "ready",     "wave": "0.101..0."},
-    {"name": "done",      "wave": "0......10"},
-]}
-</script>
-</div>
+<div><figure class="align-default" id="id1">
+<img alt="_images/wavedrom-a99c7bf5-72d1-4c21-be9d-32809bdefeff.svg" src="_images/wavedrom-a99c7bf5-72d1-4c21-be9d-32809bdefeff.svg" /><figcaption>
+<p><span class="caption-text">Sending four words of data, followed by a <cite>done</cite>.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <p>The above example shows a packet with a length of four words being transmitted. The first word
 takes an extra cycle to be acknowledged; the remaining three are immediately accepted. The <cite>done</cite>
@@ -92,28 +85,11 @@ peer to <cite>r_abort</cite> on the corresponding peer. Either peer can assert <
 until <cite>r_abort</cite> is pulsed to acknowledged the abort condition. At the conclusion of the protocol,
 both FIFOs are empty and their protocol state machines are idle.</p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{ "config": {skin : "default"},
-"signal" : [
-    {"name": "clk",          "wave": "p.....|......."},
-    {"name": "w_cpu_op",     "wave": "=.=...........", "node": "...........", "data" : ["initiate abort", "XXX"]},
-  {"name": "w_abort_done_int", "wave": "0.........10..", "node": "..........g"},
-    {"name": "w_abort",      "wave": "0.1...|...0...", "node": "..a........"},
-    {"name": "r_abort",      "wave": "0.....|..10...", "node": ".........e."},
-    {},
-    {"name": "w_state",      "wave": "=.=...|...=...", "data" : ["XXX", "REQ    ", "IDLE"]},
-    {"name": "w_fifo",       "wave": "x..=..|.......", "node": "...b.....", "data" : ["EMPTY        "]},
-    {},
-    {"name": "r_cpu_op",     "wave": "=.....|.==....", "node": "...........", "data" : ["XXX", "ack", "XXX"]},
-    {"name": "r_state",      "wave": "=...=.|...=...", "data" : ["XXX", "ACK", "IDLE"], "node": "....d..."},
-    {"name": "r_fifo",       "wave": "x.....|...=...", "data" : ["EMPTY"], "node": "..........f.."},
-    {"name": "r_abort_int",  "wave": "0..10.|.......", "node": "...c......"},
-],
-  "edge" : ['a->b hw enforced', 'a->c', 'c->d ', 'd~->e IRQ handler latency', 'e->f hw enforced', 'e->g ']}
-</script>
-</div>
+<div><figure class="align-default" id="id2">
+<img alt="_images/wavedrom-097b75f0-c989-447b-8943-f0ef009ca206.svg" src="_images/wavedrom-097b75f0-c989-447b-8943-f0ef009ca206.svg" /><figcaption>
+<p><span class="caption-text">Normal abort</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <p>In the diagram above, the initiating peer is the <cite>w_</cite> signal set, and the corresponding peer is the <cite>r_</cite> signal
 set. Here, the <cite>w_</cite> CPU issues a write operation by writing <cite>1</cite> to the <cite>control</cite> CSR’s <cite>abort</cite> bit. This
@@ -143,60 +119,22 @@ This means the hardware guarantees two things:</p>
 <li><p>All FIFOs are cleared by the request</p></li>
 <li><p>The incoming <cite>abort</cite> response line is prevented from generating an interrupt</p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{ "config": {skin : "default"},
-"signal" : [
-    {"name": "clk",          "wave": "p....."},
-    {"name": "w_abort",      "wave": "0.10.."},
-    {"name": "r_abort",      "wave": "0.10.."},
-    {},
-    {"name": "w_cpu_op",     "wave": "=.=...", "data" : ["initiate abort", "XXX"]},
-    {"name": "w_abort_done_int", "wave": "0..10."},
-    {"name": "w_abort_int",  "wave": "0....."},
-    {"name": "w_state",      "wave": "=.==..", "data" : ["XXX", "REQ", "IDLE"]},
-    {"name": "w_fifo",       "wave": "x..=..", "data" : ["EMPTY"]},
-    {},
-    {"name": "r_cpu_op",     "wave": "=.=...", "data" : ["initiate abort", "XXX"]},
-    {"name": "r_abort_done_int", "wave": "0..10."},
-    {"name": "r_abort_int",  "wave": "0....."},
-    {"name": "r_state",      "wave": "=.==..", "data" : ["XXX", "REQ", "IDLE"]},
-    {"name": "r_fifo",       "wave": "x..=..", "data" : ["EMPTY"]},
-]}
-</script>
-</div>
+<div><figure class="align-default" id="id3">
+<img alt="_images/wavedrom-d2de86dd-bb0a-43ab-9128-297f7b932a73.svg" src="_images/wavedrom-d2de86dd-bb0a-43ab-9128-297f7b932a73.svg" /><figcaption>
+<p><span class="caption-text">Edge case: simultaneous abort</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 </li>
 </ul>
 <p>Above is the rare edge case of a cycle-perfect simultaneous abort request. It “just works”, and
 both devices immediately transition from <cite>REQ</cite> -&gt; <cite>IDLE</cite>, without either going through <cite>ACK</cite>.</p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{ "config": {skin : "default"},
-"signal" : [
-    {"name": "clk",          "wave": "p.......|.."},
-    {"name": "w_abort",      "wave": "0.1...0.|.."},
-    {"name": "r_abort",      "wave": "0....10.|.."},
-    {},
-  {"name": "w_cpu_op",     "wave": "==......|..", "data" : ["initiate", "XXX"], "node" : ".a"},
-    {"name": "w_abort_done_int", "wave": "0.....10|.."},
-    {"name": "w_abort_int",  "wave": "0.......|.."},
-    {"name": "w_abort_ack",  "wave": "x.0.....|.."},
-    {"name": "w_state",      "wave": "=..=..=.|..", "data" : ["XXX", "REQ", "IDLE"]},
-    {"name": "w_fifo",       "wave": "x..=....|..", "data" : ["EMPTY"]},
-    {},
-    {"name": "r_cpu_op",     "wave": "=.=..=..|..", "data" : ["XXX", "initiate", "XXX"], "node" : "..c"},
-    {"name": "r_abort_done_int", "wave": "0.....10|.."},
-    {"name": "r_abort_int",  "wave": "0.10....|..", "node" : "..b"},
-    {"name": "r_abort_ack",  "wave": "x....1..|..", "node" : "..........e"},
-  {"name": "r_state",      "wave": "=..=..=.|=.", "data" : ["XXX", "ACK", "IDLE", "HANDLER"], "node" : ".........d"},
-    {"name": "r_fifo",       "wave": "x....=..|..", "data" : ["EMPTY"]},
-], "edge" : ['a->b race condition', 'a-~>c ', "d-~>e "]}
-</script>
-</div>
+<div><figure class="align-default" id="id4">
+<img alt="_images/wavedrom-ee4f12db-1d27-4456-95dc-98d72a407336.svg" src="_images/wavedrom-ee4f12db-1d27-4456-95dc-98d72a407336.svg" /><figcaption>
+<p><span class="caption-text">Edge case: semi-simultaneous abort</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <p>Above is the more common edge case where one peer has initiated an abort, and the other
 is preparing to initiate at the same time, but is perhaps a cycle or two later. In this case,
@@ -279,16 +217,11 @@ field specifying the number of words that were accepted.</p>
 <p><cite>Address: 0x58016000 + 0x0 = 0x58016000</cite></p>
 <blockquote>
 <div><p>Write data to outgoing FIFO.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "wdata[31:0]", "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id5">
+<img alt="_images/wavedrom-b7a43125-f7b0-48ab-ae54-f511e18f716a.svg" src="_images/wavedrom-b7a43125-f7b0-48ab-ae54-f511e18f716a.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_WDATA</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 </section>
 <section id="mailbox-rdata">
@@ -296,16 +229,11 @@ field specifying the number of words that were accepted.</p>
 <p><cite>Address: 0x58016000 + 0x4 = 0x58016004</cite></p>
 <blockquote>
 <div><p>Read data from incoming FIFO.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "rdata[31:0]", "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id6">
+<img alt="_images/wavedrom-0c63a85a-ee00-411c-8b6e-f9456975f518.svg" src="_images/wavedrom-0c63a85a-ee00-411c-8b6e-f9456975f518.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_RDATA</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 </section>
 <section id="mailbox-ev-status">
@@ -313,20 +241,11 @@ field specifying the number of words that were accepted.</p>
 <p><cite>Address: 0x58016000 + 0x8 = 0x58016008</cite></p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "available",  "bits": 1},
-        {"name": "abort_init",  "bits": 1},
-        {"name": "abort_done",  "bits": 1},
-        {"name": "error",  "bits": 1},
-        {"bits": 28}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id7">
+<img alt="_images/wavedrom-6919c4f6-8154-4428-8bec-c40f329b6c12.svg" src="_images/wavedrom-6919c4f6-8154-4428-8bec-c40f329b6c12.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_EV_STATUS</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -360,20 +279,11 @@ field specifying the number of words that were accepted.</p>
 <p><cite>Address: 0x58016000 + 0xc = 0x5801600c</cite></p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "available",  "bits": 1},
-        {"name": "abort_init",  "bits": 1},
-        {"name": "abort_done",  "bits": 1},
-        {"name": "error",  "bits": 1},
-        {"bits": 28}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id8">
+<img alt="_images/wavedrom-a4a95951-cae2-438a-8d10-58b4f1155032.svg" src="_images/wavedrom-a4a95951-cae2-438a-8d10-58b4f1155032.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_EV_PENDING</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -408,20 +318,11 @@ progress</p></td>
 <p><cite>Address: 0x58016000 + 0x10 = 0x58016010</cite></p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "available",  "bits": 1},
-        {"name": "abort_init",  "bits": 1},
-        {"name": "abort_done",  "bits": 1},
-        {"name": "error",  "bits": 1},
-        {"bits": 28}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id9">
+<img alt="_images/wavedrom-09b3b482-93d6-45a0-8903-b8f2d545ecd3.svg" src="_images/wavedrom-09b3b482-93d6-45a0-8903-b8f2d545ecd3.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_EV_ENABLE</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -454,22 +355,11 @@ progress</p></td>
 <h3>MAILBOX_STATUS<a class="headerlink" href="#mailbox-status" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58016000 + 0x14 = 0x58016014</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "rx_words",  "bits": 10},
-        {"name": "tx_words",  "bits": 10},
-        {"name": "abort_in_progress",  "bits": 1},
-        {"name": "abort_ack",  "bits": 1},
-        {"name": "tx_err",  "bits": 1},
-        {"name": "rx_err",  "bits": 1},
-        {"bits": 8}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id10">
+<img alt="_images/wavedrom-574248cc-8de1-4eda-a9ab-30445b094b0c.svg" src="_images/wavedrom-574248cc-8de1-4eda-a9ab-30445b094b0c.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_STATUS</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -516,17 +406,11 @@ read.</p></td>
 <h3>MAILBOX_CONTROL<a class="headerlink" href="#mailbox-control" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58016000 + 0x18 = 0x58016018</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "abort",  "type": 4, "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id11">
+<img alt="_images/wavedrom-2b4468d0-bb1d-4db7-8dea-72ef8d2c34e9.svg" src="_images/wavedrom-2b4468d0-bb1d-4db7-8dea-72ef8d2c34e9.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_CONTROL</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -552,17 +436,11 @@ asserted from the peer.</p>
 <h3>MAILBOX_DONE<a class="headerlink" href="#mailbox-done" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58016000 + 0x1c = 0x5801601c</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "done",  "type": 4, "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id12">
+<img alt="_images/wavedrom-300db395-034d-43ea-9834-f2a0cef7e021.svg" src="_images/wavedrom-300db395-034d-43ea-9834-f2a0cef7e021.svg" /><figcaption>
+<p><span class="caption-text">MAILBOX_DONE</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>

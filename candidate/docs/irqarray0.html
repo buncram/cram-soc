@@ -87,17 +87,11 @@ value will persist in the register, allowing software to determine if a software
 interrupt was triggered by reading back the register.</p>
 <p>Software is responsible for clearing the register to 0.</p>
 <p>Repeated <cite>1</cite> writes without clearing will still trigger an interrupt.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "trigger",  "type": 4, "bits": 20},
-        {"bits": 12}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id1">
+<img alt="_images/wavedrom-cdba1180-20b8-4b31-aac1-a69c746f2e71.svg" src="_images/wavedrom-cdba1180-20b8-4b31-aac1-a69c746f2e71.svg" /><figcaption>
+<p><span class="caption-text">IRQARRAY0_EV_SOFT</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -120,36 +114,11 @@ interrupt was triggered by reading back the register.</p>
 <blockquote>
 <div><p><cite>1</cite> when a source19 event occurs. This event uses an <cite>EventSourceFlex</cite> form of
 triggering</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "source0",  "bits": 1},
-        {"name": "source1",  "bits": 1},
-        {"name": "source2",  "bits": 1},
-        {"name": "source3",  "bits": 1},
-        {"name": "source4",  "bits": 1},
-        {"name": "source5",  "bits": 1},
-        {"name": "source6",  "bits": 1},
-        {"name": "source7",  "bits": 1},
-        {"name": "source8",  "bits": 1},
-        {"name": "source9",  "bits": 1},
-        {"name": "source10",  "bits": 1},
-        {"name": "source11",  "bits": 1},
-        {"name": "source12",  "bits": 1},
-        {"name": "source13",  "bits": 1},
-        {"name": "source14",  "bits": 1},
-        {"name": "source15",  "bits": 1},
-        {"name": "source16",  "bits": 1},
-        {"name": "source17",  "bits": 1},
-        {"name": "source18",  "bits": 1},
-        {"name": "source19",  "bits": 1},
-        {"bits": 12}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id2">
+<img alt="_images/wavedrom-0e1e6056-9ab1-4fff-b645-e3b35e7e3d0d.svg" src="_images/wavedrom-0e1e6056-9ab1-4fff-b645-e3b35e7e3d0d.svg" /><figcaption>
+<p><span class="caption-text">IRQARRAY0_EV_STATUS</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -248,36 +217,11 @@ triggering</p>
 <blockquote>
 <div><p><cite>1</cite> when a source19 event occurs. This event uses an <cite>EventSourceFlex</cite> form of
 triggering</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "source0",  "bits": 1},
-        {"name": "source1",  "bits": 1},
-        {"name": "source2",  "bits": 1},
-        {"name": "source3",  "bits": 1},
-        {"name": "source4",  "bits": 1},
-        {"name": "source5",  "bits": 1},
-        {"name": "source6",  "bits": 1},
-        {"name": "source7",  "bits": 1},
-        {"name": "source8",  "bits": 1},
-        {"name": "source9",  "bits": 1},
-        {"name": "source10",  "bits": 1},
-        {"name": "source11",  "bits": 1},
-        {"name": "source12",  "bits": 1},
-        {"name": "source13",  "bits": 1},
-        {"name": "source14",  "bits": 1},
-        {"name": "source15",  "bits": 1},
-        {"name": "source16",  "bits": 1},
-        {"name": "source17",  "bits": 1},
-        {"name": "source18",  "bits": 1},
-        {"name": "source19",  "bits": 1},
-        {"bits": 12}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id3">
+<img alt="_images/wavedrom-c93d247e-5ea5-4cfa-9e5d-87a66a926cfc.svg" src="_images/wavedrom-c93d247e-5ea5-4cfa-9e5d-87a66a926cfc.svg" /><figcaption>
+<p><span class="caption-text">IRQARRAY0_EV_PENDING</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>
@@ -396,36 +340,11 @@ triggering</p></td>
 <blockquote>
 <div><p><cite>1</cite> when a source19 event occurs. This event uses an <cite>EventSourceFlex</cite> form of
 triggering</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "source0",  "bits": 1},
-        {"name": "source1",  "bits": 1},
-        {"name": "source2",  "bits": 1},
-        {"name": "source3",  "bits": 1},
-        {"name": "source4",  "bits": 1},
-        {"name": "source5",  "bits": 1},
-        {"name": "source6",  "bits": 1},
-        {"name": "source7",  "bits": 1},
-        {"name": "source8",  "bits": 1},
-        {"name": "source9",  "bits": 1},
-        {"name": "source10",  "bits": 1},
-        {"name": "source11",  "bits": 1},
-        {"name": "source12",  "bits": 1},
-        {"name": "source13",  "bits": 1},
-        {"name": "source14",  "bits": 1},
-        {"name": "source15",  "bits": 1},
-        {"name": "source16",  "bits": 1},
-        {"name": "source17",  "bits": 1},
-        {"name": "source18",  "bits": 1},
-        {"name": "source19",  "bits": 1},
-        {"bits": 12}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id4">
+<img alt="_images/wavedrom-14e51d1c-3ebd-4982-84d7-af315632f124.svg" src="_images/wavedrom-14e51d1c-3ebd-4982-84d7-af315632f124.svg" /><figcaption>
+<p><span class="caption-text">IRQARRAY0_EV_ENABLE</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <table class="docutils align-default">
 <thead>

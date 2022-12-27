@@ -1,0 +1,6 @@
+{
+    "reg": [
+        {"name": "ppn",  "bits": 22},
+        {"bits": 10}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
