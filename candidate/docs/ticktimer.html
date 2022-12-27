@@ -77,34 +77,34 @@ domain, which runs at a much slower rate than the CPU clock.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">TICKTIMER_CONTROL</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">0x58017000</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">0x58018000</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">TICKTIMER_TIME1</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">0x58017004</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">0x58018004</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">TICKTIMER_TIME0</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">0x58017008</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">0x58018008</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET1</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">0x5801700c</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">0x5801800c</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET0</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">0x58017010</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">0x58018010</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">TICKTIMER_EV_STATUS</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">0x58017014</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">0x58018014</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">TICKTIMER_EV_PENDING</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">0x58017018</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">0x58018018</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">TICKTIMER_EV_ENABLE</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">0x5801701c</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">0x5801801c</span></a></p></td>
 </tr>
 </tbody>
 </table>
 <section id="ticktimer-control">
 <h3>TICKTIMER_CONTROL<a class="headerlink" href="#ticktimer-control" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x0 = 0x58017000</cite></p>
+<p><cite>Address: 0x58018000 + 0x0 = 0x58018000</cite></p>
 <blockquote>
 <div>
 <div style="overflow-x:auto">
@@ -138,7 +138,7 @@ other requests.</p>
 </section>
 <section id="ticktimer-time1">
 <h3>TICKTIMER_TIME1<a class="headerlink" href="#ticktimer-time1" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x4 = 0x58017004</cite></p>
+<p><cite>Address: 0x58018000 + 0x4 = 0x58018004</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_TIME</cite>. Elapsed time in systicks</p>
 
@@ -155,7 +155,7 @@ other requests.</p>
 </section>
 <section id="ticktimer-time0">
 <h3>TICKTIMER_TIME0<a class="headerlink" href="#ticktimer-time0" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x8 = 0x58017008</cite></p>
+<p><cite>Address: 0x58018000 + 0x8 = 0x58018008</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_TIME</cite>.</p>
 
@@ -172,7 +172,7 @@ other requests.</p>
 </section>
 <section id="ticktimer-msleep-target1">
 <h3>TICKTIMER_MSLEEP_TARGET1<a class="headerlink" href="#ticktimer-msleep-target1" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0xc = 0x5801700c</cite></p>
+<p><cite>Address: 0x58018000 + 0xc = 0x5801800c</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_MSLEEP_TARGET</cite>. Target time in 0.5ms ticks</p>
 
@@ -189,7 +189,7 @@ other requests.</p>
 </section>
 <section id="ticktimer-msleep-target0">
 <h3>TICKTIMER_MSLEEP_TARGET0<a class="headerlink" href="#ticktimer-msleep-target0" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x10 = 0x58017010</cite></p>
+<p><cite>Address: 0x58018000 + 0x10 = 0x58018010</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_MSLEEP_TARGET</cite>.</p>
 
@@ -206,7 +206,7 @@ other requests.</p>
 </section>
 <section id="ticktimer-ev-status">
 <h3>TICKTIMER_EV_STATUS<a class="headerlink" href="#ticktimer-ev-status" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x14 = 0x58017014</cite></p>
+<p><cite>Address: 0x58018000 + 0x14 = 0x58018014</cite></p>
 <blockquote>
 <div><p>This register contains the current raw level of the alarm event trigger.  Writes
 to this register have no effect.</p>
@@ -239,7 +239,7 @@ to this register have no effect.</p>
 </section>
 <section id="ticktimer-ev-pending">
 <h3>TICKTIMER_EV_PENDING<a class="headerlink" href="#ticktimer-ev-pending" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x18 = 0x58017018</cite></p>
+<p><cite>Address: 0x58018000 + 0x18 = 0x58018018</cite></p>
 <blockquote>
 <div><p>When a  alarm event occurs, the corresponding bit will be set in this register.
 To clear the Event, set the corresponding bit in this register.</p>
@@ -273,7 +273,7 @@ signal is <strong>high</strong>.</p></td>
 </section>
 <section id="ticktimer-ev-enable">
 <h3>TICKTIMER_EV_ENABLE<a class="headerlink" href="#ticktimer-ev-enable" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58017000 + 0x1c = 0x5801701c</cite></p>
+<p><cite>Address: 0x58018000 + 0x1c = 0x5801801c</cite></p>
 <blockquote>
 <div><p>This register enables the corresponding alarm events.  Write a <code class="docutils literal notranslate"><span class="pre">0</span></code> to this
 register to disable individual events.</p>
@@ -357,6 +357,7 @@ register to disable individual events.</p>
 <li class="toctree-l1"><a class="reference internal" href="irqarray7.html">IRQARRAY7</a></li>
 <li class="toctree-l1"><a class="reference internal" href="irqarray8.html">IRQARRAY8</a></li>
 <li class="toctree-l1"><a class="reference internal" href="irqarray9.html">IRQARRAY9</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mailbox.html">MAILBOX</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resetvalue.html">RESETVALUE</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TICKTIMER</a></li>
 </ul>

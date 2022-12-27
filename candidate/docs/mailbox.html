@@ -1,0 +1,690 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>MAILBOX &#8212; Cramium SoC (RISC-V Core Complex)  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/default.js"></script>
+    <script src="_static/WaveDrom.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RESETVALUE" href="resetvalue.html" />
+    <link rel="prev" title="IRQARRAY9" href="irqarray9.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="mailbox">
+<h1>MAILBOX<a class="headerlink" href="#mailbox" title="Permalink to this heading">¶</a></h1>
+<section id="mailbox-an-inter-cpu-mailbox">
+<h2>Mailbox: An inter-CPU mailbox<a class="headerlink" href="#mailbox-an-inter-cpu-mailbox" title="Permalink to this heading">¶</a></h2>
+<p>The <cite>Mailbox</cite> is a bi-directional, inter-CPU mailbox for delivering messages between CPUs
+without requiring shared memory.</p>
+<p>A single message consists of a packet up to 1024 words long, where each word is 32 bits in length.</p>
+<p>Both CPUs are considered as “peers”; each can initiate a packet at-will.</p>
+</section>
+<section id="data-transfer-protocol">
+<h2>Data Transfer Protocol<a class="headerlink" href="#data-transfer-protocol" title="Permalink to this heading">¶</a></h2>
+<p>The protocol has two levels, one at a MAC level, and one at an APP level.</p>
+<p>The MAC level protocol controls synchronization of data transfer, and the transfer of single, fully-formed
+packets between the devices. The MAC protocol is implemented by this hardware block.</p>
+<p>The APP protocol is managed by the operating system, and can be considered advisory as
+just one of many ways to use this system to communicate between CPUs. However, it helps to ground
+the protocol in an APP framework as some details of the MAC impact the APP framework, especially
+around synchronization and conflict avoidance.</p>
+<p>Each peer has a channel to write data to the other peer, using 32 bits <cite>dat</cite>, one <cite>valid</cite> to
+indicate when data is available, and <cite>ready</cite> to indicate when the data has been latched by
+the corresponding peer’s hardware FIFO. Generally, <cite>valid</cite>/<cite>ready</cite> is managed exclusively by
+hardware state machines and the host CPUs are not aware of these signals; they mainly exist
+to avoid overflowing the FIFO in the case that one is pipelining multiple packets through
+the interface.</p>
+<p>There is an additional <cite>done</cite> signal which is asserted for exactly one cycle, and it indicates
+to the other peer that the sender has finished writing all the data for a given packet. The <cite>done</cite>
+signal is provided so that the corresponding peer does not need to busy-monitor the FIFO depth.</p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{ "signal" : [
+    {"name": "clk",       "wave": "p........" },
+    {"name": "dat",       "wave": "x=.x===xx", "data" : ["D0", "D1", "D2", "D3", "D4"]},
+    {"name": "valid",     "wave": "01.01..0."},
+    {"name": "ready",     "wave": "0.101..0."},
+    {"name": "done",      "wave": "0......10"},
+]}
+</script>
+</div>
+</div></blockquote>
+<p>The above example shows a packet with a length of four words being transmitted. The first word
+takes an extra cycle to be acknowledged; the remaining three are immediately accepted. The <cite>done</cite>
+signal could come as early as simultaneously with the last <cite>ready</cite>, but in practice it comes a couple
+cycles later since it would be triggered by a write from the CPU to the <cite>done</cite> register.</p>
+<p>The data transfer protocol is symmetric across the peers.</p>
+</section>
+<section id="abort-protocol">
+<h2>Abort Protocol<a class="headerlink" href="#abort-protocol" title="Permalink to this heading">¶</a></h2>
+<p>The abort protocol is used to recover the protocol to a known state: all FIFOs empty, and both hosts
+state machines in an idle state. This is accomplished by cross-wiring <cite>w_abort</cite> on the sending
+peer to <cite>r_abort</cite> on the corresponding peer. Either peer can assert <cite>w_abort</cite>, and it must stay asserted
+until <cite>r_abort</cite> is pulsed to acknowledged the abort condition. At the conclusion of the protocol,
+both FIFOs are empty and their protocol state machines are idle.</p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{ "config": {skin : "default"},
+"signal" : [
+    {"name": "clk",          "wave": "p.....|......."},
+    {"name": "w_cpu_op",     "wave": "=.=...........", "node": "...........", "data" : ["initiate abort", "XXX"]},
+  {"name": "w_abort_done_int", "wave": "0.........10..", "node": "..........g"},
+    {"name": "w_abort",      "wave": "0.1...|...0...", "node": "..a........"},
+    {"name": "r_abort",      "wave": "0.....|..10...", "node": ".........e."},
+    {},
+    {"name": "w_state",      "wave": "=.=...|...=...", "data" : ["XXX", "REQ    ", "IDLE"]},
+    {"name": "w_fifo",       "wave": "x..=..|.......", "node": "...b.....", "data" : ["EMPTY        "]},
+    {},
+    {"name": "r_cpu_op",     "wave": "=.....|.==....", "node": "...........", "data" : ["XXX", "ack", "XXX"]},
+    {"name": "r_state",      "wave": "=...=.|...=...", "data" : ["XXX", "ACK", "IDLE"], "node": "....d..."},
+    {"name": "r_fifo",       "wave": "x.....|...=...", "data" : ["EMPTY"], "node": "..........f.."},
+    {"name": "r_abort_int",  "wave": "0..10.|.......", "node": "...c......"},
+],
+  "edge" : ['a->b hw enforced', 'a->c', 'c->d ', 'd~->e IRQ handler latency', 'e->f hw enforced', 'e->g ']}
+</script>
+</div>
+</div></blockquote>
+<p>In the diagram above, the initiating peer is the <cite>w_</cite> signal set, and the corresponding peer is the <cite>r_</cite> signal
+set. Here, the <cite>w_</cite> CPU issues a write operation by writing <cite>1</cite> to the <cite>control</cite> CSR’s <cite>abort</cite> bit. This
+results in <cite>w_abort</cite> being asserted and held, while simultaneously both the receive and send FIFOs
+being cleared and refusing to accept any further data. The assertion of <cite>w_abort</cite> is received by the
+corresponding peer, which triggers an interrupt (rendered as a single pulse <cite>r_abort_int</cite>; but the <cite>pending</cite> bit
+is sticky until cleared).</p>
+<p>The link stays in this state until the receiver’s main loop or IRQ handler
+runs and acknowledges the abort condition by writing to its <cite>control</cite> CSR <cite>abort</cite> bit. Note that the
+IRQ handler has to be written such that any in-progress operation is truly aborted. Thus, a peer’s
+FIFO interaction code should probably be written as follows:</p>
+<ol class="arabic simple">
+<li><p>Main loop decides it needs to interact with the FIFO</p></li>
+<li><p>Disable abort response IRQ</p></li>
+<li><p>Interact with the FIFO</p></li>
+<li><p>Re-enable abort response IRQ; at which point an IRQ would fire triggering the abort response</p></li>
+<li><p>Inside the abort response IRQ, side-effect any state machine variables back to an initial state</p></li>
+<li><p>Resume main loop code, which should now check &amp; handle any residual clean-up from an abort</p></li>
+</ol>
+<p>At this point, both sides drop their <cite>abort</cite> signals, both state machines return to an <cite>IDLE</cite> state, and
+all FIFOs are empty. An <cite>abort_done</cite> interrupt is triggered, but it may be masked and polled if the
+initiating CPU prefers to monitor the abort by polling.</p>
+<p>In order to make the case work where both peers attempt to initiate an abort at the same time, the
+initiator guarantees that on asserting <cite>w_abort</cite> it is immediately ready to act on an <cite>r_abort</cite> pulse.
+This means the hardware guarantees two things:</p>
+<ul>
+<li><p>All FIFOs are cleared by the request</p></li>
+<li><p>The incoming <cite>abort</cite> response line is prevented from generating an interrupt</p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{ "config": {skin : "default"},
+"signal" : [
+    {"name": "clk",          "wave": "p....."},
+    {"name": "w_abort",      "wave": "0.10.."},
+    {"name": "r_abort",      "wave": "0.10.."},
+    {},
+    {"name": "w_cpu_op",     "wave": "=.=...", "data" : ["initiate abort", "XXX"]},
+    {"name": "w_abort_done_int", "wave": "0..10."},
+    {"name": "w_abort_int",  "wave": "0....."},
+    {"name": "w_state",      "wave": "=.==..", "data" : ["XXX", "REQ", "IDLE"]},
+    {"name": "w_fifo",       "wave": "x..=..", "data" : ["EMPTY"]},
+    {},
+    {"name": "r_cpu_op",     "wave": "=.=...", "data" : ["initiate abort", "XXX"]},
+    {"name": "r_abort_done_int", "wave": "0..10."},
+    {"name": "r_abort_int",  "wave": "0....."},
+    {"name": "r_state",      "wave": "=.==..", "data" : ["XXX", "REQ", "IDLE"]},
+    {"name": "r_fifo",       "wave": "x..=..", "data" : ["EMPTY"]},
+]}
+</script>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p>Above is the rare edge case of a cycle-perfect simultaneous abort request. It “just works”, and
+both devices immediately transition from <cite>REQ</cite> ➡ <cite>IDLE</cite>, without either going through <cite>ACK</cite>.</p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{ "config": {skin : "default"},
+"signal" : [
+    {"name": "clk",          "wave": "p.......|.."},
+    {"name": "w_abort",      "wave": "0.1...0.|.."},
+    {"name": "r_abort",      "wave": "0....10.|.."},
+    {},
+  {"name": "w_cpu_op",     "wave": "==......|..", "data" : ["initiate", "XXX"], "node" : ".a"},
+    {"name": "w_abort_done_int", "wave": "0.....10|.."},
+    {"name": "w_abort_int",  "wave": "0.......|.."},
+    {"name": "w_abort_ack",  "wave": "x.0.....|.."},
+    {"name": "w_state",      "wave": "=..=..=.|..", "data" : ["XXX", "REQ", "IDLE"]},
+    {"name": "w_fifo",       "wave": "x..=....|..", "data" : ["EMPTY"]},
+    {},
+    {"name": "r_cpu_op",     "wave": "=.=..=..|..", "data" : ["XXX", "initiate", "XXX"], "node" : "..c"},
+    {"name": "r_abort_done_int", "wave": "0.....10|.."},
+    {"name": "r_abort_int",  "wave": "0.10....|..", "node" : "..b"},
+    {"name": "r_abort_ack",  "wave": "x....1..|..", "node" : "..........e"},
+  {"name": "r_state",      "wave": "=..=..=.|=.", "data" : ["XXX", "ACK", "IDLE", "HANDLER"], "node" : ".........d"},
+    {"name": "r_fifo",       "wave": "x....=..|..", "data" : ["EMPTY"]},
+], "edge" : ['a->b race condition', 'a-~>c ', "d-~>e "]}
+</script>
+</div>
+</div></blockquote>
+<p>Above is the more common edge case where one peer has initiated an abort, and the other
+is preparing to initiate at the same time, but is perhaps a cycle or two later. In this case,
+the late peer would have an interrupt initiated simultaneously with an abort initiation, which
+would result in the <cite>HANDLER</cite> code running, in this case, the <strong>abort initiator</strong> handler
+code (not the <strong>abort done</strong> handler).</p>
+<p>A naive implementation would re-issue the <cite>abort</cite> bit, triggering the first peer to respond,
+and the two could ping-pong back and forth in an infinite cycle.</p>
+<p>In order to break the cycle, an additional “abort acknowledged” (<cite>abort_ack</cite>) signal is
+provided, which is set in the case that the respective peer is responding to
+a request (thus, it would be set for both peers in the above case of the “perfectly aligned”
+abort request; but more typically it is cleared by the first initiator, and set for the later
+initiator). The abort handler thus shall always check the <cite>abort_ack</cite> signal, and in the case
+that it is set, it will not re-acknowledge a previously acknowledged abort, and avoiding
+an abort storm.</p>
+</section>
+<section id="application-protocol">
+<h2>Application Protocol<a class="headerlink" href="#application-protocol" title="Permalink to this heading">¶</a></h2>
+<p>The application protocol wraps a packet format around each packet. The general format of
+a packet is as follows:</p>
+<ul class="simple">
+<li><p>Word 0</p>
+<ul>
+<li><p>Bit 31 - set if a response; cleared if initiating</p></li>
+<li><p>Bit 30:16 - sequence number</p></li>
+<li><p>Bit 15:10 - tag</p></li>
+<li><p>Bit 9:0 - length in words of the packet, excluding word 0</p></li>
+</ul>
+</li>
+</ul>
+<p>The sequence number allows responses to occur out of order with respect to requests.</p>
+<p>The tag encodes the operation intended by the packet. Within the tag, further meaning
+may be ascribed to later fields in the packet. As an example, a <cite>tag</cite> of 0 could indicate
+an RPC, and in this case <cite>word 1</cite> would encode the desired system call, and then
+the subsequent words would encode arguments to that system call. After processing the data,
+the response to this system call would be returned to the corresponding peer, using the same
+<cite>tag</cite> and <cite>sequence number</cite>, but with the <cite>response</cite> bit set.</p>
+<p>Further definition of the protocol would extend from here, for example, a <cite>send</cite> of data
+could use a tag of <cite>1</cite>, and the response would be with the same tag
+and sequence number to acknowledge that the sent data was accepted, with the length
+field specifying the number of words that were accepted.</p>
+</section>
+<section id="register-listing-for-mailbox">
+<h2>Register Listing for MAILBOX<a class="headerlink" href="#register-listing-for-mailbox" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Register</p></th>
+<th class="head"><p>Address</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#mailbox-wdata"><span class="std std-ref">MAILBOX_WDATA</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-wdata"><span class="std std-ref">0x58016000</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mailbox-rdata"><span class="std std-ref">MAILBOX_RDATA</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-rdata"><span class="std std-ref">0x58016004</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mailbox-ev-status"><span class="std std-ref">MAILBOX_EV_STATUS</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-ev-status"><span class="std std-ref">0x58016008</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mailbox-ev-pending"><span class="std std-ref">MAILBOX_EV_PENDING</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-ev-pending"><span class="std std-ref">0x5801600c</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mailbox-ev-enable"><span class="std std-ref">MAILBOX_EV_ENABLE</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-ev-enable"><span class="std std-ref">0x58016010</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mailbox-status"><span class="std std-ref">MAILBOX_STATUS</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-status"><span class="std std-ref">0x58016014</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mailbox-control"><span class="std std-ref">MAILBOX_CONTROL</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-control"><span class="std std-ref">0x58016018</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mailbox-done"><span class="std std-ref">MAILBOX_DONE</span></a></p></td>
+<td><p><a class="reference internal" href="#mailbox-done"><span class="std std-ref">0x5801601c</span></a></p></td>
+</tr>
+</tbody>
+</table>
+<section id="mailbox-wdata">
+<h3>MAILBOX_WDATA<a class="headerlink" href="#mailbox-wdata" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x0 = 0x58016000</cite></p>
+<blockquote>
+<div><p>Write data to outgoing FIFO.</p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "wdata[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+</section>
+<section id="mailbox-rdata">
+<h3>MAILBOX_RDATA<a class="headerlink" href="#mailbox-rdata" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x4 = 0x58016004</cite></p>
+<blockquote>
+<div><p>Read data from incoming FIFO.</p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "rdata[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+</section>
+<section id="mailbox-ev-status">
+<h3>MAILBOX_EV_STATUS<a class="headerlink" href="#mailbox-ev-status" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x8 = 0x58016008</cite></p>
+<blockquote>
+<div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>AVAILABLE</p></td>
+<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">available</span></code> event</p></td>
+</tr>
+<tr class="row-odd"><td><p>[1]</p></td>
+<td><p>ABORT_INIT</p></td>
+<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">abort_init</span></code> event</p></td>
+</tr>
+<tr class="row-even"><td><p>[2]</p></td>
+<td><p>ABORT_DONE</p></td>
+<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">abort_done</span></code> event</p></td>
+</tr>
+<tr class="row-odd"><td><p>[3]</p></td>
+<td><p>ERROR</p></td>
+<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">error</span></code> event</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mailbox-ev-pending">
+<h3>MAILBOX_EV_PENDING<a class="headerlink" href="#mailbox-ev-pending" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0xc = 0x5801600c</cite></p>
+<blockquote>
+<div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>AVAILABLE</p></td>
+<td><p>Triggers when the <cite>done</cite> signal was asserted by the corresponding peer</p></td>
+</tr>
+<tr class="row-odd"><td><p>[1]</p></td>
+<td><p>ABORT_INIT</p></td>
+<td><p>Triggers when abort is asserted by the peer, and there is currently no abort in
+progress</p></td>
+</tr>
+<tr class="row-even"><td><p>[2]</p></td>
+<td><p>ABORT_DONE</p></td>
+<td><p>Triggers when a previously initiated abort is acknowledged by peer</p></td>
+</tr>
+<tr class="row-odd"><td><p>[3]</p></td>
+<td><p>ERROR</p></td>
+<td><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mailbox-ev-enable">
+<h3>MAILBOX_EV_ENABLE<a class="headerlink" href="#mailbox-ev-enable" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x10 = 0x58016010</cite></p>
+<blockquote>
+<div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>AVAILABLE</p></td>
+<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">available</span></code> Event</p></td>
+</tr>
+<tr class="row-odd"><td><p>[1]</p></td>
+<td><p>ABORT_INIT</p></td>
+<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">abort_init</span></code> Event</p></td>
+</tr>
+<tr class="row-even"><td><p>[2]</p></td>
+<td><p>ABORT_DONE</p></td>
+<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">abort_done</span></code> Event</p></td>
+</tr>
+<tr class="row-odd"><td><p>[3]</p></td>
+<td><p>ERROR</p></td>
+<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">error</span></code> Event</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mailbox-status">
+<h3>MAILBOX_STATUS<a class="headerlink" href="#mailbox-status" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x14 = 0x58016014</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "rx_words",  "bits": 10},
+        {"name": "tx_words",  "bits": 10},
+        {"name": "abort_in_progress",  "bits": 1},
+        {"name": "abort_ack",  "bits": 1},
+        {"name": "tx_err",  "bits": 1},
+        {"name": "rx_err",  "bits": 1},
+        {"bits": 8}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[9:0]</p></td>
+<td><p>RX_WORDS</p></td>
+<td><p>Number of words available to read</p></td>
+</tr>
+<tr class="row-odd"><td><p>[19:10]</p></td>
+<td><p>TX_WORDS</p></td>
+<td><p>Number of words pending in write FIFO. Free space is 1024 - <cite>tx_avail</cite></p></td>
+</tr>
+<tr class="row-even"><td><p>[20]</p></td>
+<td><p>ABORT_IN_PROGRESS</p></td>
+<td><p>This bit is set if an <cite>aborting</cite> event was initiated and is still in progress.</p></td>
+</tr>
+<tr class="row-odd"><td><p>[21]</p></td>
+<td><p>ABORT_ACK</p></td>
+<td><p>This bit is set by the peer that acknowledged the incoming abort (the later of
+the two, in case of an imperfect race condition). The abort response handler
+should check this bit; if it is set, no new acknowledgement shall be issued. The
+bit is cleared when an initiator initiates a new abort. The initiator shall also
+ignore the state of this bit if it is intending to initiate a new abort cycle.</p></td>
+</tr>
+<tr class="row-even"><td><p>[22]</p></td>
+<td><p>TX_ERR</p></td>
+<td><p>Set if the write FIFO overflowed because we wrote too much data. Cleared on
+register read.</p></td>
+</tr>
+<tr class="row-odd"><td><p>[23]</p></td>
+<td><p>RX_ERR</p></td>
+<td><p>Set if read FIFO underflowed because we read too much data. Cleared on register
+read.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mailbox-control">
+<h3>MAILBOX_CONTROL<a class="headerlink" href="#mailbox-control" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x18 = 0x58016018</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "abort",  "type": 4, "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>ABORT</p></td>
+<td><p>Write <cite>1</cite> to this field to both initiate and acknowledge an abort. Empties both
+FIFOs, asserts <cite>aborting</cite>, and prevents an interrupt from being generated by an
+incoming abort request. New reads &amp; writes are ignored until <cite>aborted</cite> is
+asserted from the peer.</p>
+<p>Writing a 1 to this bit triggers the function.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mailbox-done">
+<h3>MAILBOX_DONE<a class="headerlink" href="#mailbox-done" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58016000 + 0x1c = 0x5801601c</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "done",  "type": 4, "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>DONE</p></td>
+<td><p>Writing a <cite>1</cite> to this field indicates to the corresponding peer that a full
+packet is done loading. There is no need to clear this register after writing.</p>
+<p>Writing a 1 to this bit triggers the function.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+    <script type="text/javascript">
+        function init() {
+            WaveDrom.ProcessAll();
+        }
+        window.onload = init;
+    </script>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cramium SoC (RISC-V Core Complex)</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interrupts.html">Interrupt Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpu.html">CPU</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="coreuser.html">COREUSER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="csrtest.html">CSRTEST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray0.html">IRQARRAY0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray1.html">IRQARRAY1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray10.html">IRQARRAY10</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray11.html">IRQARRAY11</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray12.html">IRQARRAY12</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray13.html">IRQARRAY13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray14.html">IRQARRAY14</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray15.html">IRQARRAY15</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray16.html">IRQARRAY16</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray17.html">IRQARRAY17</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray18.html">IRQARRAY18</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray19.html">IRQARRAY19</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray2.html">IRQARRAY2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray3.html">IRQARRAY3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray4.html">IRQARRAY4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray5.html">IRQARRAY5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray6.html">IRQARRAY6</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray7.html">IRQARRAY7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray8.html">IRQARRAY8</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irqarray9.html">IRQARRAY9</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MAILBOX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resetvalue.html">RESETVALUE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ticktimer.html">TICKTIMER</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="irqarray9.html" title="previous chapter">IRQARRAY9</a></li>
+      <li>Next: <a href="resetvalue.html" title="next chapter">RESETVALUE</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Cramium, Inc..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/mailbox.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

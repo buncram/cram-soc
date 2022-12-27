@@ -41,6 +41,7 @@ Register Groups
     irqarray7
     irqarray8
     irqarray9
+    mailbox
     resetvalue
     ticktimer
 

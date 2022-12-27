@@ -8,8 +8,8 @@
 //
 // Filename   : cram_axi.v
 // Device     : 
-// LiteX sha1 : 4c91d669
-// Date       : 2022-12-26 16:40:24
+// LiteX sha1 : 0875fe61
+// Date       : 2022-12-27 23:56:59
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -492,7 +492,7 @@ reg           coreuser_window_bl_re = 1'd0;
 wire   [21:0] coreuser_ppn3;
 reg    [21:0] coreuser_window_bh_storage = 22'd0;
 reg           coreuser_window_bh_re = 1'd0;
-reg           coreuser_protect = 1'd0;
+wire          coreuser_protect;
 reg           coreuser_enable1 = 1'd0;
 reg           coreuser_require_asid = 1'd0;
 reg           coreuser_require_ppn_a = 1'd0;
@@ -3335,6 +3335,130 @@ reg     [7:0] ticktimer_target_xfer_count = 8'd128;
 reg    [63:0] ticktimer_target_xfer_ibuffer = 64'd0;
 wire   [63:0] ticktimer_target_xfer_obuffer;
 wire          ticktimer_alarm_always_on;
+wire   [31:0] mailbox_w_dat;
+wire          mailbox_w_valid;
+reg           mailbox_w_ready = 1'd0;
+wire          mailbox_w_done;
+reg    [31:0] mailbox_r_dat = 32'd0;
+reg           mailbox_r_valid = 1'd0;
+wire          mailbox_r_ready;
+reg           mailbox_r_done = 1'd0;
+reg           mailbox_w_abort = 1'd0;
+reg           mailbox_r_abort = 1'd0;
+reg           mailbox_reset_n = 1'd0;
+reg    [31:0] mailbox_wdata_storage = 32'd0;
+reg           mailbox_wdata_re = 1'd0;
+wire   [31:0] mailbox_rdata_status;
+wire          mailbox_rdata_we;
+reg           mailbox_rdata_re = 1'd0;
+wire          mailbox_irq;
+wire          mailbox_available_status;
+reg           mailbox_available_pending = 1'd0;
+wire          mailbox_available_trigger;
+reg           mailbox_available_clear = 1'd0;
+wire          mailbox_abort_init_status;
+reg           mailbox_abort_init_pending = 1'd0;
+reg           mailbox_abort_init_trigger = 1'd0;
+reg           mailbox_abort_init_clear = 1'd0;
+reg           mailbox_abort_init_trigger_d = 1'd0;
+wire          mailbox_abort_done_status;
+reg           mailbox_abort_done_pending = 1'd0;
+reg           mailbox_abort_done_trigger = 1'd0;
+reg           mailbox_abort_done_clear = 1'd0;
+reg           mailbox_abort_done_trigger_d = 1'd0;
+wire          mailbox_error_status;
+reg           mailbox_error_pending = 1'd0;
+wire          mailbox_error_trigger;
+reg           mailbox_error_clear = 1'd0;
+reg           mailbox_error_trigger_d = 1'd0;
+wire          mailbox_available0;
+wire          mailbox_abort_init0;
+wire          mailbox_abort_done0;
+wire          mailbox_error0;
+reg     [3:0] mailbox_status_status0 = 4'd0;
+wire          mailbox_status_we0;
+reg           mailbox_status_re0 = 1'd0;
+wire          mailbox_available1;
+wire          mailbox_abort_init1;
+wire          mailbox_abort_done1;
+wire          mailbox_error1;
+reg     [3:0] mailbox_pending_status = 4'd0;
+wire          mailbox_pending_we;
+reg           mailbox_pending_re = 1'd0;
+reg     [3:0] mailbox_pending_r = 4'd0;
+wire          mailbox_available2;
+wire          mailbox_abort_init2;
+wire          mailbox_abort_done2;
+wire          mailbox_error2;
+reg     [3:0] mailbox_enable_storage = 4'd0;
+reg           mailbox_enable_re = 1'd0;
+wire    [9:0] mailbox_rx_words;
+wire    [9:0] mailbox_tx_words;
+wire          mailbox_abort_in_progress0;
+wire          mailbox_abort_ack0;
+wire          mailbox_tx_err;
+wire          mailbox_rx_err;
+reg    [23:0] mailbox_status_status1 = 24'd0;
+wire          mailbox_status_we1;
+reg           mailbox_status_re1 = 1'd0;
+reg           mailbox_abort = 1'd0;
+reg           mailbox_control_storage = 1'd0;
+reg           mailbox_control_re = 1'd0;
+reg           mailbox_done = 1'd0;
+reg           mailbox_done_storage = 1'd0;
+reg           mailbox_done_re = 1'd0;
+reg           mailbox_abort_in_progress1 = 1'd0;
+reg           mailbox_abort_ack1 = 1'd0;
+reg           mailbox_w_over_flag = 1'd0;
+reg           mailbox_w_over_bit = 1'd0;
+wire          mailbox_w_over_clear;
+wire          mailbox_syncfifobuffered0_re;
+reg           mailbox_syncfifobuffered0_readable = 1'd0;
+reg           mailbox_syncfifobuffered0_syncfifo0_we = 1'd0;
+wire          mailbox_syncfifobuffered0_syncfifo0_writable;
+wire          mailbox_syncfifobuffered0_syncfifo0_re;
+wire          mailbox_syncfifobuffered0_syncfifo0_readable;
+wire   [31:0] mailbox_syncfifobuffered0_syncfifo0_din;
+wire   [31:0] mailbox_syncfifobuffered0_syncfifo0_dout;
+reg    [10:0] mailbox_syncfifobuffered0_level0 = 11'd0;
+reg           mailbox_syncfifobuffered0_replace = 1'd0;
+reg     [9:0] mailbox_syncfifobuffered0_produce = 10'd0;
+reg     [9:0] mailbox_syncfifobuffered0_consume = 10'd0;
+reg     [9:0] mailbox_syncfifobuffered0_wrport_adr = 10'd0;
+wire   [31:0] mailbox_syncfifobuffered0_wrport_dat_r;
+wire          mailbox_syncfifobuffered0_wrport_we;
+wire   [31:0] mailbox_syncfifobuffered0_wrport_dat_w;
+wire          mailbox_syncfifobuffered0_do_read;
+wire    [9:0] mailbox_syncfifobuffered0_rdport_adr;
+wire   [31:0] mailbox_syncfifobuffered0_rdport_dat_r;
+wire          mailbox_syncfifobuffered0_rdport_re;
+wire   [10:0] mailbox_syncfifobuffered0_level1;
+wire          mailbox_w_fifo_reset_sys;
+reg           mailbox_r_over_flag = 1'd0;
+reg           mailbox_r_over_bit = 1'd0;
+wire          mailbox_r_over_clear;
+reg           mailbox_syncfifobuffered1_re = 1'd0;
+reg           mailbox_syncfifobuffered1_readable = 1'd0;
+wire          mailbox_syncfifobuffered1_syncfifo1_we;
+wire          mailbox_syncfifobuffered1_syncfifo1_writable;
+wire          mailbox_syncfifobuffered1_syncfifo1_re;
+wire          mailbox_syncfifobuffered1_syncfifo1_readable;
+wire   [31:0] mailbox_syncfifobuffered1_syncfifo1_din;
+wire   [31:0] mailbox_syncfifobuffered1_syncfifo1_dout;
+reg    [10:0] mailbox_syncfifobuffered1_level0 = 11'd0;
+reg           mailbox_syncfifobuffered1_replace = 1'd0;
+reg     [9:0] mailbox_syncfifobuffered1_produce = 10'd0;
+reg     [9:0] mailbox_syncfifobuffered1_consume = 10'd0;
+reg     [9:0] mailbox_syncfifobuffered1_wrport_adr = 10'd0;
+wire   [31:0] mailbox_syncfifobuffered1_wrport_dat_r;
+wire          mailbox_syncfifobuffered1_wrport_we;
+wire   [31:0] mailbox_syncfifobuffered1_wrport_dat_w;
+wire          mailbox_syncfifobuffered1_do_read;
+wire    [9:0] mailbox_syncfifobuffered1_rdport_adr;
+wire   [31:0] mailbox_syncfifobuffered1_rdport_dat_r;
+wire          mailbox_syncfifobuffered1_rdport_re;
+wire   [10:0] mailbox_syncfifobuffered1_level1;
+wire          mailbox_r_fifo_reset_sys;
 reg    [31:0] csr_wtest_storage = 32'd0;
 reg           csr_wtest_re = 1'd0;
 wire   [31:0] csr_rtest_status;
@@ -3962,10 +4086,38 @@ wire          interface22_we;
 wire   [31:0] interface22_dat_w;
 reg    [31:0] interface22_dat_r = 32'd0;
 wire          interface22_re;
-reg           csrbank22_pc_re = 1'd0;
-wire   [31:0] csrbank22_pc_r;
-reg           csrbank22_pc_we = 1'd0;
-wire   [31:0] csrbank22_pc_w;
+reg           csrbank22_wdata0_re = 1'd0;
+wire   [31:0] csrbank22_wdata0_r;
+reg           csrbank22_wdata0_we = 1'd0;
+wire   [31:0] csrbank22_wdata0_w;
+reg           csrbank22_rdata_re = 1'd0;
+wire   [31:0] csrbank22_rdata_r;
+reg           csrbank22_rdata_we = 1'd0;
+wire   [31:0] csrbank22_rdata_w;
+reg           csrbank22_ev_status_re = 1'd0;
+wire    [3:0] csrbank22_ev_status_r;
+reg           csrbank22_ev_status_we = 1'd0;
+wire    [3:0] csrbank22_ev_status_w;
+reg           csrbank22_ev_pending_re = 1'd0;
+wire    [3:0] csrbank22_ev_pending_r;
+reg           csrbank22_ev_pending_we = 1'd0;
+wire    [3:0] csrbank22_ev_pending_w;
+reg           csrbank22_ev_enable0_re = 1'd0;
+wire    [3:0] csrbank22_ev_enable0_r;
+reg           csrbank22_ev_enable0_we = 1'd0;
+wire    [3:0] csrbank22_ev_enable0_w;
+reg           csrbank22_status_re = 1'd0;
+wire   [23:0] csrbank22_status_r;
+reg           csrbank22_status_we = 1'd0;
+wire   [23:0] csrbank22_status_w;
+reg           csrbank22_control0_re = 1'd0;
+wire          csrbank22_control0_r;
+reg           csrbank22_control0_we = 1'd0;
+wire          csrbank22_control0_w;
+reg           csrbank22_done0_re = 1'd0;
+wire          csrbank22_done0_r;
+reg           csrbank22_done0_we = 1'd0;
+wire          csrbank22_done0_w;
 wire          csrbank22_sel;
 wire          csrbank22_re;
 wire   [15:0] interface23_adr;
@@ -3973,49 +4125,66 @@ wire          interface23_we;
 wire   [31:0] interface23_dat_w;
 reg    [31:0] interface23_dat_r = 32'd0;
 wire          interface23_re;
-reg           csrbank23_control0_re = 1'd0;
-wire          csrbank23_control0_r;
-reg           csrbank23_control0_we = 1'd0;
-wire          csrbank23_control0_w;
-reg           csrbank23_time1_re = 1'd0;
-wire   [31:0] csrbank23_time1_r;
-reg           csrbank23_time1_we = 1'd0;
-wire   [31:0] csrbank23_time1_w;
-reg           csrbank23_time0_re = 1'd0;
-wire   [31:0] csrbank23_time0_r;
-reg           csrbank23_time0_we = 1'd0;
-wire   [31:0] csrbank23_time0_w;
-reg           csrbank23_msleep_target1_re = 1'd0;
-wire   [31:0] csrbank23_msleep_target1_r;
-reg           csrbank23_msleep_target1_we = 1'd0;
-wire   [31:0] csrbank23_msleep_target1_w;
-reg           csrbank23_msleep_target0_re = 1'd0;
-wire   [31:0] csrbank23_msleep_target0_r;
-reg           csrbank23_msleep_target0_we = 1'd0;
-wire   [31:0] csrbank23_msleep_target0_w;
-reg           csrbank23_ev_status_re = 1'd0;
-wire          csrbank23_ev_status_r;
-reg           csrbank23_ev_status_we = 1'd0;
-wire          csrbank23_ev_status_w;
-reg           csrbank23_ev_pending_re = 1'd0;
-wire          csrbank23_ev_pending_r;
-reg           csrbank23_ev_pending_we = 1'd0;
-wire          csrbank23_ev_pending_w;
-reg           csrbank23_ev_enable0_re = 1'd0;
-wire          csrbank23_ev_enable0_r;
-reg           csrbank23_ev_enable0_we = 1'd0;
-wire          csrbank23_ev_enable0_w;
+reg           csrbank23_pc_re = 1'd0;
+wire   [31:0] csrbank23_pc_r;
+reg           csrbank23_pc_we = 1'd0;
+wire   [31:0] csrbank23_pc_w;
 wire          csrbank23_sel;
 wire          csrbank23_re;
+wire   [15:0] interface24_adr;
+wire          interface24_we;
+wire   [31:0] interface24_dat_w;
+reg    [31:0] interface24_dat_r = 32'd0;
+wire          interface24_re;
+reg           csrbank24_control0_re = 1'd0;
+wire          csrbank24_control0_r;
+reg           csrbank24_control0_we = 1'd0;
+wire          csrbank24_control0_w;
+reg           csrbank24_time1_re = 1'd0;
+wire   [31:0] csrbank24_time1_r;
+reg           csrbank24_time1_we = 1'd0;
+wire   [31:0] csrbank24_time1_w;
+reg           csrbank24_time0_re = 1'd0;
+wire   [31:0] csrbank24_time0_r;
+reg           csrbank24_time0_we = 1'd0;
+wire   [31:0] csrbank24_time0_w;
+reg           csrbank24_msleep_target1_re = 1'd0;
+wire   [31:0] csrbank24_msleep_target1_r;
+reg           csrbank24_msleep_target1_we = 1'd0;
+wire   [31:0] csrbank24_msleep_target1_w;
+reg           csrbank24_msleep_target0_re = 1'd0;
+wire   [31:0] csrbank24_msleep_target0_r;
+reg           csrbank24_msleep_target0_we = 1'd0;
+wire   [31:0] csrbank24_msleep_target0_w;
+reg           csrbank24_ev_status_re = 1'd0;
+wire          csrbank24_ev_status_r;
+reg           csrbank24_ev_status_we = 1'd0;
+wire          csrbank24_ev_status_w;
+reg           csrbank24_ev_pending_re = 1'd0;
+wire          csrbank24_ev_pending_r;
+reg           csrbank24_ev_pending_we = 1'd0;
+wire          csrbank24_ev_pending_w;
+reg           csrbank24_ev_enable0_re = 1'd0;
+wire          csrbank24_ev_enable0_r;
+reg           csrbank24_ev_enable0_we = 1'd0;
+wire          csrbank24_ev_enable0_w;
+wire          csrbank24_sel;
+wire          csrbank24_re;
 wire   [15:0] csr_interconnect_adr;
 wire          csr_interconnect_we;
 wire   [31:0] csr_interconnect_dat_w;
 wire   [31:0] csr_interconnect_dat_r;
 wire          csr_interconnect_re;
-reg     [1:0] cramsoc_state = 2'd0;
-reg     [1:0] cramsoc_next_state = 2'd0;
-reg           cramsoc_last_was_read_next_value = 1'd0;
-reg           cramsoc_last_was_read_next_value_ce = 1'd0;
+reg     [1:0] cramsoc_mailbox_state = 2'd0;
+reg     [1:0] cramsoc_mailbox_next_state = 2'd0;
+reg           mailbox_abort_ack1_mailbox_next_value0 = 1'd0;
+reg           mailbox_abort_ack1_mailbox_next_value_ce0 = 1'd0;
+reg           mailbox_abort_in_progress1_mailbox_next_value1 = 1'd0;
+reg           mailbox_abort_in_progress1_mailbox_next_value_ce1 = 1'd0;
+reg     [1:0] cramsoc_axilite2csr_state = 2'd0;
+reg     [1:0] cramsoc_axilite2csr_next_state = 2'd0;
+reg           cramsoc_last_was_read_axilite2csr_next_value = 1'd0;
+reg           cramsoc_last_was_read_axilite2csr_next_value_ce = 1'd0;
 wire   [29:0] slice_proxy0;
 wire   [29:0] slice_proxy1;
 reg           array_muxed0 = 1'd0;
@@ -4194,6 +4363,7 @@ always @(*) begin
     cramsoc_interrupt[7] <= irqarray7_irq;
     cramsoc_interrupt[8] <= irqarray8_irq;
     cramsoc_interrupt[9] <= irqarray9_irq;
+    cramsoc_interrupt[21] <= mailbox_irq;
     cramsoc_interrupt[20] <= ticktimer_irq;
 end
 assign sys_clk = aclk;
@@ -8040,6 +8210,181 @@ assign ticktimer_target_xfer_pong_i = ticktimer_target_xfer_ping_o1;
 assign ticktimer_target_xfer_ping_o0 = (ticktimer_target_xfer_ping_toggle_o ^ ticktimer_target_xfer_ping_toggle_o_r);
 assign ticktimer_target_xfer_pong_o = (ticktimer_target_xfer_pong_toggle_o ^ ticktimer_target_xfer_pong_toggle_o_r);
 assign ticktimer_target_xfer_done = (ticktimer_target_xfer_count == 1'd0);
+assign mailbox_error_trigger = (mailbox_tx_err | mailbox_rx_err);
+assign mailbox_w_fifo_reset_sys = ((~mailbox_reset_n) | mailbox_abort);
+assign mailbox_tx_words = mailbox_syncfifobuffered0_level1;
+assign mailbox_tx_err = mailbox_w_over_bit;
+always @(*) begin
+    mailbox_w_over_flag <= 1'd0;
+    mailbox_syncfifobuffered0_syncfifo0_we <= 1'd0;
+    if ((mailbox_wdata_re & (~mailbox_syncfifobuffered0_syncfifo0_writable))) begin
+        mailbox_w_over_flag <= 1'd1;
+    end else begin
+        if ((~mailbox_abort_in_progress1)) begin
+            mailbox_syncfifobuffered0_syncfifo0_we <= 1'd1;
+        end
+    end
+end
+assign mailbox_w_over_clear = mailbox_status_we1;
+assign mailbox_syncfifobuffered0_syncfifo0_din = mailbox_wdata_storage;
+assign mailbox_w_dat = mailbox_syncfifobuffered0_syncfifo0_dout;
+assign mailbox_w_valid = mailbox_syncfifobuffered0_readable;
+assign mailbox_syncfifobuffered0_re = mailbox_w_ready;
+assign mailbox_w_done = mailbox_done;
+assign mailbox_r_fifo_reset_sys = ((~mailbox_reset_n) | mailbox_abort);
+assign mailbox_rx_words = mailbox_syncfifobuffered1_level1;
+assign mailbox_rx_err = mailbox_r_over_bit;
+always @(*) begin
+    mailbox_r_over_flag <= 1'd0;
+    mailbox_syncfifobuffered1_re <= 1'd0;
+    if ((mailbox_rdata_we & (~mailbox_syncfifobuffered1_readable))) begin
+        mailbox_r_over_flag <= 1'd1;
+    end else begin
+        mailbox_syncfifobuffered1_re <= 1'd1;
+    end
+end
+assign mailbox_r_over_clear = mailbox_status_we1;
+assign mailbox_syncfifobuffered1_syncfifo1_din = mailbox_r_dat;
+assign mailbox_rdata_status = mailbox_syncfifobuffered1_syncfifo1_dout;
+assign mailbox_r_ready = (mailbox_syncfifobuffered1_syncfifo1_writable & mailbox_r_valid);
+assign mailbox_syncfifobuffered1_syncfifo1_we = ((mailbox_r_valid & mailbox_syncfifobuffered1_syncfifo1_writable) & (~mailbox_abort_in_progress1));
+assign mailbox_available_trigger = mailbox_r_done;
+assign mailbox_abort_in_progress0 = mailbox_abort_in_progress1;
+assign mailbox_abort_ack0 = mailbox_abort_ack1;
+assign mailbox_available0 = mailbox_available_status;
+assign mailbox_available1 = mailbox_available_pending;
+always @(*) begin
+    mailbox_available_clear <= 1'd0;
+    if ((mailbox_pending_re & mailbox_pending_r[0])) begin
+        mailbox_available_clear <= 1'd1;
+    end
+end
+assign mailbox_abort_init0 = mailbox_abort_init_status;
+assign mailbox_abort_init1 = mailbox_abort_init_pending;
+always @(*) begin
+    mailbox_abort_init_clear <= 1'd0;
+    if ((mailbox_pending_re & mailbox_pending_r[1])) begin
+        mailbox_abort_init_clear <= 1'd1;
+    end
+end
+assign mailbox_abort_done0 = mailbox_abort_done_status;
+assign mailbox_abort_done1 = mailbox_abort_done_pending;
+always @(*) begin
+    mailbox_abort_done_clear <= 1'd0;
+    if ((mailbox_pending_re & mailbox_pending_r[2])) begin
+        mailbox_abort_done_clear <= 1'd1;
+    end
+end
+assign mailbox_error0 = mailbox_error_status;
+assign mailbox_error1 = mailbox_error_pending;
+always @(*) begin
+    mailbox_error_clear <= 1'd0;
+    if ((mailbox_pending_re & mailbox_pending_r[3])) begin
+        mailbox_error_clear <= 1'd1;
+    end
+end
+assign mailbox_irq = ((((mailbox_pending_status[0] & mailbox_enable_storage[0]) | (mailbox_pending_status[1] & mailbox_enable_storage[1])) | (mailbox_pending_status[2] & mailbox_enable_storage[2])) | (mailbox_pending_status[3] & mailbox_enable_storage[3]));
+assign mailbox_available_status = 1'd0;
+assign mailbox_abort_init_status = mailbox_abort_init_trigger;
+assign mailbox_abort_done_status = mailbox_abort_done_trigger;
+assign mailbox_error_status = mailbox_error_trigger;
+assign mailbox_syncfifobuffered0_syncfifo0_re = (mailbox_syncfifobuffered0_syncfifo0_readable & ((~mailbox_syncfifobuffered0_readable) | mailbox_syncfifobuffered0_re));
+assign mailbox_syncfifobuffered0_level1 = (mailbox_syncfifobuffered0_level0 + mailbox_syncfifobuffered0_readable);
+always @(*) begin
+    mailbox_syncfifobuffered0_wrport_adr <= 10'd0;
+    if (mailbox_syncfifobuffered0_replace) begin
+        mailbox_syncfifobuffered0_wrport_adr <= (mailbox_syncfifobuffered0_produce - 1'd1);
+    end else begin
+        mailbox_syncfifobuffered0_wrport_adr <= mailbox_syncfifobuffered0_produce;
+    end
+end
+assign mailbox_syncfifobuffered0_wrport_dat_w = mailbox_syncfifobuffered0_syncfifo0_din;
+assign mailbox_syncfifobuffered0_wrport_we = (mailbox_syncfifobuffered0_syncfifo0_we & (mailbox_syncfifobuffered0_syncfifo0_writable | mailbox_syncfifobuffered0_replace));
+assign mailbox_syncfifobuffered0_do_read = (mailbox_syncfifobuffered0_syncfifo0_readable & mailbox_syncfifobuffered0_syncfifo0_re);
+assign mailbox_syncfifobuffered0_rdport_adr = mailbox_syncfifobuffered0_consume;
+assign mailbox_syncfifobuffered0_syncfifo0_dout = mailbox_syncfifobuffered0_rdport_dat_r;
+assign mailbox_syncfifobuffered0_rdport_re = mailbox_syncfifobuffered0_do_read;
+assign mailbox_syncfifobuffered0_syncfifo0_writable = (mailbox_syncfifobuffered0_level0 != 11'd1024);
+assign mailbox_syncfifobuffered0_syncfifo0_readable = (mailbox_syncfifobuffered0_level0 != 1'd0);
+assign mailbox_syncfifobuffered1_syncfifo1_re = (mailbox_syncfifobuffered1_syncfifo1_readable & ((~mailbox_syncfifobuffered1_readable) | mailbox_syncfifobuffered1_re));
+assign mailbox_syncfifobuffered1_level1 = (mailbox_syncfifobuffered1_level0 + mailbox_syncfifobuffered1_readable);
+always @(*) begin
+    mailbox_syncfifobuffered1_wrport_adr <= 10'd0;
+    if (mailbox_syncfifobuffered1_replace) begin
+        mailbox_syncfifobuffered1_wrport_adr <= (mailbox_syncfifobuffered1_produce - 1'd1);
+    end else begin
+        mailbox_syncfifobuffered1_wrport_adr <= mailbox_syncfifobuffered1_produce;
+    end
+end
+assign mailbox_syncfifobuffered1_wrport_dat_w = mailbox_syncfifobuffered1_syncfifo1_din;
+assign mailbox_syncfifobuffered1_wrport_we = (mailbox_syncfifobuffered1_syncfifo1_we & (mailbox_syncfifobuffered1_syncfifo1_writable | mailbox_syncfifobuffered1_replace));
+assign mailbox_syncfifobuffered1_do_read = (mailbox_syncfifobuffered1_syncfifo1_readable & mailbox_syncfifobuffered1_syncfifo1_re);
+assign mailbox_syncfifobuffered1_rdport_adr = mailbox_syncfifobuffered1_consume;
+assign mailbox_syncfifobuffered1_syncfifo1_dout = mailbox_syncfifobuffered1_rdport_dat_r;
+assign mailbox_syncfifobuffered1_rdport_re = mailbox_syncfifobuffered1_do_read;
+assign mailbox_syncfifobuffered1_syncfifo1_writable = (mailbox_syncfifobuffered1_level0 != 11'd1024);
+assign mailbox_syncfifobuffered1_syncfifo1_readable = (mailbox_syncfifobuffered1_level0 != 1'd0);
+always @(*) begin
+    cramsoc_mailbox_next_state <= 2'd0;
+    mailbox_abort_done_trigger <= 1'd0;
+    mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
+    mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd0;
+    mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
+    mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd0;
+    mailbox_w_abort <= 1'd0;
+    mailbox_abort_init_trigger <= 1'd0;
+    cramsoc_mailbox_next_state <= cramsoc_mailbox_state;
+    case (cramsoc_mailbox_state)
+        1'd1: begin
+            if (mailbox_r_abort) begin
+                cramsoc_mailbox_next_state <= 1'd0;
+                mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
+                mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd1;
+                mailbox_abort_done_trigger <= 1'd1;
+            end
+            mailbox_w_abort <= 1'd1;
+        end
+        2'd2: begin
+            if (mailbox_abort) begin
+                cramsoc_mailbox_next_state <= 1'd0;
+                mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
+                mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd1;
+                mailbox_abort_ack1_mailbox_next_value0 <= 1'd1;
+                mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd1;
+                mailbox_w_abort <= 1'd1;
+            end else begin
+                mailbox_w_abort <= 1'd0;
+            end
+        end
+        default: begin
+            if ((mailbox_abort & (~mailbox_r_abort))) begin
+                cramsoc_mailbox_next_state <= 1'd1;
+                mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
+                mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd1;
+                mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd1;
+                mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd1;
+                mailbox_w_abort <= 1'd1;
+            end else begin
+                if ((mailbox_abort & mailbox_r_abort)) begin
+                    cramsoc_mailbox_next_state <= 1'd0;
+                    mailbox_abort_ack1_mailbox_next_value0 <= 1'd1;
+                    mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd1;
+                    mailbox_w_abort <= 1'd1;
+                end else begin
+                    if (((~mailbox_abort) & mailbox_r_abort)) begin
+                        cramsoc_mailbox_next_state <= 2'd2;
+                        mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd1;
+                        mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd1;
+                        mailbox_abort_init_trigger <= 1'd1;
+                        mailbox_w_abort <= 1'd0;
+                    end else begin
+                        mailbox_w_abort <= 1'd0;
+                    end
+                end
+            end
+        end
+    endcase
+end
 assign csr_rtest_status = (csr_wtest_storage + 29'd268435456);
 assign cramsoc_dat_w = cramsoc_w_payload_data;
 assign cramsoc_we = ((cramsoc_w_valid & cramsoc_w_ready) & (cramsoc_w_payload_strb != 1'd0));
@@ -8061,38 +8406,38 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
+    cramsoc_nocomb_axl_ar_ready <= 1'd0;
+    cramsoc_nocomb_axl_b_valid <= 1'd0;
+    cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_adr <= 16'd0;
-    cramsoc_last_was_read_next_value <= 1'd0;
-    cramsoc_last_was_read_next_value_ce <= 1'd0;
-    cramsoc_r_payload_data <= 32'd0;
     cramsoc_r_payload_resp <= 2'd0;
+    cramsoc_r_payload_data <= 32'd0;
+    cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
+    cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd0;
     cramsoc_b_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_r_valid <= 1'd0;
     cramsoc_nocomb_axl_w_ready <= 1'd0;
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
-    cramsoc_nocomb_axl_ar_ready <= 1'd0;
-    cramsoc_nocomb_axl_b_valid <= 1'd0;
-    cramsoc_next_state <= 2'd0;
-    cramsoc_next_state <= cramsoc_state;
-    case (cramsoc_state)
+    cramsoc_axilite2csr_next_state <= cramsoc_axilite2csr_state;
+    case (cramsoc_axilite2csr_state)
         1'd1: begin
-            cramsoc_last_was_read_next_value <= 1'd1;
-            cramsoc_last_was_read_next_value_ce <= 1'd1;
+            cramsoc_last_was_read_axilite2csr_next_value <= 1'd1;
+            cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd1;
             cramsoc_adr <= cramsoc_ar_payload_addr[31:2];
             cramsoc_r_payload_data <= cramsoc_dat_r;
             cramsoc_r_payload_resp <= 1'd0;
             cramsoc_nocomb_axl_r_valid <= 1'd1;
             if (cramsoc_r_ready) begin
-                cramsoc_next_state <= 1'd0;
+                cramsoc_axilite2csr_next_state <= 1'd0;
             end
         end
         2'd2: begin
-            cramsoc_last_was_read_next_value <= 1'd0;
-            cramsoc_last_was_read_next_value_ce <= 1'd1;
+            cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
+            cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd1;
             cramsoc_nocomb_axl_b_valid <= 1'd1;
             cramsoc_b_payload_resp <= 1'd0;
             if (cramsoc_b_ready) begin
-                cramsoc_next_state <= 1'd0;
+                cramsoc_axilite2csr_next_state <= 1'd0;
             end
         end
         default: begin
@@ -8101,13 +8446,13 @@ always @(*) begin
                 if (cramsoc_w_valid) begin
                     cramsoc_nocomb_axl_aw_ready <= 1'd1;
                     cramsoc_nocomb_axl_w_ready <= 1'd1;
-                    cramsoc_next_state <= 2'd2;
+                    cramsoc_axilite2csr_next_state <= 2'd2;
                 end
             end else begin
                 if (cramsoc_do_read) begin
                     cramsoc_nocomb_axl_ar_ready <= 1'd1;
                     cramsoc_adr <= cramsoc_ar_payload_addr[31:2];
-                    cramsoc_next_state <= 1'd1;
+                    cramsoc_axilite2csr_next_state <= 1'd1;
                 end
             end
         end
@@ -10566,89 +10911,214 @@ assign irqarray9_source192 = irqarray9_enable_storage[19];
 assign csrbank21_ev_enable0_w = irqarray9_enable_storage[19:0];
 assign csrbank22_sel = (interface22_adr[15:10] == 5'd22);
 assign csrbank22_re = interface22_re;
-assign csrbank22_pc_r = interface22_dat_w[31:0];
+assign csrbank22_wdata0_r = interface22_dat_w[31:0];
 always @(*) begin
-    csrbank22_pc_we <= 1'd0;
-    csrbank22_pc_re <= 1'd0;
+    csrbank22_wdata0_we <= 1'd0;
+    csrbank22_wdata0_re <= 1'd0;
     if ((csrbank22_sel & (interface22_adr[9:0] == 1'd0))) begin
-        csrbank22_pc_re <= interface22_we;
-        csrbank22_pc_we <= csrbank22_re;
+        csrbank22_wdata0_re <= interface22_we;
+        csrbank22_wdata0_we <= csrbank22_re;
     end
 end
-assign csrbank22_pc_w = resetvalue_status[31:0];
-assign resetvalue_we = csrbank22_pc_we;
+assign csrbank22_rdata_r = interface22_dat_w[31:0];
+always @(*) begin
+    csrbank22_rdata_re <= 1'd0;
+    csrbank22_rdata_we <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 1'd1))) begin
+        csrbank22_rdata_re <= interface22_we;
+        csrbank22_rdata_we <= csrbank22_re;
+    end
+end
+assign csrbank22_ev_status_r = interface22_dat_w[3:0];
+always @(*) begin
+    csrbank22_ev_status_we <= 1'd0;
+    csrbank22_ev_status_re <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 2'd2))) begin
+        csrbank22_ev_status_re <= interface22_we;
+        csrbank22_ev_status_we <= csrbank22_re;
+    end
+end
+assign csrbank22_ev_pending_r = interface22_dat_w[3:0];
+always @(*) begin
+    csrbank22_ev_pending_we <= 1'd0;
+    csrbank22_ev_pending_re <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 2'd3))) begin
+        csrbank22_ev_pending_re <= interface22_we;
+        csrbank22_ev_pending_we <= csrbank22_re;
+    end
+end
+assign csrbank22_ev_enable0_r = interface22_dat_w[3:0];
+always @(*) begin
+    csrbank22_ev_enable0_re <= 1'd0;
+    csrbank22_ev_enable0_we <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd4))) begin
+        csrbank22_ev_enable0_re <= interface22_we;
+        csrbank22_ev_enable0_we <= csrbank22_re;
+    end
+end
+assign csrbank22_status_r = interface22_dat_w[23:0];
+always @(*) begin
+    csrbank22_status_we <= 1'd0;
+    csrbank22_status_re <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd5))) begin
+        csrbank22_status_re <= interface22_we;
+        csrbank22_status_we <= csrbank22_re;
+    end
+end
+assign csrbank22_control0_r = interface22_dat_w[0];
+always @(*) begin
+    csrbank22_control0_we <= 1'd0;
+    csrbank22_control0_re <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd6))) begin
+        csrbank22_control0_re <= interface22_we;
+        csrbank22_control0_we <= csrbank22_re;
+    end
+end
+assign csrbank22_done0_r = interface22_dat_w[0];
+always @(*) begin
+    csrbank22_done0_re <= 1'd0;
+    csrbank22_done0_we <= 1'd0;
+    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd7))) begin
+        csrbank22_done0_re <= interface22_we;
+        csrbank22_done0_we <= csrbank22_re;
+    end
+end
+assign csrbank22_wdata0_w = mailbox_wdata_storage[31:0];
+assign csrbank22_rdata_w = mailbox_rdata_status[31:0];
+assign mailbox_rdata_we = csrbank22_rdata_we;
+always @(*) begin
+    mailbox_status_status0 <= 4'd0;
+    mailbox_status_status0[0] <= mailbox_available0;
+    mailbox_status_status0[1] <= mailbox_abort_init0;
+    mailbox_status_status0[2] <= mailbox_abort_done0;
+    mailbox_status_status0[3] <= mailbox_error0;
+end
+assign csrbank22_ev_status_w = mailbox_status_status0[3:0];
+assign mailbox_status_we0 = csrbank22_ev_status_we;
+always @(*) begin
+    mailbox_pending_status <= 4'd0;
+    mailbox_pending_status[0] <= mailbox_available1;
+    mailbox_pending_status[1] <= mailbox_abort_init1;
+    mailbox_pending_status[2] <= mailbox_abort_done1;
+    mailbox_pending_status[3] <= mailbox_error1;
+end
+assign csrbank22_ev_pending_w = mailbox_pending_status[3:0];
+assign mailbox_pending_we = csrbank22_ev_pending_we;
+assign mailbox_available2 = mailbox_enable_storage[0];
+assign mailbox_abort_init2 = mailbox_enable_storage[1];
+assign mailbox_abort_done2 = mailbox_enable_storage[2];
+assign mailbox_error2 = mailbox_enable_storage[3];
+assign csrbank22_ev_enable0_w = mailbox_enable_storage[3:0];
+always @(*) begin
+    mailbox_status_status1 <= 24'd0;
+    mailbox_status_status1[9:0] <= mailbox_rx_words;
+    mailbox_status_status1[19:10] <= mailbox_tx_words;
+    mailbox_status_status1[20] <= mailbox_abort_in_progress0;
+    mailbox_status_status1[21] <= mailbox_abort_ack0;
+    mailbox_status_status1[22] <= mailbox_tx_err;
+    mailbox_status_status1[23] <= mailbox_rx_err;
+end
+assign csrbank22_status_w = mailbox_status_status1[23:0];
+assign mailbox_status_we1 = csrbank22_status_we;
+always @(*) begin
+    mailbox_abort <= 1'd0;
+    if (mailbox_control_re) begin
+        mailbox_abort <= mailbox_control_storage;
+    end
+end
+assign csrbank22_control0_w = mailbox_control_storage;
+always @(*) begin
+    mailbox_done <= 1'd0;
+    if (mailbox_done_re) begin
+        mailbox_done <= mailbox_done_storage;
+    end
+end
+assign csrbank22_done0_w = mailbox_done_storage;
 assign csrbank23_sel = (interface23_adr[15:10] == 5'd23);
 assign csrbank23_re = interface23_re;
-assign csrbank23_control0_r = interface23_dat_w[0];
+assign csrbank23_pc_r = interface23_dat_w[31:0];
 always @(*) begin
-    csrbank23_control0_re <= 1'd0;
-    csrbank23_control0_we <= 1'd0;
+    csrbank23_pc_we <= 1'd0;
+    csrbank23_pc_re <= 1'd0;
     if ((csrbank23_sel & (interface23_adr[9:0] == 1'd0))) begin
-        csrbank23_control0_re <= interface23_we;
-        csrbank23_control0_we <= csrbank23_re;
+        csrbank23_pc_re <= interface23_we;
+        csrbank23_pc_we <= csrbank23_re;
     end
 end
-assign csrbank23_time1_r = interface23_dat_w[31:0];
+assign csrbank23_pc_w = resetvalue_status[31:0];
+assign resetvalue_we = csrbank23_pc_we;
+assign csrbank24_sel = (interface24_adr[15:10] == 5'd24);
+assign csrbank24_re = interface24_re;
+assign csrbank24_control0_r = interface24_dat_w[0];
 always @(*) begin
-    csrbank23_time1_we <= 1'd0;
-    csrbank23_time1_re <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 1'd1))) begin
-        csrbank23_time1_re <= interface23_we;
-        csrbank23_time1_we <= csrbank23_re;
+    csrbank24_control0_re <= 1'd0;
+    csrbank24_control0_we <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 1'd0))) begin
+        csrbank24_control0_re <= interface24_we;
+        csrbank24_control0_we <= csrbank24_re;
     end
 end
-assign csrbank23_time0_r = interface23_dat_w[31:0];
+assign csrbank24_time1_r = interface24_dat_w[31:0];
 always @(*) begin
-    csrbank23_time0_we <= 1'd0;
-    csrbank23_time0_re <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 2'd2))) begin
-        csrbank23_time0_re <= interface23_we;
-        csrbank23_time0_we <= csrbank23_re;
+    csrbank24_time1_we <= 1'd0;
+    csrbank24_time1_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 1'd1))) begin
+        csrbank24_time1_re <= interface24_we;
+        csrbank24_time1_we <= csrbank24_re;
     end
 end
-assign csrbank23_msleep_target1_r = interface23_dat_w[31:0];
+assign csrbank24_time0_r = interface24_dat_w[31:0];
 always @(*) begin
-    csrbank23_msleep_target1_re <= 1'd0;
-    csrbank23_msleep_target1_we <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 2'd3))) begin
-        csrbank23_msleep_target1_re <= interface23_we;
-        csrbank23_msleep_target1_we <= csrbank23_re;
+    csrbank24_time0_we <= 1'd0;
+    csrbank24_time0_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 2'd2))) begin
+        csrbank24_time0_re <= interface24_we;
+        csrbank24_time0_we <= csrbank24_re;
     end
 end
-assign csrbank23_msleep_target0_r = interface23_dat_w[31:0];
+assign csrbank24_msleep_target1_r = interface24_dat_w[31:0];
 always @(*) begin
-    csrbank23_msleep_target0_we <= 1'd0;
-    csrbank23_msleep_target0_re <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd4))) begin
-        csrbank23_msleep_target0_re <= interface23_we;
-        csrbank23_msleep_target0_we <= csrbank23_re;
+    csrbank24_msleep_target1_re <= 1'd0;
+    csrbank24_msleep_target1_we <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 2'd3))) begin
+        csrbank24_msleep_target1_re <= interface24_we;
+        csrbank24_msleep_target1_we <= csrbank24_re;
     end
 end
-assign csrbank23_ev_status_r = interface23_dat_w[0];
+assign csrbank24_msleep_target0_r = interface24_dat_w[31:0];
 always @(*) begin
-    csrbank23_ev_status_we <= 1'd0;
-    csrbank23_ev_status_re <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd5))) begin
-        csrbank23_ev_status_re <= interface23_we;
-        csrbank23_ev_status_we <= csrbank23_re;
+    csrbank24_msleep_target0_we <= 1'd0;
+    csrbank24_msleep_target0_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd4))) begin
+        csrbank24_msleep_target0_re <= interface24_we;
+        csrbank24_msleep_target0_we <= csrbank24_re;
     end
 end
-assign csrbank23_ev_pending_r = interface23_dat_w[0];
+assign csrbank24_ev_status_r = interface24_dat_w[0];
 always @(*) begin
-    csrbank23_ev_pending_re <= 1'd0;
-    csrbank23_ev_pending_we <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd6))) begin
-        csrbank23_ev_pending_re <= interface23_we;
-        csrbank23_ev_pending_we <= csrbank23_re;
+    csrbank24_ev_status_we <= 1'd0;
+    csrbank24_ev_status_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd5))) begin
+        csrbank24_ev_status_re <= interface24_we;
+        csrbank24_ev_status_we <= csrbank24_re;
     end
 end
-assign csrbank23_ev_enable0_r = interface23_dat_w[0];
+assign csrbank24_ev_pending_r = interface24_dat_w[0];
 always @(*) begin
-    csrbank23_ev_enable0_we <= 1'd0;
-    csrbank23_ev_enable0_re <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 3'd7))) begin
-        csrbank23_ev_enable0_re <= interface23_we;
-        csrbank23_ev_enable0_we <= csrbank23_re;
+    csrbank24_ev_pending_re <= 1'd0;
+    csrbank24_ev_pending_we <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd6))) begin
+        csrbank24_ev_pending_re <= interface24_we;
+        csrbank24_ev_pending_we <= csrbank24_re;
+    end
+end
+assign csrbank24_ev_enable0_r = interface24_dat_w[0];
+always @(*) begin
+    csrbank24_ev_enable0_we <= 1'd0;
+    csrbank24_ev_enable0_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd7))) begin
+        csrbank24_ev_enable0_re <= interface24_we;
+        csrbank24_ev_enable0_we <= csrbank24_re;
     end
 end
 always @(*) begin
@@ -10657,20 +11127,20 @@ always @(*) begin
         ticktimer_reset <= ticktimer_control_storage;
     end
 end
-assign csrbank23_control0_w = ticktimer_control_storage;
-assign csrbank23_time1_w = ticktimer_time_status[63:32];
-assign csrbank23_time0_w = ticktimer_time_status[31:0];
-assign ticktimer_time_we = csrbank23_time0_we;
-assign csrbank23_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
-assign csrbank23_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
+assign csrbank24_control0_w = ticktimer_control_storage;
+assign csrbank24_time1_w = ticktimer_time_status[63:32];
+assign csrbank24_time0_w = ticktimer_time_status[31:0];
+assign ticktimer_time_we = csrbank24_time0_we;
+assign csrbank24_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
+assign csrbank24_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
 assign ticktimer_status_status = ticktimer_alarm0;
-assign csrbank23_ev_status_w = ticktimer_status_status;
-assign ticktimer_status_we = csrbank23_ev_status_we;
+assign csrbank24_ev_status_w = ticktimer_status_status;
+assign ticktimer_status_we = csrbank24_ev_status_we;
 assign ticktimer_pending_status = ticktimer_alarm1;
-assign csrbank23_ev_pending_w = ticktimer_pending_status;
-assign ticktimer_pending_we = csrbank23_ev_pending_we;
+assign csrbank24_ev_pending_w = ticktimer_pending_status;
+assign ticktimer_pending_we = csrbank24_ev_pending_we;
 assign ticktimer_alarm2 = ticktimer_enable_storage;
-assign csrbank23_ev_enable0_w = ticktimer_enable_storage;
+assign csrbank24_ev_enable0_w = ticktimer_enable_storage;
 assign csr_interconnect_adr = cramsoc_adr;
 assign csr_interconnect_we = cramsoc_we;
 assign csr_interconnect_dat_w = cramsoc_dat_w;
@@ -10700,6 +11170,7 @@ assign interface20_adr = csr_interconnect_adr;
 assign interface21_adr = csr_interconnect_adr;
 assign interface22_adr = csr_interconnect_adr;
 assign interface23_adr = csr_interconnect_adr;
+assign interface24_adr = csr_interconnect_adr;
 assign interface0_we = csr_interconnect_we;
 assign interface1_we = csr_interconnect_we;
 assign interface2_we = csr_interconnect_we;
@@ -10724,6 +11195,7 @@ assign interface20_we = csr_interconnect_we;
 assign interface21_we = csr_interconnect_we;
 assign interface22_we = csr_interconnect_we;
 assign interface23_we = csr_interconnect_we;
+assign interface24_we = csr_interconnect_we;
 assign interface0_dat_w = csr_interconnect_dat_w;
 assign interface1_dat_w = csr_interconnect_dat_w;
 assign interface2_dat_w = csr_interconnect_dat_w;
@@ -10748,7 +11220,8 @@ assign interface20_dat_w = csr_interconnect_dat_w;
 assign interface21_dat_w = csr_interconnect_dat_w;
 assign interface22_dat_w = csr_interconnect_dat_w;
 assign interface23_dat_w = csr_interconnect_dat_w;
-assign csr_interconnect_dat_r = (((((((((((((((((((((((interface0_dat_r | interface1_dat_r) | interface2_dat_r) | interface3_dat_r) | interface4_dat_r) | interface5_dat_r) | interface6_dat_r) | interface7_dat_r) | interface8_dat_r) | interface9_dat_r) | interface10_dat_r) | interface11_dat_r) | interface12_dat_r) | interface13_dat_r) | interface14_dat_r) | interface15_dat_r) | interface16_dat_r) | interface17_dat_r) | interface18_dat_r) | interface19_dat_r) | interface20_dat_r) | interface21_dat_r) | interface22_dat_r) | interface23_dat_r);
+assign interface24_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = ((((((((((((((((((((((((interface0_dat_r | interface1_dat_r) | interface2_dat_r) | interface3_dat_r) | interface4_dat_r) | interface5_dat_r) | interface6_dat_r) | interface7_dat_r) | interface8_dat_r) | interface9_dat_r) | interface10_dat_r) | interface11_dat_r) | interface12_dat_r) | interface13_dat_r) | interface14_dat_r) | interface15_dat_r) | interface16_dat_r) | interface17_dat_r) | interface18_dat_r) | interface19_dat_r) | interface20_dat_r) | interface21_dat_r) | interface22_dat_r) | interface23_dat_r) | interface24_dat_r);
 assign interface0_re = csr_interconnect_re;
 assign interface1_re = csr_interconnect_re;
 assign interface2_re = csr_interconnect_re;
@@ -10773,6 +11246,7 @@ assign interface20_re = csr_interconnect_re;
 assign interface21_re = csr_interconnect_re;
 assign interface22_re = csr_interconnect_re;
 assign interface23_re = csr_interconnect_re;
+assign interface24_re = csr_interconnect_re;
 assign slice_proxy0 = cramsoc_corecsr_aw_payload_addr[31:2];
 assign slice_proxy1 = cramsoc_corecsr_ar_payload_addr[31:2];
 always @(*) begin
@@ -11134,11 +11608,6 @@ always @(posedge sys_clk) begin
         end
     end else begin
         resetvalue_latched_value <= resetvalue_latched_value;
-    end
-    if (coreuser_protect_storage) begin
-        coreuser_protect <= 1'd1;
-    end else begin
-        coreuser_protect <= coreuser_protect;
     end
     if (coreuser_protect) begin
         coreuser_enable1 <= coreuser_enable1;
@@ -14844,9 +15313,117 @@ always @(posedge sys_clk) begin
     end else begin
         ticktimer_target_xfer_count <= 8'd128;
     end
-    cramsoc_state <= cramsoc_next_state;
-    if (cramsoc_last_was_read_next_value_ce) begin
-        cramsoc_last_was_read <= cramsoc_last_was_read_next_value;
+    if (mailbox_available_clear) begin
+        mailbox_available_pending <= 1'd0;
+    end
+    if (mailbox_available_trigger) begin
+        mailbox_available_pending <= 1'd1;
+    end
+    if (mailbox_abort_init_clear) begin
+        mailbox_abort_init_pending <= 1'd0;
+    end
+    mailbox_abort_init_trigger_d <= mailbox_abort_init_trigger;
+    if ((mailbox_abort_init_trigger & (~mailbox_abort_init_trigger_d))) begin
+        mailbox_abort_init_pending <= 1'd1;
+    end
+    if (mailbox_abort_done_clear) begin
+        mailbox_abort_done_pending <= 1'd0;
+    end
+    mailbox_abort_done_trigger_d <= mailbox_abort_done_trigger;
+    if ((mailbox_abort_done_trigger & (~mailbox_abort_done_trigger_d))) begin
+        mailbox_abort_done_pending <= 1'd1;
+    end
+    if (mailbox_error_clear) begin
+        mailbox_error_pending <= 1'd0;
+    end
+    mailbox_error_trigger_d <= mailbox_error_trigger;
+    if ((mailbox_error_trigger & (~mailbox_error_trigger_d))) begin
+        mailbox_error_pending <= 1'd1;
+    end
+    if (mailbox_w_over_clear) begin
+        mailbox_w_over_bit <= 1'd0;
+    end else begin
+        if (mailbox_w_over_flag) begin
+            mailbox_w_over_bit <= 1'd1;
+        end else begin
+            mailbox_w_over_bit <= mailbox_w_over_bit;
+        end
+    end
+    if (mailbox_syncfifobuffered0_syncfifo0_re) begin
+        mailbox_syncfifobuffered0_readable <= 1'd1;
+    end else begin
+        if (mailbox_syncfifobuffered0_re) begin
+            mailbox_syncfifobuffered0_readable <= 1'd0;
+        end
+    end
+    if (((mailbox_syncfifobuffered0_syncfifo0_we & mailbox_syncfifobuffered0_syncfifo0_writable) & (~mailbox_syncfifobuffered0_replace))) begin
+        mailbox_syncfifobuffered0_produce <= (mailbox_syncfifobuffered0_produce + 1'd1);
+    end
+    if (mailbox_syncfifobuffered0_do_read) begin
+        mailbox_syncfifobuffered0_consume <= (mailbox_syncfifobuffered0_consume + 1'd1);
+    end
+    if (((mailbox_syncfifobuffered0_syncfifo0_we & mailbox_syncfifobuffered0_syncfifo0_writable) & (~mailbox_syncfifobuffered0_replace))) begin
+        if ((~mailbox_syncfifobuffered0_do_read)) begin
+            mailbox_syncfifobuffered0_level0 <= (mailbox_syncfifobuffered0_level0 + 1'd1);
+        end
+    end else begin
+        if (mailbox_syncfifobuffered0_do_read) begin
+            mailbox_syncfifobuffered0_level0 <= (mailbox_syncfifobuffered0_level0 - 1'd1);
+        end
+    end
+    if (mailbox_w_fifo_reset_sys) begin
+        mailbox_syncfifobuffered0_readable <= 1'd0;
+        mailbox_syncfifobuffered0_level0 <= 11'd0;
+        mailbox_syncfifobuffered0_produce <= 10'd0;
+        mailbox_syncfifobuffered0_consume <= 10'd0;
+    end
+    if (mailbox_r_over_clear) begin
+        mailbox_r_over_bit <= 1'd0;
+    end else begin
+        if (mailbox_r_over_flag) begin
+            mailbox_r_over_bit <= 1'd1;
+        end else begin
+            mailbox_r_over_bit <= mailbox_r_over_bit;
+        end
+    end
+    if (mailbox_syncfifobuffered1_syncfifo1_re) begin
+        mailbox_syncfifobuffered1_readable <= 1'd1;
+    end else begin
+        if (mailbox_syncfifobuffered1_re) begin
+            mailbox_syncfifobuffered1_readable <= 1'd0;
+        end
+    end
+    if (((mailbox_syncfifobuffered1_syncfifo1_we & mailbox_syncfifobuffered1_syncfifo1_writable) & (~mailbox_syncfifobuffered1_replace))) begin
+        mailbox_syncfifobuffered1_produce <= (mailbox_syncfifobuffered1_produce + 1'd1);
+    end
+    if (mailbox_syncfifobuffered1_do_read) begin
+        mailbox_syncfifobuffered1_consume <= (mailbox_syncfifobuffered1_consume + 1'd1);
+    end
+    if (((mailbox_syncfifobuffered1_syncfifo1_we & mailbox_syncfifobuffered1_syncfifo1_writable) & (~mailbox_syncfifobuffered1_replace))) begin
+        if ((~mailbox_syncfifobuffered1_do_read)) begin
+            mailbox_syncfifobuffered1_level0 <= (mailbox_syncfifobuffered1_level0 + 1'd1);
+        end
+    end else begin
+        if (mailbox_syncfifobuffered1_do_read) begin
+            mailbox_syncfifobuffered1_level0 <= (mailbox_syncfifobuffered1_level0 - 1'd1);
+        end
+    end
+    if (mailbox_r_fifo_reset_sys) begin
+        mailbox_syncfifobuffered1_readable <= 1'd0;
+        mailbox_syncfifobuffered1_level0 <= 11'd0;
+        mailbox_syncfifobuffered1_produce <= 10'd0;
+        mailbox_syncfifobuffered1_consume <= 10'd0;
+    end
+    cramsoc_mailbox_state <= cramsoc_mailbox_next_state;
+    if (mailbox_abort_ack1_mailbox_next_value_ce0) begin
+        mailbox_abort_ack1 <= mailbox_abort_ack1_mailbox_next_value0;
+    end
+    if (mailbox_abort_in_progress1_mailbox_next_value_ce1) begin
+        mailbox_abort_in_progress1 <= mailbox_abort_in_progress1_mailbox_next_value1;
+    end
+    cramsoc_axilite2csr_state <= cramsoc_axilite2csr_next_state;
+    if (cramsoc_last_was_read_axilite2csr_next_value_ce) begin
+        cramsoc_last_was_read <= cramsoc_last_was_read_axilite2csr_next_value;
     end
     interface0_dat_r <= 1'd0;
     if (csrbank0_sel) begin
@@ -15536,61 +16113,113 @@ always @(posedge sys_clk) begin
     if (csrbank22_sel) begin
         case (interface22_adr[9:0])
             1'd0: begin
-                interface22_dat_r <= csrbank22_pc_w;
+                interface22_dat_r <= csrbank22_wdata0_w;
+            end
+            1'd1: begin
+                interface22_dat_r <= csrbank22_rdata_w;
+            end
+            2'd2: begin
+                interface22_dat_r <= csrbank22_ev_status_w;
+            end
+            2'd3: begin
+                interface22_dat_r <= csrbank22_ev_pending_w;
+            end
+            3'd4: begin
+                interface22_dat_r <= csrbank22_ev_enable0_w;
+            end
+            3'd5: begin
+                interface22_dat_r <= csrbank22_status_w;
+            end
+            3'd6: begin
+                interface22_dat_r <= csrbank22_control0_w;
+            end
+            3'd7: begin
+                interface22_dat_r <= csrbank22_done0_w;
             end
         endcase
     end
-    resetvalue_re <= csrbank22_pc_re;
+    if (csrbank22_wdata0_re) begin
+        mailbox_wdata_storage[31:0] <= csrbank22_wdata0_r;
+    end
+    mailbox_wdata_re <= csrbank22_wdata0_re;
+    mailbox_rdata_re <= csrbank22_rdata_re;
+    mailbox_status_re0 <= csrbank22_ev_status_re;
+    if (csrbank22_ev_pending_re) begin
+        mailbox_pending_r[3:0] <= csrbank22_ev_pending_r;
+    end
+    mailbox_pending_re <= csrbank22_ev_pending_re;
+    if (csrbank22_ev_enable0_re) begin
+        mailbox_enable_storage[3:0] <= csrbank22_ev_enable0_r;
+    end
+    mailbox_enable_re <= csrbank22_ev_enable0_re;
+    mailbox_status_re1 <= csrbank22_status_re;
+    if (csrbank22_control0_re) begin
+        mailbox_control_storage <= csrbank22_control0_r;
+    end
+    mailbox_control_re <= csrbank22_control0_re;
+    if (csrbank22_done0_re) begin
+        mailbox_done_storage <= csrbank22_done0_r;
+    end
+    mailbox_done_re <= csrbank22_done0_re;
     interface23_dat_r <= 1'd0;
     if (csrbank23_sel) begin
         case (interface23_adr[9:0])
             1'd0: begin
-                interface23_dat_r <= csrbank23_control0_w;
-            end
-            1'd1: begin
-                interface23_dat_r <= csrbank23_time1_w;
-            end
-            2'd2: begin
-                interface23_dat_r <= csrbank23_time0_w;
-            end
-            2'd3: begin
-                interface23_dat_r <= csrbank23_msleep_target1_w;
-            end
-            3'd4: begin
-                interface23_dat_r <= csrbank23_msleep_target0_w;
-            end
-            3'd5: begin
-                interface23_dat_r <= csrbank23_ev_status_w;
-            end
-            3'd6: begin
-                interface23_dat_r <= csrbank23_ev_pending_w;
-            end
-            3'd7: begin
-                interface23_dat_r <= csrbank23_ev_enable0_w;
+                interface23_dat_r <= csrbank23_pc_w;
             end
         endcase
     end
-    if (csrbank23_control0_re) begin
-        ticktimer_control_storage <= csrbank23_control0_r;
+    resetvalue_re <= csrbank23_pc_re;
+    interface24_dat_r <= 1'd0;
+    if (csrbank24_sel) begin
+        case (interface24_adr[9:0])
+            1'd0: begin
+                interface24_dat_r <= csrbank24_control0_w;
+            end
+            1'd1: begin
+                interface24_dat_r <= csrbank24_time1_w;
+            end
+            2'd2: begin
+                interface24_dat_r <= csrbank24_time0_w;
+            end
+            2'd3: begin
+                interface24_dat_r <= csrbank24_msleep_target1_w;
+            end
+            3'd4: begin
+                interface24_dat_r <= csrbank24_msleep_target0_w;
+            end
+            3'd5: begin
+                interface24_dat_r <= csrbank24_ev_status_w;
+            end
+            3'd6: begin
+                interface24_dat_r <= csrbank24_ev_pending_w;
+            end
+            3'd7: begin
+                interface24_dat_r <= csrbank24_ev_enable0_w;
+            end
+        endcase
     end
-    ticktimer_control_re <= csrbank23_control0_re;
-    ticktimer_time_re <= csrbank23_time0_re;
-    if (csrbank23_msleep_target1_re) begin
-        ticktimer_msleep_target_storage[63:32] <= csrbank23_msleep_target1_r;
+    if (csrbank24_control0_re) begin
+        ticktimer_control_storage <= csrbank24_control0_r;
     end
-    if (csrbank23_msleep_target0_re) begin
-        ticktimer_msleep_target_storage[31:0] <= csrbank23_msleep_target0_r;
+    ticktimer_control_re <= csrbank24_control0_re;
+    ticktimer_time_re <= csrbank24_time0_re;
+    if (csrbank24_msleep_target1_re) begin
+        ticktimer_msleep_target_storage[63:32] <= csrbank24_msleep_target1_r;
     end
-    ticktimer_msleep_target_re <= csrbank23_msleep_target0_re;
-    ticktimer_status_re <= csrbank23_ev_status_re;
-    if (csrbank23_ev_pending_re) begin
-        ticktimer_pending_r <= csrbank23_ev_pending_r;
+    if (csrbank24_msleep_target0_re) begin
+        ticktimer_msleep_target_storage[31:0] <= csrbank24_msleep_target0_r;
     end
-    ticktimer_pending_re <= csrbank23_ev_pending_re;
-    if (csrbank23_ev_enable0_re) begin
-        ticktimer_enable_storage <= csrbank23_ev_enable0_r;
+    ticktimer_msleep_target_re <= csrbank24_msleep_target0_re;
+    ticktimer_status_re <= csrbank24_ev_status_re;
+    if (csrbank24_ev_pending_re) begin
+        ticktimer_pending_r <= csrbank24_ev_pending_r;
     end
-    ticktimer_enable_re <= csrbank23_ev_enable0_re;
+    ticktimer_pending_re <= csrbank24_ev_pending_re;
+    if (csrbank24_ev_enable0_re) begin
+        ticktimer_enable_storage <= csrbank24_ev_enable0_r;
+    end
+    ticktimer_enable_re <= csrbank24_ev_enable0_re;
     if (sys_rst) begin
         cramsoc_peripherals_aw_ready <= 1'd0;
         cramsoc_peripherals_w_ready <= 1'd0;
@@ -15633,7 +16262,6 @@ always @(posedge sys_clk) begin
         coreuser_window_bl_re <= 1'd0;
         coreuser_window_bh_storage <= 22'd0;
         coreuser_window_bh_re <= 1'd0;
-        coreuser_protect <= 1'd0;
         coreuser_enable1 <= 1'd0;
         coreuser_require_asid <= 1'd0;
         coreuser_require_ppn_a <= 1'd0;
@@ -16201,6 +16829,38 @@ always @(posedge sys_clk) begin
         ticktimer_lockout_alarm <= 1'd0;
         ticktimer_target_xfer_starter <= 1'd1;
         ticktimer_target_xfer_count <= 8'd128;
+        mailbox_wdata_storage <= 32'd0;
+        mailbox_wdata_re <= 1'd0;
+        mailbox_rdata_re <= 1'd0;
+        mailbox_available_pending <= 1'd0;
+        mailbox_abort_init_pending <= 1'd0;
+        mailbox_abort_init_trigger_d <= 1'd0;
+        mailbox_abort_done_pending <= 1'd0;
+        mailbox_abort_done_trigger_d <= 1'd0;
+        mailbox_error_pending <= 1'd0;
+        mailbox_error_trigger_d <= 1'd0;
+        mailbox_status_re0 <= 1'd0;
+        mailbox_pending_re <= 1'd0;
+        mailbox_pending_r <= 4'd0;
+        mailbox_enable_storage <= 4'd0;
+        mailbox_enable_re <= 1'd0;
+        mailbox_status_re1 <= 1'd0;
+        mailbox_control_storage <= 1'd0;
+        mailbox_control_re <= 1'd0;
+        mailbox_done_storage <= 1'd0;
+        mailbox_done_re <= 1'd0;
+        mailbox_abort_in_progress1 <= 1'd0;
+        mailbox_abort_ack1 <= 1'd0;
+        mailbox_w_over_bit <= 1'd0;
+        mailbox_syncfifobuffered0_readable <= 1'd0;
+        mailbox_syncfifobuffered0_level0 <= 11'd0;
+        mailbox_syncfifobuffered0_produce <= 10'd0;
+        mailbox_syncfifobuffered0_consume <= 10'd0;
+        mailbox_r_over_bit <= 1'd0;
+        mailbox_syncfifobuffered1_readable <= 1'd0;
+        mailbox_syncfifobuffered1_level0 <= 11'd0;
+        mailbox_syncfifobuffered1_produce <= 10'd0;
+        mailbox_syncfifobuffered1_consume <= 10'd0;
         csr_wtest_storage <= 32'd0;
         csr_wtest_re <= 1'd0;
         csr_rtest_re <= 1'd0;
@@ -16211,7 +16871,8 @@ always @(posedge sys_clk) begin
         socbushandler_axiliterequestcounter1_counter <= 8'd0;
         socbushandler_wr_lock_counter <= 8'd0;
         socbushandler_rd_lock_counter <= 8'd0;
-        cramsoc_state <= 2'd0;
+        cramsoc_mailbox_state <= 2'd0;
+        cramsoc_axilite2csr_state <= 2'd0;
     end
     multiregimpl20 <= ticktimer_load_xfer_ps_ack_toggle_i;
     multiregimpl21 <= multiregimpl20;
@@ -16368,6 +17029,14 @@ axi_axil_adapter #(
 	.s_axi_wready(cramsoc_axi_csr_w_ready)
 );
 
+fdre_cosim fdre_cosim(
+	.C(sys_clk),
+	.CE(coreuser_protect_storage),
+	.D(1'd1),
+	.R_n((~sys_rst)),
+	.Q(coreuser_protect)
+);
+
 //------------------------------------------------------------------------------
 // Memory asid_lut_nomap: 512-words x 1-bit
 //------------------------------------------------------------------------------
@@ -16386,6 +17055,48 @@ always @(posedge sys_clk) begin
 end
 assign coreuser_asid_rd_dat_r = asid_lut_nomap[asid_lut_nomap_adr0];
 assign coreuser_asid_wr_dat_r = asid_lut_nomap[asid_lut_nomap_adr1];
+
+
+//------------------------------------------------------------------------------
+// Memory storage: 1024-words x 32-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 32 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [31:0] storage[0:1023];
+reg [31:0] storage_dat0;
+reg [31:0] storage_dat1;
+always @(posedge sys_clk) begin
+	if (mailbox_syncfifobuffered0_wrport_we)
+		storage[mailbox_syncfifobuffered0_wrport_adr] <= mailbox_syncfifobuffered0_wrport_dat_w;
+	storage_dat0 <= storage[mailbox_syncfifobuffered0_wrport_adr];
+end
+always @(posedge sys_clk) begin
+	if (mailbox_syncfifobuffered0_rdport_re)
+		storage_dat1 <= storage[mailbox_syncfifobuffered0_rdport_adr];
+end
+assign mailbox_syncfifobuffered0_wrport_dat_r = storage_dat0;
+assign mailbox_syncfifobuffered0_rdport_dat_r = storage_dat1;
+
+
+//------------------------------------------------------------------------------
+// Memory storage_1: 1024-words x 32-bit
+//------------------------------------------------------------------------------
+// Port 0 | Read: Sync  | Write: Sync | Mode: Read-First  | Write-Granularity: 32 
+// Port 1 | Read: Sync  | Write: ---- | 
+reg [31:0] storage_1[0:1023];
+reg [31:0] storage_1_dat0;
+reg [31:0] storage_1_dat1;
+always @(posedge sys_clk) begin
+	if (mailbox_syncfifobuffered1_wrport_we)
+		storage_1[mailbox_syncfifobuffered1_wrport_adr] <= mailbox_syncfifobuffered1_wrport_dat_w;
+	storage_1_dat0 <= storage_1[mailbox_syncfifobuffered1_wrport_adr];
+end
+always @(posedge sys_clk) begin
+	if (mailbox_syncfifobuffered1_rdport_re)
+		storage_1_dat1 <= storage_1[mailbox_syncfifobuffered1_rdport_adr];
+end
+assign mailbox_syncfifobuffered1_wrport_dat_r = storage_1_dat0;
+assign mailbox_syncfifobuffered1_rdport_dat_r = storage_1_dat1;
 
 
 axi_crossbar #(
@@ -16587,5 +17298,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2022-12-26 16:40:25.
+//  Auto-Generated by LiteX on 2022-12-27 23:57:00.
 //------------------------------------------------------------------------------
