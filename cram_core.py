@@ -26,6 +26,7 @@ from litex.soc.interconnect.csr_eventmanager import *
 from litex.soc.interconnect.csr_eventmanager import _EventSource
 
 from deps.gateware.gateware import ticktimer
+from migen.genlib.fifo import SyncFIFOBuffered
 
 # Interrupt emulator -------------------------------------------------------------------------------
 
@@ -88,6 +89,23 @@ class CsrTest(Module, AutoCSR, AutoDoc):
         ]
 
 # Mailbox ------------------------------------------------------------------------------------------
+class StickyBit(Module):
+    def __init__(self):
+        self.flag = Signal()
+        self.bit = Signal()
+        self.clear = Signal()
+
+        self.sync += [
+            If(self.clear,
+                self.bit.eq(0)
+            ).Else(
+                If(self.flag,
+                    self.bit.eq(1)
+                ).Else(
+                    self.bit.eq(self.bit)
+                )
+            )
+        ]
 class Mailbox(Module, AutoCSR, AutoDoc):
     def __init__(self, fifo_depth=1024):
         self.intro = ModuleDoc("""Mailbox: An inter-CPU mailbox
@@ -150,24 +168,44 @@ both FIFOs are empty and their protocol state machines are idle.
 
         { "config": {skin : "default"},
         "signal" : [
-            {"name": "clk",         "wave": "p........" },
-            {"name": "w_abort",     "wave": "01....0.."},
-            {"name": "r_abort",     "wave": "0....10.."},
+            {"name": "clk",          "wave": "p.....|......."},
+            {"name": "w_cpu_op",     "wave": "=.=...........", "node": "...........", "data" : ["initiate abort", "XXX"]},
+          {"name": "w_abort_done_int", "wave": "0.........10..", "node": "..........g"},
+            {"name": "w_abort",      "wave": "0.1...|...0...", "node": "..a........"},
+            {"name": "r_abort",      "wave": "0.....|..10...", "node": ".........e."},
             {},
-            {"name": "w_state",     "wave": "==...==..", "data" : ["XXX", "REQ", "ACK", "IDLE"]},
-            {"name": "w_fifo",      "wave": "x=.......", "data" : ["EMPTY"]},
+            {"name": "w_state",      "wave": "=.=...|...=...", "data" : ["XXX", "REQ    ", "IDLE"]},
+            {"name": "w_fifo",       "wave": "x..=..|.......", "node": "...b.....", "data" : ["EMPTY        "]},
             {},
-            {"name": "r_state",     "wave": "=..=.==..", "data" : ["XXX", "PROC", "ACK", "IDLE"]},
-            {"name": "r_fifo",      "wave": "x....=...", "data" : ["EMPTY"]},
-        ]}
+            {"name": "r_cpu_op",     "wave": "=.....|.==....", "node": "...........", "data" : ["XXX", "ack", "XXX"]},          
+            {"name": "r_state",      "wave": "=...=.|...=...", "data" : ["XXX", "ACK", "IDLE"], "node": "....d..."},
+            {"name": "r_fifo",       "wave": "x.....|...=...", "data" : ["EMPTY"], "node": "..........f.."},
+            {"name": "r_abort_int",  "wave": "0..10.|.......", "node": "...c......"},
+        ],
+          "edge" : ['a->b hw enforced', 'a->c', 'c->d ', 'd~->e IRQ handler latency', 'e->f hw enforced', 'e->g ']}
 
-In the diagram above, `w_abort` is asserted; on the rising edge of `w_abort`, we see that the `w_fifo`
-is already empty and the state machine is in the `REQ` (requesting abort) state.
+In the diagram above, the initiating peer is the `w_` signal set, and the corresponding peer is the `r_` signal
+set. Here, the `w_` CPU issues a write operation by writing `1` to the `control` CSR's `abort` bit. This
+results in `w_abort` being asserted and held, while simultaneously both the receive and send FIFOs
+being cleared and refusing to accept any further data. The assertion of `w_abort` is received by the
+corresponding peer, which triggers an interrupt (rendered as a single pulse `r_abort_int`; but the `pending` bit
+is sticky until cleared).
 
-The corresponding peer's `r_state` machine may take an arbitrarily long period of time to leave its
-current state and enter a `PROC` or processing state, where it is cleaning up from the abort. Once
-it can guarantee its FIFOs are empty and is ready to transition to idle, it pulses `r_abort` for exactly
-one cycle and both machines transition to an `IDLE`/empty FIFO state.
+The link stays in this state until the receiver's main loop or IRQ handler
+runs and acknowledges the abort condition by writing to its `control` CSR `abort` bit. Note that the
+IRQ handler has to be written such that any in-progress operation is truly aborted. Thus, a peer's
+FIFO interaction code should probably be written as follows:
+
+#. Main loop decides it needs to interact with the FIFO
+#. Disable abort response IRQ
+#. Interact with the FIFO
+#. Re-enable abort response IRQ; at which point an IRQ would fire triggering the abort response
+#. Inside the abort response IRQ, side-effect any state machine variables back to an initial state
+#. Resume main loop code, which should now check & handle any residual clean-up from an abort
+
+At this point, both sides drop their `abort` signals, both state machines return to an `IDLE` state, and
+all FIFOs are empty. An `abort_done` interrupt is triggered, but it may be masked and polled if the
+initiating CPU prefers to monitor the abort by polling.
 
 In order to make the case work where both peers attempt to initiate an abort at the same time, the
 initiator guarantees that on asserting `w_abort` it is immediately ready to act on an `r_abort` pulse.
@@ -181,59 +219,69 @@ This means the hardware guarantees two things:
 
         { "config": {skin : "default"},
         "signal" : [
-            {"name": "clk",         "wave": "p........" },
-            {"name": "w_abort",     "wave": "0.10....."},
-            {"name": "r_abort",     "wave": "0.10....."},
+            {"name": "clk",          "wave": "p....."},
+            {"name": "w_abort",      "wave": "0.10.."},
+            {"name": "r_abort",      "wave": "0.10.."},
             {},
-            {"name": "w_state",     "wave": "=.==.....", "data" : ["XXX", "REQ", "IDLE"]},
-            {"name": "w_fifo",      "wave": "x.=......", "data" : ["EMPTY"]},
-            {"name": "w_abort_ack", "wave": "xx1......"},
+            {"name": "w_cpu_op",     "wave": "=.=...", "data" : ["initiate abort", "XXX"]},
+            {"name": "w_abort_done_int", "wave": "0..10."},
+            {"name": "w_abort_int",  "wave": "0....."},
+            {"name": "w_state",      "wave": "=.==..", "data" : ["XXX", "REQ", "IDLE"]},
+            {"name": "w_fifo",       "wave": "x..=..", "data" : ["EMPTY"]},
             {},
-            {"name": "r_state",     "wave": "=.==.....", "data" : ["XXX", "REQ", "IDLE"]},
-            {"name": "r_fifo",      "wave": "x.=......", "data" : ["EMPTY"]},
-            {"name": "r_abort_ack", "wave": "xx1......"},
+            {"name": "r_cpu_op",     "wave": "=.=...", "data" : ["initiate abort", "XXX"]},
+            {"name": "r_abort_done_int", "wave": "0..10."},
+            {"name": "r_abort_int",  "wave": "0....."},
+            {"name": "r_state",      "wave": "=.==..", "data" : ["XXX", "REQ", "IDLE"]},
+            {"name": "r_fifo",       "wave": "x..=..", "data" : ["EMPTY"]},
         ]}
 
 Above is the rare edge case of a cycle-perfect simultaneous abort request. It "just works", and
-both devices immediately transition from `REQ`->`IDLE`.
+both devices immediately transition from `REQ` ➡ `IDLE`, without either going through `ACK`.
 
     .. wavedrom::
         :caption: Edge case: semi-simultaneous abort
 
         { "config": {skin : "default"},
         "signal" : [
-            {"name": "clk",         "wave": "p........" },
-            {"name": "w_abort",     "wave": "0.1.0...."},
-          {"name": "r_abort",     "wave": "0..10....", "node": "...a....."},
+            {"name": "clk",          "wave": "p.......|.."},
+            {"name": "w_abort",      "wave": "0.1...0.|.."},
+            {"name": "r_abort",      "wave": "0....10.|.."},
             {},
-            {"name": "w_state",     "wave": "=.===....", "data" : ["XXX", "REQ", "ACK", "IDLE"]},
-            {"name": "w_fifo",      "wave": "x.=......", "data" : ["EMPTY"]},
-            {"name": "w_abort_ack", "wave": "xx0......"},
+          {"name": "w_cpu_op",     "wave": "==......|..", "data" : ["initiate", "XXX"], "node" : ".a"},
+            {"name": "w_abort_done_int", "wave": "0.....10|.."},
+            {"name": "w_abort_int",  "wave": "0.......|.."},
+            {"name": "w_abort_ack",  "wave": "x.0.....|.."},
+            {"name": "w_state",      "wave": "=..=..=.|..", "data" : ["XXX", "REQ", "IDLE"]},
+            {"name": "w_fifo",       "wave": "x..=....|..", "data" : ["EMPTY"]},
             {},
-            {"name": "r_state",     "wave": "=..==....", "data" : ["XXX", "REQ", "IDLE"]},
-            {"name": "r_fifo",      "wave": "x..=.....", "data" : ["EMPTY"]},
-            {"name": "r_abort_ack", "wave": "xxx1....."},
-            {"name": "r_abort_int", "wave": "0.....1..", "node": "......b.."},
-        ],
-          "edge" : ['a~>b race condition']}
+            {"name": "r_cpu_op",     "wave": "=.=..=..|..", "data" : ["XXX", "initiate", "XXX"], "node" : "..c"},
+            {"name": "r_abort_done_int", "wave": "0.....10|.."},
+            {"name": "r_abort_int",  "wave": "0.10....|..", "node" : "..b"},
+            {"name": "r_abort_ack",  "wave": "x....1..|..", "node" : "..........e"},
+          {"name": "r_state",      "wave": "=..=..=.|=.", "data" : ["XXX", "ACK", "IDLE", "HANDLER"], "node" : ".........d"},
+            {"name": "r_fifo",       "wave": "x....=..|..", "data" : ["EMPTY"]},
+        ], "edge" : ['a->b race condition', 'a-~>c ', "d-~>e "]}
 
-Above is the more practical edge case where one peer has initiated an abort, and the other
-is preparing to initiate at the same time, but is perhaps a cycle or two later. In this case
-the first initiator goes through the `ACK` cycle. However, the second initiator would kick off
-an abort-loop if it does not first mask its abort interrupt before attempting to initiate its
-abort. A failure to mask the interrupt would mean the receiver may respond to the incoming request
-as a new request, even though it should have been an acknowledgement.
+Above is the more common edge case where one peer has initiated an abort, and the other
+is preparing to initiate at the same time, but is perhaps a cycle or two later. In this case,
+the late peer would have an interrupt initiated simultaneously with an abort initiation, which
+would result in the `HANDLER` code running, in this case, the **abort initiator** handler
+code (not the **abort done** handler).
 
-A race condition is still unavoidable because it takes time for a CPU to decide to initiate an
-abort; during the processing of the "store" instruction, an abort interrupt could come in,
-and generate a late "race condition" interrupt. Thus an `abort_acknowledged` bit is generated,
-which is set on the peer that is the later of the two asserting the abort signal, or by both if they
-happen to be perfectly simultaneously. This bit should be checked
-by the peer when handling an interrupt. This signal, when asserted, means an incoming abort signal
-was already acknowledged, and the latest interrupt should be disregraded.
+A naive implementation would re-issue the `abort` bit, triggering the first peer to respond,
+and the two could ping-pong back and forth in an infinite cycle.
+
+In order to break the cycle, an additional "abort acknowledged" (`abort_ack`) signal is
+provided, which is set in the case that the respective peer is responding to
+a request (thus, it would be set for both peers in the above case of the "perfectly aligned"
+abort request; but more typically it is cleared by the first initiator, and set for the later
+initiator). The abort handler thus shall always check the `abort_ack` signal, and in the case
+that it is set, it will not re-acknowledge a previously acknowledged abort, and avoiding
+an abort storm.
         """)
 
-        self.abort_doc = ModuleDoc("""Application Protocol
+        self.app_doc = ModuleDoc("""Application Protocol
 
 The application protocol wraps a packet format around each packet. The general format of
 a packet is as follows:
@@ -281,22 +329,42 @@ field specifying the number of words that were accepted.
             ("w_abort", 1, DIR_M_TO_S),
             ("r_abort", 1, DIR_S_TO_M),
         ]
+        # data going from us to them
+        self.w_dat = Signal(32)
+        self.w_valid = Signal()
+        self.w_ready = Signal()
+        self.w_done = Signal()
+        # data going from them to us
+        self.r_dat = Signal(32)
+        self.r_valid = Signal()
+        self.r_ready = Signal()
+        self.r_done = Signal()
+        # cross-wired abort signals
+        self.w_abort = Signal()
+        self.r_abort = Signal()
+        # hardware reset signal. active low, because SoC
+        self.reset_n = Signal()
+
         self.wdata = CSRStorage(32, name="wdata", description="Write data to outgoing FIFO.")
         self.rdata = CSRStatus(32, name="rdata", description="Read data from incoming FIFO.")
         self.submodules.ev = ev = EventManager()
-        self.ev.int = EventSourcePulse(name="int", description="Triggers when a full packet is available")
-        self.ev.abort = EventSourceProcess(name="abort", description="Triggers when abort is asserted by the peer", edge="rising")
+        self.ev.available = EventSourcePulse(name="available", description="Triggers when the `done` signal was asserted by the corresponding peer")
+        self.ev.abort_init = EventSourceProcess(name="abort_init", description="Triggers when abort is asserted by the peer, and there is currently no abort in progress", edge="rising")
+        self.ev.abort_done = EventSourceProcess(name="abort_done", description="Triggers when a previously initiated abort is acknowledged by peer", edge="rising")
+        self.ev.error = EventSourceProcess(name="error", description="Triggers if either `tx_err` or `rx_err` are asserted", edge="rising")
         self.ev.finalize()
         self.status = CSRStatus(fields=[
             CSRField(name="rx_words", size=depth_bits, description="Number of words available to read"),
-            CSRField(name="tx_avail", size=depth_bits, description="Number of words free to write"),
+            CSRField(name="tx_words", size=depth_bits, description="Number of words pending in write FIFO. Free space is {} - `tx_avail`".format(fifo_depth)),
             CSRField(name="abort_in_progress", size=1, description="This bit is set if an `aborting` event was initiated and is still in progress."),
             CSRField(name="abort_ack", size=1,
             description="""This bit is set by the peer that acknowledged the incoming abort
 (the later of the two, in case of an imperfect race condition). The abort response handler should
 check this bit; if it is set, no new acknowledgement shall be issued. The bit is cleared
 when an initiator initiates a new abort. The initiator shall also ignore the state of this
-bit if it is intending to initiate a new abort cycle.""")
+bit if it is intending to initiate a new abort cycle."""),
+            CSRField(name="tx_err", size=1, description="Set if the write FIFO overflowed because we wrote too much data. Cleared on register read."),
+            CSRField(name="rx_err", size=1, description="Set if read FIFO underflowed because we read too much data. Cleared on register read."),
         ])
         self.control = CSRStorage(fields=[
             CSRField(name="abort", size=1, description=
@@ -305,7 +373,104 @@ Empties both FIFOs, asserts `aborting`, and prevents an interrupt from being gen
 an incoming abort request. New reads & writes are ignored until `aborted` is asserted
 from the peer.""", pulse=True)
         ])
-        self.packet = CSRStorage(1, name="done", description="Writing a `1` to this field indicates that the packet is done. There is no need to clear this register after writing.")
+        self.done = CSRStorage(fields=[
+            CSRField(
+                size=1, name="done", pulse=True,
+                description="Writing a `1` to this field indicates to the corresponding peer that a full packet is done loading. There is no need to clear this register after writing.")
+        ])
+        abort_in_progress = Signal()
+        abort_ack = Signal()
+        self.comb += self.ev.error.trigger.eq(self.status.fields.tx_err | self.status.fields.rx_err)
+
+        # build the outgoing fifo
+        self.submodules.w_over = StickyBit()
+        self.submodules.w_fifo = w_fifo = ResetInserter(["sys"])(SyncFIFOBuffered(32, fifo_depth))
+        self.comb += self.w_fifo.reset_sys.eq(~self.reset_n | self.control.fields.abort)
+        self.comb += [
+            self.status.fields.tx_words.eq(self.w_fifo.level),
+            self.status.fields.tx_err.eq(self.w_over.bit),
+            If(self.wdata.re & ~w_fifo.writable, # .re must strictly assert for exactly 1 cycle per CSR spec
+                self.w_over.flag.eq(1),
+            ).Else(
+                If(~abort_in_progress,
+                    w_fifo.we.eq(1),
+                )
+            ),
+            self.w_over.clear.eq(self.status.we),
+            w_fifo.din.eq(self.wdata.storage),
+            self.w_dat.eq(w_fifo.dout),
+            self.w_valid.eq(w_fifo.readable),
+            w_fifo.re.eq(self.w_ready),
+            self.w_done.eq(self.done.fields.done), # this will pulse exactly 1 cycle because `pulse=True` in the field spec
+        ]
+
+        # build the incoming fifo
+        self.submodules.r_over = StickyBit()
+        self.submodules.r_fifo = r_fifo = ResetInserter(["sys"])(SyncFIFOBuffered(32, fifo_depth))
+        self.comb += self.r_fifo.reset_sys.eq(~self.reset_n | self.control.fields.abort)
+        self.comb += [
+            self.status.fields.rx_words.eq(self.r_fifo.level),
+            self.status.fields.rx_err.eq(self.r_over.bit),
+            If(self.rdata.we & ~r_fifo.readable, # .we must strictly assert for exactly 1 cycle per CSR spec
+                self.r_over.flag.eq(1),
+            ).Else(
+                r_fifo.re.eq(1),
+            ),
+            self.r_over.clear.eq(self.status.we),
+            r_fifo.din.eq(self.r_dat),
+            self.rdata.status.eq(r_fifo.dout),
+            self.r_ready.eq(r_fifo.writable & self.r_valid),
+            r_fifo.we.eq(self.r_valid & r_fifo.writable & ~abort_in_progress),
+            self.ev.available.trigger.eq(self.r_done),
+        ]
+
+        self.comb += [
+            self.status.fields.abort_in_progress.eq(abort_in_progress),
+            self.status.fields.abort_ack.eq(abort_ack),
+        ]
+
+        # build the abort logic
+        fsm = FSM(reset_state="IDLE")
+        self.submodules += fsm
+        fsm.act("IDLE",
+            If(self.control.fields.abort & ~self.r_abort,
+                NextState("REQ"),
+                NextValue(abort_ack, 0),
+                NextValue(abort_in_progress, 1),
+                self.w_abort.eq(1),
+            ).Elif(self.control.fields.abort & self.r_abort, # simultaneous abort case
+                NextState("IDLE"),
+                NextValue(abort_ack, 1),
+                self.w_abort.eq(1),
+            ).Elif(~self.control.fields.abort & self.r_abort,
+                NextState("ACK"),
+                NextValue(abort_in_progress, 1),
+                self.ev.abort_init.trigger.eq(1), # pulse this on entering the ACK state
+                self.w_abort.eq(0),
+            ).Else(
+                self.w_abort.eq(0),
+            )
+        )
+        fsm.act("REQ",
+            If(self.r_abort,
+                NextState("IDLE"),
+                NextValue(abort_in_progress, 0),
+                self.ev.abort_done.trigger.eq(1), # pulse this on leaving the REQ state
+            ),
+            self.w_abort.eq(1),
+        )
+        fsm.act("ACK",
+            If(self.control.fields.abort, # leave on the abort being ack'd with an abort of our own
+                NextState("IDLE"),
+                NextValue(abort_in_progress, 0),
+                NextValue(abort_ack, 1),
+                self.w_abort.eq(1),
+            ).Else(
+                self.w_abort.eq(0),
+            )
+        )
+
+
 
 # Interrupts ------------------------------------------------------------------------------------
 class EventSourceFlex(Module, _EventSource):
@@ -704,6 +869,8 @@ class cramSoC(SoCCore):
         # Ticktimer --------------------------------------------------------------------------------
         self.submodules.ticktimer = ticktimer.TickTimer(2000, 800e6)
         self.irq.add("ticktimer")
+
+        # Consider adding Susres block so we can do suspend/resume cycling easily too.
 
         # Mailbox ----------------------------------------------------------------------------------
         self.submodules.mailbox = Mailbox(fifo_depth=1024)
