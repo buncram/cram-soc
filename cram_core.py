@@ -237,7 +237,7 @@ This means the hardware guarantees two things:
         ]}
 
 Above is the rare edge case of a cycle-perfect simultaneous abort request. It "just works", and
-both devices immediately transition from `REQ` ➡ `IDLE`, without either going through `ACK`.
+both devices immediately transition from `REQ` -> `IDLE`, without either going through `ACK`.
 
     .. wavedrom::
         :caption: Edge case: semi-simultaneous abort

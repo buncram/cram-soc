@@ -11,7 +11,7 @@
 
 ## Description
 
-Please refer to the [documentation](https://htmlpreview.github.io/?https://github.com/buncram/cram-soc/blob/cram/candidate/docs/index.html)
+Please refer to the documentation ([html preview](https://htmlpreview.github.io/?https://github.com/buncram/cram-soc/blob/cram/candidate/docs/index.html)) ([pdf](docs/cramiumsocrisc-vcorecomplex.pdf))
 
 ## Roadmap
 

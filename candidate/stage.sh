@@ -1,6 +1,7 @@
 #!/bin/bash
 rm -rf ../build/gateware/build/documentation/_build
 sphinx-build -M html ../build/gateware/build/documentation/ ../build/gateware/build/documentation/_build
+sphinx-build -M latexpdf ../build/gateware/build/documentation/ ../build/gateware/build/documentation/_build
 
 cp ../sim_support/ram_1w_1ra.v .
 cp ../sim_support/ram_1w_1rs.v .
@@ -28,3 +29,4 @@ cp ../deps/verilog-axi/rtl/axi_adapter.v .
 rm -rf docs
 mkdir docs
 cp -r ../build/gateware/build/documentation/_build/html/* docs/
+cp ../build/gateware/build/documentation/_build/latex/cramiumsocrisc-vcorecomplex.pdf docs/
