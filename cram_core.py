@@ -115,6 +115,38 @@ without requiring shared memory.
 A single message consists of a packet up to {} words long, where each word is 32 bits in length.
 
 Both CPUs are considered as "peers"; each can initiate a packet at-will.
+
+The bus signal layout is as follows::
+
+    layout = [
+        # data going to the peer. `valid` indicates data is ready to be written;
+        # `ready` acknowledges the current write
+        ("w_dat", 32, DIR_M_TO_S),
+        ("w_valid", 1, DIR_M_TO_S),
+        ("w_ready", 1, DIR_S_TO_M),
+        # Interrupt signal to peer.
+        # A single pulse used to indicate when the full packet is in the FIFO.
+        ("w_done", 1, DIR_M_TO_S),
+        # data coming from the peer
+        ("r_dat", 32, DIR_S_TO_M),
+        ("r_valid", 1, DIR_S_TO_M),
+        ("r_ready", 1, DIR_M_TO_S),
+        # Interrupt signal from peer.
+        # A single pulse used to indicate when the full packet is in the FIFO.
+        ("r_done", 1, DIR_S_TO_M),
+        # Bi-directional sync signal. This can be used at any time to recover the protocol
+        # to a known state.
+        # The signal is cross-wired, e.g. `w_abort` on one peer connects to `r_abort` on
+        # the other. Either peer can assert `w_abort`, and it must stay asserted until
+        # `r_abort` is pulsed to acknowledge the abort.
+        # Asserting `w_abort` immediately clears the sender's FIFO, and blocks new data
+        # from being loaded until `r_abort` is asserted.
+        # In the case that both happen to simultaneously assert `w_abort`,
+        # the protocol completes in one cycle.
+        ("w_abort", 1, DIR_M_TO_S),
+        ("r_abort", 1, DIR_S_TO_M),
+    ]
+
 """.format(fifo_depth))
         self.data_transfer = ModuleDoc("""Data Transfer Protocol
 The protocol has two levels, one at a MAC level, and one at an APP level.
@@ -308,27 +340,6 @@ and sequence number to acknowledge that the sent data was accepted, with the len
 field specifying the number of words that were accepted.
 """)
         depth_bits = log2_int(fifo_depth)
-        layout = [
-            # data going to the peer. `valid` indicates data is ready to be written; `ready` acknowledges the current write
-            ("w_dat", 32, DIR_M_TO_S),
-            ("w_valid", 1, DIR_M_TO_S),
-            ("w_ready", 1, DIR_S_TO_M),
-            # Interrupt signal to peer. A single pulse used to indicate when the full packet is in the FIFO.
-            ("w_done", 1, DIR_M_TO_S),
-            # data coming from the peer
-            ("r_dat", 32, DIR_S_TO_M),
-            ("r_valid", 1, DIR_S_TO_M),
-            ("r_ready", 1, DIR_M_TO_S),
-            # Interrupt signal from peer. A single pulse used to indicate when the full packet is in the FIFO.
-            ("r_done", 1, DIR_S_TO_M),
-            # bi-directional sync signal. This can be used at any time to recover the protocol to a known state.
-            # The signal is cross-wired, e.g. `w_abort` on one peer connects to `r_abort` on the other.
-            # Either peer can assert `w_abort`, and it must stay asserted until `r_abort` is pulsed to acknowledge the abort.
-            # Asserting `w_abort` immediately clears the sender's FIFO, and blocks new data from being loaded until `r_abort` is asserted.
-            # In the case that both happen to simultaneously assert `w_abort`, the protocol completes in one cycle.
-            ("w_abort", 1, DIR_M_TO_S),
-            ("r_abort", 1, DIR_S_TO_M),
-        ]
         # data going from us to them
         self.w_dat = Signal(32)
         self.w_valid = Signal()

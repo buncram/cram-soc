@@ -45,6 +45,37 @@
 without requiring shared memory.</p>
 <p>A single message consists of a packet up to 1024 words long, where each word is 32 bits in length.</p>
 <p>Both CPUs are considered as “peers”; each can initiate a packet at-will.</p>
+<p>The bus signal layout is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">layout</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># data going to the peer. `valid` indicates data is ready to be written;</span>
+    <span class="c1"># `ready` acknowledges the current write</span>
+    <span class="p">(</span><span class="s2">&quot;w_dat&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">DIR_M_TO_S</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;w_valid&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_M_TO_S</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;w_ready&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_S_TO_M</span><span class="p">),</span>
+    <span class="c1"># Interrupt signal to peer.</span>
+    <span class="c1"># A single pulse used to indicate when the full packet is in the FIFO.</span>
+    <span class="p">(</span><span class="s2">&quot;w_done&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_M_TO_S</span><span class="p">),</span>
+    <span class="c1"># data coming from the peer</span>
+    <span class="p">(</span><span class="s2">&quot;r_dat&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">DIR_S_TO_M</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;r_valid&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_S_TO_M</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;r_ready&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_M_TO_S</span><span class="p">),</span>
+    <span class="c1"># Interrupt signal from peer.</span>
+    <span class="c1"># A single pulse used to indicate when the full packet is in the FIFO.</span>
+    <span class="p">(</span><span class="s2">&quot;r_done&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_S_TO_M</span><span class="p">),</span>
+    <span class="c1"># Bi-directional sync signal. This can be used at any time to recover the protocol</span>
+    <span class="c1"># to a known state.</span>
+    <span class="c1"># The signal is cross-wired, e.g. `w_abort` on one peer connects to `r_abort` on</span>
+    <span class="c1"># the other. Either peer can assert `w_abort`, and it must stay asserted until</span>
+    <span class="c1"># `r_abort` is pulsed to acknowledge the abort.</span>
+    <span class="c1"># Asserting `w_abort` immediately clears the sender&#39;s FIFO, and blocks new data</span>
+    <span class="c1"># from being loaded until `r_abort` is asserted.</span>
+    <span class="c1"># In the case that both happen to simultaneously assert `w_abort`,</span>
+    <span class="c1"># the protocol completes in one cycle.</span>
+    <span class="p">(</span><span class="s2">&quot;w_abort&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_M_TO_S</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;r_abort&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DIR_S_TO_M</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </section>
 <section id="data-transfer-protocol">
 <h2>Data Transfer Protocol<a class="headerlink" href="#data-transfer-protocol" title="Permalink to this heading">¶</a></h2>
@@ -66,7 +97,7 @@ to the other peer that the sender has finished writing all the data for a given 
 signal is provided so that the corresponding peer does not need to busy-monitor the FIFO depth.</p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-a99c7bf5-72d1-4c21-be9d-32809bdefeff.svg" src="_images/wavedrom-a99c7bf5-72d1-4c21-be9d-32809bdefeff.svg" /><figcaption>
+<img alt="_images/wavedrom-eefc0993-d424-4286-bc12-8f4ca6afe6f5.svg" src="_images/wavedrom-eefc0993-d424-4286-bc12-8f4ca6afe6f5.svg" /><figcaption>
 <p><span class="caption-text">Sending four words of data, followed by a <cite>done</cite>.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -86,7 +117,7 @@ until <cite>r_abort</cite> is pulsed to acknowledged the abort condition. At the
 both FIFOs are empty and their protocol state machines are idle.</p>
 <blockquote>
 <div><figure class="align-default" id="id2">
-<img alt="_images/wavedrom-097b75f0-c989-447b-8943-f0ef009ca206.svg" src="_images/wavedrom-097b75f0-c989-447b-8943-f0ef009ca206.svg" /><figcaption>
+<img alt="_images/wavedrom-cf19cf1c-6b10-4c1a-b718-60bc3685dad7.svg" src="_images/wavedrom-cf19cf1c-6b10-4c1a-b718-60bc3685dad7.svg" /><figcaption>
 <p><span class="caption-text">Normal abort</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -120,7 +151,7 @@ This means the hardware guarantees two things:</p>
 <li><p>The incoming <cite>abort</cite> response line is prevented from generating an interrupt</p>
 <blockquote>
 <div><figure class="align-default" id="id3">
-<img alt="_images/wavedrom-d2de86dd-bb0a-43ab-9128-297f7b932a73.svg" src="_images/wavedrom-d2de86dd-bb0a-43ab-9128-297f7b932a73.svg" /><figcaption>
+<img alt="_images/wavedrom-2ace4c01-b9a1-4d2e-9869-041a98e472e2.svg" src="_images/wavedrom-2ace4c01-b9a1-4d2e-9869-041a98e472e2.svg" /><figcaption>
 <p><span class="caption-text">Edge case: simultaneous abort</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -131,7 +162,7 @@ This means the hardware guarantees two things:</p>
 both devices immediately transition from <cite>REQ</cite> -&gt; <cite>IDLE</cite>, without either going through <cite>ACK</cite>.</p>
 <blockquote>
 <div><figure class="align-default" id="id4">
-<img alt="_images/wavedrom-ee4f12db-1d27-4456-95dc-98d72a407336.svg" src="_images/wavedrom-ee4f12db-1d27-4456-95dc-98d72a407336.svg" /><figcaption>
+<img alt="_images/wavedrom-6bcb2737-d87a-49b0-b2a5-2c30a2cb5edf.svg" src="_images/wavedrom-6bcb2737-d87a-49b0-b2a5-2c30a2cb5edf.svg" /><figcaption>
 <p><span class="caption-text">Edge case: semi-simultaneous abort</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -218,7 +249,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Write data to outgoing FIFO.</p>
 <figure class="align-default" id="id5">
-<img alt="_images/wavedrom-b7a43125-f7b0-48ab-ae54-f511e18f716a.svg" src="_images/wavedrom-b7a43125-f7b0-48ab-ae54-f511e18f716a.svg" /><figcaption>
+<img alt="_images/wavedrom-b0a82418-c9ff-45b4-a7bf-a157e554c47f.svg" src="_images/wavedrom-b0a82418-c9ff-45b4-a7bf-a157e554c47f.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_WDATA</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -230,7 +261,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Read data from incoming FIFO.</p>
 <figure class="align-default" id="id6">
-<img alt="_images/wavedrom-0c63a85a-ee00-411c-8b6e-f9456975f518.svg" src="_images/wavedrom-0c63a85a-ee00-411c-8b6e-f9456975f518.svg" /><figcaption>
+<img alt="_images/wavedrom-fd43be84-76c0-4457-bb46-959963677eef.svg" src="_images/wavedrom-fd43be84-76c0-4457-bb46-959963677eef.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_RDATA</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -242,7 +273,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id7">
-<img alt="_images/wavedrom-6919c4f6-8154-4428-8bec-c40f329b6c12.svg" src="_images/wavedrom-6919c4f6-8154-4428-8bec-c40f329b6c12.svg" /><figcaption>
+<img alt="_images/wavedrom-15d7f6ce-1b81-46f5-9681-5fdb7ffa2567.svg" src="_images/wavedrom-15d7f6ce-1b81-46f5-9681-5fdb7ffa2567.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_STATUS</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -280,7 +311,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id8">
-<img alt="_images/wavedrom-a4a95951-cae2-438a-8d10-58b4f1155032.svg" src="_images/wavedrom-a4a95951-cae2-438a-8d10-58b4f1155032.svg" /><figcaption>
+<img alt="_images/wavedrom-1e967b3b-7084-4bee-89c9-4dfdcbd9c638.svg" src="_images/wavedrom-1e967b3b-7084-4bee-89c9-4dfdcbd9c638.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_PENDING</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -319,7 +350,7 @@ progress</p></td>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id9">
-<img alt="_images/wavedrom-09b3b482-93d6-45a0-8903-b8f2d545ecd3.svg" src="_images/wavedrom-09b3b482-93d6-45a0-8903-b8f2d545ecd3.svg" /><figcaption>
+<img alt="_images/wavedrom-a1decb2d-11c0-4ad1-abc6-ea135c198ffe.svg" src="_images/wavedrom-a1decb2d-11c0-4ad1-abc6-ea135c198ffe.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_ENABLE</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -356,7 +387,7 @@ progress</p></td>
 <p><cite>Address: 0x58016000 + 0x14 = 0x58016014</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id10">
-<img alt="_images/wavedrom-574248cc-8de1-4eda-a9ab-30445b094b0c.svg" src="_images/wavedrom-574248cc-8de1-4eda-a9ab-30445b094b0c.svg" /><figcaption>
+<img alt="_images/wavedrom-87f1fdc0-017e-458c-a6cd-bd6e97e86b33.svg" src="_images/wavedrom-87f1fdc0-017e-458c-a6cd-bd6e97e86b33.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_STATUS</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -407,7 +438,7 @@ read.</p></td>
 <p><cite>Address: 0x58016000 + 0x18 = 0x58016018</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id11">
-<img alt="_images/wavedrom-2b4468d0-bb1d-4db7-8dea-72ef8d2c34e9.svg" src="_images/wavedrom-2b4468d0-bb1d-4db7-8dea-72ef8d2c34e9.svg" /><figcaption>
+<img alt="_images/wavedrom-a871c492-fde3-4d92-82a2-69c8dc12c27d.svg" src="_images/wavedrom-a871c492-fde3-4d92-82a2-69c8dc12c27d.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_CONTROL</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -437,7 +468,7 @@ asserted from the peer.</p>
 <p><cite>Address: 0x58016000 + 0x1c = 0x5801601c</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id12">
-<img alt="_images/wavedrom-300db395-034d-43ea-9834-f2a0cef7e021.svg" src="_images/wavedrom-300db395-034d-43ea-9834-f2a0cef7e021.svg" /><figcaption>
+<img alt="_images/wavedrom-c375bc47-1a5b-484a-b2c3-1b1cab64822a.svg" src="_images/wavedrom-c375bc47-1a5b-484a-b2c3-1b1cab64822a.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_DONE</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
