@@ -656,7 +656,7 @@ the `satp` setting and user code execution.
             "fdre_cosim",
             i_C=ClockSignal(),
             i_D=1,
-            i_R_n=~ResetSignal(),
+            i_R=ResetSignal(),
             o_Q=protect,
             i_CE=self.protect.storage,
         )

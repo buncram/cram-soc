@@ -5,7 +5,7 @@
 
 module fdre_cosim(
     output wire Q,
-    input wire R_n,
+    input wire R,
     input wire C,
     input wire CE,
     input wire D
@@ -14,8 +14,8 @@ module fdre_cosim(
 `ifdef ASIC_TARGET
     reg inner_Q;
     // force the asic synthesis tool to infer an async, active-low reset FF
-    always @(posedge C or negedge R_n) begin
-        if(~R_n) begin
+    always @(posedge C or posedge R) begin
+        if(R) begin
             inner_Q <= 0;
         end else begin
             if(CE) begin
@@ -30,7 +30,7 @@ module fdre_cosim(
     // use primitive from Xilinx primitives
     FDRE fdre_fpga(
         .C(C),
-        .R(~R_n),
+        .R(R),
         .CE(CE),
         .D(D),
         .Q(Q)
