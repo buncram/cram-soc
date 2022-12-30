@@ -9,7 +9,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : 0875fe61
-// Date       : 2022-12-28 02:02:51
+// Date       : 2022-12-30 00:50:13
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -3563,11 +3563,11 @@ reg     [7:0] socbushandler_rd_lock_counter = 8'd0;
 wire          socbushandler_rd_lock_full;
 wire          socbushandler_rd_lock_empty;
 wire          socbushandler_rd_lock_stall;
-wire   [15:0] interface0_adr;
-wire          interface0_we;
-wire   [31:0] interface0_dat_w;
-reg    [31:0] interface0_dat_r = 32'd0;
-wire          interface0_re;
+wire   [15:0] interface0_bank_bus_adr;
+wire          interface0_bank_bus_we;
+wire   [31:0] interface0_bank_bus_dat_w;
+reg    [31:0] interface0_bank_bus_dat_r = 32'd0;
+wire          interface0_bank_bus_re;
 reg           csrbank0_set_asid0_re = 1'd0;
 wire    [9:0] csrbank0_set_asid0_r;
 reg           csrbank0_set_asid0_we = 1'd0;
@@ -3606,11 +3606,11 @@ reg           csrbank0_window_bh0_we = 1'd0;
 wire   [21:0] csrbank0_window_bh0_w;
 wire          csrbank0_sel;
 wire          csrbank0_re;
-wire   [15:0] interface1_adr;
-wire          interface1_we;
-wire   [31:0] interface1_dat_w;
-reg    [31:0] interface1_dat_r = 32'd0;
-wire          interface1_re;
+wire   [15:0] interface1_bank_bus_adr;
+wire          interface1_bank_bus_we;
+wire   [31:0] interface1_bank_bus_dat_w;
+reg    [31:0] interface1_bank_bus_dat_r = 32'd0;
+wire          interface1_bank_bus_re;
 reg           csrbank1_wtest0_re = 1'd0;
 wire   [31:0] csrbank1_wtest0_r;
 reg           csrbank1_wtest0_we = 1'd0;
@@ -3621,11 +3621,11 @@ reg           csrbank1_rtest_we = 1'd0;
 wire   [31:0] csrbank1_rtest_w;
 wire          csrbank1_sel;
 wire          csrbank1_re;
-wire   [15:0] interface2_adr;
-wire          interface2_we;
-wire   [31:0] interface2_dat_w;
-reg    [31:0] interface2_dat_r = 32'd0;
-wire          interface2_re;
+wire   [15:0] interface2_bank_bus_adr;
+wire          interface2_bank_bus_we;
+wire   [31:0] interface2_bank_bus_dat_w;
+reg    [31:0] interface2_bank_bus_dat_r = 32'd0;
+wire          interface2_bank_bus_re;
 reg           csrbank2_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank2_ev_soft0_r;
 reg           csrbank2_ev_soft0_we = 1'd0;
@@ -3644,11 +3644,11 @@ reg           csrbank2_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank2_ev_enable0_w;
 wire          csrbank2_sel;
 wire          csrbank2_re;
-wire   [15:0] interface3_adr;
-wire          interface3_we;
-wire   [31:0] interface3_dat_w;
-reg    [31:0] interface3_dat_r = 32'd0;
-wire          interface3_re;
+wire   [15:0] interface3_bank_bus_adr;
+wire          interface3_bank_bus_we;
+wire   [31:0] interface3_bank_bus_dat_w;
+reg    [31:0] interface3_bank_bus_dat_r = 32'd0;
+wire          interface3_bank_bus_re;
 reg           csrbank3_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank3_ev_soft0_r;
 reg           csrbank3_ev_soft0_we = 1'd0;
@@ -3667,11 +3667,11 @@ reg           csrbank3_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank3_ev_enable0_w;
 wire          csrbank3_sel;
 wire          csrbank3_re;
-wire   [15:0] interface4_adr;
-wire          interface4_we;
-wire   [31:0] interface4_dat_w;
-reg    [31:0] interface4_dat_r = 32'd0;
-wire          interface4_re;
+wire   [15:0] interface4_bank_bus_adr;
+wire          interface4_bank_bus_we;
+wire   [31:0] interface4_bank_bus_dat_w;
+reg    [31:0] interface4_bank_bus_dat_r = 32'd0;
+wire          interface4_bank_bus_re;
 reg           csrbank4_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank4_ev_soft0_r;
 reg           csrbank4_ev_soft0_we = 1'd0;
@@ -3690,11 +3690,11 @@ reg           csrbank4_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank4_ev_enable0_w;
 wire          csrbank4_sel;
 wire          csrbank4_re;
-wire   [15:0] interface5_adr;
-wire          interface5_we;
-wire   [31:0] interface5_dat_w;
-reg    [31:0] interface5_dat_r = 32'd0;
-wire          interface5_re;
+wire   [15:0] interface5_bank_bus_adr;
+wire          interface5_bank_bus_we;
+wire   [31:0] interface5_bank_bus_dat_w;
+reg    [31:0] interface5_bank_bus_dat_r = 32'd0;
+wire          interface5_bank_bus_re;
 reg           csrbank5_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank5_ev_soft0_r;
 reg           csrbank5_ev_soft0_we = 1'd0;
@@ -3713,11 +3713,11 @@ reg           csrbank5_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank5_ev_enable0_w;
 wire          csrbank5_sel;
 wire          csrbank5_re;
-wire   [15:0] interface6_adr;
-wire          interface6_we;
-wire   [31:0] interface6_dat_w;
-reg    [31:0] interface6_dat_r = 32'd0;
-wire          interface6_re;
+wire   [15:0] interface6_bank_bus_adr;
+wire          interface6_bank_bus_we;
+wire   [31:0] interface6_bank_bus_dat_w;
+reg    [31:0] interface6_bank_bus_dat_r = 32'd0;
+wire          interface6_bank_bus_re;
 reg           csrbank6_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank6_ev_soft0_r;
 reg           csrbank6_ev_soft0_we = 1'd0;
@@ -3736,11 +3736,11 @@ reg           csrbank6_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank6_ev_enable0_w;
 wire          csrbank6_sel;
 wire          csrbank6_re;
-wire   [15:0] interface7_adr;
-wire          interface7_we;
-wire   [31:0] interface7_dat_w;
-reg    [31:0] interface7_dat_r = 32'd0;
-wire          interface7_re;
+wire   [15:0] interface7_bank_bus_adr;
+wire          interface7_bank_bus_we;
+wire   [31:0] interface7_bank_bus_dat_w;
+reg    [31:0] interface7_bank_bus_dat_r = 32'd0;
+wire          interface7_bank_bus_re;
 reg           csrbank7_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank7_ev_soft0_r;
 reg           csrbank7_ev_soft0_we = 1'd0;
@@ -3759,11 +3759,11 @@ reg           csrbank7_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank7_ev_enable0_w;
 wire          csrbank7_sel;
 wire          csrbank7_re;
-wire   [15:0] interface8_adr;
-wire          interface8_we;
-wire   [31:0] interface8_dat_w;
-reg    [31:0] interface8_dat_r = 32'd0;
-wire          interface8_re;
+wire   [15:0] interface8_bank_bus_adr;
+wire          interface8_bank_bus_we;
+wire   [31:0] interface8_bank_bus_dat_w;
+reg    [31:0] interface8_bank_bus_dat_r = 32'd0;
+wire          interface8_bank_bus_re;
 reg           csrbank8_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank8_ev_soft0_r;
 reg           csrbank8_ev_soft0_we = 1'd0;
@@ -3782,11 +3782,11 @@ reg           csrbank8_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank8_ev_enable0_w;
 wire          csrbank8_sel;
 wire          csrbank8_re;
-wire   [15:0] interface9_adr;
-wire          interface9_we;
-wire   [31:0] interface9_dat_w;
-reg    [31:0] interface9_dat_r = 32'd0;
-wire          interface9_re;
+wire   [15:0] interface9_bank_bus_adr;
+wire          interface9_bank_bus_we;
+wire   [31:0] interface9_bank_bus_dat_w;
+reg    [31:0] interface9_bank_bus_dat_r = 32'd0;
+wire          interface9_bank_bus_re;
 reg           csrbank9_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank9_ev_soft0_r;
 reg           csrbank9_ev_soft0_we = 1'd0;
@@ -3805,11 +3805,11 @@ reg           csrbank9_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank9_ev_enable0_w;
 wire          csrbank9_sel;
 wire          csrbank9_re;
-wire   [15:0] interface10_adr;
-wire          interface10_we;
-wire   [31:0] interface10_dat_w;
-reg    [31:0] interface10_dat_r = 32'd0;
-wire          interface10_re;
+wire   [15:0] interface10_bank_bus_adr;
+wire          interface10_bank_bus_we;
+wire   [31:0] interface10_bank_bus_dat_w;
+reg    [31:0] interface10_bank_bus_dat_r = 32'd0;
+wire          interface10_bank_bus_re;
 reg           csrbank10_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank10_ev_soft0_r;
 reg           csrbank10_ev_soft0_we = 1'd0;
@@ -3828,11 +3828,11 @@ reg           csrbank10_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank10_ev_enable0_w;
 wire          csrbank10_sel;
 wire          csrbank10_re;
-wire   [15:0] interface11_adr;
-wire          interface11_we;
-wire   [31:0] interface11_dat_w;
-reg    [31:0] interface11_dat_r = 32'd0;
-wire          interface11_re;
+wire   [15:0] interface11_bank_bus_adr;
+wire          interface11_bank_bus_we;
+wire   [31:0] interface11_bank_bus_dat_w;
+reg    [31:0] interface11_bank_bus_dat_r = 32'd0;
+wire          interface11_bank_bus_re;
 reg           csrbank11_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank11_ev_soft0_r;
 reg           csrbank11_ev_soft0_we = 1'd0;
@@ -3851,11 +3851,11 @@ reg           csrbank11_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank11_ev_enable0_w;
 wire          csrbank11_sel;
 wire          csrbank11_re;
-wire   [15:0] interface12_adr;
-wire          interface12_we;
-wire   [31:0] interface12_dat_w;
-reg    [31:0] interface12_dat_r = 32'd0;
-wire          interface12_re;
+wire   [15:0] interface12_bank_bus_adr;
+wire          interface12_bank_bus_we;
+wire   [31:0] interface12_bank_bus_dat_w;
+reg    [31:0] interface12_bank_bus_dat_r = 32'd0;
+wire          interface12_bank_bus_re;
 reg           csrbank12_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank12_ev_soft0_r;
 reg           csrbank12_ev_soft0_we = 1'd0;
@@ -3874,11 +3874,11 @@ reg           csrbank12_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank12_ev_enable0_w;
 wire          csrbank12_sel;
 wire          csrbank12_re;
-wire   [15:0] interface13_adr;
-wire          interface13_we;
-wire   [31:0] interface13_dat_w;
-reg    [31:0] interface13_dat_r = 32'd0;
-wire          interface13_re;
+wire   [15:0] interface13_bank_bus_adr;
+wire          interface13_bank_bus_we;
+wire   [31:0] interface13_bank_bus_dat_w;
+reg    [31:0] interface13_bank_bus_dat_r = 32'd0;
+wire          interface13_bank_bus_re;
 reg           csrbank13_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank13_ev_soft0_r;
 reg           csrbank13_ev_soft0_we = 1'd0;
@@ -3897,11 +3897,11 @@ reg           csrbank13_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank13_ev_enable0_w;
 wire          csrbank13_sel;
 wire          csrbank13_re;
-wire   [15:0] interface14_adr;
-wire          interface14_we;
-wire   [31:0] interface14_dat_w;
-reg    [31:0] interface14_dat_r = 32'd0;
-wire          interface14_re;
+wire   [15:0] interface14_bank_bus_adr;
+wire          interface14_bank_bus_we;
+wire   [31:0] interface14_bank_bus_dat_w;
+reg    [31:0] interface14_bank_bus_dat_r = 32'd0;
+wire          interface14_bank_bus_re;
 reg           csrbank14_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank14_ev_soft0_r;
 reg           csrbank14_ev_soft0_we = 1'd0;
@@ -3920,11 +3920,11 @@ reg           csrbank14_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank14_ev_enable0_w;
 wire          csrbank14_sel;
 wire          csrbank14_re;
-wire   [15:0] interface15_adr;
-wire          interface15_we;
-wire   [31:0] interface15_dat_w;
-reg    [31:0] interface15_dat_r = 32'd0;
-wire          interface15_re;
+wire   [15:0] interface15_bank_bus_adr;
+wire          interface15_bank_bus_we;
+wire   [31:0] interface15_bank_bus_dat_w;
+reg    [31:0] interface15_bank_bus_dat_r = 32'd0;
+wire          interface15_bank_bus_re;
 reg           csrbank15_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank15_ev_soft0_r;
 reg           csrbank15_ev_soft0_we = 1'd0;
@@ -3943,11 +3943,11 @@ reg           csrbank15_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank15_ev_enable0_w;
 wire          csrbank15_sel;
 wire          csrbank15_re;
-wire   [15:0] interface16_adr;
-wire          interface16_we;
-wire   [31:0] interface16_dat_w;
-reg    [31:0] interface16_dat_r = 32'd0;
-wire          interface16_re;
+wire   [15:0] interface16_bank_bus_adr;
+wire          interface16_bank_bus_we;
+wire   [31:0] interface16_bank_bus_dat_w;
+reg    [31:0] interface16_bank_bus_dat_r = 32'd0;
+wire          interface16_bank_bus_re;
 reg           csrbank16_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank16_ev_soft0_r;
 reg           csrbank16_ev_soft0_we = 1'd0;
@@ -3966,11 +3966,11 @@ reg           csrbank16_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank16_ev_enable0_w;
 wire          csrbank16_sel;
 wire          csrbank16_re;
-wire   [15:0] interface17_adr;
-wire          interface17_we;
-wire   [31:0] interface17_dat_w;
-reg    [31:0] interface17_dat_r = 32'd0;
-wire          interface17_re;
+wire   [15:0] interface17_bank_bus_adr;
+wire          interface17_bank_bus_we;
+wire   [31:0] interface17_bank_bus_dat_w;
+reg    [31:0] interface17_bank_bus_dat_r = 32'd0;
+wire          interface17_bank_bus_re;
 reg           csrbank17_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank17_ev_soft0_r;
 reg           csrbank17_ev_soft0_we = 1'd0;
@@ -3989,11 +3989,11 @@ reg           csrbank17_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank17_ev_enable0_w;
 wire          csrbank17_sel;
 wire          csrbank17_re;
-wire   [15:0] interface18_adr;
-wire          interface18_we;
-wire   [31:0] interface18_dat_w;
-reg    [31:0] interface18_dat_r = 32'd0;
-wire          interface18_re;
+wire   [15:0] interface18_bank_bus_adr;
+wire          interface18_bank_bus_we;
+wire   [31:0] interface18_bank_bus_dat_w;
+reg    [31:0] interface18_bank_bus_dat_r = 32'd0;
+wire          interface18_bank_bus_re;
 reg           csrbank18_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank18_ev_soft0_r;
 reg           csrbank18_ev_soft0_we = 1'd0;
@@ -4012,11 +4012,11 @@ reg           csrbank18_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank18_ev_enable0_w;
 wire          csrbank18_sel;
 wire          csrbank18_re;
-wire   [15:0] interface19_adr;
-wire          interface19_we;
-wire   [31:0] interface19_dat_w;
-reg    [31:0] interface19_dat_r = 32'd0;
-wire          interface19_re;
+wire   [15:0] interface19_bank_bus_adr;
+wire          interface19_bank_bus_we;
+wire   [31:0] interface19_bank_bus_dat_w;
+reg    [31:0] interface19_bank_bus_dat_r = 32'd0;
+wire          interface19_bank_bus_re;
 reg           csrbank19_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank19_ev_soft0_r;
 reg           csrbank19_ev_soft0_we = 1'd0;
@@ -4035,11 +4035,11 @@ reg           csrbank19_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank19_ev_enable0_w;
 wire          csrbank19_sel;
 wire          csrbank19_re;
-wire   [15:0] interface20_adr;
-wire          interface20_we;
-wire   [31:0] interface20_dat_w;
-reg    [31:0] interface20_dat_r = 32'd0;
-wire          interface20_re;
+wire   [15:0] interface20_bank_bus_adr;
+wire          interface20_bank_bus_we;
+wire   [31:0] interface20_bank_bus_dat_w;
+reg    [31:0] interface20_bank_bus_dat_r = 32'd0;
+wire          interface20_bank_bus_re;
 reg           csrbank20_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank20_ev_soft0_r;
 reg           csrbank20_ev_soft0_we = 1'd0;
@@ -4058,11 +4058,11 @@ reg           csrbank20_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank20_ev_enable0_w;
 wire          csrbank20_sel;
 wire          csrbank20_re;
-wire   [15:0] interface21_adr;
-wire          interface21_we;
-wire   [31:0] interface21_dat_w;
-reg    [31:0] interface21_dat_r = 32'd0;
-wire          interface21_re;
+wire   [15:0] interface21_bank_bus_adr;
+wire          interface21_bank_bus_we;
+wire   [31:0] interface21_bank_bus_dat_w;
+reg    [31:0] interface21_bank_bus_dat_r = 32'd0;
+wire          interface21_bank_bus_re;
 reg           csrbank21_ev_soft0_re = 1'd0;
 wire   [19:0] csrbank21_ev_soft0_r;
 reg           csrbank21_ev_soft0_we = 1'd0;
@@ -4081,11 +4081,11 @@ reg           csrbank21_ev_enable0_we = 1'd0;
 wire   [19:0] csrbank21_ev_enable0_w;
 wire          csrbank21_sel;
 wire          csrbank21_re;
-wire   [15:0] interface22_adr;
-wire          interface22_we;
-wire   [31:0] interface22_dat_w;
-reg    [31:0] interface22_dat_r = 32'd0;
-wire          interface22_re;
+wire   [15:0] interface22_bank_bus_adr;
+wire          interface22_bank_bus_we;
+wire   [31:0] interface22_bank_bus_dat_w;
+reg    [31:0] interface22_bank_bus_dat_r = 32'd0;
+wire          interface22_bank_bus_re;
 reg           csrbank22_wdata0_re = 1'd0;
 wire   [31:0] csrbank22_wdata0_r;
 reg           csrbank22_wdata0_we = 1'd0;
@@ -4120,22 +4120,22 @@ reg           csrbank22_done0_we = 1'd0;
 wire          csrbank22_done0_w;
 wire          csrbank22_sel;
 wire          csrbank22_re;
-wire   [15:0] interface23_adr;
-wire          interface23_we;
-wire   [31:0] interface23_dat_w;
-reg    [31:0] interface23_dat_r = 32'd0;
-wire          interface23_re;
+wire   [15:0] interface23_bank_bus_adr;
+wire          interface23_bank_bus_we;
+wire   [31:0] interface23_bank_bus_dat_w;
+reg    [31:0] interface23_bank_bus_dat_r = 32'd0;
+wire          interface23_bank_bus_re;
 reg           csrbank23_pc_re = 1'd0;
 wire   [31:0] csrbank23_pc_r;
 reg           csrbank23_pc_we = 1'd0;
 wire   [31:0] csrbank23_pc_w;
 wire          csrbank23_sel;
 wire          csrbank23_re;
-wire   [15:0] interface24_adr;
-wire          interface24_we;
-wire   [31:0] interface24_dat_w;
-reg    [31:0] interface24_dat_r = 32'd0;
-wire          interface24_re;
+wire   [15:0] interface24_bank_bus_adr;
+wire          interface24_bank_bus_we;
+wire   [31:0] interface24_bank_bus_dat_w;
+reg    [31:0] interface24_bank_bus_dat_r = 32'd0;
+wire          interface24_bank_bus_re;
 reg           csrbank24_control0_re = 1'd0;
 wire          csrbank24_control0_r;
 reg           csrbank24_control0_we = 1'd0;
@@ -4204,44 +4204,44 @@ reg           array_muxed13 = 1'd0;
 reg    [31:0] array_muxed14 = 32'd0;
 reg     [2:0] array_muxed15 = 3'd0;
 reg           array_muxed16 = 1'd0;
-reg           multiregimpl00 = 1'd0;
-reg           multiregimpl01 = 1'd0;
-reg           multiregimpl10 = 1'd0;
-reg           multiregimpl11 = 1'd0;
-reg           multiregimpl20 = 1'd0;
-reg           multiregimpl21 = 1'd0;
-reg           multiregimpl30 = 1'd0;
-reg           multiregimpl31 = 1'd0;
-reg           multiregimpl40 = 1'd0;
-reg           multiregimpl41 = 1'd0;
-reg           multiregimpl50 = 1'd0;
-reg           multiregimpl51 = 1'd0;
-reg    [63:0] multiregimpl60 = 64'd0;
-reg    [63:0] multiregimpl61 = 64'd0;
-reg           multiregimpl70 = 1'd0;
-reg           multiregimpl71 = 1'd0;
-reg           multiregimpl80 = 1'd0;
-reg           multiregimpl81 = 1'd0;
-reg    [63:0] multiregimpl90 = 64'd0;
-reg    [63:0] multiregimpl91 = 64'd0;
-reg           multiregimpl100 = 1'd0;
-reg           multiregimpl101 = 1'd0;
-reg           multiregimpl110 = 1'd0;
-reg           multiregimpl111 = 1'd0;
-reg           multiregimpl120 = 1'd0;
-reg           multiregimpl121 = 1'd0;
-reg           multiregimpl130 = 1'd0;
-reg           multiregimpl131 = 1'd0;
-reg           multiregimpl140 = 1'd0;
-reg           multiregimpl141 = 1'd0;
-reg           multiregimpl150 = 1'd0;
-reg           multiregimpl151 = 1'd0;
-reg           multiregimpl160 = 1'd0;
-reg           multiregimpl161 = 1'd0;
-reg           multiregimpl170 = 1'd0;
-reg           multiregimpl171 = 1'd0;
-reg    [63:0] multiregimpl180 = 64'd0;
-reg    [63:0] multiregimpl181 = 64'd0;
+reg           multiregimpl0_regs0 = 1'd0;
+reg           multiregimpl0_regs1 = 1'd0;
+reg           multiregimpl1_regs0 = 1'd0;
+reg           multiregimpl1_regs1 = 1'd0;
+reg           multiregimpl2_regs0 = 1'd0;
+reg           multiregimpl2_regs1 = 1'd0;
+reg           multiregimpl3_regs0 = 1'd0;
+reg           multiregimpl3_regs1 = 1'd0;
+reg           multiregimpl4_regs0 = 1'd0;
+reg           multiregimpl4_regs1 = 1'd0;
+reg           multiregimpl5_regs0 = 1'd0;
+reg           multiregimpl5_regs1 = 1'd0;
+reg    [63:0] multiregimpl6_regs0 = 64'd0;
+reg    [63:0] multiregimpl6_regs1 = 64'd0;
+reg           multiregimpl7_regs0 = 1'd0;
+reg           multiregimpl7_regs1 = 1'd0;
+reg           multiregimpl8_regs0 = 1'd0;
+reg           multiregimpl8_regs1 = 1'd0;
+reg    [63:0] multiregimpl9_regs0 = 64'd0;
+reg    [63:0] multiregimpl9_regs1 = 64'd0;
+reg           multiregimpl10_regs0 = 1'd0;
+reg           multiregimpl10_regs1 = 1'd0;
+reg           multiregimpl11_regs0 = 1'd0;
+reg           multiregimpl11_regs1 = 1'd0;
+reg           multiregimpl12_regs0 = 1'd0;
+reg           multiregimpl12_regs1 = 1'd0;
+reg           multiregimpl13_regs0 = 1'd0;
+reg           multiregimpl13_regs1 = 1'd0;
+reg           multiregimpl14_regs0 = 1'd0;
+reg           multiregimpl14_regs1 = 1'd0;
+reg           multiregimpl15_regs0 = 1'd0;
+reg           multiregimpl15_regs1 = 1'd0;
+reg           multiregimpl16_regs0 = 1'd0;
+reg           multiregimpl16_regs1 = 1'd0;
+reg           multiregimpl17_regs0 = 1'd0;
+reg           multiregimpl17_regs1 = 1'd0;
+reg    [63:0] multiregimpl18_regs0 = 64'd0;
+reg    [63:0] multiregimpl18_regs1 = 64'd0;
 
 //------------------------------------------------------------------------------
 // Combinatorial Logic
@@ -8458,86 +8458,86 @@ always @(*) begin
         end
     endcase
 end
-assign csrbank0_sel = (interface0_adr[15:10] == 1'd0);
-assign csrbank0_re = interface0_re;
-assign csrbank0_set_asid0_r = interface0_dat_w[9:0];
+assign csrbank0_sel = (interface0_bank_bus_adr[15:10] == 1'd0);
+assign csrbank0_re = interface0_bank_bus_re;
+assign csrbank0_set_asid0_r = interface0_bank_bus_dat_w[9:0];
 always @(*) begin
     csrbank0_set_asid0_we <= 1'd0;
     csrbank0_set_asid0_re <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 1'd0))) begin
-        csrbank0_set_asid0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank0_set_asid0_re <= interface0_bank_bus_we;
         csrbank0_set_asid0_we <= csrbank0_re;
     end
 end
-assign csrbank0_get_asid_addr0_r = interface0_dat_w[8:0];
+assign csrbank0_get_asid_addr0_r = interface0_bank_bus_dat_w[8:0];
 always @(*) begin
     csrbank0_get_asid_addr0_re <= 1'd0;
     csrbank0_get_asid_addr0_we <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 1'd1))) begin
-        csrbank0_get_asid_addr0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank0_get_asid_addr0_re <= interface0_bank_bus_we;
         csrbank0_get_asid_addr0_we <= csrbank0_re;
     end
 end
-assign csrbank0_get_asid_value0_r = interface0_dat_w[0];
+assign csrbank0_get_asid_value0_r = interface0_bank_bus_dat_w[0];
 always @(*) begin
     csrbank0_get_asid_value0_we <= 1'd0;
     csrbank0_get_asid_value0_re <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 2'd2))) begin
-        csrbank0_get_asid_value0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank0_get_asid_value0_re <= interface0_bank_bus_we;
         csrbank0_get_asid_value0_we <= csrbank0_re;
     end
 end
-assign csrbank0_control0_r = interface0_dat_w[3:0];
+assign csrbank0_control0_r = interface0_bank_bus_dat_w[3:0];
 always @(*) begin
     csrbank0_control0_re <= 1'd0;
     csrbank0_control0_we <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 2'd3))) begin
-        csrbank0_control0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank0_control0_re <= interface0_bank_bus_we;
         csrbank0_control0_we <= csrbank0_re;
     end
 end
-assign csrbank0_protect0_r = interface0_dat_w[0];
+assign csrbank0_protect0_r = interface0_bank_bus_dat_w[0];
 always @(*) begin
     csrbank0_protect0_re <= 1'd0;
     csrbank0_protect0_we <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd4))) begin
-        csrbank0_protect0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd4))) begin
+        csrbank0_protect0_re <= interface0_bank_bus_we;
         csrbank0_protect0_we <= csrbank0_re;
     end
 end
-assign csrbank0_window_al0_r = interface0_dat_w[21:0];
+assign csrbank0_window_al0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
     csrbank0_window_al0_we <= 1'd0;
     csrbank0_window_al0_re <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd5))) begin
-        csrbank0_window_al0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank0_window_al0_re <= interface0_bank_bus_we;
         csrbank0_window_al0_we <= csrbank0_re;
     end
 end
-assign csrbank0_window_ah0_r = interface0_dat_w[21:0];
+assign csrbank0_window_ah0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
     csrbank0_window_ah0_re <= 1'd0;
     csrbank0_window_ah0_we <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd6))) begin
-        csrbank0_window_ah0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd6))) begin
+        csrbank0_window_ah0_re <= interface0_bank_bus_we;
         csrbank0_window_ah0_we <= csrbank0_re;
     end
 end
-assign csrbank0_window_bl0_r = interface0_dat_w[21:0];
+assign csrbank0_window_bl0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
     csrbank0_window_bl0_we <= 1'd0;
     csrbank0_window_bl0_re <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 3'd7))) begin
-        csrbank0_window_bl0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd7))) begin
+        csrbank0_window_bl0_re <= interface0_bank_bus_we;
         csrbank0_window_bl0_we <= csrbank0_re;
     end
 end
-assign csrbank0_window_bh0_r = interface0_dat_w[21:0];
+assign csrbank0_window_bh0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
     csrbank0_window_bh0_we <= 1'd0;
     csrbank0_window_bh0_re <= 1'd0;
-    if ((csrbank0_sel & (interface0_adr[9:0] == 4'd8))) begin
-        csrbank0_window_bh0_re <= interface0_we;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 4'd8))) begin
+        csrbank0_window_bh0_re <= interface0_bank_bus_we;
         csrbank0_window_bh0_we <= csrbank0_re;
     end
 end
@@ -8566,64 +8566,64 @@ assign coreuser_ppn2 = coreuser_window_bl_storage[21:0];
 assign csrbank0_window_bl0_w = coreuser_window_bl_storage[21:0];
 assign coreuser_ppn3 = coreuser_window_bh_storage[21:0];
 assign csrbank0_window_bh0_w = coreuser_window_bh_storage[21:0];
-assign csrbank1_sel = (interface1_adr[15:10] == 1'd1);
-assign csrbank1_re = interface1_re;
-assign csrbank1_wtest0_r = interface1_dat_w[31:0];
+assign csrbank1_sel = (interface1_bank_bus_adr[15:10] == 1'd1);
+assign csrbank1_re = interface1_bank_bus_re;
+assign csrbank1_wtest0_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank1_wtest0_re <= 1'd0;
     csrbank1_wtest0_we <= 1'd0;
-    if ((csrbank1_sel & (interface1_adr[9:0] == 1'd0))) begin
-        csrbank1_wtest0_re <= interface1_we;
+    if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank1_wtest0_re <= interface1_bank_bus_we;
         csrbank1_wtest0_we <= csrbank1_re;
     end
 end
-assign csrbank1_rtest_r = interface1_dat_w[31:0];
+assign csrbank1_rtest_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank1_rtest_we <= 1'd0;
     csrbank1_rtest_re <= 1'd0;
-    if ((csrbank1_sel & (interface1_adr[9:0] == 1'd1))) begin
-        csrbank1_rtest_re <= interface1_we;
+    if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank1_rtest_re <= interface1_bank_bus_we;
         csrbank1_rtest_we <= csrbank1_re;
     end
 end
 assign csrbank1_wtest0_w = csr_wtest_storage[31:0];
 assign csrbank1_rtest_w = csr_rtest_status[31:0];
 assign csr_rtest_we = csrbank1_rtest_we;
-assign csrbank2_sel = (interface2_adr[15:10] == 2'd2);
-assign csrbank2_re = interface2_re;
-assign csrbank2_ev_soft0_r = interface2_dat_w[19:0];
+assign csrbank2_sel = (interface2_bank_bus_adr[15:10] == 2'd2);
+assign csrbank2_re = interface2_bank_bus_re;
+assign csrbank2_ev_soft0_r = interface2_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank2_ev_soft0_we <= 1'd0;
     csrbank2_ev_soft0_re <= 1'd0;
-    if ((csrbank2_sel & (interface2_adr[9:0] == 1'd0))) begin
-        csrbank2_ev_soft0_re <= interface2_we;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank2_ev_soft0_re <= interface2_bank_bus_we;
         csrbank2_ev_soft0_we <= csrbank2_re;
     end
 end
-assign csrbank2_ev_status_r = interface2_dat_w[19:0];
+assign csrbank2_ev_status_r = interface2_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank2_ev_status_re <= 1'd0;
     csrbank2_ev_status_we <= 1'd0;
-    if ((csrbank2_sel & (interface2_adr[9:0] == 1'd1))) begin
-        csrbank2_ev_status_re <= interface2_we;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank2_ev_status_re <= interface2_bank_bus_we;
         csrbank2_ev_status_we <= csrbank2_re;
     end
 end
-assign csrbank2_ev_pending_r = interface2_dat_w[19:0];
+assign csrbank2_ev_pending_r = interface2_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank2_ev_pending_we <= 1'd0;
     csrbank2_ev_pending_re <= 1'd0;
-    if ((csrbank2_sel & (interface2_adr[9:0] == 2'd2))) begin
-        csrbank2_ev_pending_re <= interface2_we;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank2_ev_pending_re <= interface2_bank_bus_we;
         csrbank2_ev_pending_we <= csrbank2_re;
     end
 end
-assign csrbank2_ev_enable0_r = interface2_dat_w[19:0];
+assign csrbank2_ev_enable0_r = interface2_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank2_ev_enable0_we <= 1'd0;
     csrbank2_ev_enable0_re <= 1'd0;
-    if ((csrbank2_sel & (interface2_adr[9:0] == 2'd3))) begin
-        csrbank2_ev_enable0_re <= interface2_we;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank2_ev_enable0_re <= interface2_bank_bus_we;
         csrbank2_ev_enable0_we <= csrbank2_re;
     end
 end
@@ -8705,41 +8705,41 @@ assign irqarray0_source172 = irqarray0_enable_storage[17];
 assign irqarray0_source182 = irqarray0_enable_storage[18];
 assign irqarray0_source192 = irqarray0_enable_storage[19];
 assign csrbank2_ev_enable0_w = irqarray0_enable_storage[19:0];
-assign csrbank3_sel = (interface3_adr[15:10] == 2'd3);
-assign csrbank3_re = interface3_re;
-assign csrbank3_ev_soft0_r = interface3_dat_w[19:0];
+assign csrbank3_sel = (interface3_bank_bus_adr[15:10] == 2'd3);
+assign csrbank3_re = interface3_bank_bus_re;
+assign csrbank3_ev_soft0_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank3_ev_soft0_we <= 1'd0;
     csrbank3_ev_soft0_re <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 1'd0))) begin
-        csrbank3_ev_soft0_re <= interface3_we;
+    if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank3_ev_soft0_re <= interface3_bank_bus_we;
         csrbank3_ev_soft0_we <= csrbank3_re;
     end
 end
-assign csrbank3_ev_status_r = interface3_dat_w[19:0];
+assign csrbank3_ev_status_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank3_ev_status_re <= 1'd0;
     csrbank3_ev_status_we <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 1'd1))) begin
-        csrbank3_ev_status_re <= interface3_we;
+    if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank3_ev_status_re <= interface3_bank_bus_we;
         csrbank3_ev_status_we <= csrbank3_re;
     end
 end
-assign csrbank3_ev_pending_r = interface3_dat_w[19:0];
+assign csrbank3_ev_pending_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank3_ev_pending_re <= 1'd0;
     csrbank3_ev_pending_we <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd2))) begin
-        csrbank3_ev_pending_re <= interface3_we;
+    if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank3_ev_pending_re <= interface3_bank_bus_we;
         csrbank3_ev_pending_we <= csrbank3_re;
     end
 end
-assign csrbank3_ev_enable0_r = interface3_dat_w[19:0];
+assign csrbank3_ev_enable0_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank3_ev_enable0_we <= 1'd0;
     csrbank3_ev_enable0_re <= 1'd0;
-    if ((csrbank3_sel & (interface3_adr[9:0] == 2'd3))) begin
-        csrbank3_ev_enable0_re <= interface3_we;
+    if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank3_ev_enable0_re <= interface3_bank_bus_we;
         csrbank3_ev_enable0_we <= csrbank3_re;
     end
 end
@@ -8821,41 +8821,41 @@ assign irqarray1_source172 = irqarray1_enable_storage[17];
 assign irqarray1_source182 = irqarray1_enable_storage[18];
 assign irqarray1_source192 = irqarray1_enable_storage[19];
 assign csrbank3_ev_enable0_w = irqarray1_enable_storage[19:0];
-assign csrbank4_sel = (interface4_adr[15:10] == 3'd4);
-assign csrbank4_re = interface4_re;
-assign csrbank4_ev_soft0_r = interface4_dat_w[19:0];
+assign csrbank4_sel = (interface4_bank_bus_adr[15:10] == 3'd4);
+assign csrbank4_re = interface4_bank_bus_re;
+assign csrbank4_ev_soft0_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank4_ev_soft0_re <= 1'd0;
     csrbank4_ev_soft0_we <= 1'd0;
-    if ((csrbank4_sel & (interface4_adr[9:0] == 1'd0))) begin
-        csrbank4_ev_soft0_re <= interface4_we;
+    if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank4_ev_soft0_re <= interface4_bank_bus_we;
         csrbank4_ev_soft0_we <= csrbank4_re;
     end
 end
-assign csrbank4_ev_status_r = interface4_dat_w[19:0];
+assign csrbank4_ev_status_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank4_ev_status_we <= 1'd0;
     csrbank4_ev_status_re <= 1'd0;
-    if ((csrbank4_sel & (interface4_adr[9:0] == 1'd1))) begin
-        csrbank4_ev_status_re <= interface4_we;
+    if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank4_ev_status_re <= interface4_bank_bus_we;
         csrbank4_ev_status_we <= csrbank4_re;
     end
 end
-assign csrbank4_ev_pending_r = interface4_dat_w[19:0];
+assign csrbank4_ev_pending_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank4_ev_pending_re <= 1'd0;
     csrbank4_ev_pending_we <= 1'd0;
-    if ((csrbank4_sel & (interface4_adr[9:0] == 2'd2))) begin
-        csrbank4_ev_pending_re <= interface4_we;
+    if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank4_ev_pending_re <= interface4_bank_bus_we;
         csrbank4_ev_pending_we <= csrbank4_re;
     end
 end
-assign csrbank4_ev_enable0_r = interface4_dat_w[19:0];
+assign csrbank4_ev_enable0_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank4_ev_enable0_re <= 1'd0;
     csrbank4_ev_enable0_we <= 1'd0;
-    if ((csrbank4_sel & (interface4_adr[9:0] == 2'd3))) begin
-        csrbank4_ev_enable0_re <= interface4_we;
+    if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank4_ev_enable0_re <= interface4_bank_bus_we;
         csrbank4_ev_enable0_we <= csrbank4_re;
     end
 end
@@ -8937,41 +8937,41 @@ assign irqarray10_source172 = irqarray10_enable_storage[17];
 assign irqarray10_source182 = irqarray10_enable_storage[18];
 assign irqarray10_source192 = irqarray10_enable_storage[19];
 assign csrbank4_ev_enable0_w = irqarray10_enable_storage[19:0];
-assign csrbank5_sel = (interface5_adr[15:10] == 3'd5);
-assign csrbank5_re = interface5_re;
-assign csrbank5_ev_soft0_r = interface5_dat_w[19:0];
+assign csrbank5_sel = (interface5_bank_bus_adr[15:10] == 3'd5);
+assign csrbank5_re = interface5_bank_bus_re;
+assign csrbank5_ev_soft0_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank5_ev_soft0_re <= 1'd0;
     csrbank5_ev_soft0_we <= 1'd0;
-    if ((csrbank5_sel & (interface5_adr[9:0] == 1'd0))) begin
-        csrbank5_ev_soft0_re <= interface5_we;
+    if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank5_ev_soft0_re <= interface5_bank_bus_we;
         csrbank5_ev_soft0_we <= csrbank5_re;
     end
 end
-assign csrbank5_ev_status_r = interface5_dat_w[19:0];
+assign csrbank5_ev_status_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank5_ev_status_we <= 1'd0;
     csrbank5_ev_status_re <= 1'd0;
-    if ((csrbank5_sel & (interface5_adr[9:0] == 1'd1))) begin
-        csrbank5_ev_status_re <= interface5_we;
+    if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank5_ev_status_re <= interface5_bank_bus_we;
         csrbank5_ev_status_we <= csrbank5_re;
     end
 end
-assign csrbank5_ev_pending_r = interface5_dat_w[19:0];
+assign csrbank5_ev_pending_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank5_ev_pending_we <= 1'd0;
     csrbank5_ev_pending_re <= 1'd0;
-    if ((csrbank5_sel & (interface5_adr[9:0] == 2'd2))) begin
-        csrbank5_ev_pending_re <= interface5_we;
+    if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank5_ev_pending_re <= interface5_bank_bus_we;
         csrbank5_ev_pending_we <= csrbank5_re;
     end
 end
-assign csrbank5_ev_enable0_r = interface5_dat_w[19:0];
+assign csrbank5_ev_enable0_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank5_ev_enable0_re <= 1'd0;
     csrbank5_ev_enable0_we <= 1'd0;
-    if ((csrbank5_sel & (interface5_adr[9:0] == 2'd3))) begin
-        csrbank5_ev_enable0_re <= interface5_we;
+    if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank5_ev_enable0_re <= interface5_bank_bus_we;
         csrbank5_ev_enable0_we <= csrbank5_re;
     end
 end
@@ -9053,41 +9053,41 @@ assign irqarray11_source172 = irqarray11_enable_storage[17];
 assign irqarray11_source182 = irqarray11_enable_storage[18];
 assign irqarray11_source192 = irqarray11_enable_storage[19];
 assign csrbank5_ev_enable0_w = irqarray11_enable_storage[19:0];
-assign csrbank6_sel = (interface6_adr[15:10] == 3'd6);
-assign csrbank6_re = interface6_re;
-assign csrbank6_ev_soft0_r = interface6_dat_w[19:0];
+assign csrbank6_sel = (interface6_bank_bus_adr[15:10] == 3'd6);
+assign csrbank6_re = interface6_bank_bus_re;
+assign csrbank6_ev_soft0_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank6_ev_soft0_we <= 1'd0;
     csrbank6_ev_soft0_re <= 1'd0;
-    if ((csrbank6_sel & (interface6_adr[9:0] == 1'd0))) begin
-        csrbank6_ev_soft0_re <= interface6_we;
+    if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank6_ev_soft0_re <= interface6_bank_bus_we;
         csrbank6_ev_soft0_we <= csrbank6_re;
     end
 end
-assign csrbank6_ev_status_r = interface6_dat_w[19:0];
+assign csrbank6_ev_status_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank6_ev_status_re <= 1'd0;
     csrbank6_ev_status_we <= 1'd0;
-    if ((csrbank6_sel & (interface6_adr[9:0] == 1'd1))) begin
-        csrbank6_ev_status_re <= interface6_we;
+    if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank6_ev_status_re <= interface6_bank_bus_we;
         csrbank6_ev_status_we <= csrbank6_re;
     end
 end
-assign csrbank6_ev_pending_r = interface6_dat_w[19:0];
+assign csrbank6_ev_pending_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank6_ev_pending_we <= 1'd0;
     csrbank6_ev_pending_re <= 1'd0;
-    if ((csrbank6_sel & (interface6_adr[9:0] == 2'd2))) begin
-        csrbank6_ev_pending_re <= interface6_we;
+    if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank6_ev_pending_re <= interface6_bank_bus_we;
         csrbank6_ev_pending_we <= csrbank6_re;
     end
 end
-assign csrbank6_ev_enable0_r = interface6_dat_w[19:0];
+assign csrbank6_ev_enable0_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank6_ev_enable0_we <= 1'd0;
     csrbank6_ev_enable0_re <= 1'd0;
-    if ((csrbank6_sel & (interface6_adr[9:0] == 2'd3))) begin
-        csrbank6_ev_enable0_re <= interface6_we;
+    if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank6_ev_enable0_re <= interface6_bank_bus_we;
         csrbank6_ev_enable0_we <= csrbank6_re;
     end
 end
@@ -9169,41 +9169,41 @@ assign irqarray12_source172 = irqarray12_enable_storage[17];
 assign irqarray12_source182 = irqarray12_enable_storage[18];
 assign irqarray12_source192 = irqarray12_enable_storage[19];
 assign csrbank6_ev_enable0_w = irqarray12_enable_storage[19:0];
-assign csrbank7_sel = (interface7_adr[15:10] == 3'd7);
-assign csrbank7_re = interface7_re;
-assign csrbank7_ev_soft0_r = interface7_dat_w[19:0];
+assign csrbank7_sel = (interface7_bank_bus_adr[15:10] == 3'd7);
+assign csrbank7_re = interface7_bank_bus_re;
+assign csrbank7_ev_soft0_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank7_ev_soft0_we <= 1'd0;
     csrbank7_ev_soft0_re <= 1'd0;
-    if ((csrbank7_sel & (interface7_adr[9:0] == 1'd0))) begin
-        csrbank7_ev_soft0_re <= interface7_we;
+    if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank7_ev_soft0_re <= interface7_bank_bus_we;
         csrbank7_ev_soft0_we <= csrbank7_re;
     end
 end
-assign csrbank7_ev_status_r = interface7_dat_w[19:0];
+assign csrbank7_ev_status_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank7_ev_status_re <= 1'd0;
     csrbank7_ev_status_we <= 1'd0;
-    if ((csrbank7_sel & (interface7_adr[9:0] == 1'd1))) begin
-        csrbank7_ev_status_re <= interface7_we;
+    if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank7_ev_status_re <= interface7_bank_bus_we;
         csrbank7_ev_status_we <= csrbank7_re;
     end
 end
-assign csrbank7_ev_pending_r = interface7_dat_w[19:0];
+assign csrbank7_ev_pending_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank7_ev_pending_re <= 1'd0;
     csrbank7_ev_pending_we <= 1'd0;
-    if ((csrbank7_sel & (interface7_adr[9:0] == 2'd2))) begin
-        csrbank7_ev_pending_re <= interface7_we;
+    if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank7_ev_pending_re <= interface7_bank_bus_we;
         csrbank7_ev_pending_we <= csrbank7_re;
     end
 end
-assign csrbank7_ev_enable0_r = interface7_dat_w[19:0];
+assign csrbank7_ev_enable0_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank7_ev_enable0_we <= 1'd0;
     csrbank7_ev_enable0_re <= 1'd0;
-    if ((csrbank7_sel & (interface7_adr[9:0] == 2'd3))) begin
-        csrbank7_ev_enable0_re <= interface7_we;
+    if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank7_ev_enable0_re <= interface7_bank_bus_we;
         csrbank7_ev_enable0_we <= csrbank7_re;
     end
 end
@@ -9285,41 +9285,41 @@ assign irqarray13_source172 = irqarray13_enable_storage[17];
 assign irqarray13_source182 = irqarray13_enable_storage[18];
 assign irqarray13_source192 = irqarray13_enable_storage[19];
 assign csrbank7_ev_enable0_w = irqarray13_enable_storage[19:0];
-assign csrbank8_sel = (interface8_adr[15:10] == 4'd8);
-assign csrbank8_re = interface8_re;
-assign csrbank8_ev_soft0_r = interface8_dat_w[19:0];
+assign csrbank8_sel = (interface8_bank_bus_adr[15:10] == 4'd8);
+assign csrbank8_re = interface8_bank_bus_re;
+assign csrbank8_ev_soft0_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank8_ev_soft0_re <= 1'd0;
     csrbank8_ev_soft0_we <= 1'd0;
-    if ((csrbank8_sel & (interface8_adr[9:0] == 1'd0))) begin
-        csrbank8_ev_soft0_re <= interface8_we;
+    if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank8_ev_soft0_re <= interface8_bank_bus_we;
         csrbank8_ev_soft0_we <= csrbank8_re;
     end
 end
-assign csrbank8_ev_status_r = interface8_dat_w[19:0];
+assign csrbank8_ev_status_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank8_ev_status_we <= 1'd0;
     csrbank8_ev_status_re <= 1'd0;
-    if ((csrbank8_sel & (interface8_adr[9:0] == 1'd1))) begin
-        csrbank8_ev_status_re <= interface8_we;
+    if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank8_ev_status_re <= interface8_bank_bus_we;
         csrbank8_ev_status_we <= csrbank8_re;
     end
 end
-assign csrbank8_ev_pending_r = interface8_dat_w[19:0];
+assign csrbank8_ev_pending_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank8_ev_pending_re <= 1'd0;
     csrbank8_ev_pending_we <= 1'd0;
-    if ((csrbank8_sel & (interface8_adr[9:0] == 2'd2))) begin
-        csrbank8_ev_pending_re <= interface8_we;
+    if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank8_ev_pending_re <= interface8_bank_bus_we;
         csrbank8_ev_pending_we <= csrbank8_re;
     end
 end
-assign csrbank8_ev_enable0_r = interface8_dat_w[19:0];
+assign csrbank8_ev_enable0_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank8_ev_enable0_re <= 1'd0;
     csrbank8_ev_enable0_we <= 1'd0;
-    if ((csrbank8_sel & (interface8_adr[9:0] == 2'd3))) begin
-        csrbank8_ev_enable0_re <= interface8_we;
+    if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank8_ev_enable0_re <= interface8_bank_bus_we;
         csrbank8_ev_enable0_we <= csrbank8_re;
     end
 end
@@ -9401,41 +9401,41 @@ assign irqarray14_source172 = irqarray14_enable_storage[17];
 assign irqarray14_source182 = irqarray14_enable_storage[18];
 assign irqarray14_source192 = irqarray14_enable_storage[19];
 assign csrbank8_ev_enable0_w = irqarray14_enable_storage[19:0];
-assign csrbank9_sel = (interface9_adr[15:10] == 4'd9);
-assign csrbank9_re = interface9_re;
-assign csrbank9_ev_soft0_r = interface9_dat_w[19:0];
+assign csrbank9_sel = (interface9_bank_bus_adr[15:10] == 4'd9);
+assign csrbank9_re = interface9_bank_bus_re;
+assign csrbank9_ev_soft0_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank9_ev_soft0_re <= 1'd0;
     csrbank9_ev_soft0_we <= 1'd0;
-    if ((csrbank9_sel & (interface9_adr[9:0] == 1'd0))) begin
-        csrbank9_ev_soft0_re <= interface9_we;
+    if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank9_ev_soft0_re <= interface9_bank_bus_we;
         csrbank9_ev_soft0_we <= csrbank9_re;
     end
 end
-assign csrbank9_ev_status_r = interface9_dat_w[19:0];
+assign csrbank9_ev_status_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank9_ev_status_we <= 1'd0;
     csrbank9_ev_status_re <= 1'd0;
-    if ((csrbank9_sel & (interface9_adr[9:0] == 1'd1))) begin
-        csrbank9_ev_status_re <= interface9_we;
+    if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank9_ev_status_re <= interface9_bank_bus_we;
         csrbank9_ev_status_we <= csrbank9_re;
     end
 end
-assign csrbank9_ev_pending_r = interface9_dat_w[19:0];
+assign csrbank9_ev_pending_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank9_ev_pending_we <= 1'd0;
     csrbank9_ev_pending_re <= 1'd0;
-    if ((csrbank9_sel & (interface9_adr[9:0] == 2'd2))) begin
-        csrbank9_ev_pending_re <= interface9_we;
+    if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank9_ev_pending_re <= interface9_bank_bus_we;
         csrbank9_ev_pending_we <= csrbank9_re;
     end
 end
-assign csrbank9_ev_enable0_r = interface9_dat_w[19:0];
+assign csrbank9_ev_enable0_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank9_ev_enable0_re <= 1'd0;
     csrbank9_ev_enable0_we <= 1'd0;
-    if ((csrbank9_sel & (interface9_adr[9:0] == 2'd3))) begin
-        csrbank9_ev_enable0_re <= interface9_we;
+    if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank9_ev_enable0_re <= interface9_bank_bus_we;
         csrbank9_ev_enable0_we <= csrbank9_re;
     end
 end
@@ -9517,41 +9517,41 @@ assign irqarray15_source172 = irqarray15_enable_storage[17];
 assign irqarray15_source182 = irqarray15_enable_storage[18];
 assign irqarray15_source192 = irqarray15_enable_storage[19];
 assign csrbank9_ev_enable0_w = irqarray15_enable_storage[19:0];
-assign csrbank10_sel = (interface10_adr[15:10] == 4'd10);
-assign csrbank10_re = interface10_re;
-assign csrbank10_ev_soft0_r = interface10_dat_w[19:0];
+assign csrbank10_sel = (interface10_bank_bus_adr[15:10] == 4'd10);
+assign csrbank10_re = interface10_bank_bus_re;
+assign csrbank10_ev_soft0_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank10_ev_soft0_we <= 1'd0;
     csrbank10_ev_soft0_re <= 1'd0;
-    if ((csrbank10_sel & (interface10_adr[9:0] == 1'd0))) begin
-        csrbank10_ev_soft0_re <= interface10_we;
+    if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank10_ev_soft0_re <= interface10_bank_bus_we;
         csrbank10_ev_soft0_we <= csrbank10_re;
     end
 end
-assign csrbank10_ev_status_r = interface10_dat_w[19:0];
+assign csrbank10_ev_status_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank10_ev_status_re <= 1'd0;
     csrbank10_ev_status_we <= 1'd0;
-    if ((csrbank10_sel & (interface10_adr[9:0] == 1'd1))) begin
-        csrbank10_ev_status_re <= interface10_we;
+    if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank10_ev_status_re <= interface10_bank_bus_we;
         csrbank10_ev_status_we <= csrbank10_re;
     end
 end
-assign csrbank10_ev_pending_r = interface10_dat_w[19:0];
+assign csrbank10_ev_pending_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank10_ev_pending_we <= 1'd0;
     csrbank10_ev_pending_re <= 1'd0;
-    if ((csrbank10_sel & (interface10_adr[9:0] == 2'd2))) begin
-        csrbank10_ev_pending_re <= interface10_we;
+    if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank10_ev_pending_re <= interface10_bank_bus_we;
         csrbank10_ev_pending_we <= csrbank10_re;
     end
 end
-assign csrbank10_ev_enable0_r = interface10_dat_w[19:0];
+assign csrbank10_ev_enable0_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank10_ev_enable0_we <= 1'd0;
     csrbank10_ev_enable0_re <= 1'd0;
-    if ((csrbank10_sel & (interface10_adr[9:0] == 2'd3))) begin
-        csrbank10_ev_enable0_re <= interface10_we;
+    if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank10_ev_enable0_re <= interface10_bank_bus_we;
         csrbank10_ev_enable0_we <= csrbank10_re;
     end
 end
@@ -9633,41 +9633,41 @@ assign irqarray16_source172 = irqarray16_enable_storage[17];
 assign irqarray16_source182 = irqarray16_enable_storage[18];
 assign irqarray16_source192 = irqarray16_enable_storage[19];
 assign csrbank10_ev_enable0_w = irqarray16_enable_storage[19:0];
-assign csrbank11_sel = (interface11_adr[15:10] == 4'd11);
-assign csrbank11_re = interface11_re;
-assign csrbank11_ev_soft0_r = interface11_dat_w[19:0];
+assign csrbank11_sel = (interface11_bank_bus_adr[15:10] == 4'd11);
+assign csrbank11_re = interface11_bank_bus_re;
+assign csrbank11_ev_soft0_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank11_ev_soft0_we <= 1'd0;
     csrbank11_ev_soft0_re <= 1'd0;
-    if ((csrbank11_sel & (interface11_adr[9:0] == 1'd0))) begin
-        csrbank11_ev_soft0_re <= interface11_we;
+    if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank11_ev_soft0_re <= interface11_bank_bus_we;
         csrbank11_ev_soft0_we <= csrbank11_re;
     end
 end
-assign csrbank11_ev_status_r = interface11_dat_w[19:0];
+assign csrbank11_ev_status_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank11_ev_status_re <= 1'd0;
     csrbank11_ev_status_we <= 1'd0;
-    if ((csrbank11_sel & (interface11_adr[9:0] == 1'd1))) begin
-        csrbank11_ev_status_re <= interface11_we;
+    if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank11_ev_status_re <= interface11_bank_bus_we;
         csrbank11_ev_status_we <= csrbank11_re;
     end
 end
-assign csrbank11_ev_pending_r = interface11_dat_w[19:0];
+assign csrbank11_ev_pending_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank11_ev_pending_re <= 1'd0;
     csrbank11_ev_pending_we <= 1'd0;
-    if ((csrbank11_sel & (interface11_adr[9:0] == 2'd2))) begin
-        csrbank11_ev_pending_re <= interface11_we;
+    if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank11_ev_pending_re <= interface11_bank_bus_we;
         csrbank11_ev_pending_we <= csrbank11_re;
     end
 end
-assign csrbank11_ev_enable0_r = interface11_dat_w[19:0];
+assign csrbank11_ev_enable0_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank11_ev_enable0_we <= 1'd0;
     csrbank11_ev_enable0_re <= 1'd0;
-    if ((csrbank11_sel & (interface11_adr[9:0] == 2'd3))) begin
-        csrbank11_ev_enable0_re <= interface11_we;
+    if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank11_ev_enable0_re <= interface11_bank_bus_we;
         csrbank11_ev_enable0_we <= csrbank11_re;
     end
 end
@@ -9749,41 +9749,41 @@ assign irqarray17_source172 = irqarray17_enable_storage[17];
 assign irqarray17_source182 = irqarray17_enable_storage[18];
 assign irqarray17_source192 = irqarray17_enable_storage[19];
 assign csrbank11_ev_enable0_w = irqarray17_enable_storage[19:0];
-assign csrbank12_sel = (interface12_adr[15:10] == 4'd12);
-assign csrbank12_re = interface12_re;
-assign csrbank12_ev_soft0_r = interface12_dat_w[19:0];
+assign csrbank12_sel = (interface12_bank_bus_adr[15:10] == 4'd12);
+assign csrbank12_re = interface12_bank_bus_re;
+assign csrbank12_ev_soft0_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank12_ev_soft0_re <= 1'd0;
     csrbank12_ev_soft0_we <= 1'd0;
-    if ((csrbank12_sel & (interface12_adr[9:0] == 1'd0))) begin
-        csrbank12_ev_soft0_re <= interface12_we;
+    if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank12_ev_soft0_re <= interface12_bank_bus_we;
         csrbank12_ev_soft0_we <= csrbank12_re;
     end
 end
-assign csrbank12_ev_status_r = interface12_dat_w[19:0];
+assign csrbank12_ev_status_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank12_ev_status_we <= 1'd0;
     csrbank12_ev_status_re <= 1'd0;
-    if ((csrbank12_sel & (interface12_adr[9:0] == 1'd1))) begin
-        csrbank12_ev_status_re <= interface12_we;
+    if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank12_ev_status_re <= interface12_bank_bus_we;
         csrbank12_ev_status_we <= csrbank12_re;
     end
 end
-assign csrbank12_ev_pending_r = interface12_dat_w[19:0];
+assign csrbank12_ev_pending_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank12_ev_pending_re <= 1'd0;
     csrbank12_ev_pending_we <= 1'd0;
-    if ((csrbank12_sel & (interface12_adr[9:0] == 2'd2))) begin
-        csrbank12_ev_pending_re <= interface12_we;
+    if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank12_ev_pending_re <= interface12_bank_bus_we;
         csrbank12_ev_pending_we <= csrbank12_re;
     end
 end
-assign csrbank12_ev_enable0_r = interface12_dat_w[19:0];
+assign csrbank12_ev_enable0_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank12_ev_enable0_re <= 1'd0;
     csrbank12_ev_enable0_we <= 1'd0;
-    if ((csrbank12_sel & (interface12_adr[9:0] == 2'd3))) begin
-        csrbank12_ev_enable0_re <= interface12_we;
+    if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank12_ev_enable0_re <= interface12_bank_bus_we;
         csrbank12_ev_enable0_we <= csrbank12_re;
     end
 end
@@ -9865,41 +9865,41 @@ assign irqarray18_source172 = irqarray18_enable_storage[17];
 assign irqarray18_source182 = irqarray18_enable_storage[18];
 assign irqarray18_source192 = irqarray18_enable_storage[19];
 assign csrbank12_ev_enable0_w = irqarray18_enable_storage[19:0];
-assign csrbank13_sel = (interface13_adr[15:10] == 4'd13);
-assign csrbank13_re = interface13_re;
-assign csrbank13_ev_soft0_r = interface13_dat_w[19:0];
+assign csrbank13_sel = (interface13_bank_bus_adr[15:10] == 4'd13);
+assign csrbank13_re = interface13_bank_bus_re;
+assign csrbank13_ev_soft0_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank13_ev_soft0_re <= 1'd0;
     csrbank13_ev_soft0_we <= 1'd0;
-    if ((csrbank13_sel & (interface13_adr[9:0] == 1'd0))) begin
-        csrbank13_ev_soft0_re <= interface13_we;
+    if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank13_ev_soft0_re <= interface13_bank_bus_we;
         csrbank13_ev_soft0_we <= csrbank13_re;
     end
 end
-assign csrbank13_ev_status_r = interface13_dat_w[19:0];
+assign csrbank13_ev_status_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank13_ev_status_we <= 1'd0;
     csrbank13_ev_status_re <= 1'd0;
-    if ((csrbank13_sel & (interface13_adr[9:0] == 1'd1))) begin
-        csrbank13_ev_status_re <= interface13_we;
+    if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank13_ev_status_re <= interface13_bank_bus_we;
         csrbank13_ev_status_we <= csrbank13_re;
     end
 end
-assign csrbank13_ev_pending_r = interface13_dat_w[19:0];
+assign csrbank13_ev_pending_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank13_ev_pending_we <= 1'd0;
     csrbank13_ev_pending_re <= 1'd0;
-    if ((csrbank13_sel & (interface13_adr[9:0] == 2'd2))) begin
-        csrbank13_ev_pending_re <= interface13_we;
+    if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank13_ev_pending_re <= interface13_bank_bus_we;
         csrbank13_ev_pending_we <= csrbank13_re;
     end
 end
-assign csrbank13_ev_enable0_r = interface13_dat_w[19:0];
+assign csrbank13_ev_enable0_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank13_ev_enable0_re <= 1'd0;
     csrbank13_ev_enable0_we <= 1'd0;
-    if ((csrbank13_sel & (interface13_adr[9:0] == 2'd3))) begin
-        csrbank13_ev_enable0_re <= interface13_we;
+    if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank13_ev_enable0_re <= interface13_bank_bus_we;
         csrbank13_ev_enable0_we <= csrbank13_re;
     end
 end
@@ -9981,41 +9981,41 @@ assign irqarray19_source172 = irqarray19_enable_storage[17];
 assign irqarray19_source182 = irqarray19_enable_storage[18];
 assign irqarray19_source192 = irqarray19_enable_storage[19];
 assign csrbank13_ev_enable0_w = irqarray19_enable_storage[19:0];
-assign csrbank14_sel = (interface14_adr[15:10] == 4'd14);
-assign csrbank14_re = interface14_re;
-assign csrbank14_ev_soft0_r = interface14_dat_w[19:0];
+assign csrbank14_sel = (interface14_bank_bus_adr[15:10] == 4'd14);
+assign csrbank14_re = interface14_bank_bus_re;
+assign csrbank14_ev_soft0_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank14_ev_soft0_we <= 1'd0;
     csrbank14_ev_soft0_re <= 1'd0;
-    if ((csrbank14_sel & (interface14_adr[9:0] == 1'd0))) begin
-        csrbank14_ev_soft0_re <= interface14_we;
+    if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank14_ev_soft0_re <= interface14_bank_bus_we;
         csrbank14_ev_soft0_we <= csrbank14_re;
     end
 end
-assign csrbank14_ev_status_r = interface14_dat_w[19:0];
+assign csrbank14_ev_status_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank14_ev_status_re <= 1'd0;
     csrbank14_ev_status_we <= 1'd0;
-    if ((csrbank14_sel & (interface14_adr[9:0] == 1'd1))) begin
-        csrbank14_ev_status_re <= interface14_we;
+    if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank14_ev_status_re <= interface14_bank_bus_we;
         csrbank14_ev_status_we <= csrbank14_re;
     end
 end
-assign csrbank14_ev_pending_r = interface14_dat_w[19:0];
+assign csrbank14_ev_pending_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank14_ev_pending_we <= 1'd0;
     csrbank14_ev_pending_re <= 1'd0;
-    if ((csrbank14_sel & (interface14_adr[9:0] == 2'd2))) begin
-        csrbank14_ev_pending_re <= interface14_we;
+    if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank14_ev_pending_re <= interface14_bank_bus_we;
         csrbank14_ev_pending_we <= csrbank14_re;
     end
 end
-assign csrbank14_ev_enable0_r = interface14_dat_w[19:0];
+assign csrbank14_ev_enable0_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank14_ev_enable0_we <= 1'd0;
     csrbank14_ev_enable0_re <= 1'd0;
-    if ((csrbank14_sel & (interface14_adr[9:0] == 2'd3))) begin
-        csrbank14_ev_enable0_re <= interface14_we;
+    if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank14_ev_enable0_re <= interface14_bank_bus_we;
         csrbank14_ev_enable0_we <= csrbank14_re;
     end
 end
@@ -10097,41 +10097,41 @@ assign irqarray2_source172 = irqarray2_enable_storage[17];
 assign irqarray2_source182 = irqarray2_enable_storage[18];
 assign irqarray2_source192 = irqarray2_enable_storage[19];
 assign csrbank14_ev_enable0_w = irqarray2_enable_storage[19:0];
-assign csrbank15_sel = (interface15_adr[15:10] == 4'd15);
-assign csrbank15_re = interface15_re;
-assign csrbank15_ev_soft0_r = interface15_dat_w[19:0];
+assign csrbank15_sel = (interface15_bank_bus_adr[15:10] == 4'd15);
+assign csrbank15_re = interface15_bank_bus_re;
+assign csrbank15_ev_soft0_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank15_ev_soft0_we <= 1'd0;
     csrbank15_ev_soft0_re <= 1'd0;
-    if ((csrbank15_sel & (interface15_adr[9:0] == 1'd0))) begin
-        csrbank15_ev_soft0_re <= interface15_we;
+    if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank15_ev_soft0_re <= interface15_bank_bus_we;
         csrbank15_ev_soft0_we <= csrbank15_re;
     end
 end
-assign csrbank15_ev_status_r = interface15_dat_w[19:0];
+assign csrbank15_ev_status_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank15_ev_status_re <= 1'd0;
     csrbank15_ev_status_we <= 1'd0;
-    if ((csrbank15_sel & (interface15_adr[9:0] == 1'd1))) begin
-        csrbank15_ev_status_re <= interface15_we;
+    if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank15_ev_status_re <= interface15_bank_bus_we;
         csrbank15_ev_status_we <= csrbank15_re;
     end
 end
-assign csrbank15_ev_pending_r = interface15_dat_w[19:0];
+assign csrbank15_ev_pending_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank15_ev_pending_re <= 1'd0;
     csrbank15_ev_pending_we <= 1'd0;
-    if ((csrbank15_sel & (interface15_adr[9:0] == 2'd2))) begin
-        csrbank15_ev_pending_re <= interface15_we;
+    if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank15_ev_pending_re <= interface15_bank_bus_we;
         csrbank15_ev_pending_we <= csrbank15_re;
     end
 end
-assign csrbank15_ev_enable0_r = interface15_dat_w[19:0];
+assign csrbank15_ev_enable0_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank15_ev_enable0_we <= 1'd0;
     csrbank15_ev_enable0_re <= 1'd0;
-    if ((csrbank15_sel & (interface15_adr[9:0] == 2'd3))) begin
-        csrbank15_ev_enable0_re <= interface15_we;
+    if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank15_ev_enable0_re <= interface15_bank_bus_we;
         csrbank15_ev_enable0_we <= csrbank15_re;
     end
 end
@@ -10213,41 +10213,41 @@ assign irqarray3_source172 = irqarray3_enable_storage[17];
 assign irqarray3_source182 = irqarray3_enable_storage[18];
 assign irqarray3_source192 = irqarray3_enable_storage[19];
 assign csrbank15_ev_enable0_w = irqarray3_enable_storage[19:0];
-assign csrbank16_sel = (interface16_adr[15:10] == 5'd16);
-assign csrbank16_re = interface16_re;
-assign csrbank16_ev_soft0_r = interface16_dat_w[19:0];
+assign csrbank16_sel = (interface16_bank_bus_adr[15:10] == 5'd16);
+assign csrbank16_re = interface16_bank_bus_re;
+assign csrbank16_ev_soft0_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank16_ev_soft0_re <= 1'd0;
     csrbank16_ev_soft0_we <= 1'd0;
-    if ((csrbank16_sel & (interface16_adr[9:0] == 1'd0))) begin
-        csrbank16_ev_soft0_re <= interface16_we;
+    if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank16_ev_soft0_re <= interface16_bank_bus_we;
         csrbank16_ev_soft0_we <= csrbank16_re;
     end
 end
-assign csrbank16_ev_status_r = interface16_dat_w[19:0];
+assign csrbank16_ev_status_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank16_ev_status_we <= 1'd0;
     csrbank16_ev_status_re <= 1'd0;
-    if ((csrbank16_sel & (interface16_adr[9:0] == 1'd1))) begin
-        csrbank16_ev_status_re <= interface16_we;
+    if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank16_ev_status_re <= interface16_bank_bus_we;
         csrbank16_ev_status_we <= csrbank16_re;
     end
 end
-assign csrbank16_ev_pending_r = interface16_dat_w[19:0];
+assign csrbank16_ev_pending_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank16_ev_pending_re <= 1'd0;
     csrbank16_ev_pending_we <= 1'd0;
-    if ((csrbank16_sel & (interface16_adr[9:0] == 2'd2))) begin
-        csrbank16_ev_pending_re <= interface16_we;
+    if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank16_ev_pending_re <= interface16_bank_bus_we;
         csrbank16_ev_pending_we <= csrbank16_re;
     end
 end
-assign csrbank16_ev_enable0_r = interface16_dat_w[19:0];
+assign csrbank16_ev_enable0_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank16_ev_enable0_re <= 1'd0;
     csrbank16_ev_enable0_we <= 1'd0;
-    if ((csrbank16_sel & (interface16_adr[9:0] == 2'd3))) begin
-        csrbank16_ev_enable0_re <= interface16_we;
+    if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank16_ev_enable0_re <= interface16_bank_bus_we;
         csrbank16_ev_enable0_we <= csrbank16_re;
     end
 end
@@ -10329,41 +10329,41 @@ assign irqarray4_source172 = irqarray4_enable_storage[17];
 assign irqarray4_source182 = irqarray4_enable_storage[18];
 assign irqarray4_source192 = irqarray4_enable_storage[19];
 assign csrbank16_ev_enable0_w = irqarray4_enable_storage[19:0];
-assign csrbank17_sel = (interface17_adr[15:10] == 5'd17);
-assign csrbank17_re = interface17_re;
-assign csrbank17_ev_soft0_r = interface17_dat_w[19:0];
+assign csrbank17_sel = (interface17_bank_bus_adr[15:10] == 5'd17);
+assign csrbank17_re = interface17_bank_bus_re;
+assign csrbank17_ev_soft0_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank17_ev_soft0_re <= 1'd0;
     csrbank17_ev_soft0_we <= 1'd0;
-    if ((csrbank17_sel & (interface17_adr[9:0] == 1'd0))) begin
-        csrbank17_ev_soft0_re <= interface17_we;
+    if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank17_ev_soft0_re <= interface17_bank_bus_we;
         csrbank17_ev_soft0_we <= csrbank17_re;
     end
 end
-assign csrbank17_ev_status_r = interface17_dat_w[19:0];
+assign csrbank17_ev_status_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank17_ev_status_we <= 1'd0;
     csrbank17_ev_status_re <= 1'd0;
-    if ((csrbank17_sel & (interface17_adr[9:0] == 1'd1))) begin
-        csrbank17_ev_status_re <= interface17_we;
+    if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank17_ev_status_re <= interface17_bank_bus_we;
         csrbank17_ev_status_we <= csrbank17_re;
     end
 end
-assign csrbank17_ev_pending_r = interface17_dat_w[19:0];
+assign csrbank17_ev_pending_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank17_ev_pending_we <= 1'd0;
     csrbank17_ev_pending_re <= 1'd0;
-    if ((csrbank17_sel & (interface17_adr[9:0] == 2'd2))) begin
-        csrbank17_ev_pending_re <= interface17_we;
+    if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank17_ev_pending_re <= interface17_bank_bus_we;
         csrbank17_ev_pending_we <= csrbank17_re;
     end
 end
-assign csrbank17_ev_enable0_r = interface17_dat_w[19:0];
+assign csrbank17_ev_enable0_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank17_ev_enable0_re <= 1'd0;
     csrbank17_ev_enable0_we <= 1'd0;
-    if ((csrbank17_sel & (interface17_adr[9:0] == 2'd3))) begin
-        csrbank17_ev_enable0_re <= interface17_we;
+    if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank17_ev_enable0_re <= interface17_bank_bus_we;
         csrbank17_ev_enable0_we <= csrbank17_re;
     end
 end
@@ -10445,41 +10445,41 @@ assign irqarray5_source172 = irqarray5_enable_storage[17];
 assign irqarray5_source182 = irqarray5_enable_storage[18];
 assign irqarray5_source192 = irqarray5_enable_storage[19];
 assign csrbank17_ev_enable0_w = irqarray5_enable_storage[19:0];
-assign csrbank18_sel = (interface18_adr[15:10] == 5'd18);
-assign csrbank18_re = interface18_re;
-assign csrbank18_ev_soft0_r = interface18_dat_w[19:0];
+assign csrbank18_sel = (interface18_bank_bus_adr[15:10] == 5'd18);
+assign csrbank18_re = interface18_bank_bus_re;
+assign csrbank18_ev_soft0_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank18_ev_soft0_we <= 1'd0;
     csrbank18_ev_soft0_re <= 1'd0;
-    if ((csrbank18_sel & (interface18_adr[9:0] == 1'd0))) begin
-        csrbank18_ev_soft0_re <= interface18_we;
+    if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank18_ev_soft0_re <= interface18_bank_bus_we;
         csrbank18_ev_soft0_we <= csrbank18_re;
     end
 end
-assign csrbank18_ev_status_r = interface18_dat_w[19:0];
+assign csrbank18_ev_status_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank18_ev_status_re <= 1'd0;
     csrbank18_ev_status_we <= 1'd0;
-    if ((csrbank18_sel & (interface18_adr[9:0] == 1'd1))) begin
-        csrbank18_ev_status_re <= interface18_we;
+    if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank18_ev_status_re <= interface18_bank_bus_we;
         csrbank18_ev_status_we <= csrbank18_re;
     end
 end
-assign csrbank18_ev_pending_r = interface18_dat_w[19:0];
+assign csrbank18_ev_pending_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank18_ev_pending_we <= 1'd0;
     csrbank18_ev_pending_re <= 1'd0;
-    if ((csrbank18_sel & (interface18_adr[9:0] == 2'd2))) begin
-        csrbank18_ev_pending_re <= interface18_we;
+    if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank18_ev_pending_re <= interface18_bank_bus_we;
         csrbank18_ev_pending_we <= csrbank18_re;
     end
 end
-assign csrbank18_ev_enable0_r = interface18_dat_w[19:0];
+assign csrbank18_ev_enable0_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank18_ev_enable0_we <= 1'd0;
     csrbank18_ev_enable0_re <= 1'd0;
-    if ((csrbank18_sel & (interface18_adr[9:0] == 2'd3))) begin
-        csrbank18_ev_enable0_re <= interface18_we;
+    if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank18_ev_enable0_re <= interface18_bank_bus_we;
         csrbank18_ev_enable0_we <= csrbank18_re;
     end
 end
@@ -10561,41 +10561,41 @@ assign irqarray6_source172 = irqarray6_enable_storage[17];
 assign irqarray6_source182 = irqarray6_enable_storage[18];
 assign irqarray6_source192 = irqarray6_enable_storage[19];
 assign csrbank18_ev_enable0_w = irqarray6_enable_storage[19:0];
-assign csrbank19_sel = (interface19_adr[15:10] == 5'd19);
-assign csrbank19_re = interface19_re;
-assign csrbank19_ev_soft0_r = interface19_dat_w[19:0];
+assign csrbank19_sel = (interface19_bank_bus_adr[15:10] == 5'd19);
+assign csrbank19_re = interface19_bank_bus_re;
+assign csrbank19_ev_soft0_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank19_ev_soft0_we <= 1'd0;
     csrbank19_ev_soft0_re <= 1'd0;
-    if ((csrbank19_sel & (interface19_adr[9:0] == 1'd0))) begin
-        csrbank19_ev_soft0_re <= interface19_we;
+    if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank19_ev_soft0_re <= interface19_bank_bus_we;
         csrbank19_ev_soft0_we <= csrbank19_re;
     end
 end
-assign csrbank19_ev_status_r = interface19_dat_w[19:0];
+assign csrbank19_ev_status_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank19_ev_status_re <= 1'd0;
     csrbank19_ev_status_we <= 1'd0;
-    if ((csrbank19_sel & (interface19_adr[9:0] == 1'd1))) begin
-        csrbank19_ev_status_re <= interface19_we;
+    if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank19_ev_status_re <= interface19_bank_bus_we;
         csrbank19_ev_status_we <= csrbank19_re;
     end
 end
-assign csrbank19_ev_pending_r = interface19_dat_w[19:0];
+assign csrbank19_ev_pending_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank19_ev_pending_re <= 1'd0;
     csrbank19_ev_pending_we <= 1'd0;
-    if ((csrbank19_sel & (interface19_adr[9:0] == 2'd2))) begin
-        csrbank19_ev_pending_re <= interface19_we;
+    if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank19_ev_pending_re <= interface19_bank_bus_we;
         csrbank19_ev_pending_we <= csrbank19_re;
     end
 end
-assign csrbank19_ev_enable0_r = interface19_dat_w[19:0];
+assign csrbank19_ev_enable0_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank19_ev_enable0_we <= 1'd0;
     csrbank19_ev_enable0_re <= 1'd0;
-    if ((csrbank19_sel & (interface19_adr[9:0] == 2'd3))) begin
-        csrbank19_ev_enable0_re <= interface19_we;
+    if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank19_ev_enable0_re <= interface19_bank_bus_we;
         csrbank19_ev_enable0_we <= csrbank19_re;
     end
 end
@@ -10677,41 +10677,41 @@ assign irqarray7_source172 = irqarray7_enable_storage[17];
 assign irqarray7_source182 = irqarray7_enable_storage[18];
 assign irqarray7_source192 = irqarray7_enable_storage[19];
 assign csrbank19_ev_enable0_w = irqarray7_enable_storage[19:0];
-assign csrbank20_sel = (interface20_adr[15:10] == 5'd20);
-assign csrbank20_re = interface20_re;
-assign csrbank20_ev_soft0_r = interface20_dat_w[19:0];
+assign csrbank20_sel = (interface20_bank_bus_adr[15:10] == 5'd20);
+assign csrbank20_re = interface20_bank_bus_re;
+assign csrbank20_ev_soft0_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank20_ev_soft0_re <= 1'd0;
     csrbank20_ev_soft0_we <= 1'd0;
-    if ((csrbank20_sel & (interface20_adr[9:0] == 1'd0))) begin
-        csrbank20_ev_soft0_re <= interface20_we;
+    if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank20_ev_soft0_re <= interface20_bank_bus_we;
         csrbank20_ev_soft0_we <= csrbank20_re;
     end
 end
-assign csrbank20_ev_status_r = interface20_dat_w[19:0];
+assign csrbank20_ev_status_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank20_ev_status_we <= 1'd0;
     csrbank20_ev_status_re <= 1'd0;
-    if ((csrbank20_sel & (interface20_adr[9:0] == 1'd1))) begin
-        csrbank20_ev_status_re <= interface20_we;
+    if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank20_ev_status_re <= interface20_bank_bus_we;
         csrbank20_ev_status_we <= csrbank20_re;
     end
 end
-assign csrbank20_ev_pending_r = interface20_dat_w[19:0];
+assign csrbank20_ev_pending_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank20_ev_pending_re <= 1'd0;
     csrbank20_ev_pending_we <= 1'd0;
-    if ((csrbank20_sel & (interface20_adr[9:0] == 2'd2))) begin
-        csrbank20_ev_pending_re <= interface20_we;
+    if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank20_ev_pending_re <= interface20_bank_bus_we;
         csrbank20_ev_pending_we <= csrbank20_re;
     end
 end
-assign csrbank20_ev_enable0_r = interface20_dat_w[19:0];
+assign csrbank20_ev_enable0_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank20_ev_enable0_re <= 1'd0;
     csrbank20_ev_enable0_we <= 1'd0;
-    if ((csrbank20_sel & (interface20_adr[9:0] == 2'd3))) begin
-        csrbank20_ev_enable0_re <= interface20_we;
+    if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank20_ev_enable0_re <= interface20_bank_bus_we;
         csrbank20_ev_enable0_we <= csrbank20_re;
     end
 end
@@ -10793,41 +10793,41 @@ assign irqarray8_source172 = irqarray8_enable_storage[17];
 assign irqarray8_source182 = irqarray8_enable_storage[18];
 assign irqarray8_source192 = irqarray8_enable_storage[19];
 assign csrbank20_ev_enable0_w = irqarray8_enable_storage[19:0];
-assign csrbank21_sel = (interface21_adr[15:10] == 5'd21);
-assign csrbank21_re = interface21_re;
-assign csrbank21_ev_soft0_r = interface21_dat_w[19:0];
+assign csrbank21_sel = (interface21_bank_bus_adr[15:10] == 5'd21);
+assign csrbank21_re = interface21_bank_bus_re;
+assign csrbank21_ev_soft0_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank21_ev_soft0_re <= 1'd0;
     csrbank21_ev_soft0_we <= 1'd0;
-    if ((csrbank21_sel & (interface21_adr[9:0] == 1'd0))) begin
-        csrbank21_ev_soft0_re <= interface21_we;
+    if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank21_ev_soft0_re <= interface21_bank_bus_we;
         csrbank21_ev_soft0_we <= csrbank21_re;
     end
 end
-assign csrbank21_ev_status_r = interface21_dat_w[19:0];
+assign csrbank21_ev_status_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank21_ev_status_we <= 1'd0;
     csrbank21_ev_status_re <= 1'd0;
-    if ((csrbank21_sel & (interface21_adr[9:0] == 1'd1))) begin
-        csrbank21_ev_status_re <= interface21_we;
+    if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank21_ev_status_re <= interface21_bank_bus_we;
         csrbank21_ev_status_we <= csrbank21_re;
     end
 end
-assign csrbank21_ev_pending_r = interface21_dat_w[19:0];
+assign csrbank21_ev_pending_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank21_ev_pending_we <= 1'd0;
     csrbank21_ev_pending_re <= 1'd0;
-    if ((csrbank21_sel & (interface21_adr[9:0] == 2'd2))) begin
-        csrbank21_ev_pending_re <= interface21_we;
+    if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank21_ev_pending_re <= interface21_bank_bus_we;
         csrbank21_ev_pending_we <= csrbank21_re;
     end
 end
-assign csrbank21_ev_enable0_r = interface21_dat_w[19:0];
+assign csrbank21_ev_enable0_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
     csrbank21_ev_enable0_re <= 1'd0;
     csrbank21_ev_enable0_we <= 1'd0;
-    if ((csrbank21_sel & (interface21_adr[9:0] == 2'd3))) begin
-        csrbank21_ev_enable0_re <= interface21_we;
+    if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank21_ev_enable0_re <= interface21_bank_bus_we;
         csrbank21_ev_enable0_we <= csrbank21_re;
     end
 end
@@ -10909,77 +10909,77 @@ assign irqarray9_source172 = irqarray9_enable_storage[17];
 assign irqarray9_source182 = irqarray9_enable_storage[18];
 assign irqarray9_source192 = irqarray9_enable_storage[19];
 assign csrbank21_ev_enable0_w = irqarray9_enable_storage[19:0];
-assign csrbank22_sel = (interface22_adr[15:10] == 5'd22);
-assign csrbank22_re = interface22_re;
-assign csrbank22_wdata0_r = interface22_dat_w[31:0];
+assign csrbank22_sel = (interface22_bank_bus_adr[15:10] == 5'd22);
+assign csrbank22_re = interface22_bank_bus_re;
+assign csrbank22_wdata0_r = interface22_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank22_wdata0_we <= 1'd0;
     csrbank22_wdata0_re <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 1'd0))) begin
-        csrbank22_wdata0_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank22_wdata0_re <= interface22_bank_bus_we;
         csrbank22_wdata0_we <= csrbank22_re;
     end
 end
-assign csrbank22_rdata_r = interface22_dat_w[31:0];
+assign csrbank22_rdata_r = interface22_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank22_rdata_re <= 1'd0;
     csrbank22_rdata_we <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 1'd1))) begin
-        csrbank22_rdata_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank22_rdata_re <= interface22_bank_bus_we;
         csrbank22_rdata_we <= csrbank22_re;
     end
 end
-assign csrbank22_ev_status_r = interface22_dat_w[3:0];
+assign csrbank22_ev_status_r = interface22_bank_bus_dat_w[3:0];
 always @(*) begin
     csrbank22_ev_status_we <= 1'd0;
     csrbank22_ev_status_re <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 2'd2))) begin
-        csrbank22_ev_status_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank22_ev_status_re <= interface22_bank_bus_we;
         csrbank22_ev_status_we <= csrbank22_re;
     end
 end
-assign csrbank22_ev_pending_r = interface22_dat_w[3:0];
+assign csrbank22_ev_pending_r = interface22_bank_bus_dat_w[3:0];
 always @(*) begin
     csrbank22_ev_pending_we <= 1'd0;
     csrbank22_ev_pending_re <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 2'd3))) begin
-        csrbank22_ev_pending_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank22_ev_pending_re <= interface22_bank_bus_we;
         csrbank22_ev_pending_we <= csrbank22_re;
     end
 end
-assign csrbank22_ev_enable0_r = interface22_dat_w[3:0];
+assign csrbank22_ev_enable0_r = interface22_bank_bus_dat_w[3:0];
 always @(*) begin
     csrbank22_ev_enable0_re <= 1'd0;
     csrbank22_ev_enable0_we <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd4))) begin
-        csrbank22_ev_enable0_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 3'd4))) begin
+        csrbank22_ev_enable0_re <= interface22_bank_bus_we;
         csrbank22_ev_enable0_we <= csrbank22_re;
     end
 end
-assign csrbank22_status_r = interface22_dat_w[23:0];
+assign csrbank22_status_r = interface22_bank_bus_dat_w[23:0];
 always @(*) begin
     csrbank22_status_we <= 1'd0;
     csrbank22_status_re <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd5))) begin
-        csrbank22_status_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank22_status_re <= interface22_bank_bus_we;
         csrbank22_status_we <= csrbank22_re;
     end
 end
-assign csrbank22_control0_r = interface22_dat_w[0];
+assign csrbank22_control0_r = interface22_bank_bus_dat_w[0];
 always @(*) begin
     csrbank22_control0_we <= 1'd0;
     csrbank22_control0_re <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd6))) begin
-        csrbank22_control0_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 3'd6))) begin
+        csrbank22_control0_re <= interface22_bank_bus_we;
         csrbank22_control0_we <= csrbank22_re;
     end
 end
-assign csrbank22_done0_r = interface22_dat_w[0];
+assign csrbank22_done0_r = interface22_bank_bus_dat_w[0];
 always @(*) begin
     csrbank22_done0_re <= 1'd0;
     csrbank22_done0_we <= 1'd0;
-    if ((csrbank22_sel & (interface22_adr[9:0] == 3'd7))) begin
-        csrbank22_done0_re <= interface22_we;
+    if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 3'd7))) begin
+        csrbank22_done0_re <= interface22_bank_bus_we;
         csrbank22_done0_we <= csrbank22_re;
     end
 end
@@ -11034,90 +11034,90 @@ always @(*) begin
     end
 end
 assign csrbank22_done0_w = mailbox_done_storage;
-assign csrbank23_sel = (interface23_adr[15:10] == 5'd23);
-assign csrbank23_re = interface23_re;
-assign csrbank23_pc_r = interface23_dat_w[31:0];
+assign csrbank23_sel = (interface23_bank_bus_adr[15:10] == 5'd23);
+assign csrbank23_re = interface23_bank_bus_re;
+assign csrbank23_pc_r = interface23_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank23_pc_we <= 1'd0;
     csrbank23_pc_re <= 1'd0;
-    if ((csrbank23_sel & (interface23_adr[9:0] == 1'd0))) begin
-        csrbank23_pc_re <= interface23_we;
+    if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank23_pc_re <= interface23_bank_bus_we;
         csrbank23_pc_we <= csrbank23_re;
     end
 end
 assign csrbank23_pc_w = resetvalue_status[31:0];
 assign resetvalue_we = csrbank23_pc_we;
-assign csrbank24_sel = (interface24_adr[15:10] == 5'd24);
-assign csrbank24_re = interface24_re;
-assign csrbank24_control0_r = interface24_dat_w[0];
+assign csrbank24_sel = (interface24_bank_bus_adr[15:10] == 5'd24);
+assign csrbank24_re = interface24_bank_bus_re;
+assign csrbank24_control0_r = interface24_bank_bus_dat_w[0];
 always @(*) begin
     csrbank24_control0_re <= 1'd0;
     csrbank24_control0_we <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 1'd0))) begin
-        csrbank24_control0_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank24_control0_re <= interface24_bank_bus_we;
         csrbank24_control0_we <= csrbank24_re;
     end
 end
-assign csrbank24_time1_r = interface24_dat_w[31:0];
+assign csrbank24_time1_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank24_time1_we <= 1'd0;
     csrbank24_time1_re <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 1'd1))) begin
-        csrbank24_time1_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank24_time1_re <= interface24_bank_bus_we;
         csrbank24_time1_we <= csrbank24_re;
     end
 end
-assign csrbank24_time0_r = interface24_dat_w[31:0];
+assign csrbank24_time0_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank24_time0_we <= 1'd0;
     csrbank24_time0_re <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 2'd2))) begin
-        csrbank24_time0_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank24_time0_re <= interface24_bank_bus_we;
         csrbank24_time0_we <= csrbank24_re;
     end
 end
-assign csrbank24_msleep_target1_r = interface24_dat_w[31:0];
+assign csrbank24_msleep_target1_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank24_msleep_target1_re <= 1'd0;
     csrbank24_msleep_target1_we <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 2'd3))) begin
-        csrbank24_msleep_target1_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank24_msleep_target1_re <= interface24_bank_bus_we;
         csrbank24_msleep_target1_we <= csrbank24_re;
     end
 end
-assign csrbank24_msleep_target0_r = interface24_dat_w[31:0];
+assign csrbank24_msleep_target0_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
     csrbank24_msleep_target0_we <= 1'd0;
     csrbank24_msleep_target0_re <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd4))) begin
-        csrbank24_msleep_target0_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd4))) begin
+        csrbank24_msleep_target0_re <= interface24_bank_bus_we;
         csrbank24_msleep_target0_we <= csrbank24_re;
     end
 end
-assign csrbank24_ev_status_r = interface24_dat_w[0];
+assign csrbank24_ev_status_r = interface24_bank_bus_dat_w[0];
 always @(*) begin
     csrbank24_ev_status_we <= 1'd0;
     csrbank24_ev_status_re <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd5))) begin
-        csrbank24_ev_status_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank24_ev_status_re <= interface24_bank_bus_we;
         csrbank24_ev_status_we <= csrbank24_re;
     end
 end
-assign csrbank24_ev_pending_r = interface24_dat_w[0];
+assign csrbank24_ev_pending_r = interface24_bank_bus_dat_w[0];
 always @(*) begin
     csrbank24_ev_pending_re <= 1'd0;
     csrbank24_ev_pending_we <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd6))) begin
-        csrbank24_ev_pending_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd6))) begin
+        csrbank24_ev_pending_re <= interface24_bank_bus_we;
         csrbank24_ev_pending_we <= csrbank24_re;
     end
 end
-assign csrbank24_ev_enable0_r = interface24_dat_w[0];
+assign csrbank24_ev_enable0_r = interface24_bank_bus_dat_w[0];
 always @(*) begin
     csrbank24_ev_enable0_we <= 1'd0;
     csrbank24_ev_enable0_re <= 1'd0;
-    if ((csrbank24_sel & (interface24_adr[9:0] == 3'd7))) begin
-        csrbank24_ev_enable0_re <= interface24_we;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd7))) begin
+        csrbank24_ev_enable0_re <= interface24_bank_bus_we;
         csrbank24_ev_enable0_we <= csrbank24_re;
     end
 end
@@ -11146,107 +11146,107 @@ assign csr_interconnect_we = cramsoc_we;
 assign csr_interconnect_dat_w = cramsoc_dat_w;
 assign csr_interconnect_re = cramsoc_re;
 assign cramsoc_dat_r = csr_interconnect_dat_r;
-assign interface0_adr = csr_interconnect_adr;
-assign interface1_adr = csr_interconnect_adr;
-assign interface2_adr = csr_interconnect_adr;
-assign interface3_adr = csr_interconnect_adr;
-assign interface4_adr = csr_interconnect_adr;
-assign interface5_adr = csr_interconnect_adr;
-assign interface6_adr = csr_interconnect_adr;
-assign interface7_adr = csr_interconnect_adr;
-assign interface8_adr = csr_interconnect_adr;
-assign interface9_adr = csr_interconnect_adr;
-assign interface10_adr = csr_interconnect_adr;
-assign interface11_adr = csr_interconnect_adr;
-assign interface12_adr = csr_interconnect_adr;
-assign interface13_adr = csr_interconnect_adr;
-assign interface14_adr = csr_interconnect_adr;
-assign interface15_adr = csr_interconnect_adr;
-assign interface16_adr = csr_interconnect_adr;
-assign interface17_adr = csr_interconnect_adr;
-assign interface18_adr = csr_interconnect_adr;
-assign interface19_adr = csr_interconnect_adr;
-assign interface20_adr = csr_interconnect_adr;
-assign interface21_adr = csr_interconnect_adr;
-assign interface22_adr = csr_interconnect_adr;
-assign interface23_adr = csr_interconnect_adr;
-assign interface24_adr = csr_interconnect_adr;
-assign interface0_we = csr_interconnect_we;
-assign interface1_we = csr_interconnect_we;
-assign interface2_we = csr_interconnect_we;
-assign interface3_we = csr_interconnect_we;
-assign interface4_we = csr_interconnect_we;
-assign interface5_we = csr_interconnect_we;
-assign interface6_we = csr_interconnect_we;
-assign interface7_we = csr_interconnect_we;
-assign interface8_we = csr_interconnect_we;
-assign interface9_we = csr_interconnect_we;
-assign interface10_we = csr_interconnect_we;
-assign interface11_we = csr_interconnect_we;
-assign interface12_we = csr_interconnect_we;
-assign interface13_we = csr_interconnect_we;
-assign interface14_we = csr_interconnect_we;
-assign interface15_we = csr_interconnect_we;
-assign interface16_we = csr_interconnect_we;
-assign interface17_we = csr_interconnect_we;
-assign interface18_we = csr_interconnect_we;
-assign interface19_we = csr_interconnect_we;
-assign interface20_we = csr_interconnect_we;
-assign interface21_we = csr_interconnect_we;
-assign interface22_we = csr_interconnect_we;
-assign interface23_we = csr_interconnect_we;
-assign interface24_we = csr_interconnect_we;
-assign interface0_dat_w = csr_interconnect_dat_w;
-assign interface1_dat_w = csr_interconnect_dat_w;
-assign interface2_dat_w = csr_interconnect_dat_w;
-assign interface3_dat_w = csr_interconnect_dat_w;
-assign interface4_dat_w = csr_interconnect_dat_w;
-assign interface5_dat_w = csr_interconnect_dat_w;
-assign interface6_dat_w = csr_interconnect_dat_w;
-assign interface7_dat_w = csr_interconnect_dat_w;
-assign interface8_dat_w = csr_interconnect_dat_w;
-assign interface9_dat_w = csr_interconnect_dat_w;
-assign interface10_dat_w = csr_interconnect_dat_w;
-assign interface11_dat_w = csr_interconnect_dat_w;
-assign interface12_dat_w = csr_interconnect_dat_w;
-assign interface13_dat_w = csr_interconnect_dat_w;
-assign interface14_dat_w = csr_interconnect_dat_w;
-assign interface15_dat_w = csr_interconnect_dat_w;
-assign interface16_dat_w = csr_interconnect_dat_w;
-assign interface17_dat_w = csr_interconnect_dat_w;
-assign interface18_dat_w = csr_interconnect_dat_w;
-assign interface19_dat_w = csr_interconnect_dat_w;
-assign interface20_dat_w = csr_interconnect_dat_w;
-assign interface21_dat_w = csr_interconnect_dat_w;
-assign interface22_dat_w = csr_interconnect_dat_w;
-assign interface23_dat_w = csr_interconnect_dat_w;
-assign interface24_dat_w = csr_interconnect_dat_w;
-assign csr_interconnect_dat_r = ((((((((((((((((((((((((interface0_dat_r | interface1_dat_r) | interface2_dat_r) | interface3_dat_r) | interface4_dat_r) | interface5_dat_r) | interface6_dat_r) | interface7_dat_r) | interface8_dat_r) | interface9_dat_r) | interface10_dat_r) | interface11_dat_r) | interface12_dat_r) | interface13_dat_r) | interface14_dat_r) | interface15_dat_r) | interface16_dat_r) | interface17_dat_r) | interface18_dat_r) | interface19_dat_r) | interface20_dat_r) | interface21_dat_r) | interface22_dat_r) | interface23_dat_r) | interface24_dat_r);
-assign interface0_re = csr_interconnect_re;
-assign interface1_re = csr_interconnect_re;
-assign interface2_re = csr_interconnect_re;
-assign interface3_re = csr_interconnect_re;
-assign interface4_re = csr_interconnect_re;
-assign interface5_re = csr_interconnect_re;
-assign interface6_re = csr_interconnect_re;
-assign interface7_re = csr_interconnect_re;
-assign interface8_re = csr_interconnect_re;
-assign interface9_re = csr_interconnect_re;
-assign interface10_re = csr_interconnect_re;
-assign interface11_re = csr_interconnect_re;
-assign interface12_re = csr_interconnect_re;
-assign interface13_re = csr_interconnect_re;
-assign interface14_re = csr_interconnect_re;
-assign interface15_re = csr_interconnect_re;
-assign interface16_re = csr_interconnect_re;
-assign interface17_re = csr_interconnect_re;
-assign interface18_re = csr_interconnect_re;
-assign interface19_re = csr_interconnect_re;
-assign interface20_re = csr_interconnect_re;
-assign interface21_re = csr_interconnect_re;
-assign interface22_re = csr_interconnect_re;
-assign interface23_re = csr_interconnect_re;
-assign interface24_re = csr_interconnect_re;
+assign interface0_bank_bus_adr = csr_interconnect_adr;
+assign interface1_bank_bus_adr = csr_interconnect_adr;
+assign interface2_bank_bus_adr = csr_interconnect_adr;
+assign interface3_bank_bus_adr = csr_interconnect_adr;
+assign interface4_bank_bus_adr = csr_interconnect_adr;
+assign interface5_bank_bus_adr = csr_interconnect_adr;
+assign interface6_bank_bus_adr = csr_interconnect_adr;
+assign interface7_bank_bus_adr = csr_interconnect_adr;
+assign interface8_bank_bus_adr = csr_interconnect_adr;
+assign interface9_bank_bus_adr = csr_interconnect_adr;
+assign interface10_bank_bus_adr = csr_interconnect_adr;
+assign interface11_bank_bus_adr = csr_interconnect_adr;
+assign interface12_bank_bus_adr = csr_interconnect_adr;
+assign interface13_bank_bus_adr = csr_interconnect_adr;
+assign interface14_bank_bus_adr = csr_interconnect_adr;
+assign interface15_bank_bus_adr = csr_interconnect_adr;
+assign interface16_bank_bus_adr = csr_interconnect_adr;
+assign interface17_bank_bus_adr = csr_interconnect_adr;
+assign interface18_bank_bus_adr = csr_interconnect_adr;
+assign interface19_bank_bus_adr = csr_interconnect_adr;
+assign interface20_bank_bus_adr = csr_interconnect_adr;
+assign interface21_bank_bus_adr = csr_interconnect_adr;
+assign interface22_bank_bus_adr = csr_interconnect_adr;
+assign interface23_bank_bus_adr = csr_interconnect_adr;
+assign interface24_bank_bus_adr = csr_interconnect_adr;
+assign interface0_bank_bus_we = csr_interconnect_we;
+assign interface1_bank_bus_we = csr_interconnect_we;
+assign interface2_bank_bus_we = csr_interconnect_we;
+assign interface3_bank_bus_we = csr_interconnect_we;
+assign interface4_bank_bus_we = csr_interconnect_we;
+assign interface5_bank_bus_we = csr_interconnect_we;
+assign interface6_bank_bus_we = csr_interconnect_we;
+assign interface7_bank_bus_we = csr_interconnect_we;
+assign interface8_bank_bus_we = csr_interconnect_we;
+assign interface9_bank_bus_we = csr_interconnect_we;
+assign interface10_bank_bus_we = csr_interconnect_we;
+assign interface11_bank_bus_we = csr_interconnect_we;
+assign interface12_bank_bus_we = csr_interconnect_we;
+assign interface13_bank_bus_we = csr_interconnect_we;
+assign interface14_bank_bus_we = csr_interconnect_we;
+assign interface15_bank_bus_we = csr_interconnect_we;
+assign interface16_bank_bus_we = csr_interconnect_we;
+assign interface17_bank_bus_we = csr_interconnect_we;
+assign interface18_bank_bus_we = csr_interconnect_we;
+assign interface19_bank_bus_we = csr_interconnect_we;
+assign interface20_bank_bus_we = csr_interconnect_we;
+assign interface21_bank_bus_we = csr_interconnect_we;
+assign interface22_bank_bus_we = csr_interconnect_we;
+assign interface23_bank_bus_we = csr_interconnect_we;
+assign interface24_bank_bus_we = csr_interconnect_we;
+assign interface0_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface1_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface2_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface3_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface4_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface5_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface6_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface7_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface8_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface9_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface10_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface11_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface12_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface13_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface14_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface15_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface16_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface17_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface18_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface19_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface20_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface21_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface22_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface23_bank_bus_dat_w = csr_interconnect_dat_w;
+assign interface24_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = ((((((((((((((((((((((((interface0_bank_bus_dat_r | interface1_bank_bus_dat_r) | interface2_bank_bus_dat_r) | interface3_bank_bus_dat_r) | interface4_bank_bus_dat_r) | interface5_bank_bus_dat_r) | interface6_bank_bus_dat_r) | interface7_bank_bus_dat_r) | interface8_bank_bus_dat_r) | interface9_bank_bus_dat_r) | interface10_bank_bus_dat_r) | interface11_bank_bus_dat_r) | interface12_bank_bus_dat_r) | interface13_bank_bus_dat_r) | interface14_bank_bus_dat_r) | interface15_bank_bus_dat_r) | interface16_bank_bus_dat_r) | interface17_bank_bus_dat_r) | interface18_bank_bus_dat_r) | interface19_bank_bus_dat_r) | interface20_bank_bus_dat_r) | interface21_bank_bus_dat_r) | interface22_bank_bus_dat_r) | interface23_bank_bus_dat_r) | interface24_bank_bus_dat_r);
+assign interface0_bank_bus_re = csr_interconnect_re;
+assign interface1_bank_bus_re = csr_interconnect_re;
+assign interface2_bank_bus_re = csr_interconnect_re;
+assign interface3_bank_bus_re = csr_interconnect_re;
+assign interface4_bank_bus_re = csr_interconnect_re;
+assign interface5_bank_bus_re = csr_interconnect_re;
+assign interface6_bank_bus_re = csr_interconnect_re;
+assign interface7_bank_bus_re = csr_interconnect_re;
+assign interface8_bank_bus_re = csr_interconnect_re;
+assign interface9_bank_bus_re = csr_interconnect_re;
+assign interface10_bank_bus_re = csr_interconnect_re;
+assign interface11_bank_bus_re = csr_interconnect_re;
+assign interface12_bank_bus_re = csr_interconnect_re;
+assign interface13_bank_bus_re = csr_interconnect_re;
+assign interface14_bank_bus_re = csr_interconnect_re;
+assign interface15_bank_bus_re = csr_interconnect_re;
+assign interface16_bank_bus_re = csr_interconnect_re;
+assign interface17_bank_bus_re = csr_interconnect_re;
+assign interface18_bank_bus_re = csr_interconnect_re;
+assign interface19_bank_bus_re = csr_interconnect_re;
+assign interface20_bank_bus_re = csr_interconnect_re;
+assign interface21_bank_bus_re = csr_interconnect_re;
+assign interface22_bank_bus_re = csr_interconnect_re;
+assign interface23_bank_bus_re = csr_interconnect_re;
+assign interface24_bank_bus_re = csr_interconnect_re;
 assign slice_proxy0 = cramsoc_corecsr_aw_payload_addr[31:2];
 assign slice_proxy1 = cramsoc_corecsr_ar_payload_addr[31:2];
 always @(*) begin
@@ -11385,25 +11385,25 @@ always @(*) begin
         end
     endcase
 end
-assign ticktimer_pause1 = multiregimpl01;
-assign ticktimer_load_xfer_ps_toggle_o = multiregimpl11;
-assign ticktimer_load_xfer_ps_ack_toggle_o = multiregimpl21;
-assign ticktimer_paused0 = multiregimpl31;
-assign ticktimer_timer_sync_ping_toggle_o = multiregimpl41;
-assign ticktimer_timer_sync_pong_toggle_o = multiregimpl51;
-assign ticktimer_timer_sync_obuffer = multiregimpl61;
-assign ticktimer_resume_sync_ping_toggle_o = multiregimpl71;
-assign ticktimer_resume_sync_pong_toggle_o = multiregimpl81;
-assign ticktimer_resume_sync_obuffer = multiregimpl91;
-assign ticktimer_reset_xfer_ps_toggle_o = multiregimpl101;
-assign ticktimer_reset_xfer_ps_ack_toggle_o = multiregimpl111;
-assign ticktimer_ping_ps_toggle_o = multiregimpl121;
-assign ticktimer_ping_ps_ack_toggle_o = multiregimpl131;
-assign ticktimer_pong_ps_toggle_o = multiregimpl141;
-assign ticktimer_pong_ps_ack_toggle_o = multiregimpl151;
-assign ticktimer_target_xfer_ping_toggle_o = multiregimpl161;
-assign ticktimer_target_xfer_pong_toggle_o = multiregimpl171;
-assign ticktimer_target_xfer_obuffer = multiregimpl181;
+assign ticktimer_pause1 = multiregimpl0_regs1;
+assign ticktimer_load_xfer_ps_toggle_o = multiregimpl1_regs1;
+assign ticktimer_load_xfer_ps_ack_toggle_o = multiregimpl2_regs1;
+assign ticktimer_paused0 = multiregimpl3_regs1;
+assign ticktimer_timer_sync_ping_toggle_o = multiregimpl4_regs1;
+assign ticktimer_timer_sync_pong_toggle_o = multiregimpl5_regs1;
+assign ticktimer_timer_sync_obuffer = multiregimpl6_regs1;
+assign ticktimer_resume_sync_ping_toggle_o = multiregimpl7_regs1;
+assign ticktimer_resume_sync_pong_toggle_o = multiregimpl8_regs1;
+assign ticktimer_resume_sync_obuffer = multiregimpl9_regs1;
+assign ticktimer_reset_xfer_ps_toggle_o = multiregimpl10_regs1;
+assign ticktimer_reset_xfer_ps_ack_toggle_o = multiregimpl11_regs1;
+assign ticktimer_ping_ps_toggle_o = multiregimpl12_regs1;
+assign ticktimer_ping_ps_ack_toggle_o = multiregimpl13_regs1;
+assign ticktimer_pong_ps_toggle_o = multiregimpl14_regs1;
+assign ticktimer_pong_ps_ack_toggle_o = multiregimpl15_regs1;
+assign ticktimer_target_xfer_ping_toggle_o = multiregimpl16_regs1;
+assign ticktimer_target_xfer_pong_toggle_o = multiregimpl17_regs1;
+assign ticktimer_target_xfer_obuffer = multiregimpl18_regs1;
 
 
 //------------------------------------------------------------------------------
@@ -11498,26 +11498,26 @@ always @(posedge always_on_clk) begin
         ticktimer_alarm3 <= 1'd0;
         ticktimer_target_xfer_ping_o1 <= 1'd0;
     end
-    multiregimpl00 <= ticktimer_pause0;
-    multiregimpl01 <= multiregimpl00;
-    multiregimpl10 <= ticktimer_load_xfer_ps_toggle_i;
-    multiregimpl11 <= multiregimpl10;
-    multiregimpl50 <= ticktimer_timer_sync_pong_toggle_i;
-    multiregimpl51 <= multiregimpl50;
-    multiregimpl70 <= ticktimer_resume_sync_ping_toggle_i;
-    multiregimpl71 <= multiregimpl70;
-    multiregimpl90 <= ticktimer_resume_sync_ibuffer;
-    multiregimpl91 <= multiregimpl90;
-    multiregimpl100 <= ticktimer_reset_xfer_ps_toggle_i;
-    multiregimpl101 <= multiregimpl100;
-    multiregimpl120 <= ticktimer_ping_ps_toggle_i;
-    multiregimpl121 <= multiregimpl120;
-    multiregimpl150 <= ticktimer_pong_ps_ack_toggle_i;
-    multiregimpl151 <= multiregimpl150;
-    multiregimpl160 <= ticktimer_target_xfer_ping_toggle_i;
-    multiregimpl161 <= multiregimpl160;
-    multiregimpl180 <= ticktimer_target_xfer_ibuffer;
-    multiregimpl181 <= multiregimpl180;
+    multiregimpl0_regs0 <= ticktimer_pause0;
+    multiregimpl0_regs1 <= multiregimpl0_regs0;
+    multiregimpl1_regs0 <= ticktimer_load_xfer_ps_toggle_i;
+    multiregimpl1_regs1 <= multiregimpl1_regs0;
+    multiregimpl5_regs0 <= ticktimer_timer_sync_pong_toggle_i;
+    multiregimpl5_regs1 <= multiregimpl5_regs0;
+    multiregimpl7_regs0 <= ticktimer_resume_sync_ping_toggle_i;
+    multiregimpl7_regs1 <= multiregimpl7_regs0;
+    multiregimpl9_regs0 <= ticktimer_resume_sync_ibuffer;
+    multiregimpl9_regs1 <= multiregimpl9_regs0;
+    multiregimpl10_regs0 <= ticktimer_reset_xfer_ps_toggle_i;
+    multiregimpl10_regs1 <= multiregimpl10_regs0;
+    multiregimpl12_regs0 <= ticktimer_ping_ps_toggle_i;
+    multiregimpl12_regs1 <= multiregimpl12_regs0;
+    multiregimpl15_regs0 <= ticktimer_pong_ps_ack_toggle_i;
+    multiregimpl15_regs1 <= multiregimpl15_regs0;
+    multiregimpl16_regs0 <= ticktimer_target_xfer_ping_toggle_i;
+    multiregimpl16_regs1 <= multiregimpl16_regs0;
+    multiregimpl18_regs0 <= ticktimer_target_xfer_ibuffer;
+    multiregimpl18_regs1 <= multiregimpl18_regs0;
 end
 
 always @(posedge por_clk) begin
@@ -15425,35 +15425,35 @@ always @(posedge sys_clk) begin
     if (cramsoc_last_was_read_axilite2csr_next_value_ce) begin
         cramsoc_last_was_read <= cramsoc_last_was_read_axilite2csr_next_value;
     end
-    interface0_dat_r <= 1'd0;
+    interface0_bank_bus_dat_r <= 1'd0;
     if (csrbank0_sel) begin
-        case (interface0_adr[9:0])
+        case (interface0_bank_bus_adr[9:0])
             1'd0: begin
-                interface0_dat_r <= csrbank0_set_asid0_w;
+                interface0_bank_bus_dat_r <= csrbank0_set_asid0_w;
             end
             1'd1: begin
-                interface0_dat_r <= csrbank0_get_asid_addr0_w;
+                interface0_bank_bus_dat_r <= csrbank0_get_asid_addr0_w;
             end
             2'd2: begin
-                interface0_dat_r <= csrbank0_get_asid_value0_w;
+                interface0_bank_bus_dat_r <= csrbank0_get_asid_value0_w;
             end
             2'd3: begin
-                interface0_dat_r <= csrbank0_control0_w;
+                interface0_bank_bus_dat_r <= csrbank0_control0_w;
             end
             3'd4: begin
-                interface0_dat_r <= csrbank0_protect0_w;
+                interface0_bank_bus_dat_r <= csrbank0_protect0_w;
             end
             3'd5: begin
-                interface0_dat_r <= csrbank0_window_al0_w;
+                interface0_bank_bus_dat_r <= csrbank0_window_al0_w;
             end
             3'd6: begin
-                interface0_dat_r <= csrbank0_window_ah0_w;
+                interface0_bank_bus_dat_r <= csrbank0_window_ah0_w;
             end
             3'd7: begin
-                interface0_dat_r <= csrbank0_window_bl0_w;
+                interface0_bank_bus_dat_r <= csrbank0_window_bl0_w;
             end
             4'd8: begin
-                interface0_dat_r <= csrbank0_window_bh0_w;
+                interface0_bank_bus_dat_r <= csrbank0_window_bh0_w;
             end
         endcase
     end
@@ -15493,14 +15493,14 @@ always @(posedge sys_clk) begin
         coreuser_window_bh_storage[21:0] <= csrbank0_window_bh0_r;
     end
     coreuser_window_bh_re <= csrbank0_window_bh0_re;
-    interface1_dat_r <= 1'd0;
+    interface1_bank_bus_dat_r <= 1'd0;
     if (csrbank1_sel) begin
-        case (interface1_adr[9:0])
+        case (interface1_bank_bus_adr[9:0])
             1'd0: begin
-                interface1_dat_r <= csrbank1_wtest0_w;
+                interface1_bank_bus_dat_r <= csrbank1_wtest0_w;
             end
             1'd1: begin
-                interface1_dat_r <= csrbank1_rtest_w;
+                interface1_bank_bus_dat_r <= csrbank1_rtest_w;
             end
         endcase
     end
@@ -15509,20 +15509,20 @@ always @(posedge sys_clk) begin
     end
     csr_wtest_re <= csrbank1_wtest0_re;
     csr_rtest_re <= csrbank1_rtest_re;
-    interface2_dat_r <= 1'd0;
+    interface2_bank_bus_dat_r <= 1'd0;
     if (csrbank2_sel) begin
-        case (interface2_adr[9:0])
+        case (interface2_bank_bus_adr[9:0])
             1'd0: begin
-                interface2_dat_r <= csrbank2_ev_soft0_w;
+                interface2_bank_bus_dat_r <= csrbank2_ev_soft0_w;
             end
             1'd1: begin
-                interface2_dat_r <= csrbank2_ev_status_w;
+                interface2_bank_bus_dat_r <= csrbank2_ev_status_w;
             end
             2'd2: begin
-                interface2_dat_r <= csrbank2_ev_pending_w;
+                interface2_bank_bus_dat_r <= csrbank2_ev_pending_w;
             end
             2'd3: begin
-                interface2_dat_r <= csrbank2_ev_enable0_w;
+                interface2_bank_bus_dat_r <= csrbank2_ev_enable0_w;
             end
         endcase
     end
@@ -15539,20 +15539,20 @@ always @(posedge sys_clk) begin
         irqarray0_enable_storage[19:0] <= csrbank2_ev_enable0_r;
     end
     irqarray0_enable_re <= csrbank2_ev_enable0_re;
-    interface3_dat_r <= 1'd0;
+    interface3_bank_bus_dat_r <= 1'd0;
     if (csrbank3_sel) begin
-        case (interface3_adr[9:0])
+        case (interface3_bank_bus_adr[9:0])
             1'd0: begin
-                interface3_dat_r <= csrbank3_ev_soft0_w;
+                interface3_bank_bus_dat_r <= csrbank3_ev_soft0_w;
             end
             1'd1: begin
-                interface3_dat_r <= csrbank3_ev_status_w;
+                interface3_bank_bus_dat_r <= csrbank3_ev_status_w;
             end
             2'd2: begin
-                interface3_dat_r <= csrbank3_ev_pending_w;
+                interface3_bank_bus_dat_r <= csrbank3_ev_pending_w;
             end
             2'd3: begin
-                interface3_dat_r <= csrbank3_ev_enable0_w;
+                interface3_bank_bus_dat_r <= csrbank3_ev_enable0_w;
             end
         endcase
     end
@@ -15569,20 +15569,20 @@ always @(posedge sys_clk) begin
         irqarray1_enable_storage[19:0] <= csrbank3_ev_enable0_r;
     end
     irqarray1_enable_re <= csrbank3_ev_enable0_re;
-    interface4_dat_r <= 1'd0;
+    interface4_bank_bus_dat_r <= 1'd0;
     if (csrbank4_sel) begin
-        case (interface4_adr[9:0])
+        case (interface4_bank_bus_adr[9:0])
             1'd0: begin
-                interface4_dat_r <= csrbank4_ev_soft0_w;
+                interface4_bank_bus_dat_r <= csrbank4_ev_soft0_w;
             end
             1'd1: begin
-                interface4_dat_r <= csrbank4_ev_status_w;
+                interface4_bank_bus_dat_r <= csrbank4_ev_status_w;
             end
             2'd2: begin
-                interface4_dat_r <= csrbank4_ev_pending_w;
+                interface4_bank_bus_dat_r <= csrbank4_ev_pending_w;
             end
             2'd3: begin
-                interface4_dat_r <= csrbank4_ev_enable0_w;
+                interface4_bank_bus_dat_r <= csrbank4_ev_enable0_w;
             end
         endcase
     end
@@ -15599,20 +15599,20 @@ always @(posedge sys_clk) begin
         irqarray10_enable_storage[19:0] <= csrbank4_ev_enable0_r;
     end
     irqarray10_enable_re <= csrbank4_ev_enable0_re;
-    interface5_dat_r <= 1'd0;
+    interface5_bank_bus_dat_r <= 1'd0;
     if (csrbank5_sel) begin
-        case (interface5_adr[9:0])
+        case (interface5_bank_bus_adr[9:0])
             1'd0: begin
-                interface5_dat_r <= csrbank5_ev_soft0_w;
+                interface5_bank_bus_dat_r <= csrbank5_ev_soft0_w;
             end
             1'd1: begin
-                interface5_dat_r <= csrbank5_ev_status_w;
+                interface5_bank_bus_dat_r <= csrbank5_ev_status_w;
             end
             2'd2: begin
-                interface5_dat_r <= csrbank5_ev_pending_w;
+                interface5_bank_bus_dat_r <= csrbank5_ev_pending_w;
             end
             2'd3: begin
-                interface5_dat_r <= csrbank5_ev_enable0_w;
+                interface5_bank_bus_dat_r <= csrbank5_ev_enable0_w;
             end
         endcase
     end
@@ -15629,20 +15629,20 @@ always @(posedge sys_clk) begin
         irqarray11_enable_storage[19:0] <= csrbank5_ev_enable0_r;
     end
     irqarray11_enable_re <= csrbank5_ev_enable0_re;
-    interface6_dat_r <= 1'd0;
+    interface6_bank_bus_dat_r <= 1'd0;
     if (csrbank6_sel) begin
-        case (interface6_adr[9:0])
+        case (interface6_bank_bus_adr[9:0])
             1'd0: begin
-                interface6_dat_r <= csrbank6_ev_soft0_w;
+                interface6_bank_bus_dat_r <= csrbank6_ev_soft0_w;
             end
             1'd1: begin
-                interface6_dat_r <= csrbank6_ev_status_w;
+                interface6_bank_bus_dat_r <= csrbank6_ev_status_w;
             end
             2'd2: begin
-                interface6_dat_r <= csrbank6_ev_pending_w;
+                interface6_bank_bus_dat_r <= csrbank6_ev_pending_w;
             end
             2'd3: begin
-                interface6_dat_r <= csrbank6_ev_enable0_w;
+                interface6_bank_bus_dat_r <= csrbank6_ev_enable0_w;
             end
         endcase
     end
@@ -15659,20 +15659,20 @@ always @(posedge sys_clk) begin
         irqarray12_enable_storage[19:0] <= csrbank6_ev_enable0_r;
     end
     irqarray12_enable_re <= csrbank6_ev_enable0_re;
-    interface7_dat_r <= 1'd0;
+    interface7_bank_bus_dat_r <= 1'd0;
     if (csrbank7_sel) begin
-        case (interface7_adr[9:0])
+        case (interface7_bank_bus_adr[9:0])
             1'd0: begin
-                interface7_dat_r <= csrbank7_ev_soft0_w;
+                interface7_bank_bus_dat_r <= csrbank7_ev_soft0_w;
             end
             1'd1: begin
-                interface7_dat_r <= csrbank7_ev_status_w;
+                interface7_bank_bus_dat_r <= csrbank7_ev_status_w;
             end
             2'd2: begin
-                interface7_dat_r <= csrbank7_ev_pending_w;
+                interface7_bank_bus_dat_r <= csrbank7_ev_pending_w;
             end
             2'd3: begin
-                interface7_dat_r <= csrbank7_ev_enable0_w;
+                interface7_bank_bus_dat_r <= csrbank7_ev_enable0_w;
             end
         endcase
     end
@@ -15689,20 +15689,20 @@ always @(posedge sys_clk) begin
         irqarray13_enable_storage[19:0] <= csrbank7_ev_enable0_r;
     end
     irqarray13_enable_re <= csrbank7_ev_enable0_re;
-    interface8_dat_r <= 1'd0;
+    interface8_bank_bus_dat_r <= 1'd0;
     if (csrbank8_sel) begin
-        case (interface8_adr[9:0])
+        case (interface8_bank_bus_adr[9:0])
             1'd0: begin
-                interface8_dat_r <= csrbank8_ev_soft0_w;
+                interface8_bank_bus_dat_r <= csrbank8_ev_soft0_w;
             end
             1'd1: begin
-                interface8_dat_r <= csrbank8_ev_status_w;
+                interface8_bank_bus_dat_r <= csrbank8_ev_status_w;
             end
             2'd2: begin
-                interface8_dat_r <= csrbank8_ev_pending_w;
+                interface8_bank_bus_dat_r <= csrbank8_ev_pending_w;
             end
             2'd3: begin
-                interface8_dat_r <= csrbank8_ev_enable0_w;
+                interface8_bank_bus_dat_r <= csrbank8_ev_enable0_w;
             end
         endcase
     end
@@ -15719,20 +15719,20 @@ always @(posedge sys_clk) begin
         irqarray14_enable_storage[19:0] <= csrbank8_ev_enable0_r;
     end
     irqarray14_enable_re <= csrbank8_ev_enable0_re;
-    interface9_dat_r <= 1'd0;
+    interface9_bank_bus_dat_r <= 1'd0;
     if (csrbank9_sel) begin
-        case (interface9_adr[9:0])
+        case (interface9_bank_bus_adr[9:0])
             1'd0: begin
-                interface9_dat_r <= csrbank9_ev_soft0_w;
+                interface9_bank_bus_dat_r <= csrbank9_ev_soft0_w;
             end
             1'd1: begin
-                interface9_dat_r <= csrbank9_ev_status_w;
+                interface9_bank_bus_dat_r <= csrbank9_ev_status_w;
             end
             2'd2: begin
-                interface9_dat_r <= csrbank9_ev_pending_w;
+                interface9_bank_bus_dat_r <= csrbank9_ev_pending_w;
             end
             2'd3: begin
-                interface9_dat_r <= csrbank9_ev_enable0_w;
+                interface9_bank_bus_dat_r <= csrbank9_ev_enable0_w;
             end
         endcase
     end
@@ -15749,20 +15749,20 @@ always @(posedge sys_clk) begin
         irqarray15_enable_storage[19:0] <= csrbank9_ev_enable0_r;
     end
     irqarray15_enable_re <= csrbank9_ev_enable0_re;
-    interface10_dat_r <= 1'd0;
+    interface10_bank_bus_dat_r <= 1'd0;
     if (csrbank10_sel) begin
-        case (interface10_adr[9:0])
+        case (interface10_bank_bus_adr[9:0])
             1'd0: begin
-                interface10_dat_r <= csrbank10_ev_soft0_w;
+                interface10_bank_bus_dat_r <= csrbank10_ev_soft0_w;
             end
             1'd1: begin
-                interface10_dat_r <= csrbank10_ev_status_w;
+                interface10_bank_bus_dat_r <= csrbank10_ev_status_w;
             end
             2'd2: begin
-                interface10_dat_r <= csrbank10_ev_pending_w;
+                interface10_bank_bus_dat_r <= csrbank10_ev_pending_w;
             end
             2'd3: begin
-                interface10_dat_r <= csrbank10_ev_enable0_w;
+                interface10_bank_bus_dat_r <= csrbank10_ev_enable0_w;
             end
         endcase
     end
@@ -15779,20 +15779,20 @@ always @(posedge sys_clk) begin
         irqarray16_enable_storage[19:0] <= csrbank10_ev_enable0_r;
     end
     irqarray16_enable_re <= csrbank10_ev_enable0_re;
-    interface11_dat_r <= 1'd0;
+    interface11_bank_bus_dat_r <= 1'd0;
     if (csrbank11_sel) begin
-        case (interface11_adr[9:0])
+        case (interface11_bank_bus_adr[9:0])
             1'd0: begin
-                interface11_dat_r <= csrbank11_ev_soft0_w;
+                interface11_bank_bus_dat_r <= csrbank11_ev_soft0_w;
             end
             1'd1: begin
-                interface11_dat_r <= csrbank11_ev_status_w;
+                interface11_bank_bus_dat_r <= csrbank11_ev_status_w;
             end
             2'd2: begin
-                interface11_dat_r <= csrbank11_ev_pending_w;
+                interface11_bank_bus_dat_r <= csrbank11_ev_pending_w;
             end
             2'd3: begin
-                interface11_dat_r <= csrbank11_ev_enable0_w;
+                interface11_bank_bus_dat_r <= csrbank11_ev_enable0_w;
             end
         endcase
     end
@@ -15809,20 +15809,20 @@ always @(posedge sys_clk) begin
         irqarray17_enable_storage[19:0] <= csrbank11_ev_enable0_r;
     end
     irqarray17_enable_re <= csrbank11_ev_enable0_re;
-    interface12_dat_r <= 1'd0;
+    interface12_bank_bus_dat_r <= 1'd0;
     if (csrbank12_sel) begin
-        case (interface12_adr[9:0])
+        case (interface12_bank_bus_adr[9:0])
             1'd0: begin
-                interface12_dat_r <= csrbank12_ev_soft0_w;
+                interface12_bank_bus_dat_r <= csrbank12_ev_soft0_w;
             end
             1'd1: begin
-                interface12_dat_r <= csrbank12_ev_status_w;
+                interface12_bank_bus_dat_r <= csrbank12_ev_status_w;
             end
             2'd2: begin
-                interface12_dat_r <= csrbank12_ev_pending_w;
+                interface12_bank_bus_dat_r <= csrbank12_ev_pending_w;
             end
             2'd3: begin
-                interface12_dat_r <= csrbank12_ev_enable0_w;
+                interface12_bank_bus_dat_r <= csrbank12_ev_enable0_w;
             end
         endcase
     end
@@ -15839,20 +15839,20 @@ always @(posedge sys_clk) begin
         irqarray18_enable_storage[19:0] <= csrbank12_ev_enable0_r;
     end
     irqarray18_enable_re <= csrbank12_ev_enable0_re;
-    interface13_dat_r <= 1'd0;
+    interface13_bank_bus_dat_r <= 1'd0;
     if (csrbank13_sel) begin
-        case (interface13_adr[9:0])
+        case (interface13_bank_bus_adr[9:0])
             1'd0: begin
-                interface13_dat_r <= csrbank13_ev_soft0_w;
+                interface13_bank_bus_dat_r <= csrbank13_ev_soft0_w;
             end
             1'd1: begin
-                interface13_dat_r <= csrbank13_ev_status_w;
+                interface13_bank_bus_dat_r <= csrbank13_ev_status_w;
             end
             2'd2: begin
-                interface13_dat_r <= csrbank13_ev_pending_w;
+                interface13_bank_bus_dat_r <= csrbank13_ev_pending_w;
             end
             2'd3: begin
-                interface13_dat_r <= csrbank13_ev_enable0_w;
+                interface13_bank_bus_dat_r <= csrbank13_ev_enable0_w;
             end
         endcase
     end
@@ -15869,20 +15869,20 @@ always @(posedge sys_clk) begin
         irqarray19_enable_storage[19:0] <= csrbank13_ev_enable0_r;
     end
     irqarray19_enable_re <= csrbank13_ev_enable0_re;
-    interface14_dat_r <= 1'd0;
+    interface14_bank_bus_dat_r <= 1'd0;
     if (csrbank14_sel) begin
-        case (interface14_adr[9:0])
+        case (interface14_bank_bus_adr[9:0])
             1'd0: begin
-                interface14_dat_r <= csrbank14_ev_soft0_w;
+                interface14_bank_bus_dat_r <= csrbank14_ev_soft0_w;
             end
             1'd1: begin
-                interface14_dat_r <= csrbank14_ev_status_w;
+                interface14_bank_bus_dat_r <= csrbank14_ev_status_w;
             end
             2'd2: begin
-                interface14_dat_r <= csrbank14_ev_pending_w;
+                interface14_bank_bus_dat_r <= csrbank14_ev_pending_w;
             end
             2'd3: begin
-                interface14_dat_r <= csrbank14_ev_enable0_w;
+                interface14_bank_bus_dat_r <= csrbank14_ev_enable0_w;
             end
         endcase
     end
@@ -15899,20 +15899,20 @@ always @(posedge sys_clk) begin
         irqarray2_enable_storage[19:0] <= csrbank14_ev_enable0_r;
     end
     irqarray2_enable_re <= csrbank14_ev_enable0_re;
-    interface15_dat_r <= 1'd0;
+    interface15_bank_bus_dat_r <= 1'd0;
     if (csrbank15_sel) begin
-        case (interface15_adr[9:0])
+        case (interface15_bank_bus_adr[9:0])
             1'd0: begin
-                interface15_dat_r <= csrbank15_ev_soft0_w;
+                interface15_bank_bus_dat_r <= csrbank15_ev_soft0_w;
             end
             1'd1: begin
-                interface15_dat_r <= csrbank15_ev_status_w;
+                interface15_bank_bus_dat_r <= csrbank15_ev_status_w;
             end
             2'd2: begin
-                interface15_dat_r <= csrbank15_ev_pending_w;
+                interface15_bank_bus_dat_r <= csrbank15_ev_pending_w;
             end
             2'd3: begin
-                interface15_dat_r <= csrbank15_ev_enable0_w;
+                interface15_bank_bus_dat_r <= csrbank15_ev_enable0_w;
             end
         endcase
     end
@@ -15929,20 +15929,20 @@ always @(posedge sys_clk) begin
         irqarray3_enable_storage[19:0] <= csrbank15_ev_enable0_r;
     end
     irqarray3_enable_re <= csrbank15_ev_enable0_re;
-    interface16_dat_r <= 1'd0;
+    interface16_bank_bus_dat_r <= 1'd0;
     if (csrbank16_sel) begin
-        case (interface16_adr[9:0])
+        case (interface16_bank_bus_adr[9:0])
             1'd0: begin
-                interface16_dat_r <= csrbank16_ev_soft0_w;
+                interface16_bank_bus_dat_r <= csrbank16_ev_soft0_w;
             end
             1'd1: begin
-                interface16_dat_r <= csrbank16_ev_status_w;
+                interface16_bank_bus_dat_r <= csrbank16_ev_status_w;
             end
             2'd2: begin
-                interface16_dat_r <= csrbank16_ev_pending_w;
+                interface16_bank_bus_dat_r <= csrbank16_ev_pending_w;
             end
             2'd3: begin
-                interface16_dat_r <= csrbank16_ev_enable0_w;
+                interface16_bank_bus_dat_r <= csrbank16_ev_enable0_w;
             end
         endcase
     end
@@ -15959,20 +15959,20 @@ always @(posedge sys_clk) begin
         irqarray4_enable_storage[19:0] <= csrbank16_ev_enable0_r;
     end
     irqarray4_enable_re <= csrbank16_ev_enable0_re;
-    interface17_dat_r <= 1'd0;
+    interface17_bank_bus_dat_r <= 1'd0;
     if (csrbank17_sel) begin
-        case (interface17_adr[9:0])
+        case (interface17_bank_bus_adr[9:0])
             1'd0: begin
-                interface17_dat_r <= csrbank17_ev_soft0_w;
+                interface17_bank_bus_dat_r <= csrbank17_ev_soft0_w;
             end
             1'd1: begin
-                interface17_dat_r <= csrbank17_ev_status_w;
+                interface17_bank_bus_dat_r <= csrbank17_ev_status_w;
             end
             2'd2: begin
-                interface17_dat_r <= csrbank17_ev_pending_w;
+                interface17_bank_bus_dat_r <= csrbank17_ev_pending_w;
             end
             2'd3: begin
-                interface17_dat_r <= csrbank17_ev_enable0_w;
+                interface17_bank_bus_dat_r <= csrbank17_ev_enable0_w;
             end
         endcase
     end
@@ -15989,20 +15989,20 @@ always @(posedge sys_clk) begin
         irqarray5_enable_storage[19:0] <= csrbank17_ev_enable0_r;
     end
     irqarray5_enable_re <= csrbank17_ev_enable0_re;
-    interface18_dat_r <= 1'd0;
+    interface18_bank_bus_dat_r <= 1'd0;
     if (csrbank18_sel) begin
-        case (interface18_adr[9:0])
+        case (interface18_bank_bus_adr[9:0])
             1'd0: begin
-                interface18_dat_r <= csrbank18_ev_soft0_w;
+                interface18_bank_bus_dat_r <= csrbank18_ev_soft0_w;
             end
             1'd1: begin
-                interface18_dat_r <= csrbank18_ev_status_w;
+                interface18_bank_bus_dat_r <= csrbank18_ev_status_w;
             end
             2'd2: begin
-                interface18_dat_r <= csrbank18_ev_pending_w;
+                interface18_bank_bus_dat_r <= csrbank18_ev_pending_w;
             end
             2'd3: begin
-                interface18_dat_r <= csrbank18_ev_enable0_w;
+                interface18_bank_bus_dat_r <= csrbank18_ev_enable0_w;
             end
         endcase
     end
@@ -16019,20 +16019,20 @@ always @(posedge sys_clk) begin
         irqarray6_enable_storage[19:0] <= csrbank18_ev_enable0_r;
     end
     irqarray6_enable_re <= csrbank18_ev_enable0_re;
-    interface19_dat_r <= 1'd0;
+    interface19_bank_bus_dat_r <= 1'd0;
     if (csrbank19_sel) begin
-        case (interface19_adr[9:0])
+        case (interface19_bank_bus_adr[9:0])
             1'd0: begin
-                interface19_dat_r <= csrbank19_ev_soft0_w;
+                interface19_bank_bus_dat_r <= csrbank19_ev_soft0_w;
             end
             1'd1: begin
-                interface19_dat_r <= csrbank19_ev_status_w;
+                interface19_bank_bus_dat_r <= csrbank19_ev_status_w;
             end
             2'd2: begin
-                interface19_dat_r <= csrbank19_ev_pending_w;
+                interface19_bank_bus_dat_r <= csrbank19_ev_pending_w;
             end
             2'd3: begin
-                interface19_dat_r <= csrbank19_ev_enable0_w;
+                interface19_bank_bus_dat_r <= csrbank19_ev_enable0_w;
             end
         endcase
     end
@@ -16049,20 +16049,20 @@ always @(posedge sys_clk) begin
         irqarray7_enable_storage[19:0] <= csrbank19_ev_enable0_r;
     end
     irqarray7_enable_re <= csrbank19_ev_enable0_re;
-    interface20_dat_r <= 1'd0;
+    interface20_bank_bus_dat_r <= 1'd0;
     if (csrbank20_sel) begin
-        case (interface20_adr[9:0])
+        case (interface20_bank_bus_adr[9:0])
             1'd0: begin
-                interface20_dat_r <= csrbank20_ev_soft0_w;
+                interface20_bank_bus_dat_r <= csrbank20_ev_soft0_w;
             end
             1'd1: begin
-                interface20_dat_r <= csrbank20_ev_status_w;
+                interface20_bank_bus_dat_r <= csrbank20_ev_status_w;
             end
             2'd2: begin
-                interface20_dat_r <= csrbank20_ev_pending_w;
+                interface20_bank_bus_dat_r <= csrbank20_ev_pending_w;
             end
             2'd3: begin
-                interface20_dat_r <= csrbank20_ev_enable0_w;
+                interface20_bank_bus_dat_r <= csrbank20_ev_enable0_w;
             end
         endcase
     end
@@ -16079,20 +16079,20 @@ always @(posedge sys_clk) begin
         irqarray8_enable_storage[19:0] <= csrbank20_ev_enable0_r;
     end
     irqarray8_enable_re <= csrbank20_ev_enable0_re;
-    interface21_dat_r <= 1'd0;
+    interface21_bank_bus_dat_r <= 1'd0;
     if (csrbank21_sel) begin
-        case (interface21_adr[9:0])
+        case (interface21_bank_bus_adr[9:0])
             1'd0: begin
-                interface21_dat_r <= csrbank21_ev_soft0_w;
+                interface21_bank_bus_dat_r <= csrbank21_ev_soft0_w;
             end
             1'd1: begin
-                interface21_dat_r <= csrbank21_ev_status_w;
+                interface21_bank_bus_dat_r <= csrbank21_ev_status_w;
             end
             2'd2: begin
-                interface21_dat_r <= csrbank21_ev_pending_w;
+                interface21_bank_bus_dat_r <= csrbank21_ev_pending_w;
             end
             2'd3: begin
-                interface21_dat_r <= csrbank21_ev_enable0_w;
+                interface21_bank_bus_dat_r <= csrbank21_ev_enable0_w;
             end
         endcase
     end
@@ -16109,32 +16109,32 @@ always @(posedge sys_clk) begin
         irqarray9_enable_storage[19:0] <= csrbank21_ev_enable0_r;
     end
     irqarray9_enable_re <= csrbank21_ev_enable0_re;
-    interface22_dat_r <= 1'd0;
+    interface22_bank_bus_dat_r <= 1'd0;
     if (csrbank22_sel) begin
-        case (interface22_adr[9:0])
+        case (interface22_bank_bus_adr[9:0])
             1'd0: begin
-                interface22_dat_r <= csrbank22_wdata0_w;
+                interface22_bank_bus_dat_r <= csrbank22_wdata0_w;
             end
             1'd1: begin
-                interface22_dat_r <= csrbank22_rdata_w;
+                interface22_bank_bus_dat_r <= csrbank22_rdata_w;
             end
             2'd2: begin
-                interface22_dat_r <= csrbank22_ev_status_w;
+                interface22_bank_bus_dat_r <= csrbank22_ev_status_w;
             end
             2'd3: begin
-                interface22_dat_r <= csrbank22_ev_pending_w;
+                interface22_bank_bus_dat_r <= csrbank22_ev_pending_w;
             end
             3'd4: begin
-                interface22_dat_r <= csrbank22_ev_enable0_w;
+                interface22_bank_bus_dat_r <= csrbank22_ev_enable0_w;
             end
             3'd5: begin
-                interface22_dat_r <= csrbank22_status_w;
+                interface22_bank_bus_dat_r <= csrbank22_status_w;
             end
             3'd6: begin
-                interface22_dat_r <= csrbank22_control0_w;
+                interface22_bank_bus_dat_r <= csrbank22_control0_w;
             end
             3'd7: begin
-                interface22_dat_r <= csrbank22_done0_w;
+                interface22_bank_bus_dat_r <= csrbank22_done0_w;
             end
         endcase
     end
@@ -16161,41 +16161,41 @@ always @(posedge sys_clk) begin
         mailbox_done_storage <= csrbank22_done0_r;
     end
     mailbox_done_re <= csrbank22_done0_re;
-    interface23_dat_r <= 1'd0;
+    interface23_bank_bus_dat_r <= 1'd0;
     if (csrbank23_sel) begin
-        case (interface23_adr[9:0])
+        case (interface23_bank_bus_adr[9:0])
             1'd0: begin
-                interface23_dat_r <= csrbank23_pc_w;
+                interface23_bank_bus_dat_r <= csrbank23_pc_w;
             end
         endcase
     end
     resetvalue_re <= csrbank23_pc_re;
-    interface24_dat_r <= 1'd0;
+    interface24_bank_bus_dat_r <= 1'd0;
     if (csrbank24_sel) begin
-        case (interface24_adr[9:0])
+        case (interface24_bank_bus_adr[9:0])
             1'd0: begin
-                interface24_dat_r <= csrbank24_control0_w;
+                interface24_bank_bus_dat_r <= csrbank24_control0_w;
             end
             1'd1: begin
-                interface24_dat_r <= csrbank24_time1_w;
+                interface24_bank_bus_dat_r <= csrbank24_time1_w;
             end
             2'd2: begin
-                interface24_dat_r <= csrbank24_time0_w;
+                interface24_bank_bus_dat_r <= csrbank24_time0_w;
             end
             2'd3: begin
-                interface24_dat_r <= csrbank24_msleep_target1_w;
+                interface24_bank_bus_dat_r <= csrbank24_msleep_target1_w;
             end
             3'd4: begin
-                interface24_dat_r <= csrbank24_msleep_target0_w;
+                interface24_bank_bus_dat_r <= csrbank24_msleep_target0_w;
             end
             3'd5: begin
-                interface24_dat_r <= csrbank24_ev_status_w;
+                interface24_bank_bus_dat_r <= csrbank24_ev_status_w;
             end
             3'd6: begin
-                interface24_dat_r <= csrbank24_ev_pending_w;
+                interface24_bank_bus_dat_r <= csrbank24_ev_pending_w;
             end
             3'd7: begin
-                interface24_dat_r <= csrbank24_ev_enable0_w;
+                interface24_bank_bus_dat_r <= csrbank24_ev_enable0_w;
             end
         endcase
     end
@@ -16874,24 +16874,24 @@ always @(posedge sys_clk) begin
         cramsoc_mailbox_state <= 2'd0;
         cramsoc_axilite2csr_state <= 2'd0;
     end
-    multiregimpl20 <= ticktimer_load_xfer_ps_ack_toggle_i;
-    multiregimpl21 <= multiregimpl20;
-    multiregimpl30 <= ticktimer_paused1;
-    multiregimpl31 <= multiregimpl30;
-    multiregimpl40 <= ticktimer_timer_sync_ping_toggle_i;
-    multiregimpl41 <= multiregimpl40;
-    multiregimpl60 <= ticktimer_timer_sync_ibuffer;
-    multiregimpl61 <= multiregimpl60;
-    multiregimpl80 <= ticktimer_resume_sync_pong_toggle_i;
-    multiregimpl81 <= multiregimpl80;
-    multiregimpl110 <= ticktimer_reset_xfer_ps_ack_toggle_i;
-    multiregimpl111 <= multiregimpl110;
-    multiregimpl130 <= ticktimer_ping_ps_ack_toggle_i;
-    multiregimpl131 <= multiregimpl130;
-    multiregimpl140 <= ticktimer_pong_ps_toggle_i;
-    multiregimpl141 <= multiregimpl140;
-    multiregimpl170 <= ticktimer_target_xfer_pong_toggle_i;
-    multiregimpl171 <= multiregimpl170;
+    multiregimpl2_regs0 <= ticktimer_load_xfer_ps_ack_toggle_i;
+    multiregimpl2_regs1 <= multiregimpl2_regs0;
+    multiregimpl3_regs0 <= ticktimer_paused1;
+    multiregimpl3_regs1 <= multiregimpl3_regs0;
+    multiregimpl4_regs0 <= ticktimer_timer_sync_ping_toggle_i;
+    multiregimpl4_regs1 <= multiregimpl4_regs0;
+    multiregimpl6_regs0 <= ticktimer_timer_sync_ibuffer;
+    multiregimpl6_regs1 <= multiregimpl6_regs0;
+    multiregimpl8_regs0 <= ticktimer_resume_sync_pong_toggle_i;
+    multiregimpl8_regs1 <= multiregimpl8_regs0;
+    multiregimpl11_regs0 <= ticktimer_reset_xfer_ps_ack_toggle_i;
+    multiregimpl11_regs1 <= multiregimpl11_regs0;
+    multiregimpl13_regs0 <= ticktimer_ping_ps_ack_toggle_i;
+    multiregimpl13_regs1 <= multiregimpl13_regs0;
+    multiregimpl14_regs0 <= ticktimer_pong_ps_toggle_i;
+    multiregimpl14_regs1 <= multiregimpl14_regs0;
+    multiregimpl17_regs0 <= ticktimer_target_xfer_pong_toggle_i;
+    multiregimpl17_regs1 <= multiregimpl17_regs0;
 end
 
 
@@ -17298,5 +17298,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2022-12-28 02:02:51.
+//  Auto-Generated by LiteX on 2022-12-30 00:50:13.
 //------------------------------------------------------------------------------
