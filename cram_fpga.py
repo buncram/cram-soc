@@ -422,7 +422,6 @@ class CramSoC(SoCMini):
 
         self.submodules.reram_axi_to_wb = AXILite2Wishbone(reram_axil, self.spinor.bus, base_address=axi_map["reram"])
         self.add_csr("spinor")
-        # self.irq.add("spinor")
 
         # External SRAM ----------------------------------------------------------------------------
         # Cache fill time is ~320ns for 8 words.
@@ -483,6 +482,8 @@ class CramSoC(SoCMini):
         interrupt = Signal(32)
         self.cpu.interrupt = interrupt
         self.irq.enable()
+        # this interrupt is added now due to the ordering of modules
+        self.irq.add("spinor")
 
         # Muxed UARTS ---------------------------------------------------------------------------
         self.gpio = CSRStorage(fields=[
