@@ -97,8 +97,23 @@ def get_python_path(script_path, args):
     # Construct this variable by adding each subdirectory under the `deps/`
     # directory to the PYTHONPATH environment variable.
     python_path = []
+    ignore_path = [
+        '__pycache__',
+        'encrypt-bitstream-python',
+        'litescope',
+        'litespi',
+        'compiler_rt',
+        'pyserial'
+    ]
     if os.path.isdir(script_path + DEPS_DIR):
         for dep in os.listdir(script_path + DEPS_DIR):
+            should_ignore = False
+            for ignore in ignore_path:
+                if ignore in dep:
+                    print("WARNING: ignoring {} in PYTHONPATH".format(ignore))
+                    should_ignore = True
+            if should_ignore:
+                continue
             dep = script_path + DEPS_DIR + os.path.sep + dep
             if os.path.isdir(dep):
                 python_path.append(dep)
