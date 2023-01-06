@@ -178,7 +178,7 @@ _io = [
 # CRG ----------------------------------------------------------------------------------------------
 
 class CRG(Module):
-    def __init__(self, platform, sys_clk_freq, spinor_edge_delay_ns=2.5):
+    def __init__(self, platform, sys_clk_freq, spinor_edge_delay_ns=2.5, sim=False):
         self.warm_reset = Signal()
         self.power_down = Signal()
         self.crypto_on = Signal()
@@ -261,7 +261,10 @@ class CRG(Module):
 
         self.ignore_locked = Signal()
         reset_combo = Signal()
-        self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked) | platform.request("reset"))
+        if sim:
+            self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked) | platform.request("reset"))
+        else:
+            self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked))
         # See https://forums.xilinx.com/t5/Other-FPGA-Architecture/MMCM-Behavior-After-Its-PWRDWN-Port-Is-Asserted-and-Then/td-p/792324
         # "The DRP functional logic itself does not behave differently for PWRDWN or RST.
         # The "registers" programmed previously through the DRP (or any other once) are not affected either
@@ -304,7 +307,7 @@ class CramSoC(SoCMini):
     mem_map = {**SoCCore.mem_map, **{
         "csr": 0x4000_0000,
     }}
-    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=False):
+    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=True):
         axi_map = {
             "spiflash"  : 0x20000000,
             "reram"     : 0x6000_0000, # +3M
@@ -317,7 +320,7 @@ class CramSoC(SoCMini):
 
         # Clockgen cluster -------------------------------------------------------------------------
         warm_reset = Signal()
-        self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
+        self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5, sim=sim)
         self.comb += self.crg.warm_reset.eq(warm_reset) # mirror signal here to hit the Async reset injectors
         # lpclk/sys paths are async
         self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks lpclk]')
@@ -329,6 +332,7 @@ class CramSoC(SoCMini):
         platform.add_source(VEX_VERILOG_PATH)
         platform.add_source("sim_support/ram_1w_1ra.v")
         platform.add_source("sim_support/ram_1w_1rs.v")
+        platform.add_source("sim_support/prims.v")
 
         # this must be pulled in manually because it's instantiated in the core design, but not in the SoC design
         rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
@@ -403,7 +407,7 @@ class CramSoC(SoCMini):
             bios_data = []
 
         # SPI flash controller ---------------------------------------------------------------------
-        reram_axi = AXIInterface(data_width=32, address_width=32, id_width=2, bursting=False)
+        reram_axi = AXIInterface(data_width=32, address_width=32, id_width=2, bursting=True)
         reram_axil = AXILiteInterface(data_width=32, address_width=32, bursting=False)
         self.submodules += AXI2AXILiteAdapter(platform, reram_axi, reram_axil)
         sclk_instance_name="SCLK_ODDR"
@@ -425,6 +429,8 @@ class CramSoC(SoCMini):
         # smaller cache to reduce resource utilization
         sram_axi = AXIInterface(data_width=32, address_width=32, id_width=2, bursting=True)
         if real_ram:
+            sram_axil = AXILiteInterface(data_width=32, address_width=32, bursting=False)
+            self.submodules += AXI2AXILiteAdapter(platform, sram_axi, sram_axil)
             self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
 
             self.add_csr("sram_ext")
@@ -445,7 +451,7 @@ class CramSoC(SoCMini):
             self.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_pins {net}_reg/Q]", net=self.sram_ext.sync_oe_n)
             self.platform.add_platform_command("set_multicycle_path 1 -hold -through [get_pins {net}_reg/Q]", net=self.sram_ext.sync_oe_n)
 
-            self.submodules.sram_axi_to_wb = AXI2Wishbone(sram_axi, self.sram_ext.bus, base_address=axi_map["sram"])
+            self.submodules.sram_axi_to_wb = AXILite2Wishbone(sram_axil, self.sram_ext.bus, base_address=axi_map["sram"])
         else:
             self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000, name="sram")
 
@@ -545,23 +551,24 @@ class CramSoC(SoCMini):
         self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # Internal reset ---------------------------------------------------------------------------
-        gsr = Signal()
-        self.specials += MultiReg(warm_reset, gsr)
-        self.specials += [
-            # De-activate the CCLK interface, parallel it with a GPIO
-            Instance("STARTUPE2",
-                i_CLK       = 0,
-                i_GSR       = gsr,
-                i_GTS       = 0,
-                i_KEYCLEARB = 1,
-                i_PACK      = 0,
-                i_USRDONEO  = 1,
-                i_USRDONETS = 1,
-                i_USRCCLKO  = 0,
-                i_USRCCLKTS = 1,  # Force to tristate
-                # o_CFGMCLK   = self.cfgmclk,
-            ),
-        ]
+        if sim:
+            gsr = Signal()
+            self.specials += MultiReg(warm_reset, gsr)
+            self.specials += [
+                # De-activate the CCLK interface, parallel it with a GPIO
+                Instance("STARTUPE2",
+                    i_CLK       = 0,
+                    i_GSR       = gsr,
+                    i_GTS       = 0,
+                    i_KEYCLEARB = 1,
+                    i_PACK      = 0,
+                    i_USRDONEO  = 1,
+                    i_USRDONETS = 1,
+                    i_USRCCLKO  = 0,
+                    i_USRCCLKTS = 1,  # Force to tristate
+                    # o_CFGMCLK   = self.cfgmclk,
+                ),
+            ]
 
         # Cramium platform -------------------------------------------------------------------------
         trimming_reset = Signal(32, reset=axi_map["reram"]+boot_offset+2)
@@ -590,6 +597,9 @@ class CramSoC(SoCMini):
                 wfi_loopback.eq(0),
             )
         ]
+        coreuser = Signal()
+        if sim:
+            self.comb += sim.coreuser.eq(coreuser)
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",
@@ -723,7 +733,7 @@ class CramSoC(SoCMini):
             i_jtag_tck            = jtag_cpu.tck      ,
             i_jtag_trst           = jtag_cpu.trst     ,
 
-            o_coreuser            = sim.coreuser      ,
+            o_coreuser            = coreuser          ,
             i_irqarray_bank0      = self.irqtest0.fields.trigger,
             i_irqarray_bank1      = self.irqtest1.fields.trigger,
             i_irqarray_bank2      = zero_irq,

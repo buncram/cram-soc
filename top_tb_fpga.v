@@ -64,6 +64,14 @@ initial begin
   fpga_reset = 1'b0;
 end
 
+wire [21:0] sram_adr;
+wire sram_ce_n;
+wire sram_oe_n;
+wire sram_we_n;
+wire sram_zz_n;
+wire [31:0] sram_d;
+wire [3:0] sram_dm_n;
+
 cram_fpga dut (
     .clk12(clk12),
     .lpclk(lpclk),
@@ -80,6 +88,14 @@ cram_fpga dut (
     .spiflash_8x_dqs(dqs),
     .spiflash_8x_ecs_n(ecsb),
     .spiflash_8x_sclk(spi_sclk),
+
+    .sram_adr(sram_adr),
+    .sram_ce_n(sram_ce_n),
+    .sram_oe_n(sram_oe_n),
+    .sram_we_n(sram_we_n),
+    .sram_zz_n(sram_zz_n),
+    .sram_d(sram_d),
+    .sram_dm_n(sram_dm_n),
 
     .serial_tx(serial_tx),
     .serial_rx(serial_rx),
@@ -109,5 +125,33 @@ end
 
 // DUT-specific end condition to make sure it eventually stops running for CI mode
 initial #4_000_000 $finish;
+
+parameter RAM_DATA_WIDTH = 32;
+parameter RAM_ADDR_WIDTH = 17; // 22 is the full width, but slightly smaller to accelerate the simulation
+
+reg [RAM_DATA_WIDTH-1:0] mem[(2**RAM_ADDR_WIDTH)-1:0];
+reg [31:0] rd_data;
+
+integer i, j;
+
+initial begin
+    for (i = 0; i < 2**RAM_ADDR_WIDTH; i = i + 2**(RAM_ADDR_WIDTH/2)) begin
+        for (j = i; j < i + 2**(RAM_ADDR_WIDTH/2); j = j + 1) begin
+            mem[j] = 0;
+        end
+    end
+end
+
+always @* begin
+    rd_data = mem[sram_adr];
+end
+assign sram_d = (sram_oe_n || sram_ce_n) ? 32'hzzzz_zzzz : rd_data;
+
+always @(posedge sram_we_n) begin
+    // dm_n is ignored in this implementation, because we always write full words
+    if (sram_ce_n == 1'b0) begin
+        mem[sram_adr] <= sram_d;
+    end
+end
 
 endmodule
