@@ -24,12 +24,13 @@ const ROOT_PT_PA: usize = 0x6100_0000; // 1st level at base of sram
 // 2nd level PTs
 const SRAM_PT_PA: usize = 0x6100_1000;
 const CODE_PT_PA: usize = 0x6100_2000;
-const CSR_PT_PA: usize  = 0x6100_3000;
-const PERI_PT_PA: usize = 0x6100_4000;
+const CODE2_PT_PA: usize = 0x6100_3000;
+const CSR_PT_PA: usize  = 0x6100_4000;
+const PERI_PT_PA: usize = 0x6100_5000;
 // exception handler pages. Mapped 1:1 PA:VA, so no explicit remapping needed as RAM area is already mapped.
-const _SCRATCH_PAGE: usize = 0x6100_5000;
-const _EXCEPTION_STACK_LIMIT: usize = 0x6100_6000; // the start of stack is this + 0x1000 & grows down
-pub const PT_LIMIT: usize = 0x6100_7000;
+const _SCRATCH_PAGE: usize = 0x6100_6000;
+const _EXCEPTION_STACK_LIMIT: usize = 0x6100_7000; // the start of stack is this + 0x1000 & grows down
+pub const PT_LIMIT: usize = 0x6100_8000;
 
 // VAs
 const CODE_VA: usize = 0x0000_0000;
@@ -69,19 +70,26 @@ pub fn satp_setup() {
     let mut root_pt = unsafe { &mut *(ROOT_PT_PA as *mut PageTable) };
     let mut sram_pt = unsafe { &mut *(SRAM_PT_PA as *mut PageTable) };
     let mut code_pt = unsafe { &mut *(CODE_PT_PA as *mut PageTable) };
+    let mut code2_pt = unsafe { &mut *(CODE2_PT_PA as *mut PageTable) };
     let mut csr_pt  = unsafe { &mut *(CSR_PT_PA  as *mut PageTable) };
     let mut peri_pt = unsafe { &mut *(PERI_PT_PA as *mut PageTable) };
 
     set_l1_pte(CODE_VA, CODE_PT_PA, &mut root_pt);
+    set_l1_pte(CODE_VA + 0x40_0000, CODE2_PT_PA, &mut root_pt);
     set_l1_pte(CSR_VA, CSR_PT_PA, &mut root_pt);
     set_l1_pte(PERI_VA, PERI_PT_PA, &mut root_pt);
     set_l1_pte(SRAM_VA, SRAM_PT_PA, &mut root_pt); // L1 covers 16MiB, so SP_VA will cover all of SRAM
 
     // map code space. This is the only one that has a difference on VA->PA
-    const CODE_LEN: usize = 65536;
+    const CODE_LEN: usize = 0x65536;
     for offset in (0..CODE_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R | FLG_U);
     }
+    const SPI_OFFSET: usize = 0x50_0000;
+    for offset in (SPI_OFFSET..SPI_OFFSET + CODE_LEN).step_by(PAGE_SIZE) {
+        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code2_pt, FLG_X | FLG_R | FLG_U);
+    }
+
     // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
     const SRAM_LEN: usize = 65536;
     for offset in (0..SRAM_LEN).step_by(PAGE_SIZE) {

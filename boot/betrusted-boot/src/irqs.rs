@@ -93,7 +93,7 @@ pub unsafe extern "C" fn _start_trap() -> ! {
         pub unsafe extern "C" fn _start_trap_aligned() {
             core::arch::asm!(
                 "csrw        sscratch, sp",
-                "li          sp, 0x61005000",
+                "li          sp, 0x61006000",
                 //"sw          x1, 0*4(sp)",  // Store x1 in the scratch field
                 //"lw          x1, 1*4(sp)",  // Load current context number
                 //"slli        x1, x1, 7",           // Multiply current context number by 32
@@ -136,8 +136,8 @@ pub unsafe extern "C" fn _start_trap() -> ! {
                 "sw       t0, 31*4(sp)",
 
                 // Save x1, which was used to calculate the offset.  Prior to
-                // calculating, it was stashed at 0x61005000.
-                //"li          t0, 0x61005000",
+                // calculating, it was stashed at 0x61006000.
+                //"li          t0, 0x61006000",
                 //"lw        t1, 0*4(t0)",
                 //"sw       t1, 0*4(sp)",
 
@@ -146,7 +146,7 @@ pub unsafe extern "C" fn _start_trap() -> ! {
                 "sw       t0, 1*4(sp)",
 
                 // Restore a default stack pointer
-                "li          sp, 0x61007000", // SP goes from 6100_6000-6100_6FFF; place at top of range
+                "li          sp, 0x61008000", // SP goes from 6100_7000-6100_7FFF; place at top of range
 
                 // Note that registers $a0-$a7 still contain the arguments
                 "j           _start_trap_rust",
@@ -292,5 +292,5 @@ pub extern "C" fn trap_handler(
 
     // drop us back to user mode
     report.wfo(utra::main::REPORT_REPORT, 0x2dcd_600d);
-    unsafe {_resume_context(0x61005000)};
+    unsafe {_resume_context(0x61006000)};
 }

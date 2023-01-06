@@ -27,12 +27,17 @@ const STACK_LEN: u32 = 8192 - (7 * 4); // 7 words for backup kernel args
 const STACK_TOP: u32 = 0x4100_0000 - STACK_LEN;
 
 use utralib::generated::*;
+#[cfg(feature="sim")]
 use core::convert::TryInto;
+#[cfg(feature="sim")]
 use core::convert::TryFrom;
+#[cfg(feature="sim")]
 use core::mem::size_of;
 
 mod debug;
+#[cfg(feature="sim")]
 mod satp;
+#[cfg(feature="sim")]
 mod irqs;
 
 /*
