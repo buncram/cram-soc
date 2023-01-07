@@ -29,6 +29,7 @@ from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
 from litex.soc.interconnect.axi import AXILite2Wishbone
 from axi_axil_adapter import AXI2AXILiteAdapter
 from litex.soc.integration.soc import SoCBusHandler
+from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.cores import uart
 
 from deps.gateware.gateware import memlcd
@@ -94,7 +95,7 @@ _io = [
     ("jtag_cpu", 0,
          Subsignal("tck", Pins("F14"), IOStandard("LVCMOS33")),
          Subsignal("tms", Pins("F15"), IOStandard("LVCMOS33")),
-         Subsignal("tdi", Pins("E16"), IOStandard("LVCMOS33")),
+         Subsignal("tdi", Pins("E6"), IOStandard("LVCMOS33")),
          Subsignal("tdo", Pins("G15"), IOStandard("LVCMOS33")),
          Subsignal("trst", Pins("H15"), IOStandard("LVCMOS33")),
          Misc("SLEW=SLOW"),
@@ -159,6 +160,33 @@ _io = [
         ),
         Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
     ),
+
+    ("analog", 0,
+     Subsignal("usbdet_p", Pins("C3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n", Pins("A3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div", Pins("C4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0", Pins("C5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1", Pins("A8"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("gpio2", Pins("E16"), IOStandard("LVCMOS33")), # PVT2
+     Subsignal("gpio5", Pins("D7"), IOStandard("LVCMOS33")),  # PVT2
+     # diff grounds
+     Subsignal("usbdet_p_n", Pins("B3"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("usbdet_n_n", Pins("A2"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("vbus_div_n", Pins("B4"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise0_n", Pins("B5"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("noise1_n", Pins("A7"), IOStandard("LVCMOS33")),  # DVT
+     Subsignal("gpio2_n", Pins("E17"), IOStandard("LVCMOS33")), # PVT2
+     Subsignal("gpio5_n", Pins("C7"), IOStandard("LVCMOS33")),  # PVT2
+     # dedicated pins (no I/O standard applicable)
+     Subsignal("ana_vn", Pins("K9")),
+     Subsignal("ana_vp", Pins("J10")),
+     ),
+
+    ("noise", 0,
+     Subsignal("noisebias_on", Pins("H14"), IOStandard("LVCMOS33")),  # PVT2
+     # Noise generator
+     Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+     ),
 
      # Simulation "I/O"
      ("sim", 0,
@@ -294,6 +322,15 @@ class CRG(Module):
         # Add an IDELAYCTRL primitive for the SpiOpi block
         self.submodules += S7IDELAYCTRL(self.cd_clk200, reset_cycles=32) # 155ns @ 200MHz, min 59.28ns
 
+
+# BtGpio -------------------------------------------------------------------------------------------
+
+class BtGpio(Module, AutoDoc, AutoCSR):
+    def __init__(self):
+        self.intro = ModuleDoc("""BtGpio - GPIO interface for betrusted""")
+
+        self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others reserved based on build")
+
 # System constants ---------------------------------------------------------------------------------
 
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
@@ -356,6 +393,7 @@ class CramSoC(SoCMini):
                 0xa000_0000 : 0x6000_0000,
             },
         )
+        self.add_memory_region(name="sram", origin=axi_map["sram"], length=16*1024*1024)
 
         # Wire up peripheral SoC busses
         p_axi = axi.AXILiteInterface(name="pbus")
@@ -485,20 +523,21 @@ class CramSoC(SoCMini):
         # this interrupt is added now due to the ordering of modules
         self.irq.add("spinor")
 
+        # GPIO module ------------------------------------------------------------------------------
+        self.submodules.gpio = BtGpio()
+        self.add_csr("gpio")
+
         # Muxed UARTS ---------------------------------------------------------------------------
-        self.gpio = CSRStorage(fields=[
-            CSRField("uartsel", description="Select the UART", size=2, reset=0)
-        ])
         uart_pins = platform.request("serial")
         serial_layout = [("tx", 1), ("rx", 1)]
         kernel_pads = Record(serial_layout)
         console_pads = Record(serial_layout)
         app_uart_pads = Record(serial_layout)
         self.comb += [
-            If(self.gpio.fields.uartsel == 0,
+            If(self.gpio.uartsel.storage == 0,
                 uart_pins.tx.eq(kernel_pads.tx),
                 kernel_pads.rx.eq(uart_pins.rx),
-            ).Elif(self.gpio.fields.uartsel == 1,
+            ).Elif(self.gpio.uartsel.storage == 1,
                 uart_pins.tx.eq(console_pads.tx),
                 console_pads.rx.eq(uart_pins.rx),
             ).Else(
@@ -550,6 +589,58 @@ class CramSoC(SoCMini):
         self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
         self.add_csr("memlcd")
         self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
+
+        # XADC analog interface---------------------------------------------------------------------
+        if ~sim:
+            from litex.soc.cores.xadc import analog_layout
+            analog_pads = Record(analog_layout)
+            analog = platform.request("analog")
+            self.comb += [
+                analog_pads.vp.eq(analog.ana_vp),
+                analog_pads.vn.eq(analog.ana_vn),
+            ]
+            # use explicit dummies to tie the analog inputs, otherwise the name space during finalization changes
+            # (e.g. FHDL adds 'betrustedsoc_' to the beginning of every netlist name to give a prefix to unnamed signals)
+            # notet that the added prefix messes up the .XDC constraints
+            dummy4 = Signal(4, reset=0)
+            dummy1 = Signal(1, reset=0)
+            self.comb += analog_pads.vauxp.eq(Cat(dummy4,          # 0,1,2,3
+                                                analog.noise1,        # 4
+                                                analog.gpio5,         # 5
+                                                analog.vbus_div,      # 6
+                                                dummy4,               # 7,8,9,10
+                                                analog.gpio2,         # 11
+                                                analog.noise0,        # 12
+                                                dummy1,               # 13
+                                                analog.usbdet_p,      # 14
+                                                analog.usbdet_n,      # 15
+                                        )),
+            self.comb += analog_pads.vauxn.eq(Cat(dummy4,          # 0,1,2,3
+                                                analog.noise1_n,      # 4
+                                                analog.gpio5_n,       # 5
+                                                analog.vbus_div_n,    # 6
+                                                dummy4,               # 7,8,9,10
+                                                analog.gpio2_n,       # 11
+                                                analog.noise0_n,      # 12
+                                                dummy1,               # 13
+                                                analog.usbdet_p_n,    # 14
+                                                analog.usbdet_n_n,    # 15
+                                        )),
+
+        # Managed TRNG Interface -------------------------------------------------------------------
+        if ~sim:
+            from deps.gateware.gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
+            self.submodules.trng_kernel = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedKernel())
+            self.add_csr("trng_kernel")
+            self.irq.add("trng_kernel")
+            self.submodules.trng_server = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedServer(ro_cores=4))
+            self.add_csr("trng_server")
+            self.irq.add("trng_server")
+            # put the TRNG proper into an always on domain. It has its own power manager and health tests.
+            # The TRNG adds about an 8.5mW power burden when it is in standby mode but clocks on
+            self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on", "clk50":"clk50_always_on"})(
+                TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision='pvt2', ro_cores=4))
+            self.add_csr("trng")
 
         # Internal reset ---------------------------------------------------------------------------
         if sim:
