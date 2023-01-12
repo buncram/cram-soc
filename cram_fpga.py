@@ -405,11 +405,11 @@ class CramSoC(SoCMini):
             self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
             self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
 
-            sim = platform.request("sim")
+            sim_pads = platform.request("sim")
             self.comb += [
-                sim.report.eq(self.sim_report.storage),
-                sim.success.eq(self.sim_success.storage),
-                sim.done.eq(self.sim_done.storage),
+                sim_pads.report.eq(self.sim_report.storage),
+                sim_pads.success.eq(self.sim_success.storage),
+                sim_pads.done.eq(self.sim_done.storage),
             ]
 
             # test that caching is OFF for the I/O regions
@@ -639,7 +639,8 @@ class CramSoC(SoCMini):
             # put the TRNG proper into an always on domain. It has its own power manager and health tests.
             # The TRNG adds about an 8.5mW power burden when it is in standby mode but clocks on
             self.submodules.trng = ClockDomainsRenamer({"sys":"sys_always_on", "clk50":"clk50_always_on"})(
-                TrngManaged(platform, analog_pads, platform.request("noise"), server=self.trng_server, kernel=self.trng_kernel, revision='pvt2', ro_cores=4))
+                TrngManaged(platform, analog_pads, platform.request("noise"),
+                    server=self.trng_server, kernel=self.trng_kernel, revision='pvt2', ro_cores=4, sim=sim))
             self.add_csr("trng")
 
         # Internal reset ---------------------------------------------------------------------------
@@ -691,7 +692,7 @@ class CramSoC(SoCMini):
         ]
         coreuser = Signal()
         if sim:
-            self.comb += sim.coreuser.eq(coreuser)
+            self.comb += sim_pads.coreuser.eq(coreuser)
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",

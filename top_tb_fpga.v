@@ -127,7 +127,7 @@ end
 initial #4_000_000 $finish;
 
 parameter RAM_DATA_WIDTH = 32;
-parameter RAM_ADDR_WIDTH = 17; // 22 is the full width, but slightly smaller to accelerate the simulation
+parameter RAM_ADDR_WIDTH = 22; // could reduce to accelerate the simulation
 
 reg [RAM_DATA_WIDTH-1:0] mem[(2**RAM_ADDR_WIDTH)-1:0];
 reg [31:0] rd_data;

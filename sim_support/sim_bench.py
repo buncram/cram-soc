@@ -266,6 +266,9 @@ class SimRunner():
         os.system("{} ".format(cpname) + os.path.normpath("deps/gateware/gateware/spimemio.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("deps/gateware/sim/spi_dopi/BUFR.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("deps/gateware/sim/spi_dopi/IDELAYE2.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("deps/gateware/sim/trng_managed/XADC.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("deps/gateware/gateware/chacha/chacha_core.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("deps/gateware/gateware/chacha/chacha_qr.v") + " run" + os.path.sep)
 
         # copy any relevant .bin files into the run directory as well
         os.system("{} {} ".format(cpname, vex_dir + os.path.sep + "*.bin") + " run" + os.path.sep) # "{} {} run/".format(cpname, vex_dir + "/*.bin")
@@ -275,7 +278,8 @@ class SimRunner():
             os.system('del /S /Q run\\simspi.init')
         else:
             os.system("rm -f run/simspi.init")  # the "w" argument is not replacing the file for some reason, it's appending. delete it.
-        bios_path = 'boot{}boot.bin'.format(os.path.sep)
+        # bios_path = 'boot{}boot.bin'.format(os.path.sep)
+        bios_path = '..\\xous-cramium\\simspi.init'
         with open(bios_path, "rb") as ifile:
             with open("run/simspi.init", "w") as ofile:
                 binfile = ifile.read()
@@ -327,6 +331,9 @@ class SimRunner():
             "cd run && {}xvlog -sv MX66UM1G45G.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv BUFR.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv IDELAYE2.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv chacha_core.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv chacha_qr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv XADC.v".format(VIVADO_PATH),
         ]
 
         pool = multiprocessing.Pool(12)
