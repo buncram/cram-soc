@@ -124,7 +124,7 @@ initial begin
 end
 
 // DUT-specific end condition to make sure it eventually stops running for CI mode
-initial #4_000_000 $finish;
+initial #500_000_000 $finish;
 
 parameter RAM_DATA_WIDTH = 32;
 parameter RAM_ADDR_WIDTH = 22; // could reduce to accelerate the simulation

@@ -350,7 +350,7 @@ class CramSoC(SoCMini):
             "reram"     : 0x6000_0000, # +3M
             "sram"      : 0x6100_0000, # +2M
             "p_bus"     : 0x4000_0000, # +256M
-            "memlcd"    : 0xb0000000,
+            "memlcd"    : 0x4200_0000,
             "vexriscv_debug": 0xefff_0000,
         }
         self.platform = platform
