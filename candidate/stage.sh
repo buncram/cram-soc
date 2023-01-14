@@ -36,3 +36,5 @@ rm -rf docs
 mkdir docs
 cp -r ../build/gateware/build/documentation/_build/html/* docs/
 cp ../build/gateware/build/documentation/_build/latex/cramiumsocrisc-vcorecomplex.pdf docs/
+
+scp -r docs/* bunnie@ci.betrusted.io:/var/cramium/
