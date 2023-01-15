@@ -10,7 +10,7 @@ from pathlib import Path
 
 from migen import *
 from migen.genlib.cdc import MultiReg
-
+from litex.soc.interconnect import stream
 from litex.build.generic_platform import *
 
 from litex.soc.integration.soc_core import *
@@ -331,6 +331,44 @@ class BtGpio(Module, AutoDoc, AutoCSR):
 
         self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others reserved based on build")
 
+# Dummy module that just copies the UART data to a register and immediately indicates we're good to go.
+class SimPhyTx(Module):
+    def __init__(self):
+        self.sink = sink = stream.Endpoint([("data", 8)])
+        self.sim_data_out = Signal(8)
+
+        self.sync += [
+            If(sink.valid,
+                self.sim_data_out.eq(sink.data),
+                sink.ready.eq(1)
+            ).Else(
+                sink.ready.eq(0)
+            )
+        ]
+
+# Dummy module that injects nothing. This is written so that we can extend it to have the test bench inject data eventually if we wanted to.
+class SimPhyRx(Module):
+    def __init__(self, data_in, data_valid):
+        self.source = source = stream.Endpoint([("data", 8)])
+
+        # # #
+        self.comb += [
+            source.valid.eq(data_valid),
+            source.data.eq(data_in),
+        ]
+
+# Simulation UART ----------------------------------------------------------------------------------
+class SimUartPhy(Module, AutoCSR):
+    def __init__(self, data_in, data_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
+        tuning_word = int((baudrate/clk_freq)*2**32)
+        if with_dynamic_baudrate:
+            self._tuning_word  = CSRStorage(32, reset=tuning_word)
+            tuning_word = self._tuning_word.storage
+        self.submodules.tx = SimPhyTx()
+        self.submodules.rx = SimPhyRx(self.tx.sim_data_out, data_valid)
+        self.sink, self.source = self.tx.sink, self.rx.source
+
+
 # System constants ---------------------------------------------------------------------------------
 
 boot_offset    = 0x500000 # enough space to hold 2x FPGA bitstreams before the firmware start
@@ -545,10 +583,19 @@ class CramSoC(SoCMini):
                 app_uart_pads.rx.eq(uart_pins.rx),
             )
         ]
-        self.submodules.uart_phy = uart.UARTPHY(
-            pads=kernel_pads,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
+        if sim:
+            uart_data_in = Signal(8, reset=13) # 13=0xd
+            uart_data_valid = Signal(reset = 0)
+            self.submodules.uart_phy = SimUartPhy(
+                uart_data_in,
+                uart_data_valid,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+        else:
+            self.submodules.uart_phy = uart.UARTPHY(
+                pads=kernel_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
         self.submodules.uart = ResetInserter()(
             uart.UART(self.uart_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -558,10 +605,19 @@ class CramSoC(SoCMini):
         self.add_csr("uart")
         self.irq.add("uart")
 
-        self.submodules.console_phy = uart.UARTPHY(
-            pads=console_pads,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
+        if sim:
+            console_data_in = Signal(8, reset=13) # 13=0xd
+            console_data_valid = Signal(reset = 0)
+            self.submodules.console_phy = SimUartPhy(
+                console_data_in,
+                console_data_valid,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+        else:
+            self.submodules.console_phy = uart.UARTPHY(
+                pads=console_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
         self.submodules.console = ResetInserter()(
             uart.UART(self.console_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -572,10 +628,19 @@ class CramSoC(SoCMini):
         self.irq.add("console")
 
         # extra PHY for "application" uses -- mainly things like the FCC testing agent
-        self.submodules.app_uart_phy = uart.UARTPHY(
-            pads=app_uart_pads,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
+        if sim:
+            app_data_in = Signal(8, reset=13) # 13=0xd
+            app_data_valid = Signal(reset = 0)
+            self.submodules.app_uart_phy = SimUartPhy(
+                app_data_in,
+                app_data_valid,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+        else:
+            self.submodules.app_uart_phy = uart.UARTPHY(
+                pads=app_uart_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
         self.submodules.app_uart = ResetInserter()(
             uart.UART(self.app_uart_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)

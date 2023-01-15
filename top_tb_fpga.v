@@ -29,8 +29,12 @@ reg tdi;
 initial tck = 0;
 initial tms = 0;
 initial tdi = 0;
-always @(posedge clk12) begin
-    trst <= reset;
+initial begin
+    trst = 0;
+    #100000; // pulse this after the first DQS cycle happens, for some reason this triggers a false timing violation in the FIFO18E block if it's done early.
+    trst = 1;
+    #200;
+    trst = 0;
 end
 
 reg serial_rx;
@@ -124,7 +128,7 @@ initial begin
 end
 
 // DUT-specific end condition to make sure it eventually stops running for CI mode
-initial #500_000_000 $finish;
+initial #750_000_000 $finish;
 
 parameter RAM_DATA_WIDTH = 32;
 parameter RAM_ADDR_WIDTH = 22; // could reduce to accelerate the simulation

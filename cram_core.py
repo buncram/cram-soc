@@ -481,7 +481,102 @@ from the peer.""", pulse=True)
             )
         )
 
+# Deterministic timeout ---------------------------------------------------------------------------
 
+class D11cTime(Module, AutoDoc, AutoCSR):
+    def __init__(self, count=400_000):
+        self.intro = ModuleDoc("""Deterministic Timeout
+        This module creates a heartbeat that is deterministic. If used correctly, it can help reduce
+        timing side channels on secure processes by giving them an independent, coarse source of
+        time. The idea is that a secure process may handle a request, and then wait for a heartbeat
+        from the D11cTime module to change polarity, which occurs at a regular interval,
+        before returning the result.
+
+        There is a trade-off on how frequent the heartbeat is versus information leakage versus
+        overall throughput of the secure module's responses. If the heartbeat is faster than the
+        maximum time to complete a computation, then information leakage will occur; if it is much
+        slower than the maximum time to complete a computation, then performance is reduced. Deterministic
+        timeout is not the end-all solution; adding noise and computational confounders are also
+        countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
+        hardware-efficient.
+
+        This block has been configured to default to {}ms period, assuming ACLK is 800MHz.
+        """.format( 2 * (count / 800e6) * 1000.0 ))
+
+        self.control = CSRStorage(32, fields = [
+            CSRField("count", size=32, description="Number of ACLK ticks before creating a heart beat", reset=count),
+        ])
+        self.heartbeat = CSRStatus(1, fields = [
+            CSRField("beat", description="Set to `1` at the next `count` interval rollover since `clear` was set."),
+        ])
+
+        counter = Signal(32, reset=count)
+        heartbeat = Signal(reset=0)
+        self.sync += [
+            If(counter == 0,
+                counter.eq(self.control.fields.count),
+                heartbeat.eq(~heartbeat),
+            ).Else(
+                counter.eq(counter - 1),
+            )
+        ]
+        self.comb += [
+            self.heartbeat.fields.beat.eq(heartbeat)
+        ]
+
+# Suspend/Resume ---------------------------------------------------------------------------------
+
+class SusRes(Module, AutoDoc, AutoCSR):
+    def __init__(self, bits=64):
+        self.intro = ModuleDoc("""Suspend/Resume Helper
+        This module is a utility module that assists with suspend and
+        resume functions. It has the ability to 'reach into' the Ticktimer space to help coordinate
+        a clean, monatomic shut down from a suspend/resume manager that exists in a different,
+        isolated process space from the TickTimer.
+
+        It also contains a register which tracks the current resume state. The bootloader controls
+        the kernel's behavior by setting this bit prior to resuming operation.
+        """)
+
+        self.control = CSRStorage(2, fields=[
+            CSRField("pause", description="Write a `1` to this field to request a pause to counting, 0 for free-run. Count pauses on the next tick quanta."),
+            CSRField("load", description="If paused, write a `1` to this bit to load a resume value to the timer. If not paused, this bit is ignored.", pulse=True),
+        ])
+        self.resume_time = CSRStorage(bits, name="resume_time", description="Elapsed time to load. Loaded upon writing `1` to the load bit in the control register. This will immediately affect the msleep extension.")
+        self.time = CSRStatus(bits, name="time", description="""Cycle-accurate mirror copy of time in systicks, from the TickTimer""")
+        self.status = CSRStatus(1, fields=[
+            CSRField("paused", description="When set, indicates that the counter has been paused")
+        ])
+        self.state = CSRStorage(2, fields=[
+            CSRField("resume", description="Used to transfer the resume state information from the loader to Xous. If set, indicates we are on the resume half of a suspend/resume."),
+            CSRField("was_forced", description="Used by the bootloader to indicate to the kernel if the current resume was from a forced suspend (e.g. a timeout happened and a server may be unclean."),
+        ])
+        self.resume = Signal()
+        self.comb += self.resume.eq(self.state.fields.resume)
+
+        # These signals aren't valid on the Cramium platform
+        #self.powerdown = CSRStorage(1, fields=[
+        #    CSRField("powerdown", description="Write a `1` to force an immediate powerdown. Use with care.", reset=0)
+        #])
+        #self.powerdown_override = Signal()
+        #self.comb += self.powerdown_override.eq(self.powerdown.fields.powerdown)
+
+        #self.wfi = CSRStorage(1, fields=[
+        #    CSRField("override", description="Write a `1` to this register to disable WFI (used to make sure the suspend/resume is not interrupted by a CPU sleep cal)")
+        #])
+        #self.wfi_override = Signal()
+        #self.comb += self.wfi_override.eq(self.wfi.fields.override)
+
+        self.interrupt = CSRStorage(1, fields=[
+            CSRField("interrupt", size = 1, pulse=True,
+                description="Writing this causes an interrupt to fire. Used by Xous to initiate suspend/resume from an interrupt context."
+            )
+        ])
+        self.submodules.ev = EventManager()
+        self.ev.soft_int = EventSourceProcess()
+        self.kernel_resume_interrupt = Signal()
+        self.comb += self.ev.soft_int.trigger.eq(self.interrupt.fields.interrupt | self.kernel_resume_interrupt)
+        self.ev.finalize()
 
 # Interrupts ------------------------------------------------------------------------------------
 class EventSourceFlex(Module, _EventSource):
@@ -881,7 +976,23 @@ class cramSoC(SoCCore):
         self.submodules.ticktimer = ticktimer.TickTimer(2000, 800e6)
         self.irq.add("ticktimer")
 
-        # Consider adding Susres block so we can do suspend/resume cycling easily too.
+        # Deterministic timeout helper ---------------------------------------------------------------
+        self.submodules.d11ctime = D11cTime(count=1638)
+        self.add_csr("d11ctime")
+
+        # Suspend/resume ---------------------------------------------------------------------------
+        self.submodules.susres = SusRes(bits=64)
+        self.add_csr("susres")
+        self.irq.add("susres")
+        # wire up signals that cross from the ticktimer's CSR space to the susres CSR space. Allows for virtual memory process isolation
+        # between the ticktimer and the suspend resume server, while allowing for cycle-accurate timing on suspend and resume.
+        self.comb += [
+            self.susres.time.status.eq(self.ticktimer.timer),
+            self.susres.status.fields.paused.eq(self.ticktimer.paused),
+            self.ticktimer.resume_time.eq(self.susres.resume_time.storage),
+            self.ticktimer.pause.eq(self.susres.control.fields.pause),
+            self.ticktimer.load.eq(self.susres.control.fields.load),
+        ]
 
         # Mailbox ----------------------------------------------------------------------------------
         self.submodules.mailbox = Mailbox(fifo_depth=1024)
