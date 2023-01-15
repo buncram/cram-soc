@@ -194,13 +194,24 @@ _io = [
         Subsignal("done", Pins(1)),
         Subsignal("report", Pins(32)),
         Subsignal("coreuser", Pins(1)),
+        Subsignal("sysclk", Pins(1)),
      ),
 
     # Trimming bits
      ("trimming", 0,
         Subsignal("reset", Pins(32)),
         Subsignal("reset_ena", Pins(1)),
-     )
+     ),
+
+    # Simulation UART log
+    ("sim_uart", 0,
+        Subsignal("kernel", Pins(8)),
+        Subsignal("kernel_valid", Pins(1)),
+        Subsignal("log", Pins(8)),
+        Subsignal("log_valid", Pins(1)),
+        Subsignal("app", Pins(8)),
+        Subsignal("app_valid", Pins(1)),
+    )
 ]
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -333,16 +344,18 @@ class BtGpio(Module, AutoDoc, AutoCSR):
 
 # Dummy module that just copies the UART data to a register and immediately indicates we're good to go.
 class SimPhyTx(Module):
-    def __init__(self):
+    def __init__(self, sim_data_out, sim_data_out_valid):
         self.sink = sink = stream.Endpoint([("data", 8)])
-        self.sim_data_out = Signal(8)
 
         self.sync += [
             If(sink.valid,
-                self.sim_data_out.eq(sink.data),
+                sim_data_out.eq(sink.data),
+                sim_data_out_valid.eq(1),
                 sink.ready.eq(1)
             ).Else(
-                sink.ready.eq(0)
+                sim_data_out.eq(sim_data_out),
+                sim_data_out_valid.eq(0),
+                sink.ready.eq(0),
             )
         ]
 
@@ -359,13 +372,13 @@ class SimPhyRx(Module):
 
 # Simulation UART ----------------------------------------------------------------------------------
 class SimUartPhy(Module, AutoCSR):
-    def __init__(self, data_in, data_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
+    def __init__(self, data_in, data_in_valid, data_out, data_out_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
         tuning_word = int((baudrate/clk_freq)*2**32)
         if with_dynamic_baudrate:
             self._tuning_word  = CSRStorage(32, reset=tuning_word)
             tuning_word = self._tuning_word.storage
-        self.submodules.tx = SimPhyTx()
-        self.submodules.rx = SimPhyRx(self.tx.sim_data_out, data_valid)
+        self.submodules.tx = SimPhyTx(data_out, data_out_valid)
+        self.submodules.rx = SimPhyRx(data_in, data_in_valid)
         self.sink, self.source = self.tx.sink, self.rx.source
 
 
@@ -584,11 +597,14 @@ class CramSoC(SoCMini):
             )
         ]
         if sim:
+            sim_uart_pins = platform.request("sim_uart")
             uart_data_in = Signal(8, reset=13) # 13=0xd
             uart_data_valid = Signal(reset = 0)
             self.submodules.uart_phy = SimUartPhy(
                 uart_data_in,
                 uart_data_valid,
+                sim_uart_pins.kernel,
+                sim_uart_pins.kernel_valid,
                 clk_freq=sys_clk_freq,
                 baudrate=115200)
         else:
@@ -611,6 +627,8 @@ class CramSoC(SoCMini):
             self.submodules.console_phy = SimUartPhy(
                 console_data_in,
                 console_data_valid,
+                sim_uart_pins.log,
+                sim_uart_pins.log_valid,
                 clk_freq=sys_clk_freq,
                 baudrate=115200)
         else:
@@ -634,6 +652,8 @@ class CramSoC(SoCMini):
             self.submodules.app_uart_phy = SimUartPhy(
                 app_data_in,
                 app_data_valid,
+                sim_uart_pins.app,
+                sim_uart_pins.app_valid,
                 clk_freq=sys_clk_freq,
                 baudrate=115200)
         else:
@@ -758,6 +778,7 @@ class CramSoC(SoCMini):
         coreuser = Signal()
         if sim:
             self.comb += sim_pads.coreuser.eq(coreuser)
+            self.comb += sim_pads.sysclk.eq(ClockSignal())
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",
@@ -1084,10 +1105,15 @@ def main():
     platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
 
     ##### define the soc
+    if args.sim:
+        clk_freq = 100e6
+    else:
+        clk_freq = 75e6 # slow it down for the actual FPGA, can't close timing at 100MHz
+
     soc = CramSoC(
         platform,
         bios_path=bios_path,
-        sys_clk_freq=75e6,
+        sys_clk_freq=clk_freq,
         sim=args.sim,
     )
 
