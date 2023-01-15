@@ -691,10 +691,10 @@ class CoreUser(Module, AutoCSR, AutoDoc):
     def __init__(self, cpu, coreuser):
         self.intro = ModuleDoc("""
 `CoreUser` is a hardware signal that indicates that the code executing is in a highly trusted
-piece of code. This is determined by examining a configurable combination of the SATP's ASID and
-PPN values, allowing the OS to target certain virtual memory spaces as more trusted than
-others. `CoreUser` can only be computed when the RISC-V core is in Sv32 mode (that is, virtual
-memory has been enabled).
+piece of code. This is determined by examining a configurable combination of the SATP's ASID,
+PPN values, and/or privilege bits from `$mstatus.mpp`, allowing the OS to target certain virtual
+memory spaces as more trusted than others. `CoreUser` can only be computed when the RISC-V core
+is in Sv32 mode (that is, virtual memory has been enabled).
 
 When specifying PPN values, two windows are provided, `a` and `b`. The windows are
 computed independently, and then OR'd together. The `a` and `b` windows should be non-overlapping.
@@ -703,6 +703,10 @@ of having two windows is not so that the OS can specify only two processes as `C
 the OS should design to allocate all CoreUser processes within a single range that is protected
 by a single window. The alternate window is provided only so that the OS can have a scratch space to
 re-organize or shuffle around process spaces at a higher level.
+
+When specifying privilege, one specifies the state that must match for `coreuser` to be active.
+For a microkernel, one would specify a non-elevated permission level, as secure access is always
+delegated to a userland service. For a monokernel, one would specify an elevated permission level.
 
 The `CoreUser` signal is not cycle-precise; it will assert roughly 2 cycles after the `satp` is updated.
 Furthermore, the `satp` ASID field is an advisory field that isn't used by CPU hardware to enforce
@@ -723,13 +727,17 @@ the `satp` setting and user code execution.
             CSRField("asid", size=9, description="ASID to read back.")
         ])
         self.get_asid_value = CSRStorage(fields=[
-            CSRField("value", size=1, description="Value corresponding to the ASID specified it `get_asid_addr`. `1` means trusted"),
+            CSRField("value", size=1, description="Value corresponding to the ASID specified in `get_asid_addr`. `1` means trusted"),
+        ])
+        self.set_privilege = CSRStorage(fields=[
+            CSRField("mpp", size=2, description="Value of `mpp` bit from `mstatus` that must match for code to be trusted"),
         ])
         self.control = CSRStorage(fields=[
             CSRField("enable", size=1, description="Enable `CoreUser` computation. When set to `1`, the settings are applied; when cleared to `0`, the `CoreUser` signal is always valid. Defaults to `0`."),
             CSRField("asid", size=1, description="When `1`, requires the ASID mapping to be trusted to assert `CoreUser`"),
             CSRField("ppn_a", size=1, description="When set to `1`, requires the `a` `ppn` window to be trusted to assert `CoreUser`"),
-            CSRField("ppn_b", size=1, description="When set to `1`, requires the `b` `ppn` window to be trusted to assert `CoreUser`")
+            CSRField("ppn_b", size=1, description="When set to `1`, requires the `b` `ppn` window to be trusted to assert `CoreUser`"),
+            CSRField("privilege", size=1, description="When set to `1`, requires the current privilege state to match that specified in `set_privilege.mpp`"),
         ])
         self.protect = CSRStorage(size=1, description="Writing `1` to this bit prevents any further updates to CoreUser configuration status. Can only be reversed with a system reset.");
         self.window_al = CSRStorage(fields=[
@@ -760,17 +768,23 @@ the `satp` setting and user code execution.
         require_asid = Signal()
         require_ppn_a = Signal()
         require_ppn_b = Signal()
+        require_priv = Signal()
+        privilege = Signal(2)
         self.sync += [
             If(protect,
                 enable.eq(enable),
                 require_asid.eq(require_asid),
                 require_ppn_a.eq(require_ppn_a),
                 require_ppn_b.eq(require_ppn_b),
+                require_priv.eq(require_priv),
+                privilege.eq(privilege),
             ).Else(
                 enable.eq(self.control.fields.enable),
                 require_asid.eq(self.control.fields.asid),
                 require_ppn_a.eq(self.control.fields.ppn_a),
                 require_ppn_b.eq(self.control.fields.ppn_b),
+                require_priv.eq(self.control.fields.privilege),
+                privilege.eq(self.set_privilege.fields.mpp),
             )
         ]
 
@@ -824,7 +838,8 @@ the `satp` setting and user code execution.
                 (~require_ppn_b | (
                     (cpu.satp_ppn >= window_bl) &
                     (cpu.satp_ppn <= window_bh)
-                ))
+                )) &
+                (~require_priv | (cpu.privilege == privilege))
             )
         ]
 
