@@ -23,6 +23,8 @@ xous/betrusted-pac/
 
 # this is an auto-generated library file by 'deps/rom-locate/key2bits.py -c'
 fw/rom-inject/src/lib.rs
+# files that shouldn't be checked into github
+do_not_checkin/
 
 # these are the user-local fuse ROM keys. my.nky is the input, encrypted.nky is the output (which has HMAC and IV folded in)
 my.nky
