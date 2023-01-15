@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CSRTEST" href="csrtest.html" />
-    <link rel="prev" title="CPU" href="cpu.html" />
+    <link rel="prev" title="SUSRES" href="susres.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -70,40 +70,40 @@ the <cite>satp</cite> setting and user code execution.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="#coreuser-set-asid"><span class="std std-ref">COREUSER_SET_ASID</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-set-asid"><span class="std std-ref">0x58000000</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-set-asid"><span class="std std-ref">0x58002000</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-get-asid-addr"><span class="std std-ref">COREUSER_GET_ASID_ADDR</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-get-asid-addr"><span class="std std-ref">0x58000004</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-get-asid-addr"><span class="std std-ref">0x58002004</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#coreuser-get-asid-value"><span class="std std-ref">COREUSER_GET_ASID_VALUE</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-get-asid-value"><span class="std std-ref">0x58000008</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-get-asid-value"><span class="std std-ref">0x58002008</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">COREUSER_CONTROL</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">0x5800000c</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">0x5800200c</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">COREUSER_PROTECT</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">0x58000010</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">0x58002010</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">COREUSER_WINDOW_AL</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">0x58000014</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">0x58002014</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">COREUSER_WINDOW_AH</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">0x58000018</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">0x58002018</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">COREUSER_WINDOW_BL</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">0x5800001c</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">0x5800201c</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">COREUSER_WINDOW_BH</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">0x58000020</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">0x58002020</span></a></p></td>
 </tr>
 </tbody>
 </table>
 <section id="coreuser-set-asid">
 <h3>COREUSER_SET_ASID<a class="headerlink" href="#coreuser-set-asid" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x0 = 0x58000000</cite></p>
+<p><cite>Address: 0x58002000 + 0x0 = 0x58002000</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-d942a90e-d715-43d0-adef-56b9cf8c3278.svg" src="_images/wavedrom-d942a90e-d715-43d0-adef-56b9cf8c3278.svg" /><figcaption>
+<img alt="_images/wavedrom-978588b1-0dcf-4e9c-a6a3-95e763f0922d.svg" src="_images/wavedrom-978588b1-0dcf-4e9c-a6a3-95e763f0922d.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_SET_ASID</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -130,10 +130,10 @@ specified <cite>asid</cite> value</p></td>
 </section>
 <section id="coreuser-get-asid-addr">
 <h3>COREUSER_GET_ASID_ADDR<a class="headerlink" href="#coreuser-get-asid-addr" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x4 = 0x58000004</cite></p>
+<p><cite>Address: 0x58002000 + 0x4 = 0x58002004</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id2">
-<img alt="_images/wavedrom-3c018437-3564-4276-8e29-02d76ef07b9b.svg" src="_images/wavedrom-3c018437-3564-4276-8e29-02d76ef07b9b.svg" /><figcaption>
+<img alt="_images/wavedrom-ca313fd2-f6b7-4ce7-83e9-9485f23efc13.svg" src="_images/wavedrom-ca313fd2-f6b7-4ce7-83e9-9485f23efc13.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_GET_ASID_ADDR</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -155,10 +155,10 @@ specified <cite>asid</cite> value</p></td>
 </section>
 <section id="coreuser-get-asid-value">
 <h3>COREUSER_GET_ASID_VALUE<a class="headerlink" href="#coreuser-get-asid-value" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x8 = 0x58000008</cite></p>
+<p><cite>Address: 0x58002000 + 0x8 = 0x58002008</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id3">
-<img alt="_images/wavedrom-f2a0169c-e00e-4056-ac08-7679ce0f5234.svg" src="_images/wavedrom-f2a0169c-e00e-4056-ac08-7679ce0f5234.svg" /><figcaption>
+<img alt="_images/wavedrom-f59cb63f-7d49-4abc-ba7e-7b11ae7bf4a8.svg" src="_images/wavedrom-f59cb63f-7d49-4abc-ba7e-7b11ae7bf4a8.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_GET_ASID_VALUE</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -180,10 +180,10 @@ specified <cite>asid</cite> value</p></td>
 </section>
 <section id="coreuser-control">
 <h3>COREUSER_CONTROL<a class="headerlink" href="#coreuser-control" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0xc = 0x5800000c</cite></p>
+<p><cite>Address: 0x58002000 + 0xc = 0x5800200c</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id4">
-<img alt="_images/wavedrom-de34fee8-6201-475d-a306-4f7a142c3a3c.svg" src="_images/wavedrom-de34fee8-6201-475d-a306-4f7a142c3a3c.svg" /><figcaption>
+<img alt="_images/wavedrom-110349d5-4b10-430b-936d-070e3fe73542.svg" src="_images/wavedrom-110349d5-4b10-430b-936d-070e3fe73542.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_CONTROL</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -220,12 +220,12 @@ cleared to <cite>0</cite>, the <cite>CoreUser</cite> signal is always valid. Def
 </section>
 <section id="coreuser-protect">
 <h3>COREUSER_PROTECT<a class="headerlink" href="#coreuser-protect" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x10 = 0x58000010</cite></p>
+<p><cite>Address: 0x58002000 + 0x10 = 0x58002010</cite></p>
 <blockquote>
 <div><p>Writing <cite>1</cite> to this bit prevents any further updates to CoreUser configuration
 status. Can only be reversed with a system reset.</p>
 <figure class="align-default" id="id5">
-<img alt="_images/wavedrom-bb2febd9-62dd-493c-90fa-4c6eb2fc8e94.svg" src="_images/wavedrom-bb2febd9-62dd-493c-90fa-4c6eb2fc8e94.svg" /><figcaption>
+<img alt="_images/wavedrom-07160b12-e9eb-4920-88bf-fc8ac2b7b8a2.svg" src="_images/wavedrom-07160b12-e9eb-4920-88bf-fc8ac2b7b8a2.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_PROTECT</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -233,10 +233,10 @@ status. Can only be reversed with a system reset.</p>
 </section>
 <section id="coreuser-window-al">
 <h3>COREUSER_WINDOW_AL<a class="headerlink" href="#coreuser-window-al" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x14 = 0x58000014</cite></p>
+<p><cite>Address: 0x58002000 + 0x14 = 0x58002014</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id6">
-<img alt="_images/wavedrom-d4bd6010-5260-432b-818f-aac357b8939a.svg" src="_images/wavedrom-d4bd6010-5260-432b-818f-aac357b8939a.svg" /><figcaption>
+<img alt="_images/wavedrom-cd6afc0b-4300-415e-a7a9-98a978a16ab9.svg" src="_images/wavedrom-cd6afc0b-4300-415e-a7a9-98a978a16ab9.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_WINDOW_AL</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -259,10 +259,10 @@ to this value</p></td>
 </section>
 <section id="coreuser-window-ah">
 <h3>COREUSER_WINDOW_AH<a class="headerlink" href="#coreuser-window-ah" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x18 = 0x58000018</cite></p>
+<p><cite>Address: 0x58002000 + 0x18 = 0x58002018</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id7">
-<img alt="_images/wavedrom-bc6a7219-1d90-45e9-be58-23f0c95317c1.svg" src="_images/wavedrom-bc6a7219-1d90-45e9-be58-23f0c95317c1.svg" /><figcaption>
+<img alt="_images/wavedrom-cda6f9ea-dd12-40a5-8819-842ecc542a52.svg" src="_images/wavedrom-cda6f9ea-dd12-40a5-8819-842ecc542a52.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_WINDOW_AH</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -286,10 +286,10 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
 </section>
 <section id="coreuser-window-bl">
 <h3>COREUSER_WINDOW_BL<a class="headerlink" href="#coreuser-window-bl" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x1c = 0x5800001c</cite></p>
+<p><cite>Address: 0x58002000 + 0x1c = 0x5800201c</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id8">
-<img alt="_images/wavedrom-2d435ee1-00af-433d-b86f-f2768df6011e.svg" src="_images/wavedrom-2d435ee1-00af-433d-b86f-f2768df6011e.svg" /><figcaption>
+<img alt="_images/wavedrom-74934985-b9c6-4e36-8e5b-9e8cd7b6face.svg" src="_images/wavedrom-74934985-b9c6-4e36-8e5b-9e8cd7b6face.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_WINDOW_BL</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -312,10 +312,10 @@ to this value</p></td>
 </section>
 <section id="coreuser-window-bh">
 <h3>COREUSER_WINDOW_BH<a class="headerlink" href="#coreuser-window-bh" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58000000 + 0x20 = 0x58000020</cite></p>
+<p><cite>Address: 0x58002000 + 0x20 = 0x58002020</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id9">
-<img alt="_images/wavedrom-4d37374f-e157-46be-bc51-7d94cfd9b642.svg" src="_images/wavedrom-4d37374f-e157-46be-bc51-7d94cfd9b642.svg" /><figcaption>
+<img alt="_images/wavedrom-c76044c3-ff90-4802-a5bc-cd2b2e107ad0.svg" src="_images/wavedrom-c76044c3-ff90-4802-a5bc-cd2b2e107ad0.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_WINDOW_BH</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -368,6 +368,8 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
 <li class="toctree-l1"><a class="reference internal" href="cpu.html">CPU</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="d11ctime.html">D11CTIME</a></li>
+<li class="toctree-l1"><a class="reference internal" href="susres.html">SUSRES</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">COREUSER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="csrtest.html">CSRTEST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="irqarray0.html">IRQARRAY0</a></li>
@@ -399,7 +401,7 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="cpu.html" title="previous chapter">CPU</a></li>
+      <li>Previous: <a href="susres.html" title="previous chapter">SUSRES</a></li>
       <li>Next: <a href="csrtest.html" title="next chapter">CSRTEST</a></li>
   </ul></li>
 </ul>
@@ -427,7 +429,7 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2022, Cramium, Inc..
+      &copy;2023, Cramium, Inc..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>

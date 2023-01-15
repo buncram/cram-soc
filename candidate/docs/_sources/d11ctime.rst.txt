@@ -1,0 +1,78 @@
+D11CTIME
+========
+
+Deterministic Timeout
+---------------------
+This module creates a heartbeat that is deterministic. If used correctly, it can help reduce
+timing side channels on secure processes by giving them an independent, coarse source of
+time. The idea is that a secure process may handle a request, and then wait for a heartbeat
+from the D11cTime module to change polarity, which occurs at a regular interval,
+before returning the result.
+
+There is a trade-off on how frequent the heartbeat is versus information leakage versus
+overall throughput of the secure module's responses. If the heartbeat is faster than the
+maximum time to complete a computation, then information leakage will occur; if it is much
+slower than the maximum time to complete a computation, then performance is reduced. Deterministic
+timeout is not the end-all solution; adding noise and computational confounders are also
+countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
+hardware-efficient.
+
+This block has been configured to default to 0.004095ms period, assuming ACLK is 800MHz.
+
+
+Register Listing for D11CTIME
+-----------------------------
+
++------------------------------------------------+----------------------------------------+
+| Register                                       | Address                                |
++================================================+========================================+
+| :ref:`D11CTIME_CONTROL <D11CTIME_CONTROL>`     | :ref:`0x58000000 <D11CTIME_CONTROL>`   |
++------------------------------------------------+----------------------------------------+
+| :ref:`D11CTIME_HEARTBEAT <D11CTIME_HEARTBEAT>` | :ref:`0x58000004 <D11CTIME_HEARTBEAT>` |
++------------------------------------------------+----------------------------------------+
+
+D11CTIME_CONTROL
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x0 = 0x58000000`
+
+
+    .. wavedrom::
+        :caption: D11CTIME_CONTROL
+
+        {
+            "reg": [
+                {"name": "count",  "attr": '1638', "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------+---------------------------------------------------+
+| Field  | Name  | Description                                       |
++========+=======+===================================================+
+| [31:0] | COUNT | Number of ACLK ticks before creating a heart beat |
++--------+-------+---------------------------------------------------+
+
+D11CTIME_HEARTBEAT
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58000000 + 0x4 = 0x58000004`
+
+
+    .. wavedrom::
+        :caption: D11CTIME_HEARTBEAT
+
+        {
+            "reg": [
+                {"name": "beat",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------+-------------------------------------------------------------------------+
+| Field | Name | Description                                                             |
++=======+======+=========================================================================+
+| [0]   | BEAT | Set to `1` at the next `count` interval rollover since `clear` was set. |
++-------+------+-------------------------------------------------------------------------+
+

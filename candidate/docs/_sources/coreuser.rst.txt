@@ -35,29 +35,29 @@ Register Listing for COREUSER
 +----------------------------------------------------------+---------------------------------------------+
 | Register                                                 | Address                                     |
 +==========================================================+=============================================+
-| :ref:`COREUSER_SET_ASID <COREUSER_SET_ASID>`             | :ref:`0x58000000 <COREUSER_SET_ASID>`       |
+| :ref:`COREUSER_SET_ASID <COREUSER_SET_ASID>`             | :ref:`0x58002000 <COREUSER_SET_ASID>`       |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_GET_ASID_ADDR <COREUSER_GET_ASID_ADDR>`   | :ref:`0x58000004 <COREUSER_GET_ASID_ADDR>`  |
+| :ref:`COREUSER_GET_ASID_ADDR <COREUSER_GET_ASID_ADDR>`   | :ref:`0x58002004 <COREUSER_GET_ASID_ADDR>`  |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_GET_ASID_VALUE <COREUSER_GET_ASID_VALUE>` | :ref:`0x58000008 <COREUSER_GET_ASID_VALUE>` |
+| :ref:`COREUSER_GET_ASID_VALUE <COREUSER_GET_ASID_VALUE>` | :ref:`0x58002008 <COREUSER_GET_ASID_VALUE>` |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_CONTROL <COREUSER_CONTROL>`               | :ref:`0x5800000c <COREUSER_CONTROL>`        |
+| :ref:`COREUSER_CONTROL <COREUSER_CONTROL>`               | :ref:`0x5800200c <COREUSER_CONTROL>`        |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_PROTECT <COREUSER_PROTECT>`               | :ref:`0x58000010 <COREUSER_PROTECT>`        |
+| :ref:`COREUSER_PROTECT <COREUSER_PROTECT>`               | :ref:`0x58002010 <COREUSER_PROTECT>`        |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_AL <COREUSER_WINDOW_AL>`           | :ref:`0x58000014 <COREUSER_WINDOW_AL>`      |
+| :ref:`COREUSER_WINDOW_AL <COREUSER_WINDOW_AL>`           | :ref:`0x58002014 <COREUSER_WINDOW_AL>`      |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_AH <COREUSER_WINDOW_AH>`           | :ref:`0x58000018 <COREUSER_WINDOW_AH>`      |
+| :ref:`COREUSER_WINDOW_AH <COREUSER_WINDOW_AH>`           | :ref:`0x58002018 <COREUSER_WINDOW_AH>`      |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_BL <COREUSER_WINDOW_BL>`           | :ref:`0x5800001c <COREUSER_WINDOW_BL>`      |
+| :ref:`COREUSER_WINDOW_BL <COREUSER_WINDOW_BL>`           | :ref:`0x5800201c <COREUSER_WINDOW_BL>`      |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_BH <COREUSER_WINDOW_BH>`           | :ref:`0x58000020 <COREUSER_WINDOW_BH>`      |
+| :ref:`COREUSER_WINDOW_BH <COREUSER_WINDOW_BH>`           | :ref:`0x58002020 <COREUSER_WINDOW_BH>`      |
 +----------------------------------------------------------+---------------------------------------------+
 
 COREUSER_SET_ASID
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x0 = 0x58000000`
+`Address: 0x58002000 + 0x0 = 0x58002000`
 
 
     .. wavedrom::
@@ -84,7 +84,7 @@ COREUSER_SET_ASID
 COREUSER_GET_ASID_ADDR
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x4 = 0x58000004`
+`Address: 0x58002000 + 0x4 = 0x58002004`
 
 
     .. wavedrom::
@@ -107,7 +107,7 @@ COREUSER_GET_ASID_ADDR
 COREUSER_GET_ASID_VALUE
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x8 = 0x58000008`
+`Address: 0x58002000 + 0x8 = 0x58002008`
 
 
     .. wavedrom::
@@ -130,7 +130,7 @@ COREUSER_GET_ASID_VALUE
 COREUSER_CONTROL
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0xc = 0x5800000c`
+`Address: 0x58002000 + 0xc = 0x5800200c`
 
 
     .. wavedrom::
@@ -165,7 +165,7 @@ COREUSER_CONTROL
 COREUSER_PROTECT
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x10 = 0x58000010`
+`Address: 0x58002000 + 0x10 = 0x58002010`
 
     Writing `1` to this bit prevents any further updates to CoreUser configuration
     status. Can only be reversed with a system reset.
@@ -184,7 +184,7 @@ COREUSER_PROTECT
 COREUSER_WINDOW_AL
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x14 = 0x58000014`
+`Address: 0x58002000 + 0x14 = 0x58002014`
 
 
     .. wavedrom::
@@ -208,7 +208,7 @@ COREUSER_WINDOW_AL
 COREUSER_WINDOW_AH
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x18 = 0x58000018`
+`Address: 0x58002000 + 0x18 = 0x58002018`
 
 
     .. wavedrom::
@@ -233,7 +233,7 @@ COREUSER_WINDOW_AH
 COREUSER_WINDOW_BL
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x1c = 0x5800001c`
+`Address: 0x58002000 + 0x1c = 0x5800201c`
 
 
     .. wavedrom::
@@ -257,7 +257,7 @@ COREUSER_WINDOW_BL
 COREUSER_WINDOW_BH
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x20 = 0x58000020`
+`Address: 0x58002000 + 0x20 = 0x58002020`
 
 
     .. wavedrom::

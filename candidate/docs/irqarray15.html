@@ -64,22 +64,22 @@ writing to a soft-trigger bit.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="#irqarray15-ev-soft"><span class="std std-ref">IRQARRAY15_EV_SOFT</span></a></p></td>
-<td><p><a class="reference internal" href="#irqarray15-ev-soft"><span class="std std-ref">0x58009000</span></a></p></td>
+<td><p><a class="reference internal" href="#irqarray15-ev-soft"><span class="std std-ref">0x5800b000</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#irqarray15-ev-status"><span class="std std-ref">IRQARRAY15_EV_STATUS</span></a></p></td>
-<td><p><a class="reference internal" href="#irqarray15-ev-status"><span class="std std-ref">0x58009004</span></a></p></td>
+<td><p><a class="reference internal" href="#irqarray15-ev-status"><span class="std std-ref">0x5800b004</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#irqarray15-ev-pending"><span class="std std-ref">IRQARRAY15_EV_PENDING</span></a></p></td>
-<td><p><a class="reference internal" href="#irqarray15-ev-pending"><span class="std std-ref">0x58009008</span></a></p></td>
+<td><p><a class="reference internal" href="#irqarray15-ev-pending"><span class="std std-ref">0x5800b008</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#irqarray15-ev-enable"><span class="std std-ref">IRQARRAY15_EV_ENABLE</span></a></p></td>
-<td><p><a class="reference internal" href="#irqarray15-ev-enable"><span class="std std-ref">0x5800900c</span></a></p></td>
+<td><p><a class="reference internal" href="#irqarray15-ev-enable"><span class="std std-ref">0x5800b00c</span></a></p></td>
 </tr>
 </tbody>
 </table>
 <section id="irqarray15-ev-soft">
 <h3>IRQARRAY15_EV_SOFT<a class="headerlink" href="#irqarray15-ev-soft" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58009000 + 0x0 = 0x58009000</cite></p>
+<p><cite>Address: 0x5800b000 + 0x0 = 0x5800b000</cite></p>
 <blockquote>
 <div><p>Software interrupt trigger register.</p>
 <p>Bits set to <cite>1</cite> will trigger an interrupt. Interrupts trigger on write, but the
@@ -88,7 +88,7 @@ interrupt was triggered by reading back the register.</p>
 <p>Software is responsible for clearing the register to 0.</p>
 <p>Repeated <cite>1</cite> writes without clearing will still trigger an interrupt.</p>
 <figure class="align-default" id="id1">
-<img alt="_images/wavedrom-66d0dc1c-dbff-48c6-af38-5939092f7fe1.svg" src="_images/wavedrom-66d0dc1c-dbff-48c6-af38-5939092f7fe1.svg" /><figcaption>
+<img alt="_images/wavedrom-f9fec694-52a4-43c5-b458-4e42ca7788a6.svg" src="_images/wavedrom-f9fec694-52a4-43c5-b458-4e42ca7788a6.svg" /><figcaption>
 <p><span class="caption-text">IRQARRAY15_EV_SOFT</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -110,12 +110,12 @@ interrupt was triggered by reading back the register.</p>
 </section>
 <section id="irqarray15-ev-status">
 <h3>IRQARRAY15_EV_STATUS<a class="headerlink" href="#irqarray15-ev-status" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58009000 + 0x4 = 0x58009004</cite></p>
+<p><cite>Address: 0x5800b000 + 0x4 = 0x5800b004</cite></p>
 <blockquote>
 <div><p><cite>1</cite> when a source19 event occurs. This event uses an <cite>EventSourceFlex</cite> form of
 triggering</p>
 <figure class="align-default" id="id2">
-<img alt="_images/wavedrom-385c247c-08b9-4ba7-b12f-e9efb332c4bf.svg" src="_images/wavedrom-385c247c-08b9-4ba7-b12f-e9efb332c4bf.svg" /><figcaption>
+<img alt="_images/wavedrom-55ea6a34-28ef-429b-8f1a-3443c86bc36f.svg" src="_images/wavedrom-55ea6a34-28ef-429b-8f1a-3443c86bc36f.svg" /><figcaption>
 <p><span class="caption-text">IRQARRAY15_EV_STATUS</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -213,12 +213,12 @@ triggering</p>
 </section>
 <section id="irqarray15-ev-pending">
 <h3>IRQARRAY15_EV_PENDING<a class="headerlink" href="#irqarray15-ev-pending" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58009000 + 0x8 = 0x58009008</cite></p>
+<p><cite>Address: 0x5800b000 + 0x8 = 0x5800b008</cite></p>
 <blockquote>
 <div><p><cite>1</cite> when a source19 event occurs. This event uses an <cite>EventSourceFlex</cite> form of
 triggering</p>
 <figure class="align-default" id="id3">
-<img alt="_images/wavedrom-fca35ffa-dfa1-4278-8b86-e0305ae6e9f9.svg" src="_images/wavedrom-fca35ffa-dfa1-4278-8b86-e0305ae6e9f9.svg" /><figcaption>
+<img alt="_images/wavedrom-8195aa07-6af4-481e-81eb-ac3b147f5701.svg" src="_images/wavedrom-8195aa07-6af4-481e-81eb-ac3b147f5701.svg" /><figcaption>
 <p><span class="caption-text">IRQARRAY15_EV_PENDING</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -336,12 +336,12 @@ triggering</p></td>
 </section>
 <section id="irqarray15-ev-enable">
 <h3>IRQARRAY15_EV_ENABLE<a class="headerlink" href="#irqarray15-ev-enable" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58009000 + 0xc = 0x5800900c</cite></p>
+<p><cite>Address: 0x5800b000 + 0xc = 0x5800b00c</cite></p>
 <blockquote>
 <div><p><cite>1</cite> when a source19 event occurs. This event uses an <cite>EventSourceFlex</cite> form of
 triggering</p>
 <figure class="align-default" id="id4">
-<img alt="_images/wavedrom-7909dd69-b9a9-4131-b252-89f4f354c550.svg" src="_images/wavedrom-7909dd69-b9a9-4131-b252-89f4f354c550.svg" /><figcaption>
+<img alt="_images/wavedrom-ccf3155a-672f-4059-b306-9b6b6bd1c430.svg" src="_images/wavedrom-ccf3155a-672f-4059-b306-9b6b6bd1c430.svg" /><figcaption>
 <p><span class="caption-text">IRQARRAY15_EV_ENABLE</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -468,6 +468,8 @@ triggering</p>
 <li class="toctree-l1"><a class="reference internal" href="cpu.html">CPU</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="d11ctime.html">D11CTIME</a></li>
+<li class="toctree-l1"><a class="reference internal" href="susres.html">SUSRES</a></li>
 <li class="toctree-l1"><a class="reference internal" href="coreuser.html">COREUSER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="csrtest.html">CSRTEST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="irqarray0.html">IRQARRAY0</a></li>
@@ -527,7 +529,7 @@ triggering</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2022, Cramium, Inc..
+      &copy;2023, Cramium, Inc..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>

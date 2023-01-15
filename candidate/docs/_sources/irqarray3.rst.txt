@@ -32,19 +32,19 @@ Register Listing for IRQARRAY3
 +----------------------------------------------------+------------------------------------------+
 | Register                                           | Address                                  |
 +====================================================+==========================================+
-| :ref:`IRQARRAY3_EV_SOFT <IRQARRAY3_EV_SOFT>`       | :ref:`0x5800f000 <IRQARRAY3_EV_SOFT>`    |
+| :ref:`IRQARRAY3_EV_SOFT <IRQARRAY3_EV_SOFT>`       | :ref:`0x58011000 <IRQARRAY3_EV_SOFT>`    |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`IRQARRAY3_EV_STATUS <IRQARRAY3_EV_STATUS>`   | :ref:`0x5800f004 <IRQARRAY3_EV_STATUS>`  |
+| :ref:`IRQARRAY3_EV_STATUS <IRQARRAY3_EV_STATUS>`   | :ref:`0x58011004 <IRQARRAY3_EV_STATUS>`  |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`IRQARRAY3_EV_PENDING <IRQARRAY3_EV_PENDING>` | :ref:`0x5800f008 <IRQARRAY3_EV_PENDING>` |
+| :ref:`IRQARRAY3_EV_PENDING <IRQARRAY3_EV_PENDING>` | :ref:`0x58011008 <IRQARRAY3_EV_PENDING>` |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`IRQARRAY3_EV_ENABLE <IRQARRAY3_EV_ENABLE>`   | :ref:`0x5800f00c <IRQARRAY3_EV_ENABLE>`  |
+| :ref:`IRQARRAY3_EV_ENABLE <IRQARRAY3_EV_ENABLE>`   | :ref:`0x5801100c <IRQARRAY3_EV_ENABLE>`  |
 +----------------------------------------------------+------------------------------------------+
 
 IRQARRAY3_EV_SOFT
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x5800f000 + 0x0 = 0x5800f000`
+`Address: 0x58011000 + 0x0 = 0x58011000`
 
     Software interrupt trigger register.
 
@@ -78,7 +78,7 @@ IRQARRAY3_EV_SOFT
 IRQARRAY3_EV_STATUS
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x5800f000 + 0x4 = 0x5800f004`
+`Address: 0x58011000 + 0x4 = 0x58011004`
 
     `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
     triggering
@@ -160,7 +160,7 @@ IRQARRAY3_EV_STATUS
 IRQARRAY3_EV_PENDING
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x5800f000 + 0x8 = 0x5800f008`
+`Address: 0x58011000 + 0x8 = 0x58011008`
 
     `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
     triggering
@@ -262,7 +262,7 @@ IRQARRAY3_EV_PENDING
 IRQARRAY3_EV_ENABLE
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x5800f000 + 0xc = 0x5800f00c`
+`Address: 0x58011000 + 0xc = 0x5801100c`
 
     `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
     triggering

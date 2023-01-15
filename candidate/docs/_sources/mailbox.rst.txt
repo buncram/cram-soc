@@ -243,27 +243,27 @@ Register Listing for MAILBOX
 +------------------------------------------------+----------------------------------------+
 | Register                                       | Address                                |
 +================================================+========================================+
-| :ref:`MAILBOX_WDATA <MAILBOX_WDATA>`           | :ref:`0x58016000 <MAILBOX_WDATA>`      |
+| :ref:`MAILBOX_WDATA <MAILBOX_WDATA>`           | :ref:`0x58018000 <MAILBOX_WDATA>`      |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_RDATA <MAILBOX_RDATA>`           | :ref:`0x58016004 <MAILBOX_RDATA>`      |
+| :ref:`MAILBOX_RDATA <MAILBOX_RDATA>`           | :ref:`0x58018004 <MAILBOX_RDATA>`      |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_EV_STATUS <MAILBOX_EV_STATUS>`   | :ref:`0x58016008 <MAILBOX_EV_STATUS>`  |
+| :ref:`MAILBOX_EV_STATUS <MAILBOX_EV_STATUS>`   | :ref:`0x58018008 <MAILBOX_EV_STATUS>`  |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_EV_PENDING <MAILBOX_EV_PENDING>` | :ref:`0x5801600c <MAILBOX_EV_PENDING>` |
+| :ref:`MAILBOX_EV_PENDING <MAILBOX_EV_PENDING>` | :ref:`0x5801800c <MAILBOX_EV_PENDING>` |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_EV_ENABLE <MAILBOX_EV_ENABLE>`   | :ref:`0x58016010 <MAILBOX_EV_ENABLE>`  |
+| :ref:`MAILBOX_EV_ENABLE <MAILBOX_EV_ENABLE>`   | :ref:`0x58018010 <MAILBOX_EV_ENABLE>`  |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_STATUS <MAILBOX_STATUS>`         | :ref:`0x58016014 <MAILBOX_STATUS>`     |
+| :ref:`MAILBOX_STATUS <MAILBOX_STATUS>`         | :ref:`0x58018014 <MAILBOX_STATUS>`     |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_CONTROL <MAILBOX_CONTROL>`       | :ref:`0x58016018 <MAILBOX_CONTROL>`    |
+| :ref:`MAILBOX_CONTROL <MAILBOX_CONTROL>`       | :ref:`0x58018018 <MAILBOX_CONTROL>`    |
 +------------------------------------------------+----------------------------------------+
-| :ref:`MAILBOX_DONE <MAILBOX_DONE>`             | :ref:`0x5801601c <MAILBOX_DONE>`       |
+| :ref:`MAILBOX_DONE <MAILBOX_DONE>`             | :ref:`0x5801801c <MAILBOX_DONE>`       |
 +------------------------------------------------+----------------------------------------+
 
 MAILBOX_WDATA
 ^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x0 = 0x58016000`
+`Address: 0x58018000 + 0x0 = 0x58018000`
 
     Write data to outgoing FIFO.
 
@@ -280,7 +280,7 @@ MAILBOX_WDATA
 MAILBOX_RDATA
 ^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x4 = 0x58016004`
+`Address: 0x58018000 + 0x4 = 0x58018004`
 
     Read data from incoming FIFO.
 
@@ -297,7 +297,7 @@ MAILBOX_RDATA
 MAILBOX_EV_STATUS
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x8 = 0x58016008`
+`Address: 0x58018000 + 0x8 = 0x58018008`
 
     Triggers if either `tx_err` or `rx_err` are asserted
 
@@ -330,7 +330,7 @@ MAILBOX_EV_STATUS
 MAILBOX_EV_PENDING
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0xc = 0x5801600c`
+`Address: 0x58018000 + 0xc = 0x5801800c`
 
     Triggers if either `tx_err` or `rx_err` are asserted
 
@@ -364,7 +364,7 @@ MAILBOX_EV_PENDING
 MAILBOX_EV_ENABLE
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x10 = 0x58016010`
+`Address: 0x58018000 + 0x10 = 0x58018010`
 
     Triggers if either `tx_err` or `rx_err` are asserted
 
@@ -397,7 +397,7 @@ MAILBOX_EV_ENABLE
 MAILBOX_STATUS
 ^^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x14 = 0x58016014`
+`Address: 0x58018000 + 0x14 = 0x58018014`
 
 
     .. wavedrom::
@@ -441,7 +441,7 @@ MAILBOX_STATUS
 MAILBOX_CONTROL
 ^^^^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x18 = 0x58016018`
+`Address: 0x58018000 + 0x18 = 0x58018018`
 
 
     .. wavedrom::
@@ -469,7 +469,7 @@ MAILBOX_CONTROL
 MAILBOX_DONE
 ^^^^^^^^^^^^
 
-`Address: 0x58016000 + 0x1c = 0x5801601c`
+`Address: 0x58018000 + 0x1c = 0x5801801c`
 
 
     .. wavedrom::

@@ -55,7 +55,9 @@ The following interrupts are assigned on this system:
 +-----------+--------------------------------+
 | 9         | :doc:`IRQARRAY9 <irqarray9>`   |
 +-----------+--------------------------------+
-| 21        | :doc:`MAILBOX <mailbox>`       |
+| 22        | :doc:`MAILBOX <mailbox>`       |
++-----------+--------------------------------+
+| 21        | :doc:`SUSRES <susres>`         |
 +-----------+--------------------------------+
 | 20        | :doc:`TICKTIMER <ticktimer>`   |
 +-----------+--------------------------------+

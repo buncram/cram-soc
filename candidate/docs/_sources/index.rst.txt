@@ -19,6 +19,8 @@ Register Groups
 .. toctree::
     :maxdepth: 1
 
+    d11ctime
+    susres
     coreuser
     csrtest
     irqarray0

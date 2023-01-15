@@ -1,0 +1,297 @@
+SUSRES
+======
+
+Suspend/Resume Helper
+---------------------
+This module is a utility module that assists with suspend and
+resume functions. It has the ability to 'reach into' the Ticktimer space to help coordinate
+a clean, monatomic shut down from a suspend/resume manager that exists in a different,
+isolated process space from the TickTimer.
+
+It also contains a register which tracks the current resume state. The bootloader controls
+the kernel's behavior by setting this bit prior to resuming operation.
+
+
+Register Listing for SUSRES
+---------------------------
+
++--------------------------------------------------+-----------------------------------------+
+| Register                                         | Address                                 |
++==================================================+=========================================+
+| :ref:`SUSRES_CONTROL <SUSRES_CONTROL>`           | :ref:`0x58001000 <SUSRES_CONTROL>`      |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_RESUME_TIME1 <SUSRES_RESUME_TIME1>` | :ref:`0x58001004 <SUSRES_RESUME_TIME1>` |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_RESUME_TIME0 <SUSRES_RESUME_TIME0>` | :ref:`0x58001008 <SUSRES_RESUME_TIME0>` |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_TIME1 <SUSRES_TIME1>`               | :ref:`0x5800100c <SUSRES_TIME1>`        |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_TIME0 <SUSRES_TIME0>`               | :ref:`0x58001010 <SUSRES_TIME0>`        |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_STATUS <SUSRES_STATUS>`             | :ref:`0x58001014 <SUSRES_STATUS>`       |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_STATE <SUSRES_STATE>`               | :ref:`0x58001018 <SUSRES_STATE>`        |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_INTERRUPT <SUSRES_INTERRUPT>`       | :ref:`0x5800101c <SUSRES_INTERRUPT>`    |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_EV_STATUS <SUSRES_EV_STATUS>`       | :ref:`0x58001020 <SUSRES_EV_STATUS>`    |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_EV_PENDING <SUSRES_EV_PENDING>`     | :ref:`0x58001024 <SUSRES_EV_PENDING>`   |
++--------------------------------------------------+-----------------------------------------+
+| :ref:`SUSRES_EV_ENABLE <SUSRES_EV_ENABLE>`       | :ref:`0x58001028 <SUSRES_EV_ENABLE>`    |
++--------------------------------------------------+-----------------------------------------+
+
+SUSRES_CONTROL
+^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x0 = 0x58001000`
+
+
+    .. wavedrom::
+        :caption: SUSRES_CONTROL
+
+        {
+            "reg": [
+                {"name": "pause",  "bits": 1},
+                {"name": "load",  "type": 4, "bits": 1},
+                {"bits": 30}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+---------------------------------------------------------------------------------+
+| Field | Name  | Description                                                                     |
++=======+=======+=================================================================================+
+| [0]   | PAUSE | Write a `1` to this field to request a pause to counting, 0 for free-run. Count |
+|       |       | pauses on the next tick quanta.                                                 |
++-------+-------+---------------------------------------------------------------------------------+
+| [1]   | LOAD  | If paused, write a `1` to this bit to load a resume value to the timer. If not  |
+|       |       | paused, this bit is ignored.                                                    |
+|       |       |                                                                                 |
+|       |       | Writing a 1 to this bit triggers the function.                                  |
++-------+-------+---------------------------------------------------------------------------------+
+
+SUSRES_RESUME_TIME1
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x4 = 0x58001004`
+
+    Bits 32-63 of `SUSRES_RESUME_TIME`. Elapsed time to load. Loaded upon writing
+    `1` to the load bit in the control register. This will immediately affect the
+    msleep extension.
+
+    .. wavedrom::
+        :caption: SUSRES_RESUME_TIME1
+
+        {
+            "reg": [
+                {"name": "resume_time[63:32]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+SUSRES_RESUME_TIME0
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x8 = 0x58001008`
+
+    Bits 0-31 of `SUSRES_RESUME_TIME`.
+
+    .. wavedrom::
+        :caption: SUSRES_RESUME_TIME0
+
+        {
+            "reg": [
+                {"name": "resume_time[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+SUSRES_TIME1
+^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0xc = 0x5800100c`
+
+    Bits 32-63 of `SUSRES_TIME`. Cycle-accurate mirror copy of time in systicks,
+    from the TickTimer
+
+    .. wavedrom::
+        :caption: SUSRES_TIME1
+
+        {
+            "reg": [
+                {"name": "time[63:32]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+SUSRES_TIME0
+^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x10 = 0x58001010`
+
+    Bits 0-31 of `SUSRES_TIME`.
+
+    .. wavedrom::
+        :caption: SUSRES_TIME0
+
+        {
+            "reg": [
+                {"name": "time[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+SUSRES_STATUS
+^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x14 = 0x58001014`
+
+
+    .. wavedrom::
+        :caption: SUSRES_STATUS
+
+        {
+            "reg": [
+                {"name": "paused",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+--------+------------------------------------------------------+
+| Field | Name   | Description                                          |
++=======+========+======================================================+
+| [0]   | PAUSED | When set, indicates that the counter has been paused |
++-------+--------+------------------------------------------------------+
+
+SUSRES_STATE
+^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x18 = 0x58001018`
+
+
+    .. wavedrom::
+        :caption: SUSRES_STATE
+
+        {
+            "reg": [
+                {"name": "resume",  "bits": 1},
+                {"name": "was_forced",  "bits": 1},
+                {"bits": 30}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+---------------------------------------------------------------------------------+
+| Field | Name       | Description                                                                     |
++=======+============+=================================================================================+
+| [0]   | RESUME     | Used to transfer the resume state information from the loader to Xous. If set,  |
+|       |            | indicates we are on the resume half of a suspend/resume.                        |
++-------+------------+---------------------------------------------------------------------------------+
+| [1]   | WAS_FORCED | Used by the bootloader to indicate to the kernel if the current resume was from |
+|       |            | a forced suspend (e.g. a timeout happened and a server may be unclean.          |
++-------+------------+---------------------------------------------------------------------------------+
+
+SUSRES_INTERRUPT
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x1c = 0x5800101c`
+
+
+    .. wavedrom::
+        :caption: SUSRES_INTERRUPT
+
+        {
+            "reg": [
+                {"name": "interrupt",  "type": 4, "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-----------+--------------------------------------------------------------------+
+| Field | Name      | Description                                                        |
++=======+===========+====================================================================+
+| [0]   | INTERRUPT | Writing this causes an interrupt to fire. Used by Xous to initiate |
+|       |           | suspend/resume from an interrupt context.                          |
+|       |           |                                                                    |
+|       |           | Writing a 1 to this bit triggers the function.                     |
++-------+-----------+--------------------------------------------------------------------+
+
+SUSRES_EV_STATUS
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x20 = 0x58001020`
+
+    This register contains the current raw level of the soft_int event trigger.
+    Writes to this register have no effect.
+
+    .. wavedrom::
+        :caption: SUSRES_EV_STATUS
+
+        {
+            "reg": [
+                {"name": "soft_int",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------+---------------------------------+
+| Field | Name     | Description                     |
++=======+==========+=================================+
+| [0]   | SOFT_INT | Level of the ``soft_int`` event |
++-------+----------+---------------------------------+
+
+SUSRES_EV_PENDING
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x24 = 0x58001024`
+
+    When a  soft_int event occurs, the corresponding bit will be set in this
+    register.  To clear the Event, set the corresponding bit in this register.
+
+    .. wavedrom::
+        :caption: SUSRES_EV_PENDING
+
+        {
+            "reg": [
+                {"name": "soft_int",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------+------------------------------------------------------------------------------+
+| Field | Name     | Description                                                                  |
++=======+==========+==============================================================================+
+| [0]   | SOFT_INT | `1` if a `soft_int` event occurred. This Event is triggered on a **falling** |
+|       |          | edge.                                                                        |
++-------+----------+------------------------------------------------------------------------------+
+
+SUSRES_EV_ENABLE
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58001000 + 0x28 = 0x58001028`
+
+    This register enables the corresponding soft_int events.  Write a ``0`` to this
+    register to disable individual events.
+
+    .. wavedrom::
+        :caption: SUSRES_EV_ENABLE
+
+        {
+            "reg": [
+                {"name": "soft_int",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------+------------------------------------------------+
+| Field | Name     | Description                                    |
++=======+==========+================================================+
+| [0]   | SOFT_INT | Write a ``1`` to enable the ``soft_int`` Event |
++-------+----------+------------------------------------------------+
+
