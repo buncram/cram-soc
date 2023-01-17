@@ -346,17 +346,18 @@ class BtGpio(Module, AutoDoc, AutoCSR):
 class SimPhyTx(Module):
     def __init__(self, sim_data_out, sim_data_out_valid):
         self.sink = sink = stream.Endpoint([("data", 8)])
+        valid_r = Signal()
 
         self.sync += [
+            valid_r.eq(sink.valid),
             If(sink.valid,
                 sim_data_out.eq(sink.data),
-                sim_data_out_valid.eq(1),
                 sink.ready.eq(1)
             ).Else(
                 sim_data_out.eq(sim_data_out),
-                sim_data_out_valid.eq(0),
                 sink.ready.eq(0),
-            )
+            ),
+            sim_data_out_valid.eq(~valid_r & sink.valid),
         ]
 
 # Dummy module that injects nothing. This is written so that we can extend it to have the test bench inject data eventually if we wanted to.
