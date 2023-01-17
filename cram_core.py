@@ -484,7 +484,7 @@ from the peer.""", pulse=True)
 # Deterministic timeout ---------------------------------------------------------------------------
 
 class D11cTime(Module, AutoDoc, AutoCSR):
-    def __init__(self, count=400_000):
+    def __init__(self, count=400_000, sys_clk_freq=100e6):
         self.intro = ModuleDoc("""Deterministic Timeout
         This module creates a heartbeat that is deterministic. If used correctly, it can help reduce
         timing side channels on secure processes by giving them an independent, coarse source of
@@ -500,8 +500,8 @@ class D11cTime(Module, AutoDoc, AutoCSR):
         countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
         hardware-efficient.
 
-        This block has been configured to default to {}ms period, assuming ACLK is 800MHz.
-        """.format( 2 * (count / 800e6) * 1000.0 ))
+        This block has been configured to default to {}ms period, assuming ACLK is {}MHz.
+        """.format( 2 * (count / sys_clk_freq) * 1000.0 , sys_clk_freq / 1e6))
 
         self.control = CSRStorage(32, fields = [
             CSRField("count", size=32, description="Number of ACLK ticks before creating a heart beat", reset=count),
@@ -988,11 +988,11 @@ class cramSoC(SoCCore):
             self.irq.add("irqarray{}".format(bank))
 
         # Ticktimer --------------------------------------------------------------------------------
-        self.submodules.ticktimer = ticktimer.TickTimer(2000, 800e6)
+        self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq)
         self.irq.add("ticktimer")
 
         # Deterministic timeout helper ---------------------------------------------------------------
-        self.submodules.d11ctime = D11cTime(count=1638)
+        self.submodules.d11ctime = D11cTime(count=400_000, sys_clk_freq=sys_clk_freq)
         self.add_csr("d11ctime")
 
         # Suspend/resume ---------------------------------------------------------------------------
@@ -1024,7 +1024,7 @@ def main():
     target_group = parser.add_argument_group(title="Generator options")
     target_group.add_argument("--name",          default="cram_axi", help="SoC Name.")
     target_group.add_argument("--build",         action="store_true", help="Build SoC.")
-    target_group.add_argument("--sys-clk-freq",  default=int(50e6),   help="System clock frequency.")
+    target_group.add_argument("--sys-clk-freq",  default=int(800e6),   help="System clock frequency.")
     parser.add_argument(
         "-D", "--document-only", default=False, action="store_true", help="dummy arg to be consistent with cram_soc"
     )
@@ -1037,9 +1037,13 @@ def main():
     # consistent with the source code.
 
     # Generate the SoC
+    if args.sim:
+        sys_clk_freq = 100e6
+    else:
+        sys_clk_freq = args.sys_clk_freq
     soc = cramSoC(
         name         = args.name,
-        sys_clk_freq = int(float(args.sys_clk_freq)),
+        sys_clk_freq = int(sys_clk_freq),
     )
     builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/core.svd",
         compile_software=False, compile_gateware=False)
