@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.8.0    git head : 4e3563a282582b41f4eaafc503787757251d23ea
 // Component : VexRiscvAxi4
-// Git hash  : dbef3ea7b8dbd8e1db6c29a373b05244e41f2fa8
+// Git hash  : 3ea01016c913d7f8d7b06585f3e1fb3d2c7644d6
 
 `timescale 1ns/1ps
 
@@ -9,6 +9,7 @@ module VexRiscvAxi4 (
   output reg          CsrPlugin_inWfi /* verilator public */ ,
   input               timerInterrupt,
   input               softwareInterrupt,
+  output reg [1:0]    CsrPlugin_privilege,
   input      [31:0]   externalInterruptArray,
   output              debug_resetOut,
   output reg          MmuPlugin_satp_mode,
@@ -948,7 +949,6 @@ module VexRiscvAxi4 (
   wire                externalInterrupt;
   wire                externalInterruptS;
   wire                contextSwitching;
-  reg        [1:0]    CsrPlugin_privilege;
   reg                 CsrPlugin_forceMachineWire;
   reg                 CsrPlugin_selfException_valid;
   reg        [3:0]    CsrPlugin_selfException_payload_code;
@@ -1438,13 +1438,13 @@ module VexRiscvAxi4 (
   reg        [8:0]    CsrPlugin_satp_ASID;
   reg        [0:0]    CsrPlugin_satp_MODE;
   reg                 CsrPlugin_rescheduleLogic_rescheduleNext;
-  wire                when_CsrPlugin_l1073;
-  wire                _zz_when_CsrPlugin_l1222;
-  wire                _zz_when_CsrPlugin_l1222_1;
-  wire                _zz_when_CsrPlugin_l1222_2;
-  wire                _zz_when_CsrPlugin_l1222_3;
-  wire                _zz_when_CsrPlugin_l1222_4;
-  wire                _zz_when_CsrPlugin_l1222_5;
+  wire                when_CsrPlugin_l1077;
+  wire                _zz_when_CsrPlugin_l1226;
+  wire                _zz_when_CsrPlugin_l1226_1;
+  wire                _zz_when_CsrPlugin_l1226_2;
+  wire                _zz_when_CsrPlugin_l1226_3;
+  wire                _zz_when_CsrPlugin_l1226_4;
+  wire                _zz_when_CsrPlugin_l1226_5;
   reg                 CsrPlugin_exceptionPortCtrl_exceptionValids_decode;
   reg                 CsrPlugin_exceptionPortCtrl_exceptionValids_execute;
   reg                 CsrPlugin_exceptionPortCtrl_exceptionValids_memory;
@@ -1456,52 +1456,52 @@ module VexRiscvAxi4 (
   reg        [3:0]    CsrPlugin_exceptionPortCtrl_exceptionContext_code;
   reg        [31:0]   CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr;
   reg        [1:0]    CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped;
-  wire                when_CsrPlugin_l1136;
-  wire                when_CsrPlugin_l1136_1;
-  wire                when_CsrPlugin_l1136_2;
-  wire                when_CsrPlugin_l1136_3;
-  wire                when_CsrPlugin_l1136_4;
-  wire                when_CsrPlugin_l1136_5;
-  wire                when_CsrPlugin_l1136_6;
-  wire                when_CsrPlugin_l1136_7;
-  wire                when_CsrPlugin_l1136_8;
-  wire                when_CsrPlugin_l1136_9;
-  wire                when_CsrPlugin_l1136_10;
-  wire                when_CsrPlugin_l1136_11;
+  wire                when_CsrPlugin_l1140;
+  wire                when_CsrPlugin_l1140_1;
+  wire                when_CsrPlugin_l1140_2;
+  wire                when_CsrPlugin_l1140_3;
+  wire                when_CsrPlugin_l1140_4;
+  wire                when_CsrPlugin_l1140_5;
+  wire                when_CsrPlugin_l1140_6;
+  wire                when_CsrPlugin_l1140_7;
+  wire                when_CsrPlugin_l1140_8;
+  wire                when_CsrPlugin_l1140_9;
+  wire                when_CsrPlugin_l1140_10;
+  wire                when_CsrPlugin_l1140_11;
   wire       [1:0]    CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilege;
   wire       [1:0]    _zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code;
   wire                _zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1;
-  wire                when_CsrPlugin_l1179;
-  wire                when_CsrPlugin_l1179_1;
-  wire                when_CsrPlugin_l1179_2;
-  wire                when_CsrPlugin_l1179_3;
-  wire                when_CsrPlugin_l1192;
+  wire                when_CsrPlugin_l1183;
+  wire                when_CsrPlugin_l1183_1;
+  wire                when_CsrPlugin_l1183_2;
+  wire                when_CsrPlugin_l1183_3;
+  wire                when_CsrPlugin_l1196;
   reg                 CsrPlugin_interrupt_valid;
   reg        [3:0]    CsrPlugin_interrupt_code /* verilator public */ ;
   reg        [1:0]    CsrPlugin_interrupt_targetPrivilege;
-  wire                when_CsrPlugin_l1216;
-  wire                when_CsrPlugin_l1216_1;
-  wire                when_CsrPlugin_l1222;
-  wire                when_CsrPlugin_l1222_1;
-  wire                when_CsrPlugin_l1222_2;
-  wire                when_CsrPlugin_l1222_3;
-  wire                when_CsrPlugin_l1222_4;
-  wire                when_CsrPlugin_l1222_5;
-  wire                when_CsrPlugin_l1222_6;
-  wire                when_CsrPlugin_l1222_7;
-  wire                when_CsrPlugin_l1222_8;
+  wire                when_CsrPlugin_l1220;
+  wire                when_CsrPlugin_l1220_1;
+  wire                when_CsrPlugin_l1226;
+  wire                when_CsrPlugin_l1226_1;
+  wire                when_CsrPlugin_l1226_2;
+  wire                when_CsrPlugin_l1226_3;
+  wire                when_CsrPlugin_l1226_4;
+  wire                when_CsrPlugin_l1226_5;
+  wire                when_CsrPlugin_l1226_6;
+  wire                when_CsrPlugin_l1226_7;
+  wire                when_CsrPlugin_l1226_8;
   wire                CsrPlugin_exception;
   reg                 CsrPlugin_lastStageWasWfi;
   reg                 CsrPlugin_pipelineLiberator_pcValids_0;
   reg                 CsrPlugin_pipelineLiberator_pcValids_1;
   reg                 CsrPlugin_pipelineLiberator_pcValids_2;
   wire                CsrPlugin_pipelineLiberator_active;
-  wire                when_CsrPlugin_l1255;
-  wire                when_CsrPlugin_l1255_1;
-  wire                when_CsrPlugin_l1255_2;
-  wire                when_CsrPlugin_l1260;
+  wire                when_CsrPlugin_l1259;
+  wire                when_CsrPlugin_l1259_1;
+  wire                when_CsrPlugin_l1259_2;
+  wire                when_CsrPlugin_l1264;
   reg                 CsrPlugin_pipelineLiberator_done;
-  wire                when_CsrPlugin_l1266;
+  wire                when_CsrPlugin_l1270;
   wire                CsrPlugin_interruptJump /* verilator public */ ;
   reg                 CsrPlugin_hadException /* verilator public */ ;
   reg        [1:0]    CsrPlugin_targetPrivilege;
@@ -1510,23 +1510,23 @@ module VexRiscvAxi4 (
   reg        [1:0]    CsrPlugin_xtvec_mode;
   reg        [29:0]   CsrPlugin_xtvec_base;
   wire                CsrPlugin_trapEnterDebug;
-  wire                when_CsrPlugin_l1310;
-  wire                when_CsrPlugin_l1318;
-  wire                when_CsrPlugin_l1376;
-  wire       [1:0]    switch_CsrPlugin_l1380;
-  wire                when_CsrPlugin_l1388;
+  wire                when_CsrPlugin_l1314;
+  wire                when_CsrPlugin_l1322;
+  wire                when_CsrPlugin_l1380;
+  wire       [1:0]    switch_CsrPlugin_l1384;
+  wire                when_CsrPlugin_l1392;
   reg                 execute_CsrPlugin_wfiWake;
-  wire                when_CsrPlugin_l1439;
-  wire                when_CsrPlugin_l1441;
-  wire                when_CsrPlugin_l1447;
+  wire                when_CsrPlugin_l1443;
+  wire                when_CsrPlugin_l1445;
+  wire                when_CsrPlugin_l1451;
   wire                execute_CsrPlugin_blockedBySideEffects;
   reg                 execute_CsrPlugin_illegalAccess;
   reg                 execute_CsrPlugin_illegalInstruction;
-  wire                when_CsrPlugin_l1460;
-  wire                when_CsrPlugin_l1467;
-  wire                when_CsrPlugin_l1468;
-  wire                when_CsrPlugin_l1475;
-  wire                when_CsrPlugin_l1485;
+  wire                when_CsrPlugin_l1464;
+  wire                when_CsrPlugin_l1471;
+  wire                when_CsrPlugin_l1472;
+  wire                when_CsrPlugin_l1479;
+  wire                when_CsrPlugin_l1489;
   reg                 execute_CsrPlugin_writeInstruction;
   reg                 execute_CsrPlugin_readInstruction;
   wire                execute_CsrPlugin_writeEnable;
@@ -1534,8 +1534,8 @@ module VexRiscvAxi4 (
   reg        [31:0]   execute_CsrPlugin_readToWriteData;
   wire                switch_Misc_l226_3;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_writeDataSignal;
-  wire                when_CsrPlugin_l1511;
-  wire                when_CsrPlugin_l1517;
+  wire                when_CsrPlugin_l1515;
+  wire                when_CsrPlugin_l1521;
   wire       [11:0]   execute_CsrPlugin_csrAddress;
   wire                execute_BranchPlugin_eq;
   wire       [2:0]    switch_Misc_l226_4;
@@ -2066,86 +2066,86 @@ module VexRiscvAxi4 (
   wire                when_Fetcher_l381;
   wire                when_Fetcher_l407;
   reg        [31:0]   IBusCachedPlugin_injectionPort_payload_regNext;
-  wire                when_CsrPlugin_l1589;
+  wire                when_CsrPlugin_l1593;
   reg                 execute_CsrPlugin_csr_3264;
-  wire                when_CsrPlugin_l1589_1;
+  wire                when_CsrPlugin_l1593_1;
   reg                 execute_CsrPlugin_csr_3857;
-  wire                when_CsrPlugin_l1589_2;
+  wire                when_CsrPlugin_l1593_2;
   reg                 execute_CsrPlugin_csr_3858;
-  wire                when_CsrPlugin_l1589_3;
+  wire                when_CsrPlugin_l1593_3;
   reg                 execute_CsrPlugin_csr_3859;
-  wire                when_CsrPlugin_l1589_4;
+  wire                when_CsrPlugin_l1593_4;
   reg                 execute_CsrPlugin_csr_3860;
-  wire                when_CsrPlugin_l1589_5;
+  wire                when_CsrPlugin_l1593_5;
   reg                 execute_CsrPlugin_csr_769;
-  wire                when_CsrPlugin_l1589_6;
+  wire                when_CsrPlugin_l1593_6;
   reg                 execute_CsrPlugin_csr_768;
-  wire                when_CsrPlugin_l1589_7;
+  wire                when_CsrPlugin_l1593_7;
   reg                 execute_CsrPlugin_csr_836;
-  wire                when_CsrPlugin_l1589_8;
+  wire                when_CsrPlugin_l1593_8;
   reg                 execute_CsrPlugin_csr_772;
-  wire                when_CsrPlugin_l1589_9;
+  wire                when_CsrPlugin_l1593_9;
   reg                 execute_CsrPlugin_csr_773;
-  wire                when_CsrPlugin_l1589_10;
+  wire                when_CsrPlugin_l1593_10;
   reg                 execute_CsrPlugin_csr_833;
-  wire                when_CsrPlugin_l1589_11;
+  wire                when_CsrPlugin_l1593_11;
   reg                 execute_CsrPlugin_csr_832;
-  wire                when_CsrPlugin_l1589_12;
+  wire                when_CsrPlugin_l1593_12;
   reg                 execute_CsrPlugin_csr_834;
-  wire                when_CsrPlugin_l1589_13;
+  wire                when_CsrPlugin_l1593_13;
   reg                 execute_CsrPlugin_csr_835;
-  wire                when_CsrPlugin_l1589_14;
+  wire                when_CsrPlugin_l1593_14;
   reg                 execute_CsrPlugin_csr_2816;
-  wire                when_CsrPlugin_l1589_15;
+  wire                when_CsrPlugin_l1593_15;
   reg                 execute_CsrPlugin_csr_2944;
-  wire                when_CsrPlugin_l1589_16;
+  wire                when_CsrPlugin_l1593_16;
   reg                 execute_CsrPlugin_csr_2818;
-  wire                when_CsrPlugin_l1589_17;
+  wire                when_CsrPlugin_l1593_17;
   reg                 execute_CsrPlugin_csr_2946;
-  wire                when_CsrPlugin_l1589_18;
+  wire                when_CsrPlugin_l1593_18;
   reg                 execute_CsrPlugin_csr_770;
-  wire                when_CsrPlugin_l1589_19;
+  wire                when_CsrPlugin_l1593_19;
   reg                 execute_CsrPlugin_csr_771;
-  wire                when_CsrPlugin_l1589_20;
+  wire                when_CsrPlugin_l1593_20;
   reg                 execute_CsrPlugin_csr_3072;
-  wire                when_CsrPlugin_l1589_21;
+  wire                when_CsrPlugin_l1593_21;
   reg                 execute_CsrPlugin_csr_3200;
-  wire                when_CsrPlugin_l1589_22;
+  wire                when_CsrPlugin_l1593_22;
   reg                 execute_CsrPlugin_csr_3074;
-  wire                when_CsrPlugin_l1589_23;
+  wire                when_CsrPlugin_l1593_23;
   reg                 execute_CsrPlugin_csr_3202;
-  wire                when_CsrPlugin_l1589_24;
+  wire                when_CsrPlugin_l1593_24;
   reg                 execute_CsrPlugin_csr_256;
-  wire                when_CsrPlugin_l1589_25;
+  wire                when_CsrPlugin_l1593_25;
   reg                 execute_CsrPlugin_csr_324;
-  wire                when_CsrPlugin_l1589_26;
+  wire                when_CsrPlugin_l1593_26;
   reg                 execute_CsrPlugin_csr_260;
-  wire                when_CsrPlugin_l1589_27;
+  wire                when_CsrPlugin_l1593_27;
   reg                 execute_CsrPlugin_csr_261;
-  wire                when_CsrPlugin_l1589_28;
+  wire                when_CsrPlugin_l1593_28;
   reg                 execute_CsrPlugin_csr_321;
-  wire                when_CsrPlugin_l1589_29;
+  wire                when_CsrPlugin_l1593_29;
   reg                 execute_CsrPlugin_csr_320;
-  wire                when_CsrPlugin_l1589_30;
+  wire                when_CsrPlugin_l1593_30;
   reg                 execute_CsrPlugin_csr_322;
-  wire                when_CsrPlugin_l1589_31;
+  wire                when_CsrPlugin_l1593_31;
   reg                 execute_CsrPlugin_csr_323;
-  wire                when_CsrPlugin_l1589_32;
+  wire                when_CsrPlugin_l1593_32;
   reg                 execute_CsrPlugin_csr_384;
-  wire                when_CsrPlugin_l1589_33;
+  wire                when_CsrPlugin_l1593_33;
   reg                 execute_CsrPlugin_csr_3008;
-  wire                when_CsrPlugin_l1589_34;
+  wire                when_CsrPlugin_l1593_34;
   reg                 execute_CsrPlugin_csr_4032;
-  wire                when_CsrPlugin_l1589_35;
+  wire                when_CsrPlugin_l1593_35;
   reg                 execute_CsrPlugin_csr_2496;
-  wire                when_CsrPlugin_l1589_36;
+  wire                when_CsrPlugin_l1593_36;
   reg                 execute_CsrPlugin_csr_3520;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_2;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_3;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_4;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_5;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_6;
-  wire       [1:0]    switch_CsrPlugin_l980;
+  wire       [1:0]    switch_CsrPlugin_l984;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_7;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_8;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_9;
@@ -2177,9 +2177,9 @@ module VexRiscvAxi4 (
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_35;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_36;
   reg        [31:0]   _zz_CsrPlugin_csrMapping_readDataInit_37;
-  reg                 when_CsrPlugin_l1625;
-  wire                when_CsrPlugin_l1623;
-  wire                when_CsrPlugin_l1631;
+  reg                 when_CsrPlugin_l1629;
+  wire                when_CsrPlugin_l1627;
+  wire                when_CsrPlugin_l1635;
   wire       [0:0]    _zz_iBusAxi_ar_payload_id;
   wire       [3:0]    _zz_iBusAxi_ar_payload_region;
   wire                dbus_axi_arw_valid;
@@ -4088,8 +4088,8 @@ module VexRiscvAxi4 (
     if(when_MulDivIterativePlugin_l128) begin
       _zz_decode_RS2_1 = memory_DivPlugin_div_result; // @[MulDivIterativePlugin.scala 157:38]
     end
-    if(when_CsrPlugin_l1517) begin
-      _zz_decode_RS2_1 = memory_PIPELINED_CSR_READ; // @[CsrPlugin.scala 1518:47]
+    if(when_CsrPlugin_l1521) begin
+      _zz_decode_RS2_1 = memory_PIPELINED_CSR_READ; // @[CsrPlugin.scala 1522:47]
     end
   end
 
@@ -4271,20 +4271,20 @@ module VexRiscvAxi4 (
       decode_arbitration_haltByOther = 1'b1; // @[HazardSimplePlugin.scala 114:43]
     end
     if(CsrPlugin_rescheduleLogic_rescheduleNext) begin
-      decode_arbitration_haltByOther = 1'b1; // @[CsrPlugin.scala 1079:44]
+      decode_arbitration_haltByOther = 1'b1; // @[CsrPlugin.scala 1083:44]
     end
     if(CsrPlugin_pipelineLiberator_active) begin
-      decode_arbitration_haltByOther = 1'b1; // @[CsrPlugin.scala 1253:42]
+      decode_arbitration_haltByOther = 1'b1; // @[CsrPlugin.scala 1257:42]
     end
-    if(when_CsrPlugin_l1447) begin
-      decode_arbitration_haltByOther = 1'b1; // @[CsrPlugin.scala 1447:38]
+    if(when_CsrPlugin_l1451) begin
+      decode_arbitration_haltByOther = 1'b1; // @[CsrPlugin.scala 1451:38]
     end
   end
 
   always @(*) begin
     decode_arbitration_removeIt = 1'b0; // @[Stage.scala 51:23]
     if(_zz_when) begin
-      decode_arbitration_removeIt = 1'b1; // @[CsrPlugin.scala 1171:40]
+      decode_arbitration_removeIt = 1'b1; // @[CsrPlugin.scala 1175:40]
     end
     if(decode_arbitration_isFlushed) begin
       decode_arbitration_removeIt = 1'b1; // @[Pipeline.scala 134:36]
@@ -4298,7 +4298,7 @@ module VexRiscvAxi4 (
       decode_arbitration_flushNext = 1'b1; // @[Fetcher.scala 515:38]
     end
     if(_zz_when) begin
-      decode_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1170:41]
+      decode_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1174:41]
     end
   end
 
@@ -4307,14 +4307,14 @@ module VexRiscvAxi4 (
     if(when_DBusCachedPlugin_l350) begin
       execute_arbitration_haltItself = 1'b1; // @[DBusCachedPlugin.scala 350:30]
     end
-    if(when_CsrPlugin_l1439) begin
-      if(when_CsrPlugin_l1441) begin
-        execute_arbitration_haltItself = 1'b1; // @[CsrPlugin.scala 1442:36]
+    if(when_CsrPlugin_l1443) begin
+      if(when_CsrPlugin_l1445) begin
+        execute_arbitration_haltItself = 1'b1; // @[CsrPlugin.scala 1446:36]
       end
     end
-    if(when_CsrPlugin_l1511) begin
+    if(when_CsrPlugin_l1515) begin
       if(execute_CsrPlugin_blockedBySideEffects) begin
-        execute_arbitration_haltItself = 1'b1; // @[CsrPlugin.scala 1512:34]
+        execute_arbitration_haltItself = 1'b1; // @[CsrPlugin.scala 1516:34]
       end
     end
   end
@@ -4332,7 +4332,7 @@ module VexRiscvAxi4 (
   always @(*) begin
     execute_arbitration_removeIt = 1'b0; // @[Stage.scala 51:23]
     if(CsrPlugin_selfException_valid) begin
-      execute_arbitration_removeIt = 1'b1; // @[CsrPlugin.scala 1171:40]
+      execute_arbitration_removeIt = 1'b1; // @[CsrPlugin.scala 1175:40]
     end
     if(execute_arbitration_isFlushed) begin
       execute_arbitration_removeIt = 1'b1; // @[Pipeline.scala 134:36]
@@ -4351,10 +4351,10 @@ module VexRiscvAxi4 (
   always @(*) begin
     execute_arbitration_flushNext = 1'b0; // @[Stage.scala 53:24]
     if(CsrPlugin_rescheduleLogic_rescheduleNext) begin
-      execute_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1078:43]
+      execute_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1082:43]
     end
     if(CsrPlugin_selfException_valid) begin
-      execute_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1170:41]
+      execute_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1174:41]
     end
     if(when_DebugPlugin_l308) begin
       if(when_DebugPlugin_l311) begin
@@ -4405,7 +4405,7 @@ module VexRiscvAxi4 (
   always @(*) begin
     writeBack_arbitration_removeIt = 1'b0; // @[Stage.scala 51:23]
     if(DBusCachedPlugin_exceptionBus_valid) begin
-      writeBack_arbitration_removeIt = 1'b1; // @[CsrPlugin.scala 1171:40]
+      writeBack_arbitration_removeIt = 1'b1; // @[CsrPlugin.scala 1175:40]
     end
     if(writeBack_arbitration_isFlushed) begin
       writeBack_arbitration_removeIt = 1'b1; // @[Pipeline.scala 134:36]
@@ -4425,13 +4425,13 @@ module VexRiscvAxi4 (
       writeBack_arbitration_flushNext = 1'b1; // @[DBusCachedPlugin.scala 437:29]
     end
     if(DBusCachedPlugin_exceptionBus_valid) begin
-      writeBack_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1170:41]
+      writeBack_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1174:41]
     end
-    if(when_CsrPlugin_l1310) begin
-      writeBack_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1316:41]
+    if(when_CsrPlugin_l1314) begin
+      writeBack_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1320:41]
     end
-    if(when_CsrPlugin_l1376) begin
-      writeBack_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1379:43]
+    if(when_CsrPlugin_l1380) begin
+      writeBack_arbitration_flushNext = 1'b1; // @[CsrPlugin.scala 1383:43]
     end
   end
 
@@ -4441,13 +4441,13 @@ module VexRiscvAxi4 (
   assign lastStageIsFiring = writeBack_arbitration_isFiring; // @[Misc.scala 552:9]
   always @(*) begin
     IBusCachedPlugin_fetcherHalt = 1'b0; // @[Fetcher.scala 67:19]
-    if(when_CsrPlugin_l1192) begin
+    if(when_CsrPlugin_l1196) begin
       IBusCachedPlugin_fetcherHalt = 1'b1; // @[Fetcher.scala 53:45]
     end
-    if(when_CsrPlugin_l1310) begin
+    if(when_CsrPlugin_l1314) begin
       IBusCachedPlugin_fetcherHalt = 1'b1; // @[Fetcher.scala 53:45]
     end
-    if(when_CsrPlugin_l1376) begin
+    if(when_CsrPlugin_l1380) begin
       IBusCachedPlugin_fetcherHalt = 1'b1; // @[Fetcher.scala 53:45]
     end
     if(when_DebugPlugin_l308) begin
@@ -4484,44 +4484,44 @@ module VexRiscvAxi4 (
     end
   end
 
-  assign CsrPlugin_csrMapping_allowCsrSignal = 1'b0; // @[CsrPlugin.scala 358:24]
-  assign CsrPlugin_csrMapping_readDataSignal = CsrPlugin_csrMapping_readDataInit; // @[CsrPlugin.scala 361:18]
+  assign CsrPlugin_csrMapping_allowCsrSignal = 1'b0; // @[CsrPlugin.scala 359:24]
+  assign CsrPlugin_csrMapping_readDataSignal = CsrPlugin_csrMapping_readDataInit; // @[CsrPlugin.scala 362:18]
   always @(*) begin
-    CsrPlugin_inWfi = 1'b0; // @[CsrPlugin.scala 552:13]
-    if(when_CsrPlugin_l1439) begin
-      CsrPlugin_inWfi = 1'b1; // @[CsrPlugin.scala 1440:17]
+    CsrPlugin_inWfi = 1'b0; // @[CsrPlugin.scala 553:13]
+    if(when_CsrPlugin_l1443) begin
+      CsrPlugin_inWfi = 1'b1; // @[CsrPlugin.scala 1444:17]
     end
   end
 
   always @(*) begin
-    CsrPlugin_thirdPartyWake = 1'b0; // @[CsrPlugin.scala 554:22]
+    CsrPlugin_thirdPartyWake = 1'b0; // @[CsrPlugin.scala 555:22]
     if(DebugPlugin_haltIt) begin
-      CsrPlugin_thirdPartyWake = 1'b1; // @[CsrPlugin.scala 479:49]
+      CsrPlugin_thirdPartyWake = 1'b1; // @[CsrPlugin.scala 480:49]
     end
   end
 
   always @(*) begin
-    CsrPlugin_jumpInterface_valid = 1'b0; // @[CsrPlugin.scala 596:25]
-    if(when_CsrPlugin_l1310) begin
-      CsrPlugin_jumpInterface_valid = 1'b1; // @[CsrPlugin.scala 1314:37]
+    CsrPlugin_jumpInterface_valid = 1'b0; // @[CsrPlugin.scala 597:25]
+    if(when_CsrPlugin_l1314) begin
+      CsrPlugin_jumpInterface_valid = 1'b1; // @[CsrPlugin.scala 1318:37]
     end
-    if(when_CsrPlugin_l1376) begin
-      CsrPlugin_jumpInterface_valid = 1'b1; // @[CsrPlugin.scala 1378:31]
+    if(when_CsrPlugin_l1380) begin
+      CsrPlugin_jumpInterface_valid = 1'b1; // @[CsrPlugin.scala 1382:31]
     end
   end
 
   always @(*) begin
     CsrPlugin_jumpInterface_payload = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; // @[UInt.scala 467:20]
-    if(when_CsrPlugin_l1310) begin
-      CsrPlugin_jumpInterface_payload = {CsrPlugin_xtvec_base,2'b00}; // @[CsrPlugin.scala 1315:37]
+    if(when_CsrPlugin_l1314) begin
+      CsrPlugin_jumpInterface_payload = {CsrPlugin_xtvec_base,2'b00}; // @[CsrPlugin.scala 1319:37]
     end
-    if(when_CsrPlugin_l1376) begin
-      case(switch_CsrPlugin_l1380)
+    if(when_CsrPlugin_l1380) begin
+      case(switch_CsrPlugin_l1384)
         2'b11 : begin
-          CsrPlugin_jumpInterface_payload = CsrPlugin_mepc; // @[CsrPlugin.scala 1385:37]
+          CsrPlugin_jumpInterface_payload = CsrPlugin_mepc; // @[CsrPlugin.scala 1389:37]
         end
         2'b01 : begin
-          CsrPlugin_jumpInterface_payload = CsrPlugin_sepc; // @[CsrPlugin.scala 1395:37]
+          CsrPlugin_jumpInterface_payload = CsrPlugin_sepc; // @[CsrPlugin.scala 1399:37]
         end
         default : begin
         end
@@ -4530,44 +4530,44 @@ module VexRiscvAxi4 (
   end
 
   always @(*) begin
-    CsrPlugin_forceMachineWire = 1'b0; // @[CsrPlugin.scala 615:24]
+    CsrPlugin_forceMachineWire = 1'b0; // @[CsrPlugin.scala 619:24]
     if(DebugPlugin_godmode) begin
-      CsrPlugin_forceMachineWire = 1'b1; // @[CsrPlugin.scala 651:56]
+      CsrPlugin_forceMachineWire = 1'b1; // @[CsrPlugin.scala 655:56]
     end
   end
 
   always @(*) begin
-    CsrPlugin_allowInterrupts = 1'b1; // @[CsrPlugin.scala 620:23]
+    CsrPlugin_allowInterrupts = 1'b1; // @[CsrPlugin.scala 624:23]
     if(when_DebugPlugin_l344) begin
-      CsrPlugin_allowInterrupts = 1'b0; // @[CsrPlugin.scala 644:53]
+      CsrPlugin_allowInterrupts = 1'b0; // @[CsrPlugin.scala 648:53]
     end
   end
 
   always @(*) begin
-    CsrPlugin_allowException = 1'b1; // @[CsrPlugin.scala 621:22]
+    CsrPlugin_allowException = 1'b1; // @[CsrPlugin.scala 625:22]
     if(DebugPlugin_godmode) begin
-      CsrPlugin_allowException = 1'b0; // @[CsrPlugin.scala 645:53]
+      CsrPlugin_allowException = 1'b0; // @[CsrPlugin.scala 649:53]
     end
   end
 
   always @(*) begin
-    CsrPlugin_allowEbreakException = 1'b1; // @[CsrPlugin.scala 622:28]
+    CsrPlugin_allowEbreakException = 1'b1; // @[CsrPlugin.scala 626:28]
     if(DebugPlugin_allowEBreak) begin
-      CsrPlugin_allowEbreakException = 1'b0; // @[CsrPlugin.scala 646:65]
+      CsrPlugin_allowEbreakException = 1'b0; // @[CsrPlugin.scala 650:65]
     end
   end
 
   always @(*) begin
-    CsrPlugin_xretAwayFromMachine = 1'b0; // @[CsrPlugin.scala 637:27]
-    if(when_CsrPlugin_l1376) begin
-      case(switch_CsrPlugin_l1380)
+    CsrPlugin_xretAwayFromMachine = 1'b0; // @[CsrPlugin.scala 641:27]
+    if(when_CsrPlugin_l1380) begin
+      case(switch_CsrPlugin_l1384)
         2'b11 : begin
-          if(when_CsrPlugin_l1388) begin
-            CsrPlugin_xretAwayFromMachine = 1'b1; // @[CsrPlugin.scala 1388:37]
+          if(when_CsrPlugin_l1392) begin
+            CsrPlugin_xretAwayFromMachine = 1'b1; // @[CsrPlugin.scala 1392:37]
           end
         end
         2'b01 : begin
-          CsrPlugin_xretAwayFromMachine = 1'b1; // @[CsrPlugin.scala 1398:37]
+          CsrPlugin_xretAwayFromMachine = 1'b1; // @[CsrPlugin.scala 1402:37]
         end
         default : begin
         end
@@ -5968,101 +5968,101 @@ module VexRiscvAxi4 (
   assign when_AesPlugin_l154_3 = memory_AesPlugin_wordDesuffle_zero[3]; // @[BaseType.scala 305:24]
   assign memory_AesPlugin_xored = ({memory_AesPlugin_wordDesuffle_output_3,{memory_AesPlugin_wordDesuffle_output_2,{memory_AesPlugin_wordDesuffle_output_1,memory_AesPlugin_wordDesuffle_output_0}}} ^ memory_RS1); // @[BaseType.scala 299:24]
   always @(*) begin
-    CsrPlugin_privilege = _zz_CsrPlugin_privilege; // @[CsrPlugin.scala 680:15]
+    CsrPlugin_privilege = _zz_CsrPlugin_privilege; // @[CsrPlugin.scala 684:15]
     if(CsrPlugin_forceMachineWire) begin
-      CsrPlugin_privilege = 2'b11; // @[CsrPlugin.scala 682:40]
+      CsrPlugin_privilege = 2'b11; // @[CsrPlugin.scala 686:40]
     end
   end
 
   assign CsrPlugin_sip_SEIP_OR = (CsrPlugin_sip_SEIP_SOFT || CsrPlugin_sip_SEIP_INPUT); // @[BaseType.scala 305:24]
   always @(*) begin
-    CsrPlugin_redoInterface_valid = 1'b0; // @[CsrPlugin.scala 1069:31]
+    CsrPlugin_redoInterface_valid = 1'b0; // @[CsrPlugin.scala 1073:31]
     if(CsrPlugin_rescheduleLogic_rescheduleNext) begin
-      CsrPlugin_redoInterface_valid = 1'b1; // @[CsrPlugin.scala 1077:33]
+      CsrPlugin_redoInterface_valid = 1'b1; // @[CsrPlugin.scala 1081:33]
     end
   end
 
-  assign CsrPlugin_redoInterface_payload = decode_PC; // @[CsrPlugin.scala 1070:33]
+  assign CsrPlugin_redoInterface_payload = decode_PC; // @[CsrPlugin.scala 1074:33]
   always @(*) begin
-    CsrPlugin_rescheduleLogic_rescheduleNext = 1'b0; // @[CsrPlugin.scala 1072:32]
-    if(when_CsrPlugin_l1073) begin
-      CsrPlugin_rescheduleLogic_rescheduleNext = 1'b1; // @[CsrPlugin.scala 1073:94]
+    CsrPlugin_rescheduleLogic_rescheduleNext = 1'b0; // @[CsrPlugin.scala 1076:32]
+    if(when_CsrPlugin_l1077) begin
+      CsrPlugin_rescheduleLogic_rescheduleNext = 1'b1; // @[CsrPlugin.scala 1077:94]
     end
     if(execute_CsrPlugin_csr_384) begin
       if(execute_CsrPlugin_writeInstruction) begin
-        CsrPlugin_rescheduleLogic_rescheduleNext = 1'b1; // @[CsrPlugin.scala 1074:50]
+        CsrPlugin_rescheduleLogic_rescheduleNext = 1'b1; // @[CsrPlugin.scala 1078:50]
       end
     end
   end
 
-  assign when_CsrPlugin_l1073 = (execute_arbitration_isValid && execute_IS_SFENCE_VMA); // @[BaseType.scala 305:24]
-  assign _zz_when_CsrPlugin_l1222 = (CsrPlugin_sip_STIP && CsrPlugin_sie_STIE); // @[BaseType.scala 305:24]
-  assign _zz_when_CsrPlugin_l1222_1 = (CsrPlugin_sip_SSIP && CsrPlugin_sie_SSIE); // @[BaseType.scala 305:24]
-  assign _zz_when_CsrPlugin_l1222_2 = (CsrPlugin_sip_SEIP_OR && CsrPlugin_sie_SEIE); // @[BaseType.scala 305:24]
-  assign _zz_when_CsrPlugin_l1222_3 = (CsrPlugin_mip_MTIP && CsrPlugin_mie_MTIE); // @[BaseType.scala 305:24]
-  assign _zz_when_CsrPlugin_l1222_4 = (CsrPlugin_mip_MSIP && CsrPlugin_mie_MSIE); // @[BaseType.scala 305:24]
-  assign _zz_when_CsrPlugin_l1222_5 = (CsrPlugin_mip_MEIP && CsrPlugin_mie_MEIE); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1077 = (execute_arbitration_isValid && execute_IS_SFENCE_VMA); // @[BaseType.scala 305:24]
+  assign _zz_when_CsrPlugin_l1226 = (CsrPlugin_sip_STIP && CsrPlugin_sie_STIE); // @[BaseType.scala 305:24]
+  assign _zz_when_CsrPlugin_l1226_1 = (CsrPlugin_sip_SSIP && CsrPlugin_sie_SSIE); // @[BaseType.scala 305:24]
+  assign _zz_when_CsrPlugin_l1226_2 = (CsrPlugin_sip_SEIP_OR && CsrPlugin_sie_SEIE); // @[BaseType.scala 305:24]
+  assign _zz_when_CsrPlugin_l1226_3 = (CsrPlugin_mip_MTIP && CsrPlugin_mie_MTIE); // @[BaseType.scala 305:24]
+  assign _zz_when_CsrPlugin_l1226_4 = (CsrPlugin_mip_MSIP && CsrPlugin_mie_MSIE); // @[BaseType.scala 305:24]
+  assign _zz_when_CsrPlugin_l1226_5 = (CsrPlugin_mip_MEIP && CsrPlugin_mie_MEIE); // @[BaseType.scala 305:24]
   always @(*) begin
     CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b11; // @[Expression.scala 2342:18]
     case(CsrPlugin_exceptionPortCtrl_exceptionContext_code)
       4'b0000 : begin
-        if(when_CsrPlugin_l1136) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b0001 : begin
-        if(when_CsrPlugin_l1136_1) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_1) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b0010 : begin
-        if(when_CsrPlugin_l1136_2) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_2) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b0100 : begin
-        if(when_CsrPlugin_l1136_3) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_3) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b0101 : begin
-        if(when_CsrPlugin_l1136_4) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_4) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b0110 : begin
-        if(when_CsrPlugin_l1136_5) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_5) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b0111 : begin
-        if(when_CsrPlugin_l1136_6) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_6) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b1000 : begin
-        if(when_CsrPlugin_l1136_7) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_7) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b1001 : begin
-        if(when_CsrPlugin_l1136_8) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_8) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b1100 : begin
-        if(when_CsrPlugin_l1136_9) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_9) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b1101 : begin
-        if(when_CsrPlugin_l1136_10) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_10) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       4'b1111 : begin
-        if(when_CsrPlugin_l1136_11) begin
-          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1137:54]
+        if(when_CsrPlugin_l1140_11) begin
+          CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped = 2'b01; // @[CsrPlugin.scala 1141:54]
         end
       end
       default : begin
@@ -6070,119 +6070,119 @@ module VexRiscvAxi4 (
     endcase
   end
 
-  assign when_CsrPlugin_l1136 = ((1'b1 && CsrPlugin_medeleg_IAM) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_1 = ((1'b1 && CsrPlugin_medeleg_IAF) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_2 = ((1'b1 && CsrPlugin_medeleg_II) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_3 = ((1'b1 && CsrPlugin_medeleg_LAM) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_4 = ((1'b1 && CsrPlugin_medeleg_LAF) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_5 = ((1'b1 && CsrPlugin_medeleg_SAM) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_6 = ((1'b1 && CsrPlugin_medeleg_SAF) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_7 = ((1'b1 && CsrPlugin_medeleg_EU) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_8 = ((1'b1 && CsrPlugin_medeleg_ES) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_9 = ((1'b1 && CsrPlugin_medeleg_IPF) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_10 = ((1'b1 && CsrPlugin_medeleg_LPF) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1136_11 = ((1'b1 && CsrPlugin_medeleg_SPF) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140 = ((1'b1 && CsrPlugin_medeleg_IAM) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_1 = ((1'b1 && CsrPlugin_medeleg_IAF) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_2 = ((1'b1 && CsrPlugin_medeleg_II) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_3 = ((1'b1 && CsrPlugin_medeleg_LAM) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_4 = ((1'b1 && CsrPlugin_medeleg_LAF) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_5 = ((1'b1 && CsrPlugin_medeleg_SAM) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_6 = ((1'b1 && CsrPlugin_medeleg_SAF) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_7 = ((1'b1 && CsrPlugin_medeleg_EU) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_8 = ((1'b1 && CsrPlugin_medeleg_ES) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_9 = ((1'b1 && CsrPlugin_medeleg_IPF) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_10 = ((1'b1 && CsrPlugin_medeleg_LPF) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1140_11 = ((1'b1 && CsrPlugin_medeleg_SPF) && (! 1'b0)); // @[BaseType.scala 305:24]
   assign CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilege = ((CsrPlugin_privilege < CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped) ? CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilegeUncapped : CsrPlugin_privilege); // @[Expression.scala 1420:25]
   assign _zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code = {decodeExceptionPort_valid,IBusCachedPlugin_decodeExceptionPort_valid}; // @[BaseType.scala 318:22]
   assign _zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1 = _zz__zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1[0]; // @[BaseType.scala 305:24]
   always @(*) begin
-    CsrPlugin_exceptionPortCtrl_exceptionValids_decode = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode; // @[CsrPlugin.scala 1167:25]
+    CsrPlugin_exceptionPortCtrl_exceptionValids_decode = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode; // @[CsrPlugin.scala 1171:25]
     if(_zz_when) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_decode = 1'b1; // @[CsrPlugin.scala 1172:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_decode = 1'b1; // @[CsrPlugin.scala 1176:38]
     end
     if(decode_arbitration_isFlushed) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_decode = 1'b0; // @[CsrPlugin.scala 1188:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_decode = 1'b0; // @[CsrPlugin.scala 1192:38]
     end
   end
 
   always @(*) begin
-    CsrPlugin_exceptionPortCtrl_exceptionValids_execute = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute; // @[CsrPlugin.scala 1167:25]
+    CsrPlugin_exceptionPortCtrl_exceptionValids_execute = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute; // @[CsrPlugin.scala 1171:25]
     if(CsrPlugin_selfException_valid) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_execute = 1'b1; // @[CsrPlugin.scala 1172:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_execute = 1'b1; // @[CsrPlugin.scala 1176:38]
     end
     if(execute_arbitration_isFlushed) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_execute = 1'b0; // @[CsrPlugin.scala 1188:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_execute = 1'b0; // @[CsrPlugin.scala 1192:38]
     end
   end
 
   always @(*) begin
-    CsrPlugin_exceptionPortCtrl_exceptionValids_memory = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory; // @[CsrPlugin.scala 1167:25]
+    CsrPlugin_exceptionPortCtrl_exceptionValids_memory = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory; // @[CsrPlugin.scala 1171:25]
     if(memory_arbitration_isFlushed) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_memory = 1'b0; // @[CsrPlugin.scala 1188:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_memory = 1'b0; // @[CsrPlugin.scala 1192:38]
     end
   end
 
   always @(*) begin
-    CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack; // @[CsrPlugin.scala 1167:25]
+    CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack; // @[CsrPlugin.scala 1171:25]
     if(DBusCachedPlugin_exceptionBus_valid) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack = 1'b1; // @[CsrPlugin.scala 1172:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack = 1'b1; // @[CsrPlugin.scala 1176:38]
     end
     if(writeBack_arbitration_isFlushed) begin
-      CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack = 1'b0; // @[CsrPlugin.scala 1188:38]
+      CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack = 1'b0; // @[CsrPlugin.scala 1192:38]
     end
   end
 
-  assign when_CsrPlugin_l1179 = (! decode_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1179_1 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1179_2 = (! memory_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1179_3 = (! writeBack_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1192 = ({CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack,{CsrPlugin_exceptionPortCtrl_exceptionValids_memory,{CsrPlugin_exceptionPortCtrl_exceptionValids_execute,CsrPlugin_exceptionPortCtrl_exceptionValids_decode}}} != 4'b0000); // @[BaseType.scala 305:24]
-  assign CsrPlugin_exceptionPendings_0 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode; // @[CsrPlugin.scala 1198:27]
-  assign CsrPlugin_exceptionPendings_1 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute; // @[CsrPlugin.scala 1198:27]
-  assign CsrPlugin_exceptionPendings_2 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory; // @[CsrPlugin.scala 1198:27]
-  assign CsrPlugin_exceptionPendings_3 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack; // @[CsrPlugin.scala 1198:27]
-  assign when_CsrPlugin_l1216 = ((CsrPlugin_sstatus_SIE && (CsrPlugin_privilege == 2'b01)) || (CsrPlugin_privilege < 2'b01)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1216_1 = (CsrPlugin_mstatus_MIE || (CsrPlugin_privilege < 2'b11)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222 = ((_zz_when_CsrPlugin_l1222 && (1'b1 && CsrPlugin_mideleg_ST)) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_1 = ((_zz_when_CsrPlugin_l1222_1 && (1'b1 && CsrPlugin_mideleg_SS)) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_2 = ((_zz_when_CsrPlugin_l1222_2 && (1'b1 && CsrPlugin_mideleg_SE)) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_3 = ((_zz_when_CsrPlugin_l1222 && 1'b1) && (! (CsrPlugin_mideleg_ST != 1'b0))); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_4 = ((_zz_when_CsrPlugin_l1222_1 && 1'b1) && (! (CsrPlugin_mideleg_SS != 1'b0))); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_5 = ((_zz_when_CsrPlugin_l1222_2 && 1'b1) && (! (CsrPlugin_mideleg_SE != 1'b0))); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_6 = ((_zz_when_CsrPlugin_l1222_3 && 1'b1) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_7 = ((_zz_when_CsrPlugin_l1222_4 && 1'b1) && (! 1'b0)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1222_8 = ((_zz_when_CsrPlugin_l1222_5 && 1'b1) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1183 = (! decode_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1183_1 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1183_2 = (! memory_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1183_3 = (! writeBack_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1196 = ({CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack,{CsrPlugin_exceptionPortCtrl_exceptionValids_memory,{CsrPlugin_exceptionPortCtrl_exceptionValids_execute,CsrPlugin_exceptionPortCtrl_exceptionValids_decode}}} != 4'b0000); // @[BaseType.scala 305:24]
+  assign CsrPlugin_exceptionPendings_0 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode; // @[CsrPlugin.scala 1202:27]
+  assign CsrPlugin_exceptionPendings_1 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute; // @[CsrPlugin.scala 1202:27]
+  assign CsrPlugin_exceptionPendings_2 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory; // @[CsrPlugin.scala 1202:27]
+  assign CsrPlugin_exceptionPendings_3 = CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack; // @[CsrPlugin.scala 1202:27]
+  assign when_CsrPlugin_l1220 = ((CsrPlugin_sstatus_SIE && (CsrPlugin_privilege == 2'b01)) || (CsrPlugin_privilege < 2'b01)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1220_1 = (CsrPlugin_mstatus_MIE || (CsrPlugin_privilege < 2'b11)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226 = ((_zz_when_CsrPlugin_l1226 && (1'b1 && CsrPlugin_mideleg_ST)) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_1 = ((_zz_when_CsrPlugin_l1226_1 && (1'b1 && CsrPlugin_mideleg_SS)) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_2 = ((_zz_when_CsrPlugin_l1226_2 && (1'b1 && CsrPlugin_mideleg_SE)) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_3 = ((_zz_when_CsrPlugin_l1226 && 1'b1) && (! (CsrPlugin_mideleg_ST != 1'b0))); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_4 = ((_zz_when_CsrPlugin_l1226_1 && 1'b1) && (! (CsrPlugin_mideleg_SS != 1'b0))); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_5 = ((_zz_when_CsrPlugin_l1226_2 && 1'b1) && (! (CsrPlugin_mideleg_SE != 1'b0))); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_6 = ((_zz_when_CsrPlugin_l1226_3 && 1'b1) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_7 = ((_zz_when_CsrPlugin_l1226_4 && 1'b1) && (! 1'b0)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1226_8 = ((_zz_when_CsrPlugin_l1226_5 && 1'b1) && (! 1'b0)); // @[BaseType.scala 305:24]
   assign CsrPlugin_exception = (CsrPlugin_exceptionPortCtrl_exceptionValids_writeBack && CsrPlugin_allowException); // @[BaseType.scala 305:24]
   assign CsrPlugin_pipelineLiberator_active = ((CsrPlugin_interrupt_valid && CsrPlugin_allowInterrupts) && decode_arbitration_isValid); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1255 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1255_1 = (! memory_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1255_2 = (! writeBack_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1260 = ((! CsrPlugin_pipelineLiberator_active) || decode_arbitration_removeIt); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1259 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1259_1 = (! memory_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1259_2 = (! writeBack_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1264 = ((! CsrPlugin_pipelineLiberator_active) || decode_arbitration_removeIt); // @[BaseType.scala 305:24]
   always @(*) begin
     CsrPlugin_pipelineLiberator_done = CsrPlugin_pipelineLiberator_pcValids_2; // @[Misc.scala 552:9]
-    if(when_CsrPlugin_l1266) begin
-      CsrPlugin_pipelineLiberator_done = 1'b0; // @[CsrPlugin.scala 1266:53]
+    if(when_CsrPlugin_l1270) begin
+      CsrPlugin_pipelineLiberator_done = 1'b0; // @[CsrPlugin.scala 1270:53]
     end
     if(CsrPlugin_hadException) begin
-      CsrPlugin_pipelineLiberator_done = 1'b0; // @[CsrPlugin.scala 1275:39]
+      CsrPlugin_pipelineLiberator_done = 1'b0; // @[CsrPlugin.scala 1279:39]
     end
   end
 
-  assign when_CsrPlugin_l1266 = ({CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack,{CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory,CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute}} != 3'b000); // @[BaseType.scala 305:24]
-  assign CsrPlugin_interruptJump = ((CsrPlugin_interrupt_valid && CsrPlugin_pipelineLiberator_done) && CsrPlugin_allowInterrupts); // @[CsrPlugin.scala 1271:21]
+  assign when_CsrPlugin_l1270 = ({CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack,{CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory,CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute}} != 3'b000); // @[BaseType.scala 305:24]
+  assign CsrPlugin_interruptJump = ((CsrPlugin_interrupt_valid && CsrPlugin_pipelineLiberator_done) && CsrPlugin_allowInterrupts); // @[CsrPlugin.scala 1275:21]
   always @(*) begin
     CsrPlugin_targetPrivilege = CsrPlugin_interrupt_targetPrivilege; // @[Misc.scala 552:9]
     if(CsrPlugin_hadException) begin
-      CsrPlugin_targetPrivilege = CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilege; // @[CsrPlugin.scala 1285:25]
+      CsrPlugin_targetPrivilege = CsrPlugin_exceptionPortCtrl_exceptionTargetPrivilege; // @[CsrPlugin.scala 1289:25]
     end
   end
 
   always @(*) begin
     CsrPlugin_trapCause = CsrPlugin_interrupt_code; // @[Misc.scala 552:9]
     if(CsrPlugin_hadException) begin
-      CsrPlugin_trapCause = CsrPlugin_exceptionPortCtrl_exceptionContext_code; // @[CsrPlugin.scala 1291:19]
+      CsrPlugin_trapCause = CsrPlugin_exceptionPortCtrl_exceptionContext_code; // @[CsrPlugin.scala 1295:19]
     end
   end
 
-  assign CsrPlugin_trapCauseEbreakDebug = 1'b0; // @[CsrPlugin.scala 1289:34]
+  assign CsrPlugin_trapCauseEbreakDebug = 1'b0; // @[CsrPlugin.scala 1293:34]
   always @(*) begin
     CsrPlugin_xtvec_mode = 2'bxx; // @[Bits.scala 231:20]
     case(CsrPlugin_targetPrivilege)
       2'b01 : begin
-        CsrPlugin_xtvec_mode = CsrPlugin_stvec_mode; // @[CsrPlugin.scala 1304:41]
+        CsrPlugin_xtvec_mode = CsrPlugin_stvec_mode; // @[CsrPlugin.scala 1308:41]
       end
       2'b11 : begin
-        CsrPlugin_xtvec_mode = CsrPlugin_mtvec_mode; // @[CsrPlugin.scala 1305:22]
+        CsrPlugin_xtvec_mode = CsrPlugin_mtvec_mode; // @[CsrPlugin.scala 1309:22]
       end
       default : begin
       end
@@ -6193,248 +6193,248 @@ module VexRiscvAxi4 (
     CsrPlugin_xtvec_base = 30'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; // @[UInt.scala 467:20]
     case(CsrPlugin_targetPrivilege)
       2'b01 : begin
-        CsrPlugin_xtvec_base = CsrPlugin_stvec_base; // @[CsrPlugin.scala 1304:41]
+        CsrPlugin_xtvec_base = CsrPlugin_stvec_base; // @[CsrPlugin.scala 1308:41]
       end
       2'b11 : begin
-        CsrPlugin_xtvec_base = CsrPlugin_mtvec_base; // @[CsrPlugin.scala 1305:22]
+        CsrPlugin_xtvec_base = CsrPlugin_mtvec_base; // @[CsrPlugin.scala 1309:22]
       end
       default : begin
       end
     endcase
   end
 
-  assign CsrPlugin_trapEnterDebug = 1'b0; // @[CsrPlugin.scala 1308:28]
-  assign when_CsrPlugin_l1310 = (CsrPlugin_hadException || CsrPlugin_interruptJump); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1318 = (! CsrPlugin_trapEnterDebug); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1376 = (writeBack_arbitration_isValid && (writeBack_ENV_CTRL == EnvCtrlEnum_XRET)); // @[BaseType.scala 305:24]
-  assign switch_CsrPlugin_l1380 = writeBack_INSTRUCTION[29 : 28]; // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1388 = (CsrPlugin_mstatus_MPP < 2'b11); // @[BaseType.scala 305:24]
-  assign contextSwitching = CsrPlugin_jumpInterface_valid; // @[CsrPlugin.scala 1405:24]
-  assign when_CsrPlugin_l1439 = (execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_WFI)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1441 = (! execute_CsrPlugin_wfiWake); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1447 = (|{(writeBack_arbitration_isValid && (writeBack_ENV_CTRL == EnvCtrlEnum_XRET)),{(memory_arbitration_isValid && (memory_ENV_CTRL == EnvCtrlEnum_XRET)),(execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_XRET))}}); // @[BaseType.scala 312:24]
+  assign CsrPlugin_trapEnterDebug = 1'b0; // @[CsrPlugin.scala 1312:28]
+  assign when_CsrPlugin_l1314 = (CsrPlugin_hadException || CsrPlugin_interruptJump); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1322 = (! CsrPlugin_trapEnterDebug); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1380 = (writeBack_arbitration_isValid && (writeBack_ENV_CTRL == EnvCtrlEnum_XRET)); // @[BaseType.scala 305:24]
+  assign switch_CsrPlugin_l1384 = writeBack_INSTRUCTION[29 : 28]; // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1392 = (CsrPlugin_mstatus_MPP < 2'b11); // @[BaseType.scala 305:24]
+  assign contextSwitching = CsrPlugin_jumpInterface_valid; // @[CsrPlugin.scala 1409:24]
+  assign when_CsrPlugin_l1443 = (execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_WFI)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1445 = (! execute_CsrPlugin_wfiWake); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1451 = (|{(writeBack_arbitration_isValid && (writeBack_ENV_CTRL == EnvCtrlEnum_XRET)),{(memory_arbitration_isValid && (memory_ENV_CTRL == EnvCtrlEnum_XRET)),(execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_XRET))}}); // @[BaseType.scala 312:24]
   assign execute_CsrPlugin_blockedBySideEffects = ((|{writeBack_arbitration_isValid,memory_arbitration_isValid}) || 1'b0); // @[BaseType.scala 305:24]
   always @(*) begin
-    execute_CsrPlugin_illegalAccess = 1'b1; // @[CsrPlugin.scala 1454:29]
+    execute_CsrPlugin_illegalAccess = 1'b1; // @[CsrPlugin.scala 1458:29]
     if(execute_CsrPlugin_csr_3264) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3857) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3858) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3859) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3860) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_769) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_768) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_836) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_772) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_773) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_833) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_832) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_834) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_835) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_2816) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_2944) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_2818) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_2946) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_770) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_771) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_3072) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3200) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3074) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_3202) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_256) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_324) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_260) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_261) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_321) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_320) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_322) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_323) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_384) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_3008) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_4032) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(execute_CsrPlugin_csr_2496) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1529:29]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1533:29]
     end
     if(execute_CsrPlugin_csr_3520) begin
       if(execute_CSR_READ_OPCODE) begin
-        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1532:52]
+        execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1536:52]
       end
     end
     if(CsrPlugin_csrMapping_allowCsrSignal) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1620:25]
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1624:25]
     end
-    if(when_CsrPlugin_l1625) begin
-      execute_CsrPlugin_illegalAccess = 1'b1; // @[CsrPlugin.scala 1626:27]
+    if(when_CsrPlugin_l1629) begin
+      execute_CsrPlugin_illegalAccess = 1'b1; // @[CsrPlugin.scala 1630:27]
     end
-    if(when_CsrPlugin_l1631) begin
-      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1631:25]
+    if(when_CsrPlugin_l1635) begin
+      execute_CsrPlugin_illegalAccess = 1'b0; // @[CsrPlugin.scala 1635:25]
     end
   end
 
   always @(*) begin
-    execute_CsrPlugin_illegalInstruction = 1'b0; // @[CsrPlugin.scala 1455:34]
-    if(when_CsrPlugin_l1467) begin
-      if(when_CsrPlugin_l1468) begin
-        execute_CsrPlugin_illegalInstruction = 1'b1; // @[CsrPlugin.scala 1469:32]
+    execute_CsrPlugin_illegalInstruction = 1'b0; // @[CsrPlugin.scala 1459:34]
+    if(when_CsrPlugin_l1471) begin
+      if(when_CsrPlugin_l1472) begin
+        execute_CsrPlugin_illegalInstruction = 1'b1; // @[CsrPlugin.scala 1473:32]
       end
     end
   end
 
   always @(*) begin
-    CsrPlugin_selfException_valid = 1'b0; // @[CsrPlugin.scala 1457:31]
-    if(when_CsrPlugin_l1460) begin
-      CsrPlugin_selfException_valid = 1'b1; // @[CsrPlugin.scala 1461:33]
+    CsrPlugin_selfException_valid = 1'b0; // @[CsrPlugin.scala 1461:31]
+    if(when_CsrPlugin_l1464) begin
+      CsrPlugin_selfException_valid = 1'b1; // @[CsrPlugin.scala 1465:33]
     end
-    if(when_CsrPlugin_l1475) begin
-      CsrPlugin_selfException_valid = 1'b1; // @[CsrPlugin.scala 1476:31]
+    if(when_CsrPlugin_l1479) begin
+      CsrPlugin_selfException_valid = 1'b1; // @[CsrPlugin.scala 1480:31]
     end
-    if(when_CsrPlugin_l1485) begin
-      CsrPlugin_selfException_valid = 1'b1; // @[CsrPlugin.scala 1486:31]
+    if(when_CsrPlugin_l1489) begin
+      CsrPlugin_selfException_valid = 1'b1; // @[CsrPlugin.scala 1490:31]
     end
   end
 
   always @(*) begin
     CsrPlugin_selfException_payload_code = 4'bxxxx; // @[UInt.scala 467:20]
-    if(when_CsrPlugin_l1460) begin
-      CsrPlugin_selfException_payload_code = 4'b0010; // @[CsrPlugin.scala 1462:32]
+    if(when_CsrPlugin_l1464) begin
+      CsrPlugin_selfException_payload_code = 4'b0010; // @[CsrPlugin.scala 1466:32]
     end
-    if(when_CsrPlugin_l1475) begin
+    if(when_CsrPlugin_l1479) begin
       case(CsrPlugin_privilege)
         2'b00 : begin
-          CsrPlugin_selfException_payload_code = 4'b1000; // @[CsrPlugin.scala 1478:40]
+          CsrPlugin_selfException_payload_code = 4'b1000; // @[CsrPlugin.scala 1482:40]
         end
         2'b01 : begin
-          CsrPlugin_selfException_payload_code = 4'b1001; // @[CsrPlugin.scala 1479:58]
+          CsrPlugin_selfException_payload_code = 4'b1001; // @[CsrPlugin.scala 1483:58]
         end
         default : begin
-          CsrPlugin_selfException_payload_code = 4'b1011; // @[CsrPlugin.scala 1480:42]
+          CsrPlugin_selfException_payload_code = 4'b1011; // @[CsrPlugin.scala 1484:42]
         end
       endcase
     end
-    if(when_CsrPlugin_l1485) begin
-      CsrPlugin_selfException_payload_code = 4'b0011; // @[CsrPlugin.scala 1487:30]
+    if(when_CsrPlugin_l1489) begin
+      CsrPlugin_selfException_payload_code = 4'b0011; // @[CsrPlugin.scala 1491:30]
     end
   end
 
-  assign CsrPlugin_selfException_payload_badAddr = execute_INSTRUCTION; // @[CsrPlugin.scala 1459:33]
-  assign when_CsrPlugin_l1460 = (execute_CsrPlugin_illegalAccess || execute_CsrPlugin_illegalInstruction); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1467 = (execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_XRET)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1468 = (CsrPlugin_privilege < execute_INSTRUCTION[29 : 28]); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1475 = (execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_ECALL)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1485 = ((execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_EBREAK)) && CsrPlugin_allowEbreakException); // @[BaseType.scala 305:24]
+  assign CsrPlugin_selfException_payload_badAddr = execute_INSTRUCTION; // @[CsrPlugin.scala 1463:33]
+  assign when_CsrPlugin_l1464 = (execute_CsrPlugin_illegalAccess || execute_CsrPlugin_illegalInstruction); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1471 = (execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_XRET)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1472 = (CsrPlugin_privilege < execute_INSTRUCTION[29 : 28]); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1479 = (execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_ECALL)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1489 = ((execute_arbitration_isValid && (execute_ENV_CTRL == EnvCtrlEnum_EBREAK)) && CsrPlugin_allowEbreakException); // @[BaseType.scala 305:24]
   always @(*) begin
     execute_CsrPlugin_writeInstruction = ((execute_arbitration_isValid && execute_IS_CSR) && execute_CSR_WRITE_OPCODE); // @[BaseType.scala 305:24]
-    if(when_CsrPlugin_l1625) begin
-      execute_CsrPlugin_writeInstruction = 1'b0; // @[CsrPlugin.scala 1628:30]
+    if(when_CsrPlugin_l1629) begin
+      execute_CsrPlugin_writeInstruction = 1'b0; // @[CsrPlugin.scala 1632:30]
     end
   end
 
   always @(*) begin
     execute_CsrPlugin_readInstruction = ((execute_arbitration_isValid && execute_IS_CSR) && execute_CSR_READ_OPCODE); // @[BaseType.scala 305:24]
-    if(when_CsrPlugin_l1625) begin
-      execute_CsrPlugin_readInstruction = 1'b0; // @[CsrPlugin.scala 1627:29]
+    if(when_CsrPlugin_l1629) begin
+      execute_CsrPlugin_readInstruction = 1'b0; // @[CsrPlugin.scala 1631:29]
     end
   end
 
   assign execute_CsrPlugin_writeEnable = (execute_CsrPlugin_writeInstruction && (! execute_arbitration_isStuck)); // @[BaseType.scala 305:24]
   assign execute_CsrPlugin_readEnable = (execute_CsrPlugin_readInstruction && (! execute_arbitration_isStuck)); // @[BaseType.scala 305:24]
-  assign CsrPlugin_csrMapping_hazardFree = (! execute_CsrPlugin_blockedBySideEffects); // @[CsrPlugin.scala 1499:31]
+  assign CsrPlugin_csrMapping_hazardFree = (! execute_CsrPlugin_blockedBySideEffects); // @[CsrPlugin.scala 1503:31]
   always @(*) begin
     execute_CsrPlugin_readToWriteData = CsrPlugin_csrMapping_readDataSignal; // @[Misc.scala 552:9]
     if(execute_CsrPlugin_csr_836) begin
-      execute_CsrPlugin_readToWriteData[9 : 9] = CsrPlugin_sip_SEIP_SOFT; // @[CsrPlugin.scala 1561:156]
+      execute_CsrPlugin_readToWriteData[9 : 9] = CsrPlugin_sip_SEIP_SOFT; // @[CsrPlugin.scala 1565:156]
     end
     if(execute_CsrPlugin_csr_324) begin
-      execute_CsrPlugin_readToWriteData[9 : 9] = CsrPlugin_sip_SEIP_SOFT; // @[CsrPlugin.scala 1561:156]
+      execute_CsrPlugin_readToWriteData[9 : 9] = CsrPlugin_sip_SEIP_SOFT; // @[CsrPlugin.scala 1565:156]
     end
   end
 
@@ -6450,9 +6450,9 @@ module VexRiscvAxi4 (
     endcase
   end
 
-  assign CsrPlugin_csrMapping_writeDataSignal = _zz_CsrPlugin_csrMapping_writeDataSignal; // @[CsrPlugin.scala 1502:19]
-  assign when_CsrPlugin_l1511 = (execute_arbitration_isValid && (execute_IS_CSR || execute_IS_SFENCE_VMA)); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1517 = (memory_arbitration_isValid && memory_IS_CSR); // @[BaseType.scala 305:24]
+  assign CsrPlugin_csrMapping_writeDataSignal = _zz_CsrPlugin_csrMapping_writeDataSignal; // @[CsrPlugin.scala 1506:19]
+  assign when_CsrPlugin_l1515 = (execute_arbitration_isValid && (execute_IS_CSR || execute_IS_SFENCE_VMA)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1521 = (memory_arbitration_isValid && memory_IS_CSR); // @[BaseType.scala 305:24]
   assign execute_CsrPlugin_csrAddress = execute_INSTRUCTION[31 : 20]; // @[BaseType.scala 299:24]
   assign execute_BranchPlugin_eq = (execute_SRC1 == execute_SRC2); // @[BaseType.scala 305:24]
   assign switch_Misc_l226_4 = execute_INSTRUCTION[14 : 12]; // @[BaseType.scala 299:24]
@@ -7140,354 +7140,354 @@ module VexRiscvAxi4 (
   assign when_Fetcher_l363 = (switch_Fetcher_l365 != 3'b000); // @[BaseType.scala 305:24]
   assign when_Fetcher_l381 = (! decode_arbitration_isStuck); // @[BaseType.scala 299:24]
   assign when_Fetcher_l407 = (switch_Fetcher_l365 != 3'b000); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1589 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_1 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_2 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_3 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_4 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_5 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_6 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_7 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_8 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_9 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_10 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_11 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_12 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_13 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_14 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_15 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_16 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_17 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_18 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_19 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_20 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_21 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_22 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_23 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_24 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_25 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_26 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_27 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_28 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_29 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_30 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_31 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_32 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_33 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_34 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_35 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
-  assign when_CsrPlugin_l1589_36 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_1 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_2 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_3 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_4 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_5 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_6 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_7 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_8 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_9 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_10 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_11 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_12 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_13 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_14 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_15 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_16 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_17 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_18 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_19 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_20 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_21 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_22 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_23 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_24 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_25 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_26 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_27 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_28 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_29 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_30 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_31 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_32 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_33 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_34 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_35 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
+  assign when_CsrPlugin_l1593_36 = (! execute_arbitration_isStuck); // @[BaseType.scala 299:24]
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_2 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3264) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_2[12 : 0] = 13'h1000; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_2[25 : 20] = 6'h20; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_2[12 : 0] = 13'h1000; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_2[25 : 20] = 6'h20; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_3 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3857) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_3[0 : 0] = 1'b1; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_3[0 : 0] = 1'b1; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_4 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3858) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_4[1 : 0] = 2'b10; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_4[1 : 0] = 2'b10; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_5 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3859) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_5[1 : 0] = 2'b11; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_5[1 : 0] = 2'b11; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_6 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_769) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_6[31 : 30] = CsrPlugin_misa_base; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_6[25 : 0] = CsrPlugin_misa_extensions; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_6[31 : 30] = CsrPlugin_misa_base; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_6[25 : 0] = CsrPlugin_misa_extensions; // @[CsrPlugin.scala 1602:138]
     end
   end
 
-  assign switch_CsrPlugin_l980 = CsrPlugin_csrMapping_writeDataSignal[12 : 11]; // @[BaseType.scala 299:24]
+  assign switch_CsrPlugin_l984 = CsrPlugin_csrMapping_writeDataSignal[12 : 11]; // @[BaseType.scala 299:24]
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_7 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_768) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_7[7 : 7] = CsrPlugin_mstatus_MPIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[3 : 3] = CsrPlugin_mstatus_MIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[12 : 11] = CsrPlugin_mstatus_MPP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[8 : 8] = CsrPlugin_sstatus_SPP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[5 : 5] = CsrPlugin_sstatus_SPIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[1 : 1] = CsrPlugin_sstatus_SIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[19 : 19] = MmuPlugin_status_mxr; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[18 : 18] = MmuPlugin_status_sum; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_7[17 : 17] = MmuPlugin_status_mprv; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[7 : 7] = CsrPlugin_mstatus_MPIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[3 : 3] = CsrPlugin_mstatus_MIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[12 : 11] = CsrPlugin_mstatus_MPP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[8 : 8] = CsrPlugin_sstatus_SPP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[5 : 5] = CsrPlugin_sstatus_SPIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[1 : 1] = CsrPlugin_sstatus_SIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[19 : 19] = MmuPlugin_status_mxr; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[18 : 18] = MmuPlugin_status_sum; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_7[17 : 17] = MmuPlugin_status_mprv; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_8 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_836) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_8[11 : 11] = CsrPlugin_mip_MEIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_8[7 : 7] = CsrPlugin_mip_MTIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_8[3 : 3] = CsrPlugin_mip_MSIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_8[5 : 5] = CsrPlugin_sip_STIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_8[1 : 1] = CsrPlugin_sip_SSIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_8[9 : 9] = CsrPlugin_sip_SEIP_OR; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_8[11 : 11] = CsrPlugin_mip_MEIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_8[7 : 7] = CsrPlugin_mip_MTIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_8[3 : 3] = CsrPlugin_mip_MSIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_8[5 : 5] = CsrPlugin_sip_STIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_8[1 : 1] = CsrPlugin_sip_SSIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_8[9 : 9] = CsrPlugin_sip_SEIP_OR; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_9 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_772) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_9[11 : 11] = CsrPlugin_mie_MEIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_9[7 : 7] = CsrPlugin_mie_MTIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_9[3 : 3] = CsrPlugin_mie_MSIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_9[9 : 9] = CsrPlugin_sie_SEIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_9[5 : 5] = CsrPlugin_sie_STIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_9[1 : 1] = CsrPlugin_sie_SSIE; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_9[11 : 11] = CsrPlugin_mie_MEIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_9[7 : 7] = CsrPlugin_mie_MTIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_9[3 : 3] = CsrPlugin_mie_MSIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_9[9 : 9] = CsrPlugin_sie_SEIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_9[5 : 5] = CsrPlugin_sie_STIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_9[1 : 1] = CsrPlugin_sie_SSIE; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_10 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_773) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_10[31 : 2] = CsrPlugin_mtvec_base; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_10[1 : 0] = CsrPlugin_mtvec_mode; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_10[31 : 2] = CsrPlugin_mtvec_base; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_10[1 : 0] = CsrPlugin_mtvec_mode; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_11 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_833) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_11[31 : 0] = CsrPlugin_mepc; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_11[31 : 0] = CsrPlugin_mepc; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_12 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_832) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_12[31 : 0] = CsrPlugin_mscratch; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_12[31 : 0] = CsrPlugin_mscratch; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_13 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_834) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_13[31 : 31] = CsrPlugin_mcause_interrupt; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_13[3 : 0] = CsrPlugin_mcause_exceptionCode; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_13[31 : 31] = CsrPlugin_mcause_interrupt; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_13[3 : 0] = CsrPlugin_mcause_exceptionCode; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_14 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_835) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_14[31 : 0] = CsrPlugin_mtval; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_14[31 : 0] = CsrPlugin_mtval; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_15 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_2816) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_15[31 : 0] = CsrPlugin_mcycle[31 : 0]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_15[31 : 0] = CsrPlugin_mcycle[31 : 0]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_16 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_2944) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_16[31 : 0] = CsrPlugin_mcycle[63 : 32]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_16[31 : 0] = CsrPlugin_mcycle[63 : 32]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_17 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_2818) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_17[31 : 0] = CsrPlugin_minstret[31 : 0]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_17[31 : 0] = CsrPlugin_minstret[31 : 0]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_18 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_2946) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_18[31 : 0] = CsrPlugin_minstret[63 : 32]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_18[31 : 0] = CsrPlugin_minstret[63 : 32]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_19 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_770) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_19[0 : 0] = CsrPlugin_medeleg_IAM; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[1 : 1] = CsrPlugin_medeleg_IAF; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[2 : 2] = CsrPlugin_medeleg_II; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[4 : 4] = CsrPlugin_medeleg_LAM; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[5 : 5] = CsrPlugin_medeleg_LAF; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[6 : 6] = CsrPlugin_medeleg_SAM; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[7 : 7] = CsrPlugin_medeleg_SAF; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[8 : 8] = CsrPlugin_medeleg_EU; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[9 : 9] = CsrPlugin_medeleg_ES; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[12 : 12] = CsrPlugin_medeleg_IPF; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[13 : 13] = CsrPlugin_medeleg_LPF; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_19[15 : 15] = CsrPlugin_medeleg_SPF; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[0 : 0] = CsrPlugin_medeleg_IAM; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[1 : 1] = CsrPlugin_medeleg_IAF; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[2 : 2] = CsrPlugin_medeleg_II; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[4 : 4] = CsrPlugin_medeleg_LAM; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[5 : 5] = CsrPlugin_medeleg_LAF; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[6 : 6] = CsrPlugin_medeleg_SAM; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[7 : 7] = CsrPlugin_medeleg_SAF; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[8 : 8] = CsrPlugin_medeleg_EU; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[9 : 9] = CsrPlugin_medeleg_ES; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[12 : 12] = CsrPlugin_medeleg_IPF; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[13 : 13] = CsrPlugin_medeleg_LPF; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_19[15 : 15] = CsrPlugin_medeleg_SPF; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_20 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_771) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_20[9 : 9] = CsrPlugin_mideleg_SE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_20[5 : 5] = CsrPlugin_mideleg_ST; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_20[1 : 1] = CsrPlugin_mideleg_SS; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_20[9 : 9] = CsrPlugin_mideleg_SE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_20[5 : 5] = CsrPlugin_mideleg_ST; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_20[1 : 1] = CsrPlugin_mideleg_SS; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_21 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3072) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_21[31 : 0] = CsrPlugin_mcycle[31 : 0]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_21[31 : 0] = CsrPlugin_mcycle[31 : 0]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_22 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3200) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_22[31 : 0] = CsrPlugin_mcycle[63 : 32]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_22[31 : 0] = CsrPlugin_mcycle[63 : 32]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_23 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3074) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_23[31 : 0] = CsrPlugin_minstret[31 : 0]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_23[31 : 0] = CsrPlugin_minstret[31 : 0]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_24 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3202) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_24[31 : 0] = CsrPlugin_minstret[63 : 32]; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_24[31 : 0] = CsrPlugin_minstret[63 : 32]; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_25 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_256) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_25[8 : 8] = CsrPlugin_sstatus_SPP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_25[5 : 5] = CsrPlugin_sstatus_SPIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_25[1 : 1] = CsrPlugin_sstatus_SIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_25[19 : 19] = MmuPlugin_status_mxr; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_25[18 : 18] = MmuPlugin_status_sum; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_25[17 : 17] = MmuPlugin_status_mprv; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_25[8 : 8] = CsrPlugin_sstatus_SPP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_25[5 : 5] = CsrPlugin_sstatus_SPIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_25[1 : 1] = CsrPlugin_sstatus_SIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_25[19 : 19] = MmuPlugin_status_mxr; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_25[18 : 18] = MmuPlugin_status_sum; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_25[17 : 17] = MmuPlugin_status_mprv; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_26 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_324) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_26[5 : 5] = CsrPlugin_sip_STIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_26[1 : 1] = CsrPlugin_sip_SSIP; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_26[9 : 9] = CsrPlugin_sip_SEIP_OR; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_26[5 : 5] = CsrPlugin_sip_STIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_26[1 : 1] = CsrPlugin_sip_SSIP; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_26[9 : 9] = CsrPlugin_sip_SEIP_OR; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_27 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_260) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_27[9 : 9] = CsrPlugin_sie_SEIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_27[5 : 5] = CsrPlugin_sie_STIE; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_27[1 : 1] = CsrPlugin_sie_SSIE; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_27[9 : 9] = CsrPlugin_sie_SEIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_27[5 : 5] = CsrPlugin_sie_STIE; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_27[1 : 1] = CsrPlugin_sie_SSIE; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_28 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_261) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_28[31 : 2] = CsrPlugin_stvec_base; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_28[1 : 0] = CsrPlugin_stvec_mode; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_28[31 : 2] = CsrPlugin_stvec_base; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_28[1 : 0] = CsrPlugin_stvec_mode; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_29 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_321) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_29[31 : 0] = CsrPlugin_sepc; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_29[31 : 0] = CsrPlugin_sepc; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_30 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_320) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_30[31 : 0] = CsrPlugin_sscratch; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_30[31 : 0] = CsrPlugin_sscratch; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_31 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_322) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_31[31 : 31] = CsrPlugin_scause_interrupt; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_31[3 : 0] = CsrPlugin_scause_exceptionCode; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_31[31 : 31] = CsrPlugin_scause_interrupt; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_31[3 : 0] = CsrPlugin_scause_exceptionCode; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_32 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_323) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_32[31 : 0] = CsrPlugin_stval; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_32[31 : 0] = CsrPlugin_stval; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_33 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_384) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_33[31 : 31] = MmuPlugin_satp_mode; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_33[30 : 22] = MmuPlugin_satp_asid; // @[CsrPlugin.scala 1598:138]
-      _zz_CsrPlugin_csrMapping_readDataInit_33[21 : 0] = MmuPlugin_satp_ppn; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_33[31 : 31] = MmuPlugin_satp_mode; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_33[30 : 22] = MmuPlugin_satp_asid; // @[CsrPlugin.scala 1602:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_33[21 : 0] = MmuPlugin_satp_ppn; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_34 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3008) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_34[31 : 0] = _zz_CsrPlugin_csrMapping_readDataInit; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_34[31 : 0] = _zz_CsrPlugin_csrMapping_readDataInit; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_35 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_4032) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_35[31 : 0] = _zz_externalInterrupt; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_35[31 : 0] = _zz_externalInterrupt; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_36 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_2496) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_36[31 : 0] = _zz_CsrPlugin_csrMapping_readDataInit_1; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_36[31 : 0] = _zz_CsrPlugin_csrMapping_readDataInit_1; // @[CsrPlugin.scala 1602:138]
     end
   end
 
   always @(*) begin
     _zz_CsrPlugin_csrMapping_readDataInit_37 = 32'h0; // @[Expression.scala 2301:18]
     if(execute_CsrPlugin_csr_3520) begin
-      _zz_CsrPlugin_csrMapping_readDataInit_37[31 : 0] = _zz_externalInterruptS; // @[CsrPlugin.scala 1598:138]
+      _zz_CsrPlugin_csrMapping_readDataInit_37[31 : 0] = _zz_externalInterruptS; // @[CsrPlugin.scala 1602:138]
     end
   end
 
-  assign CsrPlugin_csrMapping_readDataInit = (((((_zz_CsrPlugin_csrMapping_readDataInit_38 | _zz_CsrPlugin_csrMapping_readDataInit_39) | (_zz_CsrPlugin_csrMapping_readDataInit_40 | _zz_CsrPlugin_csrMapping_readDataInit_42)) | ((_zz_CsrPlugin_csrMapping_readDataInit_43 | _zz_CsrPlugin_csrMapping_readDataInit_44) | (_zz_CsrPlugin_csrMapping_readDataInit_45 | _zz_CsrPlugin_csrMapping_readDataInit_46))) | (((_zz_CsrPlugin_csrMapping_readDataInit_47 | _zz_CsrPlugin_csrMapping_readDataInit_48) | (_zz_CsrPlugin_csrMapping_readDataInit_49 | _zz_CsrPlugin_csrMapping_readDataInit_50)) | ((_zz_CsrPlugin_csrMapping_readDataInit_51 | _zz_CsrPlugin_csrMapping_readDataInit_52) | (_zz_CsrPlugin_csrMapping_readDataInit_53 | _zz_CsrPlugin_csrMapping_readDataInit_54)))) | (((_zz_CsrPlugin_csrMapping_readDataInit_33 | _zz_CsrPlugin_csrMapping_readDataInit_34) | (_zz_CsrPlugin_csrMapping_readDataInit_35 | _zz_CsrPlugin_csrMapping_readDataInit_36)) | _zz_CsrPlugin_csrMapping_readDataInit_37)); // @[CsrPlugin.scala 1604:39]
+  assign CsrPlugin_csrMapping_readDataInit = (((((_zz_CsrPlugin_csrMapping_readDataInit_38 | _zz_CsrPlugin_csrMapping_readDataInit_39) | (_zz_CsrPlugin_csrMapping_readDataInit_40 | _zz_CsrPlugin_csrMapping_readDataInit_42)) | ((_zz_CsrPlugin_csrMapping_readDataInit_43 | _zz_CsrPlugin_csrMapping_readDataInit_44) | (_zz_CsrPlugin_csrMapping_readDataInit_45 | _zz_CsrPlugin_csrMapping_readDataInit_46))) | (((_zz_CsrPlugin_csrMapping_readDataInit_47 | _zz_CsrPlugin_csrMapping_readDataInit_48) | (_zz_CsrPlugin_csrMapping_readDataInit_49 | _zz_CsrPlugin_csrMapping_readDataInit_50)) | ((_zz_CsrPlugin_csrMapping_readDataInit_51 | _zz_CsrPlugin_csrMapping_readDataInit_52) | (_zz_CsrPlugin_csrMapping_readDataInit_53 | _zz_CsrPlugin_csrMapping_readDataInit_54)))) | (((_zz_CsrPlugin_csrMapping_readDataInit_33 | _zz_CsrPlugin_csrMapping_readDataInit_34) | (_zz_CsrPlugin_csrMapping_readDataInit_35 | _zz_CsrPlugin_csrMapping_readDataInit_36)) | _zz_CsrPlugin_csrMapping_readDataInit_37)); // @[CsrPlugin.scala 1608:39]
   always @(*) begin
-    when_CsrPlugin_l1625 = 1'b0; // @[CsrPlugin.scala 1622:27]
-    if(when_CsrPlugin_l1623) begin
-      when_CsrPlugin_l1625 = 1'b1; // @[CsrPlugin.scala 1623:21]
+    when_CsrPlugin_l1629 = 1'b0; // @[CsrPlugin.scala 1626:27]
+    if(when_CsrPlugin_l1627) begin
+      when_CsrPlugin_l1629 = 1'b1; // @[CsrPlugin.scala 1627:21]
     end
   end
 
-  assign when_CsrPlugin_l1623 = (CsrPlugin_privilege < execute_CsrPlugin_csrAddress[9 : 8]); // @[BaseType.scala 305:24]
-  assign when_CsrPlugin_l1631 = ((! execute_arbitration_isValid) || (! execute_IS_CSR)); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1627 = (CsrPlugin_privilege < execute_CsrPlugin_csrAddress[9 : 8]); // @[BaseType.scala 305:24]
+  assign when_CsrPlugin_l1635 = ((! execute_arbitration_isValid) || (! execute_IS_CSR)); // @[BaseType.scala 305:24]
   assign iBus_cmd_ready = iBusAxi_ar_ready; // @[InstructionCache.scala 185:15]
   assign iBus_rsp_valid = iBusAxi_r_valid; // @[InstructionCache.scala 186:15]
   assign iBus_rsp_payload_data = iBusAxi_r_payload_data; // @[InstructionCache.scala 187:15]
@@ -7646,7 +7646,7 @@ module VexRiscvAxi4 (
   assign debug_bus_cmd_payload_data = systemDebugger_1_io_mem_cmd_payload_data; // @[DebugPlugin.scala 118:24]
   assign debug_bus_cmd_payload_address = systemDebugger_1_io_mem_cmd_payload_address[7:0]; // @[DebugPlugin.scala 119:24]
   assign debug_bus_cmd_fire = (debug_bus_cmd_valid && debug_bus_cmd_ready); // @[BaseType.scala 305:24]
-  assign jtag_tdo = jtagBridge_1_io_jtag_tdo; // @[GenCramSoC.scala 221:18]
+  assign jtag_tdo = jtagBridge_1_io_jtag_tdo; // @[GenCramSoC.scala 222:18]
   always @(posedge clk) begin
     if(reset) begin
       IBusCachedPlugin_fetchPc_pcReg <= externalResetVector; // @[Data.scala 400:33]
@@ -7848,121 +7848,121 @@ module VexRiscvAxi4 (
       _zz_2 <= 1'b0; // @[Reg.scala 39:30]
       HazardSimplePlugin_writeBackBuffer_valid <= HazardSimplePlugin_writeBackWrites_valid; // @[Reg.scala 39:30]
       memory_DivPlugin_div_counter_value <= memory_DivPlugin_div_counter_valueNext; // @[Reg.scala 39:30]
-      CsrPlugin_mcycle <= (CsrPlugin_mcycle + 64'h0000000000000001); // @[CsrPlugin.scala 1096:14]
+      CsrPlugin_mcycle <= (CsrPlugin_mcycle + 64'h0000000000000001); // @[CsrPlugin.scala 1100:14]
       if(writeBack_arbitration_isFiring) begin
-        CsrPlugin_minstret <= (CsrPlugin_minstret + 64'h0000000000000001); // @[CsrPlugin.scala 1098:18]
+        CsrPlugin_minstret <= (CsrPlugin_minstret + 64'h0000000000000001); // @[CsrPlugin.scala 1102:18]
       end
-      if(when_CsrPlugin_l1179) begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode <= 1'b0; // @[CsrPlugin.scala 1180:42]
+      if(when_CsrPlugin_l1183) begin
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode <= 1'b0; // @[CsrPlugin.scala 1184:42]
       end else begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode <= CsrPlugin_exceptionPortCtrl_exceptionValids_decode; // @[CsrPlugin.scala 1183:44]
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_decode <= CsrPlugin_exceptionPortCtrl_exceptionValids_decode; // @[CsrPlugin.scala 1187:44]
       end
-      if(when_CsrPlugin_l1179_1) begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute <= (CsrPlugin_exceptionPortCtrl_exceptionValids_decode && (! decode_arbitration_isStuck)); // @[CsrPlugin.scala 1180:42]
+      if(when_CsrPlugin_l1183_1) begin
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute <= (CsrPlugin_exceptionPortCtrl_exceptionValids_decode && (! decode_arbitration_isStuck)); // @[CsrPlugin.scala 1184:42]
       end else begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute <= CsrPlugin_exceptionPortCtrl_exceptionValids_execute; // @[CsrPlugin.scala 1183:44]
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_execute <= CsrPlugin_exceptionPortCtrl_exceptionValids_execute; // @[CsrPlugin.scala 1187:44]
       end
-      if(when_CsrPlugin_l1179_2) begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory <= (CsrPlugin_exceptionPortCtrl_exceptionValids_execute && (! execute_arbitration_isStuck)); // @[CsrPlugin.scala 1180:42]
+      if(when_CsrPlugin_l1183_2) begin
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory <= (CsrPlugin_exceptionPortCtrl_exceptionValids_execute && (! execute_arbitration_isStuck)); // @[CsrPlugin.scala 1184:42]
       end else begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory <= CsrPlugin_exceptionPortCtrl_exceptionValids_memory; // @[CsrPlugin.scala 1183:44]
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_memory <= CsrPlugin_exceptionPortCtrl_exceptionValids_memory; // @[CsrPlugin.scala 1187:44]
       end
-      if(when_CsrPlugin_l1179_3) begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack <= (CsrPlugin_exceptionPortCtrl_exceptionValids_memory && (! memory_arbitration_isStuck)); // @[CsrPlugin.scala 1180:42]
+      if(when_CsrPlugin_l1183_3) begin
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack <= (CsrPlugin_exceptionPortCtrl_exceptionValids_memory && (! memory_arbitration_isStuck)); // @[CsrPlugin.scala 1184:42]
       end else begin
-        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack <= 1'b0; // @[CsrPlugin.scala 1185:44]
+        CsrPlugin_exceptionPortCtrl_exceptionValidsRegs_writeBack <= 1'b0; // @[CsrPlugin.scala 1189:44]
       end
       CsrPlugin_interrupt_valid <= 1'b0; // @[Reg.scala 39:30]
-      if(when_CsrPlugin_l1216) begin
-        if(when_CsrPlugin_l1222) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+      if(when_CsrPlugin_l1220) begin
+        if(when_CsrPlugin_l1226) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_1) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_1) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_2) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_2) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
       end
-      if(when_CsrPlugin_l1216_1) begin
-        if(when_CsrPlugin_l1222_3) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+      if(when_CsrPlugin_l1220_1) begin
+        if(when_CsrPlugin_l1226_3) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_4) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_4) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_5) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_5) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_6) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_6) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_7) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_7) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
-        if(when_CsrPlugin_l1222_8) begin
-          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1223:23]
+        if(when_CsrPlugin_l1226_8) begin
+          CsrPlugin_interrupt_valid <= 1'b1; // @[CsrPlugin.scala 1227:23]
         end
       end
       CsrPlugin_lastStageWasWfi <= (writeBack_arbitration_isFiring && (writeBack_ENV_CTRL == EnvCtrlEnum_WFI)); // @[Reg.scala 39:30]
       if(CsrPlugin_pipelineLiberator_active) begin
-        if(when_CsrPlugin_l1255) begin
-          CsrPlugin_pipelineLiberator_pcValids_0 <= 1'b1; // @[CsrPlugin.scala 1256:19]
+        if(when_CsrPlugin_l1259) begin
+          CsrPlugin_pipelineLiberator_pcValids_0 <= 1'b1; // @[CsrPlugin.scala 1260:19]
         end
-        if(when_CsrPlugin_l1255_1) begin
-          CsrPlugin_pipelineLiberator_pcValids_1 <= CsrPlugin_pipelineLiberator_pcValids_0; // @[CsrPlugin.scala 1256:19]
+        if(when_CsrPlugin_l1259_1) begin
+          CsrPlugin_pipelineLiberator_pcValids_1 <= CsrPlugin_pipelineLiberator_pcValids_0; // @[CsrPlugin.scala 1260:19]
         end
-        if(when_CsrPlugin_l1255_2) begin
-          CsrPlugin_pipelineLiberator_pcValids_2 <= CsrPlugin_pipelineLiberator_pcValids_1; // @[CsrPlugin.scala 1256:19]
+        if(when_CsrPlugin_l1259_2) begin
+          CsrPlugin_pipelineLiberator_pcValids_2 <= CsrPlugin_pipelineLiberator_pcValids_1; // @[CsrPlugin.scala 1260:19]
         end
       end
-      if(when_CsrPlugin_l1260) begin
-        CsrPlugin_pipelineLiberator_pcValids_0 <= 1'b0; // @[CsrPlugin.scala 1261:30]
-        CsrPlugin_pipelineLiberator_pcValids_1 <= 1'b0; // @[CsrPlugin.scala 1261:30]
-        CsrPlugin_pipelineLiberator_pcValids_2 <= 1'b0; // @[CsrPlugin.scala 1261:30]
+      if(when_CsrPlugin_l1264) begin
+        CsrPlugin_pipelineLiberator_pcValids_0 <= 1'b0; // @[CsrPlugin.scala 1265:30]
+        CsrPlugin_pipelineLiberator_pcValids_1 <= 1'b0; // @[CsrPlugin.scala 1265:30]
+        CsrPlugin_pipelineLiberator_pcValids_2 <= 1'b0; // @[CsrPlugin.scala 1265:30]
       end
       if(CsrPlugin_interruptJump) begin
-        CsrPlugin_interrupt_valid <= 1'b0; // @[CsrPlugin.scala 1272:46]
+        CsrPlugin_interrupt_valid <= 1'b0; // @[CsrPlugin.scala 1276:46]
       end
       CsrPlugin_hadException <= CsrPlugin_exception; // @[Reg.scala 39:30]
-      if(when_CsrPlugin_l1310) begin
-        if(when_CsrPlugin_l1318) begin
-          _zz_CsrPlugin_privilege <= CsrPlugin_targetPrivilege; // @[CsrPlugin.scala 1319:41]
+      if(when_CsrPlugin_l1314) begin
+        if(when_CsrPlugin_l1322) begin
+          _zz_CsrPlugin_privilege <= CsrPlugin_targetPrivilege; // @[CsrPlugin.scala 1323:41]
           case(CsrPlugin_targetPrivilege)
             2'b01 : begin
-              CsrPlugin_sstatus_SIE <= 1'b0; // @[CsrPlugin.scala 1322:27]
-              CsrPlugin_sstatus_SPIE <= CsrPlugin_sstatus_SIE; // @[CsrPlugin.scala 1323:28]
-              CsrPlugin_sstatus_SPP <= CsrPlugin_privilege[0 : 0]; // @[CsrPlugin.scala 1324:27]
+              CsrPlugin_sstatus_SIE <= 1'b0; // @[CsrPlugin.scala 1326:27]
+              CsrPlugin_sstatus_SPIE <= CsrPlugin_sstatus_SIE; // @[CsrPlugin.scala 1327:28]
+              CsrPlugin_sstatus_SPP <= CsrPlugin_privilege[0 : 0]; // @[CsrPlugin.scala 1328:27]
             end
             2'b11 : begin
-              CsrPlugin_mstatus_MIE <= 1'b0; // @[CsrPlugin.scala 1334:28]
-              CsrPlugin_mstatus_MPIE <= CsrPlugin_mstatus_MIE; // @[CsrPlugin.scala 1335:28]
-              CsrPlugin_mstatus_MPP <= CsrPlugin_privilege; // @[CsrPlugin.scala 1336:28]
+              CsrPlugin_mstatus_MIE <= 1'b0; // @[CsrPlugin.scala 1338:28]
+              CsrPlugin_mstatus_MPIE <= CsrPlugin_mstatus_MIE; // @[CsrPlugin.scala 1339:28]
+              CsrPlugin_mstatus_MPP <= CsrPlugin_privilege; // @[CsrPlugin.scala 1340:28]
             end
             default : begin
             end
           endcase
         end
       end
-      if(when_CsrPlugin_l1376) begin
-        case(switch_CsrPlugin_l1380)
+      if(when_CsrPlugin_l1380) begin
+        case(switch_CsrPlugin_l1384)
           2'b11 : begin
-            CsrPlugin_mstatus_MPP <= 2'b00; // @[CsrPlugin.scala 1382:27]
-            CsrPlugin_mstatus_MIE <= CsrPlugin_mstatus_MPIE; // @[CsrPlugin.scala 1383:27]
-            CsrPlugin_mstatus_MPIE <= 1'b1; // @[CsrPlugin.scala 1384:28]
-            _zz_CsrPlugin_privilege <= CsrPlugin_mstatus_MPP; // @[CsrPlugin.scala 1387:30]
+            CsrPlugin_mstatus_MPP <= 2'b00; // @[CsrPlugin.scala 1386:27]
+            CsrPlugin_mstatus_MIE <= CsrPlugin_mstatus_MPIE; // @[CsrPlugin.scala 1387:27]
+            CsrPlugin_mstatus_MPIE <= 1'b1; // @[CsrPlugin.scala 1388:28]
+            _zz_CsrPlugin_privilege <= CsrPlugin_mstatus_MPP; // @[CsrPlugin.scala 1391:30]
           end
           2'b01 : begin
-            CsrPlugin_sstatus_SPP <= 1'b0; // @[CsrPlugin.scala 1392:27]
-            CsrPlugin_sstatus_SIE <= CsrPlugin_sstatus_SPIE; // @[CsrPlugin.scala 1393:27]
-            CsrPlugin_sstatus_SPIE <= 1'b1; // @[CsrPlugin.scala 1394:28]
-            _zz_CsrPlugin_privilege <= {1'b0,CsrPlugin_sstatus_SPP}; // @[CsrPlugin.scala 1397:30]
+            CsrPlugin_sstatus_SPP <= 1'b0; // @[CsrPlugin.scala 1396:27]
+            CsrPlugin_sstatus_SIE <= CsrPlugin_sstatus_SPIE; // @[CsrPlugin.scala 1397:27]
+            CsrPlugin_sstatus_SPIE <= 1'b1; // @[CsrPlugin.scala 1398:28]
+            _zz_CsrPlugin_privilege <= {1'b0,CsrPlugin_sstatus_SPP}; // @[CsrPlugin.scala 1401:30]
           end
           default : begin
           end
         endcase
       end
-      execute_CsrPlugin_wfiWake <= (({_zz_when_CsrPlugin_l1222_5,{_zz_when_CsrPlugin_l1222_4,{_zz_when_CsrPlugin_l1222_3,{_zz_when_CsrPlugin_l1222_2,{_zz_when_CsrPlugin_l1222_1,_zz_when_CsrPlugin_l1222}}}}} != 6'h0) || CsrPlugin_thirdPartyWake); // @[Reg.scala 39:30]
+      execute_CsrPlugin_wfiWake <= (({_zz_when_CsrPlugin_l1226_5,{_zz_when_CsrPlugin_l1226_4,{_zz_when_CsrPlugin_l1226_3,{_zz_when_CsrPlugin_l1226_2,{_zz_when_CsrPlugin_l1226_1,_zz_when_CsrPlugin_l1226}}}}} != 6'h0) || CsrPlugin_thirdPartyWake); // @[Reg.scala 39:30]
       if(CsrPlugin_xretAwayFromMachine) begin
         MmuPlugin_status_mprv <= 1'b0; // @[MmuPlugin.scala 94:14]
       end
@@ -8192,15 +8192,15 @@ module VexRiscvAxi4 (
         if(execute_CsrPlugin_writeEnable) begin
           CsrPlugin_mstatus_MPIE <= CsrPlugin_csrMapping_writeDataSignal[7]; // @[Bool.scala 189:10]
           CsrPlugin_mstatus_MIE <= CsrPlugin_csrMapping_writeDataSignal[3]; // @[Bool.scala 189:10]
-          case(switch_CsrPlugin_l980)
+          case(switch_CsrPlugin_l984)
             2'b11 : begin
-              CsrPlugin_mstatus_MPP <= 2'b11; // @[CsrPlugin.scala 981:30]
+              CsrPlugin_mstatus_MPP <= 2'b11; // @[CsrPlugin.scala 985:30]
             end
             2'b01 : begin
-              CsrPlugin_mstatus_MPP <= 2'b01; // @[CsrPlugin.scala 982:48]
+              CsrPlugin_mstatus_MPP <= 2'b01; // @[CsrPlugin.scala 986:48]
             end
             2'b00 : begin
-              CsrPlugin_mstatus_MPP <= 2'b00; // @[CsrPlugin.scala 983:42]
+              CsrPlugin_mstatus_MPP <= 2'b00; // @[CsrPlugin.scala 987:42]
             end
             default : begin
             end
@@ -8413,74 +8413,74 @@ module VexRiscvAxi4 (
     CsrPlugin_mip_MSIP <= softwareInterrupt; // @[Reg.scala 39:30]
     CsrPlugin_sip_SEIP_INPUT <= externalInterruptS; // @[Reg.scala 39:30]
     if(_zz_when) begin
-      CsrPlugin_exceptionPortCtrl_exceptionContext_code <= (_zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1 ? IBusCachedPlugin_decodeExceptionPort_payload_code : decodeExceptionPort_payload_code); // @[CsrPlugin.scala 1173:30]
-      CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr <= (_zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1 ? IBusCachedPlugin_decodeExceptionPort_payload_badAddr : decodeExceptionPort_payload_badAddr); // @[CsrPlugin.scala 1173:30]
+      CsrPlugin_exceptionPortCtrl_exceptionContext_code <= (_zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1 ? IBusCachedPlugin_decodeExceptionPort_payload_code : decodeExceptionPort_payload_code); // @[CsrPlugin.scala 1177:30]
+      CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr <= (_zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1 ? IBusCachedPlugin_decodeExceptionPort_payload_badAddr : decodeExceptionPort_payload_badAddr); // @[CsrPlugin.scala 1177:30]
     end
     if(CsrPlugin_selfException_valid) begin
-      CsrPlugin_exceptionPortCtrl_exceptionContext_code <= CsrPlugin_selfException_payload_code; // @[CsrPlugin.scala 1173:30]
-      CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr <= CsrPlugin_selfException_payload_badAddr; // @[CsrPlugin.scala 1173:30]
+      CsrPlugin_exceptionPortCtrl_exceptionContext_code <= CsrPlugin_selfException_payload_code; // @[CsrPlugin.scala 1177:30]
+      CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr <= CsrPlugin_selfException_payload_badAddr; // @[CsrPlugin.scala 1177:30]
     end
     if(DBusCachedPlugin_exceptionBus_valid) begin
-      CsrPlugin_exceptionPortCtrl_exceptionContext_code <= DBusCachedPlugin_exceptionBus_payload_code; // @[CsrPlugin.scala 1173:30]
-      CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr <= DBusCachedPlugin_exceptionBus_payload_badAddr; // @[CsrPlugin.scala 1173:30]
+      CsrPlugin_exceptionPortCtrl_exceptionContext_code <= DBusCachedPlugin_exceptionBus_payload_code; // @[CsrPlugin.scala 1177:30]
+      CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr <= DBusCachedPlugin_exceptionBus_payload_badAddr; // @[CsrPlugin.scala 1177:30]
     end
-    if(when_CsrPlugin_l1216) begin
-      if(when_CsrPlugin_l1222) begin
-        CsrPlugin_interrupt_code <= 4'b0101; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b01; // @[CsrPlugin.scala 1225:33]
+    if(when_CsrPlugin_l1220) begin
+      if(when_CsrPlugin_l1226) begin
+        CsrPlugin_interrupt_code <= 4'b0101; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b01; // @[CsrPlugin.scala 1229:33]
       end
-      if(when_CsrPlugin_l1222_1) begin
-        CsrPlugin_interrupt_code <= 4'b0001; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b01; // @[CsrPlugin.scala 1225:33]
+      if(when_CsrPlugin_l1226_1) begin
+        CsrPlugin_interrupt_code <= 4'b0001; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b01; // @[CsrPlugin.scala 1229:33]
       end
-      if(when_CsrPlugin_l1222_2) begin
-        CsrPlugin_interrupt_code <= 4'b1001; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b01; // @[CsrPlugin.scala 1225:33]
-      end
-    end
-    if(when_CsrPlugin_l1216_1) begin
-      if(when_CsrPlugin_l1222_3) begin
-        CsrPlugin_interrupt_code <= 4'b0101; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1225:33]
-      end
-      if(when_CsrPlugin_l1222_4) begin
-        CsrPlugin_interrupt_code <= 4'b0001; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1225:33]
-      end
-      if(when_CsrPlugin_l1222_5) begin
-        CsrPlugin_interrupt_code <= 4'b1001; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1225:33]
-      end
-      if(when_CsrPlugin_l1222_6) begin
-        CsrPlugin_interrupt_code <= 4'b0111; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1225:33]
-      end
-      if(when_CsrPlugin_l1222_7) begin
-        CsrPlugin_interrupt_code <= 4'b0011; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1225:33]
-      end
-      if(when_CsrPlugin_l1222_8) begin
-        CsrPlugin_interrupt_code <= 4'b1011; // @[CsrPlugin.scala 1224:22]
-        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1225:33]
+      if(when_CsrPlugin_l1226_2) begin
+        CsrPlugin_interrupt_code <= 4'b1001; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b01; // @[CsrPlugin.scala 1229:33]
       end
     end
-    if(when_CsrPlugin_l1310) begin
-      if(when_CsrPlugin_l1318) begin
+    if(when_CsrPlugin_l1220_1) begin
+      if(when_CsrPlugin_l1226_3) begin
+        CsrPlugin_interrupt_code <= 4'b0101; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1229:33]
+      end
+      if(when_CsrPlugin_l1226_4) begin
+        CsrPlugin_interrupt_code <= 4'b0001; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1229:33]
+      end
+      if(when_CsrPlugin_l1226_5) begin
+        CsrPlugin_interrupt_code <= 4'b1001; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1229:33]
+      end
+      if(when_CsrPlugin_l1226_6) begin
+        CsrPlugin_interrupt_code <= 4'b0111; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1229:33]
+      end
+      if(when_CsrPlugin_l1226_7) begin
+        CsrPlugin_interrupt_code <= 4'b0011; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1229:33]
+      end
+      if(when_CsrPlugin_l1226_8) begin
+        CsrPlugin_interrupt_code <= 4'b1011; // @[CsrPlugin.scala 1228:22]
+        CsrPlugin_interrupt_targetPrivilege <= 2'b11; // @[CsrPlugin.scala 1229:33]
+      end
+    end
+    if(when_CsrPlugin_l1314) begin
+      if(when_CsrPlugin_l1322) begin
         case(CsrPlugin_targetPrivilege)
           2'b01 : begin
-            CsrPlugin_scause_interrupt <= (! CsrPlugin_hadException); // @[CsrPlugin.scala 1325:32]
-            CsrPlugin_scause_exceptionCode <= CsrPlugin_trapCause; // @[CsrPlugin.scala 1326:36]
-            CsrPlugin_sepc <= writeBack_PC; // @[CsrPlugin.scala 1327:20]
+            CsrPlugin_scause_interrupt <= (! CsrPlugin_hadException); // @[CsrPlugin.scala 1329:32]
+            CsrPlugin_scause_exceptionCode <= CsrPlugin_trapCause; // @[CsrPlugin.scala 1330:36]
+            CsrPlugin_sepc <= writeBack_PC; // @[CsrPlugin.scala 1331:20]
             if(CsrPlugin_hadException) begin
-              CsrPlugin_stval <= CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr; // @[CsrPlugin.scala 1329:23]
+              CsrPlugin_stval <= CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr; // @[CsrPlugin.scala 1333:23]
             end
           end
           2'b11 : begin
-            CsrPlugin_mcause_interrupt <= (! CsrPlugin_hadException); // @[CsrPlugin.scala 1337:32]
-            CsrPlugin_mcause_exceptionCode <= CsrPlugin_trapCause; // @[CsrPlugin.scala 1338:36]
-            CsrPlugin_mepc <= writeBack_PC; // @[CsrPlugin.scala 1339:20]
+            CsrPlugin_mcause_interrupt <= (! CsrPlugin_hadException); // @[CsrPlugin.scala 1341:32]
+            CsrPlugin_mcause_exceptionCode <= CsrPlugin_trapCause; // @[CsrPlugin.scala 1342:36]
+            CsrPlugin_mepc <= writeBack_PC; // @[CsrPlugin.scala 1343:20]
             if(CsrPlugin_hadException) begin
-              CsrPlugin_mtval <= CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr; // @[CsrPlugin.scala 1341:23]
+              CsrPlugin_mtval <= CsrPlugin_exceptionPortCtrl_exceptionContext_badAddr; // @[CsrPlugin.scala 1345:23]
             end
           end
           default : begin
@@ -8951,116 +8951,116 @@ module VexRiscvAxi4 (
     if(when_Pipeline_l124_78) begin
       memory_to_writeBack_CALC <= memory_CALC; // @[Pipeline.scala 124:40]
     end
-    if(when_CsrPlugin_l1589) begin
-      execute_CsrPlugin_csr_3264 <= (decode_INSTRUCTION[31 : 20] == 12'hcc0); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593) begin
+      execute_CsrPlugin_csr_3264 <= (decode_INSTRUCTION[31 : 20] == 12'hcc0); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_1) begin
-      execute_CsrPlugin_csr_3857 <= (decode_INSTRUCTION[31 : 20] == 12'hf11); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_1) begin
+      execute_CsrPlugin_csr_3857 <= (decode_INSTRUCTION[31 : 20] == 12'hf11); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_2) begin
-      execute_CsrPlugin_csr_3858 <= (decode_INSTRUCTION[31 : 20] == 12'hf12); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_2) begin
+      execute_CsrPlugin_csr_3858 <= (decode_INSTRUCTION[31 : 20] == 12'hf12); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_3) begin
-      execute_CsrPlugin_csr_3859 <= (decode_INSTRUCTION[31 : 20] == 12'hf13); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_3) begin
+      execute_CsrPlugin_csr_3859 <= (decode_INSTRUCTION[31 : 20] == 12'hf13); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_4) begin
-      execute_CsrPlugin_csr_3860 <= (decode_INSTRUCTION[31 : 20] == 12'hf14); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_4) begin
+      execute_CsrPlugin_csr_3860 <= (decode_INSTRUCTION[31 : 20] == 12'hf14); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_5) begin
-      execute_CsrPlugin_csr_769 <= (decode_INSTRUCTION[31 : 20] == 12'h301); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_5) begin
+      execute_CsrPlugin_csr_769 <= (decode_INSTRUCTION[31 : 20] == 12'h301); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_6) begin
-      execute_CsrPlugin_csr_768 <= (decode_INSTRUCTION[31 : 20] == 12'h300); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_6) begin
+      execute_CsrPlugin_csr_768 <= (decode_INSTRUCTION[31 : 20] == 12'h300); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_7) begin
-      execute_CsrPlugin_csr_836 <= (decode_INSTRUCTION[31 : 20] == 12'h344); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_7) begin
+      execute_CsrPlugin_csr_836 <= (decode_INSTRUCTION[31 : 20] == 12'h344); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_8) begin
-      execute_CsrPlugin_csr_772 <= (decode_INSTRUCTION[31 : 20] == 12'h304); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_8) begin
+      execute_CsrPlugin_csr_772 <= (decode_INSTRUCTION[31 : 20] == 12'h304); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_9) begin
-      execute_CsrPlugin_csr_773 <= (decode_INSTRUCTION[31 : 20] == 12'h305); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_9) begin
+      execute_CsrPlugin_csr_773 <= (decode_INSTRUCTION[31 : 20] == 12'h305); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_10) begin
-      execute_CsrPlugin_csr_833 <= (decode_INSTRUCTION[31 : 20] == 12'h341); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_10) begin
+      execute_CsrPlugin_csr_833 <= (decode_INSTRUCTION[31 : 20] == 12'h341); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_11) begin
-      execute_CsrPlugin_csr_832 <= (decode_INSTRUCTION[31 : 20] == 12'h340); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_11) begin
+      execute_CsrPlugin_csr_832 <= (decode_INSTRUCTION[31 : 20] == 12'h340); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_12) begin
-      execute_CsrPlugin_csr_834 <= (decode_INSTRUCTION[31 : 20] == 12'h342); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_12) begin
+      execute_CsrPlugin_csr_834 <= (decode_INSTRUCTION[31 : 20] == 12'h342); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_13) begin
-      execute_CsrPlugin_csr_835 <= (decode_INSTRUCTION[31 : 20] == 12'h343); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_13) begin
+      execute_CsrPlugin_csr_835 <= (decode_INSTRUCTION[31 : 20] == 12'h343); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_14) begin
-      execute_CsrPlugin_csr_2816 <= (decode_INSTRUCTION[31 : 20] == 12'hb00); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_14) begin
+      execute_CsrPlugin_csr_2816 <= (decode_INSTRUCTION[31 : 20] == 12'hb00); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_15) begin
-      execute_CsrPlugin_csr_2944 <= (decode_INSTRUCTION[31 : 20] == 12'hb80); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_15) begin
+      execute_CsrPlugin_csr_2944 <= (decode_INSTRUCTION[31 : 20] == 12'hb80); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_16) begin
-      execute_CsrPlugin_csr_2818 <= (decode_INSTRUCTION[31 : 20] == 12'hb02); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_16) begin
+      execute_CsrPlugin_csr_2818 <= (decode_INSTRUCTION[31 : 20] == 12'hb02); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_17) begin
-      execute_CsrPlugin_csr_2946 <= (decode_INSTRUCTION[31 : 20] == 12'hb82); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_17) begin
+      execute_CsrPlugin_csr_2946 <= (decode_INSTRUCTION[31 : 20] == 12'hb82); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_18) begin
-      execute_CsrPlugin_csr_770 <= (decode_INSTRUCTION[31 : 20] == 12'h302); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_18) begin
+      execute_CsrPlugin_csr_770 <= (decode_INSTRUCTION[31 : 20] == 12'h302); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_19) begin
-      execute_CsrPlugin_csr_771 <= (decode_INSTRUCTION[31 : 20] == 12'h303); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_19) begin
+      execute_CsrPlugin_csr_771 <= (decode_INSTRUCTION[31 : 20] == 12'h303); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_20) begin
-      execute_CsrPlugin_csr_3072 <= (decode_INSTRUCTION[31 : 20] == 12'hc00); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_20) begin
+      execute_CsrPlugin_csr_3072 <= (decode_INSTRUCTION[31 : 20] == 12'hc00); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_21) begin
-      execute_CsrPlugin_csr_3200 <= (decode_INSTRUCTION[31 : 20] == 12'hc80); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_21) begin
+      execute_CsrPlugin_csr_3200 <= (decode_INSTRUCTION[31 : 20] == 12'hc80); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_22) begin
-      execute_CsrPlugin_csr_3074 <= (decode_INSTRUCTION[31 : 20] == 12'hc02); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_22) begin
+      execute_CsrPlugin_csr_3074 <= (decode_INSTRUCTION[31 : 20] == 12'hc02); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_23) begin
-      execute_CsrPlugin_csr_3202 <= (decode_INSTRUCTION[31 : 20] == 12'hc82); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_23) begin
+      execute_CsrPlugin_csr_3202 <= (decode_INSTRUCTION[31 : 20] == 12'hc82); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_24) begin
-      execute_CsrPlugin_csr_256 <= (decode_INSTRUCTION[31 : 20] == 12'h100); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_24) begin
+      execute_CsrPlugin_csr_256 <= (decode_INSTRUCTION[31 : 20] == 12'h100); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_25) begin
-      execute_CsrPlugin_csr_324 <= (decode_INSTRUCTION[31 : 20] == 12'h144); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_25) begin
+      execute_CsrPlugin_csr_324 <= (decode_INSTRUCTION[31 : 20] == 12'h144); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_26) begin
-      execute_CsrPlugin_csr_260 <= (decode_INSTRUCTION[31 : 20] == 12'h104); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_26) begin
+      execute_CsrPlugin_csr_260 <= (decode_INSTRUCTION[31 : 20] == 12'h104); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_27) begin
-      execute_CsrPlugin_csr_261 <= (decode_INSTRUCTION[31 : 20] == 12'h105); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_27) begin
+      execute_CsrPlugin_csr_261 <= (decode_INSTRUCTION[31 : 20] == 12'h105); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_28) begin
-      execute_CsrPlugin_csr_321 <= (decode_INSTRUCTION[31 : 20] == 12'h141); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_28) begin
+      execute_CsrPlugin_csr_321 <= (decode_INSTRUCTION[31 : 20] == 12'h141); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_29) begin
-      execute_CsrPlugin_csr_320 <= (decode_INSTRUCTION[31 : 20] == 12'h140); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_29) begin
+      execute_CsrPlugin_csr_320 <= (decode_INSTRUCTION[31 : 20] == 12'h140); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_30) begin
-      execute_CsrPlugin_csr_322 <= (decode_INSTRUCTION[31 : 20] == 12'h142); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_30) begin
+      execute_CsrPlugin_csr_322 <= (decode_INSTRUCTION[31 : 20] == 12'h142); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_31) begin
-      execute_CsrPlugin_csr_323 <= (decode_INSTRUCTION[31 : 20] == 12'h143); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_31) begin
+      execute_CsrPlugin_csr_323 <= (decode_INSTRUCTION[31 : 20] == 12'h143); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_32) begin
-      execute_CsrPlugin_csr_384 <= (decode_INSTRUCTION[31 : 20] == 12'h180); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_32) begin
+      execute_CsrPlugin_csr_384 <= (decode_INSTRUCTION[31 : 20] == 12'h180); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_33) begin
-      execute_CsrPlugin_csr_3008 <= (decode_INSTRUCTION[31 : 20] == 12'hbc0); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_33) begin
+      execute_CsrPlugin_csr_3008 <= (decode_INSTRUCTION[31 : 20] == 12'hbc0); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_34) begin
-      execute_CsrPlugin_csr_4032 <= (decode_INSTRUCTION[31 : 20] == 12'hfc0); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_34) begin
+      execute_CsrPlugin_csr_4032 <= (decode_INSTRUCTION[31 : 20] == 12'hfc0); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_35) begin
-      execute_CsrPlugin_csr_2496 <= (decode_INSTRUCTION[31 : 20] == 12'h9c0); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_35) begin
+      execute_CsrPlugin_csr_2496 <= (decode_INSTRUCTION[31 : 20] == 12'h9c0); // @[CsrPlugin.scala 1593:101]
     end
-    if(when_CsrPlugin_l1589_36) begin
-      execute_CsrPlugin_csr_3520 <= (decode_INSTRUCTION[31 : 20] == 12'hdc0); // @[CsrPlugin.scala 1589:101]
+    if(when_CsrPlugin_l1593_36) begin
+      execute_CsrPlugin_csr_3520 <= (decode_INSTRUCTION[31 : 20] == 12'hdc0); // @[CsrPlugin.scala 1593:101]
     end
     if(execute_CsrPlugin_csr_836) begin
       if(execute_CsrPlugin_writeEnable) begin

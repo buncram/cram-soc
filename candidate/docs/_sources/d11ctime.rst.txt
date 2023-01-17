@@ -17,7 +17,7 @@ timeout is not the end-all solution; adding noise and computational confounders 
 countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
 hardware-efficient.
 
-This block has been configured to default to 0.004095ms period, assuming ACLK is 800MHz.
+This block has been configured to default to 1.0ms period, assuming ACLK is 800.0MHz.
 
 
 Register Listing for D11CTIME
@@ -42,7 +42,7 @@ D11CTIME_CONTROL
 
         {
             "reg": [
-                {"name": "count",  "attr": '1638', "bits": 32}
+                {"name": "count",  "attr": '400000', "bits": 32}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 

@@ -56,7 +56,7 @@ cross-domain clocks.</p>
 </section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
-<p>This timer was configured with 64 bits, which rolls over in 292471208.68 years, with each bit giving 0.5ms resolution</p>
+<p>This timer was configured with 64 bits, which rolls over in 584942417.36 years, with each bit giving 1.0ms resolution</p>
 </section>
 <section id="msleep-extension">
 <h2>msleep extension<a class="headerlink" href="#msleep-extension" title="Permalink to this heading">¶</a></h2>
@@ -107,7 +107,7 @@ domain, which runs at a much slower rate than the CPU clock.</p>
 <p><cite>Address: 0x5801a000 + 0x0 = 0x5801a000</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-7bd17fde-df0c-46c6-9eac-6ea1d4736237.svg" src="_images/wavedrom-7bd17fde-df0c-46c6-9eac-6ea1d4736237.svg" /><figcaption>
+<img alt="_images/wavedrom-df72c92c-d47b-45e7-a951-0cab84c0ac3c.svg" src="_images/wavedrom-df72c92c-d47b-45e7-a951-0cab84c0ac3c.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_CONTROL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -136,7 +136,7 @@ other requests.</p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_TIME</cite>. Elapsed time in systicks</p>
 <figure class="align-default" id="id2">
-<img alt="_images/wavedrom-98d48d27-af0b-44de-8828-1a249a50a2ed.svg" src="_images/wavedrom-98d48d27-af0b-44de-8828-1a249a50a2ed.svg" /><figcaption>
+<img alt="_images/wavedrom-93919b0d-fa06-462e-bef8-c1fd2eb548ba.svg" src="_images/wavedrom-93919b0d-fa06-462e-bef8-c1fd2eb548ba.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_TIME1</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -148,7 +148,7 @@ other requests.</p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_TIME</cite>.</p>
 <figure class="align-default" id="id3">
-<img alt="_images/wavedrom-a2a4ba32-1abb-4fc7-9b7c-466a539ab6be.svg" src="_images/wavedrom-a2a4ba32-1abb-4fc7-9b7c-466a539ab6be.svg" /><figcaption>
+<img alt="_images/wavedrom-3ac79e5e-822a-4472-9935-020603982bb0.svg" src="_images/wavedrom-3ac79e5e-822a-4472-9935-020603982bb0.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_TIME0</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -158,9 +158,9 @@ other requests.</p>
 <h3>TICKTIMER_MSLEEP_TARGET1<a class="headerlink" href="#ticktimer-msleep-target1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5801a000 + 0xc = 0x5801a00c</cite></p>
 <blockquote>
-<div><p>Bits 32-63 of <cite>TICKTIMER_MSLEEP_TARGET</cite>. Target time in 0.5ms ticks</p>
+<div><p>Bits 32-63 of <cite>TICKTIMER_MSLEEP_TARGET</cite>. Target time in 1.0ms ticks</p>
 <figure class="align-default" id="id4">
-<img alt="_images/wavedrom-e86704bc-cdd3-43be-ac50-acec5c407542.svg" src="_images/wavedrom-e86704bc-cdd3-43be-ac50-acec5c407542.svg" /><figcaption>
+<img alt="_images/wavedrom-ad1bb8d5-5f32-4d56-aab9-f55e5d757b43.svg" src="_images/wavedrom-ad1bb8d5-5f32-4d56-aab9-f55e5d757b43.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_MSLEEP_TARGET1</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -172,7 +172,7 @@ other requests.</p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_MSLEEP_TARGET</cite>.</p>
 <figure class="align-default" id="id5">
-<img alt="_images/wavedrom-8b6b07f5-919b-4a9f-ac1d-1b06e1eda9fc.svg" src="_images/wavedrom-8b6b07f5-919b-4a9f-ac1d-1b06e1eda9fc.svg" /><figcaption>
+<img alt="_images/wavedrom-bc3e5a95-04d7-48cd-991c-4ea91f1cd81d.svg" src="_images/wavedrom-bc3e5a95-04d7-48cd-991c-4ea91f1cd81d.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_MSLEEP_TARGET0</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -185,7 +185,7 @@ other requests.</p>
 <div><p>This register contains the current raw level of the alarm event trigger.  Writes
 to this register have no effect.</p>
 <figure class="align-default" id="id6">
-<img alt="_images/wavedrom-a1226aee-36a4-4da3-9ccd-28c6df673246.svg" src="_images/wavedrom-a1226aee-36a4-4da3-9ccd-28c6df673246.svg" /><figcaption>
+<img alt="_images/wavedrom-7e63dc2a-e59d-4ce9-afc1-ab890ed92fc4.svg" src="_images/wavedrom-7e63dc2a-e59d-4ce9-afc1-ab890ed92fc4.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_EV_STATUS</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -212,7 +212,7 @@ to this register have no effect.</p>
 <div><p>When a  alarm event occurs, the corresponding bit will be set in this register.
 To clear the Event, set the corresponding bit in this register.</p>
 <figure class="align-default" id="id7">
-<img alt="_images/wavedrom-1993c754-70a5-4adc-bbdd-8558470157d4.svg" src="_images/wavedrom-1993c754-70a5-4adc-bbdd-8558470157d4.svg" /><figcaption>
+<img alt="_images/wavedrom-6eb9a55e-d72e-49d5-bfbc-433701a7d51b.svg" src="_images/wavedrom-6eb9a55e-d72e-49d5-bfbc-433701a7d51b.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_EV_PENDING</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -240,7 +240,7 @@ signal is <strong>high</strong>.</p></td>
 <div><p>This register enables the corresponding alarm events.  Write a <code class="docutils literal notranslate"><span class="pre">0</span></code> to this
 register to disable individual events.</p>
 <figure class="align-default" id="id8">
-<img alt="_images/wavedrom-c18a39e1-a889-4d6f-a498-9564a9d063d4.svg" src="_images/wavedrom-c18a39e1-a889-4d6f-a498-9564a9d063d4.svg" /><figcaption>
+<img alt="_images/wavedrom-61a08c00-f635-4685-a28c-04f3ca3aa925.svg" src="_images/wavedrom-61a08c00-f635-4685-a28c-04f3ca3aa925.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_EV_ENABLE</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>

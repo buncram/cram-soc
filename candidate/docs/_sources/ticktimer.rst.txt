@@ -23,7 +23,7 @@ cross-domain clocks.
 
 Configuration
 -------------
-This timer was configured with 64 bits, which rolls over in 292471208.68 years, with each bit giving 0.5ms resolution
+This timer was configured with 64 bits, which rolls over in 584942417.36 years, with each bit giving 1.0ms resolution
 
 msleep extension
 ----------------
@@ -126,7 +126,7 @@ TICKTIMER_MSLEEP_TARGET1
 
 `Address: 0x5801a000 + 0xc = 0x5801a00c`
 
-    Bits 32-63 of `TICKTIMER_MSLEEP_TARGET`. Target time in 0.5ms ticks
+    Bits 32-63 of `TICKTIMER_MSLEEP_TARGET`. Target time in 1.0ms ticks
 
     .. wavedrom::
         :caption: TICKTIMER_MSLEEP_TARGET1

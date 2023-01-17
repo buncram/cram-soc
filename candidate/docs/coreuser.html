@@ -40,10 +40,10 @@
   <section id="coreuser">
 <h1>COREUSER<a class="headerlink" href="#coreuser" title="Permalink to this heading">¶</a></h1>
 <p><cite>CoreUser</cite> is a hardware signal that indicates that the code executing is in a highly trusted
-piece of code. This is determined by examining a configurable combination of the SATP’s ASID and
-PPN values, allowing the OS to target certain virtual memory spaces as more trusted than
-others. <cite>CoreUser</cite> can only be computed when the RISC-V core is in Sv32 mode (that is, virtual
-memory has been enabled).</p>
+piece of code. This is determined by examining a configurable combination of the SATP’s ASID,
+PPN values, and/or privilege bits from <cite>$mstatus.mpp</cite>, allowing the OS to target certain virtual
+memory spaces as more trusted than others. <cite>CoreUser</cite> can only be computed when the RISC-V core
+is in Sv32 mode (that is, virtual memory has been enabled).</p>
 <p>When specifying PPN values, two windows are provided, <cite>a</cite> and <cite>b</cite>. The windows are
 computed independently, and then OR’d together. The <cite>a</cite> and <cite>b</cite> windows should be non-overlapping.
 If they overlap, or the windows are poorly-specified, the behavior is not guaranteed. The intention
@@ -51,6 +51,9 @@ of having two windows is not so that the OS can specify only two processes as <c
 the OS should design to allocate all CoreUser processes within a single range that is protected
 by a single window. The alternate window is provided only so that the OS can have a scratch space to
 re-organize or shuffle around process spaces at a higher level.</p>
+<p>When specifying privilege, one specifies the state that must match for <cite>coreuser</cite> to be active.
+For a microkernel, one would specify a non-elevated permission level, as secure access is always
+delegated to a userland service. For a monokernel, one would specify an elevated permission level.</p>
 <p>The <cite>CoreUser</cite> signal is not cycle-precise; it will assert roughly 2 cycles after the <cite>satp</cite> is updated.
 Furthermore, the <cite>satp</cite> ASID field is an advisory field that isn’t used by CPU hardware to enforce
 page access. You can think of <cite>coreuser</cite> as a signal that the kernel can control to indicate if the
@@ -78,23 +81,26 @@ the <cite>satp</cite> setting and user code execution.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#coreuser-get-asid-value"><span class="std std-ref">COREUSER_GET_ASID_VALUE</span></a></p></td>
 <td><p><a class="reference internal" href="#coreuser-get-asid-value"><span class="std std-ref">0x58002008</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">COREUSER_CONTROL</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">0x5800200c</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-set-privilege"><span class="std std-ref">COREUSER_SET_PRIVILEGE</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-set-privilege"><span class="std std-ref">0x5800200c</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">COREUSER_PROTECT</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">0x58002010</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">COREUSER_CONTROL</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-control"><span class="std std-ref">0x58002010</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">COREUSER_WINDOW_AL</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">0x58002014</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">COREUSER_PROTECT</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-protect"><span class="std std-ref">0x58002014</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">COREUSER_WINDOW_AH</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">0x58002018</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">COREUSER_WINDOW_AL</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-al"><span class="std std-ref">0x58002018</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">COREUSER_WINDOW_BL</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">0x5800201c</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">COREUSER_WINDOW_AH</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-ah"><span class="std std-ref">0x5800201c</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">COREUSER_WINDOW_BH</span></a></p></td>
-<td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">0x58002020</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">COREUSER_WINDOW_BL</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-bl"><span class="std std-ref">0x58002020</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">COREUSER_WINDOW_BH</span></a></p></td>
+<td><p><a class="reference internal" href="#coreuser-window-bh"><span class="std std-ref">0x58002024</span></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -103,7 +109,7 @@ the <cite>satp</cite> setting and user code execution.</p>
 <p><cite>Address: 0x58002000 + 0x0 = 0x58002000</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-978588b1-0dcf-4e9c-a6a3-95e763f0922d.svg" src="_images/wavedrom-978588b1-0dcf-4e9c-a6a3-95e763f0922d.svg" /><figcaption>
+<img alt="_images/wavedrom-d4a04dd6-cc7a-4e52-afe5-1c2159b2a147.svg" src="_images/wavedrom-d4a04dd6-cc7a-4e52-afe5-1c2159b2a147.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_SET_ASID</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -133,7 +139,7 @@ specified <cite>asid</cite> value</p></td>
 <p><cite>Address: 0x58002000 + 0x4 = 0x58002004</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id2">
-<img alt="_images/wavedrom-ca313fd2-f6b7-4ce7-83e9-9485f23efc13.svg" src="_images/wavedrom-ca313fd2-f6b7-4ce7-83e9-9485f23efc13.svg" /><figcaption>
+<img alt="_images/wavedrom-e0905287-9da4-43b2-95c6-8a309af1d3af.svg" src="_images/wavedrom-e0905287-9da4-43b2-95c6-8a309af1d3af.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_GET_ASID_ADDR</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -158,7 +164,7 @@ specified <cite>asid</cite> value</p></td>
 <p><cite>Address: 0x58002000 + 0x8 = 0x58002008</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id3">
-<img alt="_images/wavedrom-f59cb63f-7d49-4abc-ba7e-7b11ae7bf4a8.svg" src="_images/wavedrom-f59cb63f-7d49-4abc-ba7e-7b11ae7bf4a8.svg" /><figcaption>
+<img alt="_images/wavedrom-923feee7-f14c-4d04-a9fa-b6ebf23f8de9.svg" src="_images/wavedrom-923feee7-f14c-4d04-a9fa-b6ebf23f8de9.svg" /><figcaption>
 <p><span class="caption-text">COREUSER_GET_ASID_VALUE</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -173,18 +179,43 @@ specified <cite>asid</cite> value</p></td>
 <tbody>
 <tr class="row-even"><td><p>[0]</p></td>
 <td><p>VALUE</p></td>
-<td><p>Value corresponding to the ASID specified it <cite>get_asid_addr</cite>. <cite>1</cite> means trusted</p></td>
+<td><p>Value corresponding to the ASID specified in <cite>get_asid_addr</cite>. <cite>1</cite> means trusted</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="coreuser-set-privilege">
+<h3>COREUSER_SET_PRIVILEGE<a class="headerlink" href="#coreuser-set-privilege" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x58002000 + 0xc = 0x5800200c</cite></p>
+<blockquote>
+<div><figure class="align-default" id="id4">
+<img alt="_images/wavedrom-793d04d9-1a24-4bd2-9962-0814f3c10f80.svg" src="_images/wavedrom-793d04d9-1a24-4bd2-9962-0814f3c10f80.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_SET_PRIVILEGE</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[1:0]</p></td>
+<td><p>MPP</p></td>
+<td><p>Value of <cite>mpp</cite> bit from <cite>mstatus</cite> that must match for code to be trusted</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="coreuser-control">
 <h3>COREUSER_CONTROL<a class="headerlink" href="#coreuser-control" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58002000 + 0xc = 0x5800200c</cite></p>
+<p><cite>Address: 0x58002000 + 0x10 = 0x58002010</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id4">
-<img alt="_images/wavedrom-110349d5-4b10-430b-936d-070e3fe73542.svg" src="_images/wavedrom-110349d5-4b10-430b-936d-070e3fe73542.svg" /><figcaption>
-<p><span class="caption-text">COREUSER_CONTROL</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<div><figure class="align-default" id="id5">
+<img alt="_images/wavedrom-beb15f89-f1d5-409e-aac1-38837e5c0e16.svg" src="_images/wavedrom-beb15f89-f1d5-409e-aac1-38837e5c0e16.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_CONTROL</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </div></blockquote>
@@ -215,29 +246,34 @@ cleared to <cite>0</cite>, the <cite>CoreUser</cite> signal is always valid. Def
 <td><p>When set to <cite>1</cite>, requires the <cite>b</cite> <cite>ppn</cite> window to be trusted to assert
 <cite>CoreUser</cite></p></td>
 </tr>
+<tr class="row-even"><td><p>[4]</p></td>
+<td><p>PRIVILEGE</p></td>
+<td><p>When set to <cite>1</cite>, requires the current privilege state to match that specified in
+<cite>set_privilege.mpp</cite></p></td>
+</tr>
 </tbody>
 </table>
 </section>
 <section id="coreuser-protect">
 <h3>COREUSER_PROTECT<a class="headerlink" href="#coreuser-protect" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58002000 + 0x10 = 0x58002010</cite></p>
+<p><cite>Address: 0x58002000 + 0x14 = 0x58002014</cite></p>
 <blockquote>
 <div><p>Writing <cite>1</cite> to this bit prevents any further updates to CoreUser configuration
 status. Can only be reversed with a system reset.</p>
-<figure class="align-default" id="id5">
-<img alt="_images/wavedrom-07160b12-e9eb-4920-88bf-fc8ac2b7b8a2.svg" src="_images/wavedrom-07160b12-e9eb-4920-88bf-fc8ac2b7b8a2.svg" /><figcaption>
-<p><span class="caption-text">COREUSER_PROTECT</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+<figure class="align-default" id="id6">
+<img alt="_images/wavedrom-9e199f10-2d76-4e32-ac95-d9f457988e64.svg" src="_images/wavedrom-9e199f10-2d76-4e32-ac95-d9f457988e64.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_PROTECT</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </div></blockquote>
 </section>
 <section id="coreuser-window-al">
 <h3>COREUSER_WINDOW_AL<a class="headerlink" href="#coreuser-window-al" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58002000 + 0x14 = 0x58002014</cite></p>
+<p><cite>Address: 0x58002000 + 0x18 = 0x58002018</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id6">
-<img alt="_images/wavedrom-cd6afc0b-4300-415e-a7a9-98a978a16ab9.svg" src="_images/wavedrom-cd6afc0b-4300-415e-a7a9-98a978a16ab9.svg" /><figcaption>
-<p><span class="caption-text">COREUSER_WINDOW_AL</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+<div><figure class="align-default" id="id7">
+<img alt="_images/wavedrom-50ea63cb-198e-4037-a550-2a5c01afd5c3.svg" src="_images/wavedrom-50ea63cb-198e-4037-a550-2a5c01afd5c3.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_AL</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </div></blockquote>
@@ -259,11 +295,11 @@ to this value</p></td>
 </section>
 <section id="coreuser-window-ah">
 <h3>COREUSER_WINDOW_AH<a class="headerlink" href="#coreuser-window-ah" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58002000 + 0x18 = 0x58002018</cite></p>
+<p><cite>Address: 0x58002000 + 0x1c = 0x5800201c</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id7">
-<img alt="_images/wavedrom-cda6f9ea-dd12-40a5-8819-842ecc542a52.svg" src="_images/wavedrom-cda6f9ea-dd12-40a5-8819-842ecc542a52.svg" /><figcaption>
-<p><span class="caption-text">COREUSER_WINDOW_AH</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+<div><figure class="align-default" id="id8">
+<img alt="_images/wavedrom-ea4b195b-e70f-4c6d-aa90-bf2d31584e89.svg" src="_images/wavedrom-ea4b195b-e70f-4c6d-aa90-bf2d31584e89.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_AH</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </div></blockquote>
@@ -286,11 +322,11 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
 </section>
 <section id="coreuser-window-bl">
 <h3>COREUSER_WINDOW_BL<a class="headerlink" href="#coreuser-window-bl" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58002000 + 0x1c = 0x5800201c</cite></p>
+<p><cite>Address: 0x58002000 + 0x20 = 0x58002020</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id8">
-<img alt="_images/wavedrom-74934985-b9c6-4e36-8e5b-9e8cd7b6face.svg" src="_images/wavedrom-74934985-b9c6-4e36-8e5b-9e8cd7b6face.svg" /><figcaption>
-<p><span class="caption-text">COREUSER_WINDOW_BL</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+<div><figure class="align-default" id="id9">
+<img alt="_images/wavedrom-5291b3c7-46d9-45ba-b3d2-df3c8bdd9354.svg" src="_images/wavedrom-5291b3c7-46d9-45ba-b3d2-df3c8bdd9354.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_BL</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </div></blockquote>
@@ -312,11 +348,11 @@ to this value</p></td>
 </section>
 <section id="coreuser-window-bh">
 <h3>COREUSER_WINDOW_BH<a class="headerlink" href="#coreuser-window-bh" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x58002000 + 0x20 = 0x58002020</cite></p>
+<p><cite>Address: 0x58002000 + 0x24 = 0x58002024</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id9">
-<img alt="_images/wavedrom-c76044c3-ff90-4802-a5bc-cd2b2e107ad0.svg" src="_images/wavedrom-c76044c3-ff90-4802-a5bc-cd2b2e107ad0.svg" /><figcaption>
-<p><span class="caption-text">COREUSER_WINDOW_BH</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+<div><figure class="align-default" id="id10">
+<img alt="_images/wavedrom-cc9c7d6b-3082-4c91-8051-128731b45861.svg" src="_images/wavedrom-cc9c7d6b-3082-4c91-8051-128731b45861.svg" /><figcaption>
+<p><span class="caption-text">COREUSER_WINDOW_BH</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </div></blockquote>

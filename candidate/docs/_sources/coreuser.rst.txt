@@ -4,10 +4,10 @@ COREUSER
 
 
 `CoreUser` is a hardware signal that indicates that the code executing is in a highly trusted
-piece of code. This is determined by examining a configurable combination of the SATP's ASID and
-PPN values, allowing the OS to target certain virtual memory spaces as more trusted than
-others. `CoreUser` can only be computed when the RISC-V core is in Sv32 mode (that is, virtual
-memory has been enabled).
+piece of code. This is determined by examining a configurable combination of the SATP's ASID,
+PPN values, and/or privilege bits from `$mstatus.mpp`, allowing the OS to target certain virtual
+memory spaces as more trusted than others. `CoreUser` can only be computed when the RISC-V core
+is in Sv32 mode (that is, virtual memory has been enabled).
 
 When specifying PPN values, two windows are provided, `a` and `b`. The windows are
 computed independently, and then OR'd together. The `a` and `b` windows should be non-overlapping.
@@ -16,6 +16,10 @@ of having two windows is not so that the OS can specify only two processes as `C
 the OS should design to allocate all CoreUser processes within a single range that is protected
 by a single window. The alternate window is provided only so that the OS can have a scratch space to
 re-organize or shuffle around process spaces at a higher level.
+
+When specifying privilege, one specifies the state that must match for `coreuser` to be active.
+For a microkernel, one would specify a non-elevated permission level, as secure access is always
+delegated to a userland service. For a monokernel, one would specify an elevated permission level.
 
 The `CoreUser` signal is not cycle-precise; it will assert roughly 2 cycles after the `satp` is updated.
 Furthermore, the `satp` ASID field is an advisory field that isn't used by CPU hardware to enforce
@@ -41,17 +45,19 @@ Register Listing for COREUSER
 +----------------------------------------------------------+---------------------------------------------+
 | :ref:`COREUSER_GET_ASID_VALUE <COREUSER_GET_ASID_VALUE>` | :ref:`0x58002008 <COREUSER_GET_ASID_VALUE>` |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_CONTROL <COREUSER_CONTROL>`               | :ref:`0x5800200c <COREUSER_CONTROL>`        |
+| :ref:`COREUSER_SET_PRIVILEGE <COREUSER_SET_PRIVILEGE>`   | :ref:`0x5800200c <COREUSER_SET_PRIVILEGE>`  |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_PROTECT <COREUSER_PROTECT>`               | :ref:`0x58002010 <COREUSER_PROTECT>`        |
+| :ref:`COREUSER_CONTROL <COREUSER_CONTROL>`               | :ref:`0x58002010 <COREUSER_CONTROL>`        |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_AL <COREUSER_WINDOW_AL>`           | :ref:`0x58002014 <COREUSER_WINDOW_AL>`      |
+| :ref:`COREUSER_PROTECT <COREUSER_PROTECT>`               | :ref:`0x58002014 <COREUSER_PROTECT>`        |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_AH <COREUSER_WINDOW_AH>`           | :ref:`0x58002018 <COREUSER_WINDOW_AH>`      |
+| :ref:`COREUSER_WINDOW_AL <COREUSER_WINDOW_AL>`           | :ref:`0x58002018 <COREUSER_WINDOW_AL>`      |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_BL <COREUSER_WINDOW_BL>`           | :ref:`0x5800201c <COREUSER_WINDOW_BL>`      |
+| :ref:`COREUSER_WINDOW_AH <COREUSER_WINDOW_AH>`           | :ref:`0x5800201c <COREUSER_WINDOW_AH>`      |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`COREUSER_WINDOW_BH <COREUSER_WINDOW_BH>`           | :ref:`0x58002020 <COREUSER_WINDOW_BH>`      |
+| :ref:`COREUSER_WINDOW_BL <COREUSER_WINDOW_BL>`           | :ref:`0x58002020 <COREUSER_WINDOW_BL>`      |
++----------------------------------------------------------+---------------------------------------------+
+| :ref:`COREUSER_WINDOW_BH <COREUSER_WINDOW_BH>`           | :ref:`0x58002024 <COREUSER_WINDOW_BH>`      |
 +----------------------------------------------------------+---------------------------------------------+
 
 COREUSER_SET_ASID
@@ -124,13 +130,36 @@ COREUSER_GET_ASID_VALUE
 +-------+-------+---------------------------------------------------------------------------------+
 | Field | Name  | Description                                                                     |
 +=======+=======+=================================================================================+
-| [0]   | VALUE | Value corresponding to the ASID specified it `get_asid_addr`. `1` means trusted |
+| [0]   | VALUE | Value corresponding to the ASID specified in `get_asid_addr`. `1` means trusted |
 +-------+-------+---------------------------------------------------------------------------------+
+
+COREUSER_SET_PRIVILEGE
+^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58002000 + 0xc = 0x5800200c`
+
+
+    .. wavedrom::
+        :caption: COREUSER_SET_PRIVILEGE
+
+        {
+            "reg": [
+                {"name": "mpp",  "bits": 2},
+                {"bits": 30}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------+--------------------------------------------------------------------------+
+| Field | Name | Description                                                              |
++=======+======+==========================================================================+
+| [1:0] | MPP  | Value of `mpp` bit from `mstatus` that must match for code to be trusted |
++-------+------+--------------------------------------------------------------------------+
 
 COREUSER_CONTROL
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58002000 + 0xc = 0x5800200c`
+`Address: 0x58002000 + 0x10 = 0x58002010`
 
 
     .. wavedrom::
@@ -142,30 +171,34 @@ COREUSER_CONTROL
                 {"name": "asid",  "bits": 1},
                 {"name": "ppn_a",  "bits": 1},
                 {"name": "ppn_b",  "bits": 1},
-                {"bits": 28}
+                {"name": "privilege",  "bits": 1},
+                {"bits": 27}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
 
-+-------+--------+--------------------------------------------------------------------------------+
-| Field | Name   | Description                                                                    |
-+=======+========+================================================================================+
-| [0]   | ENABLE | Enable `CoreUser` computation. When set to `1`, the settings are applied; when |
-|       |        | cleared to `0`, the `CoreUser` signal is always valid. Defaults to `0`.        |
-+-------+--------+--------------------------------------------------------------------------------+
-| [1]   | ASID   | When `1`, requires the ASID mapping to be trusted to assert `CoreUser`         |
-+-------+--------+--------------------------------------------------------------------------------+
-| [2]   | PPN_A  | When set to `1`, requires the `a` `ppn` window to be trusted to assert         |
-|       |        | `CoreUser`                                                                     |
-+-------+--------+--------------------------------------------------------------------------------+
-| [3]   | PPN_B  | When set to `1`, requires the `b` `ppn` window to be trusted to assert         |
-|       |        | `CoreUser`                                                                     |
-+-------+--------+--------------------------------------------------------------------------------+
++-------+-----------+----------------------------------------------------------------------------------+
+| Field | Name      | Description                                                                      |
++=======+===========+==================================================================================+
+| [0]   | ENABLE    | Enable `CoreUser` computation. When set to `1`, the settings are applied; when   |
+|       |           | cleared to `0`, the `CoreUser` signal is always valid. Defaults to `0`.          |
++-------+-----------+----------------------------------------------------------------------------------+
+| [1]   | ASID      | When `1`, requires the ASID mapping to be trusted to assert `CoreUser`           |
++-------+-----------+----------------------------------------------------------------------------------+
+| [2]   | PPN_A     | When set to `1`, requires the `a` `ppn` window to be trusted to assert           |
+|       |           | `CoreUser`                                                                       |
++-------+-----------+----------------------------------------------------------------------------------+
+| [3]   | PPN_B     | When set to `1`, requires the `b` `ppn` window to be trusted to assert           |
+|       |           | `CoreUser`                                                                       |
++-------+-----------+----------------------------------------------------------------------------------+
+| [4]   | PRIVILEGE | When set to `1`, requires the current privilege state to match that specified in |
+|       |           | `set_privilege.mpp`                                                              |
++-------+-----------+----------------------------------------------------------------------------------+
 
 COREUSER_PROTECT
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58002000 + 0x10 = 0x58002010`
+`Address: 0x58002000 + 0x14 = 0x58002014`
 
     Writing `1` to this bit prevents any further updates to CoreUser configuration
     status. Can only be reversed with a system reset.
@@ -184,7 +217,7 @@ COREUSER_PROTECT
 COREUSER_WINDOW_AL
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58002000 + 0x14 = 0x58002014`
+`Address: 0x58002000 + 0x18 = 0x58002018`
 
 
     .. wavedrom::
@@ -208,7 +241,7 @@ COREUSER_WINDOW_AL
 COREUSER_WINDOW_AH
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58002000 + 0x18 = 0x58002018`
+`Address: 0x58002000 + 0x1c = 0x5800201c`
 
 
     .. wavedrom::
@@ -233,7 +266,7 @@ COREUSER_WINDOW_AH
 COREUSER_WINDOW_BL
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58002000 + 0x1c = 0x5800201c`
+`Address: 0x58002000 + 0x20 = 0x58002020`
 
 
     .. wavedrom::
@@ -257,7 +290,7 @@ COREUSER_WINDOW_BL
 COREUSER_WINDOW_BH
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58002000 + 0x20 = 0x58002020`
+`Address: 0x58002000 + 0x24 = 0x58002024`
 
 
     .. wavedrom::
