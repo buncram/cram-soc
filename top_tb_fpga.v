@@ -197,6 +197,10 @@ initial begin
         $dumpvars(0, uart_log_valid);
         $dumpvars(0, uart_app);
         $dumpvars(0, uart_app_valid);
+        $dumpvars(0, coreuser);
+        $dumpvars(0, report);
+        $dumpvars(0, success);
+        $dumpvars(0, done);
 end
 
 // DUT-specific end condition to make sure it eventually stops running for CI mode
