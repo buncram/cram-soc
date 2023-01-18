@@ -297,10 +297,10 @@ class SimRunner():
                     ofile.write("00\n")
                     count += 1
 
-                ofile.write("C3\n");
-                ofile.write("69\n");
-                ofile.write("DE\n");
-                ofile.write("C0\n");
+                ofile.write("C3\n")
+                ofile.write("69\n")
+                ofile.write("DE\n")
+                ofile.write("C0\n")
 
         # compile
         deps = [
