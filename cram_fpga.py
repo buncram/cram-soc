@@ -394,8 +394,13 @@ SRAM_EXT_SIZE  = 0x1000000
 
 class CramSoC(SoCMini):
     mem_map = {**SoCCore.mem_map, **{
-        "csr": 0x4000_0000,
+        "csr": 0x4010_0000,  # reserve first 0x10_0000 for interop with Cramium SoC
     }}
+    #csr_map = {  # leave holes in the CSR map at offsets indexed by page
+    #    "interop"  : 0,
+    # 1 is allocateable
+    #    "interop1" : 2,
+    #}
     def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=True):
         axi_map = {
             "spiflash"  : 0x20000000,
