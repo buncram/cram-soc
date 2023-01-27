@@ -10,6 +10,7 @@ from pathlib import Path
 
 from migen import *
 from migen.genlib.cdc import MultiReg
+from litex.soc.interconnect import stream
 
 from litex.build.generic_platform import *
 
@@ -27,6 +28,7 @@ from litex.soc.interconnect.csr import *
 from litex.soc.interconnect.axi import AXIInterface
 from litex.soc.integration.soc import SoCBusHandler
 from litex.soc.cores import uart
+from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 from deps.gateware.gateware import memlcd
 
@@ -75,8 +77,7 @@ def check_vivado():
 
 _io = [
     # Clk / Rst.
-    ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
-    ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),
+    ("aclk", 0, Pins(1)),
     ("reset", 0, Pins(1)),
 
     ("jtag", 0,
@@ -103,6 +104,16 @@ _io = [
         Misc("SLEW=SLOW"),
     ),
 
+    # Simulation UART log
+    ("sim_uart", 0,
+        Subsignal("kernel", Pins(8)),
+        Subsignal("kernel_valid", Pins(1)),
+        Subsignal("log", Pins(8)),
+        Subsignal("log_valid", Pins(1)),
+        Subsignal("app", Pins(8)),
+        Subsignal("app_valid", Pins(1)),
+    ),
+
     # LCD interface
     ("lcd", 0,
         Subsignal("sclk", Pins("H17")), # DVT
@@ -119,6 +130,7 @@ _io = [
         Subsignal("done", Pins(1)),
         Subsignal("report", Pins(32)),
         Subsignal("coreuser", Pins(1)),
+        Subsignal("sysclk", Pins(1)),
      ),
 
     # Trimming bits
@@ -131,118 +143,72 @@ _io = [
 # CRG ----------------------------------------------------------------------------------------------
 
 class CRG(Module):
-    def __init__(self, platform, sys_clk_freq, spinor_edge_delay_ns=2.5):
+    def __init__(self, platform):
         self.warm_reset = Signal()
-        self.power_down = Signal()
-        self.crypto_on = Signal()
 
         self.clock_domains.cd_sys   = ClockDomain()
-        self.clock_domains.cd_spi   = ClockDomain()
-        self.clock_domains.cd_lpclk = ClockDomain()
-        self.clock_domains.cd_spinor = ClockDomain()
-        self.clock_domains.cd_clk200 = ClockDomain()
-        self.clock_domains.cd_clk50 = ClockDomain()
-        self.clock_domains.cd_usb_48 = ClockDomain()
-        self.clock_domains.cd_usb_12 = ClockDomain()
-        self.clock_domains.cd_raw_12 = ClockDomain()
-
-        self.clock_domains.cd_clk200_crypto = ClockDomain()
-        self.clock_domains.cd_sys_crypto = ClockDomain()
         self.clock_domains.cd_sys_always_on = ClockDomain()
-        self.clock_domains.cd_clk50_always_on = ClockDomain()
 
         # # #
 
-        sysclk_ns = 1e9 / sys_clk_freq
-        # convert delay request in ns to degrees, where 360 degrees is one whole clock period
-        phase_f = (spinor_edge_delay_ns / sysclk_ns) * 360
-        # round phase to the nearest multiple of 7.5 (needs to be a multiple of 45 / CLKOUT2_DIVIDE = 45 / 6 = 7.5
-        # note that CLKOUT2_DIVIDE is automatically calculated by mmcm.create_clkout() below
-        phase = round(phase_f / 7.5) * 7.5
+        clk = platform.request("aclk")
+        self.comb += self.cd_sys.clk.eq(clk)
+        self.comb += self.cd_sys_always_on.clk.eq(clk)
 
-        clk32khz = platform.request("lpclk")
-        self.specials += Instance("BUFG", i_I=clk32khz, o_O=self.cd_lpclk.clk)
-        platform.add_platform_command("create_clock -name lpclk -period {:0.3f} [get_nets lpclk]".format(1e9 / 32.768e3))
-
-        clk12 = platform.request("clk12")
-        # Note: below feature cannot be used because Litex appends this *after* platform commands! This causes the generated
-        # clock derived constraints immediately below to fail, because .xdc file is parsed in-order, and the main clock needs
-        # to be created before the derived clocks. Instead, we use the line afterwards.
-        # platform.add_period_constraint(clk12, 1e9 / 12e6)
-        platform.add_platform_command("create_clock -name clk12 -period {:0.3f} [get_nets clk12]".format(1e9 / 12e6))
-        # The above constraint must strictly proceed the below create_generated_clock constraints in the .XDC file
-
-        # This allows PLLs/MMCMEs to be placed anywhere and reference the input clock
-        self.clk12_bufg = Signal()
-        self.specials += Instance("BUFG", i_I=clk12, o_O=self.clk12_bufg)
-        self.comb += self.cd_raw_12.clk.eq(self.clk12_bufg)
-
-        self.submodules.mmcm = mmcm = S7MMCM(speedgrade=-1)
-        mmcm.register_clkin(self.clk12_bufg, 12e6)
-        # we count on clocks being assigned to the MMCME2_ADV in order. If we make more MMCME2 or shift ordering, these constraints must change.
-        mmcm.create_clkout(self.cd_usb_48, 48e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 48 MHz for USB; always-on
-        platform.add_platform_command("create_generated_clock -name usb_48 [get_pins MMCME2_ADV/CLKOUT0]")
-
-        mmcm.create_clkout(self.cd_spi, 20e6, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)
-        platform.add_platform_command("create_generated_clock -name spi_clk [get_pins MMCME2_ADV/CLKOUT1]")
-
-        mmcm.create_clkout(self.cd_spinor, sys_clk_freq, phase=phase, with_reset=False, buf="bufgce", ce=mmcm.locked & ~self.power_down)  # delayed version for SPINOR cclk (different from COM SPI above)
-        platform.add_platform_command("create_generated_clock -name spinor [get_pins MMCME2_ADV/CLKOUT2]")
-
-        # clk200 does not gate off because we want to keep the IDELAYCTRL block "warm"
-        mmcm.create_clkout(self.cd_clk200, 200e6, with_reset=False, buf="bufg",
-            gated_replicas={self.cd_clk200_crypto : (mmcm.locked & (~self.power_down | self.crypto_on))}) # 200MHz always-on required for IDELAYCTL
-        platform.add_platform_command("create_generated_clock -name clk200 [get_pins MMCME2_ADV/CLKOUT3]")
-
-        # clk50 is explicitly for the crypto unit, so it doesn't have the _crypto suffix, consfusingly...
-        mmcm.create_clkout(self.cd_clk50, 50e6, with_reset=False, buf="bufgce", ce=(mmcm.locked & (~self.power_down | self.crypto_on)),
-            gated_replicas={self.cd_clk50_always_on: mmcm.locked}) # 50MHz for ChaCha conditioner, attached to the always-on TRNG
-        platform.add_platform_command("create_generated_clock -name clk50 [get_pins MMCME2_ADV/CLKOUT4]")
-
-        mmcm.create_clkout(self.cd_usb_12, 12e6, with_reset=False, buf="bufgce", ce=mmcm.locked) # 12 MHz for USB; always-on
-        platform.add_platform_command("create_generated_clock -name usb_12 [get_pins MMCME2_ADV/CLKOUT5]")
-
-        # needs to be exactly 100MHz hence margin=0
-        mmcm.create_clkout(self.cd_sys, sys_clk_freq, margin=0, with_reset=False, buf="bufgce", ce=(~self.power_down & mmcm.locked),
-            gated_replicas={self.cd_sys_crypto : (mmcm.locked & (~self.power_down | self.crypto_on)), self.cd_sys_always_on : mmcm.locked})
-        platform.add_platform_command("create_generated_clock -name sys_clk [get_pins MMCME2_ADV/CLKOUT6]")
-
-        # timing to the "S" pins is not sensitive because we don't care if there is an extra clock pulse relative
-        # to the gating. Glitch-free operation is guaranteed regardless!
-        platform.add_platform_command('set_false_path -through [get_pins BUFGCTRL*/S*]')
-        # platform.add_platform_command('set_false_path -through [get_nets vns_rst_meta*]') # fixes for a later version of vivado
-
-        self.ignore_locked = Signal()
         reset_combo = Signal()
-        self.comb += reset_combo.eq(self.warm_reset | (~mmcm.locked & ~self.ignore_locked) | platform.request("reset"))
-        # See https://forums.xilinx.com/t5/Other-FPGA-Architecture/MMCM-Behavior-After-Its-PWRDWN-Port-Is-Asserted-and-Then/td-p/792324
-        # "The DRP functional logic itself does not behave differently for PWRDWN or RST.
-        # The "registers" programmed previously through the DRP (or any other once) are not affected either
-        # way because they are configuration cells and are only overwritten if you re-program the part or
-        # by another DRP operation. Typically, from an application perspective, PWRDWN and RST are identical.
-        # The difference is obviously that in the PWRDWN case the MMCM completely shuts down for an extended period
-        # of time even if asserted only briefly. Takes a while to bring back the regulators vs simply reset.
-        # In addition, since power is turned of, it takes longer to reacquire LOCK vs RST because the VCO starts from scratch."
-        #self.comb += mmcm.reset.eq(self.power_down)
-        #self.comb += mmcm.power_down.eq(self.power_down)
+        self.comb += reset_combo.eq(self.warm_reset | platform.request("reset"))
         self.specials += [
-            AsyncResetSynchronizer(self.cd_usb_48, reset_combo),
-            AsyncResetSynchronizer(self.cd_spi, reset_combo),
-            AsyncResetSynchronizer(self.cd_spinor, reset_combo),
-            AsyncResetSynchronizer(self.cd_clk200, reset_combo),
-            AsyncResetSynchronizer(self.cd_clk50, reset_combo),
-            AsyncResetSynchronizer(self.cd_usb_12, reset_combo),
             AsyncResetSynchronizer(self.cd_sys, reset_combo),
-
-            AsyncResetSynchronizer(self.cd_clk200_crypto, reset_combo),
-            AsyncResetSynchronizer(self.cd_sys_crypto, reset_combo),
-
             AsyncResetSynchronizer(self.cd_sys_always_on, reset_combo),
-            AsyncResetSynchronizer(self.cd_clk50_always_on, reset_combo),
         ]
 
-        # Add an IDELAYCTRL primitive for the SpiOpi block
-        self.submodules += S7IDELAYCTRL(self.cd_clk200, reset_cycles=32) # 155ns @ 200MHz, min 59.28ns
+# BtGpio -------------------------------------------------------------------------------------------
+
+class BtGpio(Module, AutoDoc, AutoCSR):
+    def __init__(self):
+        self.intro = ModuleDoc("""BtGpio - GPIO interface for betrusted""")
+
+        self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others reserved based on build")
+
+# Dummy module that just copies the UART data to a register and immediately indicates we're good to go.
+class SimPhyTx(Module):
+    def __init__(self, sim_data_out, sim_data_out_valid):
+        self.sink = sink = stream.Endpoint([("data", 8)])
+        valid_r = Signal()
+
+        self.sync += [
+            valid_r.eq(sink.valid),
+            If(sink.valid,
+                sim_data_out.eq(sink.data),
+                sink.ready.eq(1)
+            ).Else(
+                sim_data_out.eq(sim_data_out),
+                sink.ready.eq(0),
+            ),
+            sim_data_out_valid.eq(~valid_r & sink.valid),
+        ]
+
+# Dummy module that injects nothing. This is written so that we can extend it to have the test bench inject data eventually if we wanted to.
+class SimPhyRx(Module):
+    def __init__(self, data_in, data_valid):
+        self.source = source = stream.Endpoint([("data", 8)])
+
+        # # #
+        self.comb += [
+            source.valid.eq(data_valid),
+            source.data.eq(data_in),
+        ]
+
+# Simulation UART ----------------------------------------------------------------------------------
+class SimUartPhy(Module, AutoCSR):
+    def __init__(self, data_in, data_in_valid, data_out, data_out_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
+        tuning_word = int((baudrate/clk_freq)*2**32)
+        if with_dynamic_baudrate:
+            self._tuning_word  = CSRStorage(32, reset=tuning_word)
+            tuning_word = self._tuning_word.storage
+        self.submodules.tx = SimPhyTx(data_out, data_out_valid)
+        self.submodules.rx = SimPhyRx(data_in, data_in_valid)
+        self.sink, self.source = self.tx.sink, self.rx.source
 
 # CramSoC ------------------------------------------------------------------------------------------
 
@@ -255,19 +221,15 @@ class CramSoC(SoCMini):
             "reram"     : 0x6000_0000, # +3M
             "sram"      : 0x6100_0000, # +2M
             "p_bus"     : 0x4000_0000, # +256M
-            "memlcd"    : 0xb0000000,
+            "memlcd"    : 0x42000000,
             "vexriscv_debug": 0xefff_0000,
         }
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
         warm_reset = Signal()
-        self.submodules.crg = CRG(platform, sys_clk_freq, spinor_edge_delay_ns=2.5)
+        self.submodules.crg = CRG(platform)
         self.comb += self.crg.warm_reset.eq(warm_reset) # mirror signal here to hit the Async reset injectors
-        # lpclk/sys paths are async
-        self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks lpclk]')
-        # 12 always-on/sys paths are async
-        self.platform.add_platform_command('set_clock_groups -asynchronous -group [get_clocks sys_clk] -group [get_clocks clk12]')
 
         # Add standalone SoC sources.
         platform.add_source("build/gateware/cram_axi.v")
@@ -280,9 +242,6 @@ class CramSoC(SoCMini):
         platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_wr.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_rd.v"))
-
-        #platform.add_source("build/femtorv_soc/gateware/femtorv_soc.v")
-        #platform.add_source("build/femtorv_soc/gateware/femtorv_soc_rom.init", copy=True)
 
         # SoCMini ----------------------------------------------------------------------------------
         SoCMini.__init__(self, platform, clk_freq=int(sys_clk_freq),
@@ -297,6 +256,7 @@ class CramSoC(SoCMini):
                 0xa000_0000 : 0x6000_0000,
             },
         )
+        self.add_memory_region(name="sram", origin=axi_map["sram"], length=16*1024*1024)
 
         # Wire up peripheral SoC busses
         p_axi = axi.AXILiteInterface(name="pbus")
@@ -348,10 +308,10 @@ class CramSoC(SoCMini):
             bios_data = []
 
         reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x1_0000, name="reram", init=bios_data)
+        self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x30_0000, name="reram", init=bios_data)
 
         sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000, name="sram")
+        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x20_0000, name="sram")
 
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
         if not litex_axi:
@@ -388,8 +348,9 @@ class CramSoC(SoCMini):
             self.mbus.add_master(name="ibus", master=ibus64_axi)
             self.mbus.add_master(name="dbus", master=dbus64_axi)
 
-            self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x1_0000, mode="rwx", cached=True))
-            self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x1_0000, mode="rwx", cached=True))
+            self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x30_0000, mode="rwx", cached=True))
+            # for now, simulate 16MiB but need to restrict to 2MiB in the long term once we have XIP loading working
+            self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x100_0000, mode="rwx", cached=True))
 
         # 4) Add peripherals
         # setup p_axi as the local bus master
@@ -400,20 +361,21 @@ class CramSoC(SoCMini):
         self.cpu.interrupt = interrupt
         self.irq.enable()
 
+        # GPIO module ------------------------------------------------------------------------------
+        self.submodules.gpio = BtGpio()
+        self.add_csr("gpio")
+
         # Muxed UARTS ---------------------------------------------------------------------------
-        self.gpio = CSRStorage(fields=[
-            CSRField("uartsel", description="Select the UART", size=2, reset=0)
-        ])
         uart_pins = platform.request("serial")
         serial_layout = [("tx", 1), ("rx", 1)]
         kernel_pads = Record(serial_layout)
         console_pads = Record(serial_layout)
         app_uart_pads = Record(serial_layout)
         self.comb += [
-            If(self.gpio.fields.uartsel == 0,
+            If(self.gpio.uartsel.storage == 0,
                 uart_pins.tx.eq(kernel_pads.tx),
                 kernel_pads.rx.eq(uart_pins.rx),
-            ).Elif(self.gpio.fields.uartsel == 1,
+            ).Elif(self.gpio.uartsel.storage == 1,
                 uart_pins.tx.eq(console_pads.tx),
                 console_pads.rx.eq(uart_pins.rx),
             ).Else(
@@ -421,10 +383,22 @@ class CramSoC(SoCMini):
                 app_uart_pads.rx.eq(uart_pins.rx),
             )
         ]
-        self.submodules.uart_phy = uart.UARTPHY(
-            pads=kernel_pads,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
+        if sim:
+            sim_uart_pins = platform.request("sim_uart")
+            uart_data_in = Signal(8, reset=13) # 13=0xd
+            uart_data_valid = Signal(reset = 0)
+            self.submodules.uart_phy = SimUartPhy(
+                uart_data_in,
+                uart_data_valid,
+                sim_uart_pins.kernel,
+                sim_uart_pins.kernel_valid,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+        else:
+            self.submodules.uart_phy = uart.UARTPHY(
+                pads=kernel_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
         self.submodules.uart = ResetInserter()(
             uart.UART(self.uart_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -434,10 +408,21 @@ class CramSoC(SoCMini):
         self.add_csr("uart")
         self.irq.add("uart")
 
-        self.submodules.console_phy = uart.UARTPHY(
-            pads=console_pads,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
+        if sim:
+            console_data_in = Signal(8, reset=13) # 13=0xd
+            console_data_valid = Signal(reset = 0)
+            self.submodules.console_phy = SimUartPhy(
+                console_data_in,
+                console_data_valid,
+                sim_uart_pins.log,
+                sim_uart_pins.log_valid,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+        else:
+            self.submodules.console_phy = uart.UARTPHY(
+                pads=console_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
         self.submodules.console = ResetInserter()(
             uart.UART(self.console_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -448,10 +433,21 @@ class CramSoC(SoCMini):
         self.irq.add("console")
 
         # extra PHY for "application" uses -- mainly things like the FCC testing agent
-        self.submodules.app_uart_phy = uart.UARTPHY(
-            pads=app_uart_pads,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
+        if sim:
+            app_data_in = Signal(8, reset=13) # 13=0xd
+            app_data_valid = Signal(reset = 0)
+            self.submodules.app_uart_phy = SimUartPhy(
+                app_data_in,
+                app_data_valid,
+                sim_uart_pins.app,
+                sim_uart_pins.app_valid,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
+        else:
+            self.submodules.app_uart_phy = uart.UARTPHY(
+                pads=app_uart_pads,
+                clk_freq=sys_clk_freq,
+                baudrate=115200)
         self.submodules.app_uart = ResetInserter()(
             uart.UART(self.app_uart_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -825,11 +821,11 @@ def main():
             builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
             vns = builder.build(run=False)
 
-            if args.sim:
-                subprocess.run(["cargo", "xtask", "boot-image", "--feature", "sim"], check=True, cwd="boot")
-            else:
-                subprocess.run(["cargo", "xtask", "boot-image"], check=True, cwd="boot")
-            bios_path = 'boot{}boot.bin'.format(os.path.sep)
+            #if args.sim:
+            #    subprocess.run(["cargo", "xtask", "boot-image", "--feature", "sim"], check=True, cwd="boot")
+            #else:
+            #    subprocess.run(["cargo", "xtask", "boot-image"], check=True, cwd="boot")
+            bios_path = '..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep)
     else:
         bios_path=None
 
@@ -841,7 +837,7 @@ def main():
     soc = CramSoC(
         platform,
         bios_path=bios_path,
-        sys_clk_freq=75e6,
+        sys_clk_freq=800e6,
         sim=args.sim,
     )
 
@@ -887,7 +883,7 @@ def main():
 
     if args.sim and not args.document_only:
         from sim_support.sim_bench import SimRunner
-        SimRunner(args.ci, [], vex_verilog_path=VEX_VERILOG_PATH)
+        SimRunner(args.ci, [], vex_verilog_path=VEX_VERILOG_PATH, tb='top_tb')
 
     return 0
 
