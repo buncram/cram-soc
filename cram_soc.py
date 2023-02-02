@@ -5,6 +5,8 @@
 # Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
+# sim dependencies:
+# verilator (from source), libevent-dev, libjson-c-dev
 import argparse
 from pathlib import Path
 
@@ -13,6 +15,8 @@ from migen.genlib.cdc import MultiReg
 from litex.soc.interconnect import stream
 
 from litex.build.generic_platform import *
+from litex.build.sim import SimPlatform
+from litex.build.sim.config import SimConfig
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion, SoCIORegion
@@ -216,7 +220,16 @@ class CramSoC(SoCMini):
     mem_map = {**SoCCore.mem_map, **{
         "csr": 0x4000_0000,
     }}
-    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False):
+    def __init__(self,
+        platform,
+        bios_path=None,
+        sys_clk_freq=800e6,
+        # bogus args
+        ident_version=False,
+        with_uart=False,
+        with_timer=False,
+        with_ctrl=False,
+    ):
         axi_map = {
             "reram"     : 0x6000_0000, # +3M
             "sram"      : 0x6100_0000, # +2M
@@ -236,6 +249,7 @@ class CramSoC(SoCMini):
         platform.add_source(VEX_VERILOG_PATH)
         platform.add_source("sim_support/ram_1w_1ra.v")
         platform.add_source("sim_support/ram_1w_1rs.v")
+        platform.add_source("sim_support/fdre_cosim.v")
 
         # this must be pulled in manually because it's instantiated in the core design, but not in the SoC design
         rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
@@ -263,33 +277,32 @@ class CramSoC(SoCMini):
         jtag_cpu = platform.request("jtag_cpu")
 
         # Add simulation "output pins" -----------------------------------------------------
-        if sim:
-            self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
-            self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
-            self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
+        self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
+        self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
+        self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
 
-            sim = platform.request("sim")
-            self.comb += [
-                sim.report.eq(self.sim_report.storage),
-                sim.success.eq(self.sim_success.storage),
-                sim.done.eq(self.sim_done.storage),
-            ]
+        sim = platform.request("sim")
+        self.comb += [
+            sim.report.eq(self.sim_report.storage),
+            sim.success.eq(self.sim_success.storage),
+            sim.done.eq(self.sim_done.storage),
+        ]
 
-            # test that caching is OFF for the I/O regions
-            self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
-            self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
-            self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
+        # test that caching is OFF for the I/O regions
+        self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
+        self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
+        self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
 
-            self.sync += [
-                If(self.sim_coherence_inc.we,
-                    self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
-                ).Else(
-                    self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
-                )
-            ]
-            self.comb += [
-                self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
-            ]
+        self.sync += [
+            If(self.sim_coherence_inc.we,
+                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
+            ).Else(
+                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
+            )
+        ]
+        self.comb += [
+            self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
+        ]
 
         # Add AXI RAM to SoC (Through AXI Crossbar).
         # ------------------------------------------
@@ -314,43 +327,23 @@ class CramSoC(SoCMini):
         self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x20_0000, name="sram")
 
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
-        if not litex_axi:
-            mbus = AXICrossbar(platform=platform)
-            self.submodules += mbus
-            mbus.add_slave(name = "dbus", s_axi=dbus64_axi,
-                aw_reg = AXIRegister.BYPASS,
-                w_reg  = AXIRegister.BYPASS,
-                b_reg  = AXIRegister.BYPASS,
-                ar_reg = AXIRegister.BYPASS,
-                r_reg  = AXIRegister.BYPASS,
-            )
-            mbus.add_slave(name = "ibus", s_axi=ibus64_axi,
-                aw_reg = AXIRegister.BYPASS,
-                w_reg  = AXIRegister.BYPASS,
-                b_reg  = AXIRegister.BYPASS,
-                ar_reg = AXIRegister.BYPASS,
-                r_reg  = AXIRegister.BYPASS,
-            )
-            mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_map["reram"], size=0x0100_0000)
-            mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_map["sram"],  size=0x0100_0000)
-        else:
-            self.mbus = SoCBusHandler(
-                name                  = "CachedMemoryXbar",
-                standard              = "axi",
-                data_width            = 64,
-                address_width         = 32,
-                bursting              = True,
-                interconnect          = "crossbar",
-                interconnect_register = True,
-            )
-
-            # Add AXI Buses.
-            self.mbus.add_master(name="ibus", master=ibus64_axi)
-            self.mbus.add_master(name="dbus", master=dbus64_axi)
-
-            self.mbus.add_slave(name="reram", slave=reram_axi, region=SoCRegion(origin=axi_map["reram"], size=0x30_0000, mode="rwx", cached=True))
-            # for now, simulate 16MiB but need to restrict to 2MiB in the long term once we have XIP loading working
-            self.mbus.add_slave(name="sram", slave=sram_axi, region=SoCRegion(origin=axi_map["sram"], size=0x100_0000, mode="rwx", cached=True))
+        self.submodules.mbus = mbus = AXICrossbar(platform=platform)
+        mbus.add_slave(name = "dbus", s_axi=dbus64_axi,
+            aw_reg = AXIRegister.BYPASS,
+            w_reg  = AXIRegister.BYPASS,
+            b_reg  = AXIRegister.BYPASS,
+            ar_reg = AXIRegister.BYPASS,
+            r_reg  = AXIRegister.BYPASS,
+        )
+        mbus.add_slave(name = "ibus", s_axi=ibus64_axi,
+            aw_reg = AXIRegister.BYPASS,
+            w_reg  = AXIRegister.BYPASS,
+            b_reg  = AXIRegister.BYPASS,
+            ar_reg = AXIRegister.BYPASS,
+            r_reg  = AXIRegister.BYPASS,
+        )
+        mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_map["reram"], size=0x0100_0000)
+        mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_map["sram"],  size=0x0100_0000)
 
         # 4) Add peripherals
         # setup p_axi as the local bus master
@@ -383,22 +376,16 @@ class CramSoC(SoCMini):
                 app_uart_pads.rx.eq(uart_pins.rx),
             )
         ]
-        if sim:
-            sim_uart_pins = platform.request("sim_uart")
-            uart_data_in = Signal(8, reset=13) # 13=0xd
-            uart_data_valid = Signal(reset = 0)
-            self.submodules.uart_phy = SimUartPhy(
-                uart_data_in,
-                uart_data_valid,
-                sim_uart_pins.kernel,
-                sim_uart_pins.kernel_valid,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
-        else:
-            self.submodules.uart_phy = uart.UARTPHY(
-                pads=kernel_pads,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
+        sim_uart_pins = platform.request("sim_uart")
+        uart_data_in = Signal(8, reset=13) # 13=0xd
+        uart_data_valid = Signal(reset = 0)
+        self.submodules.uart_phy = SimUartPhy(
+            uart_data_in,
+            uart_data_valid,
+            sim_uart_pins.kernel,
+            sim_uart_pins.kernel_valid,
+            clk_freq=sys_clk_freq,
+            baudrate=115200)
         self.submodules.uart = ResetInserter()(
             uart.UART(self.uart_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -408,21 +395,15 @@ class CramSoC(SoCMini):
         self.add_csr("uart")
         self.irq.add("uart")
 
-        if sim:
-            console_data_in = Signal(8, reset=13) # 13=0xd
-            console_data_valid = Signal(reset = 0)
-            self.submodules.console_phy = SimUartPhy(
-                console_data_in,
-                console_data_valid,
-                sim_uart_pins.log,
-                sim_uart_pins.log_valid,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
-        else:
-            self.submodules.console_phy = uart.UARTPHY(
-                pads=console_pads,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
+        console_data_in = Signal(8, reset=13) # 13=0xd
+        console_data_valid = Signal(reset = 0)
+        self.submodules.console_phy = SimUartPhy(
+            console_data_in,
+            console_data_valid,
+            sim_uart_pins.log,
+            sim_uart_pins.log_valid,
+            clk_freq=sys_clk_freq,
+            baudrate=115200)
         self.submodules.console = ResetInserter()(
             uart.UART(self.console_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -433,21 +414,15 @@ class CramSoC(SoCMini):
         self.irq.add("console")
 
         # extra PHY for "application" uses -- mainly things like the FCC testing agent
-        if sim:
-            app_data_in = Signal(8, reset=13) # 13=0xd
-            app_data_valid = Signal(reset = 0)
-            self.submodules.app_uart_phy = SimUartPhy(
-                app_data_in,
-                app_data_valid,
-                sim_uart_pins.app,
-                sim_uart_pins.app_valid,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
-        else:
-            self.submodules.app_uart_phy = uart.UARTPHY(
-                pads=app_uart_pads,
-                clk_freq=sys_clk_freq,
-                baudrate=115200)
+        app_data_in = Signal(8, reset=13) # 13=0xd
+        app_data_valid = Signal(reset = 0)
+        self.submodules.app_uart_phy = SimUartPhy(
+            app_data_in,
+            app_data_valid,
+            sim_uart_pins.app,
+            sim_uart_pins.app_valid,
+            clk_freq=sys_clk_freq,
+            baudrate=115200)
         self.submodules.app_uart = ResetInserter()(
             uart.UART(self.app_uart_phy,
                 tx_fifo_depth=16, rx_fifo_depth=16)
@@ -461,25 +436,6 @@ class CramSoC(SoCMini):
         self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
         self.add_csr("memlcd")
         self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
-
-        # Internal reset ---------------------------------------------------------------------------
-        gsr = Signal()
-        self.specials += MultiReg(warm_reset, gsr)
-        self.specials += [
-            # De-activate the CCLK interface, parallel it with a GPIO
-            Instance("STARTUPE2",
-                i_CLK       = 0,
-                i_GSR       = gsr,
-                i_GTS       = 0,
-                i_KEYCLEARB = 1,
-                i_PACK      = 0,
-                i_USRDONEO  = 1,
-                i_USRDONETS = 1,
-                i_USRCCLKO  = 0,
-                i_USRCCLKTS = 1,  # Force to tristate
-                # o_CFGMCLK   = self.cfgmclk,
-            ),
-        ]
 
         # Cramium platform -------------------------------------------------------------------------
         trimming = platform.request("trimming")
@@ -695,197 +651,101 @@ class CramSoC(SoCMini):
 
 # Platform -----------------------------------------------------------------------------------------
 
-class Platform(XilinxPlatform):
-    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False, bbram=False, strategy='default'):
-        part = "xc7s" + part + "-csga324-1il"
-        XilinxPlatform.__init__(self, part, io, toolchain=toolchain)
+class Platform(SimPlatform):
+    def __init__(self):
+        SimPlatform.__init__(self, "SIM", _io)
 
-        if strategy != 'default':
-            self.toolchain.vivado_route_directive = strategy
-            self.toolchain.vivado_post_route_phys_opt_directive = "Explore"  # always explore if we're in a non-default strategy
-
-        # NOTE: to do quad-SPI mode, the QE bit has to be set in the SPINOR status register. OpenOCD
-        # won't do this natively, have to find a work-around (like using iMPACT to set it once)
-        self.add_platform_command(
-            "set_property CONFIG_VOLTAGE 1.8 [current_design]")
-        self.add_platform_command(
-            "set_property CFGBVS GND [current_design]")
-        self.add_platform_command(
-            "set_property BITSTREAM.CONFIG.CONFIGRATE 66 [current_design]")
-        self.add_platform_command(
-            "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]")
-        self.toolchain.bitstream_commands = [
-            "set_property CONFIG_VOLTAGE 1.8 [current_design]",
-            "set_property CFGBVS GND [current_design]",
-            "set_property BITSTREAM.CONFIG.CONFIGRATE 66 [current_design]",
-            "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
-        ]
-        if encrypt:
-            type = 'eFUSE'
-            if bbram:
-                type = 'BBRAM'
-            self.toolchain.bitstream_commands += [
-                "set_property BITSTREAM.ENCRYPTION.ENCRYPT YES [current_design]",
-                "set_property BITSTREAM.ENCRYPTION.ENCRYPTKEYSELECT {} [current_design]".format(type),
-                "set_property BITSTREAM.ENCRYPTION.KEYFILE ../../dummy.nky [current_design]"
-            ]
-
-        self.toolchain.additional_commands += \
-            ["write_cfgmem -verbose -force -format bin -interface spix1 -size 64 "
-             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-        self.programmer = programmer
-
-        self.toolchain.additional_commands += [
-            "report_timing -delay_type min_max -max_paths 100 -slack_less_than 0 -sort_by group -input_pins -routable_nets -name failures -file timing-failures.txt"
-        ]
-
-    def create_programmer(self):
-        if self.programmer == "vivado":
-            return VivadoProgrammer(flash_part="n25q128-1.8v-spi-x1_x2_x4")
-        else:
-            raise ValueError("{} programmer is not supported".format(self.programmer))
-
-    def do_finalize(self, fragment):
-        XilinxPlatform.do_finalize(self, fragment)
-
+def keep_only(axi_group, names=[]):
+    sig_list = axi_group.layout
+    ret = []
+    for signal in sig_list:
+        if signal[0] in names:
+            ret += [getattr(axi_group, signal[0])]
+        if signal[0] == "payload":
+            for subsignal in signal[1]:
+                if subsignal[0] in names:
+                    ret += [getattr(axi_group.payload, subsignal[0])]
+    return ret
 
 # Build --------------------------------------------------------------------------------------------
+def generate_gtkw_savefile(builder, vns, trace_fst=False):
+    from litex.build.sim import gtkwave as gtkw
+    dumpfile = os.path.join(builder.gateware_dir, "sim.{}".format("fst" if trace_fst else "vcd"))
+    savefile = os.path.join(builder.gateware_dir, "sim.gtkw")
+    soc = builder.soc
+
+    with gtkw.GTKWSave(vns, savefile=savefile, dumpfile=dumpfile) as save:
+        save.clocks()
+        save.fsm_states(soc)
+
+        #ar_rec = keep_only(soc.mbus.s_axis["dbus"].axi.ar, ["addr", "burst", "id", "len", "valid", "ready"])
+        #for s in ar_rec:
+        #    save.add(s, mappers=[gtkw.axi_ar_sorter(), gtkw.axi_ar_colorer()])
+
+        #save.add(soc.mbus.s_axis["dbus"].axi.aw, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
+        #save.add(soc.mbus.s_axis["dbus"].axi.b, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
+        #save.add(soc.mbus.s_axis["dbus"].axi.r, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
+        #save.add(soc.mbus.s_axis["dbus"].axi.w, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
+
+
+def sim_args(parser):
+    # Analyzer.
+    parser.add_argument("--with-analyzer",        action="store_true",     help="Enable Analyzer support.")
+
+    # Debug/Waveform.
+    parser.add_argument("--sim-debug",            action="store_true",     help="Add simulation debugging modules.")
+    parser.add_argument("--gtkwave-savefile",     action="store_true",     help="Generate GTKWave savefile.")
+    parser.add_argument("--non-interactive",      action="store_true",     help="Run simulation without user input.")
+
+    # Build just the SVDs
+    parser.add_argument("--svd-only",             action="store_true",     help="Just build the SVDs for the OS build")
 
 def main():
-    global _io
-    # build environment setup
-    os.environ["PYTHONHASHSEED"] = "1" # do it manually here
-    check_vivado()
-
-    if os.environ['PYTHONHASHSEED'] != "1":
-        print( "PYTHONHASHEED must be set to 1 for consistent validation results. Failing to set this results in non-deterministic compilation results")
-        return 1
-    # used to be -e blank.nky -u debug -x -s NoTimingRelaxation -r pvt2 -p
-    # now is -e blank.nky
-    parser = argparse.ArgumentParser(description="Build the Cramium OSS SoC")
-    parser.add_argument(
-        "-D", "--document-only", default=False, action="store_true", help="Build docs only"
-    )
-    parser.add_argument(
-        "-S", "--sim", default=False, action="store_true", help="Run simulation only"
-    )
-    # debug iteration limit loops with `ptrace on` in GUI before running a step.
-    parser.add_argument(
-        "-c", "--ci", default=False, action="store_true", help="Run simulation in non-interactive mode. Only valid with -S"
-    )
-    parser.add_argument(
-        "-e", "--encrypt", help="Format output for encryption using the specified dummy key. Image is re-encrypted at sealing time with a secure key.", type=str
-    )
-    parser.add_argument(
-        "-b", "--bbram", help="encrypt to bbram, not efuse. Defaults to efuse. Only meaningful in -e is also specified.", default=False, action="store_true"
-    )
-    parser.add_argument(
-        "-s", "--strategy", choices=['Explore', 'default', 'NoTimingRelaxation'], help="Pick the routing strategy. Defaults to NoTimingRelaxation.", default='NoTimingRelaxation', type=str
-    )
-    parser.add_argument(
-        "--simple-boot", help="Fall back to the simple, unsigned bootloader", default=False, action="store_true",
-    )
-
-    ##### extract user arguments
+    from litex.build.parser import LiteXArgumentParser
+    parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
+    sim_args(parser)
     args = parser.parse_args()
-    compile_gateware = True
-    compile_software = True
 
-    if args.document_only or args.sim:
-        compile_gateware = False
-        compile_software = True
+    soc_kwargs = soc_core_argdict(args)
 
-    bbram = False
-    if args.encrypt == None:
-        encrypt = False
-    else:
-        encrypt = True
-        if args.bbram:
-            bbram = True
-
-    io = _io
-
-    ##### build the "bios"
-    if compile_software:
-        if args.simple_boot:
-            os.system("riscv64-unknown-elf-as -fpic loader{}loader.S -o loader{}loader.elf".format(os.path.sep, os.path.sep))
-            os.system("riscv64-unknown-elf-objcopy -O binary loader{}loader.elf loader{}bios.bin".format(os.path.sep, os.path.sep))
-            print("**** WARNING: using 'simple boot' method -- no signature verification checks are done on boot! ****")
-            bios_path = 'loader{}bios.bin'.format(os.path.sep)
-        else:
-            # do a first-pass to create the soc.svd file
-            platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
-            soc = CramSoC(platform, bios_path=None, sim=args.sim)
-            builder = Builder(soc, output_dir="build", csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
-                compile_software=False, compile_gateware=False)
-            builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
-            vns = builder.build(run=False)
-
-            #if args.sim:
-            #    subprocess.run(["cargo", "xtask", "boot-image", "--feature", "sim"], check=True, cwd="boot")
-            #else:
-            #    subprocess.run(["cargo", "xtask", "boot-image"], check=True, cwd="boot")
-            bios_path = '..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep)
-    else:
-        bios_path=None
+    sys_clk_freq = int(800e6)
+    sim_config   = SimConfig()
+    sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
+    platform = Platform()
 
     ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
-    ##### setup platform
-    platform = Platform(io, encrypt=encrypt, bbram=bbram, strategy=args.strategy)
-
     ##### define the soc
+    bios_path = '..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep)
     soc = CramSoC(
         platform,
         bios_path=bios_path,
         sys_clk_freq=800e6,
-        sim=args.sim,
+        **soc_kwargs
     )
 
+    def pre_run_callback(vns):
+        generate_gtkw_savefile(builder, vns)
+
     ##### setup the builder and run it
-    builder = Builder(soc, output_dir="build",
-        csr_csv="build/csr.csv", csr_svd="build/software/soc.svd",
-        compile_software=False, compile_gateware=compile_gateware)
+    builder = Builder(soc,
+        csr_csv="build/csr.csv",
+        csr_svd="build/software/soc.svd",
+    )
     builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
 
-    # turn off regular_comb for simulation. Can't just use ~ because Python.
-    if args.sim:
-        rc=False
+    # turn off regular_comb for simulation
+    rc=False
+
+    if args.svd_only:
+        builder.build(run=False)
     else:
-        rc=True
-    vns = builder.build(regular_comb=rc)
-
-    # now re-encrypt the binary if needed
-    if encrypt and not (args.document_only or args.sim):
-        # check if we need to re-encrypt to a set key
-        # my.nky -- indicates the fuses have been burned on the target device, and needs re-encryption
-        # keystore.bin -- indicates we want to initialize the on-chip key ROM with a set of known values
-        if Path(args.encrypt).is_file():
-            print('Found {}, re-encrypting binary to the specified fuse settings.'.format(args.encrypt))
-            #if not Path('keystore.bin').is_file():  # i think we always want to regenerate this file from source...
-            subprocess.call([sys.executable, './gen_keyrom.py', '--efuse-key', args.encrypt, '--dev-pubkey', './devkey/dev-x509.crt', '--output', 'keystore.bin'])
-
-            print('Found keystore.bin, patching bitstream to contain specified keystore values.')
-            with open('keystore.patch', 'w') as patchfile:
-                subprocess.call([sys.executable, './key2bits.py', '-kkeystore.bin', '-rrom.db'], stdout=patchfile)
-                keystore_args = '-pkeystore.patch'
-                if bbram:
-                    enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '--bbram','-fbuild/gateware/cran_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
-                else:
-                    enc = [sys.executable, 'deps/encrypt-bitstream-python/encrypt-bitstream.py', '-fbuild/gateware/cran_soc.bin', '-idummy.nky', '-k' + args.encrypt, '-obuild/gateware/encrypted'] + [keystore_args]
-
-            subprocess.call(enc)
-
-            pad = [sys.executable, './append_csr.py', '-bbuild/gateware/encrypted.bin', '-cbuild/csr.csv', '-obuild/gateware/soc_csr.bin']
-            subprocess.call(pad)
-        else:
-            print('Specified key file {} does not exist'.format(args.encrypt))
-            return 1
-
-    if args.sim and not args.document_only:
-        from sim_support.sim_bench import SimRunner
-        SimRunner(args.ci, [], vex_verilog_path=VEX_VERILOG_PATH, tb='top_tb')
-
-    return 0
+        builder.build(
+            sim_config       = sim_config,
+            interactive      = not args.non_interactive,
+            pre_run_callback = pre_run_callback,
+            regular_comb     = rc,
+            **parser.toolchain_argdict,
+        )
 
 if __name__ == "__main__":
     from datetime import datetime
