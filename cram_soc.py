@@ -42,47 +42,16 @@ from axi_ram import AXIRAM
 from axi_common import *
 
 import subprocess
-
+import shutil
 
 VEX_VERILOG_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v"
-
-# Equivalent to the powershell Get-Command, and kinda like `which`
-def get_command(cmd):
-    if os.name == 'nt':
-        path_ext = os.environ["PATHEXT"].split(os.pathsep)
-    else:
-        path_ext = [""]
-    for ext in path_ext:
-        for path in os.environ["PATH"].split(os.pathsep):
-            if os.path.exists(path + os.path.sep + cmd + ext):
-                return path + os.path.sep + cmd + ext
-    return None
-
-def check_vivado():
-    vivado_path = get_command("vivado")
-    if vivado_path == None:
-        # Look for the default Vivado install directory
-        if os.name == 'nt':
-            base_dir = r"C:\Xilinx\Vivado"
-        else:
-            base_dir = "/opt/Xilinx/Vivado"
-        if os.path.exists(base_dir):
-            for file in os.listdir(base_dir):
-                bin_dir = base_dir + os.path.sep + file + os.path.sep + "bin"
-                if os.path.exists(bin_dir + os.path.sep + "vivado"):
-                    os.environ["PATH"] += os.pathsep + bin_dir
-                    vivado_path = bin_dir
-                    break
-    if vivado_path == None:
-        return (False, "toolchain not found in your PATH", "download it from https://www.xilinx.com/support/download.html")
-    return (True, "found at {}".format(vivado_path))
 
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
     # Clk / Rst.
-    ("aclk", 0, Pins(1)),
-    ("reset", 0, Pins(1)),
+    ("sys_clk", 0, Pins(1)),
+    # ("sys_reset", 0, Pins(1)),
 
     ("jtag", 0,
          Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),
@@ -129,7 +98,7 @@ _io = [
      ),
 
      # Simulation "I/O"
-     ("sim", 0,
+     ("simio", 0,
         Subsignal("success", Pins(1)),
         Subsignal("done", Pins(1)),
         Subsignal("report", Pins(32)),
@@ -143,28 +112,6 @@ _io = [
         Subsignal("reset_ena", Pins(1)),
      )
 ]
-
-# CRG ----------------------------------------------------------------------------------------------
-
-class CRG(Module):
-    def __init__(self, platform):
-        self.warm_reset = Signal()
-
-        self.clock_domains.cd_sys   = ClockDomain()
-        self.clock_domains.cd_sys_always_on = ClockDomain()
-
-        # # #
-
-        clk = platform.request("aclk")
-        self.comb += self.cd_sys.clk.eq(clk)
-        self.comb += self.cd_sys_always_on.clk.eq(clk)
-
-        reset_combo = Signal()
-        self.comb += reset_combo.eq(self.warm_reset | platform.request("reset"))
-        self.specials += [
-            AsyncResetSynchronizer(self.cd_sys, reset_combo),
-            AsyncResetSynchronizer(self.cd_sys_always_on, reset_combo),
-        ]
 
 # BtGpio -------------------------------------------------------------------------------------------
 
@@ -221,15 +168,46 @@ class CramSoC(SoCMini):
         "csr": 0x4000_0000,
     }}
     def __init__(self,
-        platform,
         bios_path=None,
         sys_clk_freq=800e6,
-        # bogus args
-        ident_version=False,
-        with_uart=False,
-        with_timer=False,
-        with_ctrl=False,
+        sim_debug=False,
+        trace_reset_on=False,
+        # bogus arg handlers - we are doing SoCMini, but the simulator passes args for a full SoC
+        bus_standard=None,
+        bus_data_width=None,
+        bus_address_width=None,
+        bus_timeout=None,
+        bus_bursting=None,
+        bus_interconnect=None,
+        cpu_type                 = None,
+        cpu_reset_address        = None,
+        cpu_variant              = None,
+        cpu_cfu                  = None,
+        cfu_filename             = None,
+        csr_data_width           = None,
+        csr_address_width        = None,
+        csr_paging               = None,
+        csr_ordering             = None,
+        integrated_rom_size      = None,
+        integrated_rom_mode      = None,
+        integrated_rom_init      = None,
+        integrated_sram_size     = None,
+        integrated_sram_init     = None,
+        integrated_main_ram_size = None,
+        integrated_main_ram_init = None,
+        irq_n_irqs               = None,
+        ident                    = None,
+        ident_version            = None,
+        with_uart                = None,
+        uart_name                = None,
+        uart_baudrate            = None,
+        uart_fifo_depth          = None,
+        with_timer               = None,
+        timer_uptime             = None,
+        with_ctrl                = None,
+        l2_size                  = None,
     ):
+        platform = Platform()
         axi_map = {
             "reram"     : 0x6000_0000, # +3M
             "sram"      : 0x6100_0000, # +2M
@@ -240,9 +218,15 @@ class CramSoC(SoCMini):
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
-        warm_reset = Signal()
-        self.submodules.crg = CRG(platform)
-        self.comb += self.crg.warm_reset.eq(warm_reset) # mirror signal here to hit the Async reset injectors
+        self.crg = CRG(platform.request("sys_clk"))
+        self.clock_domains.cd_sys_always_on = ClockDomain()
+        self.comb += self.cd_sys_always_on.clk.eq(ClockSignal())
+
+        # Simulation debugging ----------------------------------------------------------------------
+        if sim_debug:
+            platform.add_debug(self, reset=1 if trace_reset_on else 0)
+        else:
+            self.comb += platform.trace.eq(1)
 
         # Add standalone SoC sources.
         platform.add_source("build/gateware/cram_axi.v")
@@ -281,7 +265,7 @@ class CramSoC(SoCMini):
         self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
         self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
 
-        sim = platform.request("sim")
+        sim = platform.request("simio")
         self.comb += [
             sim.report.eq(self.sim_report.storage),
             sim.success.eq(self.sim_success.storage),
@@ -324,7 +308,7 @@ class CramSoC(SoCMini):
         self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x30_0000, name="reram", init=bios_data)
 
         sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x20_0000, name="sram")
+        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x100_0000, name="sram")
 
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
         self.submodules.mbus = mbus = AXICrossbar(platform=platform)
@@ -432,13 +416,35 @@ class CramSoC(SoCMini):
         self.add_csr("app_uart")
         self.irq.add("app_uart")
 
+        self.specials += Instance("uart_print",
+            p_TYPE="log",
+            i_uart_data=sim_uart_pins.log,
+            i_uart_data_valid=sim_uart_pins.log_valid,
+            i_resetn=~ResetSignal(),
+            i_clk=ClockSignal(),
+        )
+        self.specials += Instance("uart_print",
+            p_TYPE="kernel",
+            i_uart_data=sim_uart_pins.kernel,
+            i_uart_data_valid=sim_uart_pins.kernel_valid,
+            i_resetn=~ResetSignal(),
+            i_clk=ClockSignal(),
+        )
+        platform.add_source("sim_support/uart_print.v")
+
+        self.specials += Instance("finisher",
+            i_report=sim.report,
+            i_success=sim.success,
+            i_done=sim.done,
+        )
+        platform.add_source("sim_support/finisher.v")
+
         # LCD interface ----------------------------------------------------------------------------
         self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
         self.add_csr("memlcd")
         self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # Cramium platform -------------------------------------------------------------------------
-        trimming = platform.request("trimming")
         zero_irq = Signal(20)
         self.irqtest0 = CSRStorage(fields=[
             CSRField(
@@ -470,8 +476,8 @@ class CramSoC(SoCMini):
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
             i_always_on           = ClockSignal("sys"),
-            i_trimming_reset      = trimming.reset,
-            i_trimming_reset_ena  = trimming.reset_ena,
+            i_trimming_reset      = 0x6000_0002,
+            i_trimming_reset_ena  = 1,
             o_p_axi_awvalid       = p_axi.aw.valid,
             i_p_axi_awready       = p_axi.aw.ready,
             o_p_axi_awaddr        = p_axi.aw.addr ,
@@ -678,9 +684,9 @@ def generate_gtkw_savefile(builder, vns, trace_fst=False):
         save.clocks()
         save.fsm_states(soc)
 
-        #ar_rec = keep_only(soc.mbus.s_axis["dbus"].axi.ar, ["addr", "burst", "id", "len", "valid", "ready"])
-        #for s in ar_rec:
-        #    save.add(s, mappers=[gtkw.axi_ar_sorter(), gtkw.axi_ar_colorer()])
+        ar_rec = keep_only(soc.mbus.s_axis["dbus"].axi.ar, ["addr", "burst", "id", "len", "valid", "ready"])
+        for s in ar_rec:
+            save.add(s, mappers=[gtkw.axi_ar_sorter(), gtkw.axi_ar_colorer()])
 
         #save.add(soc.mbus.s_axis["dbus"].axi.aw, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
         #save.add(soc.mbus.s_axis["dbus"].axi.b, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
@@ -703,6 +709,7 @@ def sim_args(parser):
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
+    parser.set_platform(SimPlatform)
     sim_args(parser)
     args = parser.parse_args()
 
@@ -711,15 +718,15 @@ def main():
     sys_clk_freq = int(800e6)
     sim_config   = SimConfig()
     sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
-    platform = Platform()
 
     ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
     ##### define the soc
     bios_path = '..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep)
     soc = CramSoC(
-        platform,
         bios_path=bios_path,
         sys_clk_freq=800e6,
+        sim_debug          = args.sim_debug,
+        trace_reset_on     = False,
         **soc_kwargs
     )
 
@@ -739,6 +746,9 @@ def main():
     if args.svd_only:
         builder.build(run=False)
     else:
+        shutil.copy('./build/gateware/reram_mem.init', './build/sim/gateware/')
+        shutil.copy('./deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
+        # this runs the sim
         builder.build(
             sim_config       = sim_config,
             interactive      = not args.non_interactive,
