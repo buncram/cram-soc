@@ -87,6 +87,10 @@ _io = [
         Subsignal("app_valid", Pins(1)),
     ),
 
+    ("duart", 0,
+        Subsignal("tx", Pins(1)),
+    ),
+
     # LCD interface
     ("lcd", 0,
         Subsignal("sclk", Pins("H17")), # DVT
@@ -165,7 +169,7 @@ class SimUartPhy(Module, AutoCSR):
 
 class CramSoC(SoCMini):
     mem_map = {**SoCCore.mem_map, **{
-        "csr": 0x4000_0000,
+        "csr": 0x4010_0000, # save bottom 0x10_0000 for compatibility with Cramium native registers
     }}
     def __init__(self,
         bios_path=None,
@@ -207,6 +211,7 @@ class CramSoC(SoCMini):
         with_ctrl                = None,
         l2_size                  = None,
     ):
+        AHB_TEST = False
         platform = Platform()
         axi_map = {
             "reram"     : 0x6000_0000, # +3M
@@ -257,7 +262,7 @@ class CramSoC(SoCMini):
         self.add_memory_region(name="sram", origin=axi_map["sram"], length=16*1024*1024)
 
         # Wire up peripheral SoC busses
-        p_axi = axi.AXILiteInterface(name="pbus")
+        p_axil = axi.AXILiteInterface(name="pbus")
         jtag_cpu = platform.request("jtag_cpu")
 
         # Add simulation "output pins" -----------------------------------------------------
@@ -331,7 +336,15 @@ class CramSoC(SoCMini):
 
         # 4) Add peripherals
         # setup p_axi as the local bus master
-        self.bus.add_master(name="pbus", master=p_axi)
+        if AHB_TEST is False:
+            self.bus.add_master(name="pbus", master=p_axil)
+        else:
+            from axil_ahb_adapter import AXILite2AHBAdapter
+            from litex.soc.interconnect import ahb
+            from duart_adapter import DuartAdapter
+            local_ahb = ahb.Interface()
+            self.submodules += AXILite2AHBAdapter(platform, p_axil, local_ahb)
+            self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x1000)
 
         # add interrupt handler
         interrupt = Signal(32)
@@ -478,25 +491,25 @@ class CramSoC(SoCMini):
             i_always_on           = ClockSignal("sys"),
             i_trimming_reset      = 0x6000_0002,
             i_trimming_reset_ena  = 1,
-            o_p_axi_awvalid       = p_axi.aw.valid,
-            i_p_axi_awready       = p_axi.aw.ready,
-            o_p_axi_awaddr        = p_axi.aw.addr ,
-            o_p_axi_awprot        = p_axi.aw.prot ,
-            o_p_axi_wvalid        = p_axi.w.valid ,
-            i_p_axi_wready        = p_axi.w.ready ,
-            o_p_axi_wdata         = p_axi.w.data  ,
-            o_p_axi_wstrb         = p_axi.w.strb  ,
-            i_p_axi_bvalid        = p_axi.b.valid ,
-            o_p_axi_bready        = p_axi.b.ready ,
-            i_p_axi_bresp         = p_axi.b.resp  ,
-            o_p_axi_arvalid       = p_axi.ar.valid,
-            i_p_axi_arready       = p_axi.ar.ready,
-            o_p_axi_araddr        = p_axi.ar.addr ,
-            o_p_axi_arprot        = p_axi.ar.prot ,
-            i_p_axi_rvalid        = p_axi.r.valid ,
-            o_p_axi_rready        = p_axi.r.ready ,
-            i_p_axi_rresp         = p_axi.r.resp  ,
-            i_p_axi_rdata         = p_axi.r.data  ,
+            o_p_axi_awvalid       = p_axil.aw.valid,
+            i_p_axi_awready       = p_axil.aw.ready,
+            o_p_axi_awaddr        = p_axil.aw.addr ,
+            o_p_axi_awprot        = p_axil.aw.prot ,
+            o_p_axi_wvalid        = p_axil.w.valid ,
+            i_p_axi_wready        = p_axil.w.ready ,
+            o_p_axi_wdata         = p_axil.w.data  ,
+            o_p_axi_wstrb         = p_axil.w.strb  ,
+            i_p_axi_bvalid        = p_axil.b.valid ,
+            o_p_axi_bready        = p_axil.b.ready ,
+            i_p_axi_bresp         = p_axil.b.resp  ,
+            o_p_axi_arvalid       = p_axil.ar.valid,
+            i_p_axi_arready       = p_axil.ar.ready,
+            o_p_axi_araddr        = p_axil.ar.addr ,
+            o_p_axi_arprot        = p_axil.ar.prot ,
+            i_p_axi_rvalid        = p_axil.r.valid ,
+            o_p_axi_rready        = p_axil.r.ready ,
+            i_p_axi_rresp         = p_axil.r.resp  ,
+            i_p_axi_rdata         = p_axil.r.data  ,
             o_ibus_axi_awvalid    = ibus64_axi.aw.valid ,
             i_ibus_axi_awready    = ibus64_axi.aw.ready ,
             o_ibus_axi_awaddr     = ibus64_axi.aw.addr  ,
