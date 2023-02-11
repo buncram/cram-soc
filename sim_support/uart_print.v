@@ -25,8 +25,8 @@ module uart_print #(
     bit [CHARLEN-1:0][7:0]      charbufdat;
     string charbufstring;
     assign charbufwr = uart_data_valid;
-    assign charbuffill = charbufwr & ~(( uart_data[7:0] == 'h0d ) | ( uart_data[7:0] == 'h0a ));
-    assign charbufclr  = charbufwr &  (( uart_data[7:0] == 'h0d ) | ( uart_data[7:0] == 'h0a ));
+    assign charbuffill = charbufwr & ~(/*( uart_data[7:0] == 'h0d ) |*/ ( uart_data[7:0] == 'h0a ));
+    assign charbufclr  = charbufwr &  (/*( uart_data[7:0] == 'h0d ) |*/ ( uart_data[7:0] == 'h0a ));
 
     `theregrn( charbufidx ) <= charbufclr ? (CHARLEN-1) : charbuffill ? charbufidx - 1 : charbufidx;
     `theregrn( charbufdat[charbufidx] ) <= charbuffill ? uart_data[7:0] : charbufdat[charbufidx];
