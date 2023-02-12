@@ -17,13 +17,59 @@ from litex.soc.interconnect.axi import *
 from litex.soc.interconnect import ahb
 from axi_common import *
 
-# AXI to AXI-Lite Adapter --------------------------------------------------------------------------
+# AHB to APB to DUART --------------------------------------------------------------------------
 
 class DuartAdapter(Module):
     def __init__(self, platform, s_ahb, pads, sel_addr = 0x1000,
         address_width = 12,
     ):
         self.logger = logging.getLogger("DuartAdapter")
+
+        apb_addr = Signal(address_width)
+        apb_enable = Signal()
+        apb_write = Signal()
+        apb_strb = Signal(4)
+        apb_prot = Signal(3)
+        apb_wdata = Signal(32)
+        apb_sel = Signal()
+        apb_active = Signal()
+        apb_rdata = Signal(32)
+        apb_ready = Signal()
+        apb_slverr = Signal()
+
+        self.specials += Instance("cmsdk_ahb_to_apb",
+            p_ADDRWIDTH            = address_width,
+
+            i_HCLK                 = ClockSignal(),
+            i_HRESETn              = ~ResetSignal(),
+            i_PCLKEN               = 1,
+            i_HSEL                 = s_ahb.addr[12:28] == (sel_addr >> 12),
+            i_HADDR                = s_ahb.addr[:address_width],
+            i_HTRANS               = s_ahb.trans,
+            i_HSIZE                = s_ahb.size,
+            i_HPROT                = s_ahb.prot,
+            i_HWRITE               = s_ahb.write,
+            i_HREADY               = 1, # s_ahb.mastlock, # ??
+            i_HWDATA               = s_ahb.wdata,
+
+            o_HREADYOUT            = s_ahb.readyout,
+            o_HRDATA               = s_ahb.rdata,
+            o_HRESP                = s_ahb.resp,
+
+            o_PADDR                = apb_addr,
+            o_PENABLE              = apb_enable,
+            o_PWRITE               = apb_write,
+            o_PSTRB                = apb_strb,
+            o_PPROT                = apb_prot,
+            o_PWDATA               = apb_wdata,
+            o_PSEL                 = apb_sel,
+            o_APBACTIVE            = apb_active,
+
+            i_PRDATA               = apb_rdata,
+            i_PREADY               = apb_ready,
+            i_PSLVERR              = apb_slverr,
+        )
+
 
         self.specials += Instance("duart_top",
             # Parameters.
@@ -39,17 +85,17 @@ class DuartAdapter(Module):
 
             # AHB Slave interface
             # --------------------------
-            i_PADDR                = s_ahb.addr[:address_width],
-            i_PENABLE              = 1,
-            i_PWRITE               = s_ahb.write,
-            i_PSTRB                = 0xf,
-            i_PPROT                = s_ahb.prot,
-            i_PWDATA               = s_ahb.wdata,
-            i_PSEL                 = s_ahb.addr[12:28] == (sel_addr >> 12),
-            i_APBACTIVE            = 1,
-            o_PRDATA               = s_ahb.rdata,
-            o_PREADY               = s_ahb.readyout,
-            o_PSLVERR              = Open(),
+            i_PADDR                = apb_addr,
+            i_PENABLE              = apb_enable,
+            i_PWRITE               = apb_write,
+            i_PSTRB                = apb_strb,
+            i_PPROT                = apb_prot,
+            i_PWDATA               = apb_wdata,
+            i_PSEL                 = apb_sel,
+            i_APBACTIVE            = apb_active,
+            o_PRDATA               = apb_rdata,
+            o_PREADY               = apb_ready,
+            o_PSLVERR              = apb_slverr,
             o_txd                  = pads.tx,
         )
 
@@ -63,5 +109,6 @@ class DuartAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "template.sv"))
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
+        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
         rtl_dir = os.path.join(os.path.dirname(__file__), "do_not_checkin", "rtl")
         platform.add_source(os.path.join(rtl_dir, "duart_v0.1.sv"))

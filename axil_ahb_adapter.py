@@ -117,7 +117,7 @@ class AXILite2AHBAdapter(Module):
                 o_HWUSER               = Open(),
                 o_HBURST               = m_ahb.burst,
                 o_HTRANS               = m_ahb.trans,
-                o_HMASTLOCK            = Open(),
+                o_HMASTLOCK            = m_ahb.mastlock,
 
                 i_HRDATA               = m_ahb.rdata,
                 i_HRUSER               = Open(),
