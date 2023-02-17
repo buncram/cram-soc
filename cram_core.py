@@ -365,8 +365,8 @@ field specifying the number of words that were accepted.
         self.ev.error = EventSourceProcess(name="error", description="Triggers if either `tx_err` or `rx_err` are asserted", edge="rising")
         self.ev.finalize()
         self.status = CSRStatus(fields=[
-            CSRField(name="rx_words", size=depth_bits, description="Number of words available to read"),
-            CSRField(name="tx_words", size=depth_bits, description="Number of words pending in write FIFO. Free space is {} - `tx_avail`".format(fifo_depth)),
+            CSRField(name="rx_words", size=depth_bits + 1, description="Number of words available to read"),
+            CSRField(name="tx_words", size=depth_bits + 1, description="Number of words pending in write FIFO. Free space is {} - `tx_avail`".format(fifo_depth)),
             CSRField(name="abort_in_progress", size=1, description="This bit is set if an `aborting` event was initiated and is still in progress."),
             CSRField(name="abort_ack", size=1,
             description="""This bit is set by the peer that acknowledged the incoming abort
@@ -404,7 +404,7 @@ from the peer.""", pulse=True)
                 self.w_over.flag.eq(1),
             ).Else(
                 If(~abort_in_progress,
-                    w_fifo.we.eq(1),
+                    w_fifo.we.eq(self.wdata.re),
                 )
             ),
             self.w_over.clear.eq(self.status.we),
@@ -425,7 +425,7 @@ from the peer.""", pulse=True)
             If(self.rdata.we & ~r_fifo.readable, # .we must strictly assert for exactly 1 cycle per CSR spec
                 self.r_over.flag.eq(1),
             ).Else(
-                r_fifo.re.eq(1),
+                r_fifo.re.eq(self.rdata.we),
             ),
             self.r_over.clear.eq(self.status.we),
             r_fifo.din.eq(self.r_dat),
@@ -480,6 +480,153 @@ from the peer.""", pulse=True)
                 self.w_abort.eq(0),
             )
         )
+
+class MailboxClient(Module, AutoCSR, AutoDoc):
+    def __init__(self):
+        self.intro = ModuleDoc("""Thin Mailbox Client
+This is a "minimal" mailbox client which has no FIFO of its own. It relies
+entirely on the other side's FIFO for the protocol to be efficient.
+        """)
+        # data going from us to them
+        self.w_dat = Signal(32)
+        self.w_valid = Signal()
+        self.w_ready = Signal()
+        self.w_done = Signal()
+        # data going from them to us
+        self.r_dat = Signal(32)
+        self.r_valid = Signal()
+        self.r_ready = Signal()
+        self.r_done = Signal()
+        # cross-wired abort signals
+        self.w_abort = Signal()
+        self.r_abort = Signal()
+        # hardware reset signal. active low, because SoC
+        self.reset_n = Signal()
+
+        self.wdata = CSRStorage(32, name="wdata", description="Write data to outgoing FIFO.")
+        self.rdata = CSRStatus(32, name="rdata", description="Read data from incoming FIFO.")
+        self.submodules.ev = ev = EventManager()
+        self.ev.available = EventSourcePulse(name="available", description="Triggers when the `done` signal was asserted by the corresponding peer")
+        self.ev.abort_init = EventSourceProcess(name="abort_init", description="Triggers when abort is asserted by the peer, and there is currently no abort in progress", edge="rising")
+        self.ev.abort_done = EventSourceProcess(name="abort_done", description="Triggers when a previously initiated abort is acknowledged by peer", edge="rising")
+        self.ev.error = EventSourceProcess(name="error", description="Triggers if either `tx_err` or `rx_err` are asserted", edge="rising")
+        self.ev.finalize()
+        self.status = CSRStatus(fields=[
+            CSRField(name="rx_avail", size = 1, description="Rx data is available"),
+            CSRField(name="tx_free", size = 1, description="Tx register can be written"),
+            CSRField(name="abort_in_progress", size=1, description="This bit is set if an `aborting` event was initiated and is still in progress."),
+            CSRField(name="abort_ack", size=1,
+            description="""This bit is set by the peer that acknowledged the incoming abort
+(the later of the two, in case of an imperfect race condition). The abort response handler should
+check this bit; if it is set, no new acknowledgement shall be issued. The bit is cleared
+when an initiator initiates a new abort. The initiator shall also ignore the state of this
+bit if it is intending to initiate a new abort cycle."""),
+            CSRField(name="tx_err", size=1, description="Set if the recipient was not ready for the data. Cleared on read."),
+            CSRField(name="rx_err", size=1, description="Set if the recipient didn't have data available for a read. Cleared on read.")
+        ])
+        self.control = CSRStorage(fields=[
+            CSRField(name="abort", size=1, description=
+            """Write `1` to this field to both initiate and acknowledge an abort.
+Empties both FIFOs, asserts `aborting`, and prevents an interrupt from being generated by
+an incoming abort request. New reads & writes are ignored until `aborted` is asserted
+from the peer.""", pulse=True)
+        ])
+        self.done = CSRStorage(fields=[
+            CSRField(
+                size=1, name="done", pulse=True,
+                description="Writing a `1` to this field indicates to the corresponding peer that a full packet is done loading. There is no need to clear this register after writing.")
+        ])
+        abort_in_progress = Signal()
+        abort_ack = Signal()
+        self.comb += self.ev.error.trigger.eq(self.status.fields.tx_err | self.status.fields.rx_err)
+
+        # build the outgoing datapath
+        self.comb += [
+            self.w_dat.eq(self.wdata.storage),
+            self.w_valid.eq(self.wdata.re),
+            self.w_done.eq(self.done.fields.done),
+            If(self.w_valid & ~self.w_ready,
+                self.status.fields.tx_free.eq(0)
+            ).Else(
+                self.status.fields.tx_free.eq(1)
+            )
+        ]
+        self.sync += [
+            If(self.status.we,
+                self.status.fields.tx_err.eq(0),
+            ).Else(
+                If(self.wdata.re & ~self.w_ready,
+                    self.status.fields.tx_err.eq(1),
+                ).Else(
+                    self.status.fields.tx_err.eq(self.status.fields.tx_err),
+                )
+            ),
+        ]
+
+        # build the incoming datapath
+        self.comb += [
+            self.rdata.status.eq(self.r_dat),
+            self.r_ready.eq(self.rdata.we), # pulse when we're read
+            self.ev.available.trigger.eq(self.r_done),
+            self.status.fields.rx_avail.eq(self.r_valid),
+        ]
+        self.sync += [
+            If(self.status.we,
+                self.status.fields.rx_err.eq(0),
+            ).Else(
+                If(self.rdata.we & ~self.r_valid,
+                    self.status.fields.rx_err.eq(1),
+                ).Else(
+                    self.status.fields.rx_err.eq(self.status.fields.rx_err),
+                )
+            )
+        ]
+
+        self.comb += [
+            self.status.fields.abort_in_progress.eq(abort_in_progress),
+            self.status.fields.abort_ack.eq(abort_ack),
+        ]
+        # build the abort logic
+        fsm = FSM(reset_state="IDLE")
+        self.submodules += fsm
+        fsm.act("IDLE",
+            If(self.control.fields.abort & ~self.r_abort,
+                NextState("REQ"),
+                NextValue(abort_ack, 0),
+                NextValue(abort_in_progress, 1),
+                self.w_abort.eq(1),
+            ).Elif(self.control.fields.abort & self.r_abort, # simultaneous abort case
+                NextState("IDLE"),
+                NextValue(abort_ack, 1),
+                self.w_abort.eq(1),
+            ).Elif(~self.control.fields.abort & self.r_abort,
+                NextState("ACK"),
+                NextValue(abort_in_progress, 1),
+                self.ev.abort_init.trigger.eq(1), # pulse this on entering the ACK state
+                self.w_abort.eq(0),
+            ).Else(
+                self.w_abort.eq(0),
+            )
+        )
+        fsm.act("REQ",
+            If(self.r_abort,
+                NextState("IDLE"),
+                NextValue(abort_in_progress, 0),
+                self.ev.abort_done.trigger.eq(1), # pulse this on leaving the REQ state
+            ),
+            self.w_abort.eq(1),
+        )
+        fsm.act("ACK",
+            If(self.control.fields.abort, # leave on the abort being ack'd with an abort of our own
+                NextState("IDLE"),
+                NextValue(abort_in_progress, 0),
+                NextValue(abort_ack, 1),
+                self.w_abort.eq(1),
+            ).Else(
+                self.w_abort.eq(0),
+            )
+        )
+
 
 # Deterministic timeout ---------------------------------------------------------------------------
 
@@ -1012,6 +1159,54 @@ class cramSoC(SoCCore):
         # Mailbox ----------------------------------------------------------------------------------
         self.submodules.mailbox = Mailbox(fifo_depth=1024)
         self.irq.add("mailbox")
+
+        # Mailbox Thin Client ----------------------------------------------------------------------
+        self.submodules.mb_client = MailboxClient()
+        self.irq.add("mb_client")
+
+        # Cross-wire the mailbox and its client
+        w_dat = Signal(32)
+        w_valid = Signal()
+        w_ready = Signal()
+        w_done = Signal()
+
+        r_dat = Signal(32)
+        r_valid = Signal()
+        r_ready = Signal()
+        r_done = Signal()
+
+        w_abort = Signal()
+        r_abort = Signal()
+
+        self.comb += [
+            self.mailbox.reset_n.eq(~ResetSignal()),
+            w_dat.eq(self.mailbox.w_dat),
+            w_valid.eq(self.mailbox.w_valid),
+            w_done.eq(self.mailbox.w_done),
+            self.mailbox.w_ready.eq(w_ready),
+
+            self.mailbox.r_dat.eq(r_dat),
+            self.mailbox.r_valid.eq(r_valid),
+            self.mailbox.r_done.eq(r_done),
+            r_ready.eq(self.mailbox.r_ready),
+
+            self.mailbox.r_abort.eq(r_abort),
+            w_abort.eq(self.mailbox.w_abort),
+
+            self.mb_client.reset_n.eq(~ResetSignal()),
+            r_dat.eq(self.mb_client.w_dat),
+            r_valid.eq(self.mb_client.w_valid),
+            r_done.eq(self.mb_client.w_done),
+            self.mb_client.w_ready.eq(r_ready),
+
+            self.mb_client.r_dat.eq(w_dat),
+            self.mb_client.r_valid.eq(w_valid),
+            self.mb_client.r_done.eq(w_done),
+            w_ready.eq(self.mb_client.r_ready),
+
+            self.mb_client.r_abort.eq(w_abort),
+            r_abort.eq(self.mb_client.w_abort),
+        ]
 
         # CSR bus test loopback register -----------------------------------------------------------
         self.submodules.csrtest = CsrTest()
