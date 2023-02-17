@@ -454,7 +454,7 @@ generate
         wire [S_COUNT-1:0] a_acknowledge;
         wire [S_COUNT-1:0] a_grant;
         wire a_grant_valid;
-        wire [CL_S_COUNT-1:0] a_grant_encoded;
+        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
 
         arbiter #(
             .PORTS(S_COUNT),
@@ -498,7 +498,7 @@ generate
         assign trans_start = s_axi_arvalid_mux && s_axi_arready_mux && a_grant_valid;
 
         // read response forwarding
-        wire [CL_S_COUNT-1:0] r_select = m_axi_rid[n*M_ID_WIDTH +: M_ID_WIDTH] >> S_ID_WIDTH;
+        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] r_select = m_axi_rid[n*M_ID_WIDTH +: M_ID_WIDTH] >> S_ID_WIDTH;
 
         assign int_axi_rvalid[n*S_COUNT +: S_COUNT] = int_m_axi_rvalid[n] << r_select;
         assign int_m_axi_rready[n] = int_axi_rready[r_select*M_COUNT+n];

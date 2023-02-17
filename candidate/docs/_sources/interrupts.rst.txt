@@ -57,6 +57,8 @@ The following interrupts are assigned on this system:
 +-----------+--------------------------------+
 | 22        | :doc:`MAILBOX <mailbox>`       |
 +-----------+--------------------------------+
+| 23        | :doc:`MB_CLIENT <mb_client>`   |
++-----------+--------------------------------+
 | 21        | :doc:`SUSRES <susres>`         |
 +-----------+--------------------------------+
 | 20        | :doc:`TICKTIMER <ticktimer>`   |

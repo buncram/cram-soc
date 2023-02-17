@@ -19,7 +19,7 @@
     <script src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="RESETVALUE" href="resetvalue.html" />
+    <link rel="next" title="MB_CLIENT" href="mb_client.html" />
     <link rel="prev" title="IRQARRAY9" href="irqarray9.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -97,7 +97,7 @@ to the other peer that the sender has finished writing all the data for a given 
 signal is provided so that the corresponding peer does not need to busy-monitor the FIFO depth.</p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-0b40f64e-6ad3-47e9-b862-8a65189cd8eb.svg" src="_images/wavedrom-0b40f64e-6ad3-47e9-b862-8a65189cd8eb.svg" /><figcaption>
+<img alt="_images/wavedrom-1911c480-e744-471b-be13-fd46c7fac450.svg" src="_images/wavedrom-1911c480-e744-471b-be13-fd46c7fac450.svg" /><figcaption>
 <p><span class="caption-text">Sending four words of data, followed by a <cite>done</cite>.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -117,7 +117,7 @@ until <cite>r_abort</cite> is pulsed to acknowledged the abort condition. At the
 both FIFOs are empty and their protocol state machines are idle.</p>
 <blockquote>
 <div><figure class="align-default" id="id2">
-<img alt="_images/wavedrom-8e7bbf4c-70c4-460c-b647-e65a8a9fb44f.svg" src="_images/wavedrom-8e7bbf4c-70c4-460c-b647-e65a8a9fb44f.svg" /><figcaption>
+<img alt="_images/wavedrom-bc7710c2-b2a5-4bfc-a2fd-5790df383178.svg" src="_images/wavedrom-bc7710c2-b2a5-4bfc-a2fd-5790df383178.svg" /><figcaption>
 <p><span class="caption-text">Normal abort</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -151,7 +151,7 @@ This means the hardware guarantees two things:</p>
 <li><p>The incoming <cite>abort</cite> response line is prevented from generating an interrupt</p>
 <blockquote>
 <div><figure class="align-default" id="id3">
-<img alt="_images/wavedrom-ae0a2519-c66e-4a60-be0c-348c4f90982d.svg" src="_images/wavedrom-ae0a2519-c66e-4a60-be0c-348c4f90982d.svg" /><figcaption>
+<img alt="_images/wavedrom-dba6325f-6293-4faf-9906-722fe525e62a.svg" src="_images/wavedrom-dba6325f-6293-4faf-9906-722fe525e62a.svg" /><figcaption>
 <p><span class="caption-text">Edge case: simultaneous abort</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -162,7 +162,7 @@ This means the hardware guarantees two things:</p>
 both devices immediately transition from <cite>REQ</cite> -&gt; <cite>IDLE</cite>, without either going through <cite>ACK</cite>.</p>
 <blockquote>
 <div><figure class="align-default" id="id4">
-<img alt="_images/wavedrom-626a8e71-272e-48ca-a0df-d294c3c76e6d.svg" src="_images/wavedrom-626a8e71-272e-48ca-a0df-d294c3c76e6d.svg" /><figcaption>
+<img alt="_images/wavedrom-221f0411-7581-4f8e-a703-983ce6d9315b.svg" src="_images/wavedrom-221f0411-7581-4f8e-a703-983ce6d9315b.svg" /><figcaption>
 <p><span class="caption-text">Edge case: semi-simultaneous abort</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -249,7 +249,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Write data to outgoing FIFO.</p>
 <figure class="align-default" id="id5">
-<img alt="_images/wavedrom-c73b4e17-3f6e-44ea-a1e0-b107a203e719.svg" src="_images/wavedrom-c73b4e17-3f6e-44ea-a1e0-b107a203e719.svg" /><figcaption>
+<img alt="_images/wavedrom-b0eb324e-d9e6-451f-9798-ce5edc45e594.svg" src="_images/wavedrom-b0eb324e-d9e6-451f-9798-ce5edc45e594.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_WDATA</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -261,7 +261,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Read data from incoming FIFO.</p>
 <figure class="align-default" id="id6">
-<img alt="_images/wavedrom-dcd3661e-695a-4d23-9cf7-c66126126721.svg" src="_images/wavedrom-dcd3661e-695a-4d23-9cf7-c66126126721.svg" /><figcaption>
+<img alt="_images/wavedrom-84dc9095-aae5-43d0-aacc-ceda3466c0cf.svg" src="_images/wavedrom-84dc9095-aae5-43d0-aacc-ceda3466c0cf.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_RDATA</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -273,7 +273,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id7">
-<img alt="_images/wavedrom-d198023c-1df0-44dc-a574-f992fe8447d3.svg" src="_images/wavedrom-d198023c-1df0-44dc-a574-f992fe8447d3.svg" /><figcaption>
+<img alt="_images/wavedrom-513548bb-a110-4b17-871e-1fff044c2502.svg" src="_images/wavedrom-513548bb-a110-4b17-871e-1fff044c2502.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_STATUS</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -311,7 +311,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id8">
-<img alt="_images/wavedrom-bcf9d5ae-b7c5-4c5b-a233-c747508d0778.svg" src="_images/wavedrom-bcf9d5ae-b7c5-4c5b-a233-c747508d0778.svg" /><figcaption>
+<img alt="_images/wavedrom-721a6a5d-e878-4742-b6a6-b6b6d65e834f.svg" src="_images/wavedrom-721a6a5d-e878-4742-b6a6-b6b6d65e834f.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_PENDING</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -350,7 +350,7 @@ progress</p></td>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id9">
-<img alt="_images/wavedrom-e15b0962-3426-4298-9355-bc8f98daeb53.svg" src="_images/wavedrom-e15b0962-3426-4298-9355-bc8f98daeb53.svg" /><figcaption>
+<img alt="_images/wavedrom-7712007e-db32-4589-b17a-3c8bc89f90ec.svg" src="_images/wavedrom-7712007e-db32-4589-b17a-3c8bc89f90ec.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_ENABLE</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -387,7 +387,7 @@ progress</p></td>
 <p><cite>Address: 0x58018000 + 0x14 = 0x58018014</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id10">
-<img alt="_images/wavedrom-c3203eb1-dda8-4a5a-ac8a-0f82ff90eec6.svg" src="_images/wavedrom-c3203eb1-dda8-4a5a-ac8a-0f82ff90eec6.svg" /><figcaption>
+<img alt="_images/wavedrom-c5d26a20-2716-4d7a-95ff-b59842d81900.svg" src="_images/wavedrom-c5d26a20-2716-4d7a-95ff-b59842d81900.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_STATUS</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -400,19 +400,19 @@ progress</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>[9:0]</p></td>
+<tr class="row-even"><td><p>[10:0]</p></td>
 <td><p>RX_WORDS</p></td>
 <td><p>Number of words available to read</p></td>
 </tr>
-<tr class="row-odd"><td><p>[19:10]</p></td>
+<tr class="row-odd"><td><p>[21:11]</p></td>
 <td><p>TX_WORDS</p></td>
 <td><p>Number of words pending in write FIFO. Free space is 1024 - <cite>tx_avail</cite></p></td>
 </tr>
-<tr class="row-even"><td><p>[20]</p></td>
+<tr class="row-even"><td><p>[22]</p></td>
 <td><p>ABORT_IN_PROGRESS</p></td>
 <td><p>This bit is set if an <cite>aborting</cite> event was initiated and is still in progress.</p></td>
 </tr>
-<tr class="row-odd"><td><p>[21]</p></td>
+<tr class="row-odd"><td><p>[23]</p></td>
 <td><p>ABORT_ACK</p></td>
 <td><p>This bit is set by the peer that acknowledged the incoming abort (the later of
 the two, in case of an imperfect race condition). The abort response handler
@@ -420,12 +420,12 @@ should check this bit; if it is set, no new acknowledgement shall be issued. The
 bit is cleared when an initiator initiates a new abort. The initiator shall also
 ignore the state of this bit if it is intending to initiate a new abort cycle.</p></td>
 </tr>
-<tr class="row-even"><td><p>[22]</p></td>
+<tr class="row-even"><td><p>[24]</p></td>
 <td><p>TX_ERR</p></td>
 <td><p>Set if the write FIFO overflowed because we wrote too much data. Cleared on
 register read.</p></td>
 </tr>
-<tr class="row-odd"><td><p>[23]</p></td>
+<tr class="row-odd"><td><p>[25]</p></td>
 <td><p>RX_ERR</p></td>
 <td><p>Set if read FIFO underflowed because we read too much data. Cleared on register
 read.</p></td>
@@ -438,7 +438,7 @@ read.</p></td>
 <p><cite>Address: 0x58018000 + 0x18 = 0x58018018</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id11">
-<img alt="_images/wavedrom-0dc3264b-4916-4488-82ab-9923298f4a3b.svg" src="_images/wavedrom-0dc3264b-4916-4488-82ab-9923298f4a3b.svg" /><figcaption>
+<img alt="_images/wavedrom-2164c73e-bd75-44ad-9a80-7a31b801c82b.svg" src="_images/wavedrom-2164c73e-bd75-44ad-9a80-7a31b801c82b.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_CONTROL</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -468,7 +468,7 @@ asserted from the peer.</p>
 <p><cite>Address: 0x58018000 + 0x1c = 0x5801801c</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id12">
-<img alt="_images/wavedrom-d76e5743-83e0-468d-9254-786a607edc74.svg" src="_images/wavedrom-d76e5743-83e0-468d-9254-786a607edc74.svg" /><figcaption>
+<img alt="_images/wavedrom-9ed8b7a9-4abd-4701-a90e-57fd3c7b37fc.svg" src="_images/wavedrom-9ed8b7a9-4abd-4701-a90e-57fd3c7b37fc.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_DONE</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -547,6 +547,7 @@ packet is done loading. There is no need to clear this register after writing.</
 <li class="toctree-l1"><a class="reference internal" href="irqarray8.html">IRQARRAY8</a></li>
 <li class="toctree-l1"><a class="reference internal" href="irqarray9.html">IRQARRAY9</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">MAILBOX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mb_client.html">MB_CLIENT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resetvalue.html">RESETVALUE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ticktimer.html">TICKTIMER</a></li>
 </ul>
@@ -556,7 +557,7 @@ packet is done loading. There is no need to clear this register after writing.</
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="irqarray9.html" title="previous chapter">IRQARRAY9</a></li>
-      <li>Next: <a href="resetvalue.html" title="next chapter">RESETVALUE</a></li>
+      <li>Next: <a href="mb_client.html" title="next chapter">MB_CLIENT</a></li>
   </ul></li>
 </ul>
 </div>

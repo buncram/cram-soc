@@ -507,7 +507,7 @@ generate
         end
 
         // address arbitration
-        reg [CL_S_COUNT-1:0] w_select_reg = 0, w_select_next;
+        reg [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] w_select_reg = 0, w_select_next;
         reg w_select_valid_reg = 1'b0, w_select_valid_next;
         reg w_select_new_reg = 1'b0, w_select_new_next;
 
@@ -515,7 +515,7 @@ generate
         wire [S_COUNT-1:0] a_acknowledge;
         wire [S_COUNT-1:0] a_grant;
         wire a_grant_valid;
-        wire [CL_S_COUNT-1:0] a_grant_encoded;
+        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
 
         arbiter #(
             .PORTS(S_COUNT),
@@ -594,7 +594,7 @@ generate
         end
 
         // write response forwarding
-        wire [CL_S_COUNT-1:0] b_select = m_axi_bid[n*M_ID_WIDTH +: M_ID_WIDTH] >> S_ID_WIDTH;
+        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] b_select = m_axi_bid[n*M_ID_WIDTH +: M_ID_WIDTH] >> S_ID_WIDTH;
 
         assign int_axi_bvalid[n*S_COUNT +: S_COUNT] = int_m_axi_bvalid[n] << b_select;
         assign int_m_axi_bready[n] = int_axi_bready[b_select*M_COUNT+n];

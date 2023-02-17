@@ -77,37 +77,37 @@ domain, which runs at a much slower rate than the CPU clock.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">TICKTIMER_CONTROL</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">0x5801a000</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">0x5801b000</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">TICKTIMER_TIME1</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">0x5801a004</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">0x5801b004</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">TICKTIMER_TIME0</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">0x5801a008</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">0x5801b008</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET1</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">0x5801a00c</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">0x5801b00c</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET0</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">0x5801a010</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">0x5801b010</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">TICKTIMER_EV_STATUS</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">0x5801a014</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">0x5801b014</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">TICKTIMER_EV_PENDING</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">0x5801a018</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">0x5801b018</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">TICKTIMER_EV_ENABLE</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">0x5801a01c</span></a></p></td>
+<td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">0x5801b01c</span></a></p></td>
 </tr>
 </tbody>
 </table>
 <section id="ticktimer-control">
 <h3>TICKTIMER_CONTROL<a class="headerlink" href="#ticktimer-control" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x0 = 0x5801a000</cite></p>
+<p><cite>Address: 0x5801b000 + 0x0 = 0x5801b000</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-df72c92c-d47b-45e7-a951-0cab84c0ac3c.svg" src="_images/wavedrom-df72c92c-d47b-45e7-a951-0cab84c0ac3c.svg" /><figcaption>
+<img alt="_images/wavedrom-80fcea2f-102c-4986-a5d4-2311fbe39c1c.svg" src="_images/wavedrom-80fcea2f-102c-4986-a5d4-2311fbe39c1c.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_CONTROL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -132,11 +132,11 @@ other requests.</p>
 </section>
 <section id="ticktimer-time1">
 <h3>TICKTIMER_TIME1<a class="headerlink" href="#ticktimer-time1" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x4 = 0x5801a004</cite></p>
+<p><cite>Address: 0x5801b000 + 0x4 = 0x5801b004</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_TIME</cite>. Elapsed time in systicks</p>
 <figure class="align-default" id="id2">
-<img alt="_images/wavedrom-93919b0d-fa06-462e-bef8-c1fd2eb548ba.svg" src="_images/wavedrom-93919b0d-fa06-462e-bef8-c1fd2eb548ba.svg" /><figcaption>
+<img alt="_images/wavedrom-2f49726f-0834-40b0-b62a-fc2c645fc80b.svg" src="_images/wavedrom-2f49726f-0834-40b0-b62a-fc2c645fc80b.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_TIME1</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -144,11 +144,11 @@ other requests.</p>
 </section>
 <section id="ticktimer-time0">
 <h3>TICKTIMER_TIME0<a class="headerlink" href="#ticktimer-time0" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x8 = 0x5801a008</cite></p>
+<p><cite>Address: 0x5801b000 + 0x8 = 0x5801b008</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_TIME</cite>.</p>
 <figure class="align-default" id="id3">
-<img alt="_images/wavedrom-3ac79e5e-822a-4472-9935-020603982bb0.svg" src="_images/wavedrom-3ac79e5e-822a-4472-9935-020603982bb0.svg" /><figcaption>
+<img alt="_images/wavedrom-9a1a701c-7a11-4b26-a911-1bb59ab11a2a.svg" src="_images/wavedrom-9a1a701c-7a11-4b26-a911-1bb59ab11a2a.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_TIME0</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -156,11 +156,11 @@ other requests.</p>
 </section>
 <section id="ticktimer-msleep-target1">
 <h3>TICKTIMER_MSLEEP_TARGET1<a class="headerlink" href="#ticktimer-msleep-target1" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0xc = 0x5801a00c</cite></p>
+<p><cite>Address: 0x5801b000 + 0xc = 0x5801b00c</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_MSLEEP_TARGET</cite>. Target time in 1.0ms ticks</p>
 <figure class="align-default" id="id4">
-<img alt="_images/wavedrom-ad1bb8d5-5f32-4d56-aab9-f55e5d757b43.svg" src="_images/wavedrom-ad1bb8d5-5f32-4d56-aab9-f55e5d757b43.svg" /><figcaption>
+<img alt="_images/wavedrom-ae0ddf79-23cb-4b1a-b9a7-9e5042711957.svg" src="_images/wavedrom-ae0ddf79-23cb-4b1a-b9a7-9e5042711957.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_MSLEEP_TARGET1</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -168,11 +168,11 @@ other requests.</p>
 </section>
 <section id="ticktimer-msleep-target0">
 <h3>TICKTIMER_MSLEEP_TARGET0<a class="headerlink" href="#ticktimer-msleep-target0" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x10 = 0x5801a010</cite></p>
+<p><cite>Address: 0x5801b000 + 0x10 = 0x5801b010</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_MSLEEP_TARGET</cite>.</p>
 <figure class="align-default" id="id5">
-<img alt="_images/wavedrom-bc3e5a95-04d7-48cd-991c-4ea91f1cd81d.svg" src="_images/wavedrom-bc3e5a95-04d7-48cd-991c-4ea91f1cd81d.svg" /><figcaption>
+<img alt="_images/wavedrom-b0c07189-1f1f-4817-9f97-324d27538a34.svg" src="_images/wavedrom-b0c07189-1f1f-4817-9f97-324d27538a34.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_MSLEEP_TARGET0</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -180,12 +180,12 @@ other requests.</p>
 </section>
 <section id="ticktimer-ev-status">
 <h3>TICKTIMER_EV_STATUS<a class="headerlink" href="#ticktimer-ev-status" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x14 = 0x5801a014</cite></p>
+<p><cite>Address: 0x5801b000 + 0x14 = 0x5801b014</cite></p>
 <blockquote>
 <div><p>This register contains the current raw level of the alarm event trigger.  Writes
 to this register have no effect.</p>
 <figure class="align-default" id="id6">
-<img alt="_images/wavedrom-7e63dc2a-e59d-4ce9-afc1-ab890ed92fc4.svg" src="_images/wavedrom-7e63dc2a-e59d-4ce9-afc1-ab890ed92fc4.svg" /><figcaption>
+<img alt="_images/wavedrom-dbf2c041-1017-4230-93a6-9546415a5c55.svg" src="_images/wavedrom-dbf2c041-1017-4230-93a6-9546415a5c55.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_EV_STATUS</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -207,12 +207,12 @@ to this register have no effect.</p>
 </section>
 <section id="ticktimer-ev-pending">
 <h3>TICKTIMER_EV_PENDING<a class="headerlink" href="#ticktimer-ev-pending" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x18 = 0x5801a018</cite></p>
+<p><cite>Address: 0x5801b000 + 0x18 = 0x5801b018</cite></p>
 <blockquote>
 <div><p>When a  alarm event occurs, the corresponding bit will be set in this register.
 To clear the Event, set the corresponding bit in this register.</p>
 <figure class="align-default" id="id7">
-<img alt="_images/wavedrom-6eb9a55e-d72e-49d5-bfbc-433701a7d51b.svg" src="_images/wavedrom-6eb9a55e-d72e-49d5-bfbc-433701a7d51b.svg" /><figcaption>
+<img alt="_images/wavedrom-89749ab6-d5e9-4661-a527-35d553d32df4.svg" src="_images/wavedrom-89749ab6-d5e9-4661-a527-35d553d32df4.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_EV_PENDING</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -235,12 +235,12 @@ signal is <strong>high</strong>.</p></td>
 </section>
 <section id="ticktimer-ev-enable">
 <h3>TICKTIMER_EV_ENABLE<a class="headerlink" href="#ticktimer-ev-enable" title="Permalink to this heading">¶</a></h3>
-<p><cite>Address: 0x5801a000 + 0x1c = 0x5801a01c</cite></p>
+<p><cite>Address: 0x5801b000 + 0x1c = 0x5801b01c</cite></p>
 <blockquote>
 <div><p>This register enables the corresponding alarm events.  Write a <code class="docutils literal notranslate"><span class="pre">0</span></code> to this
 register to disable individual events.</p>
 <figure class="align-default" id="id8">
-<img alt="_images/wavedrom-61a08c00-f635-4685-a28c-04f3ca3aa925.svg" src="_images/wavedrom-61a08c00-f635-4685-a28c-04f3ca3aa925.svg" /><figcaption>
+<img alt="_images/wavedrom-0d7ff19a-b127-4329-bd1e-ca845fa513f4.svg" src="_images/wavedrom-0d7ff19a-b127-4329-bd1e-ca845fa513f4.svg" /><figcaption>
 <p><span class="caption-text">TICKTIMER_EV_ENABLE</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -316,6 +316,7 @@ register to disable individual events.</p>
 <li class="toctree-l1"><a class="reference internal" href="irqarray8.html">IRQARRAY8</a></li>
 <li class="toctree-l1"><a class="reference internal" href="irqarray9.html">IRQARRAY9</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mailbox.html">MAILBOX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mb_client.html">MB_CLIENT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resetvalue.html">RESETVALUE</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TICKTIMER</a></li>
 </ul>

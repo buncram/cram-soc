@@ -1,0 +1,262 @@
+MB_CLIENT
+=========
+
+Thin Mailbox Client
+-------------------
+This is a "minimal" mailbox client which has no FIFO of its own. It relies
+entirely on the other side's FIFO for the protocol to be efficient.
+
+
+Register Listing for MB_CLIENT
+------------------------------
+
++----------------------------------------------------+------------------------------------------+
+| Register                                           | Address                                  |
++====================================================+==========================================+
+| :ref:`MB_CLIENT_WDATA <MB_CLIENT_WDATA>`           | :ref:`0x58019000 <MB_CLIENT_WDATA>`      |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_RDATA <MB_CLIENT_RDATA>`           | :ref:`0x58019004 <MB_CLIENT_RDATA>`      |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_EV_STATUS <MB_CLIENT_EV_STATUS>`   | :ref:`0x58019008 <MB_CLIENT_EV_STATUS>`  |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_EV_PENDING <MB_CLIENT_EV_PENDING>` | :ref:`0x5801900c <MB_CLIENT_EV_PENDING>` |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_EV_ENABLE <MB_CLIENT_EV_ENABLE>`   | :ref:`0x58019010 <MB_CLIENT_EV_ENABLE>`  |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_STATUS <MB_CLIENT_STATUS>`         | :ref:`0x58019014 <MB_CLIENT_STATUS>`     |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_CONTROL <MB_CLIENT_CONTROL>`       | :ref:`0x58019018 <MB_CLIENT_CONTROL>`    |
++----------------------------------------------------+------------------------------------------+
+| :ref:`MB_CLIENT_DONE <MB_CLIENT_DONE>`             | :ref:`0x5801901c <MB_CLIENT_DONE>`       |
++----------------------------------------------------+------------------------------------------+
+
+MB_CLIENT_WDATA
+^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x0 = 0x58019000`
+
+    Write data to outgoing FIFO.
+
+    .. wavedrom::
+        :caption: MB_CLIENT_WDATA
+
+        {
+            "reg": [
+                {"name": "wdata[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+MB_CLIENT_RDATA
+^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x4 = 0x58019004`
+
+    Read data from incoming FIFO.
+
+    .. wavedrom::
+        :caption: MB_CLIENT_RDATA
+
+        {
+            "reg": [
+                {"name": "rdata[31:0]", "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
+MB_CLIENT_EV_STATUS
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x8 = 0x58019008`
+
+    Triggers if either `tx_err` or `rx_err` are asserted
+
+    .. wavedrom::
+        :caption: MB_CLIENT_EV_STATUS
+
+        {
+            "reg": [
+                {"name": "available",  "bits": 1},
+                {"name": "abort_init",  "bits": 1},
+                {"name": "abort_done",  "bits": 1},
+                {"name": "error",  "bits": 1},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+-----------------------------------+
+| Field | Name       | Description                       |
++=======+============+===================================+
+| [0]   | AVAILABLE  | Level of the ``available`` event  |
++-------+------------+-----------------------------------+
+| [1]   | ABORT_INIT | Level of the ``abort_init`` event |
++-------+------------+-----------------------------------+
+| [2]   | ABORT_DONE | Level of the ``abort_done`` event |
++-------+------------+-----------------------------------+
+| [3]   | ERROR      | Level of the ``error`` event      |
++-------+------------+-----------------------------------+
+
+MB_CLIENT_EV_PENDING
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0xc = 0x5801900c`
+
+    Triggers if either `tx_err` or `rx_err` are asserted
+
+    .. wavedrom::
+        :caption: MB_CLIENT_EV_PENDING
+
+        {
+            "reg": [
+                {"name": "available",  "bits": 1},
+                {"name": "abort_init",  "bits": 1},
+                {"name": "abort_done",  "bits": 1},
+                {"name": "error",  "bits": 1},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+---------------------------------------------------------------------------------+
+| Field | Name       | Description                                                                     |
++=======+============+=================================================================================+
+| [0]   | AVAILABLE  | Triggers when the `done` signal was asserted by the corresponding peer          |
++-------+------------+---------------------------------------------------------------------------------+
+| [1]   | ABORT_INIT | Triggers when abort is asserted by the peer, and there is currently no abort in |
+|       |            | progress                                                                        |
++-------+------------+---------------------------------------------------------------------------------+
+| [2]   | ABORT_DONE | Triggers when a previously initiated abort is acknowledged by peer              |
++-------+------------+---------------------------------------------------------------------------------+
+| [3]   | ERROR      | Triggers if either `tx_err` or `rx_err` are asserted                            |
++-------+------------+---------------------------------------------------------------------------------+
+
+MB_CLIENT_EV_ENABLE
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x10 = 0x58019010`
+
+    Triggers if either `tx_err` or `rx_err` are asserted
+
+    .. wavedrom::
+        :caption: MB_CLIENT_EV_ENABLE
+
+        {
+            "reg": [
+                {"name": "available",  "bits": 1},
+                {"name": "abort_init",  "bits": 1},
+                {"name": "abort_done",  "bits": 1},
+                {"name": "error",  "bits": 1},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+--------------------------------------------------+
+| Field | Name       | Description                                      |
++=======+============+==================================================+
+| [0]   | AVAILABLE  | Write a ``1`` to enable the ``available`` Event  |
++-------+------------+--------------------------------------------------+
+| [1]   | ABORT_INIT | Write a ``1`` to enable the ``abort_init`` Event |
++-------+------------+--------------------------------------------------+
+| [2]   | ABORT_DONE | Write a ``1`` to enable the ``abort_done`` Event |
++-------+------------+--------------------------------------------------+
+| [3]   | ERROR      | Write a ``1`` to enable the ``error`` Event      |
++-------+------------+--------------------------------------------------+
+
+MB_CLIENT_STATUS
+^^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x14 = 0x58019014`
+
+
+    .. wavedrom::
+        :caption: MB_CLIENT_STATUS
+
+        {
+            "reg": [
+                {"name": "rx_avail",  "bits": 1},
+                {"name": "tx_free",  "bits": 1},
+                {"name": "abort_in_progress",  "bits": 1},
+                {"name": "abort_ack",  "bits": 1},
+                {"name": "tx_err",  "bits": 1},
+                {"name": "rx_err",  "bits": 1},
+                {"bits": 26}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------------------+----------------------------------------------------------------------------------+
+| Field | Name              | Description                                                                      |
++=======+===================+==================================================================================+
+| [0]   | RX_AVAIL          | Rx data is available                                                             |
++-------+-------------------+----------------------------------------------------------------------------------+
+| [1]   | TX_FREE           | Tx register can be written                                                       |
++-------+-------------------+----------------------------------------------------------------------------------+
+| [2]   | ABORT_IN_PROGRESS | This bit is set if an `aborting` event was initiated and is still in progress.   |
++-------+-------------------+----------------------------------------------------------------------------------+
+| [3]   | ABORT_ACK         | This bit is set by the peer that acknowledged the incoming abort (the later of   |
+|       |                   | the two, in case of an imperfect race condition). The abort response handler     |
+|       |                   | should check this bit; if it is set, no new acknowledgement shall be issued. The |
+|       |                   | bit is cleared when an initiator initiates a new abort. The initiator shall also |
+|       |                   | ignore the state of this bit if it is intending to initiate a new abort cycle.   |
++-------+-------------------+----------------------------------------------------------------------------------+
+| [4]   | TX_ERR            | Set if the recipient was not ready for the data. Cleared on read.                |
++-------+-------------------+----------------------------------------------------------------------------------+
+| [5]   | RX_ERR            | Set if the recipient didn't have data available for a read. Cleared on read.     |
++-------+-------------------+----------------------------------------------------------------------------------+
+
+MB_CLIENT_CONTROL
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x18 = 0x58019018`
+
+
+    .. wavedrom::
+        :caption: MB_CLIENT_CONTROL
+
+        {
+            "reg": [
+                {"name": "abort",  "type": 4, "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+---------------------------------------------------------------------------------+
+| Field | Name  | Description                                                                     |
++=======+=======+=================================================================================+
+| [0]   | ABORT | Write `1` to this field to both initiate and acknowledge an abort. Empties both |
+|       |       | FIFOs, asserts `aborting`, and prevents an interrupt from being generated by an |
+|       |       | incoming abort request. New reads & writes are ignored until `aborted` is       |
+|       |       | asserted from the peer.                                                         |
+|       |       |                                                                                 |
+|       |       | Writing a 1 to this bit triggers the function.                                  |
++-------+-------+---------------------------------------------------------------------------------+
+
+MB_CLIENT_DONE
+^^^^^^^^^^^^^^
+
+`Address: 0x58019000 + 0x1c = 0x5801901c`
+
+
+    .. wavedrom::
+        :caption: MB_CLIENT_DONE
+
+        {
+            "reg": [
+                {"name": "done",  "type": 4, "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------+--------------------------------------------------------------------------------+
+| Field | Name | Description                                                                    |
++=======+======+================================================================================+
+| [0]   | DONE | Writing a `1` to this field indicates to the corresponding peer that a full    |
+|       |      | packet is done loading. There is no need to clear this register after writing. |
+|       |      |                                                                                |
+|       |      | Writing a 1 to this bit triggers the function.                                 |
++-------+------+--------------------------------------------------------------------------------+
+

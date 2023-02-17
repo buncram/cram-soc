@@ -405,13 +405,13 @@ MAILBOX_STATUS
 
         {
             "reg": [
-                {"name": "rx_words",  "bits": 10},
-                {"name": "tx_words",  "bits": 10},
+                {"name": "rx_words",  "bits": 11},
+                {"name": "tx_words",  "bits": 11},
                 {"name": "abort_in_progress",  "bits": 1},
                 {"name": "abort_ack",  "bits": 1},
                 {"name": "tx_err",  "bits": 1},
                 {"name": "rx_err",  "bits": 1},
-                {"bits": 8}
+                {"bits": 6}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -419,22 +419,22 @@ MAILBOX_STATUS
 +---------+-------------------+----------------------------------------------------------------------------------+
 | Field   | Name              | Description                                                                      |
 +=========+===================+==================================================================================+
-| [9:0]   | RX_WORDS          | Number of words available to read                                                |
+| [10:0]  | RX_WORDS          | Number of words available to read                                                |
 +---------+-------------------+----------------------------------------------------------------------------------+
-| [19:10] | TX_WORDS          | Number of words pending in write FIFO. Free space is 1024 - `tx_avail`           |
+| [21:11] | TX_WORDS          | Number of words pending in write FIFO. Free space is 1024 - `tx_avail`           |
 +---------+-------------------+----------------------------------------------------------------------------------+
-| [20]    | ABORT_IN_PROGRESS | This bit is set if an `aborting` event was initiated and is still in progress.   |
+| [22]    | ABORT_IN_PROGRESS | This bit is set if an `aborting` event was initiated and is still in progress.   |
 +---------+-------------------+----------------------------------------------------------------------------------+
-| [21]    | ABORT_ACK         | This bit is set by the peer that acknowledged the incoming abort (the later of   |
+| [23]    | ABORT_ACK         | This bit is set by the peer that acknowledged the incoming abort (the later of   |
 |         |                   | the two, in case of an imperfect race condition). The abort response handler     |
 |         |                   | should check this bit; if it is set, no new acknowledgement shall be issued. The |
 |         |                   | bit is cleared when an initiator initiates a new abort. The initiator shall also |
 |         |                   | ignore the state of this bit if it is intending to initiate a new abort cycle.   |
 +---------+-------------------+----------------------------------------------------------------------------------+
-| [22]    | TX_ERR            | Set if the write FIFO overflowed because we wrote too much data. Cleared on      |
+| [24]    | TX_ERR            | Set if the write FIFO overflowed because we wrote too much data. Cleared on      |
 |         |                   | register read.                                                                   |
 +---------+-------------------+----------------------------------------------------------------------------------+
-| [23]    | RX_ERR            | Set if read FIFO underflowed because we read too much data. Cleared on register  |
+| [25]    | RX_ERR            | Set if read FIFO underflowed because we read too much data. Cleared on register  |
 |         |                   | read.                                                                            |
 +---------+-------------------+----------------------------------------------------------------------------------+
 

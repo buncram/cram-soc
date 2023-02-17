@@ -8,8 +8,8 @@
 //
 // Filename   : cram_axi.v
 // Device     : 
-// LiteX sha1 : 0875fe61
-// Date       : 2023-01-18 01:18:12
+// LiteX sha1 : c953ff42
+// Date       : 2023-02-18 00:44:08
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -3393,15 +3393,15 @@ reg           susres_enable_storage = 1'd0;
 reg           susres_enable_re = 1'd0;
 wire   [31:0] mailbox_w_dat;
 wire          mailbox_w_valid;
-reg           mailbox_w_ready = 1'd0;
+wire          mailbox_w_ready;
 wire          mailbox_w_done;
-reg    [31:0] mailbox_r_dat = 32'd0;
-reg           mailbox_r_valid = 1'd0;
+wire   [31:0] mailbox_r_dat;
+wire          mailbox_r_valid;
 wire          mailbox_r_ready;
-reg           mailbox_r_done = 1'd0;
+wire          mailbox_r_done;
 reg           mailbox_w_abort = 1'd0;
-reg           mailbox_r_abort = 1'd0;
-reg           mailbox_reset_n = 1'd0;
+wire          mailbox_r_abort;
+wire          mailbox_reset_n;
 reg    [31:0] mailbox_wdata_storage = 32'd0;
 reg           mailbox_wdata_re = 1'd0;
 wire   [31:0] mailbox_rdata_status;
@@ -3448,13 +3448,13 @@ wire          mailbox_abort_done2;
 wire          mailbox_error2;
 reg     [3:0] mailbox_enable_storage = 4'd0;
 reg           mailbox_enable_re = 1'd0;
-wire    [9:0] mailbox_rx_words;
-wire    [9:0] mailbox_tx_words;
+wire   [10:0] mailbox_rx_words;
+wire   [10:0] mailbox_tx_words;
 wire          mailbox_abort_in_progress0;
 wire          mailbox_abort_ack0;
 wire          mailbox_tx_err;
 wire          mailbox_rx_err;
-reg    [23:0] mailbox_status_status1 = 24'd0;
+reg    [25:0] mailbox_status_status1 = 26'd0;
 wire          mailbox_status_we1;
 reg           mailbox_status_re1 = 1'd0;
 reg           mailbox_abort = 1'd0;
@@ -3515,6 +3515,90 @@ wire   [31:0] mailbox_syncfifobuffered1_rdport_dat_r;
 wire          mailbox_syncfifobuffered1_rdport_re;
 wire   [10:0] mailbox_syncfifobuffered1_level1;
 wire          mailbox_r_fifo_reset_sys;
+wire   [31:0] mb_client_w_dat;
+wire          mb_client_w_valid;
+wire          mb_client_w_ready;
+wire          mb_client_w_done;
+wire   [31:0] mb_client_r_dat;
+wire          mb_client_r_valid;
+wire          mb_client_r_ready;
+wire          mb_client_r_done;
+reg           mb_client_w_abort = 1'd0;
+wire          mb_client_r_abort;
+wire          mb_client_reset_n;
+reg    [31:0] mb_client_wdata_storage = 32'd0;
+reg           mb_client_wdata_re = 1'd0;
+wire   [31:0] mb_client_rdata_status;
+wire          mb_client_rdata_we;
+reg           mb_client_rdata_re = 1'd0;
+wire          mb_client_irq;
+wire          mb_client_available_status;
+reg           mb_client_available_pending = 1'd0;
+wire          mb_client_available_trigger;
+reg           mb_client_available_clear = 1'd0;
+wire          mb_client_abort_init_status;
+reg           mb_client_abort_init_pending = 1'd0;
+reg           mb_client_abort_init_trigger = 1'd0;
+reg           mb_client_abort_init_clear = 1'd0;
+reg           mb_client_abort_init_trigger_d = 1'd0;
+wire          mb_client_abort_done_status;
+reg           mb_client_abort_done_pending = 1'd0;
+reg           mb_client_abort_done_trigger = 1'd0;
+reg           mb_client_abort_done_clear = 1'd0;
+reg           mb_client_abort_done_trigger_d = 1'd0;
+wire          mb_client_error_status;
+reg           mb_client_error_pending = 1'd0;
+wire          mb_client_error_trigger;
+reg           mb_client_error_clear = 1'd0;
+reg           mb_client_error_trigger_d = 1'd0;
+wire          mb_client_available0;
+wire          mb_client_abort_init0;
+wire          mb_client_abort_done0;
+wire          mb_client_error0;
+reg     [3:0] mb_client_status_status0 = 4'd0;
+wire          mb_client_status_we0;
+reg           mb_client_status_re0 = 1'd0;
+wire          mb_client_available1;
+wire          mb_client_abort_init1;
+wire          mb_client_abort_done1;
+wire          mb_client_error1;
+reg     [3:0] mb_client_pending_status = 4'd0;
+wire          mb_client_pending_we;
+reg           mb_client_pending_re = 1'd0;
+reg     [3:0] mb_client_pending_r = 4'd0;
+wire          mb_client_available2;
+wire          mb_client_abort_init2;
+wire          mb_client_abort_done2;
+wire          mb_client_error2;
+reg     [3:0] mb_client_enable_storage = 4'd0;
+reg           mb_client_enable_re = 1'd0;
+wire          mb_client_rx_avail;
+reg           mb_client_tx_free = 1'd0;
+wire          mb_client_abort_in_progress0;
+wire          mb_client_abort_ack0;
+reg           mb_client_tx_err = 1'd0;
+reg           mb_client_rx_err = 1'd0;
+reg     [5:0] mb_client_status_status1 = 6'd0;
+wire          mb_client_status_we1;
+reg           mb_client_status_re1 = 1'd0;
+reg           mb_client_abort = 1'd0;
+reg           mb_client_control_storage = 1'd0;
+reg           mb_client_control_re = 1'd0;
+reg           mb_client_done = 1'd0;
+reg           mb_client_done_storage = 1'd0;
+reg           mb_client_done_re = 1'd0;
+reg           mb_client_abort_in_progress1 = 1'd0;
+reg           mb_client_abort_ack1 = 1'd0;
+wire   [31:0] w_dat;
+wire          w_valid;
+wire          w_ready;
+wire          w_done;
+wire   [31:0] r_dat;
+wire          r_valid;
+wire          r_ready;
+wire          r_done;
+wire          w_abort;
+wire          r_abort;
 reg    [31:0] csr_wtest_storage = 32'd0;
 reg           csr_wtest_re = 1'd0;
 wire   [31:0] csr_rtest_status;
@@ -4182,9 +4266,9 @@ wire    [3:0] csrbank23_ev_enable0_r;
 reg           csrbank23_ev_enable0_we = 1'd0;
 wire    [3:0] csrbank23_ev_enable0_w;
 reg           csrbank23_status_re = 1'd0;
-wire   [23:0] csrbank23_status_r;
+wire   [25:0] csrbank23_status_r;
 reg           csrbank23_status_we = 1'd0;
-wire   [23:0] csrbank23_status_w;
+wire   [25:0] csrbank23_status_w;
 reg           csrbank23_control0_re = 1'd0;
 wire          csrbank23_control0_r;
 reg           csrbank23_control0_we = 1'd0;
@@ -4200,10 +4284,38 @@ wire          interface24_bank_bus_we;
 wire   [31:0] interface24_bank_bus_dat_w;
 reg    [31:0] interface24_bank_bus_dat_r = 32'd0;
 wire          interface24_bank_bus_re;
-reg           csrbank24_pc_re = 1'd0;
-wire   [31:0] csrbank24_pc_r;
-reg           csrbank24_pc_we = 1'd0;
-wire   [31:0] csrbank24_pc_w;
+reg           csrbank24_wdata0_re = 1'd0;
+wire   [31:0] csrbank24_wdata0_r;
+reg           csrbank24_wdata0_we = 1'd0;
+wire   [31:0] csrbank24_wdata0_w;
+reg           csrbank24_rdata_re = 1'd0;
+wire   [31:0] csrbank24_rdata_r;
+reg           csrbank24_rdata_we = 1'd0;
+wire   [31:0] csrbank24_rdata_w;
+reg           csrbank24_ev_status_re = 1'd0;
+wire    [3:0] csrbank24_ev_status_r;
+reg           csrbank24_ev_status_we = 1'd0;
+wire    [3:0] csrbank24_ev_status_w;
+reg           csrbank24_ev_pending_re = 1'd0;
+wire    [3:0] csrbank24_ev_pending_r;
+reg           csrbank24_ev_pending_we = 1'd0;
+wire    [3:0] csrbank24_ev_pending_w;
+reg           csrbank24_ev_enable0_re = 1'd0;
+wire    [3:0] csrbank24_ev_enable0_r;
+reg           csrbank24_ev_enable0_we = 1'd0;
+wire    [3:0] csrbank24_ev_enable0_w;
+reg           csrbank24_status_re = 1'd0;
+wire    [5:0] csrbank24_status_r;
+reg           csrbank24_status_we = 1'd0;
+wire    [5:0] csrbank24_status_w;
+reg           csrbank24_control0_re = 1'd0;
+wire          csrbank24_control0_r;
+reg           csrbank24_control0_we = 1'd0;
+wire          csrbank24_control0_w;
+reg           csrbank24_done0_re = 1'd0;
+wire          csrbank24_done0_r;
+reg           csrbank24_done0_we = 1'd0;
+wire          csrbank24_done0_w;
 wire          csrbank24_sel;
 wire          csrbank24_re;
 wire   [15:0] interface25_bank_bus_adr;
@@ -4211,50 +4323,10 @@ wire          interface25_bank_bus_we;
 wire   [31:0] interface25_bank_bus_dat_w;
 reg    [31:0] interface25_bank_bus_dat_r = 32'd0;
 wire          interface25_bank_bus_re;
-reg           csrbank25_control0_re = 1'd0;
-wire    [1:0] csrbank25_control0_r;
-reg           csrbank25_control0_we = 1'd0;
-wire    [1:0] csrbank25_control0_w;
-reg           csrbank25_resume_time1_re = 1'd0;
-wire   [31:0] csrbank25_resume_time1_r;
-reg           csrbank25_resume_time1_we = 1'd0;
-wire   [31:0] csrbank25_resume_time1_w;
-reg           csrbank25_resume_time0_re = 1'd0;
-wire   [31:0] csrbank25_resume_time0_r;
-reg           csrbank25_resume_time0_we = 1'd0;
-wire   [31:0] csrbank25_resume_time0_w;
-reg           csrbank25_time1_re = 1'd0;
-wire   [31:0] csrbank25_time1_r;
-reg           csrbank25_time1_we = 1'd0;
-wire   [31:0] csrbank25_time1_w;
-reg           csrbank25_time0_re = 1'd0;
-wire   [31:0] csrbank25_time0_r;
-reg           csrbank25_time0_we = 1'd0;
-wire   [31:0] csrbank25_time0_w;
-reg           csrbank25_status_re = 1'd0;
-wire          csrbank25_status_r;
-reg           csrbank25_status_we = 1'd0;
-wire          csrbank25_status_w;
-reg           csrbank25_state0_re = 1'd0;
-wire    [1:0] csrbank25_state0_r;
-reg           csrbank25_state0_we = 1'd0;
-wire    [1:0] csrbank25_state0_w;
-reg           csrbank25_interrupt0_re = 1'd0;
-wire          csrbank25_interrupt0_r;
-reg           csrbank25_interrupt0_we = 1'd0;
-wire          csrbank25_interrupt0_w;
-reg           csrbank25_ev_status_re = 1'd0;
-wire          csrbank25_ev_status_r;
-reg           csrbank25_ev_status_we = 1'd0;
-wire          csrbank25_ev_status_w;
-reg           csrbank25_ev_pending_re = 1'd0;
-wire          csrbank25_ev_pending_r;
-reg           csrbank25_ev_pending_we = 1'd0;
-wire          csrbank25_ev_pending_w;
-reg           csrbank25_ev_enable0_re = 1'd0;
-wire          csrbank25_ev_enable0_r;
-reg           csrbank25_ev_enable0_we = 1'd0;
-wire          csrbank25_ev_enable0_w;
+reg           csrbank25_pc_re = 1'd0;
+wire   [31:0] csrbank25_pc_r;
+reg           csrbank25_pc_we = 1'd0;
+wire   [31:0] csrbank25_pc_w;
 wire          csrbank25_sel;
 wire          csrbank25_re;
 wire   [15:0] interface26_bank_bus_adr;
@@ -4263,9 +4335,17 @@ wire   [31:0] interface26_bank_bus_dat_w;
 reg    [31:0] interface26_bank_bus_dat_r = 32'd0;
 wire          interface26_bank_bus_re;
 reg           csrbank26_control0_re = 1'd0;
-wire          csrbank26_control0_r;
+wire    [1:0] csrbank26_control0_r;
 reg           csrbank26_control0_we = 1'd0;
-wire          csrbank26_control0_w;
+wire    [1:0] csrbank26_control0_w;
+reg           csrbank26_resume_time1_re = 1'd0;
+wire   [31:0] csrbank26_resume_time1_r;
+reg           csrbank26_resume_time1_we = 1'd0;
+wire   [31:0] csrbank26_resume_time1_w;
+reg           csrbank26_resume_time0_re = 1'd0;
+wire   [31:0] csrbank26_resume_time0_r;
+reg           csrbank26_resume_time0_we = 1'd0;
+wire   [31:0] csrbank26_resume_time0_w;
 reg           csrbank26_time1_re = 1'd0;
 wire   [31:0] csrbank26_time1_r;
 reg           csrbank26_time1_we = 1'd0;
@@ -4274,14 +4354,18 @@ reg           csrbank26_time0_re = 1'd0;
 wire   [31:0] csrbank26_time0_r;
 reg           csrbank26_time0_we = 1'd0;
 wire   [31:0] csrbank26_time0_w;
-reg           csrbank26_msleep_target1_re = 1'd0;
-wire   [31:0] csrbank26_msleep_target1_r;
-reg           csrbank26_msleep_target1_we = 1'd0;
-wire   [31:0] csrbank26_msleep_target1_w;
-reg           csrbank26_msleep_target0_re = 1'd0;
-wire   [31:0] csrbank26_msleep_target0_r;
-reg           csrbank26_msleep_target0_we = 1'd0;
-wire   [31:0] csrbank26_msleep_target0_w;
+reg           csrbank26_status_re = 1'd0;
+wire          csrbank26_status_r;
+reg           csrbank26_status_we = 1'd0;
+wire          csrbank26_status_w;
+reg           csrbank26_state0_re = 1'd0;
+wire    [1:0] csrbank26_state0_r;
+reg           csrbank26_state0_we = 1'd0;
+wire    [1:0] csrbank26_state0_w;
+reg           csrbank26_interrupt0_re = 1'd0;
+wire          csrbank26_interrupt0_r;
+reg           csrbank26_interrupt0_we = 1'd0;
+wire          csrbank26_interrupt0_w;
 reg           csrbank26_ev_status_re = 1'd0;
 wire          csrbank26_ev_status_r;
 reg           csrbank26_ev_status_we = 1'd0;
@@ -4296,6 +4380,45 @@ reg           csrbank26_ev_enable0_we = 1'd0;
 wire          csrbank26_ev_enable0_w;
 wire          csrbank26_sel;
 wire          csrbank26_re;
+wire   [15:0] interface27_bank_bus_adr;
+wire          interface27_bank_bus_we;
+wire   [31:0] interface27_bank_bus_dat_w;
+reg    [31:0] interface27_bank_bus_dat_r = 32'd0;
+wire          interface27_bank_bus_re;
+reg           csrbank27_control0_re = 1'd0;
+wire          csrbank27_control0_r;
+reg           csrbank27_control0_we = 1'd0;
+wire          csrbank27_control0_w;
+reg           csrbank27_time1_re = 1'd0;
+wire   [31:0] csrbank27_time1_r;
+reg           csrbank27_time1_we = 1'd0;
+wire   [31:0] csrbank27_time1_w;
+reg           csrbank27_time0_re = 1'd0;
+wire   [31:0] csrbank27_time0_r;
+reg           csrbank27_time0_we = 1'd0;
+wire   [31:0] csrbank27_time0_w;
+reg           csrbank27_msleep_target1_re = 1'd0;
+wire   [31:0] csrbank27_msleep_target1_r;
+reg           csrbank27_msleep_target1_we = 1'd0;
+wire   [31:0] csrbank27_msleep_target1_w;
+reg           csrbank27_msleep_target0_re = 1'd0;
+wire   [31:0] csrbank27_msleep_target0_r;
+reg           csrbank27_msleep_target0_we = 1'd0;
+wire   [31:0] csrbank27_msleep_target0_w;
+reg           csrbank27_ev_status_re = 1'd0;
+wire          csrbank27_ev_status_r;
+reg           csrbank27_ev_status_we = 1'd0;
+wire          csrbank27_ev_status_w;
+reg           csrbank27_ev_pending_re = 1'd0;
+wire          csrbank27_ev_pending_r;
+reg           csrbank27_ev_pending_we = 1'd0;
+wire          csrbank27_ev_pending_w;
+reg           csrbank27_ev_enable0_re = 1'd0;
+wire          csrbank27_ev_enable0_r;
+reg           csrbank27_ev_enable0_we = 1'd0;
+wire          csrbank27_ev_enable0_w;
+wire          csrbank27_sel;
+wire          csrbank27_re;
 wire   [15:0] csr_interconnect_adr;
 wire          csr_interconnect_we;
 wire   [31:0] csr_interconnect_dat_w;
@@ -4307,6 +4430,12 @@ reg           mailbox_abort_ack1_mailbox_next_value0 = 1'd0;
 reg           mailbox_abort_ack1_mailbox_next_value_ce0 = 1'd0;
 reg           mailbox_abort_in_progress1_mailbox_next_value1 = 1'd0;
 reg           mailbox_abort_in_progress1_mailbox_next_value_ce1 = 1'd0;
+reg     [1:0] cramsoc_mailboxclient_state = 2'd0;
+reg     [1:0] cramsoc_mailboxclient_next_state = 2'd0;
+reg           mb_client_abort_ack1_mailboxclient_next_value0 = 1'd0;
+reg           mb_client_abort_ack1_mailboxclient_next_value_ce0 = 1'd0;
+reg           mb_client_abort_in_progress1_mailboxclient_next_value1 = 1'd0;
+reg           mb_client_abort_in_progress1_mailboxclient_next_value_ce1 = 1'd0;
 reg     [1:0] cramsoc_axilite2csr_state = 2'd0;
 reg     [1:0] cramsoc_axilite2csr_next_state = 2'd0;
 reg           cramsoc_last_was_read_axilite2csr_next_value = 1'd0;
@@ -4472,6 +4601,28 @@ assign susres_paused = ticktimer_paused0;
 assign ticktimer_resume_time = susres_resume_time_storage;
 assign ticktimer_pause0 = susres_pause;
 assign ticktimer_load = susres_load;
+assign mailbox_reset_n = (~sys_rst);
+assign w_dat = mailbox_w_dat;
+assign w_valid = mailbox_w_valid;
+assign w_done = mailbox_w_done;
+assign mailbox_w_ready = w_ready;
+assign mailbox_r_dat = r_dat;
+assign mailbox_r_valid = r_valid;
+assign mailbox_r_done = r_done;
+assign r_ready = mailbox_r_ready;
+assign mailbox_r_abort = r_abort;
+assign w_abort = mailbox_w_abort;
+assign mb_client_reset_n = (~sys_rst);
+assign r_dat = mb_client_w_dat;
+assign r_valid = mb_client_w_valid;
+assign r_done = mb_client_w_done;
+assign mb_client_w_ready = r_ready;
+assign mb_client_r_dat = w_dat;
+assign mb_client_r_valid = w_valid;
+assign mb_client_r_done = w_done;
+assign w_ready = mb_client_r_ready;
+assign mb_client_r_abort = w_abort;
+assign r_abort = mb_client_w_abort;
 always @(*) begin
     cramsoc_interrupt <= 32'd0;
     cramsoc_interrupt[0] <= irqarray0_irq;
@@ -4495,6 +4646,7 @@ always @(*) begin
     cramsoc_interrupt[8] <= irqarray8_irq;
     cramsoc_interrupt[9] <= irqarray9_irq;
     cramsoc_interrupt[22] <= mailbox_irq;
+    cramsoc_interrupt[23] <= mb_client_irq;
     cramsoc_interrupt[21] <= susres_irq;
     cramsoc_interrupt[20] <= ticktimer_irq;
 end
@@ -8366,7 +8518,7 @@ always @(*) begin
         mailbox_w_over_flag <= 1'd1;
     end else begin
         if ((~mailbox_abort_in_progress1)) begin
-            mailbox_syncfifobuffered0_syncfifo0_we <= 1'd1;
+            mailbox_syncfifobuffered0_syncfifo0_we <= mailbox_wdata_re;
         end
     end
 end
@@ -8385,7 +8537,7 @@ always @(*) begin
     if ((mailbox_rdata_we & (~mailbox_syncfifobuffered1_readable))) begin
         mailbox_r_over_flag <= 1'd1;
     end else begin
-        mailbox_syncfifobuffered1_re <= 1'd1;
+        mailbox_syncfifobuffered1_re <= mailbox_rdata_we;
     end
 end
 assign mailbox_r_over_clear = mailbox_status_we1;
@@ -8470,14 +8622,14 @@ assign mailbox_syncfifobuffered1_rdport_re = mailbox_syncfifobuffered1_do_read;
 assign mailbox_syncfifobuffered1_syncfifo1_writable = (mailbox_syncfifobuffered1_level0 != 11'd1024);
 assign mailbox_syncfifobuffered1_syncfifo1_readable = (mailbox_syncfifobuffered1_level0 != 1'd0);
 always @(*) begin
-    mailbox_abort_done_trigger <= 1'd0;
-    mailbox_w_abort <= 1'd0;
     cramsoc_mailbox_next_state <= 2'd0;
-    mailbox_abort_init_trigger <= 1'd0;
+    mailbox_abort_done_trigger <= 1'd0;
     mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
     mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd0;
+    mailbox_w_abort <= 1'd0;
+    mailbox_abort_init_trigger <= 1'd0;
     cramsoc_mailbox_next_state <= cramsoc_mailbox_state;
     case (cramsoc_mailbox_state)
         1'd1: begin
@@ -8530,6 +8682,122 @@ always @(*) begin
         end
     endcase
 end
+assign mb_client_error_trigger = (mb_client_tx_err | mb_client_rx_err);
+assign mb_client_w_dat = mb_client_wdata_storage;
+assign mb_client_w_valid = mb_client_wdata_re;
+assign mb_client_w_done = mb_client_done;
+always @(*) begin
+    mb_client_tx_free <= 1'd0;
+    if ((mb_client_w_valid & (~mb_client_w_ready))) begin
+        mb_client_tx_free <= 1'd0;
+    end else begin
+        mb_client_tx_free <= 1'd1;
+    end
+end
+assign mb_client_rdata_status = mb_client_r_dat;
+assign mb_client_r_ready = mb_client_rdata_we;
+assign mb_client_available_trigger = mb_client_r_done;
+assign mb_client_rx_avail = mb_client_r_valid;
+assign mb_client_abort_in_progress0 = mb_client_abort_in_progress1;
+assign mb_client_abort_ack0 = mb_client_abort_ack1;
+assign mb_client_available0 = mb_client_available_status;
+assign mb_client_available1 = mb_client_available_pending;
+always @(*) begin
+    mb_client_available_clear <= 1'd0;
+    if ((mb_client_pending_re & mb_client_pending_r[0])) begin
+        mb_client_available_clear <= 1'd1;
+    end
+end
+assign mb_client_abort_init0 = mb_client_abort_init_status;
+assign mb_client_abort_init1 = mb_client_abort_init_pending;
+always @(*) begin
+    mb_client_abort_init_clear <= 1'd0;
+    if ((mb_client_pending_re & mb_client_pending_r[1])) begin
+        mb_client_abort_init_clear <= 1'd1;
+    end
+end
+assign mb_client_abort_done0 = mb_client_abort_done_status;
+assign mb_client_abort_done1 = mb_client_abort_done_pending;
+always @(*) begin
+    mb_client_abort_done_clear <= 1'd0;
+    if ((mb_client_pending_re & mb_client_pending_r[2])) begin
+        mb_client_abort_done_clear <= 1'd1;
+    end
+end
+assign mb_client_error0 = mb_client_error_status;
+assign mb_client_error1 = mb_client_error_pending;
+always @(*) begin
+    mb_client_error_clear <= 1'd0;
+    if ((mb_client_pending_re & mb_client_pending_r[3])) begin
+        mb_client_error_clear <= 1'd1;
+    end
+end
+assign mb_client_irq = ((((mb_client_pending_status[0] & mb_client_enable_storage[0]) | (mb_client_pending_status[1] & mb_client_enable_storage[1])) | (mb_client_pending_status[2] & mb_client_enable_storage[2])) | (mb_client_pending_status[3] & mb_client_enable_storage[3]));
+assign mb_client_available_status = 1'd0;
+assign mb_client_abort_init_status = mb_client_abort_init_trigger;
+assign mb_client_abort_done_status = mb_client_abort_done_trigger;
+assign mb_client_error_status = mb_client_error_trigger;
+always @(*) begin
+    mb_client_abort_done_trigger <= 1'd0;
+    cramsoc_mailboxclient_next_state <= 2'd0;
+    mb_client_w_abort <= 1'd0;
+    mb_client_abort_ack1_mailboxclient_next_value0 <= 1'd0;
+    mb_client_abort_ack1_mailboxclient_next_value_ce0 <= 1'd0;
+    mb_client_abort_init_trigger <= 1'd0;
+    mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd0;
+    mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd0;
+    cramsoc_mailboxclient_next_state <= cramsoc_mailboxclient_state;
+    case (cramsoc_mailboxclient_state)
+        1'd1: begin
+            if (mb_client_r_abort) begin
+                cramsoc_mailboxclient_next_state <= 1'd0;
+                mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd0;
+                mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd1;
+                mb_client_abort_done_trigger <= 1'd1;
+            end
+            mb_client_w_abort <= 1'd1;
+        end
+        2'd2: begin
+            if (mb_client_abort) begin
+                cramsoc_mailboxclient_next_state <= 1'd0;
+                mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd0;
+                mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd1;
+                mb_client_abort_ack1_mailboxclient_next_value0 <= 1'd1;
+                mb_client_abort_ack1_mailboxclient_next_value_ce0 <= 1'd1;
+                mb_client_w_abort <= 1'd1;
+            end else begin
+                mb_client_w_abort <= 1'd0;
+            end
+        end
+        default: begin
+            if ((mb_client_abort & (~mb_client_r_abort))) begin
+                cramsoc_mailboxclient_next_state <= 1'd1;
+                mb_client_abort_ack1_mailboxclient_next_value0 <= 1'd0;
+                mb_client_abort_ack1_mailboxclient_next_value_ce0 <= 1'd1;
+                mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd1;
+                mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd1;
+                mb_client_w_abort <= 1'd1;
+            end else begin
+                if ((mb_client_abort & mb_client_r_abort)) begin
+                    cramsoc_mailboxclient_next_state <= 1'd0;
+                    mb_client_abort_ack1_mailboxclient_next_value0 <= 1'd1;
+                    mb_client_abort_ack1_mailboxclient_next_value_ce0 <= 1'd1;
+                    mb_client_w_abort <= 1'd1;
+                end else begin
+                    if (((~mb_client_abort) & mb_client_r_abort)) begin
+                        cramsoc_mailboxclient_next_state <= 2'd2;
+                        mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd1;
+                        mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd1;
+                        mb_client_abort_init_trigger <= 1'd1;
+                        mb_client_w_abort <= 1'd0;
+                    end else begin
+                        mb_client_w_abort <= 1'd0;
+                    end
+                end
+            end
+        end
+    endcase
+end
 assign csr_rtest_status = (csr_wtest_storage + 29'd268435456);
 assign cramsoc_dat_w = cramsoc_w_payload_data;
 assign cramsoc_we = ((cramsoc_w_valid & cramsoc_w_ready) & (cramsoc_w_payload_strb != 1'd0));
@@ -8551,18 +8819,18 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
-    cramsoc_nocomb_axl_ar_ready <= 1'd0;
-    cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
-    cramsoc_nocomb_axl_b_valid <= 1'd0;
-    cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd0;
     cramsoc_adr <= 16'd0;
     cramsoc_r_payload_resp <= 2'd0;
     cramsoc_r_payload_data <= 32'd0;
     cramsoc_b_payload_resp <= 2'd0;
-    cramsoc_nocomb_axl_w_ready <= 1'd0;
     cramsoc_nocomb_axl_r_valid <= 1'd0;
-    cramsoc_axilite2csr_next_state <= 2'd0;
+    cramsoc_nocomb_axl_w_ready <= 1'd0;
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
+    cramsoc_nocomb_axl_ar_ready <= 1'd0;
+    cramsoc_axilite2csr_next_state <= 2'd0;
+    cramsoc_nocomb_axl_b_valid <= 1'd0;
+    cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
+    cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd0;
     cramsoc_axilite2csr_next_state <= cramsoc_axilite2csr_state;
     case (cramsoc_axilite2csr_state)
         1'd1: begin
@@ -8607,8 +8875,8 @@ assign csrbank0_sel = (interface0_bank_bus_adr[15:10] == 2'd2);
 assign csrbank0_re = interface0_bank_bus_re;
 assign csrbank0_set_asid0_r = interface0_bank_bus_dat_w[9:0];
 always @(*) begin
-    csrbank0_set_asid0_we <= 1'd0;
     csrbank0_set_asid0_re <= 1'd0;
+    csrbank0_set_asid0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank0_set_asid0_re <= interface0_bank_bus_we;
         csrbank0_set_asid0_we <= csrbank0_re;
@@ -8616,8 +8884,8 @@ always @(*) begin
 end
 assign csrbank0_get_asid_addr0_r = interface0_bank_bus_dat_w[8:0];
 always @(*) begin
-    csrbank0_get_asid_addr0_re <= 1'd0;
     csrbank0_get_asid_addr0_we <= 1'd0;
+    csrbank0_get_asid_addr0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank0_get_asid_addr0_re <= interface0_bank_bus_we;
         csrbank0_get_asid_addr0_we <= csrbank0_re;
@@ -8625,8 +8893,8 @@ always @(*) begin
 end
 assign csrbank0_get_asid_value0_r = interface0_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank0_get_asid_value0_we <= 1'd0;
     csrbank0_get_asid_value0_re <= 1'd0;
+    csrbank0_get_asid_value0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank0_get_asid_value0_re <= interface0_bank_bus_we;
         csrbank0_get_asid_value0_we <= csrbank0_re;
@@ -8634,8 +8902,8 @@ always @(*) begin
 end
 assign csrbank0_set_privilege0_r = interface0_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank0_set_privilege0_we <= 1'd0;
     csrbank0_set_privilege0_re <= 1'd0;
+    csrbank0_set_privilege0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank0_set_privilege0_re <= interface0_bank_bus_we;
         csrbank0_set_privilege0_we <= csrbank0_re;
@@ -8643,8 +8911,8 @@ always @(*) begin
 end
 assign csrbank0_control0_r = interface0_bank_bus_dat_w[4:0];
 always @(*) begin
-    csrbank0_control0_re <= 1'd0;
     csrbank0_control0_we <= 1'd0;
+    csrbank0_control0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd4))) begin
         csrbank0_control0_re <= interface0_bank_bus_we;
         csrbank0_control0_we <= csrbank0_re;
@@ -8652,8 +8920,8 @@ always @(*) begin
 end
 assign csrbank0_protect0_r = interface0_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank0_protect0_we <= 1'd0;
     csrbank0_protect0_re <= 1'd0;
+    csrbank0_protect0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd5))) begin
         csrbank0_protect0_re <= interface0_bank_bus_we;
         csrbank0_protect0_we <= csrbank0_re;
@@ -8661,8 +8929,8 @@ always @(*) begin
 end
 assign csrbank0_window_al0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_al0_re <= 1'd0;
     csrbank0_window_al0_we <= 1'd0;
+    csrbank0_window_al0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank0_window_al0_re <= interface0_bank_bus_we;
         csrbank0_window_al0_we <= csrbank0_re;
@@ -8670,8 +8938,8 @@ always @(*) begin
 end
 assign csrbank0_window_ah0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_ah0_re <= 1'd0;
     csrbank0_window_ah0_we <= 1'd0;
+    csrbank0_window_ah0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd7))) begin
         csrbank0_window_ah0_re <= interface0_bank_bus_we;
         csrbank0_window_ah0_we <= csrbank0_re;
@@ -8679,8 +8947,8 @@ always @(*) begin
 end
 assign csrbank0_window_bl0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_bl0_we <= 1'd0;
     csrbank0_window_bl0_re <= 1'd0;
+    csrbank0_window_bl0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 4'd8))) begin
         csrbank0_window_bl0_re <= interface0_bank_bus_we;
         csrbank0_window_bl0_we <= csrbank0_re;
@@ -8688,8 +8956,8 @@ always @(*) begin
 end
 assign csrbank0_window_bh0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_bh0_re <= 1'd0;
     csrbank0_window_bh0_we <= 1'd0;
+    csrbank0_window_bh0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 4'd9))) begin
         csrbank0_window_bh0_re <= interface0_bank_bus_we;
         csrbank0_window_bh0_we <= csrbank0_re;
@@ -8727,8 +8995,8 @@ assign csrbank1_sel = (interface1_bank_bus_adr[15:10] == 2'd3);
 assign csrbank1_re = interface1_bank_bus_re;
 assign csrbank1_wtest0_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank1_wtest0_re <= 1'd0;
     csrbank1_wtest0_we <= 1'd0;
+    csrbank1_wtest0_re <= 1'd0;
     if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank1_wtest0_re <= interface1_bank_bus_we;
         csrbank1_wtest0_we <= csrbank1_re;
@@ -8736,8 +9004,8 @@ always @(*) begin
 end
 assign csrbank1_rtest_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank1_rtest_we <= 1'd0;
     csrbank1_rtest_re <= 1'd0;
+    csrbank1_rtest_we <= 1'd0;
     if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank1_rtest_re <= interface1_bank_bus_we;
         csrbank1_rtest_we <= csrbank1_re;
@@ -8750,8 +9018,8 @@ assign csrbank2_sel = (interface2_bank_bus_adr[15:10] == 1'd0);
 assign csrbank2_re = interface2_bank_bus_re;
 assign csrbank2_control0_r = interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank2_control0_we <= 1'd0;
     csrbank2_control0_re <= 1'd0;
+    csrbank2_control0_we <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank2_control0_re <= interface2_bank_bus_we;
         csrbank2_control0_we <= csrbank2_re;
@@ -8759,8 +9027,8 @@ always @(*) begin
 end
 assign csrbank2_heartbeat_r = interface2_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank2_heartbeat_re <= 1'd0;
     csrbank2_heartbeat_we <= 1'd0;
+    csrbank2_heartbeat_re <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank2_heartbeat_re <= interface2_bank_bus_we;
         csrbank2_heartbeat_we <= csrbank2_re;
@@ -8775,8 +9043,8 @@ assign csrbank3_sel = (interface3_bank_bus_adr[15:10] == 3'd4);
 assign csrbank3_re = interface3_bank_bus_re;
 assign csrbank3_ev_soft0_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_soft0_re <= 1'd0;
     csrbank3_ev_soft0_we <= 1'd0;
+    csrbank3_ev_soft0_re <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank3_ev_soft0_re <= interface3_bank_bus_we;
         csrbank3_ev_soft0_we <= csrbank3_re;
@@ -8784,8 +9052,8 @@ always @(*) begin
 end
 assign csrbank3_ev_status_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_status_we <= 1'd0;
     csrbank3_ev_status_re <= 1'd0;
+    csrbank3_ev_status_we <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank3_ev_status_re <= interface3_bank_bus_we;
         csrbank3_ev_status_we <= csrbank3_re;
@@ -8793,8 +9061,8 @@ always @(*) begin
 end
 assign csrbank3_ev_pending_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_pending_re <= 1'd0;
     csrbank3_ev_pending_we <= 1'd0;
+    csrbank3_ev_pending_re <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank3_ev_pending_re <= interface3_bank_bus_we;
         csrbank3_ev_pending_we <= csrbank3_re;
@@ -8802,8 +9070,8 @@ always @(*) begin
 end
 assign csrbank3_ev_enable0_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_enable0_re <= 1'd0;
     csrbank3_ev_enable0_we <= 1'd0;
+    csrbank3_ev_enable0_re <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank3_ev_enable0_re <= interface3_bank_bus_we;
         csrbank3_ev_enable0_we <= csrbank3_re;
@@ -8891,8 +9159,8 @@ assign csrbank4_sel = (interface4_bank_bus_adr[15:10] == 3'd5);
 assign csrbank4_re = interface4_bank_bus_re;
 assign csrbank4_ev_soft0_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank4_ev_soft0_re <= 1'd0;
     csrbank4_ev_soft0_we <= 1'd0;
+    csrbank4_ev_soft0_re <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank4_ev_soft0_re <= interface4_bank_bus_we;
         csrbank4_ev_soft0_we <= csrbank4_re;
@@ -8900,8 +9168,8 @@ always @(*) begin
 end
 assign csrbank4_ev_status_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank4_ev_status_we <= 1'd0;
     csrbank4_ev_status_re <= 1'd0;
+    csrbank4_ev_status_we <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank4_ev_status_re <= interface4_bank_bus_we;
         csrbank4_ev_status_we <= csrbank4_re;
@@ -8909,8 +9177,8 @@ always @(*) begin
 end
 assign csrbank4_ev_pending_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank4_ev_pending_we <= 1'd0;
     csrbank4_ev_pending_re <= 1'd0;
+    csrbank4_ev_pending_we <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank4_ev_pending_re <= interface4_bank_bus_we;
         csrbank4_ev_pending_we <= csrbank4_re;
@@ -8918,8 +9186,8 @@ always @(*) begin
 end
 assign csrbank4_ev_enable0_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank4_ev_enable0_re <= 1'd0;
     csrbank4_ev_enable0_we <= 1'd0;
+    csrbank4_ev_enable0_re <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank4_ev_enable0_re <= interface4_bank_bus_we;
         csrbank4_ev_enable0_we <= csrbank4_re;
@@ -9007,8 +9275,8 @@ assign csrbank5_sel = (interface5_bank_bus_adr[15:10] == 3'd6);
 assign csrbank5_re = interface5_bank_bus_re;
 assign csrbank5_ev_soft0_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_soft0_we <= 1'd0;
     csrbank5_ev_soft0_re <= 1'd0;
+    csrbank5_ev_soft0_we <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank5_ev_soft0_re <= interface5_bank_bus_we;
         csrbank5_ev_soft0_we <= csrbank5_re;
@@ -9016,8 +9284,8 @@ always @(*) begin
 end
 assign csrbank5_ev_status_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_status_re <= 1'd0;
     csrbank5_ev_status_we <= 1'd0;
+    csrbank5_ev_status_re <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank5_ev_status_re <= interface5_bank_bus_we;
         csrbank5_ev_status_we <= csrbank5_re;
@@ -9025,8 +9293,8 @@ always @(*) begin
 end
 assign csrbank5_ev_pending_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_pending_we <= 1'd0;
     csrbank5_ev_pending_re <= 1'd0;
+    csrbank5_ev_pending_we <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank5_ev_pending_re <= interface5_bank_bus_we;
         csrbank5_ev_pending_we <= csrbank5_re;
@@ -9034,8 +9302,8 @@ always @(*) begin
 end
 assign csrbank5_ev_enable0_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_enable0_we <= 1'd0;
     csrbank5_ev_enable0_re <= 1'd0;
+    csrbank5_ev_enable0_we <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank5_ev_enable0_re <= interface5_bank_bus_we;
         csrbank5_ev_enable0_we <= csrbank5_re;
@@ -9123,8 +9391,8 @@ assign csrbank6_sel = (interface6_bank_bus_adr[15:10] == 3'd7);
 assign csrbank6_re = interface6_bank_bus_re;
 assign csrbank6_ev_soft0_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank6_ev_soft0_we <= 1'd0;
     csrbank6_ev_soft0_re <= 1'd0;
+    csrbank6_ev_soft0_we <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank6_ev_soft0_re <= interface6_bank_bus_we;
         csrbank6_ev_soft0_we <= csrbank6_re;
@@ -9132,8 +9400,8 @@ always @(*) begin
 end
 assign csrbank6_ev_status_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank6_ev_status_re <= 1'd0;
     csrbank6_ev_status_we <= 1'd0;
+    csrbank6_ev_status_re <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank6_ev_status_re <= interface6_bank_bus_we;
         csrbank6_ev_status_we <= csrbank6_re;
@@ -9141,8 +9409,8 @@ always @(*) begin
 end
 assign csrbank6_ev_pending_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank6_ev_pending_re <= 1'd0;
     csrbank6_ev_pending_we <= 1'd0;
+    csrbank6_ev_pending_re <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank6_ev_pending_re <= interface6_bank_bus_we;
         csrbank6_ev_pending_we <= csrbank6_re;
@@ -9150,8 +9418,8 @@ always @(*) begin
 end
 assign csrbank6_ev_enable0_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank6_ev_enable0_we <= 1'd0;
     csrbank6_ev_enable0_re <= 1'd0;
+    csrbank6_ev_enable0_we <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank6_ev_enable0_re <= interface6_bank_bus_we;
         csrbank6_ev_enable0_we <= csrbank6_re;
@@ -9239,8 +9507,8 @@ assign csrbank7_sel = (interface7_bank_bus_adr[15:10] == 4'd8);
 assign csrbank7_re = interface7_bank_bus_re;
 assign csrbank7_ev_soft0_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_soft0_re <= 1'd0;
     csrbank7_ev_soft0_we <= 1'd0;
+    csrbank7_ev_soft0_re <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank7_ev_soft0_re <= interface7_bank_bus_we;
         csrbank7_ev_soft0_we <= csrbank7_re;
@@ -9248,8 +9516,8 @@ always @(*) begin
 end
 assign csrbank7_ev_status_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_status_we <= 1'd0;
     csrbank7_ev_status_re <= 1'd0;
+    csrbank7_ev_status_we <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank7_ev_status_re <= interface7_bank_bus_we;
         csrbank7_ev_status_we <= csrbank7_re;
@@ -9257,8 +9525,8 @@ always @(*) begin
 end
 assign csrbank7_ev_pending_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_pending_re <= 1'd0;
     csrbank7_ev_pending_we <= 1'd0;
+    csrbank7_ev_pending_re <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank7_ev_pending_re <= interface7_bank_bus_we;
         csrbank7_ev_pending_we <= csrbank7_re;
@@ -9266,8 +9534,8 @@ always @(*) begin
 end
 assign csrbank7_ev_enable0_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_enable0_re <= 1'd0;
     csrbank7_ev_enable0_we <= 1'd0;
+    csrbank7_ev_enable0_re <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank7_ev_enable0_re <= interface7_bank_bus_we;
         csrbank7_ev_enable0_we <= csrbank7_re;
@@ -9355,8 +9623,8 @@ assign csrbank8_sel = (interface8_bank_bus_adr[15:10] == 4'd9);
 assign csrbank8_re = interface8_bank_bus_re;
 assign csrbank8_ev_soft0_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank8_ev_soft0_re <= 1'd0;
     csrbank8_ev_soft0_we <= 1'd0;
+    csrbank8_ev_soft0_re <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank8_ev_soft0_re <= interface8_bank_bus_we;
         csrbank8_ev_soft0_we <= csrbank8_re;
@@ -9364,8 +9632,8 @@ always @(*) begin
 end
 assign csrbank8_ev_status_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank8_ev_status_we <= 1'd0;
     csrbank8_ev_status_re <= 1'd0;
+    csrbank8_ev_status_we <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank8_ev_status_re <= interface8_bank_bus_we;
         csrbank8_ev_status_we <= csrbank8_re;
@@ -9373,8 +9641,8 @@ always @(*) begin
 end
 assign csrbank8_ev_pending_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank8_ev_pending_we <= 1'd0;
     csrbank8_ev_pending_re <= 1'd0;
+    csrbank8_ev_pending_we <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank8_ev_pending_re <= interface8_bank_bus_we;
         csrbank8_ev_pending_we <= csrbank8_re;
@@ -9382,8 +9650,8 @@ always @(*) begin
 end
 assign csrbank8_ev_enable0_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank8_ev_enable0_re <= 1'd0;
     csrbank8_ev_enable0_we <= 1'd0;
+    csrbank8_ev_enable0_re <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank8_ev_enable0_re <= interface8_bank_bus_we;
         csrbank8_ev_enable0_we <= csrbank8_re;
@@ -9471,8 +9739,8 @@ assign csrbank9_sel = (interface9_bank_bus_adr[15:10] == 4'd10);
 assign csrbank9_re = interface9_bank_bus_re;
 assign csrbank9_ev_soft0_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_soft0_we <= 1'd0;
     csrbank9_ev_soft0_re <= 1'd0;
+    csrbank9_ev_soft0_we <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank9_ev_soft0_re <= interface9_bank_bus_we;
         csrbank9_ev_soft0_we <= csrbank9_re;
@@ -9480,8 +9748,8 @@ always @(*) begin
 end
 assign csrbank9_ev_status_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_status_re <= 1'd0;
     csrbank9_ev_status_we <= 1'd0;
+    csrbank9_ev_status_re <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank9_ev_status_re <= interface9_bank_bus_we;
         csrbank9_ev_status_we <= csrbank9_re;
@@ -9489,8 +9757,8 @@ always @(*) begin
 end
 assign csrbank9_ev_pending_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_pending_we <= 1'd0;
     csrbank9_ev_pending_re <= 1'd0;
+    csrbank9_ev_pending_we <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank9_ev_pending_re <= interface9_bank_bus_we;
         csrbank9_ev_pending_we <= csrbank9_re;
@@ -9498,8 +9766,8 @@ always @(*) begin
 end
 assign csrbank9_ev_enable0_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_enable0_we <= 1'd0;
     csrbank9_ev_enable0_re <= 1'd0;
+    csrbank9_ev_enable0_we <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank9_ev_enable0_re <= interface9_bank_bus_we;
         csrbank9_ev_enable0_we <= csrbank9_re;
@@ -9587,8 +9855,8 @@ assign csrbank10_sel = (interface10_bank_bus_adr[15:10] == 4'd11);
 assign csrbank10_re = interface10_bank_bus_re;
 assign csrbank10_ev_soft0_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank10_ev_soft0_we <= 1'd0;
     csrbank10_ev_soft0_re <= 1'd0;
+    csrbank10_ev_soft0_we <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank10_ev_soft0_re <= interface10_bank_bus_we;
         csrbank10_ev_soft0_we <= csrbank10_re;
@@ -9596,8 +9864,8 @@ always @(*) begin
 end
 assign csrbank10_ev_status_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank10_ev_status_re <= 1'd0;
     csrbank10_ev_status_we <= 1'd0;
+    csrbank10_ev_status_re <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank10_ev_status_re <= interface10_bank_bus_we;
         csrbank10_ev_status_we <= csrbank10_re;
@@ -9605,8 +9873,8 @@ always @(*) begin
 end
 assign csrbank10_ev_pending_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank10_ev_pending_re <= 1'd0;
     csrbank10_ev_pending_we <= 1'd0;
+    csrbank10_ev_pending_re <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank10_ev_pending_re <= interface10_bank_bus_we;
         csrbank10_ev_pending_we <= csrbank10_re;
@@ -9614,8 +9882,8 @@ always @(*) begin
 end
 assign csrbank10_ev_enable0_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank10_ev_enable0_we <= 1'd0;
     csrbank10_ev_enable0_re <= 1'd0;
+    csrbank10_ev_enable0_we <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank10_ev_enable0_re <= interface10_bank_bus_we;
         csrbank10_ev_enable0_we <= csrbank10_re;
@@ -9703,8 +9971,8 @@ assign csrbank11_sel = (interface11_bank_bus_adr[15:10] == 4'd12);
 assign csrbank11_re = interface11_bank_bus_re;
 assign csrbank11_ev_soft0_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_soft0_re <= 1'd0;
     csrbank11_ev_soft0_we <= 1'd0;
+    csrbank11_ev_soft0_re <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank11_ev_soft0_re <= interface11_bank_bus_we;
         csrbank11_ev_soft0_we <= csrbank11_re;
@@ -9712,8 +9980,8 @@ always @(*) begin
 end
 assign csrbank11_ev_status_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_status_we <= 1'd0;
     csrbank11_ev_status_re <= 1'd0;
+    csrbank11_ev_status_we <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank11_ev_status_re <= interface11_bank_bus_we;
         csrbank11_ev_status_we <= csrbank11_re;
@@ -9721,8 +9989,8 @@ always @(*) begin
 end
 assign csrbank11_ev_pending_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_pending_re <= 1'd0;
     csrbank11_ev_pending_we <= 1'd0;
+    csrbank11_ev_pending_re <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank11_ev_pending_re <= interface11_bank_bus_we;
         csrbank11_ev_pending_we <= csrbank11_re;
@@ -9730,8 +9998,8 @@ always @(*) begin
 end
 assign csrbank11_ev_enable0_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_enable0_re <= 1'd0;
     csrbank11_ev_enable0_we <= 1'd0;
+    csrbank11_ev_enable0_re <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank11_ev_enable0_re <= interface11_bank_bus_we;
         csrbank11_ev_enable0_we <= csrbank11_re;
@@ -9819,8 +10087,8 @@ assign csrbank12_sel = (interface12_bank_bus_adr[15:10] == 4'd13);
 assign csrbank12_re = interface12_bank_bus_re;
 assign csrbank12_ev_soft0_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank12_ev_soft0_re <= 1'd0;
     csrbank12_ev_soft0_we <= 1'd0;
+    csrbank12_ev_soft0_re <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank12_ev_soft0_re <= interface12_bank_bus_we;
         csrbank12_ev_soft0_we <= csrbank12_re;
@@ -9828,8 +10096,8 @@ always @(*) begin
 end
 assign csrbank12_ev_status_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank12_ev_status_we <= 1'd0;
     csrbank12_ev_status_re <= 1'd0;
+    csrbank12_ev_status_we <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank12_ev_status_re <= interface12_bank_bus_we;
         csrbank12_ev_status_we <= csrbank12_re;
@@ -9837,8 +10105,8 @@ always @(*) begin
 end
 assign csrbank12_ev_pending_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank12_ev_pending_we <= 1'd0;
     csrbank12_ev_pending_re <= 1'd0;
+    csrbank12_ev_pending_we <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank12_ev_pending_re <= interface12_bank_bus_we;
         csrbank12_ev_pending_we <= csrbank12_re;
@@ -9846,8 +10114,8 @@ always @(*) begin
 end
 assign csrbank12_ev_enable0_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank12_ev_enable0_re <= 1'd0;
     csrbank12_ev_enable0_we <= 1'd0;
+    csrbank12_ev_enable0_re <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank12_ev_enable0_re <= interface12_bank_bus_we;
         csrbank12_ev_enable0_we <= csrbank12_re;
@@ -9935,8 +10203,8 @@ assign csrbank13_sel = (interface13_bank_bus_adr[15:10] == 4'd14);
 assign csrbank13_re = interface13_bank_bus_re;
 assign csrbank13_ev_soft0_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_soft0_we <= 1'd0;
     csrbank13_ev_soft0_re <= 1'd0;
+    csrbank13_ev_soft0_we <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank13_ev_soft0_re <= interface13_bank_bus_we;
         csrbank13_ev_soft0_we <= csrbank13_re;
@@ -9944,8 +10212,8 @@ always @(*) begin
 end
 assign csrbank13_ev_status_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_status_re <= 1'd0;
     csrbank13_ev_status_we <= 1'd0;
+    csrbank13_ev_status_re <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank13_ev_status_re <= interface13_bank_bus_we;
         csrbank13_ev_status_we <= csrbank13_re;
@@ -9953,8 +10221,8 @@ always @(*) begin
 end
 assign csrbank13_ev_pending_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_pending_we <= 1'd0;
     csrbank13_ev_pending_re <= 1'd0;
+    csrbank13_ev_pending_we <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank13_ev_pending_re <= interface13_bank_bus_we;
         csrbank13_ev_pending_we <= csrbank13_re;
@@ -9962,8 +10230,8 @@ always @(*) begin
 end
 assign csrbank13_ev_enable0_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_enable0_we <= 1'd0;
     csrbank13_ev_enable0_re <= 1'd0;
+    csrbank13_ev_enable0_we <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank13_ev_enable0_re <= interface13_bank_bus_we;
         csrbank13_ev_enable0_we <= csrbank13_re;
@@ -10051,8 +10319,8 @@ assign csrbank14_sel = (interface14_bank_bus_adr[15:10] == 4'd15);
 assign csrbank14_re = interface14_bank_bus_re;
 assign csrbank14_ev_soft0_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank14_ev_soft0_we <= 1'd0;
     csrbank14_ev_soft0_re <= 1'd0;
+    csrbank14_ev_soft0_we <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank14_ev_soft0_re <= interface14_bank_bus_we;
         csrbank14_ev_soft0_we <= csrbank14_re;
@@ -10060,8 +10328,8 @@ always @(*) begin
 end
 assign csrbank14_ev_status_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank14_ev_status_re <= 1'd0;
     csrbank14_ev_status_we <= 1'd0;
+    csrbank14_ev_status_re <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank14_ev_status_re <= interface14_bank_bus_we;
         csrbank14_ev_status_we <= csrbank14_re;
@@ -10069,8 +10337,8 @@ always @(*) begin
 end
 assign csrbank14_ev_pending_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank14_ev_pending_re <= 1'd0;
     csrbank14_ev_pending_we <= 1'd0;
+    csrbank14_ev_pending_re <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank14_ev_pending_re <= interface14_bank_bus_we;
         csrbank14_ev_pending_we <= csrbank14_re;
@@ -10078,8 +10346,8 @@ always @(*) begin
 end
 assign csrbank14_ev_enable0_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank14_ev_enable0_we <= 1'd0;
     csrbank14_ev_enable0_re <= 1'd0;
+    csrbank14_ev_enable0_we <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank14_ev_enable0_re <= interface14_bank_bus_we;
         csrbank14_ev_enable0_we <= csrbank14_re;
@@ -10167,8 +10435,8 @@ assign csrbank15_sel = (interface15_bank_bus_adr[15:10] == 5'd16);
 assign csrbank15_re = interface15_bank_bus_re;
 assign csrbank15_ev_soft0_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_soft0_re <= 1'd0;
     csrbank15_ev_soft0_we <= 1'd0;
+    csrbank15_ev_soft0_re <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank15_ev_soft0_re <= interface15_bank_bus_we;
         csrbank15_ev_soft0_we <= csrbank15_re;
@@ -10176,8 +10444,8 @@ always @(*) begin
 end
 assign csrbank15_ev_status_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_status_we <= 1'd0;
     csrbank15_ev_status_re <= 1'd0;
+    csrbank15_ev_status_we <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank15_ev_status_re <= interface15_bank_bus_we;
         csrbank15_ev_status_we <= csrbank15_re;
@@ -10185,8 +10453,8 @@ always @(*) begin
 end
 assign csrbank15_ev_pending_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_pending_re <= 1'd0;
     csrbank15_ev_pending_we <= 1'd0;
+    csrbank15_ev_pending_re <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank15_ev_pending_re <= interface15_bank_bus_we;
         csrbank15_ev_pending_we <= csrbank15_re;
@@ -10194,8 +10462,8 @@ always @(*) begin
 end
 assign csrbank15_ev_enable0_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_enable0_re <= 1'd0;
     csrbank15_ev_enable0_we <= 1'd0;
+    csrbank15_ev_enable0_re <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank15_ev_enable0_re <= interface15_bank_bus_we;
         csrbank15_ev_enable0_we <= csrbank15_re;
@@ -10283,8 +10551,8 @@ assign csrbank16_sel = (interface16_bank_bus_adr[15:10] == 5'd17);
 assign csrbank16_re = interface16_bank_bus_re;
 assign csrbank16_ev_soft0_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank16_ev_soft0_re <= 1'd0;
     csrbank16_ev_soft0_we <= 1'd0;
+    csrbank16_ev_soft0_re <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank16_ev_soft0_re <= interface16_bank_bus_we;
         csrbank16_ev_soft0_we <= csrbank16_re;
@@ -10292,8 +10560,8 @@ always @(*) begin
 end
 assign csrbank16_ev_status_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank16_ev_status_we <= 1'd0;
     csrbank16_ev_status_re <= 1'd0;
+    csrbank16_ev_status_we <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank16_ev_status_re <= interface16_bank_bus_we;
         csrbank16_ev_status_we <= csrbank16_re;
@@ -10301,8 +10569,8 @@ always @(*) begin
 end
 assign csrbank16_ev_pending_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank16_ev_pending_we <= 1'd0;
     csrbank16_ev_pending_re <= 1'd0;
+    csrbank16_ev_pending_we <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank16_ev_pending_re <= interface16_bank_bus_we;
         csrbank16_ev_pending_we <= csrbank16_re;
@@ -10310,8 +10578,8 @@ always @(*) begin
 end
 assign csrbank16_ev_enable0_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank16_ev_enable0_re <= 1'd0;
     csrbank16_ev_enable0_we <= 1'd0;
+    csrbank16_ev_enable0_re <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank16_ev_enable0_re <= interface16_bank_bus_we;
         csrbank16_ev_enable0_we <= csrbank16_re;
@@ -10399,8 +10667,8 @@ assign csrbank17_sel = (interface17_bank_bus_adr[15:10] == 5'd18);
 assign csrbank17_re = interface17_bank_bus_re;
 assign csrbank17_ev_soft0_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_soft0_we <= 1'd0;
     csrbank17_ev_soft0_re <= 1'd0;
+    csrbank17_ev_soft0_we <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank17_ev_soft0_re <= interface17_bank_bus_we;
         csrbank17_ev_soft0_we <= csrbank17_re;
@@ -10408,8 +10676,8 @@ always @(*) begin
 end
 assign csrbank17_ev_status_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_status_re <= 1'd0;
     csrbank17_ev_status_we <= 1'd0;
+    csrbank17_ev_status_re <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank17_ev_status_re <= interface17_bank_bus_we;
         csrbank17_ev_status_we <= csrbank17_re;
@@ -10417,8 +10685,8 @@ always @(*) begin
 end
 assign csrbank17_ev_pending_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_pending_we <= 1'd0;
     csrbank17_ev_pending_re <= 1'd0;
+    csrbank17_ev_pending_we <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank17_ev_pending_re <= interface17_bank_bus_we;
         csrbank17_ev_pending_we <= csrbank17_re;
@@ -10426,8 +10694,8 @@ always @(*) begin
 end
 assign csrbank17_ev_enable0_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_enable0_we <= 1'd0;
     csrbank17_ev_enable0_re <= 1'd0;
+    csrbank17_ev_enable0_we <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank17_ev_enable0_re <= interface17_bank_bus_we;
         csrbank17_ev_enable0_we <= csrbank17_re;
@@ -10515,8 +10783,8 @@ assign csrbank18_sel = (interface18_bank_bus_adr[15:10] == 5'd19);
 assign csrbank18_re = interface18_bank_bus_re;
 assign csrbank18_ev_soft0_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank18_ev_soft0_we <= 1'd0;
     csrbank18_ev_soft0_re <= 1'd0;
+    csrbank18_ev_soft0_we <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank18_ev_soft0_re <= interface18_bank_bus_we;
         csrbank18_ev_soft0_we <= csrbank18_re;
@@ -10524,8 +10792,8 @@ always @(*) begin
 end
 assign csrbank18_ev_status_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank18_ev_status_re <= 1'd0;
     csrbank18_ev_status_we <= 1'd0;
+    csrbank18_ev_status_re <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank18_ev_status_re <= interface18_bank_bus_we;
         csrbank18_ev_status_we <= csrbank18_re;
@@ -10533,8 +10801,8 @@ always @(*) begin
 end
 assign csrbank18_ev_pending_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank18_ev_pending_re <= 1'd0;
     csrbank18_ev_pending_we <= 1'd0;
+    csrbank18_ev_pending_re <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank18_ev_pending_re <= interface18_bank_bus_we;
         csrbank18_ev_pending_we <= csrbank18_re;
@@ -10542,8 +10810,8 @@ always @(*) begin
 end
 assign csrbank18_ev_enable0_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank18_ev_enable0_we <= 1'd0;
     csrbank18_ev_enable0_re <= 1'd0;
+    csrbank18_ev_enable0_we <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank18_ev_enable0_re <= interface18_bank_bus_we;
         csrbank18_ev_enable0_we <= csrbank18_re;
@@ -10631,8 +10899,8 @@ assign csrbank19_sel = (interface19_bank_bus_adr[15:10] == 5'd20);
 assign csrbank19_re = interface19_bank_bus_re;
 assign csrbank19_ev_soft0_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_soft0_re <= 1'd0;
     csrbank19_ev_soft0_we <= 1'd0;
+    csrbank19_ev_soft0_re <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank19_ev_soft0_re <= interface19_bank_bus_we;
         csrbank19_ev_soft0_we <= csrbank19_re;
@@ -10640,8 +10908,8 @@ always @(*) begin
 end
 assign csrbank19_ev_status_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_status_we <= 1'd0;
     csrbank19_ev_status_re <= 1'd0;
+    csrbank19_ev_status_we <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank19_ev_status_re <= interface19_bank_bus_we;
         csrbank19_ev_status_we <= csrbank19_re;
@@ -10649,8 +10917,8 @@ always @(*) begin
 end
 assign csrbank19_ev_pending_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_pending_re <= 1'd0;
     csrbank19_ev_pending_we <= 1'd0;
+    csrbank19_ev_pending_re <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank19_ev_pending_re <= interface19_bank_bus_we;
         csrbank19_ev_pending_we <= csrbank19_re;
@@ -10658,8 +10926,8 @@ always @(*) begin
 end
 assign csrbank19_ev_enable0_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_enable0_re <= 1'd0;
     csrbank19_ev_enable0_we <= 1'd0;
+    csrbank19_ev_enable0_re <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank19_ev_enable0_re <= interface19_bank_bus_we;
         csrbank19_ev_enable0_we <= csrbank19_re;
@@ -10747,8 +11015,8 @@ assign csrbank20_sel = (interface20_bank_bus_adr[15:10] == 5'd21);
 assign csrbank20_re = interface20_bank_bus_re;
 assign csrbank20_ev_soft0_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank20_ev_soft0_re <= 1'd0;
     csrbank20_ev_soft0_we <= 1'd0;
+    csrbank20_ev_soft0_re <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank20_ev_soft0_re <= interface20_bank_bus_we;
         csrbank20_ev_soft0_we <= csrbank20_re;
@@ -10756,8 +11024,8 @@ always @(*) begin
 end
 assign csrbank20_ev_status_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank20_ev_status_we <= 1'd0;
     csrbank20_ev_status_re <= 1'd0;
+    csrbank20_ev_status_we <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank20_ev_status_re <= interface20_bank_bus_we;
         csrbank20_ev_status_we <= csrbank20_re;
@@ -10765,8 +11033,8 @@ always @(*) begin
 end
 assign csrbank20_ev_pending_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank20_ev_pending_we <= 1'd0;
     csrbank20_ev_pending_re <= 1'd0;
+    csrbank20_ev_pending_we <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank20_ev_pending_re <= interface20_bank_bus_we;
         csrbank20_ev_pending_we <= csrbank20_re;
@@ -10774,8 +11042,8 @@ always @(*) begin
 end
 assign csrbank20_ev_enable0_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank20_ev_enable0_re <= 1'd0;
     csrbank20_ev_enable0_we <= 1'd0;
+    csrbank20_ev_enable0_re <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank20_ev_enable0_re <= interface20_bank_bus_we;
         csrbank20_ev_enable0_we <= csrbank20_re;
@@ -10863,8 +11131,8 @@ assign csrbank21_sel = (interface21_bank_bus_adr[15:10] == 5'd22);
 assign csrbank21_re = interface21_bank_bus_re;
 assign csrbank21_ev_soft0_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_soft0_we <= 1'd0;
     csrbank21_ev_soft0_re <= 1'd0;
+    csrbank21_ev_soft0_we <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank21_ev_soft0_re <= interface21_bank_bus_we;
         csrbank21_ev_soft0_we <= csrbank21_re;
@@ -10872,8 +11140,8 @@ always @(*) begin
 end
 assign csrbank21_ev_status_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_status_re <= 1'd0;
     csrbank21_ev_status_we <= 1'd0;
+    csrbank21_ev_status_re <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank21_ev_status_re <= interface21_bank_bus_we;
         csrbank21_ev_status_we <= csrbank21_re;
@@ -10881,8 +11149,8 @@ always @(*) begin
 end
 assign csrbank21_ev_pending_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_pending_we <= 1'd0;
     csrbank21_ev_pending_re <= 1'd0;
+    csrbank21_ev_pending_we <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank21_ev_pending_re <= interface21_bank_bus_we;
         csrbank21_ev_pending_we <= csrbank21_re;
@@ -10890,8 +11158,8 @@ always @(*) begin
 end
 assign csrbank21_ev_enable0_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_enable0_we <= 1'd0;
     csrbank21_ev_enable0_re <= 1'd0;
+    csrbank21_ev_enable0_we <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank21_ev_enable0_re <= interface21_bank_bus_we;
         csrbank21_ev_enable0_we <= csrbank21_re;
@@ -10979,8 +11247,8 @@ assign csrbank22_sel = (interface22_bank_bus_adr[15:10] == 5'd23);
 assign csrbank22_re = interface22_bank_bus_re;
 assign csrbank22_ev_soft0_r = interface22_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank22_ev_soft0_we <= 1'd0;
     csrbank22_ev_soft0_re <= 1'd0;
+    csrbank22_ev_soft0_we <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank22_ev_soft0_re <= interface22_bank_bus_we;
         csrbank22_ev_soft0_we <= csrbank22_re;
@@ -10988,8 +11256,8 @@ always @(*) begin
 end
 assign csrbank22_ev_status_r = interface22_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank22_ev_status_re <= 1'd0;
     csrbank22_ev_status_we <= 1'd0;
+    csrbank22_ev_status_re <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank22_ev_status_re <= interface22_bank_bus_we;
         csrbank22_ev_status_we <= csrbank22_re;
@@ -10997,8 +11265,8 @@ always @(*) begin
 end
 assign csrbank22_ev_pending_r = interface22_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank22_ev_pending_re <= 1'd0;
     csrbank22_ev_pending_we <= 1'd0;
+    csrbank22_ev_pending_re <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank22_ev_pending_re <= interface22_bank_bus_we;
         csrbank22_ev_pending_we <= csrbank22_re;
@@ -11006,8 +11274,8 @@ always @(*) begin
 end
 assign csrbank22_ev_enable0_r = interface22_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank22_ev_enable0_we <= 1'd0;
     csrbank22_ev_enable0_re <= 1'd0;
+    csrbank22_ev_enable0_we <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank22_ev_enable0_re <= interface22_bank_bus_we;
         csrbank22_ev_enable0_we <= csrbank22_re;
@@ -11095,8 +11363,8 @@ assign csrbank23_sel = (interface23_bank_bus_adr[15:10] == 5'd24);
 assign csrbank23_re = interface23_bank_bus_re;
 assign csrbank23_wdata0_r = interface23_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank23_wdata0_re <= 1'd0;
     csrbank23_wdata0_we <= 1'd0;
+    csrbank23_wdata0_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank23_wdata0_re <= interface23_bank_bus_we;
         csrbank23_wdata0_we <= csrbank23_re;
@@ -11104,8 +11372,8 @@ always @(*) begin
 end
 assign csrbank23_rdata_r = interface23_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank23_rdata_we <= 1'd0;
     csrbank23_rdata_re <= 1'd0;
+    csrbank23_rdata_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank23_rdata_re <= interface23_bank_bus_we;
         csrbank23_rdata_we <= csrbank23_re;
@@ -11113,8 +11381,8 @@ always @(*) begin
 end
 assign csrbank23_ev_status_r = interface23_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank23_ev_status_re <= 1'd0;
     csrbank23_ev_status_we <= 1'd0;
+    csrbank23_ev_status_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank23_ev_status_re <= interface23_bank_bus_we;
         csrbank23_ev_status_we <= csrbank23_re;
@@ -11122,8 +11390,8 @@ always @(*) begin
 end
 assign csrbank23_ev_pending_r = interface23_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank23_ev_pending_re <= 1'd0;
     csrbank23_ev_pending_we <= 1'd0;
+    csrbank23_ev_pending_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank23_ev_pending_re <= interface23_bank_bus_we;
         csrbank23_ev_pending_we <= csrbank23_re;
@@ -11131,17 +11399,17 @@ always @(*) begin
 end
 assign csrbank23_ev_enable0_r = interface23_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank23_ev_enable0_we <= 1'd0;
     csrbank23_ev_enable0_re <= 1'd0;
+    csrbank23_ev_enable0_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 3'd4))) begin
         csrbank23_ev_enable0_re <= interface23_bank_bus_we;
         csrbank23_ev_enable0_we <= csrbank23_re;
     end
 end
-assign csrbank23_status_r = interface23_bank_bus_dat_w[23:0];
+assign csrbank23_status_r = interface23_bank_bus_dat_w[25:0];
 always @(*) begin
-    csrbank23_status_re <= 1'd0;
     csrbank23_status_we <= 1'd0;
+    csrbank23_status_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 3'd5))) begin
         csrbank23_status_re <= interface23_bank_bus_we;
         csrbank23_status_we <= csrbank23_re;
@@ -11149,8 +11417,8 @@ always @(*) begin
 end
 assign csrbank23_control0_r = interface23_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank23_control0_re <= 1'd0;
     csrbank23_control0_we <= 1'd0;
+    csrbank23_control0_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank23_control0_re <= interface23_bank_bus_we;
         csrbank23_control0_we <= csrbank23_re;
@@ -11158,8 +11426,8 @@ always @(*) begin
 end
 assign csrbank23_done0_r = interface23_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank23_done0_we <= 1'd0;
     csrbank23_done0_re <= 1'd0;
+    csrbank23_done0_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 3'd7))) begin
         csrbank23_done0_re <= interface23_bank_bus_we;
         csrbank23_done0_we <= csrbank23_re;
@@ -11192,15 +11460,15 @@ assign mailbox_abort_done2 = mailbox_enable_storage[2];
 assign mailbox_error2 = mailbox_enable_storage[3];
 assign csrbank23_ev_enable0_w = mailbox_enable_storage[3:0];
 always @(*) begin
-    mailbox_status_status1 <= 24'd0;
-    mailbox_status_status1[9:0] <= mailbox_rx_words;
-    mailbox_status_status1[19:10] <= mailbox_tx_words;
-    mailbox_status_status1[20] <= mailbox_abort_in_progress0;
-    mailbox_status_status1[21] <= mailbox_abort_ack0;
-    mailbox_status_status1[22] <= mailbox_tx_err;
-    mailbox_status_status1[23] <= mailbox_rx_err;
+    mailbox_status_status1 <= 26'd0;
+    mailbox_status_status1[10:0] <= mailbox_rx_words;
+    mailbox_status_status1[21:11] <= mailbox_tx_words;
+    mailbox_status_status1[22] <= mailbox_abort_in_progress0;
+    mailbox_status_status1[23] <= mailbox_abort_ack0;
+    mailbox_status_status1[24] <= mailbox_tx_err;
+    mailbox_status_status1[25] <= mailbox_rx_err;
 end
-assign csrbank23_status_w = mailbox_status_status1[23:0];
+assign csrbank23_status_w = mailbox_status_status1[25:0];
 assign mailbox_status_we1 = csrbank23_status_we;
 always @(*) begin
     mailbox_abort <= 1'd0;
@@ -11218,116 +11486,241 @@ end
 assign csrbank23_done0_w = mailbox_done_storage;
 assign csrbank24_sel = (interface24_bank_bus_adr[15:10] == 5'd25);
 assign csrbank24_re = interface24_bank_bus_re;
-assign csrbank24_pc_r = interface24_bank_bus_dat_w[31:0];
+assign csrbank24_wdata0_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank24_pc_re <= 1'd0;
-    csrbank24_pc_we <= 1'd0;
+    csrbank24_wdata0_we <= 1'd0;
+    csrbank24_wdata0_re <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd0))) begin
-        csrbank24_pc_re <= interface24_bank_bus_we;
-        csrbank24_pc_we <= csrbank24_re;
+        csrbank24_wdata0_re <= interface24_bank_bus_we;
+        csrbank24_wdata0_we <= csrbank24_re;
     end
 end
-assign csrbank24_pc_w = resetvalue_status[31:0];
-assign resetvalue_we = csrbank24_pc_we;
-assign csrbank25_sel = (interface25_bank_bus_adr[15:10] == 1'd1);
+assign csrbank24_rdata_r = interface24_bank_bus_dat_w[31:0];
+always @(*) begin
+    csrbank24_rdata_re <= 1'd0;
+    csrbank24_rdata_we <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank24_rdata_re <= interface24_bank_bus_we;
+        csrbank24_rdata_we <= csrbank24_re;
+    end
+end
+assign csrbank24_ev_status_r = interface24_bank_bus_dat_w[3:0];
+always @(*) begin
+    csrbank24_ev_status_we <= 1'd0;
+    csrbank24_ev_status_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank24_ev_status_re <= interface24_bank_bus_we;
+        csrbank24_ev_status_we <= csrbank24_re;
+    end
+end
+assign csrbank24_ev_pending_r = interface24_bank_bus_dat_w[3:0];
+always @(*) begin
+    csrbank24_ev_pending_we <= 1'd0;
+    csrbank24_ev_pending_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank24_ev_pending_re <= interface24_bank_bus_we;
+        csrbank24_ev_pending_we <= csrbank24_re;
+    end
+end
+assign csrbank24_ev_enable0_r = interface24_bank_bus_dat_w[3:0];
+always @(*) begin
+    csrbank24_ev_enable0_re <= 1'd0;
+    csrbank24_ev_enable0_we <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd4))) begin
+        csrbank24_ev_enable0_re <= interface24_bank_bus_we;
+        csrbank24_ev_enable0_we <= csrbank24_re;
+    end
+end
+assign csrbank24_status_r = interface24_bank_bus_dat_w[5:0];
+always @(*) begin
+    csrbank24_status_we <= 1'd0;
+    csrbank24_status_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank24_status_re <= interface24_bank_bus_we;
+        csrbank24_status_we <= csrbank24_re;
+    end
+end
+assign csrbank24_control0_r = interface24_bank_bus_dat_w[0];
+always @(*) begin
+    csrbank24_control0_we <= 1'd0;
+    csrbank24_control0_re <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd6))) begin
+        csrbank24_control0_re <= interface24_bank_bus_we;
+        csrbank24_control0_we <= csrbank24_re;
+    end
+end
+assign csrbank24_done0_r = interface24_bank_bus_dat_w[0];
+always @(*) begin
+    csrbank24_done0_re <= 1'd0;
+    csrbank24_done0_we <= 1'd0;
+    if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd7))) begin
+        csrbank24_done0_re <= interface24_bank_bus_we;
+        csrbank24_done0_we <= csrbank24_re;
+    end
+end
+assign csrbank24_wdata0_w = mb_client_wdata_storage[31:0];
+assign csrbank24_rdata_w = mb_client_rdata_status[31:0];
+assign mb_client_rdata_we = csrbank24_rdata_we;
+always @(*) begin
+    mb_client_status_status0 <= 4'd0;
+    mb_client_status_status0[0] <= mb_client_available0;
+    mb_client_status_status0[1] <= mb_client_abort_init0;
+    mb_client_status_status0[2] <= mb_client_abort_done0;
+    mb_client_status_status0[3] <= mb_client_error0;
+end
+assign csrbank24_ev_status_w = mb_client_status_status0[3:0];
+assign mb_client_status_we0 = csrbank24_ev_status_we;
+always @(*) begin
+    mb_client_pending_status <= 4'd0;
+    mb_client_pending_status[0] <= mb_client_available1;
+    mb_client_pending_status[1] <= mb_client_abort_init1;
+    mb_client_pending_status[2] <= mb_client_abort_done1;
+    mb_client_pending_status[3] <= mb_client_error1;
+end
+assign csrbank24_ev_pending_w = mb_client_pending_status[3:0];
+assign mb_client_pending_we = csrbank24_ev_pending_we;
+assign mb_client_available2 = mb_client_enable_storage[0];
+assign mb_client_abort_init2 = mb_client_enable_storage[1];
+assign mb_client_abort_done2 = mb_client_enable_storage[2];
+assign mb_client_error2 = mb_client_enable_storage[3];
+assign csrbank24_ev_enable0_w = mb_client_enable_storage[3:0];
+always @(*) begin
+    mb_client_status_status1 <= 6'd0;
+    mb_client_status_status1[0] <= mb_client_rx_avail;
+    mb_client_status_status1[1] <= mb_client_tx_free;
+    mb_client_status_status1[2] <= mb_client_abort_in_progress0;
+    mb_client_status_status1[3] <= mb_client_abort_ack0;
+    mb_client_status_status1[4] <= mb_client_tx_err;
+    mb_client_status_status1[5] <= mb_client_rx_err;
+end
+assign csrbank24_status_w = mb_client_status_status1[5:0];
+assign mb_client_status_we1 = csrbank24_status_we;
+always @(*) begin
+    mb_client_abort <= 1'd0;
+    if (mb_client_control_re) begin
+        mb_client_abort <= mb_client_control_storage;
+    end
+end
+assign csrbank24_control0_w = mb_client_control_storage;
+always @(*) begin
+    mb_client_done <= 1'd0;
+    if (mb_client_done_re) begin
+        mb_client_done <= mb_client_done_storage;
+    end
+end
+assign csrbank24_done0_w = mb_client_done_storage;
+assign csrbank25_sel = (interface25_bank_bus_adr[15:10] == 5'd26);
 assign csrbank25_re = interface25_bank_bus_re;
-assign csrbank25_control0_r = interface25_bank_bus_dat_w[1:0];
+assign csrbank25_pc_r = interface25_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank25_control0_we <= 1'd0;
-    csrbank25_control0_re <= 1'd0;
+    csrbank25_pc_we <= 1'd0;
+    csrbank25_pc_re <= 1'd0;
     if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 1'd0))) begin
-        csrbank25_control0_re <= interface25_bank_bus_we;
-        csrbank25_control0_we <= csrbank25_re;
+        csrbank25_pc_re <= interface25_bank_bus_we;
+        csrbank25_pc_we <= csrbank25_re;
     end
 end
-assign csrbank25_resume_time1_r = interface25_bank_bus_dat_w[31:0];
+assign csrbank25_pc_w = resetvalue_status[31:0];
+assign resetvalue_we = csrbank25_pc_we;
+assign csrbank26_sel = (interface26_bank_bus_adr[15:10] == 1'd1);
+assign csrbank26_re = interface26_bank_bus_re;
+assign csrbank26_control0_r = interface26_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank25_resume_time1_re <= 1'd0;
-    csrbank25_resume_time1_we <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 1'd1))) begin
-        csrbank25_resume_time1_re <= interface25_bank_bus_we;
-        csrbank25_resume_time1_we <= csrbank25_re;
+    csrbank26_control0_re <= 1'd0;
+    csrbank26_control0_we <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank26_control0_re <= interface26_bank_bus_we;
+        csrbank26_control0_we <= csrbank26_re;
     end
 end
-assign csrbank25_resume_time0_r = interface25_bank_bus_dat_w[31:0];
+assign csrbank26_resume_time1_r = interface26_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank25_resume_time0_we <= 1'd0;
-    csrbank25_resume_time0_re <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 2'd2))) begin
-        csrbank25_resume_time0_re <= interface25_bank_bus_we;
-        csrbank25_resume_time0_we <= csrbank25_re;
+    csrbank26_resume_time1_we <= 1'd0;
+    csrbank26_resume_time1_re <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank26_resume_time1_re <= interface26_bank_bus_we;
+        csrbank26_resume_time1_we <= csrbank26_re;
     end
 end
-assign csrbank25_time1_r = interface25_bank_bus_dat_w[31:0];
+assign csrbank26_resume_time0_r = interface26_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank25_time1_we <= 1'd0;
-    csrbank25_time1_re <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 2'd3))) begin
-        csrbank25_time1_re <= interface25_bank_bus_we;
-        csrbank25_time1_we <= csrbank25_re;
+    csrbank26_resume_time0_re <= 1'd0;
+    csrbank26_resume_time0_we <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank26_resume_time0_re <= interface26_bank_bus_we;
+        csrbank26_resume_time0_we <= csrbank26_re;
     end
 end
-assign csrbank25_time0_r = interface25_bank_bus_dat_w[31:0];
+assign csrbank26_time1_r = interface26_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank25_time0_re <= 1'd0;
-    csrbank25_time0_we <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 3'd4))) begin
-        csrbank25_time0_re <= interface25_bank_bus_we;
-        csrbank25_time0_we <= csrbank25_re;
+    csrbank26_time1_re <= 1'd0;
+    csrbank26_time1_we <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank26_time1_re <= interface26_bank_bus_we;
+        csrbank26_time1_we <= csrbank26_re;
     end
 end
-assign csrbank25_status_r = interface25_bank_bus_dat_w[0];
+assign csrbank26_time0_r = interface26_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank25_status_re <= 1'd0;
-    csrbank25_status_we <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 3'd5))) begin
-        csrbank25_status_re <= interface25_bank_bus_we;
-        csrbank25_status_we <= csrbank25_re;
+    csrbank26_time0_we <= 1'd0;
+    csrbank26_time0_re <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd4))) begin
+        csrbank26_time0_re <= interface26_bank_bus_we;
+        csrbank26_time0_we <= csrbank26_re;
     end
 end
-assign csrbank25_state0_r = interface25_bank_bus_dat_w[1:0];
+assign csrbank26_status_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank25_state0_we <= 1'd0;
-    csrbank25_state0_re <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 3'd6))) begin
-        csrbank25_state0_re <= interface25_bank_bus_we;
-        csrbank25_state0_we <= csrbank25_re;
+    csrbank26_status_we <= 1'd0;
+    csrbank26_status_re <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank26_status_re <= interface26_bank_bus_we;
+        csrbank26_status_we <= csrbank26_re;
     end
 end
-assign csrbank25_interrupt0_r = interface25_bank_bus_dat_w[0];
+assign csrbank26_state0_r = interface26_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank25_interrupt0_re <= 1'd0;
-    csrbank25_interrupt0_we <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 3'd7))) begin
-        csrbank25_interrupt0_re <= interface25_bank_bus_we;
-        csrbank25_interrupt0_we <= csrbank25_re;
+    csrbank26_state0_re <= 1'd0;
+    csrbank26_state0_we <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd6))) begin
+        csrbank26_state0_re <= interface26_bank_bus_we;
+        csrbank26_state0_we <= csrbank26_re;
     end
 end
-assign csrbank25_ev_status_r = interface25_bank_bus_dat_w[0];
+assign csrbank26_interrupt0_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank25_ev_status_re <= 1'd0;
-    csrbank25_ev_status_we <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 4'd8))) begin
-        csrbank25_ev_status_re <= interface25_bank_bus_we;
-        csrbank25_ev_status_we <= csrbank25_re;
+    csrbank26_interrupt0_we <= 1'd0;
+    csrbank26_interrupt0_re <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd7))) begin
+        csrbank26_interrupt0_re <= interface26_bank_bus_we;
+        csrbank26_interrupt0_we <= csrbank26_re;
     end
 end
-assign csrbank25_ev_pending_r = interface25_bank_bus_dat_w[0];
+assign csrbank26_ev_status_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank25_ev_pending_we <= 1'd0;
-    csrbank25_ev_pending_re <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 4'd9))) begin
-        csrbank25_ev_pending_re <= interface25_bank_bus_we;
-        csrbank25_ev_pending_we <= csrbank25_re;
+    csrbank26_ev_status_we <= 1'd0;
+    csrbank26_ev_status_re <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 4'd8))) begin
+        csrbank26_ev_status_re <= interface26_bank_bus_we;
+        csrbank26_ev_status_we <= csrbank26_re;
     end
 end
-assign csrbank25_ev_enable0_r = interface25_bank_bus_dat_w[0];
+assign csrbank26_ev_pending_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank25_ev_enable0_re <= 1'd0;
-    csrbank25_ev_enable0_we <= 1'd0;
-    if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 4'd10))) begin
-        csrbank25_ev_enable0_re <= interface25_bank_bus_we;
-        csrbank25_ev_enable0_we <= csrbank25_re;
+    csrbank26_ev_pending_re <= 1'd0;
+    csrbank26_ev_pending_we <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 4'd9))) begin
+        csrbank26_ev_pending_re <= interface26_bank_bus_we;
+        csrbank26_ev_pending_we <= csrbank26_re;
+    end
+end
+assign csrbank26_ev_enable0_r = interface26_bank_bus_dat_w[0];
+always @(*) begin
+    csrbank26_ev_enable0_we <= 1'd0;
+    csrbank26_ev_enable0_re <= 1'd0;
+    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 4'd10))) begin
+        csrbank26_ev_enable0_re <= interface26_bank_bus_we;
+        csrbank26_ev_enable0_we <= csrbank26_re;
     end
 end
 assign susres_pause = susres_control_storage[0];
@@ -11337,105 +11730,105 @@ always @(*) begin
         susres_load <= susres_control_storage[1];
     end
 end
-assign csrbank25_control0_w = susres_control_storage[1:0];
-assign csrbank25_resume_time1_w = susres_resume_time_storage[63:32];
-assign csrbank25_resume_time0_w = susres_resume_time_storage[31:0];
-assign csrbank25_time1_w = susres_time_status[63:32];
-assign csrbank25_time0_w = susres_time_status[31:0];
-assign susres_time_we = csrbank25_time0_we;
+assign csrbank26_control0_w = susres_control_storage[1:0];
+assign csrbank26_resume_time1_w = susres_resume_time_storage[63:32];
+assign csrbank26_resume_time0_w = susres_resume_time_storage[31:0];
+assign csrbank26_time1_w = susres_time_status[63:32];
+assign csrbank26_time0_w = susres_time_status[31:0];
+assign susres_time_we = csrbank26_time0_we;
 assign susres_status_status0 = susres_paused;
-assign csrbank25_status_w = susres_status_status0;
-assign susres_status_we0 = csrbank25_status_we;
+assign csrbank26_status_w = susres_status_status0;
+assign susres_status_we0 = csrbank26_status_we;
 assign susres_resume0 = susres_state_storage[0];
 assign susres_was_forced = susres_state_storage[1];
-assign csrbank25_state0_w = susres_state_storage[1:0];
+assign csrbank26_state0_w = susres_state_storage[1:0];
 always @(*) begin
     susres_interrupt <= 1'd0;
     if (susres_interrupt_re) begin
         susres_interrupt <= susres_interrupt_storage;
     end
 end
-assign csrbank25_interrupt0_w = susres_interrupt_storage;
+assign csrbank26_interrupt0_w = susres_interrupt_storage;
 assign susres_status_status1 = susres_soft_int0;
-assign csrbank25_ev_status_w = susres_status_status1;
-assign susres_status_we1 = csrbank25_ev_status_we;
+assign csrbank26_ev_status_w = susres_status_status1;
+assign susres_status_we1 = csrbank26_ev_status_we;
 assign susres_pending_status = susres_soft_int1;
-assign csrbank25_ev_pending_w = susres_pending_status;
-assign susres_pending_we = csrbank25_ev_pending_we;
+assign csrbank26_ev_pending_w = susres_pending_status;
+assign susres_pending_we = csrbank26_ev_pending_we;
 assign susres_soft_int2 = susres_enable_storage;
-assign csrbank25_ev_enable0_w = susres_enable_storage;
-assign csrbank26_sel = (interface26_bank_bus_adr[15:10] == 5'd26);
-assign csrbank26_re = interface26_bank_bus_re;
-assign csrbank26_control0_r = interface26_bank_bus_dat_w[0];
+assign csrbank26_ev_enable0_w = susres_enable_storage;
+assign csrbank27_sel = (interface27_bank_bus_adr[15:10] == 5'd27);
+assign csrbank27_re = interface27_bank_bus_re;
+assign csrbank27_control0_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_control0_re <= 1'd0;
-    csrbank26_control0_we <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 1'd0))) begin
-        csrbank26_control0_re <= interface26_bank_bus_we;
-        csrbank26_control0_we <= csrbank26_re;
+    csrbank27_control0_we <= 1'd0;
+    csrbank27_control0_re <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 1'd0))) begin
+        csrbank27_control0_re <= interface27_bank_bus_we;
+        csrbank27_control0_we <= csrbank27_re;
     end
 end
-assign csrbank26_time1_r = interface26_bank_bus_dat_w[31:0];
+assign csrbank27_time1_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank26_time1_re <= 1'd0;
-    csrbank26_time1_we <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 1'd1))) begin
-        csrbank26_time1_re <= interface26_bank_bus_we;
-        csrbank26_time1_we <= csrbank26_re;
+    csrbank27_time1_we <= 1'd0;
+    csrbank27_time1_re <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 1'd1))) begin
+        csrbank27_time1_re <= interface27_bank_bus_we;
+        csrbank27_time1_we <= csrbank27_re;
     end
 end
-assign csrbank26_time0_r = interface26_bank_bus_dat_w[31:0];
+assign csrbank27_time0_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank26_time0_we <= 1'd0;
-    csrbank26_time0_re <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 2'd2))) begin
-        csrbank26_time0_re <= interface26_bank_bus_we;
-        csrbank26_time0_we <= csrbank26_re;
+    csrbank27_time0_re <= 1'd0;
+    csrbank27_time0_we <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 2'd2))) begin
+        csrbank27_time0_re <= interface27_bank_bus_we;
+        csrbank27_time0_we <= csrbank27_re;
     end
 end
-assign csrbank26_msleep_target1_r = interface26_bank_bus_dat_w[31:0];
+assign csrbank27_msleep_target1_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank26_msleep_target1_we <= 1'd0;
-    csrbank26_msleep_target1_re <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 2'd3))) begin
-        csrbank26_msleep_target1_re <= interface26_bank_bus_we;
-        csrbank26_msleep_target1_we <= csrbank26_re;
+    csrbank27_msleep_target1_re <= 1'd0;
+    csrbank27_msleep_target1_we <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 2'd3))) begin
+        csrbank27_msleep_target1_re <= interface27_bank_bus_we;
+        csrbank27_msleep_target1_we <= csrbank27_re;
     end
 end
-assign csrbank26_msleep_target0_r = interface26_bank_bus_dat_w[31:0];
+assign csrbank27_msleep_target0_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank26_msleep_target0_re <= 1'd0;
-    csrbank26_msleep_target0_we <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd4))) begin
-        csrbank26_msleep_target0_re <= interface26_bank_bus_we;
-        csrbank26_msleep_target0_we <= csrbank26_re;
+    csrbank27_msleep_target0_we <= 1'd0;
+    csrbank27_msleep_target0_re <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd4))) begin
+        csrbank27_msleep_target0_re <= interface27_bank_bus_we;
+        csrbank27_msleep_target0_we <= csrbank27_re;
     end
 end
-assign csrbank26_ev_status_r = interface26_bank_bus_dat_w[0];
+assign csrbank27_ev_status_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_ev_status_we <= 1'd0;
-    csrbank26_ev_status_re <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd5))) begin
-        csrbank26_ev_status_re <= interface26_bank_bus_we;
-        csrbank26_ev_status_we <= csrbank26_re;
+    csrbank27_ev_status_re <= 1'd0;
+    csrbank27_ev_status_we <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank27_ev_status_re <= interface27_bank_bus_we;
+        csrbank27_ev_status_we <= csrbank27_re;
     end
 end
-assign csrbank26_ev_pending_r = interface26_bank_bus_dat_w[0];
+assign csrbank27_ev_pending_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_ev_pending_we <= 1'd0;
-    csrbank26_ev_pending_re <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd6))) begin
-        csrbank26_ev_pending_re <= interface26_bank_bus_we;
-        csrbank26_ev_pending_we <= csrbank26_re;
+    csrbank27_ev_pending_re <= 1'd0;
+    csrbank27_ev_pending_we <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd6))) begin
+        csrbank27_ev_pending_re <= interface27_bank_bus_we;
+        csrbank27_ev_pending_we <= csrbank27_re;
     end
 end
-assign csrbank26_ev_enable0_r = interface26_bank_bus_dat_w[0];
+assign csrbank27_ev_enable0_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_ev_enable0_re <= 1'd0;
-    csrbank26_ev_enable0_we <= 1'd0;
-    if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd7))) begin
-        csrbank26_ev_enable0_re <= interface26_bank_bus_we;
-        csrbank26_ev_enable0_we <= csrbank26_re;
+    csrbank27_ev_enable0_we <= 1'd0;
+    csrbank27_ev_enable0_re <= 1'd0;
+    if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd7))) begin
+        csrbank27_ev_enable0_re <= interface27_bank_bus_we;
+        csrbank27_ev_enable0_we <= csrbank27_re;
     end
 end
 always @(*) begin
@@ -11444,20 +11837,20 @@ always @(*) begin
         ticktimer_reset <= ticktimer_control_storage;
     end
 end
-assign csrbank26_control0_w = ticktimer_control_storage;
-assign csrbank26_time1_w = ticktimer_time_status[63:32];
-assign csrbank26_time0_w = ticktimer_time_status[31:0];
-assign ticktimer_time_we = csrbank26_time0_we;
-assign csrbank26_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
-assign csrbank26_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
+assign csrbank27_control0_w = ticktimer_control_storage;
+assign csrbank27_time1_w = ticktimer_time_status[63:32];
+assign csrbank27_time0_w = ticktimer_time_status[31:0];
+assign ticktimer_time_we = csrbank27_time0_we;
+assign csrbank27_msleep_target1_w = ticktimer_msleep_target_storage[63:32];
+assign csrbank27_msleep_target0_w = ticktimer_msleep_target_storage[31:0];
 assign ticktimer_status_status = ticktimer_alarm0;
-assign csrbank26_ev_status_w = ticktimer_status_status;
-assign ticktimer_status_we = csrbank26_ev_status_we;
+assign csrbank27_ev_status_w = ticktimer_status_status;
+assign ticktimer_status_we = csrbank27_ev_status_we;
 assign ticktimer_pending_status = ticktimer_alarm1;
-assign csrbank26_ev_pending_w = ticktimer_pending_status;
-assign ticktimer_pending_we = csrbank26_ev_pending_we;
+assign csrbank27_ev_pending_w = ticktimer_pending_status;
+assign ticktimer_pending_we = csrbank27_ev_pending_we;
 assign ticktimer_alarm2 = ticktimer_enable_storage;
-assign csrbank26_ev_enable0_w = ticktimer_enable_storage;
+assign csrbank27_ev_enable0_w = ticktimer_enable_storage;
 assign csr_interconnect_adr = cramsoc_adr;
 assign csr_interconnect_we = cramsoc_we;
 assign csr_interconnect_dat_w = cramsoc_dat_w;
@@ -11490,6 +11883,7 @@ assign interface23_bank_bus_adr = csr_interconnect_adr;
 assign interface24_bank_bus_adr = csr_interconnect_adr;
 assign interface25_bank_bus_adr = csr_interconnect_adr;
 assign interface26_bank_bus_adr = csr_interconnect_adr;
+assign interface27_bank_bus_adr = csr_interconnect_adr;
 assign interface0_bank_bus_we = csr_interconnect_we;
 assign interface1_bank_bus_we = csr_interconnect_we;
 assign interface2_bank_bus_we = csr_interconnect_we;
@@ -11517,6 +11911,7 @@ assign interface23_bank_bus_we = csr_interconnect_we;
 assign interface24_bank_bus_we = csr_interconnect_we;
 assign interface25_bank_bus_we = csr_interconnect_we;
 assign interface26_bank_bus_we = csr_interconnect_we;
+assign interface27_bank_bus_we = csr_interconnect_we;
 assign interface0_bank_bus_dat_w = csr_interconnect_dat_w;
 assign interface1_bank_bus_dat_w = csr_interconnect_dat_w;
 assign interface2_bank_bus_dat_w = csr_interconnect_dat_w;
@@ -11544,7 +11939,8 @@ assign interface23_bank_bus_dat_w = csr_interconnect_dat_w;
 assign interface24_bank_bus_dat_w = csr_interconnect_dat_w;
 assign interface25_bank_bus_dat_w = csr_interconnect_dat_w;
 assign interface26_bank_bus_dat_w = csr_interconnect_dat_w;
-assign csr_interconnect_dat_r = ((((((((((((((((((((((((((interface0_bank_bus_dat_r | interface1_bank_bus_dat_r) | interface2_bank_bus_dat_r) | interface3_bank_bus_dat_r) | interface4_bank_bus_dat_r) | interface5_bank_bus_dat_r) | interface6_bank_bus_dat_r) | interface7_bank_bus_dat_r) | interface8_bank_bus_dat_r) | interface9_bank_bus_dat_r) | interface10_bank_bus_dat_r) | interface11_bank_bus_dat_r) | interface12_bank_bus_dat_r) | interface13_bank_bus_dat_r) | interface14_bank_bus_dat_r) | interface15_bank_bus_dat_r) | interface16_bank_bus_dat_r) | interface17_bank_bus_dat_r) | interface18_bank_bus_dat_r) | interface19_bank_bus_dat_r) | interface20_bank_bus_dat_r) | interface21_bank_bus_dat_r) | interface22_bank_bus_dat_r) | interface23_bank_bus_dat_r) | interface24_bank_bus_dat_r) | interface25_bank_bus_dat_r) | interface26_bank_bus_dat_r);
+assign interface27_bank_bus_dat_w = csr_interconnect_dat_w;
+assign csr_interconnect_dat_r = (((((((((((((((((((((((((((interface0_bank_bus_dat_r | interface1_bank_bus_dat_r) | interface2_bank_bus_dat_r) | interface3_bank_bus_dat_r) | interface4_bank_bus_dat_r) | interface5_bank_bus_dat_r) | interface6_bank_bus_dat_r) | interface7_bank_bus_dat_r) | interface8_bank_bus_dat_r) | interface9_bank_bus_dat_r) | interface10_bank_bus_dat_r) | interface11_bank_bus_dat_r) | interface12_bank_bus_dat_r) | interface13_bank_bus_dat_r) | interface14_bank_bus_dat_r) | interface15_bank_bus_dat_r) | interface16_bank_bus_dat_r) | interface17_bank_bus_dat_r) | interface18_bank_bus_dat_r) | interface19_bank_bus_dat_r) | interface20_bank_bus_dat_r) | interface21_bank_bus_dat_r) | interface22_bank_bus_dat_r) | interface23_bank_bus_dat_r) | interface24_bank_bus_dat_r) | interface25_bank_bus_dat_r) | interface26_bank_bus_dat_r) | interface27_bank_bus_dat_r);
 assign interface0_bank_bus_re = csr_interconnect_re;
 assign interface1_bank_bus_re = csr_interconnect_re;
 assign interface2_bank_bus_re = csr_interconnect_re;
@@ -11572,6 +11968,7 @@ assign interface23_bank_bus_re = csr_interconnect_re;
 assign interface24_bank_bus_re = csr_interconnect_re;
 assign interface25_bank_bus_re = csr_interconnect_re;
 assign interface26_bank_bus_re = csr_interconnect_re;
+assign interface27_bank_bus_re = csr_interconnect_re;
 assign slice_proxy0 = cramsoc_corecsr_aw_payload_addr[31:2];
 assign slice_proxy1 = cramsoc_corecsr_ar_payload_addr[31:2];
 always @(*) begin
@@ -15763,6 +16160,58 @@ always @(posedge sys_clk) begin
     if (mailbox_abort_in_progress1_mailbox_next_value_ce1) begin
         mailbox_abort_in_progress1 <= mailbox_abort_in_progress1_mailbox_next_value1;
     end
+    if (mb_client_status_we1) begin
+        mb_client_tx_err <= 1'd0;
+    end else begin
+        if ((mb_client_wdata_re & (~mb_client_w_ready))) begin
+            mb_client_tx_err <= 1'd1;
+        end else begin
+            mb_client_tx_err <= mb_client_tx_err;
+        end
+    end
+    if (mb_client_status_we1) begin
+        mb_client_rx_err <= 1'd0;
+    end else begin
+        if ((mb_client_rdata_we & (~mb_client_r_valid))) begin
+            mb_client_rx_err <= 1'd1;
+        end else begin
+            mb_client_rx_err <= mb_client_rx_err;
+        end
+    end
+    if (mb_client_available_clear) begin
+        mb_client_available_pending <= 1'd0;
+    end
+    if (mb_client_available_trigger) begin
+        mb_client_available_pending <= 1'd1;
+    end
+    if (mb_client_abort_init_clear) begin
+        mb_client_abort_init_pending <= 1'd0;
+    end
+    mb_client_abort_init_trigger_d <= mb_client_abort_init_trigger;
+    if ((mb_client_abort_init_trigger & (~mb_client_abort_init_trigger_d))) begin
+        mb_client_abort_init_pending <= 1'd1;
+    end
+    if (mb_client_abort_done_clear) begin
+        mb_client_abort_done_pending <= 1'd0;
+    end
+    mb_client_abort_done_trigger_d <= mb_client_abort_done_trigger;
+    if ((mb_client_abort_done_trigger & (~mb_client_abort_done_trigger_d))) begin
+        mb_client_abort_done_pending <= 1'd1;
+    end
+    if (mb_client_error_clear) begin
+        mb_client_error_pending <= 1'd0;
+    end
+    mb_client_error_trigger_d <= mb_client_error_trigger;
+    if ((mb_client_error_trigger & (~mb_client_error_trigger_d))) begin
+        mb_client_error_pending <= 1'd1;
+    end
+    cramsoc_mailboxclient_state <= cramsoc_mailboxclient_next_state;
+    if (mb_client_abort_ack1_mailboxclient_next_value_ce0) begin
+        mb_client_abort_ack1 <= mb_client_abort_ack1_mailboxclient_next_value0;
+    end
+    if (mb_client_abort_in_progress1_mailboxclient_next_value_ce1) begin
+        mb_client_abort_in_progress1 <= mb_client_abort_in_progress1_mailboxclient_next_value1;
+    end
     cramsoc_axilite2csr_state <= cramsoc_axilite2csr_next_state;
     if (cramsoc_last_was_read_axilite2csr_next_value_ce) begin
         cramsoc_last_was_read <= cramsoc_last_was_read_axilite2csr_next_value;
@@ -16530,79 +16979,63 @@ always @(posedge sys_clk) begin
     if (csrbank24_sel) begin
         case (interface24_bank_bus_adr[9:0])
             1'd0: begin
-                interface24_bank_bus_dat_r <= csrbank24_pc_w;
+                interface24_bank_bus_dat_r <= csrbank24_wdata0_w;
+            end
+            1'd1: begin
+                interface24_bank_bus_dat_r <= csrbank24_rdata_w;
+            end
+            2'd2: begin
+                interface24_bank_bus_dat_r <= csrbank24_ev_status_w;
+            end
+            2'd3: begin
+                interface24_bank_bus_dat_r <= csrbank24_ev_pending_w;
+            end
+            3'd4: begin
+                interface24_bank_bus_dat_r <= csrbank24_ev_enable0_w;
+            end
+            3'd5: begin
+                interface24_bank_bus_dat_r <= csrbank24_status_w;
+            end
+            3'd6: begin
+                interface24_bank_bus_dat_r <= csrbank24_control0_w;
+            end
+            3'd7: begin
+                interface24_bank_bus_dat_r <= csrbank24_done0_w;
             end
         endcase
     end
-    resetvalue_re <= csrbank24_pc_re;
+    if (csrbank24_wdata0_re) begin
+        mb_client_wdata_storage[31:0] <= csrbank24_wdata0_r;
+    end
+    mb_client_wdata_re <= csrbank24_wdata0_re;
+    mb_client_rdata_re <= csrbank24_rdata_re;
+    mb_client_status_re0 <= csrbank24_ev_status_re;
+    if (csrbank24_ev_pending_re) begin
+        mb_client_pending_r[3:0] <= csrbank24_ev_pending_r;
+    end
+    mb_client_pending_re <= csrbank24_ev_pending_re;
+    if (csrbank24_ev_enable0_re) begin
+        mb_client_enable_storage[3:0] <= csrbank24_ev_enable0_r;
+    end
+    mb_client_enable_re <= csrbank24_ev_enable0_re;
+    mb_client_status_re1 <= csrbank24_status_re;
+    if (csrbank24_control0_re) begin
+        mb_client_control_storage <= csrbank24_control0_r;
+    end
+    mb_client_control_re <= csrbank24_control0_re;
+    if (csrbank24_done0_re) begin
+        mb_client_done_storage <= csrbank24_done0_r;
+    end
+    mb_client_done_re <= csrbank24_done0_re;
     interface25_bank_bus_dat_r <= 1'd0;
     if (csrbank25_sel) begin
         case (interface25_bank_bus_adr[9:0])
             1'd0: begin
-                interface25_bank_bus_dat_r <= csrbank25_control0_w;
-            end
-            1'd1: begin
-                interface25_bank_bus_dat_r <= csrbank25_resume_time1_w;
-            end
-            2'd2: begin
-                interface25_bank_bus_dat_r <= csrbank25_resume_time0_w;
-            end
-            2'd3: begin
-                interface25_bank_bus_dat_r <= csrbank25_time1_w;
-            end
-            3'd4: begin
-                interface25_bank_bus_dat_r <= csrbank25_time0_w;
-            end
-            3'd5: begin
-                interface25_bank_bus_dat_r <= csrbank25_status_w;
-            end
-            3'd6: begin
-                interface25_bank_bus_dat_r <= csrbank25_state0_w;
-            end
-            3'd7: begin
-                interface25_bank_bus_dat_r <= csrbank25_interrupt0_w;
-            end
-            4'd8: begin
-                interface25_bank_bus_dat_r <= csrbank25_ev_status_w;
-            end
-            4'd9: begin
-                interface25_bank_bus_dat_r <= csrbank25_ev_pending_w;
-            end
-            4'd10: begin
-                interface25_bank_bus_dat_r <= csrbank25_ev_enable0_w;
+                interface25_bank_bus_dat_r <= csrbank25_pc_w;
             end
         endcase
     end
-    if (csrbank25_control0_re) begin
-        susres_control_storage[1:0] <= csrbank25_control0_r;
-    end
-    susres_control_re <= csrbank25_control0_re;
-    if (csrbank25_resume_time1_re) begin
-        susres_resume_time_storage[63:32] <= csrbank25_resume_time1_r;
-    end
-    if (csrbank25_resume_time0_re) begin
-        susres_resume_time_storage[31:0] <= csrbank25_resume_time0_r;
-    end
-    susres_resume_time_re <= csrbank25_resume_time0_re;
-    susres_time_re <= csrbank25_time0_re;
-    susres_status_re0 <= csrbank25_status_re;
-    if (csrbank25_state0_re) begin
-        susres_state_storage[1:0] <= csrbank25_state0_r;
-    end
-    susres_state_re <= csrbank25_state0_re;
-    if (csrbank25_interrupt0_re) begin
-        susres_interrupt_storage <= csrbank25_interrupt0_r;
-    end
-    susres_interrupt_re <= csrbank25_interrupt0_re;
-    susres_status_re1 <= csrbank25_ev_status_re;
-    if (csrbank25_ev_pending_re) begin
-        susres_pending_r <= csrbank25_ev_pending_r;
-    end
-    susres_pending_re <= csrbank25_ev_pending_re;
-    if (csrbank25_ev_enable0_re) begin
-        susres_enable_storage <= csrbank25_ev_enable0_r;
-    end
-    susres_enable_re <= csrbank25_ev_enable0_re;
+    resetvalue_re <= csrbank25_pc_re;
     interface26_bank_bus_dat_r <= 1'd0;
     if (csrbank26_sel) begin
         case (interface26_bank_bus_adr[9:0])
@@ -16610,49 +17043,117 @@ always @(posedge sys_clk) begin
                 interface26_bank_bus_dat_r <= csrbank26_control0_w;
             end
             1'd1: begin
-                interface26_bank_bus_dat_r <= csrbank26_time1_w;
+                interface26_bank_bus_dat_r <= csrbank26_resume_time1_w;
             end
             2'd2: begin
-                interface26_bank_bus_dat_r <= csrbank26_time0_w;
+                interface26_bank_bus_dat_r <= csrbank26_resume_time0_w;
             end
             2'd3: begin
-                interface26_bank_bus_dat_r <= csrbank26_msleep_target1_w;
+                interface26_bank_bus_dat_r <= csrbank26_time1_w;
             end
             3'd4: begin
-                interface26_bank_bus_dat_r <= csrbank26_msleep_target0_w;
+                interface26_bank_bus_dat_r <= csrbank26_time0_w;
             end
             3'd5: begin
-                interface26_bank_bus_dat_r <= csrbank26_ev_status_w;
+                interface26_bank_bus_dat_r <= csrbank26_status_w;
             end
             3'd6: begin
-                interface26_bank_bus_dat_r <= csrbank26_ev_pending_w;
+                interface26_bank_bus_dat_r <= csrbank26_state0_w;
             end
             3'd7: begin
+                interface26_bank_bus_dat_r <= csrbank26_interrupt0_w;
+            end
+            4'd8: begin
+                interface26_bank_bus_dat_r <= csrbank26_ev_status_w;
+            end
+            4'd9: begin
+                interface26_bank_bus_dat_r <= csrbank26_ev_pending_w;
+            end
+            4'd10: begin
                 interface26_bank_bus_dat_r <= csrbank26_ev_enable0_w;
             end
         endcase
     end
     if (csrbank26_control0_re) begin
-        ticktimer_control_storage <= csrbank26_control0_r;
+        susres_control_storage[1:0] <= csrbank26_control0_r;
     end
-    ticktimer_control_re <= csrbank26_control0_re;
-    ticktimer_time_re <= csrbank26_time0_re;
-    if (csrbank26_msleep_target1_re) begin
-        ticktimer_msleep_target_storage[63:32] <= csrbank26_msleep_target1_r;
+    susres_control_re <= csrbank26_control0_re;
+    if (csrbank26_resume_time1_re) begin
+        susres_resume_time_storage[63:32] <= csrbank26_resume_time1_r;
     end
-    if (csrbank26_msleep_target0_re) begin
-        ticktimer_msleep_target_storage[31:0] <= csrbank26_msleep_target0_r;
+    if (csrbank26_resume_time0_re) begin
+        susres_resume_time_storage[31:0] <= csrbank26_resume_time0_r;
     end
-    ticktimer_msleep_target_re <= csrbank26_msleep_target0_re;
-    ticktimer_status_re <= csrbank26_ev_status_re;
+    susres_resume_time_re <= csrbank26_resume_time0_re;
+    susres_time_re <= csrbank26_time0_re;
+    susres_status_re0 <= csrbank26_status_re;
+    if (csrbank26_state0_re) begin
+        susres_state_storage[1:0] <= csrbank26_state0_r;
+    end
+    susres_state_re <= csrbank26_state0_re;
+    if (csrbank26_interrupt0_re) begin
+        susres_interrupt_storage <= csrbank26_interrupt0_r;
+    end
+    susres_interrupt_re <= csrbank26_interrupt0_re;
+    susres_status_re1 <= csrbank26_ev_status_re;
     if (csrbank26_ev_pending_re) begin
-        ticktimer_pending_r <= csrbank26_ev_pending_r;
+        susres_pending_r <= csrbank26_ev_pending_r;
     end
-    ticktimer_pending_re <= csrbank26_ev_pending_re;
+    susres_pending_re <= csrbank26_ev_pending_re;
     if (csrbank26_ev_enable0_re) begin
-        ticktimer_enable_storage <= csrbank26_ev_enable0_r;
+        susres_enable_storage <= csrbank26_ev_enable0_r;
     end
-    ticktimer_enable_re <= csrbank26_ev_enable0_re;
+    susres_enable_re <= csrbank26_ev_enable0_re;
+    interface27_bank_bus_dat_r <= 1'd0;
+    if (csrbank27_sel) begin
+        case (interface27_bank_bus_adr[9:0])
+            1'd0: begin
+                interface27_bank_bus_dat_r <= csrbank27_control0_w;
+            end
+            1'd1: begin
+                interface27_bank_bus_dat_r <= csrbank27_time1_w;
+            end
+            2'd2: begin
+                interface27_bank_bus_dat_r <= csrbank27_time0_w;
+            end
+            2'd3: begin
+                interface27_bank_bus_dat_r <= csrbank27_msleep_target1_w;
+            end
+            3'd4: begin
+                interface27_bank_bus_dat_r <= csrbank27_msleep_target0_w;
+            end
+            3'd5: begin
+                interface27_bank_bus_dat_r <= csrbank27_ev_status_w;
+            end
+            3'd6: begin
+                interface27_bank_bus_dat_r <= csrbank27_ev_pending_w;
+            end
+            3'd7: begin
+                interface27_bank_bus_dat_r <= csrbank27_ev_enable0_w;
+            end
+        endcase
+    end
+    if (csrbank27_control0_re) begin
+        ticktimer_control_storage <= csrbank27_control0_r;
+    end
+    ticktimer_control_re <= csrbank27_control0_re;
+    ticktimer_time_re <= csrbank27_time0_re;
+    if (csrbank27_msleep_target1_re) begin
+        ticktimer_msleep_target_storage[63:32] <= csrbank27_msleep_target1_r;
+    end
+    if (csrbank27_msleep_target0_re) begin
+        ticktimer_msleep_target_storage[31:0] <= csrbank27_msleep_target0_r;
+    end
+    ticktimer_msleep_target_re <= csrbank27_msleep_target0_re;
+    ticktimer_status_re <= csrbank27_ev_status_re;
+    if (csrbank27_ev_pending_re) begin
+        ticktimer_pending_r <= csrbank27_ev_pending_r;
+    end
+    ticktimer_pending_re <= csrbank27_ev_pending_re;
+    if (csrbank27_ev_enable0_re) begin
+        ticktimer_enable_storage <= csrbank27_ev_enable0_r;
+    end
+    ticktimer_enable_re <= csrbank27_ev_enable0_re;
     if (sys_rst) begin
         cramsoc_peripherals_aw_ready <= 1'd0;
         cramsoc_peripherals_w_ready <= 1'd0;
@@ -17320,6 +17821,30 @@ always @(posedge sys_clk) begin
         mailbox_syncfifobuffered1_level0 <= 11'd0;
         mailbox_syncfifobuffered1_produce <= 10'd0;
         mailbox_syncfifobuffered1_consume <= 10'd0;
+        mb_client_wdata_storage <= 32'd0;
+        mb_client_wdata_re <= 1'd0;
+        mb_client_rdata_re <= 1'd0;
+        mb_client_available_pending <= 1'd0;
+        mb_client_abort_init_pending <= 1'd0;
+        mb_client_abort_init_trigger_d <= 1'd0;
+        mb_client_abort_done_pending <= 1'd0;
+        mb_client_abort_done_trigger_d <= 1'd0;
+        mb_client_error_pending <= 1'd0;
+        mb_client_error_trigger_d <= 1'd0;
+        mb_client_status_re0 <= 1'd0;
+        mb_client_pending_re <= 1'd0;
+        mb_client_pending_r <= 4'd0;
+        mb_client_enable_storage <= 4'd0;
+        mb_client_enable_re <= 1'd0;
+        mb_client_tx_err <= 1'd0;
+        mb_client_rx_err <= 1'd0;
+        mb_client_status_re1 <= 1'd0;
+        mb_client_control_storage <= 1'd0;
+        mb_client_control_re <= 1'd0;
+        mb_client_done_storage <= 1'd0;
+        mb_client_done_re <= 1'd0;
+        mb_client_abort_in_progress1 <= 1'd0;
+        mb_client_abort_ack1 <= 1'd0;
         csr_wtest_storage <= 32'd0;
         csr_wtest_re <= 1'd0;
         csr_rtest_re <= 1'd0;
@@ -17331,6 +17856,7 @@ always @(posedge sys_clk) begin
         socbushandler_wr_lock_counter <= 8'd0;
         socbushandler_rd_lock_counter <= 8'd0;
         cramsoc_mailbox_state <= 2'd0;
+        cramsoc_mailboxclient_state <= 2'd0;
         cramsoc_axilite2csr_state <= 2'd0;
     end
     multiregimpl2_regs0 <= ticktimer_load_xfer_ps_ack_toggle_i;
@@ -17758,5 +18284,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-01-18 01:18:13.
+//  Auto-Generated by LiteX on 2023-02-18 00:44:09.
 //------------------------------------------------------------------------------

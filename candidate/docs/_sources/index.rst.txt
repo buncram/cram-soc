@@ -44,6 +44,7 @@ Register Groups
     irqarray8
     irqarray9
     mailbox
+    mb_client
     resetvalue
     ticktimer
 

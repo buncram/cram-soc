@@ -40,7 +40,7 @@ module priority_encoder #
 (
     input  wire [WIDTH-1:0]         input_unencoded,
     output wire                     output_valid,
-    output wire [$clog2(WIDTH)-1:0] output_encoded,
+    output wire [((($clog2(WIDTH)-1) > 0) ? ($clog2(WIDTH)-1) : 0) :0] output_encoded,
     output wire [WIDTH-1:0]         output_unencoded
 );
 

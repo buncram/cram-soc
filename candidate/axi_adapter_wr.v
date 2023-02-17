@@ -133,6 +133,7 @@ parameter S_WORD_SIZE = S_DATA_WIDTH/S_WORD_WIDTH;
 parameter M_WORD_SIZE = M_DATA_WIDTH/M_WORD_WIDTH;
 parameter S_BURST_SIZE = $clog2(S_STRB_WIDTH);
 parameter M_BURST_SIZE = $clog2(M_STRB_WIDTH);
+parameter S_M_BURST_DIFF = S_BURST_SIZE - M_BURST_SIZE > 0 ? S_BURST_SIZE - M_BURST_SIZE : 0;
 
 // output bus is wider
 parameter EXPAND = M_STRB_WIDTH > S_STRB_WIDTH;
@@ -511,11 +512,11 @@ always @* begin
                     burst_active_next = 1'b1;
                     if (s_axi_awsize > M_BURST_SIZE) begin
                         // need to adjust burst size
-                        if ({s_axi_awlen, {S_BURST_SIZE-M_BURST_SIZE{1'b1}}} >> (S_BURST_SIZE-s_axi_awsize) > 255) begin
+                        if ({s_axi_awlen, {S_M_BURST_DIFF{1'b1}}} >> (S_BURST_SIZE-s_axi_awsize) > 255) begin
                             // limit burst length to max
                             master_burst_next = 8'd255;
                         end else begin
-                            master_burst_next = {s_axi_awlen, {S_BURST_SIZE-M_BURST_SIZE{1'b1}}} >> (S_BURST_SIZE-s_axi_awsize);
+                            master_burst_next = {s_axi_awlen, {S_M_BURST_DIFF{1'b1}}} >> (S_BURST_SIZE-s_axi_awsize);
                         end
                         master_burst_size_next = M_BURST_SIZE;
                         m_axi_awlen_next = master_burst_next;
@@ -548,8 +549,8 @@ always @* begin
                     data_next = s_axi_wdata;
                     strb_next = s_axi_wstrb;
                     wuser_next = s_axi_wuser;
-                    m_axi_wdata_int = s_axi_wdata >> (addr_reg[S_ADDR_BIT_OFFSET-1:M_ADDR_BIT_OFFSET] * M_DATA_WIDTH);
-                    m_axi_wstrb_int = s_axi_wstrb >> (addr_reg[S_ADDR_BIT_OFFSET-1:M_ADDR_BIT_OFFSET] * M_STRB_WIDTH);
+                    m_axi_wdata_int = s_axi_wdata >> (addr_reg[S_ADDR_BIT_OFFSET:M_ADDR_BIT_OFFSET-1] * M_DATA_WIDTH);
+                    m_axi_wstrb_int = s_axi_wstrb >> (addr_reg[S_ADDR_BIT_OFFSET:M_ADDR_BIT_OFFSET-1] * M_STRB_WIDTH);
                     m_axi_wlast_int = 1'b0;
                     m_axi_wuser_int = s_axi_wuser;
                     m_axi_wvalid_int = 1'b1;
@@ -576,8 +577,8 @@ always @* begin
                 s_axi_wready_next = 1'b0;
 
                 if (m_axi_wready_int_reg) begin
-                    m_axi_wdata_int = data_reg >> (addr_reg[S_ADDR_BIT_OFFSET-1:M_ADDR_BIT_OFFSET] * M_DATA_WIDTH);
-                    m_axi_wstrb_int = strb_reg >> (addr_reg[S_ADDR_BIT_OFFSET-1:M_ADDR_BIT_OFFSET] * M_STRB_WIDTH);
+                    m_axi_wdata_int = data_reg >> (addr_reg[S_ADDR_BIT_OFFSET:M_ADDR_BIT_OFFSET-1] * M_DATA_WIDTH);
+                    m_axi_wstrb_int = strb_reg >> (addr_reg[S_ADDR_BIT_OFFSET:M_ADDR_BIT_OFFSET-1] * M_STRB_WIDTH);
                     m_axi_wlast_int = 1'b0;
                     m_axi_wuser_int = wuser_reg;
                     m_axi_wvalid_int = 1'b1;
@@ -615,11 +616,11 @@ always @* begin
                         m_axi_awaddr_next = addr_reg;
                         if (burst_size_reg > M_BURST_SIZE) begin
                             // need to adjust burst size
-                            if ({burst_reg, {S_BURST_SIZE-M_BURST_SIZE{1'b1}}} >> (S_BURST_SIZE-burst_size_reg) > 255) begin
+                            if ({burst_reg, {S_M_BURST_DIFF{1'b1}}} >> (S_BURST_SIZE-burst_size_reg) > 255) begin
                                 // limit burst length to max
                                 master_burst_next = 8'd255;
                             end else begin
-                                master_burst_next = {burst_reg, {S_BURST_SIZE-M_BURST_SIZE{1'b1}}} >> (S_BURST_SIZE-burst_size_reg);
+                                master_burst_next = {burst_reg, {S_M_BURST_DIFF{1'b1}}} >> (S_BURST_SIZE-burst_size_reg);
                             end
                             master_burst_size_next = M_BURST_SIZE;
                             m_axi_awlen_next = master_burst_next;
