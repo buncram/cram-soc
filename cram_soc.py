@@ -489,7 +489,7 @@ class CramSoC(SoCMini):
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
             i_always_on           = ClockSignal("sys"),
-            i_trimming_reset      = 0x6000_0002,
+            i_trimming_reset      = 0x6000_0000,
             i_trimming_reset_ena  = 1,
             o_p_axi_awvalid       = p_axil.aw.valid,
             i_p_axi_awready       = p_axil.aw.ready,
