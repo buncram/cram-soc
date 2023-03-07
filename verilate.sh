@@ -16,7 +16,7 @@ cd ./loader
 # set up the linker for our target
 cp link-soc.x link.x
 cd ../
-cargo xtask mbox-image --kernel-feature hwsim --feature hwsim
+cargo xtask hw-image --kernel-feature hwsim --feature hwsim
 python3 ./mkimage.py
 ./disasm_load.sh
 cd ../cram-soc
