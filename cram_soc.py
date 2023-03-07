@@ -145,24 +145,25 @@ class SimPhyTx(Module):
 
 # Dummy module that injects nothing. This is written so that we can extend it to have the test bench inject data eventually if we wanted to.
 class SimPhyRx(Module):
-    def __init__(self, data_in, data_valid):
+    def __init__(self, data_in, data_valid, data_ready):
         self.source = source = stream.Endpoint([("data", 8)])
 
         # # #
         self.comb += [
             source.valid.eq(data_valid),
             source.data.eq(data_in),
+            data_ready.eq(source.ready),
         ]
 
 # Simulation UART ----------------------------------------------------------------------------------
 class SimUartPhy(Module, AutoCSR):
-    def __init__(self, data_in, data_in_valid, data_out, data_out_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
+    def __init__(self, data_in, data_in_valid, data_in_ready, data_out, data_out_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
         tuning_word = int((baudrate/clk_freq)*2**32)
         if with_dynamic_baudrate:
             self._tuning_word  = CSRStorage(32, reset=tuning_word)
             tuning_word = self._tuning_word.storage
         self.submodules.tx = SimPhyTx(data_out, data_out_valid)
-        self.submodules.rx = SimPhyRx(data_in, data_in_valid)
+        self.submodules.rx = SimPhyRx(data_in, data_in_valid, data_in_ready)
         self.sink, self.source = self.tx.sink, self.rx.source
 
 # CramSoC ------------------------------------------------------------------------------------------
@@ -220,6 +221,7 @@ class CramSoC(SoCMini):
             "memlcd"    : 0x42000000,
             "vexriscv_debug": 0xefff_0000,
         }
+        SRAM_SIZE = 2*1024*1024
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
@@ -259,7 +261,7 @@ class CramSoC(SoCMini):
                 0xa000_0000 : 0x6000_0000,
             },
         )
-        self.add_memory_region(name="sram", origin=axi_map["sram"], length=16*1024*1024)
+        self.add_memory_region(name="sram", origin=axi_map["sram"], length=SRAM_SIZE)
 
         # Wire up peripheral SoC busses
         p_axil = axi.AXILiteInterface(name="pbus")
@@ -313,7 +315,7 @@ class CramSoC(SoCMini):
         self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x30_0000, name="reram", init=bios_data)
 
         sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x100_0000, name="sram")
+        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=SRAM_SIZE, name="sram")
 
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
         self.submodules.mbus = mbus = AXICrossbar(platform=platform)
@@ -374,11 +376,13 @@ class CramSoC(SoCMini):
             )
         ]
         sim_uart_pins = platform.request("sim_uart")
-        uart_data_in = Signal(8, reset=13) # 13=0xd
-        uart_data_valid = Signal(reset = 0)
+        kernel_input = Signal(8)
+        kernel_input_valid = Signal()
+        kernel_input_ready = Signal()
         self.submodules.uart_phy = SimUartPhy(
-            uart_data_in,
-            uart_data_valid,
+            kernel_input,
+            kernel_input_valid,
+            kernel_input_ready,
             sim_uart_pins.kernel,
             sim_uart_pins.kernel_valid,
             clk_freq=sys_clk_freq,
@@ -394,9 +398,11 @@ class CramSoC(SoCMini):
 
         console_data_in = Signal(8, reset=13) # 13=0xd
         console_data_valid = Signal(reset = 0)
+        console_data_ready = Signal()
         self.submodules.console_phy = SimUartPhy(
             console_data_in,
             console_data_valid,
+            console_data_ready,
             sim_uart_pins.log,
             sim_uart_pins.log_valid,
             clk_freq=sys_clk_freq,
@@ -413,9 +419,11 @@ class CramSoC(SoCMini):
         # extra PHY for "application" uses -- mainly things like the FCC testing agent
         app_data_in = Signal(8, reset=13) # 13=0xd
         app_data_valid = Signal(reset = 0)
+        app_data_ready = Signal()
         self.submodules.app_uart_phy = SimUartPhy(
             app_data_in,
             app_data_valid,
+            app_data_ready,
             sim_uart_pins.app,
             sim_uart_pins.app_valid,
             clk_freq=sys_clk_freq,
@@ -446,9 +454,15 @@ class CramSoC(SoCMini):
         platform.add_source("sim_support/uart_print.v")
 
         self.specials += Instance("finisher",
+            i_kuart_from_cpu=sim_uart_pins.kernel,
+            i_kuart_from_cpu_valid=sim_uart_pins.kernel_valid,
+            o_kuart_to_cpu=kernel_input,
+            o_kuart_to_cpu_valid=kernel_input_valid,
+            i_kuart_to_cpu_ready=kernel_input_ready,
             i_report=sim.report,
             i_success=sim.success,
             i_done=sim.done,
+            i_clk = ClockSignal(),
         )
         platform.add_source("sim_support/finisher.v")
 
@@ -459,6 +473,10 @@ class CramSoC(SoCMini):
 
         # Cramium platform -------------------------------------------------------------------------
         zero_irq = Signal(20)
+        irq0_wire_or = Signal(20)
+        self.comb += [
+            irq0_wire_or[0].eq(self.uart.ev.irq)
+        ]
         self.irqtest0 = CSRStorage(fields=[
             CSRField(
                 name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=False
@@ -617,7 +635,7 @@ class CramSoC(SoCMini):
             i_jtag_trst           = jtag_cpu.trst     ,
 
             o_coreuser            = sim.coreuser      ,
-            i_irqarray_bank0      = self.irqtest0.fields.trigger,
+            i_irqarray_bank0      = self.irqtest0.fields.trigger | irq0_wire_or,
             i_irqarray_bank1      = self.irqtest1.fields.trigger,
             i_irqarray_bank2      = zero_irq,
             i_irqarray_bank3      = zero_irq,
