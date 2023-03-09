@@ -22,7 +22,7 @@ from axi_common import *
 
 PRODUCTION_MODULE="CM7AAB"
 SIMULATION_MODULE="axi2ahb"
-SELECTED_MODULE=PRODUCTION_MODULE
+SELECTED_MODULE=SIMULATION_MODULE
 class AXILite2AHBAdapter(Module):
     def __init__(self, platform, s_axil, m_ahb):
         self.logger = logging.getLogger("AXILite2AHBAdapter")
