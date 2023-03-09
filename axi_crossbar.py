@@ -265,15 +265,15 @@ class AXICrossbar(Module):
 
         # User Enable/Width computation.
         awuser_enable = 0 if not hasattr(s_axis[0].aw, "user") else 1 if s_axis[0].aw.user_width !=0 else 0
-        awuser_width  = 1 if not hasattr(s_axis[0].aw, "user") else len(s_axis[0].aw)
+        awuser_width  = 1 if not hasattr(s_axis[0].aw, "user") else len(s_axis[0].aw) if s_axis[0].aw.user_width !=0 else 1
         wuser_enable  = 0 if not hasattr(s_axis[0].w,  "user") else 1 if s_axis[0].w.user_width !=0 else 0
-        wuser_width   = 1 if not hasattr(s_axis[0].w,  "user") else len(s_axis[0].w)
+        wuser_width   = 1 if not hasattr(s_axis[0].w,  "user") else len(s_axis[0].w) if s_axis[0].aw.user_width !=0 else 1
         buser_enable  = 0 if not hasattr(s_axis[0].b,  "user") else 1 if s_axis[0].b.user_width !=0 else 0
-        buser_width   = 1 if not hasattr(s_axis[0].b,  "user") else len(s_axis[0].b)
+        buser_width   = 1 if not hasattr(s_axis[0].b,  "user") else len(s_axis[0].b) if s_axis[0].aw.user_width !=0 else 1
         aruser_enable = 0 if not hasattr(s_axis[0].ar, "user") else 1 if s_axis[0].ar.user_width !=0 else 0
-        aruser_width  = 1 if not hasattr(s_axis[0].ar, "user") else len(s_axis[0].ar)
+        aruser_width  = 1 if not hasattr(s_axis[0].ar, "user") else len(s_axis[0].ar) if s_axis[0].aw.user_width !=0 else 1
         ruser_enable  = 0 if not hasattr(s_axis[0].r,  "user") else 1 if s_axis[0].r.user_width !=0 else 0
-        ruser_width   = 1 if not hasattr(s_axis[0].r,  "user") else len(s_axis[0].r)
+        ruser_width   = 1 if not hasattr(s_axis[0].r,  "user") else len(s_axis[0].r) if s_axis[0].aw.user_width !=0 else 1
 
         print("ruser_enable: {}, ruser_width: {}".format(ruser_enable, ruser_width))
 

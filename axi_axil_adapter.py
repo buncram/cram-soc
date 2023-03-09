@@ -81,6 +81,7 @@ class AXI2AXILiteAdapter(Module):
             p_AXIL_DATA_WIDTH      = m_data_width,
             p_CONVERT_BURST        = convert_burst,
             p_CONVERT_NARROW_BURST = convert_narrow_burst,
+            p_AXI_ID_WIDTH         = id_width,
 
             # Clk / Rst.
             # ----------
@@ -138,7 +139,7 @@ class AXI2AXILiteAdapter(Module):
             # --------------------------
             # AW.
             o_m_axil_awaddr   = m_axil.aw.addr,
-            o_m_axil_awprot   = Open(), # CHECKME.
+            o_m_axil_awprot   = m_axil.aw.prot,
             o_m_axil_awvalid  = m_axil.aw.valid,
             i_m_axil_awready  = m_axil.aw.ready,
 
@@ -155,7 +156,7 @@ class AXI2AXILiteAdapter(Module):
 
             # AR.
             o_m_axil_araddr   = m_axil.ar.addr,
-            o_m_axil_arprot   = Open(), # CHECKME.
+            o_m_axil_arprot   = m_axil.ar.prot,
             o_m_axil_arvalid  = m_axil.ar.valid,
             i_m_axil_arready  = m_axil.ar.ready,
 
