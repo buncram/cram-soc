@@ -97,7 +97,7 @@ to the other peer that the sender has finished writing all the data for a given 
 signal is provided so that the corresponding peer does not need to busy-monitor the FIFO depth.</p>
 <blockquote>
 <div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-a9792f85-5738-4c4f-8039-dca92bc9114c.svg" src="_images/wavedrom-a9792f85-5738-4c4f-8039-dca92bc9114c.svg" /><figcaption>
+<img alt="_images/wavedrom-6187899e-2371-4548-8f64-bed467fab49c.svg" src="_images/wavedrom-6187899e-2371-4548-8f64-bed467fab49c.svg" /><figcaption>
 <p><span class="caption-text">Sending four words of data, followed by a <cite>done</cite>.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -117,7 +117,7 @@ until <cite>r_abort</cite> is pulsed to acknowledged the abort condition. At the
 both FIFOs are empty and their protocol state machines are idle.</p>
 <blockquote>
 <div><figure class="align-default" id="id2">
-<img alt="_images/wavedrom-53fc49e7-87c6-497c-932e-65d3fb9f56e7.svg" src="_images/wavedrom-53fc49e7-87c6-497c-932e-65d3fb9f56e7.svg" /><figcaption>
+<img alt="_images/wavedrom-e01840fa-f0f8-4453-b29c-db1c73cf95b5.svg" src="_images/wavedrom-e01840fa-f0f8-4453-b29c-db1c73cf95b5.svg" /><figcaption>
 <p><span class="caption-text">Normal abort</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -151,7 +151,7 @@ This means the hardware guarantees two things:</p>
 <li><p>The incoming <cite>abort</cite> response line is prevented from generating an interrupt</p>
 <blockquote>
 <div><figure class="align-default" id="id3">
-<img alt="_images/wavedrom-c339470d-24f3-4f23-a112-c2981359c0f4.svg" src="_images/wavedrom-c339470d-24f3-4f23-a112-c2981359c0f4.svg" /><figcaption>
+<img alt="_images/wavedrom-5cb6a5e6-7b32-4dfe-b172-15914c15e4df.svg" src="_images/wavedrom-5cb6a5e6-7b32-4dfe-b172-15914c15e4df.svg" /><figcaption>
 <p><span class="caption-text">Edge case: simultaneous abort</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -162,7 +162,7 @@ This means the hardware guarantees two things:</p>
 both devices immediately transition from <cite>REQ</cite> -&gt; <cite>IDLE</cite>, without either going through <cite>ACK</cite>.</p>
 <blockquote>
 <div><figure class="align-default" id="id4">
-<img alt="_images/wavedrom-721514c3-af31-47f4-bcd2-82268f2f60a1.svg" src="_images/wavedrom-721514c3-af31-47f4-bcd2-82268f2f60a1.svg" /><figcaption>
+<img alt="_images/wavedrom-a2fedec5-ee11-4c81-816f-fb858b8f9ce6.svg" src="_images/wavedrom-a2fedec5-ee11-4c81-816f-fb858b8f9ce6.svg" /><figcaption>
 <p><span class="caption-text">Edge case: semi-simultaneous abort</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -249,7 +249,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Write data to outgoing FIFO.</p>
 <figure class="align-default" id="id5">
-<img alt="_images/wavedrom-0bb223b3-270e-46d3-ba8f-4cb09db33728.svg" src="_images/wavedrom-0bb223b3-270e-46d3-ba8f-4cb09db33728.svg" /><figcaption>
+<img alt="_images/wavedrom-3d2798c4-d491-41c5-9758-b5ae06cdb61e.svg" src="_images/wavedrom-3d2798c4-d491-41c5-9758-b5ae06cdb61e.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_WDATA</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -261,7 +261,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Read data from incoming FIFO.</p>
 <figure class="align-default" id="id6">
-<img alt="_images/wavedrom-9dde5ce7-20e9-4fd4-8ba3-3aae5a2f8dee.svg" src="_images/wavedrom-9dde5ce7-20e9-4fd4-8ba3-3aae5a2f8dee.svg" /><figcaption>
+<img alt="_images/wavedrom-3fa935b8-13b5-4f1e-a81e-bed0341963f2.svg" src="_images/wavedrom-3fa935b8-13b5-4f1e-a81e-bed0341963f2.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_RDATA</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -273,7 +273,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id7">
-<img alt="_images/wavedrom-a7f1313c-0413-4591-813a-a8446341a61d.svg" src="_images/wavedrom-a7f1313c-0413-4591-813a-a8446341a61d.svg" /><figcaption>
+<img alt="_images/wavedrom-ed80ac6e-0fa7-455d-9bc4-66daf1651e89.svg" src="_images/wavedrom-ed80ac6e-0fa7-455d-9bc4-66daf1651e89.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_STATUS</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -311,7 +311,7 @@ field specifying the number of words that were accepted.</p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id8">
-<img alt="_images/wavedrom-9e30e287-1893-4093-8106-a1fb2474ded4.svg" src="_images/wavedrom-9e30e287-1893-4093-8106-a1fb2474ded4.svg" /><figcaption>
+<img alt="_images/wavedrom-d9ee304a-6da0-4f55-a73a-f8a2efa92416.svg" src="_images/wavedrom-d9ee304a-6da0-4f55-a73a-f8a2efa92416.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_PENDING</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -350,7 +350,7 @@ progress</p></td>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
 <figure class="align-default" id="id9">
-<img alt="_images/wavedrom-ba931d18-3b31-49b2-a75c-e272750afa71.svg" src="_images/wavedrom-ba931d18-3b31-49b2-a75c-e272750afa71.svg" /><figcaption>
+<img alt="_images/wavedrom-fa91eea9-d366-4ced-ba4c-92f2ca398ed5.svg" src="_images/wavedrom-fa91eea9-d366-4ced-ba4c-92f2ca398ed5.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_EV_ENABLE</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -387,7 +387,7 @@ progress</p></td>
 <p><cite>Address: 0x58018000 + 0x14 = 0x58018014</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id10">
-<img alt="_images/wavedrom-37eb4754-d630-4963-9fdb-181fc0ff7acf.svg" src="_images/wavedrom-37eb4754-d630-4963-9fdb-181fc0ff7acf.svg" /><figcaption>
+<img alt="_images/wavedrom-80a5d83e-f9e6-404d-9a68-3b5198e5c568.svg" src="_images/wavedrom-80a5d83e-f9e6-404d-9a68-3b5198e5c568.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_STATUS</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -438,7 +438,7 @@ read.</p></td>
 <p><cite>Address: 0x58018000 + 0x18 = 0x58018018</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id11">
-<img alt="_images/wavedrom-0d47a499-8666-490d-ba4a-003ece6c7277.svg" src="_images/wavedrom-0d47a499-8666-490d-ba4a-003ece6c7277.svg" /><figcaption>
+<img alt="_images/wavedrom-fe79303d-75e1-48e0-9989-d08b00feef3f.svg" src="_images/wavedrom-fe79303d-75e1-48e0-9989-d08b00feef3f.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_CONTROL</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -468,7 +468,7 @@ asserted from the peer.</p>
 <p><cite>Address: 0x58018000 + 0x1c = 0x5801801c</cite></p>
 <blockquote>
 <div><figure class="align-default" id="id12">
-<img alt="_images/wavedrom-54b815b5-f774-4daf-9626-cf723cd3f1b1.svg" src="_images/wavedrom-54b815b5-f774-4daf-9626-cf723cd3f1b1.svg" /><figcaption>
+<img alt="_images/wavedrom-e2f1c6b2-c1da-474f-a7fe-7352ec28d972.svg" src="_images/wavedrom-e2f1c6b2-c1da-474f-a7fe-7352ec28d972.svg" /><figcaption>
 <p><span class="caption-text">MAILBOX_DONE</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
