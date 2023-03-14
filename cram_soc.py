@@ -44,7 +44,7 @@ from axi_common import *
 import subprocess
 import shutil
 
-VEX_VERILOG_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v"
+VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -778,7 +778,7 @@ def main():
         builder.build(run=False)
     else:
         shutil.copy('./build/gateware/reram_mem.init', './build/sim/gateware/')
-        shutil.copy('./deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
+        shutil.copy('./VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
         # this runs the sim
         builder.build(
             sim_config       = sim_config,

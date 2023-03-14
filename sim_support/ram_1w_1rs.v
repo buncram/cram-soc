@@ -4,6 +4,7 @@
 `default_nettype none
 
 module Ram_1w_1rs #(
+    parameter ramname = "undefined",
     parameter wordCount = 32,
     parameter wordWidth = 32,
     parameter clockCrossing = 0,

@@ -44,3 +44,7 @@ keystore.bin
 xous/xous.img
 xous/xous-stage1.bin
 xous/xous-kernel.bin
+
+# Spinal build directories
+VexRiscv/project/
+VexRiscv/target/
