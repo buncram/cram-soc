@@ -935,64 +935,22 @@ the `satp` setting and user code execution.
             )
         ]
 
-        asid_rd_adr = Signal(9)
-        asid_rd_dat = Signal()
-        asid_wr_adr = Signal(9)
-        asid_wr_dat = Signal()
-        asid_wr_we = Signal()
-        # storage used in ASID translation
-        self.specials += Instance(
-            "Ram_1w_1rs",
-            p_ramname="RAM_DP_512_1",
-            p_wordCount=512,
-            p_wordWidth=1,
-            p_clockCrossing=0,
-            p_wrAddressWidth=9,
-            p_wrDataWidth=1,
-            p_wrMaskEnable=0,
-            p_rdAddressWidth=9,
-            p_rdDataWidth=1,
-            i_wr_clk = ClockSignal(),
-            i_wr_en = asid_wr_we,
-            i_wr_mask = 0,
-            i_wr_addr = asid_wr_adr,
-            i_wr_data = asid_wr_dat,
-            i_rd_clk = ClockSignal(),
-            i_rd_en = 1,
-            i_rd_addr = asid_rd_adr,
-            i_rd_data = asid_rd_dat,
-        )
-        # storage used for readback checking
-        self.specials += Instance(
-            "Ram_1w_1rs",
-            p_ramname="RAM_DP_512_1",
-            p_wordCount=512,
-            p_wordWidth=1,
-            p_clockCrossing=0,
-            p_wrAddressWidth=9,
-            p_wrDataWidth=1,
-            p_wrMaskEnable=0,
-            p_rdAddressWidth=9,
-            p_rdDataWidth=1,
-            i_wr_clk = ClockSignal(),
-            i_wr_en = asid_wr_we, # gang write
-            i_wr_mask = 0,
-            i_wr_addr = asid_wr_adr,
-            i_wr_data = asid_wr_dat,
-            i_rd_clk = ClockSignal(),
-            i_rd_en = 1,
-            i_rd_addr = self.get_asid_addr.fields.asid,
-            i_rd_data = self.get_asid_value.fields.value,
-        )
+        asid_lut = Memory(1, 512, init=None, name="asid_lut_nomap")
+        self.specials += asid_lut
+        asid_rd = asid_lut.get_port(write_capable=False)
+        asid_wr = asid_lut.get_port(write_capable=True)
+        self.specials += asid_rd
+        self.specials += asid_wr
 
         coreuser_asid = Signal()
 
         self.comb += [
-            asid_rd_adr.eq(cpu.satp_asid),
-            coreuser_asid.eq(asid_rd_dat),
-            asid_wr_adr.eq(self.set_asid.fields.asid),
-            asid_wr_dat.eq(self.set_asid.fields.trusted),
-            asid_wr_we.eq(~protect & self.set_asid.re),
+            asid_rd.adr.eq(cpu.satp_asid),
+            coreuser_asid.eq(asid_rd.dat_r),
+            asid_wr.adr.eq(self.set_asid.fields.asid),
+            asid_wr.dat_w.eq(self.set_asid.fields.trusted),
+            asid_wr.we.eq(~protect & self.set_asid.re),
+            self.get_asid_value.fields.value.eq(asid_wr.dat_r),
         ]
         window_al = Signal(22)
         window_ah = Signal(22)
