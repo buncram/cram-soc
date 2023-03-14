@@ -64,7 +64,7 @@ end
 
 always @(posedge wr_clk) begin
     for (i = 0; i < WORD_WIDTH; i = i + 1) begin
-        if (wr_en & wr_mask[i]) begin
+        if (wr_en & (wr_mask[i] | !wrMaskEnable)) begin
             mem[wr_addr][WORD_SIZE*i +: WORD_SIZE] <= wr_data[WORD_SIZE*i +: WORD_SIZE];
         end
     end
