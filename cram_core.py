@@ -26,7 +26,7 @@ from litex.soc.interconnect.csr_eventmanager import *
 from litex.soc.interconnect.csr_eventmanager import _EventSource
 
 from deps.gateware.gateware import ticktimer
-from migen.genlib.fifo import SyncFIFOBuffered
+from migen.genlib.fifo import _FIFOInterface, _inc
 
 # Interrupt emulator -------------------------------------------------------------------------------
 
@@ -89,6 +89,123 @@ class CsrTest(Module, AutoCSR, AutoDoc):
         ]
 
 # Mailbox ------------------------------------------------------------------------------------------
+class SyncFIFOMacro(Module, _FIFOInterface):
+    """Synchronous FIFO (first in, first out)
+
+    Read and write interfaces are accessed from the same clock domain.
+    If different clock domains are needed, use :class:`AsyncFIFO`.
+
+    {interface}
+    level : out
+        Number of unread entries.
+    replace : in
+        Replaces the last entry written into the FIFO with `din`. Does nothing
+        if that entry has already been read (i.e. the FIFO is empty).
+        Assert in conjunction with `we`.
+    """
+    __doc__ = __doc__.format(interface=_FIFOInterface.__doc__)
+
+    def __init__(self, width, depth, fwft=True):
+        _FIFOInterface.__init__(self, width, depth)
+
+        self.level = Signal(max=depth+1)
+        self.replace = Signal()
+
+        ###
+
+        produce = Signal(max=depth)
+        consume = Signal(max=depth)
+
+        wrport_adr = Signal(max=depth)
+        wrport_dat_w = Signal(width)
+        wrport_we = Signal()
+        rdport_adr = Signal(max=depth)
+        rdport_re = Signal()
+        rdport_dat_r = Signal(width)
+        self.specials += Instance(
+            "Ram_1w_1rs",
+            p_ramname="RAM_DP_{}_{}".format(depth, width),
+            p_wordCount=depth,
+            p_wordWidth=width,
+            p_clockCrossing=0,
+            p_wrAddressWidth=log2_int(depth),
+            p_wrDataWidth=width,
+            p_wrMaskEnable=0,
+            p_rdAddressWidth=log2_int(depth),
+            p_rdDataWidth=width,
+            i_wr_clk = ClockSignal(),
+            i_wr_en = wrport_we,
+            i_wr_mask = 0,
+            i_wr_addr = wrport_adr,
+            i_wr_data = wrport_dat_w,
+            i_rd_clk = ClockSignal(),
+            i_rd_en = rdport_re,
+            i_rd_addr = rdport_adr,
+            i_rd_data = rdport_dat_r,
+        )
+
+        self.comb += [
+            If(self.replace,
+                wrport_adr.eq(produce-1)
+            ).Else(
+                wrport_adr.eq(produce)
+            ),
+            wrport_dat_w.eq(self.din),
+            wrport_we.eq(self.we & (self.writable | self.replace))
+        ]
+        self.sync += If(self.we & self.writable & ~self.replace,
+            _inc(produce, depth))
+
+        do_read = Signal()
+        self.comb += do_read.eq(self.readable & self.re)
+
+        self.comb += [
+            rdport_adr.eq(consume),
+            self.dout.eq(rdport_dat_r)
+        ]
+        if not fwft:
+            self.comb += rdport_re.eq(do_read)
+        else:
+            self.comb += rdport_re.eq(1)
+        self.sync += If(do_read, _inc(consume, depth))
+
+        self.sync += \
+            If(self.we & self.writable & ~self.replace,
+                If(~do_read, self.level.eq(self.level + 1))
+            ).Elif(do_read,
+                self.level.eq(self.level - 1)
+            )
+        self.comb += [
+            self.writable.eq(self.level != depth),
+            self.readable.eq(self.level != 0)
+        ]
+
+
+class SyncFIFOBufferedMacro(Module, _FIFOInterface):
+    """Has an interface compatible with SyncFIFO with fwft=True,
+    but does not use asynchronous RAM reads that are not compatible
+    with block RAMs. Increases latency by one cycle."""
+    def __init__(self, width, depth):
+        _FIFOInterface.__init__(self, width, depth)
+        self.submodules.fifo = fifo = SyncFIFOMacro(width, depth, False)
+
+        self.writable = fifo.writable
+        self.din = fifo.din
+        self.we = fifo.we
+        self.dout = fifo.dout
+        self.level = Signal(max=depth+2)
+
+        ###
+
+        self.comb += fifo.re.eq(fifo.readable & (~self.readable | self.re))
+        self.sync += \
+            If(fifo.re,
+                self.readable.eq(1),
+            ).Elif(self.re,
+                self.readable.eq(0),
+            )
+        self.comb += self.level.eq(fifo.level + self.readable)
+
 class StickyBit(Module):
     def __init__(self):
         self.flag = Signal()
@@ -395,7 +512,7 @@ from the peer.""", pulse=True)
 
         # build the outgoing fifo
         self.submodules.w_over = StickyBit()
-        self.submodules.w_fifo = w_fifo = ResetInserter(["sys"])(SyncFIFOBuffered(32, fifo_depth))
+        self.submodules.w_fifo = w_fifo = ResetInserter(["sys"])(SyncFIFOBufferedMacro(32, fifo_depth))
         self.comb += self.w_fifo.reset_sys.eq(~self.reset_n | self.control.fields.abort)
         self.comb += [
             self.status.fields.tx_words.eq(self.w_fifo.level),
@@ -417,7 +534,7 @@ from the peer.""", pulse=True)
 
         # build the incoming fifo
         self.submodules.r_over = StickyBit()
-        self.submodules.r_fifo = r_fifo = ResetInserter(["sys"])(SyncFIFOBuffered(32, fifo_depth))
+        self.submodules.r_fifo = r_fifo = ResetInserter(["sys"])(SyncFIFOBufferedMacro(32, fifo_depth))
         self.comb += self.r_fifo.reset_sys.eq(~self.reset_n | self.control.fields.abort)
         self.comb += [
             self.status.fields.rx_words.eq(self.r_fifo.level),
@@ -935,22 +1052,64 @@ the `satp` setting and user code execution.
             )
         ]
 
-        asid_lut = Memory(1, 512, init=None, name="asid_lut_nomap")
-        self.specials += asid_lut
-        asid_rd = asid_lut.get_port(write_capable=False)
-        asid_wr = asid_lut.get_port(write_capable=True)
-        self.specials += asid_rd
-        self.specials += asid_wr
+        asid_rd_adr = Signal(9)
+        asid_rd_dat = Signal()
+        asid_wr_adr = Signal(9)
+        asid_wr_dat = Signal()
+        asid_wr_we = Signal()
+        # storage used in ASID translation
+        self.specials += Instance(
+            "Ram_1w_1rs",
+            p_ramname="RAM_DP_512_1",
+            p_wordCount=512,
+            p_wordWidth=1,
+            p_clockCrossing=0,
+            p_wrAddressWidth=9,
+            p_wrDataWidth=1,
+            p_wrMaskEnable=0,
+            p_rdAddressWidth=9,
+            p_rdDataWidth=1,
+            i_wr_clk = ClockSignal(),
+            i_wr_en = asid_wr_we,
+            i_wr_mask = 0,
+            i_wr_addr = asid_wr_adr,
+            i_wr_data = asid_wr_dat,
+            i_rd_clk = ClockSignal(),
+            i_rd_en = 1,
+            i_rd_addr = asid_rd_adr,
+            i_rd_data = asid_rd_dat,
+        )
+        # storage used for readback checking
+        self.specials += Instance(
+            "Ram_1w_1rs",
+            p_ramname="RAM_DP_512_1",
+            p_wordCount=512,
+            p_wordWidth=1,
+            p_clockCrossing=0,
+            p_wrAddressWidth=9,
+            p_wrDataWidth=1,
+            p_wrMaskEnable=0,
+            p_rdAddressWidth=9,
+            p_rdDataWidth=1,
+            i_wr_clk = ClockSignal(),
+            i_wr_en = asid_wr_we, # gang write
+            i_wr_mask = 0,
+            i_wr_addr = asid_wr_adr,
+            i_wr_data = asid_wr_dat,
+            i_rd_clk = ClockSignal(),
+            i_rd_en = 1,
+            i_rd_addr = self.get_asid_addr.fields.asid,
+            i_rd_data = self.get_asid_value.fields.value,
+        )
 
         coreuser_asid = Signal()
 
         self.comb += [
-            asid_rd.adr.eq(cpu.satp_asid),
-            coreuser_asid.eq(asid_rd.dat_r),
-            asid_wr.adr.eq(self.set_asid.fields.asid),
-            asid_wr.dat_w.eq(self.set_asid.fields.trusted),
-            asid_wr.we.eq(~protect & self.set_asid.re),
-            self.get_asid_value.fields.value.eq(asid_wr.dat_r),
+            asid_rd_adr.eq(cpu.satp_asid),
+            coreuser_asid.eq(asid_rd_dat),
+            asid_wr_adr.eq(self.set_asid.fields.asid),
+            asid_wr_dat.eq(self.set_asid.fields.trusted),
+            asid_wr_we.eq(~protect & self.set_asid.re),
         ]
         window_al = Signal(22)
         window_ah = Signal(22)
