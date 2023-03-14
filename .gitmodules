@@ -24,9 +24,6 @@
 	path = deps/valentyusb
 	url = https://github.com/betrusted-io/valentyusb.git
 	branch = burst-support
-[submodule "deps/pythondata-cpu-vexriscv"]
-	path = deps/pythondata-cpu-vexriscv
-	url = https://github.com/buncram/pythondata-cpu-vexriscv.git
 [submodule "deps/compiler_rt"]
 	path = deps/compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt.git
@@ -36,3 +33,9 @@
 [submodule "deps/verilog-axi"]
 	path = deps/verilog-axi
 	url = https://github.com/buncram/verilog-axi.git
+[submodule "deps/SpinalHDL"]
+	path = deps/SpinalHDL
+	url = https://github.com/SpinalHDL/SpinalHDL
+[submodule "deps/VexRiscv"]
+	path = deps/VexRiscv
+	url = https://github.com/SpinalHDL/VexRiscv
