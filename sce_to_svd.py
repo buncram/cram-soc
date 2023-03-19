@@ -573,15 +573,251 @@ class DocSoc():
             )
         }
 
+# from https://stackoverflow.com/questions/2319019/using-regex-to-remove-comments-from-source-files
+def remove_comments(string):
+    pattern = r"(\".*?\"|\'.*?\')|(/\*.*?\*/|//[^\r\n]*$)"
+    # first group captures quoted strings (double or single)
+    # second group captures comments (//single-line or /* multi-line */)
+    regex = re.compile(pattern, re.MULTILINE|re.DOTALL)
+    def _replacer(match):
+        # if the 2nd group (capturing comments) is not None,
+        # it means we have captured a non-quoted (real) comment string.
+        if match.group(2) is not None:
+            return "" # so we will return empty to remove the comment
+        else: # otherwise, we will return the 1st group
+            return match.group(1) # captured quoted-string
+    return regex.sub(_replacer, string)
+
+# cleans up comma separated entities inside braced expressions. Assumes they are all in one line.
+# (awful special case handling of parameter list expansion, does not generalize well)
+def cleanup_braces(expr):
+    output = []
+    signal_list = ''
+    for e in expr:
+        if '{' in e:
+            signal_list += e
+            continue
+        elif '}' in e:
+            signal_list += e
+            output += [signal_list]
+            signal_list = ''
+        else:
+            if signal_list != '':
+                signal_list += ', ' + e
+            else:
+                output += [e]
+    if signal_list != '':
+        logging.error(f"Curly brace list did not resolve within a single line, case is not handled: {expr}")
+    return output
+
+class Expr():
+    # this takes an expression 'e' which is just a string value, and stores it for later evaluation
+    # once the full file has been read in
+    def __init__(self, e):
+        self.expression = e
+
+    # this should take the schema, expand the string into tokens, and evaluate any expression to an integer value
+    def eval(self, schema):
+        return 0
+
+    def as_str(self):
+        return self.expression
+
+# localparam format notes:
+# localparam <[array_size]> <type> <[bit_width]> ident = expr;
+#  - if only one bracketed expression, ignore
+#  - if no bracketed expression, it's just ident = expr
+#  - bitwidth can generally be ignored
+def extract_localparam(schema, module, code_line):
+    # this matcher keys off of '=', allows zero or more whitespaces to create the last two groups
+    # the tricky bit is getting rid of all the type information before the lhs. We do this with the
+    # '\s([\S]+)' match group pulling in ' ' as part of the group. Thus, there *must* be a space before
+    # the lhs token and any type definition.
+    # So this would not work: "localparam foo [7:0]bogus = bar;" because it's missing a space after the ']'
+    matcher = re.compile('localparam(.*)\s([\S]+)\s*=\s*(.*)')
+    multi_lines = code_line.splitlines()
+    if len(multi_lines) == 1:
+        # sometimes multiple params are put on one line, this handles that case
+        plist = code_line.split(';')
+        for p in plist:
+            maybe_match = matcher.match(p)
+            if maybe_match is None:
+                logging.error(f"localparameter did not extract: {p}")
+                return
+            groups = maybe_match.groups()
+            if len(groups) != 3:
+                logging.error(f"localparemeter didn't get expected number of groups (got {len(groups)}): {p}")
+                return
+            lhs = groups[1]
+            rhs = groups[2]
+            logging.debug(f"localparam extract lhs {lhs} | rhs {rhs}")
+            schema[module]['localparam'][lhs] = Expr(rhs)
+    else:
+        print(f"TODO: multi-line localparameter:\n{code_line}")
+
+def extract_parameter(schema, module, code_line):
+    matcher = re.compile('parameter(.*)\s([\S]+)\s*=\s*(.*)')
+    code_line = code_line.rstrip(',') # don't care about the trailing comma
+    maybe_match = matcher.match(code_line)
+    if maybe_match is None:
+        logging.error(f"Parameter did not extract: {code_line}")
+        return
+    groups = maybe_match.groups()
+    if len(groups) != 3:
+        logging.error(f"Parameter didn't get expected number of groups (got {len(groups)}): {code_line}")
+        return
+    lhs = groups[1]
+    rhs = groups[2]
+    logging.debug(f"parameter extract lhs {lhs} | rhs {rhs}")
+    schema[module]['localparam'][lhs] = Expr(rhs)
+
+def expand_param_list(params):
+        arg_re = re.compile('[.](.+)\((.+)\)')
+        expanded_params = {}
+        for param in params:
+            exprs = arg_re.match(param)
+            if exprs is None:
+                if param != '.prdata32()' and param != '.*':
+                    logging.error(f"Error parsing argument expression {param}, ignoring!!")
+                continue
+            p_name = exprs.group(1)
+            p_expr = Expr(exprs.group(2))
+            expanded_params[p_name] = p_expr
+        return expanded_params
+
+def add_reg(schema, module, code_line):
+    REGEX = '(apb_[c,f,a,s]r)\s#\((.+)\)\s(.+)\s\((.+)\);'
+    line_matcher = re.match(REGEX, code_line)
+    if line_matcher is None:
+        logging.error('Regex match error (this is a script bug, regex needs to be fixed)')
+        logging.error(f'Line:  {code_line}')
+        logging.error(f'regex: {REGEX}')
+    else:
+        apb_type = line_matcher.group(1).strip()
+        # create a list by mapping 'str.strip' onto the result of splitting the line_matcher's respective group on the ',' character
+        # 'it made sense at the time' :-P
+        params = cleanup_braces(list(map(str.strip, line_matcher.group(2).split(','))))
+        reg_name = line_matcher.group(3).strip()
+        args = cleanup_braces(list(map(str.strip, line_matcher.group(4).split(','))))
+        # print(f'type: {apb_type}, params: {params}, reg_name: {reg_name}, args: {args}')
+        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' and 'apb_type' != 'apb_ar':
+            logging.error(f"Parse error extracting APB register type: unrecognized register macro {apb_type}, ignoring!!!")
+            return
+
+        schema[module][apb_type][reg_name] = {
+            'params' : expand_param_list(params),
+            'args': expand_param_list(args),
+        }
+
+def is_m_or_p_empty(m_or_p):
+    # we don't evaluate 'sfr_bank' because that's dependent on the apb_* not being empty
+    if len(m_or_p['localparam']) == 0 and len(m_or_p['apb_cr']) == 0 and len(m_or_p['apb_sr']) == 0 and len(m_or_p['apb_fr']) == 0 and len(m_or_p['apb_ar']) == 0:
+        return True
+    else:
+        return False
+
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from SCE design")
     parser.add_argument(
         "--path", required=False, help="Path to SCE data", type=str, default="do_not_checkin/crypto/")
+    parser.add_argument(
+        "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
+    )
     args = parser.parse_args()
+    numeric_level = getattr(logging, args.loglevel.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % args.loglevel)
+    logging.basicConfig(level=numeric_level)
 
     doc_soc = DocSoc()
 
-    sce_path = Path(args.path)
+    sce_path = Path(args.path).glob('**/*')
+    sce_files = [x for x in sce_path if x.is_file()]
+
+    ### use only the latest version, as extracted by numerical order
+    versioned_files = {}
+    for file in sce_files:
+        version_matcher = re.match('(.*)_v([0-9].[0-9]).sv', file.name)
+        if version_matcher is None:
+            versioned_files[file.stem] = (file, 0.0)  # file path, version. 0 means no version
+        else:
+            basename = version_matcher.group(1)
+            version = float(version_matcher.group(2))
+            if file.stem not in versioned_files:
+                versioned_files[basename] = (file, version)
+            else:
+                (_oldfile, old_version) = versioned_files[basename]
+                if version > old_version:
+                    versioned_files[basename] = (file, version)
+
+    logging.debug("Using the following sources based on version numbering:")
+    for (k, v) in versioned_files.items():
+        logging.debug('  - {}:{}'.format(k, v))
+
+    schema = {}
+    for (_file_root, (file, _version)) in versioned_files.items():
+        with open(file, "r") as sv_file:
+            lines = sv_file.readlines()
+            mod_or_pkg = ''
+            multi_line_param = ''
+            state = 'IDLE'
+            for line in lines:
+                if state == 'IDLE':
+                    if line.lstrip().startswith('module') or line.lstrip().startswith('package'):
+                        # names are "dirty" if there isn't a space following the mod or package decl
+                        # but in practice the ones we care about are well-formed, so we leave this issue hanging.
+                        mod_or_pkg = line.split()[1].strip()
+                        state = 'ACTIVE'
+                        schema[mod_or_pkg] = {
+                            'localparam' : {},
+                            'apb_cr' : {},
+                            'apb_sr' : {},
+                            'apb_fr' : {},
+                            'apb_ar' : {},
+                            'sfr_bank' : {},
+                        }
+                elif state == 'ACTIVE':
+                    if line.lstrip().startswith('endmodule') or line.lstrip().startswith('endpackage'):
+                        state = 'IDLE'
+                        mod_or_pkg = ''
+                    else:
+                        code_line = remove_comments(line.strip())
+                        if re.match('^apb_[csfr]r', code_line):
+                            add_reg(schema, mod_or_pkg, code_line)
+                        elif code_line.startswith('localparam'):
+                            # simple one line case
+                            if code_line.strip().endswith(';'):
+                                extract_localparam(schema, mod_or_pkg, code_line)
+                            else:
+                                state = 'PARAM'
+                                multi_line_param += code_line
+                        elif code_line.startswith('parameter'):
+                            extract_parameter(schema, mod_or_pkg, code_line)
+                elif state == 'PARAM':
+                    code_line = remove_comments(line.strip())
+                    if code_line.strip().endswith(';'):
+                        multi_line_param += code_line
+                        extract_localparam(schema, mod_or_pkg, multi_line_param)
+                        multi_line_param = ''
+                        state = 'IDLE'
+                    else:
+                        multi_line_param += code_line
+
+    for (module, details) in schema.items():
+        print(f'{module}')
+        for (attribute, items) in details.items():
+            if len(items) > 0:
+                print(f'  {attribute}')
+                for (lhs, rhs) in items.items():
+                    if isinstance(rhs, Expr):
+                        print(f'    {lhs} : {rhs.as_str()}')
+                    elif isinstance(rhs, dict):
+                        print(f'    {lhs}')
+                        for (l, r) in rhs.items():
+                            if isinstance(r, Expr):
+                                print(f'      {l}, {r.as_str()}')
+                            else:
+                                print(f'      {l}, {r}')
 
     # generate SVD
     if False:
@@ -600,3 +836,50 @@ def main():
 if __name__ == "__main__":
     main()
     exit(0)
+
+module_schema = {
+    'aes' : {
+        'localparam' : {
+            'AF_ENC': Expr('1'),
+            'AF_DEC': Expr('2'),
+            # other params
+            'PTRID_IV' : 0,
+            'PTRID_AKEY' : 0,
+        },
+        'apb_cr' : {
+            'sfr_crfunc' : {
+                'params' : {
+                    'A' : 0x0,
+                    'DW' : 8,
+                },
+                'args' : {
+                    'cr' : 'cr_func',
+                    'prdata32' : '',
+                }
+            },
+            'sfr_segptr' : {
+                'params' : {
+                    'A' : 0x30,
+                    'DW' : ['scedma_pkg', 'AW'], # paths are turned into lists
+                    'SFRCNT': 4,
+                },
+                'cr' : 'cr_segptrstart',
+                'prdata32' : '',
+            }
+        },
+        # other apb types
+        # ...
+        # sfr_bank is an entry for banked SFR tables. This is made every time a 'SFRCNT' record is encountered, and the key is the corresponding 'cr' name
+        'sfr_bank' : {
+            'cr_segptrstart' : {
+                ['PTRID_AKEY', 'PTRID_AIB', 'PTRID_IV', 'PTRID_AOB']
+            }
+        }
+    },
+    'scedma_pkg' : {
+        'localparam' : {
+            'SEGID_LKEY', Expr('0x0'),
+            'SEGID_KEY', Expr("SEGID_LKEY + 'd1"),
+        }
+    }
+}
