@@ -634,26 +634,24 @@ def extract_localparam(schema, module, code_line):
     # '\s([\S]+)' match group pulling in ' ' as part of the group. Thus, there *must* be a space before
     # the lhs token and any type definition.
     # So this would not work: "localparam foo [7:0]bogus = bar;" because it's missing a space after the ']'
-    matcher = re.compile('localparam(.*)\s([\S]+)\s*=\s*(.*)')
-    multi_lines = code_line.splitlines()
-    if len(multi_lines) == 1:
-        # sometimes multiple params are put on one line, this handles that case
-        plist = code_line.split(';')
-        for p in plist:
-            maybe_match = matcher.match(p)
-            if maybe_match is None:
+
+    # sometimes multiple params are put on one line, this handles that case
+    plist = code_line.rstrip().rstrip(';').split(';')
+    for p in plist:
+        matcher = re.compile('localparam(.*)\s([\S]+)\s*=\s*(.*)')
+        maybe_match = matcher.match(p.lstrip())
+        if maybe_match is None:
+            if p != '': # sometimes we have trailing space after the ;, don't flag an error on this
                 logging.error(f"localparameter did not extract: {p}")
-                return
-            groups = maybe_match.groups()
-            if len(groups) != 3:
-                logging.error(f"localparemeter didn't get expected number of groups (got {len(groups)}): {p}")
-                return
-            lhs = groups[1]
-            rhs = groups[2]
-            logging.debug(f"localparam extract lhs {lhs} | rhs {rhs}")
-            schema[module]['localparam'][lhs] = Expr(rhs)
-    else:
-        print(f"TODO: multi-line localparameter:\n{code_line}")
+            return
+        groups = maybe_match.groups()
+        if len(groups) != 3:
+            logging.error(f"localparemeter didn't get expected number of groups (got {len(groups)}): {p}")
+            return
+        lhs = groups[1]
+        rhs = groups[2]
+        logging.debug(f"localparam extract lhs {lhs} | rhs {rhs}")
+        schema[module]['localparam'][lhs] = Expr(rhs)
 
 def extract_parameter(schema, module, code_line):
     matcher = re.compile('parameter(.*)\s([\S]+)\s*=\s*(.*)')
@@ -781,7 +779,7 @@ def main():
                         state = 'IDLE'
                         mod_or_pkg = ''
                     else:
-                        code_line = remove_comments(line.strip())
+                        code_line = remove_comments(line.strip()).lstrip()
                         if re.match('^apb_[csfr]r', code_line):
                             add_reg(schema, mod_or_pkg, code_line)
                         elif code_line.startswith('localparam'):
@@ -794,30 +792,31 @@ def main():
                         elif code_line.startswith('parameter'):
                             extract_parameter(schema, mod_or_pkg, code_line)
                 elif state == 'PARAM':
-                    code_line = remove_comments(line.strip())
+                    code_line = remove_comments(line.strip()).lstrip()
                     if code_line.strip().endswith(';'):
                         multi_line_param += code_line
                         extract_localparam(schema, mod_or_pkg, multi_line_param)
                         multi_line_param = ''
-                        state = 'IDLE'
+                        state = 'ACTIVE'
                     else:
                         multi_line_param += code_line
 
-    for (module, details) in schema.items():
-        print(f'{module}')
-        for (attribute, items) in details.items():
-            if len(items) > 0:
-                print(f'  {attribute}')
-                for (lhs, rhs) in items.items():
-                    if isinstance(rhs, Expr):
-                        print(f'    {lhs} : {rhs.as_str()}')
-                    elif isinstance(rhs, dict):
-                        print(f'    {lhs}')
-                        for (l, r) in rhs.items():
-                            if isinstance(r, Expr):
-                                print(f'      {l}, {r.as_str()}')
-                            else:
-                                print(f'      {l}, {r}')
+    if True:
+        for (module, details) in schema.items():
+            print(f'{module}')
+            for (attribute, items) in details.items():
+                if len(items) > 0:
+                    print(f'  {attribute}')
+                    for (lhs, rhs) in items.items():
+                        if isinstance(rhs, Expr):
+                            print(f'    {lhs} : {rhs.as_str()}')
+                        elif isinstance(rhs, dict):
+                            print(f'    {lhs}')
+                            for (l, r) in rhs.items():
+                                if isinstance(r, Expr):
+                                    print(f'      {l}, {r.as_str()}')
+                                else:
+                                    print(f'      {l}, {r}')
 
     # generate SVD
     if False:
