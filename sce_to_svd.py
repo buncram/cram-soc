@@ -852,7 +852,7 @@ def extract_bitwidth(schema, module, code_line):
                     for name in names:
                         schema[module]['localparam'][name.strip()] = width
                 except:
-                    logging.warning(f"bit expression not handled: {bw}, not creating an entry")
+                    logging.debug(f"bit expression not handled: {bw}, not creating an entry")
 
 def add_reg(schema, module, code_line):
     REGEX = '(apb_[c,f,a,s]r)\s#\((.+)\)\s(.+)\s\((.+)\);'
@@ -890,7 +890,7 @@ def is_m_or_p_empty(m_or_p):
     else:
         return False
 
-def print_tree(tree, schema, module, level=0):
+def eval_tree(tree, schema, module, level=0, do_print=False):
     if type(tree) is dict:
         for (k, v) in tree.items():
             #if k == 'localparam':
@@ -898,21 +898,26 @@ def print_tree(tree, schema, module, level=0):
             if type(v) is dict:
                 if len(v) == 0:
                     continue
-                print(' ' * level + f'{k}:')
-                print_tree(v, schema, module, level + 2)
+                if do_print:
+                    print(' ' * level + f'{k}:')
+                eval_tree(v, schema, module, level + 2, do_print)
             else:
                 if isinstance(v, Expr):
                     v.eval(schema, module)
-                    print(' ' * level + f'{k}:{v.as_str()}')
+                    if do_print:
+                        print(' ' * level + f'{k}:{v.as_str()}')
                 else:
-                    print(' ' * level + f'{k}:{v}')
+                    if do_print:
+                        print(' ' * level + f'{k}:{v}')
 
     else:
         if isinstance(tree, Expr):
             tree.eval(schema, module)
-            print(' ' * level + f'{tree.as_str()}')
+            if do_print:
+                print(' ' * level + f'{tree.as_str()}')
         else:
-            print(' ' * level + f'{tree}')
+            if do_print:
+                print(' ' * level + f'{tree}')
 
 def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
     regtypes = ['cr', 'sr', 'fr', 'ar']
@@ -1161,6 +1166,7 @@ def main():
                     multi_line_expr = split_at_semi[1]
                 else:
                     multi_line_expr = ''
+    print("Register banks discovered:")
     pp.pprint(banks)
 
     # --------- extract SFRCNT from files that contain SFRCNT record ---------
@@ -1215,9 +1221,7 @@ def main():
     )
     # ----------- print the tree and create CSRs
     for (module, leaves) in schema.items():
-        if True:
-            print(f'{module}:')
-            print_tree(leaves, schema, module, level=2)
+        eval_tree(leaves, schema, module, level=2, do_print=False)
         # ctrl_offset is the base of the SCE register set, as extracted from the core documentation
         create_csrs(doc_soc, schema, module, banks, ctrl_offset=doc_soc.mem_regions['sce'].origin)
 
@@ -1237,7 +1241,10 @@ def main():
 
     from litex.soc.doc import generate_docs
     doc_dir = args.outdir + 'doc/'
-    generate_docs(doc_soc, doc_dir)
+    generate_docs(doc_soc, doc_dir, project_name="Cramium SCE module", author="Cramium, Inc.")
+
+    subprocess.run(['cargo', 'run', '../include/sce.svd' , '../include/sce_generated.rs'], cwd='./svd2utra')
+    subprocess.run(['sphinx-build', '-M', 'html', 'include/doc/', 'include/doc/_build'])
 
 if __name__ == "__main__":
     main()
