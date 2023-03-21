@@ -9,27 +9,33 @@ Register Listing for COMBOHASH
 +==========================================================================+=====================================================+
 | :ref:`COMBOHASH_SFR_CRFUNC <COMBOHASH_SFR_CRFUNC>`                       | :ref:`0x4002b000 <COMBOHASH_SFR_CRFUNC>`            |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_OPT1 <COMBOHASH_SFR_OPT1>`                           | :ref:`0x4002b004 <COMBOHASH_SFR_OPT1>`              |
+| :ref:`COMBOHASH_SFR_AR <COMBOHASH_SFR_AR>`                               | :ref:`0x4002b004 <COMBOHASH_SFR_AR>`                |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_OPT2 <COMBOHASH_SFR_OPT2>`                           | :ref:`0x4002b008 <COMBOHASH_SFR_OPT2>`              |
+| :ref:`COMBOHASH_SFR_SRMFSM <COMBOHASH_SFR_SRMFSM>`                       | :ref:`0x4002b008 <COMBOHASH_SFR_SRMFSM>`            |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_HOUT <COMBOHASH_SFR_SEGPTR_SEGID_HOUT>` | :ref:`0x4002b00c <COMBOHASH_SFR_SEGPTR_SEGID_HOUT>` |
+| :ref:`COMBOHASH_SFR_FR <COMBOHASH_SFR_FR>`                               | :ref:`0x4002b00c <COMBOHASH_SFR_FR>`                |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_LKEY <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` | :ref:`0x4002b010 <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` |
+| :ref:`COMBOHASH_SFR_OPT1 <COMBOHASH_SFR_OPT1>`                           | :ref:`0x4002b010 <COMBOHASH_SFR_OPT1>`              |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_MSG <COMBOHASH_SFR_SEGPTR_SEGID_MSG>`   | :ref:`0x4002b014 <COMBOHASH_SFR_SEGPTR_SEGID_MSG>`  |
+| :ref:`COMBOHASH_SFR_OPT2 <COMBOHASH_SFR_OPT2>`                           | :ref:`0x4002b014 <COMBOHASH_SFR_OPT2>`              |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_KEY <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`   | :ref:`0x4002b018 <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`  |
+| :ref:`COMBOHASH_RESERVED6 <COMBOHASH_RESERVED6>`                         | :ref:`0x4002b018 <COMBOHASH_RESERVED6>`             |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_SCRT <COMBOHASH_SFR_SEGPTR_SEGID_SCRT>` | :ref:`0x4002b01c <COMBOHASH_SFR_SEGPTR_SEGID_SCRT>` |
+| :ref:`COMBOHASH_RESERVED7 <COMBOHASH_RESERVED7>`                         | :ref:`0x4002b01c <COMBOHASH_RESERVED7>`             |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_SOB <COMBOHASH_SFR_SEGPTR_SEGID_SOB>`   | :ref:`0x4002b020 <COMBOHASH_SFR_SEGPTR_SEGID_SOB>`  |
+| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_LKEY <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` | :ref:`0x4002b020 <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_SRMFSM <COMBOHASH_SFR_SRMFSM>`                       | :ref:`0x4002b024 <COMBOHASH_SFR_SRMFSM>`            |
+| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_KEY <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`   | :ref:`0x4002b024 <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`  |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_FR <COMBOHASH_SFR_FR>`                               | :ref:`0x4002b028 <COMBOHASH_SFR_FR>`                |
+| :ref:`COMBOHASH_RESERVED10 <COMBOHASH_RESERVED10>`                       | :ref:`0x4002b028 <COMBOHASH_RESERVED10>`            |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_SFR_AR <COMBOHASH_SFR_AR>`                               | :ref:`0x4002b02c <COMBOHASH_SFR_AR>`                |
+| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_SCRT <COMBOHASH_SFR_SEGPTR_SEGID_SCRT>` | :ref:`0x4002b02c <COMBOHASH_SFR_SEGPTR_SEGID_SCRT>` |
++--------------------------------------------------------------------------+-----------------------------------------------------+
+| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_MSG <COMBOHASH_SFR_SEGPTR_SEGID_MSG>`   | :ref:`0x4002b030 <COMBOHASH_SFR_SEGPTR_SEGID_MSG>`  |
++--------------------------------------------------------------------------+-----------------------------------------------------+
+| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_HOUT <COMBOHASH_SFR_SEGPTR_SEGID_HOUT>` | :ref:`0x4002b034 <COMBOHASH_SFR_SEGPTR_SEGID_HOUT>` |
++--------------------------------------------------------------------------+-----------------------------------------------------+
+| :ref:`COMBOHASH_SFR_SEGPTR_SEGID_SOB <COMBOHASH_SFR_SEGPTR_SEGID_SOB>`   | :ref:`0x4002b038 <COMBOHASH_SFR_SEGPTR_SEGID_SOB>`  |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 
 COMBOHASH_SFR_CRFUNC
@@ -55,200 +61,32 @@ COMBOHASH_SFR_CRFUNC
 | [7:0] | CR_FUNC | cr_func read/write control register |
 +-------+---------+-------------------------------------+
 
-COMBOHASH_SFR_OPT1
-^^^^^^^^^^^^^^^^^^
+COMBOHASH_SFR_AR
+^^^^^^^^^^^^^^^^
 
 `Address: 0x4002b000 + 0x4 = 0x4002b004`
 
 
     .. wavedrom::
-        :caption: COMBOHASH_SFR_OPT1
+        :caption: COMBOHASH_SFR_AR
 
         {
             "reg": [
-                {"name": "cr_opt_hashcnt",  "bits": 16},
-                {"bits": 16}
+                {"name": "sfr_ar",  "type": 4, "bits": 32}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-+--------+----------------+--------------------------------------------+
-| Field  | Name           | Description                                |
-+========+================+============================================+
-| [15:0] | CR_OPT_HASHCNT | cr_opt_hashcnt read/write control register |
-+--------+----------------+--------------------------------------------+
-
-COMBOHASH_SFR_OPT2
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x8 = 0x4002b008`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_OPT2
-
-        {
-            "reg": [
-                {"name": "cr_opt_ifstart",  "bits": 1},
-                {"name": "cr_opt_ifsob",  "bits": 1},
-                {"name": "cr_opt_scrtchk",  "bits": 1},
-                {"bits": 29}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-+-------+----------------+--------------------------------------------+
-| Field | Name           | Description                                |
-+=======+================+============================================+
-| [0]   | CR_OPT_IFSTART | cr_opt_hashcnt read/write control register |
-+-------+----------------+--------------------------------------------+
-| [1]   | CR_OPT_IFSOB   | cr_opt_hashcnt read/write control register |
-+-------+----------------+--------------------------------------------+
-| [2]   | CR_OPT_SCRTCHK | cr_opt_hashcnt read/write control register |
-+-------+----------------+--------------------------------------------+
-
-COMBOHASH_SFR_SEGPTR_SEGID_HOUT
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0xc = 0x4002b00c`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_SEGPTR_SEGID_HOUT
-
-        {
-            "reg": [
-                {"name": "SEGID_HOUT",  "bits": 12},
-                {"bits": 20}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-        }
-
-
-+--------+------------+--------------------------------------------+
-| Field  | Name       | Description                                |
-+========+============+============================================+
-| [11:0] | SEGID_HOUT | cr_segptrstart read/write control register |
-+--------+------------+--------------------------------------------+
-
-COMBOHASH_SFR_SEGPTR_SEGID_LKEY
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x10 = 0x4002b010`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_SEGPTR_SEGID_LKEY
-
-        {
-            "reg": [
-                {"name": "SEGID_LKEY",  "bits": 12},
-                {"bits": 20}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-        }
-
-
-+--------+------------+--------------------------------------------+
-| Field  | Name       | Description                                |
-+========+============+============================================+
-| [11:0] | SEGID_LKEY | cr_segptrstart read/write control register |
-+--------+------------+--------------------------------------------+
-
-COMBOHASH_SFR_SEGPTR_SEGID_MSG
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x14 = 0x4002b014`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_SEGPTR_SEGID_MSG
-
-        {
-            "reg": [
-                {"name": "SEGID_MSG",  "bits": 12},
-                {"bits": 20}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-        }
-
-
-+--------+-----------+--------------------------------------------+
-| Field  | Name      | Description                                |
-+========+===========+============================================+
-| [11:0] | SEGID_MSG | cr_segptrstart read/write control register |
-+--------+-----------+--------------------------------------------+
-
-COMBOHASH_SFR_SEGPTR_SEGID_KEY
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x18 = 0x4002b018`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_SEGPTR_SEGID_KEY
-
-        {
-            "reg": [
-                {"name": "SEGID_KEY",  "bits": 12},
-                {"bits": 20}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-        }
-
-
-+--------+-----------+--------------------------------------------+
-| Field  | Name      | Description                                |
-+========+===========+============================================+
-| [11:0] | SEGID_KEY | cr_segptrstart read/write control register |
-+--------+-----------+--------------------------------------------+
-
-COMBOHASH_SFR_SEGPTR_SEGID_SCRT
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x1c = 0x4002b01c`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_SEGPTR_SEGID_SCRT
-
-        {
-            "reg": [
-                {"name": "SEGID_SCRT",  "bits": 12},
-                {"bits": 20}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-        }
-
-
-+--------+------------+--------------------------------------------+
-| Field  | Name       | Description                                |
-+========+============+============================================+
-| [11:0] | SEGID_SCRT | cr_segptrstart read/write control register |
-+--------+------------+--------------------------------------------+
-
-COMBOHASH_SFR_SEGPTR_SEGID_SOB
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x20 = 0x4002b020`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_SFR_SEGPTR_SEGID_SOB
-
-        {
-            "reg": [
-                {"name": "SEGID_SOB",  "bits": 12},
-                {"bits": 20}
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-        }
-
-
-+--------+-----------+--------------------------------------------+
-| Field  | Name      | Description                                |
-+========+===========+============================================+
-| [11:0] | SEGID_SOB | cr_segptrstart read/write control register |
-+--------+-----------+--------------------------------------------+
++--------+--------+------------------------------------------------+
+| Field  | Name   | Description                                    |
++========+========+================================================+
+| [31:0] | SFR_AR | sfr_ar performs action on write of value: 0x5a |
++--------+--------+------------------------------------------------+
 
 COMBOHASH_SFR_SRMFSM
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x4002b000 + 0x24 = 0x4002b024`
+`Address: 0x4002b000 + 0x8 = 0x4002b008`
 
 
     .. wavedrom::
@@ -271,7 +109,7 @@ COMBOHASH_SFR_SRMFSM
 COMBOHASH_SFR_FR
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x4002b000 + 0x28 = 0x4002b028`
+`Address: 0x4002b000 + 0xc = 0x4002b00c`
 
 
     .. wavedrom::
@@ -304,25 +142,244 @@ COMBOHASH_SFR_FR
 |       |            | position to clear the flag                                                     |
 +-------+------------+--------------------------------------------------------------------------------+
 
-COMBOHASH_SFR_AR
-^^^^^^^^^^^^^^^^
+COMBOHASH_SFR_OPT1
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x10 = 0x4002b010`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_OPT1
+
+        {
+            "reg": [
+                {"name": "cr_opt_hashcnt",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------------+--------------------------------------------+
+| Field  | Name           | Description                                |
++========+================+============================================+
+| [15:0] | CR_OPT_HASHCNT | cr_opt_hashcnt read/write control register |
++--------+----------------+--------------------------------------------+
+
+COMBOHASH_SFR_OPT2
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x14 = 0x4002b014`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_OPT2
+
+        {
+            "reg": [
+                {"name": "cr_opt_ifstart",  "bits": 1},
+                {"name": "cr_opt_ifsob",  "bits": 1},
+                {"name": "cr_opt_scrtchk",  "bits": 1},
+                {"bits": 29}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+----------------+--------------------------------------------+
+| Field | Name           | Description                                |
++=======+================+============================================+
+| [0]   | CR_OPT_IFSTART | cr_opt_hashcnt read/write control register |
++-------+----------------+--------------------------------------------+
+| [1]   | CR_OPT_IFSOB   | cr_opt_hashcnt read/write control register |
++-------+----------------+--------------------------------------------+
+| [2]   | CR_OPT_SCRTCHK | cr_opt_hashcnt read/write control register |
++-------+----------------+--------------------------------------------+
+
+COMBOHASH_RESERVED6
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x18 = 0x4002b018`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_RESERVED6
+
+        {
+            "reg": [
+                {"name": "reserved6", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+COMBOHASH_RESERVED7
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x1c = 0x4002b01c`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_RESERVED7
+
+        {
+            "reg": [
+                {"name": "reserved7", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+COMBOHASH_SFR_SEGPTR_SEGID_LKEY
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x20 = 0x4002b020`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_SEGPTR_SEGID_LKEY
+
+        {
+            "reg": [
+                {"name": "SEGID_LKEY",  "bits": 12},
+                {"bits": 20}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------------+--------------------------------------------+
+| Field  | Name       | Description                                |
++========+============+============================================+
+| [11:0] | SEGID_LKEY | cr_segptrstart read/write control register |
++--------+------------+--------------------------------------------+
+
+COMBOHASH_SFR_SEGPTR_SEGID_KEY
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x24 = 0x4002b024`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_SEGPTR_SEGID_KEY
+
+        {
+            "reg": [
+                {"name": "SEGID_KEY",  "bits": 12},
+                {"bits": 20}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+--------------------------------------------+
+| Field  | Name      | Description                                |
++========+===========+============================================+
+| [11:0] | SEGID_KEY | cr_segptrstart read/write control register |
++--------+-----------+--------------------------------------------+
+
+COMBOHASH_RESERVED10
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x28 = 0x4002b028`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_RESERVED10
+
+        {
+            "reg": [
+                {"name": "reserved10", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+COMBOHASH_SFR_SEGPTR_SEGID_SCRT
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x4002b000 + 0x2c = 0x4002b02c`
 
 
     .. wavedrom::
-        :caption: COMBOHASH_SFR_AR
+        :caption: COMBOHASH_SFR_SEGPTR_SEGID_SCRT
 
         {
             "reg": [
-                {"name": "sfr_ar",  "type": 4, "bits": 32}
+                {"name": "SEGID_SCRT",  "bits": 12},
+                {"bits": 20}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-+--------+--------+------------------------------------------------+
-| Field  | Name   | Description                                    |
-+========+========+================================================+
-| [31:0] | SFR_AR | sfr_ar performs action on write of value: 0x5a |
-+--------+--------+------------------------------------------------+
++--------+------------+--------------------------------------------+
+| Field  | Name       | Description                                |
++========+============+============================================+
+| [11:0] | SEGID_SCRT | cr_segptrstart read/write control register |
++--------+------------+--------------------------------------------+
+
+COMBOHASH_SFR_SEGPTR_SEGID_MSG
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x30 = 0x4002b030`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_SEGPTR_SEGID_MSG
+
+        {
+            "reg": [
+                {"name": "SEGID_MSG",  "bits": 12},
+                {"bits": 20}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+--------------------------------------------+
+| Field  | Name      | Description                                |
++========+===========+============================================+
+| [11:0] | SEGID_MSG | cr_segptrstart read/write control register |
++--------+-----------+--------------------------------------------+
+
+COMBOHASH_SFR_SEGPTR_SEGID_HOUT
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x34 = 0x4002b034`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_SEGPTR_SEGID_HOUT
+
+        {
+            "reg": [
+                {"name": "SEGID_HOUT",  "bits": 12},
+                {"bits": 20}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------------+--------------------------------------------+
+| Field  | Name       | Description                                |
++========+============+============================================+
+| [11:0] | SEGID_HOUT | cr_segptrstart read/write control register |
++--------+------------+--------------------------------------------+
+
+COMBOHASH_SFR_SEGPTR_SEGID_SOB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x38 = 0x4002b038`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_SEGPTR_SEGID_SOB
+
+        {
+            "reg": [
+                {"name": "SEGID_SOB",  "bits": 12},
+                {"bits": 20}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+--------------------------------------------+
+| Field  | Name      | Description                                |
++========+===========+============================================+
+| [11:0] | SEGID_SOB | cr_segptrstart read/write control register |
++--------+-----------+--------------------------------------------+
 

@@ -964,7 +964,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     offset = sfr_offset
                                 csrs += [regfuncs[rtype](
                                     name=leaf_name + '_' + sfr_name,
-                                    n=(leaf_desc['params']['A'].eval_result / 4) + offset,
+                                    n=int((leaf_desc['params']['A'].eval_result / 4) + offset),
                                     fields=fields,
                                 )]
                         else:
@@ -1024,7 +1024,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     ]
                             csrs += [regfuncs[rtype](
                                 name=leaf_name,
-                                n=leaf_desc['params']['A'].eval_result / 4,
+                                n=int(leaf_desc['params']['A'].eval_result / 4),
                                 fields=fields,
                             )]
         doc_soc.csr.regions[module] = SoCCSRRegion(
@@ -1225,6 +1225,24 @@ def main():
         # ctrl_offset is the base of the SCE register set, as extracted from the core documentation
         create_csrs(doc_soc, schema, module, banks, ctrl_offset=doc_soc.mem_regions['sce'].origin)
 
+    from litex.soc.interconnect.csr import _sort_gathered_items
+    from litex.soc.interconnect.csr import CSR
+    for region in doc_soc.csr.regions.values():
+        csr_list = []
+        unsorted_csrs = region.obj
+        # find max n
+        n = 0
+        for item in unsorted_csrs:
+            if item.n > n:
+                n = item.n
+        # build a list of "reserved" CSRs
+        for i in range(n+1):
+            csr_list += [CSR(name=f"reserved{i}")]
+        # displace the reserved items with allocated items
+        for item in unsorted_csrs:
+            csr_list[item.n] = item
+        # convert to dictionary
+        region.obj = csr_list
     # generate SVD
     with open(args.outdir + 'sce.svd', 'w') as svd_f:
         svd = get_csr_svd(doc_soc, vendor="cramium", name="soc", description="Cramium SoC, product name TBD")
@@ -1245,6 +1263,7 @@ def main():
 
     subprocess.run(['cargo', 'run', '../include/sce.svd' , '../include/sce_generated.rs'], cwd='./svd2utra')
     subprocess.run(['sphinx-build', '-M', 'html', 'include/doc/', 'include/doc/_build'])
+    subprocess.run(['rsync', '-a', '--delete', 'include/doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
 
 if __name__ == "__main__":
     main()

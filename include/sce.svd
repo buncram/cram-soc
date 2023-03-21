@@ -34,112 +34,23 @@
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_OPT</name>
+                    <name>SFR_AR</name>
                     <addressOffset>0x0004</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>opt_ifstart0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
+                            <name>sfr_ar</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_crfunc read/write control register]]></description>
-                        </field>
-                        <field>
-                            <name>opt_mode0</name>
-                            <msb>4</msb>
-                            <bitRange>[4:1]</bitRange>
-                            <lsb>1</lsb>
-                            <description><![CDATA[sfr_crfunc read/write control register]]></description>
-                        </field>
-                        <field>
-                            <name>opt_klen0</name>
-                            <msb>8</msb>
-                            <bitRange>[8:5]</bitRange>
-                            <lsb>5</lsb>
-                            <description><![CDATA[sfr_crfunc read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_OPT1</name>
-                    <addressOffset>0x0008</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sfr_opt1</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sfr_opt1 read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_AKEY</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_AKEY</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_AIB</name>
-                    <addressOffset>0x0010</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_AIB</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_IV</name>
-                    <addressOffset>0x0014</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_IV</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_AOB</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_AOB</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                            <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
                         </field>
                     </fields>
                 </register>
                 <register>
                     <name>SFR_SRMFSM</name>
-                    <addressOffset>0x001c</addressOffset>
+                    <addressOffset>0x0008</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -154,7 +65,7 @@
                 </register>
                 <register>
                     <name>SFR_FR</name>
-                    <addressOffset>0x0020</addressOffset>
+                    <addressOffset>0x000c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -193,24 +104,197 @@ bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_AR</name>
+                    <name>SFR_OPT</name>
+                    <addressOffset>0x0010</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>opt_ifstart0</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_crfunc read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>opt_mode0</name>
+                            <msb>4</msb>
+                            <bitRange>[4:1]</bitRange>
+                            <lsb>1</lsb>
+                            <description><![CDATA[sfr_crfunc read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>opt_klen0</name>
+                            <msb>8</msb>
+                            <bitRange>[8:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[sfr_crfunc read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_OPT1</name>
+                    <addressOffset>0x0014</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_opt1</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_opt1 read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED6</name>
+                    <addressOffset>0x0018</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved6</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED7</name>
+                    <addressOffset>0x001c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved7</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED8</name>
+                    <addressOffset>0x0020</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved8</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED9</name>
                     <addressOffset>0x0024</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>sfr_ar</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <name>reserved9</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED10</name>
+                    <addressOffset>0x0028</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved10</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED11</name>
+                    <addressOffset>0x002c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved11</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_IV</name>
+                    <addressOffset>0x0030</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_IV</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_AKEY</name>
+                    <addressOffset>0x0034</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_AKEY</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_AIB</name>
+                    <addressOffset>0x0038</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_AIB</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_AOB</name>
+                    <addressOffset>0x003c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_AOB</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x28</size>
+                <size>0x40</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
@@ -235,142 +319,23 @@ bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_OPT1</name>
+                    <name>SFR_AR</name>
                     <addressOffset>0x0004</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>cr_opt_hashcnt</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
+                            <name>sfr_ar</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_OPT2</name>
-                    <addressOffset>0x0008</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>cr_opt_ifstart</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
-                        </field>
-                        <field>
-                            <name>cr_opt_ifsob</name>
-                            <msb>1</msb>
-                            <bitRange>[1:1]</bitRange>
-                            <lsb>1</lsb>
-                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
-                        </field>
-                        <field>
-                            <name>cr_opt_scrtchk</name>
-                            <msb>2</msb>
-                            <bitRange>[2:2]</bitRange>
-                            <lsb>2</lsb>
-                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_SEGID_HOUT</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>SEGID_HOUT</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_SEGID_LKEY</name>
-                    <addressOffset>0x0010</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>SEGID_LKEY</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_SEGID_MSG</name>
-                    <addressOffset>0x0014</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>SEGID_MSG</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_SEGID_KEY</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>SEGID_KEY</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_SEGID_SCRT</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>SEGID_SCRT</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_SEGID_SOB</name>
-                    <addressOffset>0x0020</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>SEGID_SOB</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                            <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
                         </field>
                     </fields>
                 </register>
                 <register>
                     <name>SFR_SRMFSM</name>
-                    <addressOffset>0x0024</addressOffset>
+                    <addressOffset>0x0008</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -385,7 +350,7 @@ bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_FR</name>
-                    <addressOffset>0x0028</addressOffset>
+                    <addressOffset>0x000c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -424,24 +389,185 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_AR</name>
+                    <name>SFR_OPT1</name>
+                    <addressOffset>0x0010</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>cr_opt_hashcnt</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_OPT2</name>
+                    <addressOffset>0x0014</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>cr_opt_ifstart</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>cr_opt_ifsob</name>
+                            <msb>1</msb>
+                            <bitRange>[1:1]</bitRange>
+                            <lsb>1</lsb>
+                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>cr_opt_scrtchk</name>
+                            <msb>2</msb>
+                            <bitRange>[2:2]</bitRange>
+                            <lsb>2</lsb>
+                            <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED6</name>
+                    <addressOffset>0x0018</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved6</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED7</name>
+                    <addressOffset>0x001c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved7</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_SEGID_LKEY</name>
+                    <addressOffset>0x0020</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>SEGID_LKEY</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_SEGID_KEY</name>
+                    <addressOffset>0x0024</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>SEGID_KEY</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED10</name>
+                    <addressOffset>0x0028</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved10</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_SEGID_SCRT</name>
                     <addressOffset>0x002c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>sfr_ar</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <name>SEGID_SCRT</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_SEGID_MSG</name>
+                    <addressOffset>0x0030</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>SEGID_MSG</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_SEGID_HOUT</name>
+                    <addressOffset>0x0034</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>SEGID_HOUT</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_SEGID_SOB</name>
+                    <addressOffset>0x0038</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>SEGID_SOB</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x30</size>
+                <size>0x3c</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
@@ -466,128 +592,23 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_OPTNW</name>
+                    <name>SFR_AR</name>
                     <addressOffset>0x0004</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>sfr_optnw</name>
-                            <msb>12</msb>
-                            <bitRange>[12:0]</bitRange>
+                            <name>sfr_ar</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_optnw read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_OPTEW</name>
-                    <addressOffset>0x0008</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sfr_optew</name>
-                            <msb>12</msb>
-                            <bitRange>[12:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sfr_optew read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_OPTMASK</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sfr_optmask</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sfr_optmask read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_PIB0</name>
-                    <addressOffset>0x0010</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_PIB0</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_PIB1</name>
-                    <addressOffset>0x0014</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_PIB1</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_PKB</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_PKB</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_PCON</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_PCON</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SEGPTR_PTRID_POB</name>
-                    <addressOffset>0x0020</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>PTRID_POB</name>
-                            <msb>11</msb>
-                            <bitRange>[11:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                            <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
                         </field>
                     </fields>
                 </register>
                 <register>
                     <name>SFR_SRMFSM</name>
-                    <addressOffset>0x0024</addressOffset>
+                    <addressOffset>0x0008</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -609,7 +630,7 @@ position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_FR</name>
-                    <addressOffset>0x0028</addressOffset>
+                    <addressOffset>0x000c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -656,24 +677,199 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_AR</name>
+                    <name>SFR_OPTNW</name>
+                    <addressOffset>0x0010</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_optnw</name>
+                            <msb>12</msb>
+                            <bitRange>[12:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_optnw read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_OPTEW</name>
+                    <addressOffset>0x0014</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_optew</name>
+                            <msb>12</msb>
+                            <bitRange>[12:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_optew read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED6</name>
+                    <addressOffset>0x0018</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved6</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED7</name>
+                    <addressOffset>0x001c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved7</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_OPTMASK</name>
+                    <addressOffset>0x0020</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_optmask</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_optmask read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED9</name>
+                    <addressOffset>0x0024</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved9</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED10</name>
+                    <addressOffset>0x0028</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved10</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED11</name>
                     <addressOffset>0x002c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>sfr_ar</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <name>reserved11</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_PCON</name>
+                    <addressOffset>0x0030</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_PCON</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_PIB0</name>
+                    <addressOffset>0x0034</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_PIB0</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_PIB1</name>
+                    <addressOffset>0x0038</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_PIB1</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_PKB</name>
+                    <addressOffset>0x003c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_PKB</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SEGPTR_PTRID_POB</name>
+                    <addressOffset>0x0040</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>PTRID_POB</name>
+                            <msb>11</msb>
+                            <bitRange>[11:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_segptrstart read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x30</size>
+                <size>0x44</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
@@ -683,8 +879,65 @@ respective bit position to clear the flag]]></description>
             <groupName>SCEDMA</groupName>
             <registers>
                 <register>
-                    <name>SFR_XCH_FUNC</name>
+                    <name>SFR_SCHSTART_AR</name>
                     <addressOffset>0x0000</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_schstart_ar</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_schstart_ar performs action on write of value: 0xaa]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED1</name>
+                    <addressOffset>0x0004</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved1</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED2</name>
+                    <addressOffset>0x0008</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved2</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED3</name>
+                    <addressOffset>0x000c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved3</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_XCH_FUNC</name>
+                    <addressOffset>0x0010</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -699,7 +952,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_XCH_OPT</name>
-                    <addressOffset>0x0004</addressOffset>
+                    <addressOffset>0x0014</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -714,7 +967,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_XCH_AXSTART</name>
-                    <addressOffset>0x0008</addressOffset>
+                    <addressOffset>0x0018</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -729,7 +982,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_XCH_SEGID</name>
-                    <addressOffset>0x000c</addressOffset>
+                    <addressOffset>0x001c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -744,7 +997,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_XCH_SEGSTART</name>
-                    <addressOffset>0x0010</addressOffset>
+                    <addressOffset>0x0020</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -759,7 +1012,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_XCH_TRANSIZE</name>
-                    <addressOffset>0x0014</addressOffset>
+                    <addressOffset>0x0024</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -773,8 +1026,36 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
+                    <name>RESERVED10</name>
+                    <addressOffset>0x0028</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved10</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED11</name>
+                    <addressOffset>0x002c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved11</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
                     <name>SFR_SCH_FUNC</name>
-                    <addressOffset>0x0018</addressOffset>
+                    <addressOffset>0x0030</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -789,7 +1070,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_SCH_OPT</name>
-                    <addressOffset>0x001c</addressOffset>
+                    <addressOffset>0x0034</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -804,7 +1085,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_SCH_AXSTART</name>
-                    <addressOffset>0x0020</addressOffset>
+                    <addressOffset>0x0038</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -819,7 +1100,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_SCH_SEGID</name>
-                    <addressOffset>0x0024</addressOffset>
+                    <addressOffset>0x003c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -834,7 +1115,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_SCH_SEGSTART</name>
-                    <addressOffset>0x0028</addressOffset>
+                    <addressOffset>0x0040</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -849,7 +1130,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_SCH_TRANSIZE</name>
-                    <addressOffset>0x002c</addressOffset>
+                    <addressOffset>0x0044</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -863,8 +1144,36 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
+                    <name>RESERVED18</name>
+                    <addressOffset>0x0048</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved18</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED19</name>
+                    <addressOffset>0x004c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved19</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
                     <name>SFR_ICH_OPT</name>
-                    <addressOffset>0x0030</addressOffset>
+                    <addressOffset>0x0050</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -879,7 +1188,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_ICH_SEGID</name>
-                    <addressOffset>0x0034</addressOffset>
+                    <addressOffset>0x0054</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -894,7 +1203,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_ICH_RPSTART</name>
-                    <addressOffset>0x0038</addressOffset>
+                    <addressOffset>0x0058</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -909,7 +1218,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_ICH_WPSTART</name>
-                    <addressOffset>0x003c</addressOffset>
+                    <addressOffset>0x005c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -924,7 +1233,7 @@ respective bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_ICH_TRANSIZE</name>
-                    <addressOffset>0x0040</addressOffset>
+                    <addressOffset>0x0060</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -937,55 +1246,10 @@ respective bit position to clear the flag]]></description>
                         </field>
                     </fields>
                 </register>
-                <register>
-                    <name>SFR_ICHSTART_AR</name>
-                    <addressOffset>0x0044</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sfr_ichstart_ar</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sfr_ichstart_ar performs action on write of value: 0x5a]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_XCHSTART_AR</name>
-                    <addressOffset>0x0048</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sfr_xchstart_ar</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sfr_xchstart_ar performs action on write of value: 0xa5]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_SCHSTART_AR</name>
-                    <addressOffset>0x004c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sfr_schstart_ar</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sfr_schstart_ar performs action on write of value: 0xaa]]></description>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x50</size>
+                <size>0x64</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
@@ -1040,17 +1304,16 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_FFEN</name>
+                    <name>RESERVED3</name>
                     <addressOffset>0x000c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>cr_ffen</name>
-                            <msb>5</msb>
-                            <bitRange>[5:0]</bitRange>
+                            <name>reserved3</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[cr_ffen read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1070,98 +1333,8 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_FFCNT_SR_FF0</name>
-                    <addressOffset>0x0014</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sr_ff0</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sr_ff read only status register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_FFCNT_SR_FF1</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sr_ff1</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sr_ff read only status register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_FFCNT_SR_FF2</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sr_ff2</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sr_ff read only status register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_FFCNT_SR_FF3</name>
-                    <addressOffset>0x0020</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sr_ff3</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sr_ff read only status register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_FFCNT_SR_FF4</name>
-                    <addressOffset>0x0024</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sr_ff4</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sr_ff read only status register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>SFR_FFCNT_SR_FF5</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>sr_ff5</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[sr_ff read only status register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_FRDONE</name>
-                    <addressOffset>0x002c</addressOffset>
+                    <addressOffset>0x0014</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -1177,7 +1350,7 @@ bit position to clear the flag]]></description>
                 </register>
                 <register>
                     <name>SFR_FRERR</name>
-                    <addressOffset>0x0030</addressOffset>
+                    <addressOffset>0x0018</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -1192,23 +1365,8 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_ARRST</name>
-                    <addressOffset>0x0034</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>ar_reset</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[ar_reset performs action on write of value: 0x5a]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_ARCLR</name>
-                    <addressOffset>0x0038</addressOffset>
+                    <addressOffset>0x001c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -1222,8 +1380,79 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
+                    <name>RESERVED8</name>
+                    <addressOffset>0x0020</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved8</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED9</name>
+                    <addressOffset>0x0024</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved9</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED10</name>
+                    <addressOffset>0x0028</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved10</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED11</name>
+                    <addressOffset>0x002c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved11</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFEN</name>
+                    <addressOffset>0x0030</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>cr_ffen</name>
+                            <msb>5</msb>
+                            <bitRange>[5:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[cr_ffen read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
                     <name>SFR_FFCLR</name>
-                    <addressOffset>0x003c</addressOffset>
+                    <addressOffset>0x0034</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
@@ -1236,10 +1465,128 @@ position to clear the flag]]></description>
                         </field>
                     </fields>
                 </register>
+                <register>
+                    <name>RESERVED14</name>
+                    <addressOffset>0x0038</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved14</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED15</name>
+                    <addressOffset>0x003c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved15</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFCNT_SR_FF0</name>
+                    <addressOffset>0x0040</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sr_ff0</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sr_ff read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFCNT_SR_FF1</name>
+                    <addressOffset>0x0044</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sr_ff1</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sr_ff read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFCNT_SR_FF2</name>
+                    <addressOffset>0x0048</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sr_ff2</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sr_ff read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFCNT_SR_FF3</name>
+                    <addressOffset>0x004c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sr_ff3</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sr_ff read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFCNT_SR_FF4</name>
+                    <addressOffset>0x0050</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sr_ff4</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sr_ff read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FFCNT_SR_FF5</name>
+                    <addressOffset>0x0054</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sr_ff5</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sr_ff read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x40</size>
+                <size>0x58</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
@@ -1248,10 +1595,24 @@ position to clear the flag]]></description>
             <baseAddress>0x4002E000</baseAddress>
             <groupName>TRNG</groupName>
             <registers>
+                <register>
+                    <name>RESERVED0</name>
+                    <addressOffset>0x0000</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved0</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x0</size>
+                <size>0x4</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
@@ -1260,10 +1621,24 @@ position to clear the flag]]></description>
             <baseAddress>0x4002F000</baseAddress>
             <groupName>ALU</groupName>
             <registers>
+                <register>
+                    <name>RESERVED0</name>
+                    <addressOffset>0x0000</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved0</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x0</size>
+                <size>0x4</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
