@@ -1225,6 +1225,7 @@ def main():
         # ctrl_offset is the base of the SCE register set, as extracted from the core documentation
         create_csrs(doc_soc, schema, module, banks, ctrl_offset=doc_soc.mem_regions['sce'].origin)
 
+    # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
     from litex.soc.interconnect.csr import _sort_gathered_items
     from litex.soc.interconnect.csr import CSR
     for region in doc_soc.csr.regions.values():
@@ -1243,6 +1244,7 @@ def main():
             csr_list[item.n] = item
         # convert to dictionary
         region.obj = csr_list
+
     # generate SVD
     with open(args.outdir + 'sce.svd', 'w') as svd_f:
         svd = get_csr_svd(doc_soc, vendor="cramium", name="soc", description="Cramium SoC, product name TBD")
