@@ -1,0 +1,409 @@
+SCE_GLBSFR
+==========
+
+Register Listing for SCE_GLBSFR
+-------------------------------
+
++------------------------------------------------------------------+-------------------------------------------------+
+| Register                                                         | Address                                         |
++==================================================================+=================================================+
+| :ref:`SCE_GLBSFR_SFR_SCEMODE <SCE_GLBSFR_SFR_SCEMODE>`           | :ref:`0x40028000 <SCE_GLBSFR_SFR_SCEMODE>`      |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_SUBEN <SCE_GLBSFR_SFR_SUBEN>`               | :ref:`0x40028004 <SCE_GLBSFR_SFR_SUBEN>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_AHBS <SCE_GLBSFR_SFR_AHBS>`                 | :ref:`0x40028008 <SCE_GLBSFR_SFR_AHBS>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFEN <SCE_GLBSFR_SFR_FFEN>`                 | :ref:`0x4002800c <SCE_GLBSFR_SFR_FFEN>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_SRBUSY <SCE_GLBSFR_SFR_SRBUSY>`             | :ref:`0x40028010 <SCE_GLBSFR_SFR_SRBUSY>`       |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF0 <SCE_GLBSFR_SFR_FFCNT_SR_FF0>` | :ref:`0x40028014 <SCE_GLBSFR_SFR_FFCNT_SR_FF0>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF1 <SCE_GLBSFR_SFR_FFCNT_SR_FF1>` | :ref:`0x40028018 <SCE_GLBSFR_SFR_FFCNT_SR_FF1>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF2 <SCE_GLBSFR_SFR_FFCNT_SR_FF2>` | :ref:`0x4002801c <SCE_GLBSFR_SFR_FFCNT_SR_FF2>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF3 <SCE_GLBSFR_SFR_FFCNT_SR_FF3>` | :ref:`0x40028020 <SCE_GLBSFR_SFR_FFCNT_SR_FF3>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF4 <SCE_GLBSFR_SFR_FFCNT_SR_FF4>` | :ref:`0x40028024 <SCE_GLBSFR_SFR_FFCNT_SR_FF4>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF5 <SCE_GLBSFR_SFR_FFCNT_SR_FF5>` | :ref:`0x40028028 <SCE_GLBSFR_SFR_FFCNT_SR_FF5>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FRDONE <SCE_GLBSFR_SFR_FRDONE>`             | :ref:`0x4002802c <SCE_GLBSFR_SFR_FRDONE>`       |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FRERR <SCE_GLBSFR_SFR_FRERR>`               | :ref:`0x40028030 <SCE_GLBSFR_SFR_FRERR>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_ARRST <SCE_GLBSFR_SFR_ARRST>`               | :ref:`0x40028034 <SCE_GLBSFR_SFR_ARRST>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_ARCLR <SCE_GLBSFR_SFR_ARCLR>`               | :ref:`0x40028038 <SCE_GLBSFR_SFR_ARCLR>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_FFCLR <SCE_GLBSFR_SFR_FFCLR>`               | :ref:`0x4002803c <SCE_GLBSFR_SFR_FFCLR>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+
+SCE_GLBSFR_SFR_SCEMODE
+^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x0 = 0x40028000`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_SCEMODE
+
+        {
+            "reg": [
+                {"name": "cr_scemode",  "bits": 2},
+                {"bits": 30}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [1:0] | CR_SCEMODE | cr_scemode read/write control register |
++-------+------------+----------------------------------------+
+
+SCE_GLBSFR_SFR_SUBEN
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x4 = 0x40028004`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_SUBEN
+
+        {
+            "reg": [
+                {"name": "cr_suben",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+--------------------------------------+
+| Field  | Name     | Description                          |
++========+==========+======================================+
+| [15:0] | CR_SUBEN | cr_suben read/write control register |
++--------+----------+--------------------------------------+
+
+SCE_GLBSFR_SFR_AHBS
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x8 = 0x40028008`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_AHBS
+
+        {
+            "reg": [
+                {"name": "cr_ahbsopt",  "bits": 5},
+                {"bits": 27}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [4:0] | CR_AHBSOPT | cr_ahbsopt read/write control register |
++-------+------------+----------------------------------------+
+
+SCE_GLBSFR_SFR_FFEN
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0xc = 0x4002800c`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFEN
+
+        {
+            "reg": [
+                {"name": "cr_ffen",  "bits": 6},
+                {"bits": 26}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+---------+-------------------------------------+
+| Field | Name    | Description                         |
++=======+=========+=====================================+
+| [5:0] | CR_FFEN | cr_ffen read/write control register |
++-------+---------+-------------------------------------+
+
+SCE_GLBSFR_SFR_SRBUSY
+^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x10 = 0x40028010`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_SRBUSY
+
+        {
+            "reg": [
+                {"name": "sr_busy",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+-----------------------------------+
+| Field  | Name    | Description                       |
++========+=========+===================================+
+| [15:0] | SR_BUSY | sr_busy read only status register |
++--------+---------+-----------------------------------+
+
+SCE_GLBSFR_SFR_FFCNT_SR_FF0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x14 = 0x40028014`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF0
+
+        {
+            "reg": [
+                {"name": "sr_ff0",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+---------------------------------+
+| Field  | Name   | Description                     |
++========+========+=================================+
+| [15:0] | SR_FF0 | sr_ff read only status register |
++--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_FFCNT_SR_FF1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x18 = 0x40028018`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF1
+
+        {
+            "reg": [
+                {"name": "sr_ff1",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+---------------------------------+
+| Field  | Name   | Description                     |
++========+========+=================================+
+| [15:0] | SR_FF1 | sr_ff read only status register |
++--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_FFCNT_SR_FF2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x1c = 0x4002801c`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF2
+
+        {
+            "reg": [
+                {"name": "sr_ff2",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+---------------------------------+
+| Field  | Name   | Description                     |
++========+========+=================================+
+| [15:0] | SR_FF2 | sr_ff read only status register |
++--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_FFCNT_SR_FF3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x20 = 0x40028020`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF3
+
+        {
+            "reg": [
+                {"name": "sr_ff3",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+---------------------------------+
+| Field  | Name   | Description                     |
++========+========+=================================+
+| [15:0] | SR_FF3 | sr_ff read only status register |
++--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_FFCNT_SR_FF4
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x24 = 0x40028024`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF4
+
+        {
+            "reg": [
+                {"name": "sr_ff4",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+---------------------------------+
+| Field  | Name   | Description                     |
++========+========+=================================+
+| [15:0] | SR_FF4 | sr_ff read only status register |
++--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_FFCNT_SR_FF5
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x28 = 0x40028028`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF5
+
+        {
+            "reg": [
+                {"name": "sr_ff5",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+---------------------------------+
+| Field  | Name   | Description                     |
++========+========+=================================+
+| [15:0] | SR_FF5 | sr_ff read only status register |
++--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_FRDONE
+^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x2c = 0x4002802c`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FRDONE
+
+        {
+            "reg": [
+                {"name": "fr_done",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+-------------------------------------------------------------------------------+
+| Field  | Name    | Description                                                                   |
++========+=========+===============================================================================+
+| [15:0] | FR_DONE | fr_done flag register. `1` means event happened, write back `1` in respective |
+|        |         | bit position to clear the flag                                                |
++--------+---------+-------------------------------------------------------------------------------+
+
+SCE_GLBSFR_SFR_FRERR
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x30 = 0x40028030`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FRERR
+
+        {
+            "reg": [
+                {"name": "fr_err",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------+----------------------------------------------------------------------------------+
+| Field  | Name   | Description                                                                      |
++========+========+==================================================================================+
+| [15:0] | FR_ERR | fr_err flag register. `1` means event happened, write back `1` in respective bit |
+|        |        | position to clear the flag                                                       |
++--------+--------+----------------------------------------------------------------------------------+
+
+SCE_GLBSFR_SFR_ARRST
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x34 = 0x40028034`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_ARRST
+
+        {
+            "reg": [
+                {"name": "ar_reset",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+--------------------------------------------------+
+| Field  | Name     | Description                                      |
++========+==========+==================================================+
+| [31:0] | AR_RESET | ar_reset performs action on write of value: 0x5a |
++--------+----------+--------------------------------------------------+
+
+SCE_GLBSFR_SFR_ARCLR
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x38 = 0x40028038`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_ARCLR
+
+        {
+            "reg": [
+                {"name": "ar_clrram",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+---------------------------------------------------+
+| Field  | Name      | Description                                       |
++========+===========+===================================================+
+| [31:0] | AR_CLRRAM | ar_clrram performs action on write of value: 0xa5 |
++--------+-----------+---------------------------------------------------+
+
+SCE_GLBSFR_SFR_FFCLR
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0x3c = 0x4002803c`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_FFCLR
+
+        {
+            "reg": [
+                {"name": "ar_ffclr",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+----------------------------------------------------------+
+| Field  | Name     | Description                                              |
++========+==========+==========================================================+
+| [31:0] | AR_FFCLR | ar_ffclr performs action on write of value: (32'hff00+i) |
++--------+----------+----------------------------------------------------------+
+
