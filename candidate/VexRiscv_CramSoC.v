@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
 // Component : VexRiscvAxi4
-// Git hash  : 7e1cd41aabeb89395117724a23e55d430b9b12d6
+// Git hash  : f88a8acf3fa32033d2c7680dc8c927119518ac60
 
 `timescale 1ns/1ps
 
@@ -77,6 +77,8 @@ module VexRiscvAxi4 (
   output              jtag_tdo,
   input               jtag_tck,
   input               clk,
+  input               CMBIST,
+  input               CMATPG,
   input               reset,
   input               debugReset
 );
@@ -2745,6 +2747,8 @@ module VexRiscvAxi4 (
     .io_mem_rsp_payload_data               (iBus_rsp_payload_data[63:0]                               ), //i
     .io_mem_rsp_payload_error              (iBus_rsp_payload_error                                    ), //i
     .clk                                   (clk                                                       ), //i
+    .CMBIST                                (CMBIST                                                    ), //i
+    .CMATPG                                (CMATPG                                                    ), //i
     .reset                                 (reset                                                     )  //i
   );
   DataCache dataCache_1 (
@@ -2830,6 +2834,8 @@ module VexRiscvAxi4 (
     .io_mem_rsp_payload_data                (dBus_rsp_regNext_payload_data[31:0]              ), //i
     .io_mem_rsp_payload_error               (dBus_rsp_regNext_payload_error                   ), //i
     .clk                                    (clk                                              ), //i
+    .CMBIST                                 (CMBIST                                           ), //i
+    .CMATPG                                 (CMATPG                                           ), //i
     .reset                                  (reset                                            )  //i
   );
   JtagBridge jtagBridge_1 (
@@ -10194,6 +10200,8 @@ module DataCache (
   input      [31:0]   io_mem_rsp_payload_data,
   input               io_mem_rsp_payload_error,
   input               clk,
+  input               CMBIST,
+  input               CMATPG,
   input               reset
 );
 
@@ -10499,7 +10507,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_0_tags_rd_en                ), //i
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
-    .rd_data (ways_0_tags_rd_data[21:0]        )  //o
+    .rd_data (ways_0_tags_rd_data[21:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10523,7 +10533,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_0_data_rd_en                ), //i
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
-    .rd_data (ways_0_data_rd_data[31:0]        )  //o
+    .rd_data (ways_0_data_rd_data[31:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -10547,7 +10559,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_1_tags_rd_en                ), //i
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
-    .rd_data (ways_1_tags_rd_data[21:0]        )  //o
+    .rd_data (ways_1_tags_rd_data[21:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10571,7 +10585,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_1_data_rd_en                ), //i
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
-    .rd_data (ways_1_data_rd_data[31:0]        )  //o
+    .rd_data (ways_1_data_rd_data[31:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -10595,7 +10611,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_2_tags_rd_en                ), //i
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
-    .rd_data (ways_2_tags_rd_data[21:0]        )  //o
+    .rd_data (ways_2_tags_rd_data[21:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10619,7 +10637,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_2_data_rd_en                ), //i
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
-    .rd_data (ways_2_data_rd_data[31:0]        )  //o
+    .rd_data (ways_2_data_rd_data[31:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -10643,7 +10663,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_3_tags_rd_en                ), //i
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
-    .rd_data (ways_3_tags_rd_data[21:0]        )  //o
+    .rd_data (ways_3_tags_rd_data[21:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10667,7 +10689,9 @@ module DataCache (
     .rd_clk  (clk                              ), //i
     .rd_en   (ways_3_data_rd_en                ), //i
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
-    .rd_data (ways_3_data_rd_data[31:0]        )  //o
+    .rd_data (ways_3_data_rd_data[31:0]        ), //o
+    .CMBIST  (CMBIST                           ), //i
+    .CMATPG  (CMATPG                           )  //i
   );
   always @(*) begin
     case(_zz_stageB_dataMux_4)
@@ -11550,6 +11574,8 @@ module InstructionCache (
   input      [63:0]   io_mem_rsp_payload_data,
   input               io_mem_rsp_payload_error,
   input               clk,
+  input               CMBIST,
+  input               CMATPG,
   input               reset
 );
 
@@ -11758,7 +11784,9 @@ module InstructionCache (
     .rd_clk  (clk                                         ), //i
     .rd_en   (banks_0_rd_en                               ), //i
     .rd_addr (banks_0_rd_addr[8:0]                        ), //i
-    .rd_data (banks_0_rd_data[63:0]                       )  //o
+    .rd_data (banks_0_rd_data[63:0]                       ), //o
+    .CMBIST  (CMBIST                                      ), //i
+    .CMATPG  (CMATPG                                      )  //i
   );
   Ram_1w_1rs #(
     .wordCount(512),
@@ -11782,7 +11810,9 @@ module InstructionCache (
     .rd_clk  (clk                                         ), //i
     .rd_en   (banks_1_rd_en                               ), //i
     .rd_addr (banks_1_rd_addr[8:0]                        ), //i
-    .rd_data (banks_1_rd_data[63:0]                       )  //o
+    .rd_data (banks_1_rd_data[63:0]                       ), //o
+    .CMBIST  (CMBIST                                      ), //i
+    .CMATPG  (CMATPG                                      )  //i
   );
   Ram_1w_1rs #(
     .wordCount(512),
@@ -11806,7 +11836,9 @@ module InstructionCache (
     .rd_clk  (clk                                         ), //i
     .rd_en   (banks_2_rd_en                               ), //i
     .rd_addr (banks_2_rd_addr[8:0]                        ), //i
-    .rd_data (banks_2_rd_data[63:0]                       )  //o
+    .rd_data (banks_2_rd_data[63:0]                       ), //o
+    .CMBIST  (CMBIST                                      ), //i
+    .CMATPG  (CMATPG                                      )  //i
   );
   Ram_1w_1rs #(
     .wordCount(512),
@@ -11830,7 +11862,9 @@ module InstructionCache (
     .rd_clk  (clk                                         ), //i
     .rd_en   (banks_3_rd_en                               ), //i
     .rd_addr (banks_3_rd_addr[8:0]                        ), //i
-    .rd_data (banks_3_rd_data[63:0]                       )  //o
+    .rd_data (banks_3_rd_data[63:0]                       ), //o
+    .CMBIST  (CMBIST                                      ), //i
+    .CMATPG  (CMATPG                                      )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11854,7 +11888,9 @@ module InstructionCache (
     .rd_clk  (clk                                        ), //i
     .rd_en   (ways_0_tags_rd_en                          ), //i
     .rd_addr (ways_0_tags_rd_addr[6:0]                   ), //i
-    .rd_data (ways_0_tags_rd_data[21:0]                  )  //o
+    .rd_data (ways_0_tags_rd_data[21:0]                  ), //o
+    .CMBIST  (CMBIST                                     ), //i
+    .CMATPG  (CMATPG                                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11878,7 +11914,9 @@ module InstructionCache (
     .rd_clk  (clk                                        ), //i
     .rd_en   (ways_1_tags_rd_en                          ), //i
     .rd_addr (ways_1_tags_rd_addr[6:0]                   ), //i
-    .rd_data (ways_1_tags_rd_data[21:0]                  )  //o
+    .rd_data (ways_1_tags_rd_data[21:0]                  ), //o
+    .CMBIST  (CMBIST                                     ), //i
+    .CMATPG  (CMATPG                                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11902,7 +11940,9 @@ module InstructionCache (
     .rd_clk  (clk                                        ), //i
     .rd_en   (ways_2_tags_rd_en                          ), //i
     .rd_addr (ways_2_tags_rd_addr[6:0]                   ), //i
-    .rd_data (ways_2_tags_rd_data[21:0]                  )  //o
+    .rd_data (ways_2_tags_rd_data[21:0]                  ), //o
+    .CMBIST  (CMBIST                                     ), //i
+    .CMATPG  (CMATPG                                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11926,7 +11966,9 @@ module InstructionCache (
     .rd_clk  (clk                                        ), //i
     .rd_en   (ways_3_tags_rd_en                          ), //i
     .rd_addr (ways_3_tags_rd_addr[6:0]                   ), //i
-    .rd_data (ways_3_tags_rd_data[21:0]                  )  //o
+    .rd_data (ways_3_tags_rd_data[21:0]                  ), //o
+    .CMBIST  (CMBIST                                     ), //i
+    .CMATPG  (CMATPG                                     )  //i
   );
   always @(*) begin
     case(_zz_fetchStage_read_banksValue_0_data_1)

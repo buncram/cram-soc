@@ -53,6 +53,9 @@ def get_common_ios():
         ("coreuser", 0, Pins(1)),
         # wfi active signal
         ("wfi_active", 0, Pins(1)),
+        # BIST signals
+        ("cmbist", 0, Pins(1)),
+        ("cmatpg", 0, Pins(1)),
     ]
     irqs = ["irqarray", 0]
     for bank in range(IRQ_BANKS):
@@ -108,6 +111,8 @@ class SyncFIFOMacro(Module, _FIFOInterface):
     def __init__(self, width, depth, fwft=True):
         _FIFOInterface.__init__(self, width, depth)
 
+        self.cmbist = Signal()
+        self.cmatpg = Signal()
         self.level = Signal(max=depth+1)
         self.replace = Signal()
 
@@ -142,6 +147,8 @@ class SyncFIFOMacro(Module, _FIFOInterface):
             i_rd_en = rdport_re,
             i_rd_addr = rdport_adr,
             i_rd_data = rdport_dat_r,
+            i_CMBIST = self.cmbist,
+            i_CMATPG = self.cmatpg,
         )
 
         self.comb += [
@@ -187,7 +194,13 @@ class SyncFIFOBufferedMacro(Module, _FIFOInterface):
     with block RAMs. Increases latency by one cycle."""
     def __init__(self, width, depth):
         _FIFOInterface.__init__(self, width, depth)
+        self.cmbist = Signal()
+        self.cmatpg = Signal()
         self.submodules.fifo = fifo = SyncFIFOMacro(width, depth, False)
+        self.comb += [
+            self.fifo.cmbist.eq(self.cmbist),
+            self.fifo.cmatpg.eq(self.cmatpg),
+        ]
 
         self.writable = fifo.writable
         self.din = fifo.din
@@ -456,6 +469,10 @@ could use a tag of `1`, and the response would be with the same tag
 and sequence number to acknowledge that the sent data was accepted, with the length
 field specifying the number of words that were accepted.
 """)
+        # self-test signals
+        self.cmatpg = Signal()
+        self.cmbist = Signal()
+
         depth_bits = log2_int(fifo_depth)
         # data going from us to them
         self.w_dat = Signal(32)
@@ -530,6 +547,9 @@ from the peer.""", pulse=True)
             self.w_valid.eq(w_fifo.readable),
             w_fifo.re.eq(self.w_ready),
             self.w_done.eq(self.done.fields.done), # this will pulse exactly 1 cycle because `pulse=True` in the field spec
+
+            self.w_fifo.cmbist.eq(self.cmbist),
+            self.w_fifo.cmatpg.eq(self.cmatpg),
         ]
 
         # build the incoming fifo
@@ -550,6 +570,9 @@ from the peer.""", pulse=True)
             self.r_ready.eq(r_fifo.writable & self.r_valid),
             r_fifo.we.eq(self.r_valid & r_fifo.writable & ~abort_in_progress),
             self.ev.available.trigger.eq(self.r_done),
+
+            self.r_fifo.cmbist.eq(self.cmbist),
+            self.r_fifo.cmatpg.eq(self.cmatpg),
         ]
 
         self.comb += [
@@ -983,6 +1006,8 @@ Thus in practice by the time the first instruction of user code runs, `coreuser`
 However, from  a security audit perspective, it is important to keep in mind that there is a race condition between
 the `satp` setting and user code execution.
         """)
+        self.cmbist = Signal()
+        self.cmatpg = Signal()
         self.set_asid = CSRStorage(fields=[
             CSRField("asid", size=9, description="ASID to set. Writing to this register commits the value in `trusted` to the specified `asid` value"),
             CSRField("trusted", size=1, description="Set to `1` if the ASID is trusted"),
@@ -1078,6 +1103,8 @@ the `satp` setting and user code execution.
             i_rd_en = 1,
             i_rd_addr = asid_rd_adr,
             i_rd_data = asid_rd_dat,
+            i_CMBIST = self.cmbist,
+            i_CMATPG = self.cmatpg,
         )
         # storage used for readback checking
         self.specials += Instance(
@@ -1100,6 +1127,8 @@ the `satp` setting and user code execution.
             i_rd_en = 1,
             i_rd_addr = self.get_asid_addr.fields.asid,
             i_rd_data = self.get_asid_value.fields.value,
+            i_CMBIST = self.cmbist,
+            i_CMATPG = self.cmatpg,
         )
 
         coreuser_asid = Signal()
@@ -1279,8 +1308,20 @@ class cramSoC(SoCCore):
         jtag_pads = platform.request("jtag")
         self.cpu.add_jtag(jtag_pads)
 
+        # Self test breakout -----------------------------------------------------------------------
+        cmbist = platform.request("cmbist")
+        cmatpg = platform.request("cmatpg")
+        self.comb += [
+            self.cpu.cmbist.eq(cmbist),
+            self.cpu.cmatpg.eq(cmatpg),
+        ]
+
         # CoreUser computation ---------------------------------------------------------------------
         self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
+        self.comb += [
+            self.coreuser.cmbist.eq(cmbist),
+            self.coreuser.cmatpg.eq(cmatpg),
+        ]
 
         # WFI breakout -----------------------------------------------------------------------------
         wfi_active = platform.request("wfi_active")
@@ -1318,6 +1359,10 @@ class cramSoC(SoCCore):
         # Mailbox ----------------------------------------------------------------------------------
         self.submodules.mailbox = Mailbox(fifo_depth=1024)
         self.irq.add("mailbox")
+        self.comb += [
+            self.mailbox.cmatpg.eq(cmatpg),
+            self.mailbox.cmbist.eq(cmbist),
+        ]
 
         # Mailbox Thin Client ----------------------------------------------------------------------
         self.submodules.mb_client = MailboxClient()

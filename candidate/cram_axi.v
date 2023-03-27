@@ -9,7 +9,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : 840aa86b
-// Date       : 2023-03-15 04:06:29
+// Date       : 2023-03-27 22:52:08
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -136,6 +136,8 @@ module cram_axi (
     input  wire          jtag_tms,
     input  wire          jtag_tck,
     input  wire          jtag_trst,
+    input  wire          cmbist,
+    input  wire          cmatpg,
     output reg           coreuser,
     output wire          wfi_active,
     input  wire   [19:0] irqarray_bank0,
@@ -180,6 +182,8 @@ wire    [8:0] cramsoc_satp_asid;
 wire   [21:0] cramsoc_satp_ppn;
 wire          cramsoc_wfi_active;
 wire    [1:0] cramsoc_privilege;
+wire          cramsoc_cmbist;
+wire          cramsoc_cmatpg;
 reg           cramsoc_ibus_axi_aw_valid = 1'd0;
 wire          cramsoc_ibus_axi_aw_ready;
 reg    [31:0] cramsoc_ibus_axi_aw_payload_addr = 32'd0;
@@ -459,6 +463,8 @@ wire   [31:0] resetvalue_status;
 wire          resetvalue_we;
 reg           resetvalue_re = 1'd0;
 reg    [31:0] resetvalue_latched_value = 32'd0;
+wire          coreuser_cmbist;
+wire          coreuser_cmatpg;
 wire    [8:0] coreuser_asid0;
 wire          coreuser_trusted;
 reg     [9:0] coreuser_set_asid_storage = 10'd0;
@@ -3386,6 +3392,8 @@ reg           susres_pending_r = 1'd0;
 wire          susres_soft_int2;
 reg           susres_enable_storage = 1'd0;
 reg           susres_enable_re = 1'd0;
+wire          mailbox_cmatpg;
+wire          mailbox_cmbist;
 wire   [31:0] mailbox_w_dat;
 wire          mailbox_w_valid;
 wire          mailbox_w_ready;
@@ -3465,12 +3473,16 @@ reg           mailbox_w_over_bit = 1'd0;
 wire          mailbox_w_over_clear;
 wire          mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_re;
 reg           mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_readable = 1'd0;
+wire          mailbox_syncfifobufferedmacro0_cmbist;
+wire          mailbox_syncfifobufferedmacro0_cmatpg;
 reg           mailbox_syncfifobufferedmacro0_fifo_we = 1'd0;
 wire          mailbox_syncfifobufferedmacro0_fifo_writable;
 wire          mailbox_syncfifobufferedmacro0_fifo_re;
 wire          mailbox_syncfifobufferedmacro0_fifo_readable;
 wire   [31:0] mailbox_syncfifobufferedmacro0_fifo_din;
 wire   [31:0] mailbox_syncfifobufferedmacro0_fifo_dout;
+wire          mailbox_syncfifobufferedmacro0_fifo_cmbist;
+wire          mailbox_syncfifobufferedmacro0_fifo_cmatpg;
 reg    [10:0] mailbox_syncfifobufferedmacro0_fifo_level = 11'd0;
 reg           mailbox_syncfifobufferedmacro0_fifo_replace = 1'd0;
 reg     [9:0] mailbox_syncfifobufferedmacro0_fifo_produce = 10'd0;
@@ -3489,12 +3501,16 @@ reg           mailbox_r_over_bit = 1'd0;
 wire          mailbox_r_over_clear;
 reg           mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_re = 1'd0;
 reg           mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_readable = 1'd0;
+wire          mailbox_syncfifobufferedmacro1_cmbist;
+wire          mailbox_syncfifobufferedmacro1_cmatpg;
 wire          mailbox_syncfifobufferedmacro1_fifo_we;
 wire          mailbox_syncfifobufferedmacro1_fifo_writable;
 wire          mailbox_syncfifobufferedmacro1_fifo_re;
 wire          mailbox_syncfifobufferedmacro1_fifo_readable;
 wire   [31:0] mailbox_syncfifobufferedmacro1_fifo_din;
 wire   [31:0] mailbox_syncfifobufferedmacro1_fifo_dout;
+wire          mailbox_syncfifobufferedmacro1_fifo_cmbist;
+wire          mailbox_syncfifobufferedmacro1_fifo_cmatpg;
 reg    [10:0] mailbox_syncfifobufferedmacro1_fifo_level = 11'd0;
 reg           mailbox_syncfifobufferedmacro1_fifo_replace = 1'd0;
 reg     [9:0] mailbox_syncfifobufferedmacro1_fifo_produce = 10'd0;
@@ -4588,12 +4604,18 @@ assign cramsoc_dbus_r_param_id = dbus_axi_rid;
 assign cramsoc_dbus_r_param_user = dbus_axi_ruser;
 assign cramsoc_dbus_r_last = dbus_axi_rlast;
 assign dbus_axi_rready = cramsoc_dbus_r_ready;
+assign cramsoc_cmbist = cmbist;
+assign cramsoc_cmatpg = cmatpg;
+assign coreuser_cmbist = cmbist;
+assign coreuser_cmatpg = cmatpg;
 assign wfi_active = cramsoc_wfi_active;
 assign susres_time_status = ticktimer_timer1;
 assign susres_paused = ticktimer_paused0;
 assign ticktimer_resume_time = susres_resume_time_storage;
 assign ticktimer_pause0 = susres_pause;
 assign ticktimer_load = susres_load;
+assign mailbox_cmatpg = cmatpg;
+assign mailbox_cmbist = cmbist;
 assign mailbox_reset_n = (~sys_rst);
 assign w_dat = mailbox_w_dat;
 assign w_valid = mailbox_w_valid;
@@ -8521,6 +8543,8 @@ assign mailbox_w_dat = mailbox_syncfifobufferedmacro0_fifo_dout;
 assign mailbox_w_valid = mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_readable;
 assign mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_re = mailbox_w_ready;
 assign mailbox_w_done = mailbox_done;
+assign mailbox_syncfifobufferedmacro0_cmbist = mailbox_cmbist;
+assign mailbox_syncfifobufferedmacro0_cmatpg = mailbox_cmatpg;
 assign mailbox_r_fifo_reset_sys = ((~mailbox_reset_n) | mailbox_abort);
 assign mailbox_rx_words = mailbox_syncfifobufferedmacro1_level;
 assign mailbox_rx_err = mailbox_r_over_bit;
@@ -8539,6 +8563,8 @@ assign mailbox_rdata_status = mailbox_syncfifobufferedmacro1_fifo_dout;
 assign mailbox_r_ready = (mailbox_syncfifobufferedmacro1_fifo_writable & mailbox_r_valid);
 assign mailbox_syncfifobufferedmacro1_fifo_we = ((mailbox_r_valid & mailbox_syncfifobufferedmacro1_fifo_writable) & (~mailbox_abort_in_progress1));
 assign mailbox_available_trigger = mailbox_r_done;
+assign mailbox_syncfifobufferedmacro1_cmbist = mailbox_cmbist;
+assign mailbox_syncfifobufferedmacro1_cmatpg = mailbox_cmatpg;
 assign mailbox_abort_in_progress0 = mailbox_abort_in_progress1;
 assign mailbox_abort_ack0 = mailbox_abort_ack1;
 assign mailbox_available0 = mailbox_available_status;
@@ -8578,6 +8604,8 @@ assign mailbox_available_status = 1'd0;
 assign mailbox_abort_init_status = mailbox_abort_init_trigger;
 assign mailbox_abort_done_status = mailbox_abort_done_trigger;
 assign mailbox_error_status = mailbox_error_trigger;
+assign mailbox_syncfifobufferedmacro0_fifo_cmbist = mailbox_syncfifobufferedmacro0_cmbist;
+assign mailbox_syncfifobufferedmacro0_fifo_cmatpg = mailbox_syncfifobufferedmacro0_cmatpg;
 assign mailbox_syncfifobufferedmacro0_fifo_re = (mailbox_syncfifobufferedmacro0_fifo_readable & ((~mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_readable) | mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_re));
 assign mailbox_syncfifobufferedmacro0_level = (mailbox_syncfifobufferedmacro0_fifo_level + mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_readable);
 always @(*) begin
@@ -8596,6 +8624,8 @@ assign mailbox_syncfifobufferedmacro0_fifo_dout = mailbox_syncfifobufferedmacro0
 assign mailbox_syncfifobufferedmacro0_fifo_rdport_re = mailbox_syncfifobufferedmacro0_fifo_do_read;
 assign mailbox_syncfifobufferedmacro0_fifo_writable = (mailbox_syncfifobufferedmacro0_fifo_level != 11'd1024);
 assign mailbox_syncfifobufferedmacro0_fifo_readable = (mailbox_syncfifobufferedmacro0_fifo_level != 1'd0);
+assign mailbox_syncfifobufferedmacro1_fifo_cmbist = mailbox_syncfifobufferedmacro1_cmbist;
+assign mailbox_syncfifobufferedmacro1_fifo_cmatpg = mailbox_syncfifobufferedmacro1_cmatpg;
 assign mailbox_syncfifobufferedmacro1_fifo_re = (mailbox_syncfifobufferedmacro1_fifo_readable & ((~mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_readable) | mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_re));
 assign mailbox_syncfifobufferedmacro1_level = (mailbox_syncfifobufferedmacro1_fifo_level + mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_readable);
 always @(*) begin
@@ -8615,14 +8645,14 @@ assign mailbox_syncfifobufferedmacro1_fifo_rdport_re = mailbox_syncfifobufferedm
 assign mailbox_syncfifobufferedmacro1_fifo_writable = (mailbox_syncfifobufferedmacro1_fifo_level != 11'd1024);
 assign mailbox_syncfifobufferedmacro1_fifo_readable = (mailbox_syncfifobufferedmacro1_fifo_level != 1'd0);
 always @(*) begin
-    mailbox_abort_init_trigger <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd0;
-    mailbox_abort_done_trigger <= 1'd0;
-    cramsoc_mailbox_next_state <= 2'd0;
     mailbox_w_abort <= 1'd0;
+    mailbox_abort_init_trigger <= 1'd0;
+    cramsoc_mailbox_next_state <= 2'd0;
     mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
     mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd0;
+    mailbox_abort_done_trigger <= 1'd0;
     cramsoc_mailbox_next_state <= cramsoc_mailbox_state;
     case (cramsoc_mailbox_state)
         1'd1: begin
@@ -8815,8 +8845,8 @@ always @(*) begin
     cramsoc_b_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_r_valid <= 1'd0;
     cramsoc_nocomb_axl_w_ready <= 1'd0;
-    cramsoc_r_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
+    cramsoc_r_payload_resp <= 2'd0;
     cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_nocomb_axl_ar_ready <= 1'd0;
     cramsoc_nocomb_axl_b_valid <= 1'd0;
@@ -18024,6 +18054,8 @@ Ram_1w_1rs #(
 	.wrDataWidth(1'd1),
 	.wrMaskEnable(1'd0)
 ) Ram_1w_1rs (
+	.CMATPG(coreuser_cmatpg),
+	.CMBIST(coreuser_cmbist),
 	.rd_addr(coreuser_asid_rd_adr),
 	.rd_clk(sys_clk),
 	.rd_data(coreuser_asid_rd_dat),
@@ -18046,6 +18078,8 @@ Ram_1w_1rs #(
 	.wrDataWidth(1'd1),
 	.wrMaskEnable(1'd0)
 ) Ram_1w_1rs_1 (
+	.CMATPG(coreuser_cmatpg),
+	.CMBIST(coreuser_cmbist),
 	.rd_addr(coreuser_asid1),
 	.rd_clk(sys_clk),
 	.rd_data(coreuser_value),
@@ -18068,6 +18102,8 @@ Ram_1w_1rs #(
 	.wrDataWidth(6'd32),
 	.wrMaskEnable(1'd0)
 ) Ram_1w_1rs_2 (
+	.CMATPG(mailbox_syncfifobufferedmacro0_fifo_cmatpg),
+	.CMBIST(mailbox_syncfifobufferedmacro0_fifo_cmbist),
 	.rd_addr(mailbox_syncfifobufferedmacro0_fifo_rdport_adr),
 	.rd_clk(sys_clk),
 	.rd_data(mailbox_syncfifobufferedmacro0_fifo_rdport_dat_r),
@@ -18090,6 +18126,8 @@ Ram_1w_1rs #(
 	.wrDataWidth(6'd32),
 	.wrMaskEnable(1'd0)
 ) Ram_1w_1rs_3 (
+	.CMATPG(mailbox_syncfifobufferedmacro1_fifo_cmatpg),
+	.CMBIST(mailbox_syncfifobufferedmacro1_fifo_cmbist),
 	.rd_addr(mailbox_syncfifobufferedmacro1_fifo_rdport_adr),
 	.rd_clk(sys_clk),
 	.rd_data(mailbox_syncfifobufferedmacro1_fifo_rdport_dat_r),
@@ -18222,6 +18260,8 @@ axi_crossbar #(
 );
 
 VexRiscvAxi4 VexRiscvAxi4(
+	.CMATPG(cramsoc_cmatpg),
+	.CMBIST(cramsoc_cmbist),
 	.clk(sys_clk),
 	.dBusAxi_ar_ready(cramsoc_dbus_axi_ar_ready),
 	.dBusAxi_aw_ready(cramsoc_dbus_axi_aw_ready),
@@ -18301,5 +18341,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-03-15 04:06:30.
+//  Auto-Generated by LiteX on 2023-03-27 22:52:09.
 //------------------------------------------------------------------------------
