@@ -71,8 +71,15 @@ object GenCramSoC{
     .addStandardMemBlackboxing(blackboxSyncOnly)
     config.memBlackBoxers += new PhaseNetlist {
       override def impl(pc: PhaseContext): Unit = {
+        val topPatch = pc.topLevel rework new AreaRoot{
+          val CMBIST, CMATPG = in Bool()
+        }
         pc.walkComponents{
           case c : Ram_1w_1rs => {
+            c.rework {
+              topPatch.CMBIST.pull(propagateName = true)
+              topPatch.CMATPG.pull(propagateName = true)
+            }
             // c.genericElements.clear()
             c.addGeneric("ramname", s"RAM_DP_${c.wordCount}_${c.wordWidth}")
             // c.addGeneric("ramname", "test")
