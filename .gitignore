@@ -48,3 +48,12 @@ xous/xous-kernel.bin
 # Spinal build directories
 VexRiscv/project/
 VexRiscv/target/
+VexRiscv/.bloop/
+VexRiscv/.bsp/
+VexRiscv/.idea/
+VexRiscv/.metals/
+VexRiscv/.vscode/
+
+.metals/
+.env
+.vscode/

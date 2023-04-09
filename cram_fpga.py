@@ -43,7 +43,7 @@ from axi_common import *
 import subprocess
 
 
-VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
+VEX_VERILOG_PATH = "VexRiscv/src/VexRiscv_CramSoC.v"
 
 # Equivalent to the powershell Get-Command, and kinda like `which`
 def get_command(cmd):
