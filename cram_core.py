@@ -1226,7 +1226,7 @@ class cramSoC(SoCCore):
             },
             **kwargs)
 
-        self.cpu.use_external_variant("VexRiscv/src/VexRiscv_CramSoC.v")
+        self.cpu.use_external_variant("VexRiscv/VexRiscv_CramSoC.v")
         self.cpu.add_debug()
         # self.cpu.set_reset_address(reset_address)
         self.cpu.disable_reset_address_check()

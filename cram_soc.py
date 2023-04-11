@@ -44,7 +44,7 @@ from axi_common import *
 import subprocess
 import shutil
 
-VEX_VERILOG_PATH = "VexRiscv/src/VexRiscv_CramSoC.v"
+VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
 
 # IOs ----------------------------------------------------------------------------------------------
 
