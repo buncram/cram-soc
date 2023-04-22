@@ -1015,7 +1015,7 @@ the `satp` setting and user code execution.
         self.get_asid_addr = CSRStorage(fields=[
             CSRField("asid", size=9, description="ASID to read back.")
         ])
-        self.get_asid_value = CSRStorage(fields=[
+        self.get_asid_value = CSRStatus(fields=[
             CSRField("value", size=1, description="Value corresponding to the ASID specified in `get_asid_addr`. `1` means trusted"),
         ])
         self.set_privilege = CSRStorage(fields=[
@@ -1079,57 +1079,86 @@ the `satp` setting and user code execution.
 
         asid_rd_adr = Signal(9)
         asid_rd_dat = Signal()
+        asid_rd_dat_mux = Signal(16)
         asid_wr_adr = Signal(9)
         asid_wr_dat = Signal()
+        asid_wr_dat_demux = Signal(16)
+        asid_wr_mask_demux = Signal(16)
         asid_wr_we = Signal()
         # storage used in ASID translation
         self.specials += Instance(
             "Ram_1w_1rs",
-            p_ramname="RAM_DP_512_1",
-            p_wordCount=512,
-            p_wordWidth=1,
+            p_ramname="RAM_DP_32_16_WM",
+            p_wordCount=32,
+            p_wordWidth=16,
             p_clockCrossing=0,
-            p_wrAddressWidth=9,
-            p_wrDataWidth=1,
-            p_wrMaskEnable=0,
-            p_rdAddressWidth=9,
-            p_rdDataWidth=1,
+            p_wrAddressWidth=5,
+            p_wrDataWidth=16,
+            p_wrMaskEnable=1,
+            p_wrMaskWidth=16,
+            p_rdAddressWidth=5,
+            p_rdDataWidth=16,
             i_wr_clk = ClockSignal(),
             i_wr_en = asid_wr_we,
-            i_wr_mask = 0,
-            i_wr_addr = asid_wr_adr,
-            i_wr_data = asid_wr_dat,
+            i_wr_mask = asid_wr_mask_demux,
+            i_wr_addr = asid_wr_adr[4:],
+            i_wr_data = asid_wr_dat_demux,
             i_rd_clk = ClockSignal(),
             i_rd_en = 1,
-            i_rd_addr = asid_rd_adr,
-            i_rd_data = asid_rd_dat,
+            i_rd_addr = asid_rd_adr[4:],
+            i_rd_data = asid_rd_dat_mux,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
         )
+        demux_mask_cases = {}
+        demux_data_cases = {}
+        for i in range(16):
+            demux_mask_cases[i] = asid_wr_mask_demux.eq(1 << i)
+            demux_data_cases[i] = asid_wr_dat_demux.eq(asid_wr_dat << i)
+        coreuser_mux_delay = Signal(4) # line up the mux address with the data output
+        self.sync += coreuser_mux_delay.eq(asid_rd_adr[:4])
+        self.comb += [
+            asid_rd_dat.eq(asid_rd_dat_mux >> coreuser_mux_delay),
+            Case(
+                asid_wr_adr[:4],
+                demux_mask_cases,
+            ),
+            Case(
+                asid_wr_adr[:4],
+                demux_data_cases,
+            )
+        ]
         # storage used for readback checking
+        readback_rd_dat_mux = Signal(16)
         self.specials += Instance(
             "Ram_1w_1rs",
-            p_ramname="RAM_DP_512_1",
-            p_wordCount=512,
-            p_wordWidth=1,
+            p_ramname="RAM_DP_32_16_MM",
+            p_wordCount=32,
+            p_wordWidth=16,
             p_clockCrossing=0,
-            p_wrAddressWidth=9,
-            p_wrDataWidth=1,
-            p_wrMaskEnable=0,
-            p_rdAddressWidth=9,
-            p_rdDataWidth=1,
+            p_wrAddressWidth=5,
+            p_wrDataWidth=16,
+            p_wrMaskEnable=1,
+            p_wrMaskWidth=16,
+            p_rdAddressWidth=5,
+            p_rdDataWidth=16,
             i_wr_clk = ClockSignal(),
             i_wr_en = asid_wr_we, # gang write
-            i_wr_mask = 0,
-            i_wr_addr = asid_wr_adr,
-            i_wr_data = asid_wr_dat,
+            i_wr_mask = asid_wr_mask_demux,
+            i_wr_addr = asid_wr_adr[4:],
+            i_wr_data = asid_wr_dat_demux,
             i_rd_clk = ClockSignal(),
             i_rd_en = 1,
-            i_rd_addr = self.get_asid_addr.fields.asid,
-            i_rd_data = self.get_asid_value.fields.value,
+            i_rd_addr = self.get_asid_addr.fields.asid[4:],
+            i_rd_data = readback_rd_dat_mux,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
         )
+        readback_shift_delay = Signal(4)
+        self.sync += readback_shift_delay.eq(self.get_asid_addr.fields.asid[:4])
+        self.comb += [
+            self.get_asid_value.fields.value.eq(readback_rd_dat_mux >> readback_shift_delay)
+        ]
 
         coreuser_asid = Signal()
 

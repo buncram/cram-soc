@@ -9,19 +9,34 @@ python3 ./cram_soc.py --svd-only
 echo "Core+SoC build finished."
 
 echo "******************** BUILD KERNEL ***********************"
-cp build/software/soc.svd ../xous-cramium/precursors/
-cp build/software/core.svd ../xous-cramium/precursors/
-cd ../xous-cramium
-cd ./loader
-# set up the linker for our target
-cp link-soc.x link.x
-cd ../
-# hw-image, mbox-image
-cargo xtask hw-image --kernel-feature hwsim --feature hwsim
-python3 ./mkimage.py
-./disasm_load.sh
-cd ../cram-soc
+#TARGET="XOUS"
+TARGET="IRON"
+if [ $TARGET == "XOUS" ]
+then
+  cp build/software/soc.svd ../xous-cramium/precursors/
+  cp build/software/core.svd ../xous-cramium/precursors/
+  cd ../xous-cramium
+  cd ./loader
+  # set up the linker for our target
+  cp link-soc.x link.x
+  cd ../
+  # hw-image, mbox-image
+  cargo xtask hw-image --kernel-feature hwsim --feature hwsim
+  python3 ./mkimage.py
+  ./disasm_load.sh
+  cd ../cram-soc
+  BIOS="../xous-cramium/sipmspi.init"
+else
+  cd boot
+  cargo xtask boot-image --feature sim
 
+  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > boot.lst
+  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst
+  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/betrusted-boot -S -d | rustfilt >> boot.lst
+
+  cd ../
+  BIOS="./boot/boot.bin"
+fi
 echo "******************** RUN SIM ***********************"
 
 THREADS=5
@@ -29,7 +44,7 @@ THREADS=5
 #do
   echo -e "\n\nRun with $THREADS threads" >> stats.txt
   date >> stats.txt
-  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200_000_000_000 --trace-fst # --sim-debug
+  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --bios $BIOS --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200_000_000_000 --trace-fst # --sim-debug
   echo "Core+SoC build finished."
 #done
 

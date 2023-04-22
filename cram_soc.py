@@ -737,6 +737,9 @@ def sim_args(parser):
     # Build just the SVDs
     parser.add_argument("--svd-only",             action="store_true",     help="Just build the SVDs for the OS build")
 
+    # specify BIOS path
+    parser.add_argument("--bios", type=str, default='..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep), help="Override default BIOS location")
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
@@ -752,7 +755,7 @@ def main():
 
     ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
     ##### define the soc
-    bios_path = '..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep)
+    bios_path = args.bios
     soc = CramSoC(
         bios_path=bios_path,
         sys_clk_freq=800e6,
