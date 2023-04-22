@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+// `define XOUS 1
 
 // contains "cosim" models that encapsulate some key differences between ASIC/FPGA behaviors
 // particularly around reset conditions.
@@ -49,6 +50,11 @@ assign kuart_to_cpu = 8'h72; // 'r'
 always @(posedge clk) begin
     // make the trigger "sticky" and one-way
     if (done == 1'b1) begin
+`ifndef XOUS
+        $dumpflush;
+        $dumpoff;
+        $finish;
+`endif
         kprint_trigger <= 1'b1;
     end else begin
         kprint_trigger <= kprint_trigger;
