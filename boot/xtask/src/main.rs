@@ -58,6 +58,7 @@ fn build_hw_image(
     features: Vec<String>,
     packages: &[&str],
 ) -> Result<(), DynError> {
+    /* // in-line assemlby now used
     // build the assembly binary
     #[cfg(target_os = "windows")]
     let status = Command::new("powershell")
@@ -73,6 +74,7 @@ fn build_hw_image(
     if !status.success() {
         return Err("assembly failed".into())
     }
+    */
 
 
     // make the ELF file
@@ -190,10 +192,10 @@ fn cargo() -> String {
 }
 
 fn objcopy() -> String {
-    env::var("OBJCOPY").unwrap_or_else(|_| "riscv64-unknown-elf-objcopy".to_string())
+    env::var("OBJCOPY").unwrap_or_else(|_| "riscv-none-elf-objcopy".to_string())
 }
 fn objdump() -> String {
-    env::var("OBJDUMP").unwrap_or_else(|_| "riscv64-unknown-elf-objdump".to_string())
+    env::var("OBJDUMP").unwrap_or_else(|_| "riscv-none-elf-objdump".to_string())
 }
 
 fn project_root() -> PathBuf {

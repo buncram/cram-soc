@@ -39,3 +39,6 @@
 [submodule "deps/VexRiscv"]
 	path = deps/VexRiscv
 	url = https://github.com/SpinalHDL/VexRiscv
+[submodule "deps/pio/upstream"]
+	path = deps/pio/upstream
+	url = git@github.com:lawrie/fpga_pio.git

@@ -40,6 +40,9 @@ mod satp;
 #[cfg(feature="sim")]
 mod irqs;
 
+mod asm;
+use asm::*;
+
 /*
     Notes about printing:
       - the println! and write! macros are actually quite expensive in the context of a 32kiB ROM (~4k overhead??)
@@ -947,10 +950,3 @@ fn die() {
     }
 }
 
-extern "C" {
-    fn start_loader(
-        arg_buffer: usize,
-        signature: usize,
-        loader_addr: usize,
-    ) -> !;
-}

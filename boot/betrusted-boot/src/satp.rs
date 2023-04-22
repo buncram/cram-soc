@@ -35,7 +35,7 @@ pub const PT_LIMIT: usize = 0x6100_8000;
 // VAs
 const CODE_VA: usize = 0x0000_0000;
 const CSR_VA:  usize = 0x5800_0000;
-const PERI_VA: usize = 0x4000_0000;
+const PERI_VA: usize = 0x4010_0000;
 const SRAM_VA: usize = 0x6100_0000;
 
 // PAs (when different from VAs)
@@ -64,7 +64,7 @@ pub fn satp_setup() {
     // map ReRAM to v0x0000_0000
     // map SRAM  to v0x6100_0000 (1:1 map)
     // map CSR   to v0x5800_0000 (1:1 map)
-    // map peri  to v0x4000_0000 (1:1 map)
+    // map peri  to v0x4010_0000 (1:1 map)
     //
     // root page table is at p0x6100_0000 == v0x6100_0000
     let mut root_pt = unsafe { &mut *(ROOT_PT_PA as *mut PageTable) };
@@ -164,18 +164,18 @@ pub fn satp_test() {
     }
 
     // set some ASIDs to trusted. Values picked to somewhat challenge the decoding
-    let trusted_asids = [1, 23, 24, 278, 399];
+    let trusted_asids = [1, 0x17, 0x18, 0x52, 0x57, 0x5A, 0x5F, 0x60, 0x61, 0x62, 0x116, 0x18F];
     for asid in trusted_asids {
         coreuser.wo(utra::coreuser::SET_ASID,
             coreuser.ms(utra::coreuser::SET_ASID_ASID, asid)
             | coreuser.ms(utra::coreuser::SET_ASID_TRUSTED, 1)
         );
     }
-    // partial readback of table
-    for asid in 0..32 {
+    // readback of table
+    for asid in 0..512 {
         coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
         report.wfo(utra::main::REPORT_REPORT,
-    coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
+            coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
         );
     }
 
