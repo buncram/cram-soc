@@ -27,10 +27,11 @@ optional = true
 [features]
 debug-print = []
 small-soc = []
+ahb-test = []
 # default = ["debug-print", "small-soc"]
 hw-sec = ["curve25519-dalek", "ed25519-dalek"]
 sim = []
-default = []
+default = ["ahb-test", "sim"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

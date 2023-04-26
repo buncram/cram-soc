@@ -343,7 +343,7 @@ class CramSoC(SoCMini):
         else:
             from axil_ahb_adapter import AXILite2AHBAdapter
             from litex.soc.interconnect import ahb
-            from duart_adapter import DuartAdapter
+            from pio_adapter import PioAdapter
             local_ahb = ahb.Interface()
             self.submodules += AXILite2AHBAdapter(platform, p_axil, local_ahb)
             self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x1000)

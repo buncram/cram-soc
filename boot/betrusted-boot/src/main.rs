@@ -34,6 +34,9 @@ use core::convert::TryFrom;
 #[cfg(feature="sim")]
 use core::mem::size_of;
 
+#[cfg(feature="ahb-test")]
+mod duart;
+
 mod debug;
 #[cfg(feature="sim")]
 mod satp;
@@ -540,6 +543,14 @@ where
     }
 }
 
+#[cfg(feature="ahb-test")]
+fn ahb_tests() {
+    let mut duart = duart::Duart::new();
+    loop {
+        duart.puts("hello world\n");
+    }
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     #[cfg(feature="sim")]
@@ -550,6 +561,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         // report the measured reset value
         let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
         report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
+
+        // ---------- ahb test option -------------
+        #[cfg(feature="ahb-test")]
+        ahb_tests();
 
         // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
