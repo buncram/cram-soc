@@ -1,27 +1,29 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>SUSRES &#8212; Cramium SoC (RISC-V Core Complex)  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script type="text/javascript" src="_static/default.js"></script>
-    <script type="text/javascript" src="_static/WaveDrom.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/default.js"></script>
+    <script src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="COREUSER" href="coreuser.html" />
     <link rel="prev" title="D11CTIME" href="d11ctime.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -31,418 +33,317 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="susres">
-<h1>SUSRES<a class="headerlink" href="#susres" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="suspend-resume-helper">
-<h2>Suspend/Resume Helper<a class="headerlink" href="#suspend-resume-helper" title="Permalink to this headline">¶</a></h2>
+  <section id="susres">
+<h1>SUSRES<a class="headerlink" href="#susres" title="Permalink to this heading">¶</a></h1>
+<section id="suspend-resume-helper">
+<h2>Suspend/Resume Helper<a class="headerlink" href="#suspend-resume-helper" title="Permalink to this heading">¶</a></h2>
 <p>This module is a utility module that assists with suspend and
 resume functions. It has the ability to ‘reach into’ the Ticktimer space to help coordinate
 a clean, monatomic shut down from a suspend/resume manager that exists in a different,
 isolated process space from the TickTimer.</p>
 <p>It also contains a register which tracks the current resume state. The bootloader controls
 the kernel’s behavior by setting this bit prior to resuming operation.</p>
-</div>
-<div class="section" id="register-listing-for-susres">
-<h2>Register Listing for SUSRES<a class="headerlink" href="#register-listing-for-susres" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<colgroup>
-<col width="55%" />
-<col width="45%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Register</th>
-<th class="head">Address</th>
+</section>
+<section id="register-listing-for-susres">
+<h2>Register Listing for SUSRES<a class="headerlink" href="#register-listing-for-susres" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Register</p></th>
+<th class="head"><p>Address</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><a class="reference internal" href="#susres-control"><span class="std std-ref">SUSRES_CONTROL</span></a></td>
-<td><a class="reference internal" href="#susres-control"><span class="std std-ref">0x58001000</span></a></td>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#susres-control"><span class="std std-ref">SUSRES_CONTROL</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-control"><span class="std std-ref">0x58001000</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#susres-resume-time1"><span class="std std-ref">SUSRES_RESUME_TIME1</span></a></td>
-<td><a class="reference internal" href="#susres-resume-time1"><span class="std std-ref">0x58001004</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#susres-resume-time1"><span class="std std-ref">SUSRES_RESUME_TIME1</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-resume-time1"><span class="std std-ref">0x58001004</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#susres-resume-time0"><span class="std std-ref">SUSRES_RESUME_TIME0</span></a></td>
-<td><a class="reference internal" href="#susres-resume-time0"><span class="std std-ref">0x58001008</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#susres-resume-time0"><span class="std std-ref">SUSRES_RESUME_TIME0</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-resume-time0"><span class="std std-ref">0x58001008</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#susres-time1"><span class="std std-ref">SUSRES_TIME1</span></a></td>
-<td><a class="reference internal" href="#susres-time1"><span class="std std-ref">0x5800100c</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#susres-time1"><span class="std std-ref">SUSRES_TIME1</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-time1"><span class="std std-ref">0x5800100c</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#susres-time0"><span class="std std-ref">SUSRES_TIME0</span></a></td>
-<td><a class="reference internal" href="#susres-time0"><span class="std std-ref">0x58001010</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#susres-time0"><span class="std std-ref">SUSRES_TIME0</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-time0"><span class="std std-ref">0x58001010</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#susres-status"><span class="std std-ref">SUSRES_STATUS</span></a></td>
-<td><a class="reference internal" href="#susres-status"><span class="std std-ref">0x58001014</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#susres-status"><span class="std std-ref">SUSRES_STATUS</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-status"><span class="std std-ref">0x58001014</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#susres-state"><span class="std std-ref">SUSRES_STATE</span></a></td>
-<td><a class="reference internal" href="#susres-state"><span class="std std-ref">0x58001018</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#susres-state"><span class="std std-ref">SUSRES_STATE</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-state"><span class="std std-ref">0x58001018</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#susres-interrupt"><span class="std std-ref">SUSRES_INTERRUPT</span></a></td>
-<td><a class="reference internal" href="#susres-interrupt"><span class="std std-ref">0x5800101c</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#susres-interrupt"><span class="std std-ref">SUSRES_INTERRUPT</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-interrupt"><span class="std std-ref">0x5800101c</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#susres-ev-status"><span class="std std-ref">SUSRES_EV_STATUS</span></a></td>
-<td><a class="reference internal" href="#susres-ev-status"><span class="std std-ref">0x58001020</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#susres-ev-status"><span class="std std-ref">SUSRES_EV_STATUS</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-ev-status"><span class="std std-ref">0x58001020</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#susres-ev-pending"><span class="std std-ref">SUSRES_EV_PENDING</span></a></td>
-<td><a class="reference internal" href="#susres-ev-pending"><span class="std std-ref">0x58001024</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#susres-ev-pending"><span class="std std-ref">SUSRES_EV_PENDING</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-ev-pending"><span class="std std-ref">0x58001024</span></a></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#susres-ev-enable"><span class="std std-ref">SUSRES_EV_ENABLE</span></a></td>
-<td><a class="reference internal" href="#susres-ev-enable"><span class="std std-ref">0x58001028</span></a></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#susres-ev-enable"><span class="std std-ref">SUSRES_EV_ENABLE</span></a></p></td>
+<td><p><a class="reference internal" href="#susres-ev-enable"><span class="std std-ref">0x58001028</span></a></p></td>
 </tr>
 </tbody>
 </table>
-<div class="section" id="susres-control">
-<h3>SUSRES_CONTROL<a class="headerlink" href="#susres-control" title="Permalink to this headline">¶</a></h3>
+<section id="susres-control">
+<h3>SUSRES_CONTROL<a class="headerlink" href="#susres-control" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x0 = 0x58001000</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "pause",  "bits": 1},
-        {"name": "load",  "type": 4, "bits": 1},
-        {"bits": 30}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id1">
+<img alt="_images/wavedrom-053e29bd-83d8-465b-afa7-25e740d7532c.svg" src="_images/wavedrom-053e29bd-83d8-465b-afa7-25e740d7532c.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_CONTROL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="7%" />
-<col width="7%" />
-<col width="85%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>PAUSE</td>
-<td>Write a <cite>1</cite> to this field to request a pause to counting, 0 for free-run. Count
-pauses on the next tick quanta.</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>PAUSE</p></td>
+<td><p>Write a <cite>1</cite> to this field to request a pause to counting, 0 for free-run. Count
+pauses on the next tick quanta.</p></td>
 </tr>
-<tr class="row-odd"><td>[1]</td>
-<td>LOAD</td>
-<td><p class="first">If paused, write a <cite>1</cite> to this bit to load a resume value to the timer. If not
+<tr class="row-odd"><td><p>[1]</p></td>
+<td><p>LOAD</p></td>
+<td><p>If paused, write a <cite>1</cite> to this bit to load a resume value to the timer. If not
 paused, this bit is ignored.</p>
-<p class="last">Writing a 1 to this bit triggers the function.</p>
+<p>Writing a 1 to this bit triggers the function.</p>
 </td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="susres-resume-time1">
-<h3>SUSRES_RESUME_TIME1<a class="headerlink" href="#susres-resume-time1" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-resume-time1">
+<h3>SUSRES_RESUME_TIME1<a class="headerlink" href="#susres-resume-time1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x4 = 0x58001004</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>SUSRES_RESUME_TIME</cite>. Elapsed time to load. Loaded upon writing
 <cite>1</cite> to the load bit in the control register. This will immediately affect the
 msleep extension.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "resume_time[63:32]", "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id2">
+<img alt="_images/wavedrom-7fa9398d-17ed-4f1c-8a5b-6588ecc97ebd.svg" src="_images/wavedrom-7fa9398d-17ed-4f1c-8a5b-6588ecc97ebd.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_RESUME_TIME1</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-</div>
-<div class="section" id="susres-resume-time0">
-<h3>SUSRES_RESUME_TIME0<a class="headerlink" href="#susres-resume-time0" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-resume-time0">
+<h3>SUSRES_RESUME_TIME0<a class="headerlink" href="#susres-resume-time0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x8 = 0x58001008</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>SUSRES_RESUME_TIME</cite>.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "resume_time[31:0]", "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id3">
+<img alt="_images/wavedrom-0cd01b96-0c57-4765-93e4-7e2fe76e8214.svg" src="_images/wavedrom-0cd01b96-0c57-4765-93e4-7e2fe76e8214.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_RESUME_TIME0</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-</div>
-<div class="section" id="susres-time1">
-<h3>SUSRES_TIME1<a class="headerlink" href="#susres-time1" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-time1">
+<h3>SUSRES_TIME1<a class="headerlink" href="#susres-time1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0xc = 0x5800100c</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>SUSRES_TIME</cite>. Cycle-accurate mirror copy of time in systicks,
 from the TickTimer</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "time[63:32]", "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id4">
+<img alt="_images/wavedrom-bb0e939d-294c-4a27-89b5-b17a1378780c.svg" src="_images/wavedrom-bb0e939d-294c-4a27-89b5-b17a1378780c.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_TIME1</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-</div>
-<div class="section" id="susres-time0">
-<h3>SUSRES_TIME0<a class="headerlink" href="#susres-time0" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-time0">
+<h3>SUSRES_TIME0<a class="headerlink" href="#susres-time0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x10 = 0x58001010</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>SUSRES_TIME</cite>.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "time[31:0]", "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<figure class="align-default" id="id5">
+<img alt="_images/wavedrom-2859e71b-cb9e-430c-b2f9-e7c17f809783.svg" src="_images/wavedrom-2859e71b-cb9e-430c-b2f9-e7c17f809783.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_TIME0</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-</div>
-<div class="section" id="susres-status">
-<h3>SUSRES_STATUS<a class="headerlink" href="#susres-status" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-status">
+<h3>SUSRES_STATUS<a class="headerlink" href="#susres-status" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x14 = 0x58001014</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "paused",  "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id6">
+<img alt="_images/wavedrom-e0db6fe3-817e-4fce-a34a-bba731c33077.svg" src="_images/wavedrom-e0db6fe3-817e-4fce-a34a-bba731c33077.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_STATUS</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="10%" />
-<col width="12%" />
-<col width="78%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>PAUSED</td>
-<td>When set, indicates that the counter has been paused</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>PAUSED</p></td>
+<td><p>When set, indicates that the counter has been paused</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="susres-state">
-<h3>SUSRES_STATE<a class="headerlink" href="#susres-state" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-state">
+<h3>SUSRES_STATE<a class="headerlink" href="#susres-state" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x18 = 0x58001018</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "resume",  "bits": 1},
-        {"name": "was_forced",  "bits": 1},
-        {"bits": 30}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id7">
+<img alt="_images/wavedrom-c8273691-00ec-4644-9de2-58437af961ba.svg" src="_images/wavedrom-c8273691-00ec-4644-9de2-58437af961ba.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_STATE</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="7%" />
-<col width="12%" />
-<col width="81%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>RESUME</td>
-<td>Used to transfer the resume state information from the loader to Xous. If set,
-indicates we are on the resume half of a suspend/resume.</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>RESUME</p></td>
+<td><p>Used to transfer the resume state information from the loader to Xous. If set,
+indicates we are on the resume half of a suspend/resume.</p></td>
 </tr>
-<tr class="row-odd"><td>[1]</td>
-<td>WAS_FORCED</td>
-<td>Used by the bootloader to indicate to the kernel if the current resume was from
-a forced suspend (e.g. a timeout happened and a server may be unclean.</td>
+<tr class="row-odd"><td><p>[1]</p></td>
+<td><p>WAS_FORCED</p></td>
+<td><p>Used by the bootloader to indicate to the kernel if the current resume was from
+a forced suspend (e.g. a timeout happened and a server may be unclean.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="susres-interrupt">
-<h3>SUSRES_INTERRUPT<a class="headerlink" href="#susres-interrupt" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-interrupt">
+<h3>SUSRES_INTERRUPT<a class="headerlink" href="#susres-interrupt" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x1c = 0x5800101c</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "interrupt",  "type": 4, "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id8">
+<img alt="_images/wavedrom-f97c0703-da6b-4316-85bd-276ce5e2b087.svg" src="_images/wavedrom-f97c0703-da6b-4316-85bd-276ce5e2b087.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_INTERRUPT</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="8%" />
-<col width="13%" />
-<col width="79%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>INTERRUPT</td>
-<td><p class="first">Writing this causes an interrupt to fire. Used by Xous to initiate
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>INTERRUPT</p></td>
+<td><p>Writing this causes an interrupt to fire. Used by Xous to initiate
 suspend/resume from an interrupt context.</p>
-<p class="last">Writing a 1 to this bit triggers the function.</p>
+<p>Writing a 1 to this bit triggers the function.</p>
 </td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="susres-ev-status">
-<h3>SUSRES_EV_STATUS<a class="headerlink" href="#susres-ev-status" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-ev-status">
+<h3>SUSRES_EV_STATUS<a class="headerlink" href="#susres-ev-status" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x20 = 0x58001020</cite></p>
 <blockquote>
 <div><p>This register contains the current raw level of the soft_int event trigger.
 Writes to this register have no effect.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "soft_int",  "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id9">
+<img alt="_images/wavedrom-c5fbad43-2182-4df6-81dc-e576dc518a43.svg" src="_images/wavedrom-c5fbad43-2182-4df6-81dc-e576dc518a43.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_EV_STATUS</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="14%" />
-<col width="20%" />
-<col width="66%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>SOFT_INT</td>
-<td>Level of the <code class="docutils literal notranslate"><span class="pre">soft_int</span></code> event</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>SOFT_INT</p></td>
+<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">soft_int</span></code> event</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="susres-ev-pending">
-<h3>SUSRES_EV_PENDING<a class="headerlink" href="#susres-ev-pending" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-ev-pending">
+<h3>SUSRES_EV_PENDING<a class="headerlink" href="#susres-ev-pending" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x24 = 0x58001024</cite></p>
 <blockquote>
 <div><p>When a  soft_int event occurs, the corresponding bit will be set in this
 register.  To clear the Event, set the corresponding bit in this register.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "soft_int",  "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id10">
+<img alt="_images/wavedrom-ae881abc-b9a5-42fc-b443-9d6d19fa6e38.svg" src="_images/wavedrom-ae881abc-b9a5-42fc-b443-9d6d19fa6e38.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_EV_PENDING</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="7%" />
-<col width="11%" />
-<col width="82%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>SOFT_INT</td>
-<td><cite>1</cite> if a <cite>soft_int</cite> event occurred. This Event is triggered on a <strong>falling</strong>
-edge.</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>SOFT_INT</p></td>
+<td><p><cite>1</cite> if a <cite>soft_int</cite> event occurred. This Event is triggered on a <strong>falling</strong>
+edge.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="susres-ev-enable">
-<h3>SUSRES_EV_ENABLE<a class="headerlink" href="#susres-ev-enable" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="susres-ev-enable">
+<h3>SUSRES_EV_ENABLE<a class="headerlink" href="#susres-ev-enable" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58001000 + 0x28 = 0x58001028</cite></p>
 <blockquote>
 <div><p>This register enables the corresponding soft_int events.  Write a <code class="docutils literal notranslate"><span class="pre">0</span></code> to this
 register to disable individual events.</p>
-
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "soft_int",  "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<figure class="align-default" id="id11">
+<img alt="_images/wavedrom-a9cd4a25-e633-428c-95a8-0fc80962e56b.svg" src="_images/wavedrom-a9cd4a25-e633-428c-95a8-0fc80962e56b.svg" /><figcaption>
+<p><span class="caption-text">SUSRES_EV_ENABLE</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="11%" />
-<col width="15%" />
-<col width="74%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>SOFT_INT</td>
-<td>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">soft_int</span></code> Event</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>SOFT_INT</p></td>
+<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">soft_int</span></code> Event</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
     <script type="text/javascript">
         function init() {
@@ -452,6 +353,7 @@ register to disable individual events.</p>
     </script>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -511,17 +413,23 @@ register to disable individual events.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -530,8 +438,8 @@ register to disable individual events.</p>
       &copy;2023, Cramium, Inc..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/susres.rst.txt"

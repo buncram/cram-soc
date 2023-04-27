@@ -1,0 +1,7 @@
+{ "signal" : [
+    {"name": "clk",       "wave": "p........" },
+    {"name": "dat",       "wave": "x=.x===xx", "data" : ["D0", "D1", "D2", "D3", "D4"]},
+    {"name": "valid",     "wave": "01.01..0."},
+    {"name": "ready",     "wave": "0.101..0."},
+    {"name": "done",      "wave": "0......10"},
+]}

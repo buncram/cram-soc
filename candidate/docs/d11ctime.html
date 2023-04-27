@@ -1,27 +1,29 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
     <title>D11CTIME &#8212; Cramium SoC (RISC-V Core Complex)  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script type="text/javascript" src="_static/default.js"></script>
-    <script type="text/javascript" src="_static/WaveDrom.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/default.js"></script>
+    <script src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SUSRES" href="susres.html" />
     <link rel="prev" title="CPU" href="cpu.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -31,12 +33,14 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="d11ctime">
-<h1>D11CTIME<a class="headerlink" href="#d11ctime" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="deterministic-timeout">
-<h2>Deterministic Timeout<a class="headerlink" href="#deterministic-timeout" title="Permalink to this headline">¶</a></h2>
+  <section id="d11ctime">
+<h1>D11CTIME<a class="headerlink" href="#d11ctime" title="Permalink to this heading">¶</a></h1>
+<section id="deterministic-timeout">
+<h2>Deterministic Timeout<a class="headerlink" href="#deterministic-timeout" title="Permalink to this heading">¶</a></h2>
 <p>This module creates a heartbeat that is deterministic. If used correctly, it can help reduce
 timing side channels on secure processes by giving them an independent, coarse source of
 time. The idea is that a secure process may handle a request, and then wait for a heartbeat
@@ -50,101 +54,76 @@ timeout is not the end-all solution; adding noise and computational confounders 
 countermeasures to be considered, but this is one of the simpler approaches, and it is relatively
 hardware-efficient.</p>
 <p>This block has been configured to default to 1.0ms period, assuming ACLK is 800.0MHz.</p>
-</div>
-<div class="section" id="register-listing-for-d11ctime">
-<h2>Register Listing for D11CTIME<a class="headerlink" href="#register-listing-for-d11ctime" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<colgroup>
-<col width="55%" />
-<col width="45%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Register</th>
-<th class="head">Address</th>
+</section>
+<section id="register-listing-for-d11ctime">
+<h2>Register Listing for D11CTIME<a class="headerlink" href="#register-listing-for-d11ctime" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Register</p></th>
+<th class="head"><p>Address</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><a class="reference internal" href="#d11ctime-control"><span class="std std-ref">D11CTIME_CONTROL</span></a></td>
-<td><a class="reference internal" href="#d11ctime-control"><span class="std std-ref">0x58000000</span></a></td>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#d11ctime-control"><span class="std std-ref">D11CTIME_CONTROL</span></a></p></td>
+<td><p><a class="reference internal" href="#d11ctime-control"><span class="std std-ref">0x58000000</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#d11ctime-heartbeat"><span class="std std-ref">D11CTIME_HEARTBEAT</span></a></td>
-<td><a class="reference internal" href="#d11ctime-heartbeat"><span class="std std-ref">0x58000004</span></a></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#d11ctime-heartbeat"><span class="std std-ref">D11CTIME_HEARTBEAT</span></a></p></td>
+<td><p><a class="reference internal" href="#d11ctime-heartbeat"><span class="std std-ref">0x58000004</span></a></p></td>
 </tr>
 </tbody>
 </table>
-<div class="section" id="d11ctime-control">
-<h3>D11CTIME_CONTROL<a class="headerlink" href="#d11ctime-control" title="Permalink to this headline">¶</a></h3>
+<section id="d11ctime-control">
+<h3>D11CTIME_CONTROL<a class="headerlink" href="#d11ctime-control" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x0 = 0x58000000</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "count",  "attr": '400000', "bits": 32}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id1">
+<img alt="_images/wavedrom-190c7298-a4b0-4905-9cff-ecb94b781a3a.svg" src="_images/wavedrom-190c7298-a4b0-4905-9cff-ecb94b781a3a.svg" /><figcaption>
+<p><span class="caption-text">D11CTIME_CONTROL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="11%" />
-<col width="77%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[31:0]</td>
-<td>COUNT</td>
-<td>Number of ACLK ticks before creating a heart beat</td>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>COUNT</p></td>
+<td><p>Number of ACLK ticks before creating a heart beat</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="d11ctime-heartbeat">
-<h3>D11CTIME_HEARTBEAT<a class="headerlink" href="#d11ctime-heartbeat" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="d11ctime-heartbeat">
+<h3>D11CTIME_HEARTBEAT<a class="headerlink" href="#d11ctime-heartbeat" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x58000000 + 0x4 = 0x58000004</cite></p>
 <blockquote>
-<div>
-<div style="overflow-x:auto">
-<script type="WaveDrom">
-{
-    "reg": [
-        {"name": "beat",  "bits": 1},
-        {"bits": 31}
-    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-}
-</script>
-</div>
+<div><figure class="align-default" id="id2">
+<img alt="_images/wavedrom-43166c10-98bf-4cdb-bc89-2c13d01a4ae7.svg" src="_images/wavedrom-43166c10-98bf-4cdb-bc89-2c13d01a4ae7.svg" /><figcaption>
+<p><span class="caption-text">D11CTIME_HEARTBEAT</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
-<table border="1" class="docutils">
-<colgroup>
-<col width="8%" />
-<col width="7%" />
-<col width="85%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field</th>
-<th class="head">Name</th>
-<th class="head">Description</th>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>[0]</td>
-<td>BEAT</td>
-<td>Set to <cite>1</cite> at the next <cite>count</cite> interval rollover since <cite>clear</cite> was set.</td>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>BEAT</p></td>
+<td><p>Set to <cite>1</cite> at the next <cite>count</cite> interval rollover since <cite>clear</cite> was set.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
     <script type="text/javascript">
         function init() {
@@ -154,6 +133,7 @@ hardware-efficient.</p>
     </script>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -213,17 +193,23 @@ hardware-efficient.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -232,8 +218,8 @@ hardware-efficient.</p>
       &copy;2023, Cramium, Inc..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/d11ctime.rst.txt"

@@ -146,7 +146,7 @@ class SyncFIFOMacro(Module, _FIFOInterface):
             i_rd_clk = ClockSignal(),
             i_rd_en = rdport_re,
             i_rd_addr = rdport_adr,
-            i_rd_data = rdport_dat_r,
+            o_rd_data = rdport_dat_r,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
         )
@@ -1106,7 +1106,7 @@ the `satp` setting and user code execution.
             i_rd_clk = ClockSignal(),
             i_rd_en = 1,
             i_rd_addr = asid_rd_adr[4:],
-            i_rd_data = asid_rd_dat_mux,
+            o_rd_data = asid_rd_dat_mux,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
         )
@@ -1150,7 +1150,7 @@ the `satp` setting and user code execution.
             i_rd_clk = ClockSignal(),
             i_rd_en = 1,
             i_rd_addr = self.get_asid_addr.fields.asid[4:],
-            i_rd_data = readback_rd_dat_mux,
+            o_rd_data = readback_rd_dat_mux,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
         )

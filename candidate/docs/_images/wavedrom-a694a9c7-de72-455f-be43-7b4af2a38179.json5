@@ -1,0 +1,10 @@
+{
+    "reg": [
+        {"name": "enable",  "bits": 1},
+        {"name": "asid",  "bits": 1},
+        {"name": "ppn_a",  "bits": 1},
+        {"name": "ppn_b",  "bits": 1},
+        {"name": "privilege",  "bits": 1},
+        {"bits": 27}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
