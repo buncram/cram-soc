@@ -547,7 +547,7 @@ where
 fn ahb_tests() {
     let mut duart = duart::Duart::new();
     loop {
-        duart.puts("hello world\n");
+        duart.puts("DUART up!\n");
     }
 }
 
@@ -565,6 +565,14 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         // ---------- ahb test option -------------
         #[cfg(feature="ahb-test")]
         ahb_tests();
+        let mut pio = CSR::new(0x4020_2000 as *mut u32);
+        let pio_cr = utralib::Register::new(0, 0xffff_ffff);
+        let pio_sr = utralib::Register::new(1, 0xffff_ffff);
+        for i in 0..16 {
+            report.wfo(utra::main::REPORT_REPORT, i);
+            pio.wo(pio_cr, i);
+            report.wfo(utra::main::REPORT_REPORT, pio.r(pio_sr));
+        }
 
         // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics

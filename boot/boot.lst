@@ -5,45 +5,68 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .text.dummy   00000000  60000000  60000000  00000134  2**0
                   ALLOC, READONLY
-  1 .text         0000008c  60000000  60000000  00001000  2**1
+  1 .text         00001836  60000000  60000000  00001000  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       0000000c  6000008c  6000008c  0000108c  2**2
+  2 .rodata       00000540  60001838  60001838  00002838  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .data         00000000  61000000  61000000  00001098  2**2
+  3 .data         00000000  61000000  61000000  00002d78  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  4 .bss          00000000  61000000  61000000  00002000  2**0
+  4 .bss          00000000  61000000  61000000  00003000  2**0
                   ALLOC
-  5 .stack        00004000  61000000  61000000  00002000  2**0
+  5 .stack        00004000  61000000  61000000  00003000  2**0
                   ALLOC
-  6 .heap         00000000  61004000  61004000  00002000  2**0
+  6 .heap         00000000  61004000  61004000  00003000  2**0
                   ALLOC
-  7 .debug_loc    000005e3  00000000  00000000  00002000  2**0
+  7 .debug_loc    00003d73  00000000  00000000  00003000  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  8 .debug_abbrev 000003c7  00000000  00000000  000025e3  2**0
+  8 .debug_abbrev 0000070c  00000000  00000000  00006d73  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  9 .debug_info   0000259e  00000000  00000000  000029aa  2**0
+  9 .debug_info   0000d782  00000000  00000000  0000747f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 10 .debug_aranges 00000070  00000000  00000000  00004f48  2**0
+ 10 .debug_aranges 000001a8  00000000  00000000  00014c01  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 11 .debug_ranges 000000c0  00000000  00000000  00004fb8  2**0
+ 11 .debug_ranges 00001480  00000000  00000000  00014da9  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 12 .debug_str    00001c6b  00000000  00000000  00005078  2**0
+ 12 .debug_str    0000864f  00000000  00000000  00016229  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_pubnames 00000e6e  00000000  00000000  00006ce3  2**0
+ 13 .debug_pubnames 000023ab  00000000  00000000  0001e878  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_pubtypes 0000091d  00000000  00000000  00007b51  2**0
+ 14 .debug_pubtypes 00001b4b  00000000  00000000  00020c23  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .riscv.attributes 0000002b  00000000  00000000  0000846e  2**0
+ 15 .riscv.attributes 0000002b  00000000  00000000  0002276e  2**0
                   CONTENTS, READONLY
- 16 .debug_frame  000000f8  00000000  00000000  0000849c  2**2
+ 16 .debug_line   00003641  00000000  00000000  00022799  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   000006e9  00000000  00000000  00008594  2**0
-                  CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .comment      00000013  00000000  00000000  00008c7d  2**0
+ 17 .comment      00000013  00000000  00000000  00025dda  2**0
                   CONTENTS, READONLY
-60000038 00000054 T rust_entry
+60000986 00000a6c T rust_entry
+60001464 000002fa t core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt
+60000702 00000284 t betrusted_boot::Gfx::msg
+60000142 00000228 t betrusted_boot::satp::satp_setup
+60000476 00000158 T _start_trap_rust
+60000646 000000bc t betrusted_boot::Gfx::hex_word
+6000008a 00000098 t betrusted_boot::debug::Uart::print_hex_word
+600005d2 00000074 t rust_begin_unwind
+60000374 00000062 T _start_trap
+600017da 0000005c t compiler_builtins::mem::memset
+600003d6 0000005a T _start_trap_aligned
+6000175e 0000004a t core::fmt::Formatter::pad_integral::write_prefix
+60000430 00000046 T _resume_context
+60001424 00000040 t core::panicking::panic_bounds_check
 60000000 00000034 T _start
+6000005c 0000002e t betrusted_boot::debug::Uart::newline
+60000122 00000020 t betrusted_boot::debug::Uart::tiny_write_str
+600013f2 0000001e t core::panicking::panic_fmt
+60001412 00000012 t <T as core::any::Any>::type_id
+60000038 0000000c t xous_riscv::register::sie::set_sext
+6000036a 0000000a t betrusted_boot::satp::to_user_mode
+600017d2 00000008 t memset
+60000054 00000008 t xous_riscv::register::vexriscv::sim::read
+6000004c 00000008 t xous_riscv::register::stval::read
+60000044 00000008 t xous_riscv::register::sepc::read
+600005ce 00000004 T start_loader
 60000034 00000004 T abort
+60001410 00000002 t core::ptr::drop_in_place<&core::iter::adapters::copied::Copied<core::slice::iter::Iter<u8>>>
 
 target/riscv32imac-unknown-none-elf/release/betrusted-boot:     file format elf32-littleriscv
 
@@ -75,7 +98,7 @@ pub extern "C" fn _start() {
 60000022:	00000297          	auipc	t0,0x0
 60000026:	fde28293          	addi	t0,t0,-34 # 60000000 <_start>
 6000002a:	30529073          	csrw	mtvec,t0
-6000002e:	00a0006f          	j	60000038 <rust_entry>
+6000002e:	1590006f          	j	60000986 <rust_entry>
 	...
 
 60000034 <abort>:
@@ -88,46 +111,2683 @@ pub extern "C" fn abort() {
 60000034:	a001                	j	60000034 <abort>
 	...
 
-60000038 <rust_entry>:
-        duart.puts("hello world\n");
+60000038 <xous_riscv::register::sie::set_sext>:
+                () => {
+                    extern "C" {
+                        fn $asm_fn(bits: usize);
+                    }
+
+                    $asm_fn(bits);
+60000038:	20000513          	li	a0,512
+6000003c:	00001317          	auipc	t1,0x1
+60000040:	76c30067          	jr	1900(t1) # 600017a8 <__set_sie>
+
+60000044 <xous_riscv::register::sepc::read>:
+                    $asm_fn()
+60000044:	00001317          	auipc	t1,0x1
+60000048:	76a30067          	jr	1898(t1) # 600017ae <__read_sepc>
+
+6000004c <xous_riscv::register::stval::read>:
+6000004c:	00001317          	auipc	t1,0x1
+60000050:	76e30067          	jr	1902(t1) # 600017ba <__read_stval>
+
+60000054 <xous_riscv::register::vexriscv::sim::read>:
+60000054:	00001317          	auipc	t1,0x1
+60000058:	76c30067          	jr	1900(t1) # 600017c0 <__read_vsim>
+
+6000005c <betrusted_boot::debug::Uart::newline>:
+    }
+    pub fn put_hex(&mut self, c: u8) {
+        self.put_digit(c >> 4);
+        self.put_digit(c & 0xF);
+    }
+    pub fn newline(&mut self) {
+6000005c:	40102537          	lui	a0,0x40102
+60000060:	0330000f          	fence	rw,rw
+60000064:	414c                	lw	a1,4(a0)
+
+    pub fn putc(&self, c: u8) {
+        let base = utra::uart::HW_UART_BASE as *mut u32;
+        let mut uart = CSR::new(base);
+        // Wait until TXFULL is `0`
+        while uart.r(utra::uart::TXFULL) != 0 {}
+60000066:	fded                	bnez	a1,60000060 <betrusted_boot::debug::Uart::newline+0x4>
+60000068:	40102537          	lui	a0,0x40102
+6000006c:	45a9                	li	a1,10
+6000006e:	c10c                	sw	a1,0(a0)
+60000070:	0330000f          	fence	rw,rw
+60000074:	0330000f          	fence	rw,rw
+60000078:	414c                	lw	a1,4(a0)
+6000007a:	fded                	bnez	a1,60000074 <betrusted_boot::debug::Uart::newline+0x18>
+6000007c:	40102537          	lui	a0,0x40102
+60000080:	45b5                	li	a1,13
+60000082:	c10c                	sw	a1,0(a0)
+60000084:	0330000f          	fence	rw,rw
+    }
+60000088:	8082                	ret
+
+6000008a <betrusted_boot::debug::Uart::print_hex_word>:
+    pub fn print_hex_word(&mut self, word: u32) {
+6000008a:	1141                	addi	sp,sp,-16
+6000008c:	4581                	li	a1,0
+6000008e:	00855613          	srli	a2,a0,0x8
+60000092:	66c1                	lui	a3,0x10
+60000094:	f0068693          	addi	a3,a3,-256 # ff00 <_stack_size+0xbf00>
+60000098:	8e75                	and	a2,a2,a3
+6000009a:	01855693          	srli	a3,a0,0x18
+6000009e:	8e55                	or	a2,a2,a3
+600000a0:	00851693          	slli	a3,a0,0x8
+600000a4:	00ff0737          	lui	a4,0xff0
+600000a8:	8ef9                	and	a3,a3,a4
+600000aa:	0562                	slli	a0,a0,0x18
+600000ac:	8d55                	or	a0,a0,a3
+600000ae:	8d51                	or	a0,a0,a2
+        for &byte in word.to_be_bytes().iter() {
+600000b0:	c62a                	sw	a0,12(sp)
+600000b2:	00c10813          	addi	a6,sp,12
+600000b6:	0a000893          	li	a7,160
+600000ba:	401026b7          	lui	a3,0x40102
+600000be:	42a9                	li	t0,10
+600000c0:	4791                	li	a5,4
+600000c2:	00b80533          	add	a0,a6,a1
+600000c6:	00054503          	lbu	a0,0(a0) # 40102000 <_stack_size+0x400fe000>
+        self.put_digit(c >> 4);
+600000ca:	00455613          	srli	a2,a0,0x4
+        if nyb < 10 {
+600000ce:	01157963          	bgeu	a0,a7,600000e0 <betrusted_boot::debug::Uart::print_hex_word+0x56>
+600000d2:	0330000f          	fence	rw,rw
+600000d6:	42d8                	lw	a4,4(a3)
+        while uart.r(utra::uart::TXFULL) != 0 {}
+600000d8:	ff6d                	bnez	a4,600000d2 <betrusted_boot::debug::Uart::print_hex_word+0x48>
+            self.putc(nyb + 0x30);
+600000da:	03066613          	ori	a2,a2,48
+600000de:	a039                	j	600000ec <betrusted_boot::debug::Uart::print_hex_word+0x62>
+600000e0:	0330000f          	fence	rw,rw
+600000e4:	42d8                	lw	a4,4(a3)
+        while uart.r(utra::uart::TXFULL) != 0 {}
+600000e6:	ff6d                	bnez	a4,600000e0 <betrusted_boot::debug::Uart::print_hex_word+0x56>
+            self.putc(nyb + 0x61 - 10);
+600000e8:	05760613          	addi	a2,a2,87
+600000ec:	c290                	sw	a2,0(a3)
+        self.put_digit(c & 0xF);
+600000ee:	893d                	andi	a0,a0,15
+600000f0:	0330000f          	fence	rw,rw
+        if nyb < 10 {
+600000f4:	00557963          	bgeu	a0,t0,60000106 <betrusted_boot::debug::Uart::print_hex_word+0x7c>
+600000f8:	0330000f          	fence	rw,rw
+600000fc:	42d0                	lw	a2,4(a3)
+        while uart.r(utra::uart::TXFULL) != 0 {}
+600000fe:	fe6d                	bnez	a2,600000f8 <betrusted_boot::debug::Uart::print_hex_word+0x6e>
+            self.putc(nyb + 0x30);
+60000100:	03056513          	ori	a0,a0,48
+60000104:	a039                	j	60000112 <betrusted_boot::debug::Uart::print_hex_word+0x88>
+60000106:	0330000f          	fence	rw,rw
+6000010a:	42d0                	lw	a2,4(a3)
+        while uart.r(utra::uart::TXFULL) != 0 {}
+6000010c:	fe6d                	bnez	a2,60000106 <betrusted_boot::debug::Uart::print_hex_word+0x7c>
+            self.putc(nyb + 0x61 - 10);
+6000010e:	05750513          	addi	a0,a0,87
+60000112:	0585                	addi	a1,a1,1 # 61010001 <_estack+0xc001>
+60000114:	c288                	sw	a0,0(a3)
+60000116:	0330000f          	fence	rw,rw
+6000011a:	faf594e3          	bne	a1,a5,600000c2 <betrusted_boot::debug::Uart::print_hex_word+0x38>
+    }
+6000011e:	0141                	addi	sp,sp,16
+60000120:	8082                	ret
+
+60000122 <betrusted_boot::debug::Uart::tiny_write_str>:
+60000122:	95aa                	add	a1,a1,a0
+60000124:	40102637          	lui	a2,0x40102
+60000128:	00054683          	lbu	a3,0(a0)
+6000012c:	0330000f          	fence	rw,rw
+60000130:	4258                	lw	a4,4(a2)
+        while uart.r(utra::uart::TXFULL) != 0 {}
+60000132:	ff6d                	bnez	a4,6000012c <betrusted_boot::debug::Uart::tiny_write_str+0xa>
+60000134:	0505                	addi	a0,a0,1
+60000136:	c214                	sw	a3,0(a2)
+60000138:	0330000f          	fence	rw,rw
+6000013c:	feb516e3          	bne	a0,a1,60000128 <betrusted_boot::debug::Uart::tiny_write_str+0x6>
+
+    pub fn tiny_write_str(&mut self, s: &str) {
+        for c in s.bytes() {
+            self.putc(c);
+        }
+    }
+60000140:	8082                	ret
+
+60000142 <betrusted_boot::satp::satp_setup>:
+}
+
+/// Very simple Sv32 setup that drops into supervisor (kernel) mode, with most
+/// mappings being 1:1 between VA->PA, except for code which is remapped to address 0x0 in VA space.
+#[inline(never)] // correct behavior depends on RA being set.
+pub fn satp_setup() {
+60000142:	4701                	li	a4,0
+60000144:	4601                	li	a2,0
+60000146:	40000537          	lui	a0,0x40000
+6000014a:	f0050513          	addi	a0,a0,-256 # 3fffff00 <_stack_size+0x3fffbf00>
+6000014e:	184015b7          	lui	a1,0x18401
+60000152:	80158693          	addi	a3,a1,-2047 # 18400801 <_stack_size+0x183fc801>
+60000156:	610007b7          	lui	a5,0x61000
+    root_pt.entries[index] =
+6000015a:	c394                	sw	a3,0(a5)
+6000015c:	c0158693          	addi	a3,a1,-1023
+60000160:	c3d4                	sw	a3,4(a5)
+60000162:	00158693          	addi	a3,a1,1
+60000166:	58d7a023          	sw	a3,1408(a5) # 61000580 <_ebss+0x580>
+6000016a:	40158593          	addi	a1,a1,1025
+6000016e:	40b7a023          	sw	a1,1024(a5)
+60000172:	184005b7          	lui	a1,0x18400
+60000176:	40158593          	addi	a1,a1,1025 # 18400401 <_stack_size+0x183fc401>
+6000017a:	60b7a823          	sw	a1,1552(a5)
+6000017e:	6585                	lui	a1,0x1
+60000180:	15fd                	addi	a1,a1,-1 # fff <_hart_stack_size+0x7ff>
+60000182:	000656b7          	lui	a3,0x65
+60000186:	53668693          	addi	a3,a3,1334 # 65536 <_stack_size+0x61536>
+6000018a:	60000837          	lui	a6,0x60000
+6000018e:	610028b7          	lui	a7,0x61002
+60000192:	8b05                	andi	a4,a4,1
+60000194:	cf09                	beqz	a4,600001ae <betrusted_boot::satp::satp_setup+0x6c>
+60000196:	00b60733          	add	a4,a2,a1
+6000019a:	00c73633          	sltu	a2,a4,a2
+6000019e:	fff64613          	not	a2,a2
+600001a2:	00d737b3          	sltu	a5,a4,a3
+    set_l1_pte(PERI_VA, PERI_PT_PA, &mut root_pt);
+    set_l1_pte(SRAM_VA, SRAM_PT_PA, &mut root_pt); // L1 covers 16MiB, so SP_VA will cover all of SRAM
+
+    // map code space. This is the only one that has a difference on VA->PA
+    const CODE_LEN: usize = 0x65536;
+    for offset in (0..CODE_LEN).step_by(PAGE_SIZE) {
+600001a6:	8ff1                	and	a5,a5,a2
+600001a8:	863a                	mv	a2,a4
+600001aa:	e781                	bnez	a5,600001b2 <betrusted_boot::satp::satp_setup+0x70>
+600001ac:	a00d                	j	600001ce <betrusted_boot::satp::satp_setup+0x8c>
+600001ae:	02d67063          	bgeu	a2,a3,600001ce <betrusted_boot::satp::satp_setup+0x8c>
+        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R | FLG_U);
+600001b2:	01060733          	add	a4,a2,a6
+    l2_pt.entries[index] =
+600001b6:	00a65793          	srli	a5,a2,0xa
+600001ba:	0605                	addi	a2,a2,1 # 40102001 <_stack_size+0x400fe001>
+        ((to_pa & 0xFFFF_FC00) >> 2) // top 2 bits of PA are not used, we don't do 34-bit PA featured by Sv32
+600001bc:	8309                	srli	a4,a4,0x2
+600001be:	8f69                	and	a4,a4,a0
+    l2_pt.entries[index] =
+600001c0:	9bf1                	andi	a5,a5,-4
+600001c2:	97c6                	add	a5,a5,a7
+600001c4:	01b76713          	ori	a4,a4,27
+600001c8:	c398                	sw	a4,0(a5)
+600001ca:	4705                	li	a4,1
+600001cc:	b7d9                	j	60000192 <betrusted_boot::satp::satp_setup+0x50>
+600001ce:	4781                	li	a5,0
+600001d0:	005006b7          	lui	a3,0x500
+600001d4:	6705                	lui	a4,0x1
+600001d6:	fff70293          	addi	t0,a4,-1 # fff <_hart_stack_size+0x7ff>
+600001da:	00565637          	lui	a2,0x565
+600001de:	53660613          	addi	a2,a2,1334 # 565536 <_stack_size+0x561536>
+600001e2:	60000837          	lui	a6,0x60000
+600001e6:	1771                	addi	a4,a4,-4
+600001e8:	610038b7          	lui	a7,0x61003
+600001ec:	8b85                	andi	a5,a5,1
+600001ee:	cf89                	beqz	a5,60000208 <betrusted_boot::satp::satp_setup+0xc6>
+600001f0:	005687b3          	add	a5,a3,t0
+600001f4:	00d7b6b3          	sltu	a3,a5,a3
+600001f8:	fff6c693          	not	a3,a3
+600001fc:	00c7b5b3          	sltu	a1,a5,a2
+    }
+    const SPI_OFFSET: usize = 0x50_0000;
+    for offset in (SPI_OFFSET..SPI_OFFSET + CODE_LEN).step_by(PAGE_SIZE) {
+60000200:	8df5                	and	a1,a1,a3
+60000202:	86be                	mv	a3,a5
+60000204:	e581                	bnez	a1,6000020c <betrusted_boot::satp::satp_setup+0xca>
+60000206:	a015                	j	6000022a <betrusted_boot::satp::satp_setup+0xe8>
+60000208:	02c6f163          	bgeu	a3,a2,6000022a <betrusted_boot::satp::satp_setup+0xe8>
+        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code2_pt, FLG_X | FLG_R | FLG_U);
+6000020c:	010685b3          	add	a1,a3,a6
+    l2_pt.entries[index] =
+60000210:	00a6d793          	srli	a5,a3,0xa
+60000214:	0685                	addi	a3,a3,1 # 500001 <_stack_size+0x4fc001>
+        ((to_pa & 0xFFFF_FC00) >> 2) // top 2 bits of PA are not used, we don't do 34-bit PA featured by Sv32
+60000216:	8189                	srli	a1,a1,0x2
+60000218:	8de9                	and	a1,a1,a0
+    l2_pt.entries[index] =
+6000021a:	8ff9                	and	a5,a5,a4
+6000021c:	0117e7b3          	or	a5,a5,a7
+60000220:	01b5e593          	ori	a1,a1,27
+60000224:	c38c                	sw	a1,0(a5)
+60000226:	4785                	li	a5,1
+60000228:	b7d1                	j	600001ec <betrusted_boot::satp::satp_setup+0xaa>
+6000022a:	4781                	li	a5,0
+6000022c:	4601                	li	a2,0
+6000022e:	6685                	lui	a3,0x1
+60000230:	fff68593          	addi	a1,a3,-1 # fff <_hart_stack_size+0x7ff>
+60000234:	61000837          	lui	a6,0x61000
+60000238:	16f1                	addi	a3,a3,-4
+6000023a:	610018b7          	lui	a7,0x61001
+6000023e:	8a05                	andi	a2,a2,1
+60000240:	ce19                	beqz	a2,6000025e <betrusted_boot::satp::satp_setup+0x11c>
+60000242:	00b78633          	add	a2,a5,a1
+60000246:	00f637b3          	sltu	a5,a2,a5
+6000024a:	fff7c793          	not	a5,a5
+6000024e:	01065713          	srli	a4,a2,0x10
+60000252:	00173713          	seqz	a4,a4
+    }
+
+    // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
+    const SRAM_LEN: usize = 65536;
+    for offset in (0..SRAM_LEN).step_by(PAGE_SIZE) {
+60000256:	8f7d                	and	a4,a4,a5
+60000258:	87b2                	mv	a5,a2
+6000025a:	e709                	bnez	a4,60000264 <betrusted_boot::satp::satp_setup+0x122>
+6000025c:	a01d                	j	60000282 <betrusted_boot::satp::satp_setup+0x140>
+6000025e:	0107d613          	srli	a2,a5,0x10
+60000262:	e205                	bnez	a2,60000282 <betrusted_boot::satp::satp_setup+0x140>
+        set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
+60000264:	01078633          	add	a2,a5,a6
+60000268:	0785                	addi	a5,a5,1
+        ((to_pa & 0xFFFF_FC00) >> 2) // top 2 bits of PA are not used, we don't do 34-bit PA featured by Sv32
+6000026a:	00265713          	srli	a4,a2,0x2
+6000026e:	8f69                	and	a4,a4,a0
+    l2_pt.entries[index] =
+60000270:	8229                	srli	a2,a2,0xa
+60000272:	8e75                	and	a2,a2,a3
+60000274:	01166633          	or	a2,a2,a7
+60000278:	01776713          	ori	a4,a4,23
+6000027c:	c218                	sw	a4,0(a2)
+6000027e:	4605                	li	a2,1
+60000280:	bf7d                	j	6000023e <betrusted_boot::satp::satp_setup+0xfc>
+60000282:	4781                	li	a5,0
+60000284:	4601                	li	a2,0
+60000286:	6685                	lui	a3,0x1
+60000288:	fff68593          	addi	a1,a3,-1 # fff <_hart_stack_size+0x7ff>
+6000028c:	58000837          	lui	a6,0x58000
+60000290:	16f1                	addi	a3,a3,-4
+60000292:	610048b7          	lui	a7,0x61004
+60000296:	8a05                	andi	a2,a2,1
+60000298:	ce19                	beqz	a2,600002b6 <betrusted_boot::satp::satp_setup+0x174>
+6000029a:	00b78633          	add	a2,a5,a1
+6000029e:	00f637b3          	sltu	a5,a2,a5
+600002a2:	fff7c793          	not	a5,a5
+600002a6:	01165713          	srli	a4,a2,0x11
+600002aa:	00173713          	seqz	a4,a4
+    }
+    // map peripherals
+    const CSR_LEN: usize = 0x2_0000;
+    const PERI_LEN: usize = 0xA000;
+    for offset in (0..CSR_LEN).step_by(PAGE_SIZE) {
+600002ae:	8f7d                	and	a4,a4,a5
+600002b0:	87b2                	mv	a5,a2
+600002b2:	e709                	bnez	a4,600002bc <betrusted_boot::satp::satp_setup+0x17a>
+600002b4:	a01d                	j	600002da <betrusted_boot::satp::satp_setup+0x198>
+600002b6:	0117d613          	srli	a2,a5,0x11
+600002ba:	e205                	bnez	a2,600002da <betrusted_boot::satp::satp_setup+0x198>
+        set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R | FLG_U);
+600002bc:	01078633          	add	a2,a5,a6
+600002c0:	0785                	addi	a5,a5,1
+        ((to_pa & 0xFFFF_FC00) >> 2) // top 2 bits of PA are not used, we don't do 34-bit PA featured by Sv32
+600002c2:	00265713          	srli	a4,a2,0x2
+600002c6:	8f69                	and	a4,a4,a0
+    l2_pt.entries[index] =
+600002c8:	8229                	srli	a2,a2,0xa
+600002ca:	8e75                	and	a2,a2,a3
+600002cc:	01166633          	or	a2,a2,a7
+600002d0:	01776713          	ori	a4,a4,23
+600002d4:	c218                	sw	a4,0(a2)
+600002d6:	4605                	li	a2,1
+600002d8:	bf7d                	j	60000296 <betrusted_boot::satp::satp_setup+0x154>
+600002da:	4781                	li	a5,0
+600002dc:	4601                	li	a2,0
+600002de:	6685                	lui	a3,0x1
+600002e0:	fff68593          	addi	a1,a3,-1 # fff <_hart_stack_size+0x7ff>
+600002e4:	401008b7          	lui	a7,0x40100
+600002e8:	16f1                	addi	a3,a3,-4
+600002ea:	610052b7          	lui	t0,0x61005
+600002ee:	4815                	li	a6,5
+600002f0:	8a05                	andi	a2,a2,1
+600002f2:	ce19                	beqz	a2,60000310 <betrusted_boot::satp::satp_setup+0x1ce>
+600002f4:	00b78633          	add	a2,a5,a1
+600002f8:	00f637b3          	sltu	a5,a2,a5
+600002fc:	fff7c793          	not	a5,a5
+60000300:	00d65713          	srli	a4,a2,0xd
+60000304:	00573713          	sltiu	a4,a4,5
+    }
+    for offset in (0..PERI_LEN).step_by(PAGE_SIZE) {
+60000308:	8f7d                	and	a4,a4,a5
+6000030a:	87b2                	mv	a5,a2
+6000030c:	e711                	bnez	a4,60000318 <betrusted_boot::satp::satp_setup+0x1d6>
+6000030e:	a025                	j	60000336 <betrusted_boot::satp::satp_setup+0x1f4>
+60000310:	00d7d613          	srli	a2,a5,0xd
+60000314:	03067163          	bgeu	a2,a6,60000336 <betrusted_boot::satp::satp_setup+0x1f4>
+        set_l2_pte(PERI_VA + offset, PERI_VA + offset, &mut peri_pt, FLG_W | FLG_R | FLG_U);
+60000318:	01178633          	add	a2,a5,a7
+6000031c:	0785                	addi	a5,a5,1
+        ((to_pa & 0xFFFF_FC00) >> 2) // top 2 bits of PA are not used, we don't do 34-bit PA featured by Sv32
+6000031e:	00265713          	srli	a4,a2,0x2
+60000322:	8f69                	and	a4,a4,a0
+    l2_pt.entries[index] =
+60000324:	8229                	srli	a2,a2,0xa
+60000326:	8e75                	and	a2,a2,a3
+60000328:	00566633          	or	a2,a2,t0
+6000032c:	01776713          	ori	a4,a4,23
+60000330:	c218                	sw	a4,0(a2)
+60000332:	4605                	li	a2,1
+60000334:	bf75                	j	600002f0 <betrusted_boot::satp::satp_setup+0x1ae>
+60000336:	80461537          	lui	a0,0x80461
+        0x8000_0000
+        | asid << 22
+        | (ROOT_PT_PA as u32 >> 12);
+
+    unsafe {
+        core::arch::asm!(
+6000033a:	52fd                	li	t0,-1
+6000033c:	30329073          	csrw	mideleg,t0
+60000340:	30229073          	csrw	medeleg,t0
+60000344:	000412b7          	lui	t0,0x41
+60000348:	80028293          	addi	t0,t0,-2048 # 40800 <_stack_size+0x3c800>
+6000034c:	30029073          	csrw	mstatus,t0
+60000350:	18051073          	csrw	satp,a0
+60000354:	12000073          	sfence.vma
+60000358:	600002b7          	lui	t0,0x60000
+6000035c:	40508733          	sub	a4,ra,t0
+60000360:	34171073          	csrw	mepc,a4
+60000364:	30200073          	mret
+            // Issue the return, which will jump to $mepc in Supervisor mode
+            "mret",
+            satp_val = in(reg) satp,
+        );
+    }
+}
+60000368:	8082                	ret
+
+6000036a <betrusted_boot::satp::to_user_mode>:
+
+#[inline(never)] // correct behavior depends on RA being set.
+pub fn to_user_mode() {
+    unsafe {
+        core::arch::asm!(
+6000036a:	14109073          	csrw	sepc,ra
+6000036e:	10200073          	sret
+            "csrw   sepc, ra",
+            "sret",
+        );
+    }
+}
+60000372:	8082                	ret
+
+60000374 <_start_trap>:
+// #[repr(align(4))] // can't do this yet.
+#[inline(never)]
+pub unsafe extern "C" fn _start_trap() -> ! {
+    loop {
+        // install a NOP sled before _start_trap() until https://github.com/rust-lang/rust/issues/82232 is stable
+        core::arch::asm!(
+60000374:	0001                	nop
+60000376:	0001                	nop
+            "nop",
+            "nop",
+        );
+        #[export_name = "_start_trap_aligned"]
+        pub unsafe extern "C" fn _start_trap_aligned() {
+            core::arch::asm!(
+60000378:	14011073          	csrw	sscratch,sp
+6000037c:	61006137          	lui	sp,0x61006
+60000380:	c006                	sw	ra,0(sp)
+60000382:	c40e                	sw	gp,8(sp)
+60000384:	c612                	sw	tp,12(sp)
+60000386:	c816                	sw	t0,16(sp)
+60000388:	ca1a                	sw	t1,20(sp)
+6000038a:	cc1e                	sw	t2,24(sp)
+6000038c:	ce22                	sw	s0,28(sp)
+6000038e:	d026                	sw	s1,32(sp)
+60000390:	d22a                	sw	a0,36(sp)
+60000392:	d42e                	sw	a1,40(sp)
+60000394:	d632                	sw	a2,44(sp)
+60000396:	d836                	sw	a3,48(sp)
+60000398:	da3a                	sw	a4,52(sp)
+6000039a:	dc3e                	sw	a5,56(sp)
+6000039c:	de42                	sw	a6,60(sp)
+6000039e:	c0c6                	sw	a7,64(sp)
+600003a0:	c2ca                	sw	s2,68(sp)
+600003a2:	c4ce                	sw	s3,72(sp)
+600003a4:	c6d2                	sw	s4,76(sp)
+600003a6:	c8d6                	sw	s5,80(sp)
+600003a8:	cada                	sw	s6,84(sp)
+600003aa:	ccde                	sw	s7,88(sp)
+600003ac:	cee2                	sw	s8,92(sp)
+600003ae:	d0e6                	sw	s9,96(sp)
+600003b0:	d2ea                	sw	s10,100(sp)
+600003b2:	d4ee                	sw	s11,104(sp)
+600003b4:	d6f2                	sw	t3,108(sp)
+600003b6:	d8f6                	sw	t4,112(sp)
+600003b8:	dafa                	sw	t5,116(sp)
+600003ba:	dcfe                	sw	t6,120(sp)
+600003bc:	141022f3          	csrr	t0,sepc
+600003c0:	de96                	sw	t0,124(sp)
+600003c2:	140022f3          	csrr	t0,sscratch
+600003c6:	c216                	sw	t0,4(sp)
+600003c8:	61008137          	lui	sp,0x61008
+600003cc:	0aa0006f          	j	60000476 <_start_trap_rust>
+                // Note that registers $a0-$a7 still contain the arguments
+                "j           _start_trap_rust",
+            );
+        }
+        _start_trap_aligned();
+        core::arch::asm!(
+600003d0:	0001                	nop
+600003d2:	0001                	nop
+600003d4:	b745                	j	60000374 <_start_trap>
+
+600003d6 <_start_trap_aligned>:
+            core::arch::asm!(
+600003d6:	14011073          	csrw	sscratch,sp
+600003da:	61006137          	lui	sp,0x61006
+600003de:	c006                	sw	ra,0(sp)
+600003e0:	c40e                	sw	gp,8(sp)
+600003e2:	c612                	sw	tp,12(sp)
+600003e4:	c816                	sw	t0,16(sp)
+600003e6:	ca1a                	sw	t1,20(sp)
+600003e8:	cc1e                	sw	t2,24(sp)
+600003ea:	ce22                	sw	s0,28(sp)
+600003ec:	d026                	sw	s1,32(sp)
+600003ee:	d22a                	sw	a0,36(sp)
+600003f0:	d42e                	sw	a1,40(sp)
+600003f2:	d632                	sw	a2,44(sp)
+600003f4:	d836                	sw	a3,48(sp)
+600003f6:	da3a                	sw	a4,52(sp)
+600003f8:	dc3e                	sw	a5,56(sp)
+600003fa:	de42                	sw	a6,60(sp)
+600003fc:	c0c6                	sw	a7,64(sp)
+600003fe:	c2ca                	sw	s2,68(sp)
+60000400:	c4ce                	sw	s3,72(sp)
+60000402:	c6d2                	sw	s4,76(sp)
+60000404:	c8d6                	sw	s5,80(sp)
+60000406:	cada                	sw	s6,84(sp)
+60000408:	ccde                	sw	s7,88(sp)
+6000040a:	cee2                	sw	s8,92(sp)
+6000040c:	d0e6                	sw	s9,96(sp)
+6000040e:	d2ea                	sw	s10,100(sp)
+60000410:	d4ee                	sw	s11,104(sp)
+60000412:	d6f2                	sw	t3,108(sp)
+60000414:	d8f6                	sw	t4,112(sp)
+60000416:	dafa                	sw	t5,116(sp)
+60000418:	dcfe                	sw	t6,120(sp)
+6000041a:	141022f3          	csrr	t0,sepc
+6000041e:	de96                	sw	t0,124(sp)
+60000420:	140022f3          	csrr	t0,sscratch
+60000424:	c216                	sw	t0,4(sp)
+60000426:	61008137          	lui	sp,0x61008
+6000042a:	04c0006f          	j	60000476 <_start_trap_rust>
+        }
+6000042e:	8082                	ret
+
+60000430 <_resume_context>:
+}
+
+#[export_name = "_resume_context"]
+#[inline(never)]
+pub unsafe extern "C" fn _resume_context(registers: u32) -> ! {
+    core::arch::asm!(
+60000430:	812a                	mv	sp,a0
+60000432:	4082                	lw	ra,0(sp)
+60000434:	41a2                	lw	gp,8(sp)
+60000436:	4232                	lw	tp,12(sp)
+60000438:	42c2                	lw	t0,16(sp)
+6000043a:	4352                	lw	t1,20(sp)
+6000043c:	43e2                	lw	t2,24(sp)
+6000043e:	4472                	lw	s0,28(sp)
+60000440:	5482                	lw	s1,32(sp)
+60000442:	5512                	lw	a0,36(sp)
+60000444:	55a2                	lw	a1,40(sp)
+60000446:	5632                	lw	a2,44(sp)
+60000448:	56c2                	lw	a3,48(sp)
+6000044a:	5752                	lw	a4,52(sp)
+6000044c:	57e2                	lw	a5,56(sp)
+6000044e:	5872                	lw	a6,60(sp)
+60000450:	4886                	lw	a7,64(sp)
+60000452:	4916                	lw	s2,68(sp)
+60000454:	49a6                	lw	s3,72(sp)
+60000456:	4a36                	lw	s4,76(sp)
+60000458:	4ac6                	lw	s5,80(sp)
+6000045a:	4b56                	lw	s6,84(sp)
+6000045c:	4be6                	lw	s7,88(sp)
+6000045e:	4c76                	lw	s8,92(sp)
+60000460:	5c86                	lw	s9,96(sp)
+60000462:	5d16                	lw	s10,100(sp)
+60000464:	5da6                	lw	s11,104(sp)
+60000466:	5e36                	lw	t3,108(sp)
+60000468:	5ec6                	lw	t4,112(sp)
+6000046a:	5f56                	lw	t5,116(sp)
+6000046c:	5fe6                	lw	t6,120(sp)
+6000046e:	4112                	lw	sp,4(sp)
+60000470:	10200073          	sret
+        // Restore SP
+        "lw        x2, 1*4(sp)",
+        "sret",
+        registers = in(reg) registers,
+    );
+    loop {}
+60000474:	a001                	j	60000474 <_resume_context+0x44>
+
+60000476 <_start_trap_rust>:
+}
+
+/// Just handles specific traps for testing CPU interactions. Doesn't do anything useful with the traps.
+#[export_name = "_start_trap_rust"]
+pub extern "C" fn trap_handler(
+60000476:	1141                	addi	sp,sp,-16 # 61007ff0 <_estack+0x3ff0>
+60000478:	c606                	sw	ra,12(sp)
+6000047a:	c422                	sw	s0,8(sp)
+6000047c:	c226                	sw	s1,4(sp)
+6000047e:	40108437          	lui	s0,0x40108
+60000482:	2dcd0537          	lui	a0,0x2dcd0
+60000486:	c008                	sw	a0,0(s0)
+60000488:	0330000f          	fence	rw,rw
+6000048c:	00001097          	auipc	ra,0x1
+60000490:	328080e7          	jalr	808(ra) # 600017b4 <__read_scause>
+60000494:	c008                	sw	a0,0(s0)
+60000496:	800005b7          	lui	a1,0x80000
+6000049a:	05a5                	addi	a1,a1,9 # 80000009 <_lcdfb+0xd0000009>
+6000049c:	0330000f          	fence	rw,rw
+    report.wfo(utra::main::REPORT_REPORT, 0x2dcd_0000);
+
+    let sc = scause::read();
+    report.wfo(utra::main::REPORT_REPORT, sc.bits() as u32);
+    // 2 is illegal instruction
+    if sc.bits() == 2 {
+600004a0:	00b50b63          	beq	a0,a1,600004b6 <_start_trap_rust+0x40>
+600004a4:	4589                	li	a1,2
+600004a6:	0cb51163          	bne	a0,a1,60000568 <_start_trap_rust+0xf2>
+        // skip past the illegal instruction, since we are just testing that they trigger exceptions.
+        unsafe {
+            core::arch::asm!(
+600004aa:	141022f3          	csrr	t0,sepc
+600004ae:	0291                	addi	t0,t0,4 # 60000004 <_start+0x4>
+600004b0:	14129073          	csrw	sepc,t0
+600004b4:	a855                	j	60000568 <_start_trap_rust+0xf2>
+600004b6:	00001097          	auipc	ra,0x1
+600004ba:	316080e7          	jalr	790(ra) # 600017cc <__read_vsip>
+600004be:	c008                	sw	a0,0(s0)
+        }
+    } else if sc.bits() == 0x8000_0009 {
+        // external interrupt. find out which ones triggered it, and clear the source.
+        let irqs_pending = sip::read();
+        report.wfo(utra::main::REPORT_REPORT, irqs_pending as u32);
+        if (irqs_pending & 0x1) != 0 {
+600004c0:	00157593          	andi	a1,a0,1
+600004c4:	0330000f          	fence	rw,rw
+600004c8:	c195                	beqz	a1,600004ec <_start_trap_rust+0x76>
+600004ca:	401085b7          	lui	a1,0x40108
+600004ce:	0005ac23          	sw	zero,24(a1) # 40108018 <_stack_size+0x40104018>
+600004d2:	0330000f          	fence	rw,rw
+600004d6:	58004637          	lui	a2,0x58004
+600004da:	4614                	lw	a3,8(a2)
+            // handle irq0 hw test
+            main.wfo(utra::main::IRQTEST0_TRIGGER, 0);
+            let mut irqarray0 = CSR::new(utra::irqarray0::HW_IRQARRAY0_BASE as *mut u32);
+            let pending = irqarray0.r(utra::irqarray0::EV_PENDING);
+            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 0); // encode the irq bank number and bit number as [bit | bank]
+600004dc:	01069713          	slli	a4,a3,0x10
+600004e0:	c198                	sw	a4,0(a1)
+600004e2:	0330000f          	fence	rw,rw
+600004e6:	c614                	sw	a3,8(a2)
+600004e8:	0330000f          	fence	rw,rw
+            irqarray0.wo(utra::irqarray0::EV_PENDING, pending);
+        }
+        if (irqs_pending & 0x2) != 0 {
+600004ec:	00257593          	andi	a1,a0,2
+600004f0:	c585                	beqz	a1,60000518 <_start_trap_rust+0xa2>
+600004f2:	401085b7          	lui	a1,0x40108
+600004f6:	0005ae23          	sw	zero,28(a1) # 4010801c <_stack_size+0x4010401c>
+600004fa:	0330000f          	fence	rw,rw
+600004fe:	58005637          	lui	a2,0x58005
+60000502:	4614                	lw	a3,8(a2)
+            // handle irq1 hw test
+            main.wfo(utra::main::IRQTEST1_TRIGGER, 0);
+            let mut irqarray1 = CSR::new(utra::irqarray1::HW_IRQARRAY1_BASE as *mut u32);
+            let pending = irqarray1.r(utra::irqarray1::EV_PENDING);
+            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 1); // encode the irq bank number and bit number as [bit | bank]
+60000504:	01069713          	slli	a4,a3,0x10
+60000508:	00176713          	ori	a4,a4,1
+6000050c:	c198                	sw	a4,0(a1)
+6000050e:	0330000f          	fence	rw,rw
+60000512:	c614                	sw	a3,8(a2)
+60000514:	0330000f          	fence	rw,rw
+            irqarray1.wo(utra::irqarray1::EV_PENDING, pending);
+        }
+        if (irqs_pending & 4) != 0 {
+60000518:	00457593          	andi	a1,a0,4
+6000051c:	c195                	beqz	a1,60000540 <_start_trap_rust+0xca>
+6000051e:	0330000f          	fence	rw,rw
+60000522:	580105b7          	lui	a1,0x58010
+60000526:	4590                	lw	a2,8(a1)
+            // handle irq2 sw trigger test
+            let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
+            let pending = irqarray2.r(utra::irqarray2::EV_PENDING);
+            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
+60000528:	01061693          	slli	a3,a2,0x10
+6000052c:	0026e693          	ori	a3,a3,2
+60000530:	40108737          	lui	a4,0x40108
+60000534:	c314                	sw	a3,0(a4)
+60000536:	0330000f          	fence	rw,rw
+6000053a:	c590                	sw	a2,8(a1)
+6000053c:	0330000f          	fence	rw,rw
+            irqarray2.wo(utra::irqarray2::EV_PENDING, pending);
+            // software interrupt should not require a 0-write to reset it
+        }
+        if (irqs_pending & (1 << 19)) != 0 {
+60000540:	0532                	slli	a0,a0,0xc
+60000542:	02055363          	bgez	a0,60000568 <_start_trap_rust+0xf2>
+60000546:	0330000f          	fence	rw,rw
+6000054a:	5800f537          	lui	a0,0x5800f
+6000054e:	450c                	lw	a1,8(a0)
+            // handle wfi wakeup signal
+            let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
+            let pending = irqarray19.r(utra::irqarray19::EV_PENDING);
+            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
+60000550:	01059613          	slli	a2,a1,0x10
+60000554:	01366613          	ori	a2,a2,19
+60000558:	401086b7          	lui	a3,0x40108
+6000055c:	c290                	sw	a2,0(a3)
+6000055e:	0330000f          	fence	rw,rw
+60000562:	c50c                	sw	a1,8(a0)
+60000564:	0330000f          	fence	rw,rw
+            irqarray19.wo(utra::irqarray19::EV_PENDING, pending);
+        }
+    }
+
+    // report interrupt status
+    report.wfo(utra::main::REPORT_REPORT, sepc::read() as u32);
+60000568:	00000097          	auipc	ra,0x0
+6000056c:	adc080e7          	jalr	-1316(ra) # 60000044 <xous_riscv::register::sepc::read>
+60000570:	40108437          	lui	s0,0x40108
+60000574:	c008                	sw	a0,0(s0)
+60000576:	0330000f          	fence	rw,rw
+    report.wfo(utra::main::REPORT_REPORT, stval::read() as u32);
+6000057a:	00000097          	auipc	ra,0x0
+6000057e:	ad2080e7          	jalr	-1326(ra) # 6000004c <xous_riscv::register::stval::read>
+60000582:	c008                	sw	a0,0(s0)
+60000584:	0330000f          	fence	rw,rw
+    report.wfo(utra::main::REPORT_REPORT, sim::read() as u32);
+60000588:	00000097          	auipc	ra,0x0
+6000058c:	acc080e7          	jalr	-1332(ra) # 60000054 <xous_riscv::register::vexriscv::sim::read>
+60000590:	c008                	sw	a0,0(s0)
+60000592:	0330000f          	fence	rw,rw
+
+    // re-enable interrupts
+    let status: u32;
+    unsafe {
+        core::arch::asm!(
+60000596:	100022f3          	csrr	t0,sstatus
+6000059a:	0032e293          	ori	t0,t0,3
+6000059e:	10029073          	csrw	sstatus,t0
+600005a2:	100024f3          	csrr	s1,sstatus
+            "csrw        sstatus, t0",
+            "csrr        {status}, sstatus",
+            status = out(reg) status,
+        )
+    }
+    unsafe{sie::set_sext()};
+600005a6:	00000097          	auipc	ra,0x0
+600005aa:	a92080e7          	jalr	-1390(ra) # 60000038 <xous_riscv::register::sie::set_sext>
+600005ae:	c004                	sw	s1,0(s0)
+600005b0:	0330000f          	fence	rw,rw
+600005b4:	2dcd6537          	lui	a0,0x2dcd6
+600005b8:	0535                	addi	a0,a0,13 # 2dcd600d <_stack_size+0x2dcd200d>
+600005ba:	c008                	sw	a0,0(s0)
+600005bc:	0330000f          	fence	rw,rw
+    report.wfo(utra::main::REPORT_REPORT, status);
+
+    // drop us back to user mode
+    report.wfo(utra::main::REPORT_REPORT, 0x2dcd_600d);
+    unsafe {_resume_context(0x61006000)};
+600005c0:	61006537          	lui	a0,0x61006
+600005c4:	00000097          	auipc	ra,0x0
+600005c8:	e6c080e7          	jalr	-404(ra) # 60000430 <_resume_context>
+	...
+
+600005ce <start_loader>:
+    _arg_buffer: usize,
+    _signature: usize,
+    _loader_addr: usize,
+) -> ! {
+    unsafe {
+        asm! (
+600005ce:	8602                	jr	a2
+	...
+
+600005d2 <rust_begin_unwind>:
+
+mod panic_handler {
+    use core::panic::PanicInfo;
+    use crate::debug;
+    #[panic_handler]
+    fn handle_panic(arg: &PanicInfo) -> ! {
+600005d2:	1141                	addi	sp,sp,-16
+600005d4:	c606                	sw	ra,12(sp)
+600005d6:	c422                	sw	s0,8(sp)
+600005d8:	45cc                	lw	a1,12(a1)
+600005da:	842a                	mv	s0,a0
+600005dc:	9582                	jalr	a1
+600005de:	89a77637          	lui	a2,0x89a77
+600005e2:	c3460613          	addi	a2,a2,-972 # 89a76c34 <_lcdfb+0xd9a76c34>
+600005e6:	8db1                	xor	a1,a1,a2
+600005e8:	a9f82637          	lui	a2,0xa9f82
+600005ec:	ac860613          	addi	a2,a2,-1336 # a9f81ac8 <_lcdfb+0xf9f81ac8>
+600005f0:	8d31                	xor	a0,a0,a2
+600005f2:	8d4d                	or	a0,a0,a1
+        //crate::println!("{}", _arg);
+        let mut uart = debug::Uart {};
+        if let Some(s) = arg.payload().downcast_ref::<&str>() {
+600005f4:	e505                	bnez	a0,6000061c <rust_begin_unwind+0x4a>
+            uart.tiny_write_str(s);
+600005f6:	404c                	lw	a1,4(s0)
+600005f8:	c5b1                	beqz	a1,60000644 <rust_begin_unwind+0x72>
+600005fa:	4008                	lw	a0,0(s0)
+600005fc:	95aa                	add	a1,a1,a0
+600005fe:	40102637          	lui	a2,0x40102
+60000602:	00054683          	lbu	a3,0(a0) # 61006000 <_estack+0x2000>
+60000606:	0330000f          	fence	rw,rw
+6000060a:	4258                	lw	a4,4(a2)
+        while uart.r(utra::uart::TXFULL) != 0 {}
+6000060c:	ff6d                	bnez	a4,60000606 <rust_begin_unwind+0x34>
+6000060e:	0505                	addi	a0,a0,1
+60000610:	c214                	sw	a3,0(a2)
+60000612:	0330000f          	fence	rw,rw
+60000616:	feb516e3          	bne	a0,a1,60000602 <rust_begin_unwind+0x30>
+6000061a:	a02d                	j	60000644 <rust_begin_unwind+0x72>
+6000061c:	60002537          	lui	a0,0x60002
+60000620:	83850513          	addi	a0,a0,-1992 # 60001838 <.Lanon.01042f9e07bac0588b13af07786e0e0c.0>
+60000624:	401025b7          	lui	a1,0x40102
+60000628:	01450613          	addi	a2,a0,20
+6000062c:	00054683          	lbu	a3,0(a0)
+60000630:	0330000f          	fence	rw,rw
+60000634:	41d8                	lw	a4,4(a1)
+60000636:	ff6d                	bnez	a4,60000630 <rust_begin_unwind+0x5e>
+60000638:	0505                	addi	a0,a0,1
+6000063a:	c194                	sw	a3,0(a1)
+6000063c:	0330000f          	fence	rw,rw
+60000640:	fec516e3          	bne	a0,a2,6000062c <rust_begin_unwind+0x5a>
+        } else {
+            uart.tiny_write_str("unspecified panic!\n\r");
+        }
+        loop {}
+60000644:	a001                	j	60000644 <rust_begin_unwind+0x72>
+
+60000646 <betrusted_boot::Gfx::hex_word>:
+    }
+    fn put_hex(&mut self, c: u8, pos: &mut Point) {
+        self.put_digit(c >> 4, pos);
+        self.put_digit(c & 0xF, pos);
+    }
+    pub fn hex_word(&mut self, word: u32, pos: &mut Point) {
+60000646:	7179                	addi	sp,sp,-48
+60000648:	d606                	sw	ra,44(sp)
+6000064a:	d422                	sw	s0,40(sp)
+6000064c:	d226                	sw	s1,36(sp)
+6000064e:	d04a                	sw	s2,32(sp)
+60000650:	ce4e                	sw	s3,28(sp)
+60000652:	cc52                	sw	s4,24(sp)
+60000654:	ca56                	sw	s5,20(sp)
+60000656:	c85a                	sw	s6,16(sp)
+60000658:	c65e                	sw	s7,12(sp)
+6000065a:	8932                	mv	s2,a2
+6000065c:	8baa                	mv	s7,a0
+6000065e:	4401                	li	s0,0
+60000660:	0085d513          	srli	a0,a1,0x8
+60000664:	6641                	lui	a2,0x10
+60000666:	f0060613          	addi	a2,a2,-256 # ff00 <_stack_size+0xbf00>
+6000066a:	8d71                	and	a0,a0,a2
+6000066c:	0185d613          	srli	a2,a1,0x18
+60000670:	8d51                	or	a0,a0,a2
+60000672:	00859613          	slli	a2,a1,0x8
+60000676:	00ff06b7          	lui	a3,0xff0
+6000067a:	8e75                	and	a2,a2,a3
+6000067c:	05e2                	slli	a1,a1,0x18
+6000067e:	8dd1                	or	a1,a1,a2
+60000680:	8d4d                	or	a0,a0,a1
+        for &byte in word.to_be_bytes().iter() {
+60000682:	c02a                	sw	a0,0(sp)
+60000684:	898a                	mv	s3,sp
+60000686:	0a000a13          	li	s4,160
+6000068a:	4aa9                	li	s5,10
+6000068c:	4b11                	li	s6,4
+6000068e:	00898533          	add	a0,s3,s0
+60000692:	00054483          	lbu	s1,0(a0)
+        self.put_digit(c >> 4, pos);
+60000696:	0044d513          	srli	a0,s1,0x4
+        let mut buf: [u8; 4] = [0; 4]; // stack buffer for the character encoding
+6000069a:	c202                	sw	zero,4(sp)
+        if nyb < 10 {
+6000069c:	0144e563          	bltu	s1,s4,600006a6 <betrusted_boot::Gfx::hex_word+0x60>
+600006a0:	05750513          	addi	a0,a0,87
+600006a4:	a019                	j	600006aa <betrusted_boot::Gfx::hex_word+0x64>
+600006a6:	03056513          	ori	a0,a0,48
+600006aa:	00a10223          	sb	a0,4(sp)
+600006ae:	004c                	addi	a1,sp,4
+600006b0:	4605                	li	a2,1
+600006b2:	855e                	mv	a0,s7
+600006b4:	86ca                	mv	a3,s2
+600006b6:	00000097          	auipc	ra,0x0
+600006ba:	04c080e7          	jalr	76(ra) # 60000702 <betrusted_boot::Gfx::msg>
+        self.put_digit(c & 0xF, pos);
+600006be:	00f4f513          	andi	a0,s1,15
+        let mut buf: [u8; 4] = [0; 4]; // stack buffer for the character encoding
+600006c2:	c402                	sw	zero,8(sp)
+        if nyb < 10 {
+600006c4:	01556563          	bltu	a0,s5,600006ce <betrusted_boot::Gfx::hex_word+0x88>
+600006c8:	05750513          	addi	a0,a0,87
+600006cc:	a019                	j	600006d2 <betrusted_boot::Gfx::hex_word+0x8c>
+600006ce:	03056513          	ori	a0,a0,48
+600006d2:	0405                	addi	s0,s0,1 # 40108001 <_stack_size+0x40104001>
+600006d4:	00a10423          	sb	a0,8(sp)
+600006d8:	002c                	addi	a1,sp,8
+600006da:	4605                	li	a2,1
+600006dc:	855e                	mv	a0,s7
+600006de:	86ca                	mv	a3,s2
+600006e0:	00000097          	auipc	ra,0x0
+600006e4:	022080e7          	jalr	34(ra) # 60000702 <betrusted_boot::Gfx::msg>
+600006e8:	fb6413e3          	bne	s0,s6,6000068e <betrusted_boot::Gfx::hex_word+0x48>
+            self.put_hex(byte, pos);
+        }
+    }
+600006ec:	50b2                	lw	ra,44(sp)
+600006ee:	5422                	lw	s0,40(sp)
+600006f0:	5492                	lw	s1,36(sp)
+600006f2:	5902                	lw	s2,32(sp)
+600006f4:	49f2                	lw	s3,28(sp)
+600006f6:	4a62                	lw	s4,24(sp)
+600006f8:	4ad2                	lw	s5,20(sp)
+600006fa:	4b42                	lw	s6,16(sp)
+600006fc:	4bb2                	lw	s7,12(sp)
+600006fe:	6145                	addi	sp,sp,48
+60000700:	8082                	ret
+
+60000702 <betrusted_boot::Gfx::msg>:
+    pub fn msg(&mut self, text: &'a str, pos: &mut Point) {
+60000702:	715d                	addi	sp,sp,-80
+60000704:	c686                	sw	ra,76(sp)
+60000706:	c4a2                	sw	s0,72(sp)
+60000708:	c2a6                	sw	s1,68(sp)
+6000070a:	c0ca                	sw	s2,64(sp)
+6000070c:	de4e                	sw	s3,60(sp)
+6000070e:	dc52                	sw	s4,56(sp)
+60000710:	da56                	sw	s5,52(sp)
+60000712:	d85a                	sw	s6,48(sp)
+60000714:	d65e                	sw	s7,44(sp)
+60000716:	d462                	sw	s8,40(sp)
+60000718:	d266                	sw	s9,36(sp)
+6000071a:	d06a                	sw	s10,32(sp)
+6000071c:	ce6e                	sw	s11,28(sp)
+6000071e:	cc36                	sw	a3,24(sp)
+60000720:	ca02                	sw	zero,20(sp)
+60000722:	c802                	sw	zero,16(sp)
+60000724:	962e                	add	a2,a2,a1
+60000726:	c632                	sw	a2,12(sp)
+60000728:	415c                	lw	a5,4(a0)
+6000072a:	c42a                	sw	a0,8(sp)
+6000072c:	4110                	lw	a2,0(a0)
+6000072e:	4319                	li	t1,6
+60000730:	4f29                	li	t5,10
+60000732:	4f95                	li	t6,5
+60000734:	49b5                	li	s3,13
+60000736:	06000a93          	li	s5,96
+6000073a:	44ed                	li	s1,27
+6000073c:	6a41                	lui	s4,0x10
+6000073e:	fffa0413          	addi	s0,s4,-1 # ffff <_stack_size+0xbfff>
+60000742:	60002537          	lui	a0,0x60002
+60000746:	84c50b13          	addi	s6,a0,-1972 # 6000184c <.Lanon.01042f9e07bac0588b13af07786e0e0c.1>
+6000074a:	16000b93          	li	s7,352
+6000074e:	4c05                	li	s8,1
+60000750:	4cad                	li	s9,11
+60000752:	00058503          	lb	a0,0(a1) # 40102000 <_stack_size+0x400fe000>
+60000756:	0ff57093          	zext.b	ra,a0
+6000075a:	00054463          	bltz	a0,60000762 <betrusted_boot::Gfx::msg+0x60>
+6000075e:	0585                	addi	a1,a1,1
+60000760:	a08d                	j	600007c2 <betrusted_boot::Gfx::msg+0xc0>
+60000762:	0015c703          	lbu	a4,1(a1)
+60000766:	01f0f513          	andi	a0,ra,31
+6000076a:	03f77713          	andi	a4,a4,63
+6000076e:	0df00693          	li	a3,223
+60000772:	0216ff63          	bgeu	a3,ra,600007b0 <betrusted_boot::Gfx::msg+0xae>
+60000776:	0025c803          	lbu	a6,2(a1)
+6000077a:	00671893          	slli	a7,a4,0x6
+6000077e:	03f87713          	andi	a4,a6,63
+60000782:	00e8e733          	or	a4,a7,a4
+60000786:	0f000693          	li	a3,240
+6000078a:	02d0e863          	bltu	ra,a3,600007ba <betrusted_boot::Gfx::msg+0xb8>
+6000078e:	0035c803          	lbu	a6,3(a1)
+60000792:	0576                	slli	a0,a0,0x1d
+60000794:	00b55893          	srli	a7,a0,0xb
+60000798:	071a                	slli	a4,a4,0x6
+6000079a:	03f87513          	andi	a0,a6,63
+6000079e:	8d59                	or	a0,a0,a4
+600007a0:	011560b3          	or	ra,a0,a7
+        // this routine is adapted from the embedded graphics crate https://docs.rs/embedded-graphics/0.7.1/embedded_graphics/
+        let char_per_row = FONT_IMAGE_WIDTH / CHAR_WIDTH;
+        let mut idx = 0;
+        let mut x_update: i16 = 0;
+        for current_char in text.chars() {
+600007a4:	00110537          	lui	a0,0x110
+600007a8:	1ca08b63          	beq	ra,a0,6000097e <betrusted_boot::Gfx::msg+0x27c>
+600007ac:	0591                	addi	a1,a1,4
+600007ae:	a811                	j	600007c2 <betrusted_boot::Gfx::msg+0xc0>
+600007b0:	0589                	addi	a1,a1,2
+600007b2:	051a                	slli	a0,a0,0x6
+600007b4:	00e560b3          	or	ra,a0,a4
+600007b8:	a029                	j	600007c2 <betrusted_boot::Gfx::msg+0xc0>
+600007ba:	058d                	addi	a1,a1,3
+600007bc:	0532                	slli	a0,a0,0xc
+600007be:	00a760b3          	or	ra,a4,a0
+600007c2:	fe008513          	addi	a0,ra,-32
+600007c6:	05f00693          	li	a3,95
+600007ca:	00d56363          	bltu	a0,a3,600007d0 <betrusted_boot::Gfx::msg+0xce>
+600007ce:	4501                	li	a0,0
+600007d0:	00455713          	srli	a4,a0,0x4
+600007d4:	893d                	andi	a0,a0,15
+600007d6:	02650533          	mul	a0,a0,t1
+600007da:	48000693          	li	a3,1152
+600007de:	02d70733          	mul	a4,a4,a3
+600007e2:	00e563b3          	or	t2,a0,a4
+                    + (char_walk_y * FONT_IMAGE_WIDTH);
+
+                let bitmap_byte = bitmap_bit_index / 8;
+                let bitmap_bit = 7 - (bitmap_bit_index % 8);
+
+                let color = if FONT_IMAGE[bitmap_byte as usize] & (1 << bitmap_bit) != 0 {
+600007e6:	0083d513          	srli	a0,t2,0x8
+                let bitmap_byte = bitmap_bit_index / 8;
+600007ea:	0033d713          	srli	a4,t2,0x3
+                let color = if FONT_IMAGE[bitmap_byte as usize] & (1 << bitmap_bit) != 0 {
+600007ee:	46e9                	li	a3,26
+600007f0:	14a6ea63          	bltu	a3,a0,60000944 <betrusted_boot::Gfx::msg+0x242>
+600007f4:	4562                	lw	a0,24(sp)
+600007f6:	00255d03          	lhu	s10,2(a0) # 110002 <_stack_size+0x10c002>
+600007fa:	00055d83          	lhu	s11,0(a0)
+600007fe:	4281                	li	t0,0
+60000800:	4e01                	li	t3,0
+60000802:	4552                	lw	a0,20(sp)
+60000804:	02650eb3          	mul	t4,a0,t1
+60000808:	831e                	mv	t1,t2
+6000080a:	0ff0f813          	zext.b	a6,ra
+6000080e:	09e80c63          	beq	a6,t5,600008a6 <betrusted_boot::Gfx::msg+0x1a4>
+                    + (CHAR_WIDTH * idx as u32) as i16
+                    + char_walk_x as i16;
+                let y = pos.y + char_walk_y as i16;
+
+                // draw color at x, y
+                if (current_char as u8 != 0xd) && (current_char as u8 != 0xa) { // don't draw CRLF specials
+60000812:	09380a63          	beq	a6,s3,600008a6 <betrusted_boot::Gfx::msg+0x1a4>
+                let y = pos.y + char_walk_y as i16;
+60000816:	01cd0533          	add	a0,s10,t3
+6000081a:	008578b3          	and	a7,a0,s0
+6000081e:	21700513          	li	a0,535
+        self.update_dirty();
+        while self.busy() {}
+    }
+    pub fn draw_pixel(&mut self, pix: Point, color: Color) {
+        let mut clip_y: usize = pix.y as usize;
+        if clip_y >= FB_LINES {
+60000822:	00a8e463          	bltu	a7,a0,6000082a <betrusted_boot::Gfx::msg+0x128>
+60000826:	21700893          	li	a7,535
+6000082a:	005e8533          	add	a0,t4,t0
+6000082e:	956e                	add	a0,a0,s11
+60000830:	008576b3          	and	a3,a0,s0
+60000834:	14f00913          	li	s2,335
+            clip_y = FB_LINES - 1;
+        }
+        let clip_x: usize = pix.x as usize;
+        if clip_x >= FB_WIDTH_PIXELS {
+60000838:	00d96363          	bltu	s2,a3,6000083e <betrusted_boot::Gfx::msg+0x13c>
+6000083c:	8946                	mv	s2,a7
+6000083e:	00eb06b3          	add	a3,s6,a4
+60000842:	0006c683          	lbu	a3,0(a3) # ff0000 <_stack_size+0xfec000>
+60000846:	fff34713          	not	a4,t1
+6000084a:	8b1d                	andi	a4,a4,7
+6000084c:	00e6d6b3          	srl	a3,a3,a4
+60000850:	8a85                	andi	a3,a3,1
+60000852:	0542                	slli	a0,a0,0x10
+60000854:	8541                	srai	a0,a0,0x10
+60000856:	03790733          	mul	a4,s2,s7
+6000085a:	972a                	add	a4,a4,a0
+6000085c:	8315                	srli	a4,a4,0x5
+            clip_y = FB_WIDTH_PIXELS - 1;
+        }
+        if color == Color::Light {
+6000085e:	ca99                	beqz	a3,60000874 <betrusted_boot::Gfx::msg+0x172>
+            self.fb[(clip_x + clip_y * FB_WIDTH_WORDS * 32) / 32] |= 1 << (clip_x % 32)
+60000860:	0ef77f63          	bgeu	a4,a5,6000095e <betrusted_boot::Gfx::msg+0x25c>
+60000864:	00271693          	slli	a3,a4,0x2
+60000868:	96b2                	add	a3,a3,a2
+6000086a:	4298                	lw	a4,0(a3)
+6000086c:	00ac1533          	sll	a0,s8,a0
+60000870:	8d59                	or	a0,a0,a4
+60000872:	a821                	j	6000088a <betrusted_boot::Gfx::msg+0x188>
+        } else {
+            self.fb[(clip_x + clip_y * FB_WIDTH_WORDS * 32) / 32] &= !(1 << (clip_x % 32))
+60000874:	0ef77a63          	bgeu	a4,a5,60000968 <betrusted_boot::Gfx::msg+0x266>
+60000878:	00271693          	slli	a3,a4,0x2
+6000087c:	96b2                	add	a3,a3,a2
+6000087e:	4298                	lw	a4,0(a3)
+60000880:	00ac1533          	sll	a0,s8,a0
+60000884:	fff54513          	not	a0,a0
+60000888:	8d79                	and	a0,a0,a4
+6000088a:	c288                	sw	a0,0(a3)
+        }
+        // set the dirty bit on the line that contains the pixel
+        self.fb[clip_y * FB_WIDTH_WORDS + (FB_WIDTH_WORDS - 1)] |= 0x1_0000;
+6000088c:	03990533          	mul	a0,s2,s9
+60000890:	00a50713          	addi	a4,a0,10
+60000894:	0cf77063          	bgeu	a4,a5,60000954 <betrusted_boot::Gfx::msg+0x252>
+60000898:	00271513          	slli	a0,a4,0x2
+6000089c:	9532                	add	a0,a0,a2
+6000089e:	4114                	lw	a3,0(a0)
+600008a0:	0146e6b3          	or	a3,a3,s4
+600008a4:	c114                	sw	a3,0(a0)
+                char_walk_x += 1;
+600008a6:	0285                	addi	t0,t0,1
+600008a8:	005ff763          	bgeu	t6,t0,600008b6 <betrusted_boot::Gfx::msg+0x1b4>
+                    char_walk_y += 1;
+600008ac:	0e05                	addi	t3,t3,1
+                    if char_walk_y >= CHAR_HEIGHT {
+600008ae:	4531                	li	a0,12
+600008b0:	02ae7063          	bgeu	t3,a0,600008d0 <betrusted_boot::Gfx::msg+0x1ce>
+600008b4:	4281                	li	t0,0
+                let bitmap_bit_index = char_x
+600008b6:	00538533          	add	a0,t2,t0
+                    + (char_walk_y * FONT_IMAGE_WIDTH);
+600008ba:	035e06b3          	mul	a3,t3,s5
+                let bitmap_bit_index = char_x
+600008be:	00d50333          	add	t1,a0,a3
+                let color = if FONT_IMAGE[bitmap_byte as usize] & (1 << bitmap_bit) != 0 {
+600008c2:	00835513          	srli	a0,t1,0x8
+                let bitmap_byte = bitmap_bit_index / 8;
+600008c6:	00335713          	srli	a4,t1,0x3
+600008ca:	f49560e3          	bltu	a0,s1,6000080a <betrusted_boot::Gfx::msg+0x108>
+600008ce:	a89d                	j	60000944 <betrusted_boot::Gfx::msg+0x242>
+                        if current_char as u8 == 0xd { // '\n'
+600008d0:	01e80a63          	beq	a6,t5,600008e4 <betrusted_boot::Gfx::msg+0x1e2>
+600008d4:	01381e63          	bne	a6,s3,600008f0 <betrusted_boot::Gfx::msg+0x1ee>
+                            pos.y += CHAR_HEIGHT as i16;
+600008d8:	00cd0513          	addi	a0,s10,12
+600008dc:	46e2                	lw	a3,24(sp)
+600008de:	00a69123          	sh	a0,2(a3)
+600008e2:	a829                	j	600008fc <betrusted_boot::Gfx::msg+0x1fa>
+600008e4:	c802                	sw	zero,16(sp)
+600008e6:	4da9                	li	s11,10
+                            pos.x = LEFT_MARGIN as i16;
+600008e8:	4562                	lw	a0,24(sp)
+600008ea:	01b51023          	sh	s11,0(a0)
+600008ee:	a039                	j	600008fc <betrusted_boot::Gfx::msg+0x1fa>
+                            idx += 1;
+600008f0:	4552                	lw	a0,20(sp)
+600008f2:	0505                	addi	a0,a0,1
+                            x_update += CHAR_WIDTH as i16;
+600008f4:	ca2a                	sw	a0,20(sp)
+600008f6:	4542                	lw	a0,16(sp)
+600008f8:	0519                	addi	a0,a0,6
+600008fa:	c82a                	sw	a0,16(sp)
+600008fc:	4319                	li	t1,6
+600008fe:	4532                	lw	a0,12(sp)
+60000900:	e4a599e3          	bne	a1,a0,60000752 <betrusted_boot::Gfx::msg+0x50>
+60000904:	4622                	lw	a2,8(sp)
+        // prevent re-ordering
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+    }
+    /// Write a given field without reading it first
+    pub fn wfo(&mut self, field: Field, value: T) {
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
+60000906:	4608                	lw	a0,8(a2)
+        pos.x += x_update;
+60000908:	45c2                	lw	a1,16(sp)
+6000090a:	95ee                	add	a1,a1,s11
+6000090c:	46e2                	lw	a3,24(sp)
+6000090e:	00b69023          	sh	a1,0(a3)
+60000912:	4585                	li	a1,1
+60000914:	c10c                	sw	a1,0(a0)
+60000916:	0330000f          	fence	rw,rw
+6000091a:	0330000f          	fence	rw,rw
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
+6000091e:	4608                	lw	a0,8(a2)
+60000920:	4148                	lw	a0,4(a0)
+        if self.csr.rf(utra::memlcd::BUSY_BUSY) == 1 {
+60000922:	8905                	andi	a0,a0,1
+60000924:	f97d                	bnez	a0,6000091a <betrusted_boot::Gfx::msg+0x218>
+    }
+60000926:	40b6                	lw	ra,76(sp)
+60000928:	4426                	lw	s0,72(sp)
+6000092a:	4496                	lw	s1,68(sp)
+6000092c:	4906                	lw	s2,64(sp)
+6000092e:	59f2                	lw	s3,60(sp)
+60000930:	5a62                	lw	s4,56(sp)
+60000932:	5ad2                	lw	s5,52(sp)
+60000934:	5b42                	lw	s6,48(sp)
+60000936:	5bb2                	lw	s7,44(sp)
+60000938:	5c22                	lw	s8,40(sp)
+6000093a:	5c92                	lw	s9,36(sp)
+6000093c:	5d02                	lw	s10,32(sp)
+6000093e:	4df2                	lw	s11,28(sp)
+60000940:	6161                	addi	sp,sp,80
+60000942:	8082                	ret
+                let color = if FONT_IMAGE[bitmap_byte as usize] & (1 << bitmap_bit) != 0 {
+60000944:	60002537          	lui	a0,0x60002
+60000948:	bc850613          	addi	a2,a0,-1080 # 60001bc8 <.Lanon.01042f9e07bac0588b13af07786e0e0c.3>
+6000094c:	36000593          	li	a1,864
+60000950:	853a                	mv	a0,a4
+60000952:	a00d                	j	60000974 <betrusted_boot::Gfx::msg+0x272>
+        self.fb[clip_y * FB_WIDTH_WORDS + (FB_WIDTH_WORDS - 1)] |= 0x1_0000;
+60000954:	60002537          	lui	a0,0x60002
+60000958:	bf850613          	addi	a2,a0,-1032 # 60001bf8 <.Lanon.01042f9e07bac0588b13af07786e0e0c.6>
+6000095c:	a811                	j	60000970 <betrusted_boot::Gfx::msg+0x26e>
+            self.fb[(clip_x + clip_y * FB_WIDTH_WORDS * 32) / 32] |= 1 << (clip_x % 32)
+6000095e:	60002537          	lui	a0,0x60002
+60000962:	bd850613          	addi	a2,a0,-1064 # 60001bd8 <.Lanon.01042f9e07bac0588b13af07786e0e0c.4>
+60000966:	a029                	j	60000970 <betrusted_boot::Gfx::msg+0x26e>
+            self.fb[(clip_x + clip_y * FB_WIDTH_WORDS * 32) / 32] &= !(1 << (clip_x % 32))
+60000968:	60002537          	lui	a0,0x60002
+6000096c:	be850613          	addi	a2,a0,-1048 # 60001be8 <.Lanon.01042f9e07bac0588b13af07786e0e0c.5>
+60000970:	853a                	mv	a0,a4
+60000972:	85be                	mv	a1,a5
+60000974:	00001097          	auipc	ra,0x1
+60000978:	ab0080e7          	jalr	-1360(ra) # 60001424 <core::panicking::panic_bounds_check>
+6000097c:	0000                	unimp
+        pos.x += x_update;
+6000097e:	4562                	lw	a0,24(sp)
+60000980:	00055d83          	lhu	s11,0(a0)
+60000984:	b741                	j	60000904 <betrusted_boot::Gfx::msg+0x202>
+
+60000986 <rust_entry>:
+        duart.puts("DUART up!\n");
     }
 }
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
-60000038:	600dc537          	lui	a0,0x600dc
-6000003c:	0de50513          	addi	a0,a0,222 # 600dc0de <_etext+0xdc046>
-60000040:	401085b7          	lui	a1,0x40108
-60000044:	c188                	sw	a0,0(a1)
-60000046:	0330000f          	fence	rw,rw
-6000004a:	5801a537          	lui	a0,0x5801a
-6000004e:	4108                	lw	a0,0(a0)
-60000050:	c188                	sw	a0,0(a1)
-60000052:	0330000f          	fence	rw,rw
-60000056:	40001537          	lui	a0,0x40001
-6000005a:	4585                	li	a1,1
-6000005c:	c14c                	sw	a1,4(a0)
-6000005e:	0330000f          	fence	rw,rw
-60000062:	600005b7          	lui	a1,0x60000
-60000066:	08c58593          	addi	a1,a1,140 # 6000008c <.Lanon.01042f9e07bac0588b13af07786e0e0c.1>
-6000006a:	00c58613          	addi	a2,a1,12
-6000006e:	86ae                	mv	a3,a1
+60000986:	715d                	addi	sp,sp,-80
+60000988:	c686                	sw	ra,76(sp)
+6000098a:	c4a2                	sw	s0,72(sp)
+6000098c:	c2a6                	sw	s1,68(sp)
+6000098e:	600dc537          	lui	a0,0x600dc
+60000992:	0de50593          	addi	a1,a0,222 # 600dc0de <_etext+0xda366>
+60000996:	40108537          	lui	a0,0x40108
+6000099a:	c10c                	sw	a1,0(a0)
+6000099c:	0330000f          	fence	rw,rw
+600009a0:	5801a5b7          	lui	a1,0x5801a
+600009a4:	418c                	lw	a1,0(a1)
+600009a6:	4601                	li	a2,0
+600009a8:	c10c                	sw	a1,0(a0)
+600009aa:	0330000f          	fence	rw,rw
+600009ae:	402025b7          	lui	a1,0x40202
+600009b2:	46c1                	li	a3,16
+600009b4:	c110                	sw	a2,0(a0)
+600009b6:	0330000f          	fence	rw,rw
+600009ba:	c190                	sw	a2,0(a1)
+600009bc:	0330000f          	fence	rw,rw
+600009c0:	41d8                	lw	a4,4(a1)
+600009c2:	00160793          	addi	a5,a2,1
+600009c6:	c118                	sw	a4,0(a0)
+600009c8:	0330000f          	fence	rw,rw
+600009cc:	863e                	mv	a2,a5
+600009ce:	fed793e3          	bne	a5,a3,600009b4 <rust_entry+0x2e>
+            pio.wo(pio_cr, i);
+            report.wfo(utra::main::REPORT_REPORT, pio.r(pio_sr));
         }
-        unsafe {(duart::HW_DUART_BASE as *mut u32).write_volatile(ch as u32) };
+
+        // ---------- vm setup -------------------------
+        satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
+600009d2:	fffff097          	auipc	ra,0xfffff
+600009d6:	770080e7          	jalr	1904(ra) # 60000142 <betrusted_boot::satp::satp_setup>
+600009da:	5a1d6537          	lui	a0,0x5a1d6
+600009de:	06050513          	addi	a0,a0,96 # 5a1d6060 <_stack_size+0x5a1d2060>
+600009e2:	40108437          	lui	s0,0x40108
+600009e6:	c008                	sw	a0,0(s0)
+600009e8:	0330000f          	fence	rw,rw
+
+600009ec <.Lpcrel_hi1>:
+        core::arch::asm!(
+600009ec:	00000297          	auipc	t0,0x0
+600009f0:	98828293          	addi	t0,t0,-1656 # 60000374 <_start_trap>
+
+600009f4 <.Lpcrel_hi2>:
+600009f4:	00000297          	auipc	t0,0x0
+600009f8:	9e228293          	addi	t0,t0,-1566 # 600003d6 <_start_trap_aligned>
+600009fc:	10529073          	csrw	stvec,t0
+60000a00:	1dcd0537          	lui	a0,0x1dcd0
+60000a04:	c008                	sw	a0,0(s0)
+60000a06:	0330000f          	fence	rw,rw
+60000a0a:	58004537          	lui	a0,0x58004
+60000a0e:	459d                	li	a1,7
+60000a10:	c54c                	sw	a1,12(a0)
+60000a12:	0330000f          	fence	rw,rw
+60000a16:	58005537          	lui	a0,0x58005
+60000a1a:	45bd                	li	a1,15
+60000a1c:	c54c                	sw	a1,12(a0)
+60000a1e:	0330000f          	fence	rw,rw
+60000a22:	58010537          	lui	a0,0x58010
+60000a26:	54fd                	li	s1,-1
+60000a28:	c544                	sw	s1,12(a0)
+60000a2a:	0330000f          	fence	rw,rw
+                    $asm_fn(bits);
+60000a2e:	4501                	li	a0,0
+60000a30:	00001097          	auipc	ra,0x1
+60000a34:	d96080e7          	jalr	-618(ra) # 600017c6 <__write_vsim>
+                    $asm_fn()
+60000a38:	00001097          	auipc	ra,0x1
+60000a3c:	d88080e7          	jalr	-632(ra) # 600017c0 <__read_vsim>
+    sim::write(sim::read() | (1 << irq_no));
+60000a40:	00156513          	ori	a0,a0,1
+                    $asm_fn(bits);
+60000a44:	00001097          	auipc	ra,0x1
+60000a48:	d82080e7          	jalr	-638(ra) # 600017c6 <__write_vsim>
+                    $asm_fn()
+60000a4c:	00001097          	auipc	ra,0x1
+60000a50:	d74080e7          	jalr	-652(ra) # 600017c0 <__read_vsim>
+60000a54:	00256513          	ori	a0,a0,2
+                    $asm_fn(bits);
+60000a58:	00001097          	auipc	ra,0x1
+60000a5c:	d6e080e7          	jalr	-658(ra) # 600017c6 <__write_vsim>
+                    $asm_fn()
+60000a60:	00001097          	auipc	ra,0x1
+60000a64:	d60080e7          	jalr	-672(ra) # 600017c0 <__read_vsim>
+60000a68:	00456513          	ori	a0,a0,4
+                    $asm_fn(bits);
+60000a6c:	00001097          	auipc	ra,0x1
+60000a70:	d5a080e7          	jalr	-678(ra) # 600017c6 <__write_vsim>
+60000a74:	5800f537          	lui	a0,0x5800f
+60000a78:	c544                	sw	s1,12(a0)
+60000a7a:	0330000f          	fence	rw,rw
+                    $asm_fn()
+60000a7e:	00001097          	auipc	ra,0x1
+60000a82:	d42080e7          	jalr	-702(ra) # 600017c0 <__read_vsim>
+60000a86:	000805b7          	lui	a1,0x80
+60000a8a:	8d4d                	or	a0,a0,a1
+                    $asm_fn(bits);
+60000a8c:	00001097          	auipc	ra,0x1
+60000a90:	d3a080e7          	jalr	-710(ra) # 600017c6 <__write_vsim>
+                    $asm_fn(bits);
+60000a94:	20000513          	li	a0,512
+60000a98:	20000493          	li	s1,512
+60000a9c:	00001097          	auipc	ra,0x1
+60000aa0:	d0c080e7          	jalr	-756(ra) # 600017a8 <__set_sie>
+60000aa4:	4501                	li	a0,0
+60000aa6:	1dcd65b7          	lui	a1,0x1dcd6
+60000aaa:	05b5                	addi	a1,a1,13 # 1dcd600d <_stack_size+0x1dcd200d>
+60000aac:	c00c                	sw	a1,0(s0)
+60000aae:	0330000f          	fence	rw,rw
+60000ab2:	5a1d05b7          	lui	a1,0x5a1d0
+60000ab6:	c00c                	sw	a1,0(s0)
+60000ab8:	0330000f          	fence	rw,rw
+60000abc:	580025b7          	lui	a1,0x58002
+60000ac0:	00150613          	addi	a2,a0,1 # 5800f001 <_stack_size+0x5800b001>
+60000ac4:	c188                	sw	a0,0(a1)
+60000ac6:	0330000f          	fence	rw,rw
+60000aca:	8532                	mv	a0,a2
+60000acc:	fe961ae3          	bne	a2,s1,60000ac0 <.Lpcrel_hi2+0xcc>
+60000ad0:	4501                	li	a0,0
+60000ad2:	4585                	li	a1,1
+        );
     }
-    pub fn puts(&mut self, s: &str) {
-        for c in s.as_bytes() {
-            self.putc(*c as char);
-60000070:	0006c703          	lbu	a4,0(a3)
-60000074:	0330000f          	fence	rw,rw
-60000078:	451c                	lw	a5,8(a0)
-        while self.csr.rf(duart::UART_BUSY_BUSY) != 0 {
-6000007a:	8b85                	andi	a5,a5,1
-6000007c:	ffe5                	bnez	a5,60000074 <rust_entry+0x3c>
-6000007e:	451c                	lw	a5,8(a0)
-        while unsafe{(duart::HW_DUART_BASE as *mut u32).add(2).read_volatile()} != 0 {
-60000080:	fffd                	bnez	a5,6000007e <rust_entry+0x46>
-60000082:	0685                	addi	a3,a3,1
-60000084:	c118                	sw	a4,0(a0)
-60000086:	fec695e3          	bne	a3,a2,60000070 <rust_entry+0x38>
-6000008a:	b7d5                	j	6000006e <rust_entry+0x36>
+
+    // set some ASIDs to trusted. Values picked to somewhat challenge the decoding
+    let trusted_asids = [1, 0x17, 0x18, 0x52, 0x57, 0x5A, 0x5F, 0x60, 0x61, 0x62, 0x116, 0x18F];
+    for asid in trusted_asids {
+60000ad4:	c42e                	sw	a1,8(sp)
+60000ad6:	45dd                	li	a1,23
+60000ad8:	c62e                	sw	a1,12(sp)
+60000ada:	45e1                	li	a1,24
+60000adc:	c82e                	sw	a1,16(sp)
+60000ade:	05200593          	li	a1,82
+60000ae2:	ca2e                	sw	a1,20(sp)
+60000ae4:	05700593          	li	a1,87
+60000ae8:	cc2e                	sw	a1,24(sp)
+60000aea:	05a00593          	li	a1,90
+60000aee:	ce2e                	sw	a1,28(sp)
+60000af0:	05f00593          	li	a1,95
+60000af4:	d02e                	sw	a1,32(sp)
+60000af6:	06000593          	li	a1,96
+60000afa:	d22e                	sw	a1,36(sp)
+60000afc:	06100593          	li	a1,97
+60000b00:	d42e                	sw	a1,40(sp)
+60000b02:	06200593          	li	a1,98
+60000b06:	d62e                	sw	a1,44(sp)
+60000b08:	11600593          	li	a1,278
+60000b0c:	d82e                	sw	a1,48(sp)
+60000b0e:	18f00593          	li	a1,399
+60000b12:	da2e                	sw	a1,52(sp)
+60000b14:	45b1                	li	a1,12
+60000b16:	de2e                	sw	a1,60(sp)
+60000b18:	002c                	addi	a1,sp,8
+60000b1a:	58002637          	lui	a2,0x58002
+60000b1e:	00150693          	addi	a3,a0,1
+60000b22:	dc36                	sw	a3,56(sp)
+60000b24:	050a                	slli	a0,a0,0x2
+60000b26:	952e                	add	a0,a0,a1
+60000b28:	4108                	lw	a0,0(a0)
+            .unwrap_or_default()
+    }
+    /// Shift & mask a value to its final field position
+    pub fn ms(&self, field: Field, value: T) -> T {
+        let value_as_usize: usize = value.try_into().unwrap_or_default();
+        ((value_as_usize & field.mask) << field.offset)
+60000b2a:	1ff57513          	andi	a0,a0,511
+        coreuser.wo(utra::coreuser::SET_ASID,
+            coreuser.ms(utra::coreuser::SET_ASID_ASID, asid)
+60000b2e:	20056513          	ori	a0,a0,512
+60000b32:	c208                	sw	a0,0(a2)
+60000b34:	0330000f          	fence	rw,rw
+60000b38:	56f2                	lw	a3,60(sp)
+60000b3a:	5562                	lw	a0,56(sp)
+60000b3c:	fea691e3          	bne	a3,a0,60000b1e <.Lpcrel_hi2+0x12a>
+60000b40:	4681                	li	a3,0
+60000b42:	58002537          	lui	a0,0x58002
+60000b46:	401085b7          	lui	a1,0x40108
+60000b4a:	20000613          	li	a2,512
+60000b4e:	c154                	sw	a3,4(a0)
+60000b50:	0330000f          	fence	rw,rw
+60000b54:	4518                	lw	a4,8(a0)
+60000b56:	00168793          	addi	a5,a3,1
+    }
+    // readback of table
+    for asid in 0..512 {
+        coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
+        report.wfo(utra::main::REPORT_REPORT,
+            coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
+60000b5a:	077e                	slli	a4,a4,0x1f
+60000b5c:	833d                	srli	a4,a4,0xf
+60000b5e:	8ed9                	or	a3,a3,a4
+60000b60:	c194                	sw	a3,0(a1)
+60000b62:	0330000f          	fence	rw,rw
+60000b66:	86be                	mv	a3,a5
+60000b68:	fec793e3          	bne	a5,a2,60000b4e <.Lpcrel_hi2+0x15a>
+60000b6c:	4581                	li	a1,0
+60000b6e:	58002537          	lui	a0,0x58002
+60000b72:	00061637          	lui	a2,0x61
+60000b76:	cd50                	sw	a2,28(a0)
+60000b78:	0330000f          	fence	rw,rw
+60000b7c:	cd10                	sw	a2,24(a0)
+60000b7e:	0330000f          	fence	rw,rw
+60000b82:	461d                	li	a2,7
+60000b84:	c910                	sw	a2,16(a0)
+60000b86:	0330000f          	fence	rw,rw
+60000b8a:	4605                	li	a2,1
+60000b8c:	c950                	sw	a2,20(a0)
+60000b8e:	0330000f          	fence	rw,rw
+60000b92:	00052a23          	sw	zero,20(a0) # 58002014 <_stack_size+0x57ffe014>
+60000b96:	0330000f          	fence	rw,rw
+60000b9a:	20200613          	li	a2,514
+60000b9e:	c110                	sw	a2,0(a0)
+60000ba0:	0330000f          	fence	rw,rw
+60000ba4:	6641                	lui	a2,0x10
+60000ba6:	ace60613          	addi	a2,a2,-1330 # face <_stack_size+0xbace>
+60000baa:	cd50                	sw	a2,28(a0)
+60000bac:	0330000f          	fence	rw,rw
+60000bb0:	6639                	lui	a2,0xe
+60000bb2:	ead60613          	addi	a2,a2,-339 # dead <_stack_size+0x9ead>
+60000bb6:	cd10                	sw	a2,24(a0)
+60000bb8:	0330000f          	fence	rw,rw
+60000bbc:	40108637          	lui	a2,0x40108
+60000bc0:	4691                	li	a3,4
+60000bc2:	c14c                	sw	a1,4(a0)
+60000bc4:	0330000f          	fence	rw,rw
+60000bc8:	4518                	lw	a4,8(a0)
+60000bca:	00158793          	addi	a5,a1,1 # 40108001 <_stack_size+0x40104001>
+    coreuser.wfo(utra::coreuser::WINDOW_AL_PPN, 0xdead as u32);
+    // partial readback of table; `2` should not be trusted
+    for asid in 0..4 {
+        coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
+        report.wfo(utra::main::REPORT_REPORT,
+    coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
+60000bce:	077e                	slli	a4,a4,0x1f
+60000bd0:	833d                	srli	a4,a4,0xf
+60000bd2:	8dd9                	or	a1,a1,a4
+60000bd4:	c20c                	sw	a1,0(a2)
+60000bd6:	0330000f          	fence	rw,rw
+60000bda:	85be                	mv	a1,a5
+60000bdc:	fed793e3          	bne	a5,a3,60000bc2 <.Lpcrel_hi2+0x1ce>
+60000be0:	4501                	li	a0,0
+60000be2:	5a1d05b7          	lui	a1,0x5a1d0
+60000be6:	0585                	addi	a1,a1,1 # 5a1d0001 <_stack_size+0x5a1cc001>
+60000be8:	40108637          	lui	a2,0x40108
+60000bec:	c20c                	sw	a1,0(a2)
+60000bee:	0330000f          	fence	rw,rw
+60000bf2:	20000593          	li	a1,512
+60000bf6:	80061637          	lui	a2,0x80061
+60000bfa:	004006b7          	lui	a3,0x400
+    // since we are in supervisor mode we can diddle with this at will, normally
+    // user processes can't change this
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0001);
+    for asid in 0..512 {
+        let satp: u32 =
+        0x8000_0000
+60000bfe:	00c56733          	or	a4,a0,a2
+        | asid << 22
+        | (ROOT_PT_PA as u32 >> 12);
+        unsafe {
+            core::arch::asm!(
+60000c02:	18071073          	csrw	satp,a4
+60000c06:	12000073          	sfence.vma
+60000c0a:	15fd                	addi	a1,a1,-1
+60000c0c:	9536                	add	a0,a0,a3
+60000c0e:	f9e5                	bnez	a1,60000bfe <.Lpcrel_hi2+0x20a>
+60000c10:	80461537          	lui	a0,0x80461
+    let satp: u32 =
+    0x8000_0000
+    | 1 << 22
+    | (ROOT_PT_PA as u32 >> 12);
+    unsafe {
+        core::arch::asm!(
+60000c14:	18051073          	csrw	satp,a0
+60000c18:	12000073          	sfence.vma
+60000c1c:	5a1d04b7          	lui	s1,0x5a1d0
+60000c20:	00248513          	addi	a0,s1,2 # 5a1d0002 <_stack_size+0x5a1cc002>
+60000c24:	40108437          	lui	s0,0x40108
+60000c28:	c008                	sw	a0,0(s0)
+60000c2a:	0330000f          	fence	rw,rw
+        );
+    }
+
+    // switch to user mode
+    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0002);
+    to_user_mode();
+60000c2e:	fffff097          	auipc	ra,0xfffff
+60000c32:	73c080e7          	jalr	1852(ra) # 6000036a <betrusted_boot::satp::to_user_mode>
+60000c36:	4501                	li	a0,0
+60000c38:	00348593          	addi	a1,s1,3
+60000c3c:	c00c                	sw	a1,0(s0)
+60000c3e:	0330000f          	fence	rw,rw
+60000c42:	810615b7          	lui	a1,0x81061
+    let satp: u32 =
+    0x8000_0000
+    | 4 << 22
+    | (ROOT_PT_PA as u32 >> 12);
+    unsafe {
+        core::arch::asm!(
+60000c46:	18059073          	csrw	satp,a1
+60000c4a:	12000073          	sfence.vma
+60000c4e:	0001                	nop
+60000c50:	0001                	nop
+60000c52:	0001                	nop
+60000c54:	00448593          	addi	a1,s1,4
+60000c58:	c00c                	sw	a1,0(s0)
+60000c5a:	0330000f          	fence	rw,rw
+60000c5e:	5a1d65b7          	lui	a1,0x5a1d6
+60000c62:	05b5                	addi	a1,a1,13 # 5a1d600d <_stack_size+0x5a1d200d>
+60000c64:	c00c                	sw	a1,0(s0)
+60000c66:	0330000f          	fence	rw,rw
+60000c6a:	3dcd06b7          	lui	a3,0x3dcd0
+60000c6e:	c014                	sw	a3,0(s0)
+60000c70:	0330000f          	fence	rw,rw
+60000c74:	00168593          	addi	a1,a3,1 # 3dcd0001 <_stack_size+0x3dccc001>
+60000c78:	c00c                	sw	a1,0(s0)
+60000c7a:	0330000f          	fence	rw,rw
+60000c7e:	4591                	li	a1,4
+60000c80:	cc0c                	sw	a1,24(s0)
+60000c82:	0330000f          	fence	rw,rw
+60000c86:	00268613          	addi	a2,a3,2
+60000c8a:	c010                	sw	a2,0(s0)
+60000c8c:	0330000f          	fence	rw,rw
+60000c90:	4605                	li	a2,1
+60000c92:	cc50                	sw	a2,28(s0)
+60000c94:	0330000f          	fence	rw,rw
+60000c98:	068d                	addi	a3,a3,3
+60000c9a:	c014                	sw	a3,0(s0)
+60000c9c:	0330000f          	fence	rw,rw
+60000ca0:	580106b7          	lui	a3,0x58010
+60000ca4:	08000713          	li	a4,128
+60000ca8:	c298                	sw	a4,0(a3)
+60000caa:	0330000f          	fence	rw,rw
+60000cae:	3dcd66b7          	lui	a3,0x3dcd6
+60000cb2:	06b5                	addi	a3,a3,13 # 3dcd600d <_stack_size+0x3dcd200d>
+60000cb4:	c014                	sw	a3,0(s0)
+60000cb6:	0330000f          	fence	rw,rw
+60000cba:	c52006b7          	lui	a3,0xc5200
+60000cbe:	c014                	sw	a3,0(s0)
+60000cc0:	0330000f          	fence	rw,rw
+60000cc4:	580036b7          	lui	a3,0x58003
+60000cc8:	10000737          	lui	a4,0x10000
+60000ccc:	c288                	sw	a0,0(a3)
+60000cce:	0330000f          	fence	rw,rw
+60000cd2:	42dc                	lw	a5,4(a3)
+60000cd4:	c01c                	sw	a5,0(s0)
+60000cd6:	0330000f          	fence	rw,rw
+            csrtest.wfo(utra::csrtest::WTEST_WTEST, i);
+            let val = csrtest.rf(utra::csrtest::RTEST_RTEST);
+            report.wfo(utra::main::REPORT_REPORT,
+                val
+            );
+            if val != i + 0x1000_0000 {
+60000cda:	00e504b3          	add	s1,a0,a4
+60000cde:	8fa5                	xor	a5,a5,s1
+60000ce0:	0017b793          	seqz	a5,a5
+60000ce4:	0505                	addi	a0,a0,1 # 80461001 <_lcdfb+0xd0461001>
+60000ce6:	8e7d                	and	a2,a2,a5
+60000ce8:	feb512e3          	bne	a0,a1,60000ccc <.Lpcrel_hi2+0x2d8>
+                passing = false;
+            }
+        }
+        if passing {
+60000cec:	e611                	bnez	a2,60000cf8 <.Lpcrel_hi2+0x304>
+60000cee:	c520e537          	lui	a0,0xc520e
+60000cf2:	ead50593          	addi	a1,a0,-339 # c520dead <_lcdfb+0x1520dead>
+60000cf6:	a029                	j	60000d00 <.Lpcrel_hi2+0x30c>
+60000cf8:	c5206537          	lui	a0,0xc5206
+60000cfc:	00d50593          	addi	a1,a0,13 # c520600d <_lcdfb+0x1520600d>
+60000d00:	40108537          	lui	a0,0x40108
+60000d04:	c10c                	sw	a1,0(a0)
+60000d06:	0330000f          	fence	rw,rw
+60000d0a:	03f105b7          	lui	a1,0x3f10
+60000d0e:	c10c                	sw	a1,0(a0)
+60000d10:	0330000f          	fence	rw,rw
+    unsafe { core::arch::asm!(
+60000d14:	10500073          	wfi
+60000d18:	03f165b7          	lui	a1,0x3f16
+60000d1c:	05b5                	addi	a1,a1,13 # 3f1600d <_stack_size+0x3f1200d>
+60000d1e:	c10c                	sw	a1,0(a0)
+60000d20:	0330000f          	fence	rw,rw
+60000d24:	000cb5b7          	lui	a1,0xcb
+60000d28:	c7e58593          	addi	a1,a1,-898 # cac7e <_stack_size+0xc6c7e>
+60000d2c:	c10c                	sw	a1,0(a0)
+60000d2e:	0330000f          	fence	rw,rw
+60000d32:	4591                	li	a1,4
+60000d34:	61000637          	lui	a2,0x61000
+60000d38:	001116b7          	lui	a3,0x111
+60000d3c:	11168493          	addi	s1,a3,273 # 111111 <_stack_size+0x10d111>
+60000d40:	6705                	lui	a4,0x1
+60000d42:	610007b7          	lui	a5,0x61000
+60000d46:	86a6                	mv	a3,s1
+60000d48:	c110                	sw	a2,0(a0)
+60000d4a:	0330000f          	fence	rw,rw
+60000d4e:	c394                	sw	a3,0(a5)
+60000d50:	15fd                	addi	a1,a1,-1
+60000d52:	96a6                	add	a3,a3,s1
+60000d54:	97ba                	add	a5,a5,a4
+60000d56:	963a                	add	a2,a2,a4
+60000d58:	f9e5                	bnez	a1,60000d48 <.Lpcrel_hi2+0x354>
+60000d5a:	4511                	li	a0,4
+60000d5c:	110025b7          	lui	a1,0x11002
+60000d60:	22258493          	addi	s1,a1,546 # 11002222 <_stack_size+0x10ffe222>
+60000d64:	610015b7          	lui	a1,0x61001
+60000d68:	ffc58613          	addi	a2,a1,-4 # 61000ffc <_ebss+0xffc>
+60000d6c:	401086b7          	lui	a3,0x40108
+60000d70:	6705                	lui	a4,0x1
+60000d72:	87b2                	mv	a5,a2
+60000d74:	85a6                	mv	a1,s1
+60000d76:	c290                	sw	a2,0(a3)
+60000d78:	0330000f          	fence	rw,rw
+60000d7c:	c38c                	sw	a1,0(a5)
+60000d7e:	157d                	addi	a0,a0,-1 # 40107fff <_stack_size+0x40103fff>
+60000d80:	95a6                	add	a1,a1,s1
+60000d82:	97ba                	add	a5,a5,a4
+60000d84:	963a                	add	a2,a2,a4
+60000d86:	f965                	bnez	a0,60000d76 <.Lpcrel_hi2+0x382>
+60000d88:	4505                	li	a0,1
+60000d8a:	b1d006b7          	lui	a3,0xb1d00
+60000d8e:	00168713          	addi	a4,a3,1 # b1d00001 <_lcdfb+0x1d00001>
+60000d92:	401085b7          	lui	a1,0x40108
+60000d96:	6605                	lui	a2,0x1
+60000d98:	0689                	addi	a3,a3,2
+60000d9a:	c198                	sw	a4,0(a1)
+60000d9c:	0330000f          	fence	rw,rw
+60000da0:	4711                	li	a4,4
+60000da2:	610007b7          	lui	a5,0x61000
+60000da6:	4384                	lw	s1,0(a5)
+60000da8:	7ff78413          	addi	s0,a5,2047 # 610007ff <_ebss+0x7ff>
+60000dac:	c184                	sw	s1,0(a1)
+60000dae:	0330000f          	fence	rw,rw
+60000db2:	7fd42483          	lw	s1,2045(s0) # 401087fd <_stack_size+0x401047fd>
+60000db6:	c184                	sw	s1,0(a1)
+60000db8:	0330000f          	fence	rw,rw
+60000dbc:	177d                	addi	a4,a4,-1 # fff <_hart_stack_size+0x7ff>
+60000dbe:	97b2                	add	a5,a5,a2
+60000dc0:	f37d                	bnez	a4,60000da6 <.Lpcrel_hi2+0x3b2>
+60000dc2:	00157793          	andi	a5,a0,1
+60000dc6:	8736                	mv	a4,a3
+60000dc8:	4501                	li	a0,0
+60000dca:	fbe1                	bnez	a5,60000d9a <.Lpcrel_hi2+0x3a6>
+60000dcc:	ff010537          	lui	a0,0xff010
+60000dd0:	f0050593          	addi	a1,a0,-256 # ff00ff00 <_lcdfb+0x4f00ff00>
+60000dd4:	40108537          	lui	a0,0x40108
+60000dd8:	c10c                	sw	a1,0(a0)
+60000dda:	0330000f          	fence	rw,rw
+                report.wfo(utra::main::REPORT_REPORT, b);
+            }
+        }
+        // flush cache
+        report.wfo(utra::main::REPORT_REPORT, 0xff00_ff00);
+        core::arch::asm!(
+60000dde:	0000500f          	.4byte	0x500f
+60000de2:	0f0f15b7          	lui	a1,0xf0f1
+60000de6:	f0f58593          	addi	a1,a1,-241 # f0f0f0f <_stack_size+0xf0ecf0f>
+60000dea:	c10c                	sw	a1,0(a0)
+60000dec:	0330000f          	fence	rw,rw
+60000df0:	4585                	li	a1,1
+60000df2:	b2d006b7          	lui	a3,0xb2d00
+60000df6:	00168713          	addi	a4,a3,1 # b2d00001 <_lcdfb+0x2d00001>
+60000dfa:	6605                	lui	a2,0x1
+60000dfc:	0689                	addi	a3,a3,2
+60000dfe:	c118                	sw	a4,0(a0)
+60000e00:	0330000f          	fence	rw,rw
+60000e04:	4711                	li	a4,4
+60000e06:	610007b7          	lui	a5,0x61000
+60000e0a:	4384                	lw	s1,0(a5)
+60000e0c:	7ff78413          	addi	s0,a5,2047 # 610007ff <_ebss+0x7ff>
+60000e10:	c104                	sw	s1,0(a0)
+60000e12:	0330000f          	fence	rw,rw
+60000e16:	7fd42483          	lw	s1,2045(s0)
+60000e1a:	c104                	sw	s1,0(a0)
+60000e1c:	0330000f          	fence	rw,rw
+60000e20:	177d                	addi	a4,a4,-1
+60000e22:	97b2                	add	a5,a5,a2
+60000e24:	f37d                	bnez	a4,60000e0a <.Lpcrel_hi2+0x416>
+60000e26:	0015f793          	andi	a5,a1,1
+60000e2a:	8736                	mv	a4,a3
+60000e2c:	4581                	li	a1,0
+60000e2e:	fbe1                	bnez	a5,60000dfe <.Lpcrel_hi2+0x40a>
+60000e30:	600cb537          	lui	a0,0x600cb
+60000e34:	c7e50593          	addi	a1,a0,-898 # 600cac7e <_etext+0xc8f06>
+60000e38:	40108537          	lui	a0,0x40108
+60000e3c:	c10c                	sw	a1,0(a0)
+60000e3e:	0330000f          	fence	rw,rw
+60000e42:	123405b7          	lui	a1,0x12340
+60000e46:	c54c                	sw	a1,12(a0)
+60000e48:	0330000f          	fence	rw,rw
+60000e4c:	06400613          	li	a2,100
+60000e50:	0330000f          	fence	rw,rw
+60000e54:	490c                	lw	a1,16(a0)
+60000e56:	c54c                	sw	a1,12(a0)
+60000e58:	167d                	addi	a2,a2,-1 # fff <_hart_stack_size+0x7ff>
+60000e5a:	0330000f          	fence	rw,rw
+60000e5e:	fa6d                	bnez	a2,60000e50 <.Lpcrel_hi2+0x45c>
+60000e60:	12340537          	lui	a0,0x12340
+60000e64:	1f450613          	addi	a2,a0,500 # 123401f4 <_stack_size+0x1233c1f4>
+60000e68:	40108537          	lui	a0,0x40108
+60000e6c:	c110                	sw	a2,0(a0)
+60000e6e:	0330000f          	fence	rw,rw
+            checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
+            report.wfo(utra::main::WDATA_WDATA, checkdata);
+            // report.wfo(utra::main::REPORT_REPORT, checkdata);
+            checkstate += 5;
+        }
+        if checkdata == checkstate {
+60000e72:	00c59563          	bne	a1,a2,60000e7c <.Lpcrel_hi2+0x488>
+60000e76:	600d05b7          	lui	a1,0x600d0
+60000e7a:	a031                	j	60000e86 <.Lpcrel_hi2+0x492>
+60000e7c:	c10c                	sw	a1,0(a0)
+60000e7e:	0330000f          	fence	rw,rw
+60000e82:	0bad05b7          	lui	a1,0xbad0
+60000e86:	00158613          	addi	a2,a1,1 # bad0001 <_stack_size+0xbacc001>
+60000e8a:	4581                	li	a1,0
+60000e8c:	c110                	sw	a2,0(a0)
+60000e8e:	0330000f          	fence	rw,rw
+60000e92:	4651                	li	a2,20
+60000e94:	0330000f          	fence	rw,rw
+60000e98:	4954                	lw	a3,20(a0)
+60000e9a:	167d                	addi	a2,a2,-1
+        let mut checkdata = 0; // tracked value via simulation
+        let mut computed = 0; // computed value by reading the hardare block
+        let mut devstate = 0; // what the state should be
+        for _ in 0..20 {
+            let readout = report.rf(utra::main::RINC_RINC);
+            computed += readout;
+60000e9c:	95b6                	add	a1,a1,a3
+60000e9e:	fa7d                	bnez	a2,60000e94 <.Lpcrel_hi2+0x4a0>
+60000ea0:	40108537          	lui	a0,0x40108
+60000ea4:	23a00613          	li	a2,570
+60000ea8:	c110                	sw	a2,0(a0)
+60000eaa:	0330000f          	fence	rw,rw
+            // report.wfo(utra::main::REPORT_REPORT, readout);
+            checkdata += devstate;
+            devstate += 3;
+        }
+        if checkdata == computed {
+60000eae:	00c59563          	bne	a1,a2,60000eb8 <.Lpcrel_hi2+0x4c4>
+60000eb2:	600d05b7          	lui	a1,0x600d0
+60000eb6:	a031                	j	60000ec2 <.Lpcrel_hi2+0x4ce>
+60000eb8:	c10c                	sw	a1,0(a0)
+60000eba:	0330000f          	fence	rw,rw
+60000ebe:	0bad05b7          	lui	a1,0xbad0
+60000ec2:	00258613          	addi	a2,a1,2 # bad0002 <_stack_size+0xbacc002>
+60000ec6:	4581                	li	a1,0
+60000ec8:	c110                	sw	a2,0(a0)
+60000eca:	0330000f          	fence	rw,rw
+60000ece:	61008537          	lui	a0,0x61008
+60000ed2:	00052023          	sw	zero,0(a0) # 61008000 <_estack+0x4000>
+60000ed6:	4685                	li	a3,1
+60000ed8:	5fd00613          	li	a2,1533
+        (&mut test_slice[state as usize] as *mut T).write_volatile(wr_val.try_into().unwrap_or_default());
+60000edc:	01069713          	slli	a4,a3,0x10
+60000ee0:	8341                	srli	a4,a4,0x10
+60000ee2:	00271793          	slli	a5,a4,0x2
+60000ee6:	97aa                	add	a5,a5,a0
+60000ee8:	c38c                	sw	a1,0(a5)
+    let bit = ((state >> 8) ^
+60000eea:	00875793          	srli	a5,a4,0x8
+               (state >>  4)) & 1;
+60000eee:	8311                	srli	a4,a4,0x4
+    let bit = ((state >> 8) ^
+60000ef0:	8f3d                	xor	a4,a4,a5
+60000ef2:	8b05                	andi	a4,a4,1
+    ((state << 1) + bit) & 0x1_FF
+60000ef4:	06e2                	slli	a3,a3,0x18
+60000ef6:	82dd                	srli	a3,a3,0x17
+60000ef8:	058d                	addi	a1,a1,3
+60000efa:	8ed9                	or	a3,a3,a4
+60000efc:	fec590e3          	bne	a1,a2,60000edc <.Lpcrel_hi2+0x4e8>
+60000f00:	4581                	li	a1,0
+60000f02:	4501                	li	a0,0
+60000f04:	ff010637          	lui	a2,0xff010
+60000f08:	f0060613          	addi	a2,a2,-256 # ff00ff00 <_lcdfb+0x4f00ff00>
+60000f0c:	401086b7          	lui	a3,0x40108
+60000f10:	c290                	sw	a2,0(a3)
+60000f12:	0330000f          	fence	rw,rw
+    core::arch::asm!(
+60000f16:	0000500f          	.4byte	0x500f
+60000f1a:	0f0f1637          	lui	a2,0xf0f1
+60000f1e:	f0f60613          	addi	a2,a2,-241 # f0f0f0f <_stack_size+0xf0ecf0f>
+60000f22:	c290                	sw	a2,0(a3)
+60000f24:	0330000f          	fence	rw,rw
+60000f28:	61008637          	lui	a2,0x61008
+60000f2c:	6685                	lui	a3,0x1
+60000f2e:	80068693          	addi	a3,a3,-2048 # 800 <_hart_stack_size>
+60000f32:	00c58733          	add	a4,a1,a2
+60000f36:	4318                	lw	a4,0(a4)
+60000f38:	0591                	addi	a1,a1,4
+        checksum += a;
+60000f3a:	953a                	add	a0,a0,a4
+60000f3c:	fed59be3          	bne	a1,a3,60000f32 <.Lpcrel_hi2+0x53e>
+60000f40:	0005f5b7          	lui	a1,0x5f
+60000f44:	70358593          	addi	a1,a1,1795 # 5f703 <_stack_size+0x5b703>
+    if sum == checksum {
+60000f48:	00b51563          	bne	a0,a1,60000f52 <.Lpcrel_hi2+0x55e>
+60000f4c:	600d0537          	lui	a0,0x600d0
+60000f50:	a801                	j	60000f60 <.Lpcrel_hi2+0x56c>
+60000f52:	40108637          	lui	a2,0x40108
+60000f56:	c208                	sw	a0,0(a2)
+60000f58:	0330000f          	fence	rw,rw
+60000f5c:	0bad0537          	lui	a0,0xbad0
+60000f60:	00350613          	addi	a2,a0,3 # bad0003 <_stack_size+0xbacc003>
+60000f64:	4501                	li	a0,0
+60000f66:	4681                	li	a3,0
+60000f68:	40108737          	lui	a4,0x40108
+60000f6c:	c30c                	sw	a1,0(a4)
+60000f6e:	0330000f          	fence	rw,rw
+60000f72:	c310                	sw	a2,0(a4)
+60000f74:	0330000f          	fence	rw,rw
+60000f78:	61008637          	lui	a2,0x61008
+60000f7c:	40060593          	addi	a1,a2,1024 # 61008400 <_estack+0x4400>
+60000f80:	00460713          	addi	a4,a2,4
+60000f84:	c214                	sw	a3,0(a2)
+60000f86:	00168613          	addi	a2,a3,1
+        sum += TryInto::<u32>::try_into(index).unwrap();
+60000f8a:	9536                	add	a0,a0,a3
+60000f8c:	86b2                	mv	a3,a2
+60000f8e:	863a                	mv	a2,a4
+60000f90:	feb718e3          	bne	a4,a1,60000f80 <.Lpcrel_hi2+0x58c>
+60000f94:	4581                	li	a1,0
+60000f96:	610086b7          	lui	a3,0x61008
+60000f9a:	40068613          	addi	a2,a3,1024 # 61008400 <_estack+0x4400>
+60000f9e:	4298                	lw	a4,0(a3)
+60000fa0:	00468793          	addi	a5,a3,4
+        checksum += a;
+60000fa4:	95ba                	add	a1,a1,a4
+60000fa6:	86be                	mv	a3,a5
+60000fa8:	fec79be3          	bne	a5,a2,60000f9e <.Lpcrel_hi2+0x5aa>
+    if sum == checksum {
+60000fac:	00b51563          	bne	a0,a1,60000fb6 <.Lpcrel_hi2+0x5c2>
+60000fb0:	600d05b7          	lui	a1,0x600d0
+60000fb4:	a801                	j	60000fc4 <.Lpcrel_hi2+0x5d0>
+60000fb6:	40108637          	lui	a2,0x40108
+60000fba:	c20c                	sw	a1,0(a2)
+60000fbc:	0330000f          	fence	rw,rw
+60000fc0:	0bad05b7          	lui	a1,0xbad0
+60000fc4:	00458613          	addi	a2,a1,4 # bad0004 <_stack_size+0xbacc004>
+60000fc8:	4581                	li	a1,0
+60000fca:	401086b7          	lui	a3,0x40108
+60000fce:	c288                	sw	a0,0(a3)
+60000fd0:	0330000f          	fence	rw,rw
+60000fd4:	c290                	sw	a2,0(a3)
+60000fd6:	0330000f          	fence	rw,rw
+60000fda:	610086b7          	lui	a3,0x61008
+60000fde:	10000513          	li	a0,256
+60000fe2:	4621                	li	a2,8
+60000fe4:	02000793          	li	a5,32
+60000fe8:	872a                	mv	a4,a0
+60000fea:	00f56463          	bltu	a0,a5,60000ff2 <.Lpcrel_hi2+0x5fe>
+60000fee:	02000713          	li	a4,32
+60000ff2:	00158793          	addi	a5,a1,1
+60000ff6:	00b68023          	sb	a1,0(a3) # 61008000 <_estack+0x4000>
+60000ffa:	00f680a3          	sb	a5,1(a3)
+60000ffe:	96ba                	add	a3,a3,a4
+60001000:	8d19                	sub	a0,a0,a4
+60001002:	85be                	mv	a1,a5
+60001004:	fec790e3          	bne	a5,a2,60000fe4 <.Lpcrel_hi2+0x5f0>
+60001008:	4501                	li	a0,0
+6000100a:	61008637          	lui	a2,0x61008
+6000100e:	10000593          	li	a1,256
+60001012:	02000713          	li	a4,32
+60001016:	86ae                	mv	a3,a1
+60001018:	00e5e463          	bltu	a1,a4,60001020 <.Lpcrel_hi2+0x62c>
+6000101c:	02000693          	li	a3,32
+60001020:	00064703          	lbu	a4,0(a2) # 61008000 <_estack+0x4000>
+60001024:	00164783          	lbu	a5,1(a2)
+60001028:	9636                	add	a2,a2,a3
+6000102a:	8d95                	sub	a1,a1,a3
+        checksum = checksum + a + b;
+6000102c:	953a                	add	a0,a0,a4
+6000102e:	953e                	add	a0,a0,a5
+60001030:	f1ed                	bnez	a1,60001012 <.Lpcrel_hi2+0x61e>
+60001032:	04000593          	li	a1,64
+    if sum == checksum {
+60001036:	00b51563          	bne	a0,a1,60001040 <.Lpcrel_hi2+0x64c>
+6000103a:	600d0537          	lui	a0,0x600d0
+6000103e:	a801                	j	6000104e <.Lpcrel_hi2+0x65a>
+60001040:	40108637          	lui	a2,0x40108
+60001044:	c208                	sw	a0,0(a2)
+60001046:	0330000f          	fence	rw,rw
+6000104a:	0bad0537          	lui	a0,0xbad0
+6000104e:	00550613          	addi	a2,a0,5 # bad0005 <_stack_size+0xbacc005>
+60001052:	4481                	li	s1,0
+60001054:	401086b7          	lui	a3,0x40108
+60001058:	c28c                	sw	a1,0(a3)
+6000105a:	0330000f          	fence	rw,rw
+6000105e:	c290                	sw	a2,0(a3)
+60001060:	0330000f          	fence	rw,rw
+60001064:	610086b7          	lui	a3,0x61008
+60001068:	20000593          	li	a1,512
+6000106c:	02000613          	li	a2,32
+60001070:	47c1                	li	a5,16
+60001072:	872e                	mv	a4,a1
+60001074:	00f5e363          	bltu	a1,a5,6000107a <.Lpcrel_hi2+0x686>
+60001078:	4741                	li	a4,16
+6000107a:	00171793          	slli	a5,a4,0x1
+6000107e:	00148513          	addi	a0,s1,1
+60001082:	00969023          	sh	s1,0(a3) # 61008000 <_estack+0x4000>
+60001086:	00a69123          	sh	a0,2(a3)
+6000108a:	96be                	add	a3,a3,a5
+6000108c:	8d99                	sub	a1,a1,a4
+6000108e:	84aa                	mv	s1,a0
+60001090:	fec510e3          	bne	a0,a2,60001070 <.Lpcrel_hi2+0x67c>
+60001094:	4501                	li	a0,0
+60001096:	61008637          	lui	a2,0x61008
+6000109a:	20000593          	li	a1,512
+6000109e:	4741                	li	a4,16
+600010a0:	86ae                	mv	a3,a1
+600010a2:	00e5e363          	bltu	a1,a4,600010a8 <.Lpcrel_hi2+0x6b4>
+600010a6:	46c1                	li	a3,16
+600010a8:	00169713          	slli	a4,a3,0x1
+600010ac:	00065783          	lhu	a5,0(a2) # 61008000 <_estack+0x4000>
+600010b0:	00265483          	lhu	s1,2(a2)
+600010b4:	963a                	add	a2,a2,a4
+600010b6:	8d95                	sub	a1,a1,a3
+        checksum = checksum + a + b;
+600010b8:	953e                	add	a0,a0,a5
+600010ba:	9526                	add	a0,a0,s1
+600010bc:	f1ed                	bnez	a1,6000109e <.Lpcrel_hi2+0x6aa>
+600010be:	40000593          	li	a1,1024
+    if sum == checksum {
+600010c2:	00b51563          	bne	a0,a1,600010cc <.Lpcrel_hi2+0x6d8>
+600010c6:	600d0537          	lui	a0,0x600d0
+600010ca:	a801                	j	600010da <.Lpcrel_hi2+0x6e6>
+600010cc:	40108637          	lui	a2,0x40108
+600010d0:	c208                	sw	a0,0(a2)
+600010d2:	0330000f          	fence	rw,rw
+600010d6:	0bad0537          	lui	a0,0xbad0
+600010da:	00650693          	addi	a3,a0,6 # bad0006 <_stack_size+0xbacc006>
+600010de:	4501                	li	a0,0
+600010e0:	4601                	li	a2,0
+600010e2:	40108737          	lui	a4,0x40108
+600010e6:	c30c                	sw	a1,0(a4)
+600010e8:	0330000f          	fence	rw,rw
+600010ec:	c314                	sw	a3,0(a4)
+600010ee:	0330000f          	fence	rw,rw
+600010f2:	610086b7          	lui	a3,0x61008
+600010f6:	6589                	lui	a1,0x2
+600010f8:	80058593          	addi	a1,a1,-2048 # 1800 <_hart_stack_size+0x1000>
+600010fc:	47a1                	li	a5,8
+600010fe:	872e                	mv	a4,a1
+60001100:	00f5e363          	bltu	a1,a5,60001106 <.Lpcrel_hi2+0x712>
+60001104:	4721                	li	a4,8
+60001106:	8d99                	sub	a1,a1,a4
+60001108:	070a                	slli	a4,a4,0x2
+        sum += TryInto::<u32>::try_into(index).unwrap();
+6000110a:	9532                	add	a0,a0,a2
+6000110c:	c290                	sw	a2,0(a3)
+6000110e:	0605                	addi	a2,a2,1 # 40108001 <_stack_size+0x40104001>
+60001110:	c2d0                	sw	a2,4(a3)
+60001112:	96ba                	add	a3,a3,a4
+        sum += TryInto::<u32>::try_into(idxp1).unwrap();
+60001114:	9532                	add	a0,a0,a2
+60001116:	f5e5                	bnez	a1,600010fe <.Lpcrel_hi2+0x70a>
+60001118:	610086b7          	lui	a3,0x61008
+6000111c:	6609                	lui	a2,0x2
+6000111e:	80060613          	addi	a2,a2,-2048 # 1800 <_hart_stack_size+0x1000>
+60001122:	47a1                	li	a5,8
+60001124:	8732                	mv	a4,a2
+60001126:	00f66363          	bltu	a2,a5,6000112c <.Lpcrel_hi2+0x738>
+6000112a:	4721                	li	a4,8
+6000112c:	00271793          	slli	a5,a4,0x2
+60001130:	4284                	lw	s1,0(a3)
+60001132:	42c0                	lw	s0,4(a3)
+60001134:	96be                	add	a3,a3,a5
+60001136:	8e19                	sub	a2,a2,a4
+        checksum = checksum + a + b;
+60001138:	95a6                	add	a1,a1,s1
+6000113a:	95a2                	add	a1,a1,s0
+6000113c:	f27d                	bnez	a2,60001122 <.Lpcrel_hi2+0x72e>
+    if sum == checksum {
+6000113e:	00b51563          	bne	a0,a1,60001148 <.Lpcrel_hi2+0x754>
+60001142:	600d05b7          	lui	a1,0x600d0
+60001146:	a801                	j	60001156 <.Lpcrel_hi2+0x762>
+60001148:	40108637          	lui	a2,0x40108
+6000114c:	c20c                	sw	a1,0(a2)
+6000114e:	0330000f          	fence	rw,rw
+60001152:	0bad05b7          	lui	a1,0xbad0
+60001156:	00758713          	addi	a4,a1,7 # bad0007 <_stack_size+0xbacc007>
+6000115a:	4601                	li	a2,0
+6000115c:	4581                	li	a1,0
+6000115e:	4681                	li	a3,0
+60001160:	401087b7          	lui	a5,0x40108
+60001164:	c388                	sw	a0,0(a5)
+60001166:	0330000f          	fence	rw,rw
+6000116a:	c398                	sw	a4,0(a5)
+6000116c:	0330000f          	fence	rw,rw
+60001170:	61008737          	lui	a4,0x61008
+60001174:	6509                	lui	a0,0x2
+60001176:	80050513          	addi	a0,a0,-2048 # 1800 <_hart_stack_size+0x1000>
+6000117a:	44a1                	li	s1,8
+6000117c:	87aa                	mv	a5,a0
+6000117e:	00956363          	bltu	a0,s1,60001184 <.Lpcrel_hi2+0x790>
+60001182:	47a1                	li	a5,8
+60001184:	8d1d                	sub	a0,a0,a5
+60001186:	078a                	slli	a5,a5,0x2
+60001188:	c314                	sw	a3,0(a4)
+6000118a:	c354                	sw	a3,4(a4)
+6000118c:	973e                	add	a4,a4,a5
+6000118e:	0685                	addi	a3,a3,1 # 61008001 <_estack+0x4001>
+        sum += TryInto::<u32>::try_into(idxp1).unwrap();
+60001190:	95b2                	add	a1,a1,a2
+60001192:	0609                	addi	a2,a2,2 # 40108002 <_stack_size+0x40104002>
+60001194:	f565                	bnez	a0,6000117c <.Lpcrel_hi2+0x788>
+60001196:	610086b7          	lui	a3,0x61008
+6000119a:	6609                	lui	a2,0x2
+6000119c:	80060613          	addi	a2,a2,-2048 # 1800 <_hart_stack_size+0x1000>
+600011a0:	47a1                	li	a5,8
+600011a2:	8732                	mv	a4,a2
+600011a4:	00f66363          	bltu	a2,a5,600011aa <.Lpcrel_hi2+0x7b6>
+600011a8:	4721                	li	a4,8
+600011aa:	00271793          	slli	a5,a4,0x2
+600011ae:	4284                	lw	s1,0(a3)
+600011b0:	42c0                	lw	s0,4(a3)
+600011b2:	96be                	add	a3,a3,a5
+600011b4:	8e19                	sub	a2,a2,a4
+        checksum += (d.as_ptr() as *const T)
+600011b6:	9526                	add	a0,a0,s1
+        checksum += (d.as_ptr().add(1) as *const T)
+600011b8:	9522                	add	a0,a0,s0
+600011ba:	f27d                	bnez	a2,600011a0 <.Lpcrel_hi2+0x7ac>
+    if sum == checksum {
+600011bc:	00a59563          	bne	a1,a0,600011c6 <.Lpcrel_hi2+0x7d2>
+600011c0:	600d0537          	lui	a0,0x600d0
+600011c4:	a801                	j	600011d4 <.Lpcrel_hi2+0x7e0>
+600011c6:	40108637          	lui	a2,0x40108
+600011ca:	c208                	sw	a0,0(a2)
+600011cc:	0330000f          	fence	rw,rw
+600011d0:	0bad0537          	lui	a0,0xbad0
+600011d4:	00850693          	addi	a3,a0,8 # bad0008 <_stack_size+0xbacc008>
+600011d8:	4881                	li	a7,0
+600011da:	4601                	li	a2,0
+600011dc:	40108537          	lui	a0,0x40108
+600011e0:	c10c                	sw	a1,0(a0)
+600011e2:	0330000f          	fence	rw,rw
+600011e6:	c114                	sw	a3,0(a0)
+600011e8:	0330000f          	fence	rw,rw
+600011ec:	610086b7          	lui	a3,0x61008
+600011f0:	6505                	lui	a0,0x1
+600011f2:	c0050593          	addi	a1,a0,-1024 # c00 <_hart_stack_size+0x400>
+600011f6:	4711                	li	a4,4
+600011f8:	852e                	mv	a0,a1
+600011fa:	00e5e363          	bltu	a1,a4,60001200 <.Lpcrel_hi2+0x80c>
+600011fe:	4511                	li	a0,4
+60001200:	8d89                	sub	a1,a1,a0
+60001202:	050e                	slli	a0,a0,0x3
+        sum += TryInto::<u32>::try_into(index).unwrap();
+60001204:	00c88733          	add	a4,a7,a2
+60001208:	0006a223          	sw	zero,4(a3) # 61008004 <_estack+0x4004>
+6000120c:	c290                	sw	a2,0(a3)
+6000120e:	0605                	addi	a2,a2,1 # 40108001 <_stack_size+0x40104001>
+60001210:	0006a623          	sw	zero,12(a3)
+60001214:	c690                	sw	a2,8(a3)
+60001216:	96aa                	add	a3,a3,a0
+        sum += TryInto::<u32>::try_into(idxp1).unwrap();
+60001218:	00c708b3          	add	a7,a4,a2
+6000121c:	fde9                	bnez	a1,600011f6 <.Lpcrel_hi2+0x802>
+6000121e:	4501                	li	a0,0
+60001220:	61008637          	lui	a2,0x61008
+60001224:	6585                	lui	a1,0x1
+60001226:	c0058693          	addi	a3,a1,-1024 # c00 <_hart_stack_size+0x400>
+6000122a:	4805                	li	a6,1
+6000122c:	4591                	li	a1,4
+6000122e:	87b6                	mv	a5,a3
+60001230:	00b6e363          	bltu	a3,a1,60001236 <.Lpcrel_hi2+0x842>
+60001234:	4791                	li	a5,4
+60001236:	4258                	lw	a4,4(a2)
+60001238:	420c                	lw	a1,0(a2)
+6000123a:	4644                	lw	s1,12(a2)
+6000123c:	4600                	lw	s0,8(a2)
+6000123e:	c709                	beqz	a4,60001248 <.Lpcrel_hi2+0x854>
+60001240:	85aa                	mv	a1,a0
+        checksum = checksum + a + b;
+60001242:	01071663          	bne	a4,a6,6000124e <.Lpcrel_hi2+0x85a>
+60001246:	a029                	j	60001250 <.Lpcrel_hi2+0x85c>
+60001248:	95aa                	add	a1,a1,a0
+6000124a:	01070363          	beq	a4,a6,60001250 <.Lpcrel_hi2+0x85c>
+6000124e:	852e                	mv	a0,a1
+60001250:	c489                	beqz	s1,6000125a <.Lpcrel_hi2+0x866>
+60001252:	85aa                	mv	a1,a0
+60001254:	01049763          	bne	s1,a6,60001262 <.Lpcrel_hi2+0x86e>
+60001258:	a031                	j	60001264 <.Lpcrel_hi2+0x870>
+6000125a:	008505b3          	add	a1,a0,s0
+6000125e:	01048363          	beq	s1,a6,60001264 <.Lpcrel_hi2+0x870>
+60001262:	852e                	mv	a0,a1
+60001264:	00379593          	slli	a1,a5,0x3
+60001268:	8e9d                	sub	a3,a3,a5
+6000126a:	962e                	add	a2,a2,a1
+6000126c:	f2e1                	bnez	a3,6000122c <.Lpcrel_hi2+0x838>
+    if sum == checksum {
+6000126e:	00a89563          	bne	a7,a0,60001278 <.Lpcrel_hi2+0x884>
+60001272:	600d0537          	lui	a0,0x600d0
+60001276:	a801                	j	60001286 <.Lpcrel_hi2+0x892>
+60001278:	401085b7          	lui	a1,0x40108
+6000127c:	c188                	sw	a0,0(a1)
+6000127e:	0330000f          	fence	rw,rw
+60001282:	0bad0537          	lui	a0,0xbad0
+60001286:	00950593          	addi	a1,a0,9 # bad0009 <_stack_size+0xbacc009>
+6000128a:	40108537          	lui	a0,0x40108
+6000128e:	01152023          	sw	a7,0(a0) # 40108000 <_stack_size+0x40104000>
+60001292:	0330000f          	fence	rw,rw
+60001296:	c10c                	sw	a1,0(a0)
+60001298:	0330000f          	fence	rw,rw
+6000129c:	4585                	li	a1,1
+6000129e:	c50c                	sw	a1,8(a0)
+600012a0:	0330000f          	fence	rw,rw
+600012a4:	000a0537          	lui	a0,0xa0
+600012a8:	0529                	addi	a0,a0,10 # a000a <_stack_size+0x9c00a>
+
+        // conjure the signature struct directly out of memory. super unsafe.
+        let sig_ptr = LOADER_SIG_OFFSET as *const SignatureInFlash;
+        let sig: &SignatureInFlash = sig_ptr.as_ref().unwrap();
+    }
+    let mut cursor = Point {x: LEFT_MARGIN, y: 10};
+600012aa:	c02a                	sw	a0,0(sp)
+600012ac:	60002537          	lui	a0,0x60002
+600012b0:	c0850513          	addi	a0,a0,-1016 # 60001c08 <.Lanon.01042f9e07bac0588b13af07786e0e0c.7>
+600012b4:	401025b7          	lui	a1,0x40102
+600012b8:	00250613          	addi	a2,a0,2
+600012bc:	00054683          	lbu	a3,0(a0)
+600012c0:	0330000f          	fence	rw,rw
+600012c4:	41d8                	lw	a4,4(a1)
+600012c6:	ff6d                	bnez	a4,600012c0 <.Lpcrel_hi2+0x8cc>
+600012c8:	0505                	addi	a0,a0,1
+600012ca:	c194                	sw	a3,0(a1)
+600012cc:	0330000f          	fence	rw,rw
+600012d0:	fec516e3          	bne	a0,a2,600012bc <.Lpcrel_hi2+0x8c8>
+600012d4:	40107537          	lui	a0,0x40107
+    // initial banner
+    let mut uart = debug::Uart {};
+    uart.tiny_write_str("  ");
+
+    // clear screen to all black
+    let mut gfx = Gfx {
+600012d8:	c82a                	sw	a0,16(sp)
+600012da:	420005b7          	lui	a1,0x42000
+600012de:	c42e                	sw	a1,8(sp)
+600012e0:	6585                	lui	a1,0x1
+600012e2:	70858593          	addi	a1,a1,1800 # 1708 <_hart_stack_size+0xf08>
+600012e6:	c62e                	sw	a1,12(sp)
+600012e8:	03100593          	li	a1,49
+600012ec:	c50c                	sw	a1,8(a0)
+600012ee:	0330000f          	fence	rw,rw
+        csr: CSR::new(utra::memlcd::HW_MEMLCD_BASE as *mut u32),
+        fb: core::slice::from_raw_parts_mut(utralib::HW_MEMLCD_MEM as *mut u32, FB_SIZE), // unsafe but inside an unsafe already
+    };
+    gfx.init(100_000_000);
+
+    for word in gfx.fb.iter_mut() {
+600012f2:	45b2                	lw	a1,12(sp)
+600012f4:	c989                	beqz	a1,60001306 <.Lpcrel_hi2+0x912>
+600012f6:	4522                	lw	a0,8(sp)
+600012f8:	00259613          	slli	a2,a1,0x2
+        *word = 0x0; // set to all black
+600012fc:	4581                	li	a1,0
+600012fe:	00000097          	auipc	ra,0x0
+60001302:	4d4080e7          	jalr	1236(ra) # 600017d2 <memset>
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
+60001306:	4542                	lw	a0,16(sp)
+60001308:	4589                	li	a1,2
+6000130a:	c10c                	sw	a1,0(a0)
+6000130c:	0330000f          	fence	rw,rw
+60001310:	0330000f          	fence	rw,rw
+        let usize_base: *mut usize = unsafe { core::mem::transmute(self.base) };
+60001314:	4542                	lw	a0,16(sp)
+60001316:	4148                	lw	a0,4(a0)
+        if self.csr.rf(utra::memlcd::BUSY_BUSY) == 1 {
+60001318:	8905                	andi	a0,a0,1
+    }
+    gfx.update_all();
+    while gfx.busy() { }
+6000131a:	f97d                	bnez	a0,60001310 <.Lpcrel_hi2+0x91c>
+6000131c:	60002537          	lui	a0,0x60002
+60001320:	c0a50513          	addi	a0,a0,-1014 # 60001c0a <.Lanon.01042f9e07bac0588b13af07786e0e0c.8>
+60001324:	401025b7          	lui	a1,0x40102
+60001328:	02750613          	addi	a2,a0,39
+6000132c:	00054683          	lbu	a3,0(a0)
+60001330:	0330000f          	fence	rw,rw
+60001334:	41d8                	lw	a4,4(a1)
+60001336:	ff6d                	bnez	a4,60001330 <.Lpcrel_hi2+0x93c>
+60001338:	0505                	addi	a0,a0,1
+6000133a:	c194                	sw	a3,0(a1)
+6000133c:	0330000f          	fence	rw,rw
+60001340:	fec516e3          	bne	a0,a2,6000132c <.Lpcrel_hi2+0x938>
+    // power on the curve engine -- give it >16 cycles to sync up
+    engine.wfo(utra::engine::POWER_ON, 1);
+
+    // now characters should actually be able to print
+    uart.tiny_write_str(VERSION_STR);
+    gfx.msg(VERSION_STR, &mut cursor);
+60001344:	60002537          	lui	a0,0x60002
+60001348:	c0a50593          	addi	a1,a0,-1014 # 60001c0a <.Lanon.01042f9e07bac0588b13af07786e0e0c.8>
+6000134c:	0028                	addi	a0,sp,8
+6000134e:	02700613          	li	a2,39
+60001352:	868a                	mv	a3,sp
+60001354:	fffff097          	auipc	ra,0xfffff
+60001358:	3ae080e7          	jalr	942(ra) # 60000702 <betrusted_boot::Gfx::msg>
+6000135c:	4481                	li	s1,0
+6000135e:	40ffe537          	lui	a0,0x40ffe
+60001362:	0571                	addi	a0,a0,28 # 40ffe01c <_stack_size+0x40ffa01c>
+60001364:	deadc5b7          	lui	a1,0xdeadc
+60001368:	0de58593          	addi	a1,a1,222 # deadc0de <_lcdfb+0x2eadc0de>
+6000136c:	41000637          	lui	a2,0x41000
+    }
+
+    // check the stack usage
+    let stack: &[u32] = core::slice::from_raw_parts(STACK_TOP as *const u32, (STACK_LEN as usize / core::mem::size_of::<u32>()) as usize);
+    let mut unused_stack_words = 0;
+    for &word in stack.iter() {
+60001370:	4114                	lw	a3,0(a0)
+        if word != 0xDEAD_C0DE {
+60001372:	00b69663          	bne	a3,a1,6000137e <.Lpcrel_hi2+0x98a>
+60001376:	0511                	addi	a0,a0,4
+            break;
+        }
+        unused_stack_words += 1;
+60001378:	0485                	addi	s1,s1,1
+6000137a:	fec51be3          	bne	a0,a2,60001370 <.Lpcrel_hi2+0x97c>
+    }
+    uart.tiny_write_str("Free stack: 0x");
+6000137e:	60002537          	lui	a0,0x60002
+60001382:	c3150413          	addi	s0,a0,-975 # 60001c31 <.Lanon.01042f9e07bac0588b13af07786e0e0c.9>
+60001386:	45b9                	li	a1,14
+60001388:	8522                	mv	a0,s0
+6000138a:	fffff097          	auipc	ra,0xfffff
+6000138e:	d98080e7          	jalr	-616(ra) # 60000122 <betrusted_boot::debug::Uart::tiny_write_str>
+    uart.print_hex_word(unused_stack_words * 4);
+60001392:	048a                	slli	s1,s1,0x2
+60001394:	8526                	mv	a0,s1
+60001396:	fffff097          	auipc	ra,0xfffff
+6000139a:	cf4080e7          	jalr	-780(ra) # 6000008a <betrusted_boot::debug::Uart::print_hex_word>
+    gfx.msg("Free stack: 0x", &mut cursor);
+6000139e:	0028                	addi	a0,sp,8
+600013a0:	4639                	li	a2,14
+600013a2:	868a                	mv	a3,sp
+600013a4:	85a2                	mv	a1,s0
+600013a6:	fffff097          	auipc	ra,0xfffff
+600013aa:	35c080e7          	jalr	860(ra) # 60000702 <betrusted_boot::Gfx::msg>
+    gfx.hex_word(unused_stack_words * 4, &mut cursor);
+600013ae:	0028                	addi	a0,sp,8
+600013b0:	860a                	mv	a2,sp
+600013b2:	85a6                	mv	a1,s1
+600013b4:	fffff097          	auipc	ra,0xfffff
+600013b8:	292080e7          	jalr	658(ra) # 60000646 <betrusted_boot::Gfx::hex_word>
+    uart.newline();
+600013bc:	fffff097          	auipc	ra,0xfffff
+600013c0:	ca0080e7          	jalr	-864(ra) # 6000005c <betrusted_boot::debug::Uart::newline>
+                }
+                last_char = c;
+            }
+        }
+    }
+    gfx.msg("\n\r\n\rJumping to loader...\n\r", &mut cursor);
+600013c4:	60002537          	lui	a0,0x60002
+600013c8:	c3f50413          	addi	s0,a0,-961 # 60001c3f <.Lanon.01042f9e07bac0588b13af07786e0e0c.10>
+600013cc:	0028                	addi	a0,sp,8
+600013ce:	4669                	li	a2,26
+600013d0:	868a                	mv	a3,sp
+600013d2:	85a2                	mv	a1,s0
+600013d4:	fffff097          	auipc	ra,0xfffff
+600013d8:	32e080e7          	jalr	814(ra) # 60000702 <betrusted_boot::Gfx::msg>
+    uart.tiny_write_str("\n\r\n\rJumping to loader...\n\r");
+600013dc:	45e9                	li	a1,26
+600013de:	8522                	mv	a0,s0
+600013e0:	fffff097          	auipc	ra,0xfffff
+600013e4:	d42080e7          	jalr	-702(ra) # 60000122 <betrusted_boot::debug::Uart::tiny_write_str>
+        // note that removing power does *not* clear the RF or microcode state -- data can leak from the bootloader
+        // into other areas because of this! (but I think it's OK because we just mess around with public keys here)
+    }
+
+    // now jump to the loader once everything checks out.
+    start_loader(
+600013e8:	fffff097          	auipc	ra,0xfffff
+600013ec:	1e6080e7          	jalr	486(ra) # 600005ce <start_loader>
+	...
+
+600013f2 <core::panicking::panic_fmt>:
+600013f2:	1141                	addi	sp,sp,-16
+600013f4:	c606                	sw	ra,12(sp)
+600013f6:	60002537          	lui	a0,0x60002
+600013fa:	c5c50513          	addi	a0,a0,-932 # 60001c5c <.Lanon.2158d0578dda08147993e5787a6dfcb6.2>
+600013fe:	600025b7          	lui	a1,0x60002
+60001402:	ca058593          	addi	a1,a1,-864 # 60001ca0 <.Lanon.2158d0578dda08147993e5787a6dfcb6.271>
+60001406:	fffff097          	auipc	ra,0xfffff
+6000140a:	1cc080e7          	jalr	460(ra) # 600005d2 <rust_begin_unwind>
+	...
+
+60001410 <core::ptr::drop_in_place<&core::iter::adapters::copied::Copied<core::slice::iter::Iter<u8>>>>:
+60001410:	8082                	ret
+
+60001412 <<T as core::any::Any>::type_id>:
+60001412:	e7caf537          	lui	a0,0xe7caf
+60001416:	a6d50513          	addi	a0,a0,-1427 # e7caea6d <_lcdfb+0x37caea6d>
+6000141a:	31c065b7          	lui	a1,0x31c06
+6000141e:	9bc58593          	addi	a1,a1,-1604 # 31c059bc <_stack_size+0x31c019bc>
+60001422:	8082                	ret
+
+60001424 <core::panicking::panic_bounds_check>:
+60001424:	7139                	addi	sp,sp,-64
+60001426:	de06                	sw	ra,60(sp)
+60001428:	c42a                	sw	a0,8(sp)
+6000142a:	c62e                	sw	a1,12(sp)
+6000142c:	0068                	addi	a0,sp,12
+6000142e:	d42a                	sw	a0,40(sp)
+60001430:	60001537          	lui	a0,0x60001
+60001434:	46450513          	addi	a0,a0,1124 # 60001464 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt>
+60001438:	d62a                	sw	a0,44(sp)
+6000143a:	002c                	addi	a1,sp,8
+6000143c:	d82e                	sw	a1,48(sp)
+6000143e:	da2a                	sw	a0,52(sp)
+60001440:	60002537          	lui	a0,0x60002
+60001444:	c9050513          	addi	a0,a0,-880 # 60001c90 <.Lanon.2158d0578dda08147993e5787a6dfcb6.208>
+60001448:	cc2a                	sw	a0,24(sp)
+6000144a:	4509                	li	a0,2
+6000144c:	ce2a                	sw	a0,28(sp)
+6000144e:	c802                	sw	zero,16(sp)
+60001450:	102c                	addi	a1,sp,40
+60001452:	d02e                	sw	a1,32(sp)
+60001454:	d22a                	sw	a0,36(sp)
+60001456:	0808                	addi	a0,sp,16
+60001458:	85b2                	mv	a1,a2
+6000145a:	00000097          	auipc	ra,0x0
+6000145e:	f98080e7          	jalr	-104(ra) # 600013f2 <core::panicking::panic_fmt>
+	...
+
+60001464 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt>:
+60001464:	711d                	addi	sp,sp,-96
+60001466:	ce86                	sw	ra,92(sp)
+60001468:	cca2                	sw	s0,88(sp)
+6000146a:	caa6                	sw	s1,84(sp)
+6000146c:	c8ca                	sw	s2,80(sp)
+6000146e:	c6ce                	sw	s3,76(sp)
+60001470:	c4d2                	sw	s4,72(sp)
+60001472:	c2d6                	sw	s5,68(sp)
+60001474:	c0da                	sw	s6,64(sp)
+60001476:	de5e                	sw	s7,60(sp)
+60001478:	dc62                	sw	s8,56(sp)
+6000147a:	da66                	sw	s9,52(sp)
+6000147c:	d86a                	sw	s10,48(sp)
+6000147e:	d66e                	sw	s11,44(sp)
+60001480:	4100                	lw	s0,0(a0)
+60001482:	8bae                	mv	s7,a1
+60001484:	00445613          	srli	a2,s0,0x4
+60001488:	27100693          	li	a3,625
+6000148c:	02700593          	li	a1,39
+60001490:	02d67363          	bgeu	a2,a3,600014b6 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x52>
+60001494:	06300613          	li	a2,99
+60001498:	0a866963          	bltu	a2,s0,6000154a <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0xe6>
+6000149c:	4529                	li	a0,10
+6000149e:	0ea47b63          	bgeu	s0,a0,60001594 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x130>
+600014a2:	fff58d13          	addi	s10,a1,-1
+600014a6:	00510513          	addi	a0,sp,5
+600014aa:	956a                	add	a0,a0,s10
+600014ac:	03040593          	addi	a1,s0,48
+600014b0:	00b50023          	sb	a1,0(a0)
+600014b4:	a221                	j	600015bc <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x158>
+600014b6:	4581                	li	a1,0
+600014b8:	d1b71637          	lui	a2,0xd1b71
+600014bc:	75960293          	addi	t0,a2,1881 # d1b71759 <_lcdfb+0x21b71759>
+600014c0:	66b9                	lui	a3,0xe
+600014c2:	8f068313          	addi	t1,a3,-1808 # d8f0 <_stack_size+0x98f0>
+600014c6:	6705                	lui	a4,0x1
+600014c8:	47b70393          	addi	t2,a4,1147 # 147b <_hart_stack_size+0xc7b>
+600014cc:	f9c00813          	li	a6,-100
+600014d0:	600027b7          	lui	a5,0x60002
+600014d4:	cb078e93          	addi	t4,a5,-848 # 60001cb0 <.Lanon.2158d0578dda08147993e5787a6dfcb6.324>
+600014d8:	00510893          	addi	a7,sp,5
+600014dc:	05f5e7b7          	lui	a5,0x5f5e
+600014e0:	0ff78e13          	addi	t3,a5,255 # 5f5e0ff <_stack_size+0x5f5a0ff>
+600014e4:	8522                	mv	a0,s0
+600014e6:	02543433          	mulhu	s0,s0,t0
+600014ea:	8035                	srli	s0,s0,0xd
+600014ec:	02640633          	mul	a2,s0,t1
+600014f0:	962a                	add	a2,a2,a0
+600014f2:	01061693          	slli	a3,a2,0x10
+600014f6:	82c9                	srli	a3,a3,0x12
+600014f8:	027686b3          	mul	a3,a3,t2
+600014fc:	0116d713          	srli	a4,a3,0x11
+60001500:	82c1                	srli	a3,a3,0x10
+60001502:	7fe6f693          	andi	a3,a3,2046
+60001506:	03070733          	mul	a4,a4,a6
+6000150a:	963a                	add	a2,a2,a4
+6000150c:	0646                	slli	a2,a2,0x11
+6000150e:	8241                	srli	a2,a2,0x10
+60001510:	96f6                	add	a3,a3,t4
+60001512:	00b88733          	add	a4,a7,a1
+60001516:	0006c783          	lbu	a5,0(a3)
+6000151a:	00168683          	lb	a3,1(a3)
+6000151e:	9676                	add	a2,a2,t4
+60001520:	00160483          	lb	s1,1(a2)
+60001524:	00064603          	lbu	a2,0(a2)
+60001528:	02d70223          	sb	a3,36(a4)
+6000152c:	02f701a3          	sb	a5,35(a4)
+60001530:	02970323          	sb	s1,38(a4)
+60001534:	02c702a3          	sb	a2,37(a4)
+60001538:	15f1                	addi	a1,a1,-4
+6000153a:	faae65e3          	bltu	t3,a0,600014e4 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x80>
+6000153e:	02758593          	addi	a1,a1,39
+60001542:	06300613          	li	a2,99
+60001546:	f4867be3          	bgeu	a2,s0,6000149c <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x38>
+6000154a:	01041513          	slli	a0,s0,0x10
+6000154e:	8149                	srli	a0,a0,0x12
+60001550:	6605                	lui	a2,0x1
+60001552:	47b60613          	addi	a2,a2,1147 # 147b <_hart_stack_size+0xc7b>
+60001556:	02c50533          	mul	a0,a0,a2
+6000155a:	8145                	srli	a0,a0,0x11
+6000155c:	f9c00613          	li	a2,-100
+60001560:	02c50633          	mul	a2,a0,a2
+60001564:	9622                	add	a2,a2,s0
+60001566:	0646                	slli	a2,a2,0x11
+60001568:	8241                	srli	a2,a2,0x10
+6000156a:	15f9                	addi	a1,a1,-2
+6000156c:	600026b7          	lui	a3,0x60002
+60001570:	cb068693          	addi	a3,a3,-848 # 60001cb0 <.Lanon.2158d0578dda08147993e5787a6dfcb6.324>
+60001574:	9636                	add	a2,a2,a3
+60001576:	00160683          	lb	a3,1(a2)
+6000157a:	00064603          	lbu	a2,0(a2)
+6000157e:	00510713          	addi	a4,sp,5
+60001582:	972e                	add	a4,a4,a1
+60001584:	00d700a3          	sb	a3,1(a4)
+60001588:	00c70023          	sb	a2,0(a4)
+6000158c:	842a                	mv	s0,a0
+6000158e:	4529                	li	a0,10
+60001590:	f0a469e3          	bltu	s0,a0,600014a2 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x3e>
+60001594:	00141513          	slli	a0,s0,0x1
+60001598:	ffe58d13          	addi	s10,a1,-2
+6000159c:	600025b7          	lui	a1,0x60002
+600015a0:	cb058593          	addi	a1,a1,-848 # 60001cb0 <.Lanon.2158d0578dda08147993e5787a6dfcb6.324>
+600015a4:	952e                	add	a0,a0,a1
+600015a6:	00150583          	lb	a1,1(a0)
+600015aa:	00054503          	lbu	a0,0(a0)
+600015ae:	00510613          	addi	a2,sp,5
+600015b2:	966a                	add	a2,a2,s10
+600015b4:	00b600a3          	sb	a1,1(a2)
+600015b8:	00a60023          	sb	a0,0(a2)
+600015bc:	018ba503          	lw	a0,24(s7)
+600015c0:	00510593          	addi	a1,sp,5
+600015c4:	02700613          	li	a2,39
+600015c8:	00157493          	andi	s1,a0,1
+600015cc:	00110a37          	lui	s4,0x110
+600015d0:	c099                	beqz	s1,600015d6 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x172>
+600015d2:	02b00a13          	li	s4,43
+600015d6:	41a609b3          	sub	s3,a2,s10
+600015da:	01a58933          	add	s2,a1,s10
+600015de:	01d51593          	slli	a1,a0,0x1d
+600015e2:	008ba603          	lw	a2,8(s7)
+600015e6:	85fd                	srai	a1,a1,0x1f
+600015e8:	600026b7          	lui	a3,0x60002
+600015ec:	c5c68693          	addi	a3,a3,-932 # 60001c5c <.Lanon.2158d0578dda08147993e5787a6dfcb6.2>
+600015f0:	00d5fab3          	and	s5,a1,a3
+600015f4:	ca15                	beqz	a2,60001628 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1c4>
+600015f6:	00cbac83          	lw	s9,12(s7)
+600015fa:	009985b3          	add	a1,s3,s1
+600015fe:	0395f563          	bgeu	a1,s9,60001628 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1c4>
+60001602:	8921                	andi	a0,a0,8
+60001604:	e535                	bnez	a0,60001670 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x20c>
+60001606:	020bc603          	lbu	a2,32(s7)
+6000160a:	468d                	li	a3,3
+6000160c:	4505                	li	a0,1
+6000160e:	00d60363          	beq	a2,a3,60001614 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1b0>
+60001612:	8532                	mv	a0,a2
+60001614:	00357613          	andi	a2,a0,3
+60001618:	40bc8533          	sub	a0,s9,a1
+6000161c:	c25d                	beqz	a2,600016c2 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x25e>
+6000161e:	4585                	li	a1,1
+60001620:	0ab61463          	bne	a2,a1,600016c8 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x264>
+60001624:	4c81                	li	s9,0
+60001626:	a075                	j	600016d2 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x26e>
+60001628:	000ba403          	lw	s0,0(s7)
+6000162c:	004ba483          	lw	s1,4(s7)
+60001630:	8522                	mv	a0,s0
+60001632:	85a6                	mv	a1,s1
+60001634:	8652                	mv	a2,s4
+60001636:	86d6                	mv	a3,s5
+60001638:	00000097          	auipc	ra,0x0
+6000163c:	126080e7          	jalr	294(ra) # 6000175e <core::fmt::Formatter::pad_integral::write_prefix>
+60001640:	4b05                	li	s6,1
+60001642:	e519                	bnez	a0,60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+60001644:	44d4                	lw	a3,12(s1)
+60001646:	8522                	mv	a0,s0
+60001648:	85ca                	mv	a1,s2
+6000164a:	864e                	mv	a2,s3
+6000164c:	9682                	jalr	a3
+6000164e:	8b2a                	mv	s6,a0
+60001650:	855a                	mv	a0,s6
+60001652:	40f6                	lw	ra,92(sp)
+60001654:	4466                	lw	s0,88(sp)
+60001656:	44d6                	lw	s1,84(sp)
+60001658:	4946                	lw	s2,80(sp)
+6000165a:	49b6                	lw	s3,76(sp)
+6000165c:	4a26                	lw	s4,72(sp)
+6000165e:	4a96                	lw	s5,68(sp)
+60001660:	4b06                	lw	s6,64(sp)
+60001662:	5bf2                	lw	s7,60(sp)
+60001664:	5c62                	lw	s8,56(sp)
+60001666:	5cd2                	lw	s9,52(sp)
+60001668:	5d42                	lw	s10,48(sp)
+6000166a:	5db2                	lw	s11,44(sp)
+6000166c:	6125                	addi	sp,sp,96
+6000166e:	8082                	ret
+60001670:	01cba403          	lw	s0,28(s7)
+60001674:	03000513          	li	a0,48
+60001678:	020bc583          	lbu	a1,32(s7)
+6000167c:	c02e                	sw	a1,0(sp)
+6000167e:	000bac03          	lw	s8,0(s7)
+60001682:	004bad83          	lw	s11,4(s7)
+60001686:	00abae23          	sw	a0,28(s7)
+6000168a:	4b05                	li	s6,1
+6000168c:	036b8023          	sb	s6,32(s7)
+60001690:	8562                	mv	a0,s8
+60001692:	85ee                	mv	a1,s11
+60001694:	8652                	mv	a2,s4
+60001696:	86d6                	mv	a3,s5
+60001698:	00000097          	auipc	ra,0x0
+6000169c:	0c6080e7          	jalr	198(ra) # 6000175e <core::fmt::Formatter::pad_integral::write_prefix>
+600016a0:	f945                	bnez	a0,60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+600016a2:	8a22                	mv	s4,s0
+600016a4:	019d0533          	add	a0,s10,s9
+600016a8:	8d05                	sub	a0,a0,s1
+600016aa:	fda50413          	addi	s0,a0,-38
+600016ae:	147d                	addi	s0,s0,-1
+600016b0:	c449                	beqz	s0,6000173a <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x2d6>
+600016b2:	010da603          	lw	a2,16(s11)
+600016b6:	03000593          	li	a1,48
+600016ba:	8562                	mv	a0,s8
+600016bc:	9602                	jalr	a2
+600016be:	d965                	beqz	a0,600016ae <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x24a>
+600016c0:	bf41                	j	60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+600016c2:	8caa                	mv	s9,a0
+600016c4:	8532                	mv	a0,a2
+600016c6:	a031                	j	600016d2 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x26e>
+600016c8:	00150593          	addi	a1,a0,1
+600016cc:	8105                	srli	a0,a0,0x1
+600016ce:	0015dc93          	srli	s9,a1,0x1
+600016d2:	000bac03          	lw	s8,0(s7)
+600016d6:	004bad03          	lw	s10,4(s7)
+600016da:	01cba483          	lw	s1,28(s7)
+600016de:	00150413          	addi	s0,a0,1
+600016e2:	147d                	addi	s0,s0,-1
+600016e4:	c809                	beqz	s0,600016f6 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x292>
+600016e6:	010d2603          	lw	a2,16(s10)
+600016ea:	8562                	mv	a0,s8
+600016ec:	85a6                	mv	a1,s1
+600016ee:	9602                	jalr	a2
+600016f0:	d96d                	beqz	a0,600016e2 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x27e>
+600016f2:	4b05                	li	s6,1
+600016f4:	bfb1                	j	60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+600016f6:	00110537          	lui	a0,0x110
+600016fa:	4b05                	li	s6,1
+600016fc:	f4a48ae3          	beq	s1,a0,60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+60001700:	8562                	mv	a0,s8
+60001702:	85ea                	mv	a1,s10
+60001704:	8652                	mv	a2,s4
+60001706:	86d6                	mv	a3,s5
+60001708:	00000097          	auipc	ra,0x0
+6000170c:	056080e7          	jalr	86(ra) # 6000175e <core::fmt::Formatter::pad_integral::write_prefix>
+60001710:	f121                	bnez	a0,60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+60001712:	00cd2683          	lw	a3,12(s10)
+60001716:	8562                	mv	a0,s8
+60001718:	85ca                	mv	a1,s2
+6000171a:	864e                	mv	a2,s3
+6000171c:	9682                	jalr	a3
+6000171e:	f90d                	bnez	a0,60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+60001720:	4401                	li	s0,0
+60001722:	028c8a63          	beq	s9,s0,60001756 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x2f2>
+60001726:	010d2603          	lw	a2,16(s10)
+6000172a:	0405                	addi	s0,s0,1
+6000172c:	8562                	mv	a0,s8
+6000172e:	85a6                	mv	a1,s1
+60001730:	9602                	jalr	a2
+60001732:	d965                	beqz	a0,60001722 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x2be>
+60001734:	fff40513          	addi	a0,s0,-1
+60001738:	a005                	j	60001758 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x2f4>
+6000173a:	00cda683          	lw	a3,12(s11)
+6000173e:	8562                	mv	a0,s8
+60001740:	85ca                	mv	a1,s2
+60001742:	864e                	mv	a2,s3
+60001744:	9682                	jalr	a3
+60001746:	f509                	bnez	a0,60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+60001748:	4b01                	li	s6,0
+6000174a:	014bae23          	sw	s4,28(s7)
+6000174e:	4502                	lw	a0,0(sp)
+60001750:	02ab8023          	sb	a0,32(s7)
+60001754:	bdf5                	j	60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+60001756:	8566                	mv	a0,s9
+60001758:	01953b33          	sltu	s6,a0,s9
+6000175c:	bdd5                	j	60001650 <core::fmt::num::imp::<impl core::fmt::Display for u32>::fmt+0x1ec>
+
+6000175e <core::fmt::Formatter::pad_integral::write_prefix>:
+6000175e:	1141                	addi	sp,sp,-16
+60001760:	c606                	sw	ra,12(sp)
+60001762:	c422                	sw	s0,8(sp)
+60001764:	c226                	sw	s1,4(sp)
+60001766:	c04a                	sw	s2,0(sp)
+60001768:	00110737          	lui	a4,0x110
+6000176c:	8436                	mv	s0,a3
+6000176e:	84ae                	mv	s1,a1
+60001770:	892a                	mv	s2,a0
+60001772:	00e60963          	beq	a2,a4,60001784 <core::fmt::Formatter::pad_integral::write_prefix+0x26>
+60001776:	4894                	lw	a3,16(s1)
+60001778:	854a                	mv	a0,s2
+6000177a:	85b2                	mv	a1,a2
+6000177c:	9682                	jalr	a3
+6000177e:	85aa                	mv	a1,a0
+60001780:	4505                	li	a0,1
+60001782:	ed89                	bnez	a1,6000179c <core::fmt::Formatter::pad_integral::write_prefix+0x3e>
+60001784:	c819                	beqz	s0,6000179a <core::fmt::Formatter::pad_integral::write_prefix+0x3c>
+60001786:	44dc                	lw	a5,12(s1)
+60001788:	854a                	mv	a0,s2
+6000178a:	85a2                	mv	a1,s0
+6000178c:	4601                	li	a2,0
+6000178e:	40b2                	lw	ra,12(sp)
+60001790:	4422                	lw	s0,8(sp)
+60001792:	4492                	lw	s1,4(sp)
+60001794:	4902                	lw	s2,0(sp)
+60001796:	0141                	addi	sp,sp,16
+60001798:	8782                	jr	a5
+6000179a:	4501                	li	a0,0
+6000179c:	40b2                	lw	ra,12(sp)
+6000179e:	4422                	lw	s0,8(sp)
+600017a0:	4492                	lw	s1,4(sp)
+600017a2:	4902                	lw	s2,0(sp)
+600017a4:	0141                	addi	sp,sp,16
+600017a6:	8082                	ret
+
+600017a8 <__set_sie>:
+600017a8:	10452073          	csrs	sie,a0
+600017ac:	8082                	ret
+
+600017ae <__read_sepc>:
+600017ae:	14102573          	csrr	a0,sepc
+600017b2:	8082                	ret
+
+600017b4 <__read_scause>:
+600017b4:	14202573          	csrr	a0,scause
+600017b8:	8082                	ret
+
+600017ba <__read_stval>:
+600017ba:	14302573          	csrr	a0,stval
+600017be:	8082                	ret
+
+600017c0 <__read_vsim>:
+600017c0:	9c002573          	csrr	a0,0x9c0
+600017c4:	8082                	ret
+
+600017c6 <__write_vsim>:
+600017c6:	9c051073          	csrw	0x9c0,a0
+600017ca:	8082                	ret
+
+600017cc <__read_vsip>:
+600017cc:	dc002573          	csrr	a0,0xdc0
+600017d0:	8082                	ret
+
+600017d2 <memset>:
+600017d2:	00000317          	auipc	t1,0x0
+600017d6:	00830067          	jr	8(t1) # 600017da <compiler_builtins::mem::memset>
+
+600017da <compiler_builtins::mem::memset>:
+600017da:	46bd                	li	a3,15
+600017dc:	04c6f463          	bgeu	a3,a2,60001824 <compiler_builtins::mem::memset+0x4a>
+600017e0:	40a006b3          	neg	a3,a0
+600017e4:	8a8d                	andi	a3,a3,3
+600017e6:	00d50733          	add	a4,a0,a3
+600017ea:	c699                	beqz	a3,600017f8 <compiler_builtins::mem::memset+0x1e>
+600017ec:	87aa                	mv	a5,a0
+600017ee:	00b78023          	sb	a1,0(a5)
+600017f2:	0785                	addi	a5,a5,1
+600017f4:	fee7ede3          	bltu	a5,a4,600017ee <compiler_builtins::mem::memset+0x14>
+600017f8:	8e15                	sub	a2,a2,a3
+600017fa:	ffc67793          	andi	a5,a2,-4
+600017fe:	00f706b3          	add	a3,a4,a5
+60001802:	00f05e63          	blez	a5,6000181e <compiler_builtins::mem::memset+0x44>
+60001806:	0ff5f813          	zext.b	a6,a1
+6000180a:	010107b7          	lui	a5,0x1010
+6000180e:	10178793          	addi	a5,a5,257 # 1010101 <_stack_size+0x100c101>
+60001812:	02f807b3          	mul	a5,a6,a5
+60001816:	c31c                	sw	a5,0(a4)
+60001818:	0711                	addi	a4,a4,4 # 110004 <_stack_size+0x10c004>
+6000181a:	fed76ee3          	bltu	a4,a3,60001816 <compiler_builtins::mem::memset+0x3c>
+6000181e:	8a0d                	andi	a2,a2,3
+60001820:	e601                	bnez	a2,60001828 <compiler_builtins::mem::memset+0x4e>
+60001822:	a809                	j	60001834 <compiler_builtins::mem::memset+0x5a>
+60001824:	86aa                	mv	a3,a0
+60001826:	c619                	beqz	a2,60001834 <compiler_builtins::mem::memset+0x5a>
+60001828:	9636                	add	a2,a2,a3
+6000182a:	00b68023          	sb	a1,0(a3)
+6000182e:	0685                	addi	a3,a3,1
+60001830:	fec6ede3          	bltu	a3,a2,6000182a <compiler_builtins::mem::memset+0x50>
+60001834:	8082                	ret
