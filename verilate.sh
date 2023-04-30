@@ -42,6 +42,7 @@ echo "******************** RUN SIM ***********************"
 THREADS=5
 #for THREADS in 1 2 3 4 5 6 7 8 9
 #do
+  echo "Don't forget: finisher.v needs to have the XOUS variable defined according to the target config."
   echo -e "\n\nRun with $THREADS threads" >> stats.txt
   date >> stats.txt
   /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --bios $BIOS --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200_000_000_000 --trace-fst # --sim-debug
