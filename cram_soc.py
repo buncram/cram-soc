@@ -29,7 +29,7 @@ from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.interconnect.csr import *
 
-from litex.soc.interconnect.axi import AXIInterface
+from litex.soc.interconnect.axi import AXIInterface, AXILiteCrossbar, AXILiteInterface
 from litex.soc.integration.soc import SoCBusHandler
 from litex.soc.cores import uart
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
@@ -41,10 +41,14 @@ from axi_adapter import AXIAdapter
 from axi_ram import AXIRAM
 from axi_common import *
 
+from axil_ahb_adapter import AXILite2AHBAdapter
+from litex.soc.interconnect import ahb
+
 import subprocess
 import shutil
 
 VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
+AHB_TEST = False
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -89,6 +93,9 @@ _io = [
 
     ("duart", 0,
         Subsignal("tx", Pins(1)),
+    ),
+    ("pio", 0,
+        Subsignal("gpio", Pins(32)),
     ),
 
     # LCD interface
@@ -212,7 +219,6 @@ class CramSoC(SoCMini):
         with_ctrl                = None,
         l2_size                  = None,
     ):
-        AHB_TEST = False
         platform = Platform()
         axi_map = {
             "reram"     : 0x6000_0000, # +3M
@@ -339,11 +345,32 @@ class CramSoC(SoCMini):
         # 4) Add peripherals
         # setup p_axi as the local bus master
         if AHB_TEST is False:
-            self.bus.add_master(name="pbus", master=p_axil)
-        else:
-            from axil_ahb_adapter import AXILite2AHBAdapter
-            from litex.soc.interconnect import ahb
+            # This region is used for testbench elements (e.g., does not appear in the final SoC):
+            # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
+            testbench_region = SoCIORegion(0x4000_0000, 0x20_0000, mode="rw", cached=False)
+            testbench_axil = AXILiteInterface()
+            # This region is used for SoC elements (e.g. items in the final SoC that we want to verify,
+            # but are not necessarily in their final address offset or topological configuration)
+            soc_region = SoCIORegion(0x4020_0000, 0x20_0000, mode="rw", cached=False)
+            soc_axil = AXILiteInterface()
+
+            # FIXME: replace this crossbar with the verilog version. This one seems to have...pipeline errors? not quite sure.
+            self.submodules.pxbar = AXILiteCrossbar(
+                masters=[p_axil],
+                slaves =[(testbench_region.decoder(p_axil), testbench_axil), (soc_region.decoder(p_axil), soc_axil)],
+                register = False,
+            )
+            self.bus.add_master(name="pbus", master=testbench_axil)
+
+            local_ahb = ahb.Interface()
+            self.submodules += AXILite2AHBAdapter(platform, soc_axil, local_ahb)
+            # from duart_adapter import DuartAdapter
+            # self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x201000)
             from pio_adapter import PioAdapter
+            # pads area a sham for now
+            self.submodules += PioAdapter(platform, local_ahb, pads=platform.request("pio"), sel_addr=0x202000)
+        else:
+            from duart_adapter import DuartAdapter
             local_ahb = ahb.Interface()
             self.submodules += AXILite2AHBAdapter(platform, p_axil, local_ahb)
             self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x1000)
@@ -507,6 +534,8 @@ class CramSoC(SoCMini):
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
             i_always_on           = ClockSignal("sys"),
+            i_cmatpg             = Open(),
+            i_cmbist             = Open(),
             i_trimming_reset      = 0x6000_0000,
             i_trimming_reset_ena  = 1,
             o_p_axi_awvalid       = p_axil.aw.valid,
@@ -782,6 +811,10 @@ def main():
     else:
         shutil.copy('./build/gateware/reram_mem.init', './build/sim/gateware/')
         shutil.copy('./VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
+
+        if AHB_TEST:
+            shutil.copy('do_not_checkin/rtl/amba/template.sv', './build/sim/gateware/')
+
         # this runs the sim
         builder.build(
             sim_config       = sim_config,
