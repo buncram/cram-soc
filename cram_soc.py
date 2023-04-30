@@ -367,8 +367,9 @@ class CramSoC(SoCMini):
             # from duart_adapter import DuartAdapter
             # self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x201000)
             from pio_adapter import PioAdapter
-            # pads area a sham for now
-            self.submodules += PioAdapter(platform, local_ahb, pads=platform.request("pio"), sel_addr=0x202000)
+            pio_irq0 = Signal()
+            pio_irq1 = Signal()
+            self.submodules += PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000)
         else:
             from duart_adapter import DuartAdapter
             local_ahb = ahb.Interface()
@@ -666,7 +667,7 @@ class CramSoC(SoCMini):
             o_coreuser            = sim.coreuser      ,
             i_irqarray_bank0      = self.irqtest0.fields.trigger | irq0_wire_or,
             i_irqarray_bank1      = self.irqtest1.fields.trigger,
-            i_irqarray_bank2      = zero_irq,
+            i_irqarray_bank2      = Cat(pio_irq0, pio_irq1, zero_irq[2:]),
             i_irqarray_bank3      = zero_irq,
             i_irqarray_bank4      = zero_irq,
             i_irqarray_bank5      = zero_irq,
