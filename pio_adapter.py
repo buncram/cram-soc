@@ -20,7 +20,7 @@ from axi_common import *
 # AHB to APB to PIO --------------------------------------------------------------------------
 
 class PioAdapter(Module):
-    def __init__(self, platform, s_ahb, pads, sel_addr = 0x2000,
+    def __init__(self, platform, s_ahb, pads, irq0, irq1, sel_addr = 0x2000,
         address_width = 12,
     ):
         self.logger = logging.getLogger("PioAdapter")
@@ -70,6 +70,8 @@ class PioAdapter(Module):
             i_PSLVERR              = apb_slverr,
         )
 
+        self.gpio = TSTriple(32)
+        self.specials += self.gpio.get_tristate(pads.gpio)
 
         self.specials += Instance("pio_ahb",
             # Parameters.
@@ -96,6 +98,15 @@ class PioAdapter(Module):
             o_PRDATA               = apb_rdata,
             o_PREADY               = apb_ready,
             o_PSLVERR              = apb_slverr,
+
+            # gpio interfaces
+            i_gpio_in              = self.gpio.i,
+            o_gpio_out             = self.gpio.o,
+            o_gpio_dir             = self.gpio.oe, # 1 is output
+
+            # irq interfaces
+            i_irq0                 = irq0,
+            i_irq1                 = irq1,
         )
 
         # Add Sources.
@@ -109,5 +120,16 @@ class PioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
+
         rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio")
         platform.add_source(os.path.join(rtl_dir, "pio_ahb.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio", "upstream", "src")
+        platform.add_source(os.path.join(rtl_dir, "decoder.v"))
+        platform.add_source(os.path.join(rtl_dir, "divider.v"))
+        platform.add_source(os.path.join(rtl_dir, "fifo.v"))
+        platform.add_source(os.path.join(rtl_dir, "isr.v"))
+        platform.add_source(os.path.join(rtl_dir, "machine.v"))
+        platform.add_source(os.path.join(rtl_dir, "osr.v"))
+        platform.add_source(os.path.join(rtl_dir, "pc.v"))
+        platform.add_source(os.path.join(rtl_dir, "scratch.v"))
