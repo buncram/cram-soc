@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`define XOUS 1
+// `define XOUS 1
 
 // contains "cosim" models that encapsulate some key differences between ASIC/FPGA behaviors
 // particularly around reset conditions.
