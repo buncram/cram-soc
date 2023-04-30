@@ -45,7 +45,7 @@ module pio_ahb #(
         .pslverr      (PSLVERR)
     );
 
-    pio_wrap pio_wrap(
+    pio pio(
         .clk     ,
         .resetn  ,
         .cmatpg  ,
@@ -60,8 +60,7 @@ module pio_ahb #(
     );
 endmodule
 
-module pio_wrap #(
-    parameter NUM_MACHINES = 4
+module pio #(
 )(
     input logic         clk,
     input logic         resetn,
@@ -76,6 +75,8 @@ module pio_wrap #(
     apbif.slavein       apbs,
     apbif.slave         apbx
 );
+    localparam NUM_MACHINES = 4;
+
     // ---- apb -> peripheral wires ----
     wire             reset;
     wire [1:0]       mindex;
@@ -840,15 +841,4 @@ module apb_ascr
             .apbwr       (sfrapbwr       )
          );
     `theregfull(pclk, resetn, ar, '0) <= sfrapbwr;
-endmodule
-
-module event_keeper (
-    input logic pclk,
-    input logic resetn,
-    input bit   in_event,
-    input bit   clear,
-    output bit  latched_event
-);
-    bit ev;
-    `theregfull(pclk, resetn, ev, '0) <= ((in_event | ev) & !clear) ? 1 : 0;
 endmodule
