@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Cramium Labs, Inc.
+// SPDX-FileCopyrightText: 2022 Lawrie Griffiths
+// SPDX-License-Identifier: BSD-2-Clause
+
 module pio_ahb #(
     parameter AW = 12
 )(
@@ -98,7 +102,7 @@ module pio #(
     wire  [3:0]      tx_full;
     wire  [3:0]      rx_empty;
     wire  [3:0]      rx_full;
-    wire  [3:0]      pclk; // unused, this is mostly for debug purposes
+    wire  [3:0]      pclk_pio; // unused, this is mostly for debug purposes
 
     // ----- peripheral module. Pulled into wrapper level so we can connect to state machine bits directly. ------
     // Shared instructions memory
@@ -259,7 +263,7 @@ module pio #(
                 .dout(mdout[j]),
                 .pull(mpull[j]),
                 .push(mpush[j]),
-                .pclk(pclk[j]),
+                .pclk(pclk_pio[j]),
                 .empty(mempty[j]),
                 .full(mfull[j]),
                 .status_sel(status_sel[j]),
@@ -393,6 +397,7 @@ module pio #(
     assign  apbx.prdata = '0 |
             sfr_ctrl         .prdata32 |
             sfr_fstat        .prdata32 |
+            sfr_fdebug       .prdata32 |
             sfr_flevel       .prdata32 |
             sfr_txf0         .prdata32 |
             sfr_txf1         .prdata32 |
@@ -489,6 +494,10 @@ module pio #(
     assign txover = dbg_cr[19:16];
     assign rxunder = dbg_cr[11:8];
     assign rxstall = dbg_cr[3:0];
+    wire [3:0] nc_dbg0;
+    wire [3:0] nc_dbg1;
+    wire [3:0] nc_dbg2;
+    wire [3:0] nc_dbg2;
     // docu interrupt register fields. Kind of a weird combine-then-split we're doing here but whatev...makes the documentation and header files better!
     wire [3:0] intr_sm;
     wire [3:0] intr_txnfull;
@@ -499,15 +508,15 @@ module pio #(
     wire [3:0] irq0_inte_sm;
     wire [3:0] irq0_inte_txnfull;
     wire [3:0] irq0_inte_rxnempty;
-    assign irq0_inte_sm       = irq0_inte[11:8];
-    assign irq0_inte_txnfull  = irq0_inte[7:4];
-    assign irq0_inte_rxnempty = irq0_inte[3:0];
+    assign irq0_inte[11:8] =  irq0_inte_sm      ;
+    assign irq0_inte[7:4]  =  irq0_inte_txnfull ;
+    assign irq0_inte[3:0]  =  irq0_inte_rxnempty;
     wire [3:0] irq0_intf_sm;
     wire [3:0] irq0_intf_txnfull;
     wire [3:0] irq0_intf_rxnempty;
-    assign irq0_intf_sm       = irq0_intf[11:8];
-    assign irq0_intf_txnfull  = irq0_intf[7:4];
-    assign irq0_intf_rxnempty = irq0_intf[3:0];
+    assign irq0_intf[11:8] = irq0_intf_sm      ;
+    assign irq0_intf[7:4]  = irq0_intf_txnfull ;
+    assign irq0_intf[3:0]  = irq0_intf_rxnempty;
     wire [3:0] irq0_ints_sm;
     wire [3:0] irq0_ints_txnfull;
     wire [3:0] irq0_ints_rxnempty;
@@ -517,15 +526,15 @@ module pio #(
     wire [3:0] irq1_inte_sm;
     wire [3:0] irq1_inte_txnfull;
     wire [3:0] irq1_inte_rxnempty;
-    assign irq1_inte_sm       = irq1_inte[11:8];
-    assign irq1_inte_txnfull  = irq1_inte[7:4];
-    assign irq1_inte_rxnempty = irq1_inte[3:0];
+    assign irq1_inte[11:8] = irq1_inte_sm      ;
+    assign irq1_inte[7:4]  = irq1_inte_txnfull ;
+    assign irq1_inte[3:0]  = irq1_inte_rxnempty;
     wire [3:0] irq1_intf_sm;
     wire [3:0] irq1_intf_txnfull;
     wire [3:0] irq1_intf_rxnempty;
-    assign irq1_intf_sm       = irq1_intf[11:8];
-    assign irq1_intf_txnfull  = irq1_intf[7:4];
-    assign irq1_intf_rxnempty = irq1_intf[3:0];
+    assign irq1_intf[11:8] = irq1_intf_sm      ;
+    assign irq1_intf[7:4]  = irq1_intf_txnfull ;
+    assign irq1_intf[3:0]  = irq1_intf_rxnempty;
     wire [3:0] irq1_ints_sm;
     wire [3:0] irq1_ints_txnfull;
     wire [3:0] irq1_ints_rxnempty;
@@ -535,7 +544,7 @@ module pio #(
 
     apb_cr  #(.A('h00), .DW(32))      sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))      sfr_fstat            (.sr({4'd0, tx_empty, 4'd0, tx_full, 4'd0, rx_empty, 4'd0, rx_full}), .prdata32(),.*);
-    apb_ascr #(.A('h08), .DW(32))     sfr_fdebug           (.cr({4'd0, txstall, 4'd0, txover, 4'd0, rxunder, 4'd0, rxstall}), .sr(dbg_sr), .ar(dbg_trig), .prdata32(),.*);
+    apb_ascr #(.A('h08), .DW(32))     sfr_fdebug           (.cr({nc_dbg0, txstall, nc_dbg1, txover, nc_dbg2, rxunder, nc_dbg3, rxstall}), .sr(dbg_sr), .ar(dbg_trig), .prdata32(),.*);
     apb_sr  #(.A('h0C), .DW(32))      sfr_flevel           (.sr({1'd0, rx_level[3], 1'd0, tx_level[3], 1'd0, rx_level[2], 1'd0, tx_level[2],
                                                             1'd0, rx_level[1], 1'd0, tx_level[1], 1'd0, rx_level[0], 1'd0, tx_level[0]}), .prdata32(),.*);
     apb_acr #(.A('h10), .DW(32))      sfr_txf0             (.cr(fdin[0]), .ar(push[0]), .prdata32(),.*);
@@ -669,7 +678,7 @@ module pio #(
                                                                 pins_in_base[3], pins_side_base[3], pins_set_base[3], pins_out_base[3]
                                                                 }), .prdata32(),.*);
 
-    apb_cr #(.A('h128), .DW(12))     sfr_intr             (.cr({intr_sm, intr_txnfull, intr_rxnempty}), .prdata32(),.*);
+    apb_sr #(.A('h128), .DW(12))     sfr_intr             (.sr({intr_sm, intr_txnfull, intr_rxnempty}), .prdata32(),.*);
     apb_cr #(.A('h12C), .DW(12))     sfr_irq0_inte        (.cr({irq0_inte_sm, irq0_inte_txnfull, irq0_inte_rxnempty}), .prdata32(),.*);
     apb_cr #(.A('h130), .DW(12))     sfr_irq0_intf        (.cr({irq0_intf_sm, irq0_intf_txnfull, irq0_intf_rxnempty}), .prdata32(),.*);
     apb_sr #(.A('h134), .DW(12))     sfr_irq0_ints        (.sr({irq0_ints_sm, irq0_ints_txnfull, irq0_ints_rxnempty}), .prdata32(),.*);
