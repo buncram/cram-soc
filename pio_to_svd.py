@@ -1211,12 +1211,12 @@ def main():
         svd_f.write(svd)
 
     from litex.soc.doc import generate_docs
-    doc_dir = args.outdir + 'doc/'
+    doc_dir = args.outdir + 'pio_doc/'
     generate_docs(doc_soc, doc_dir, project_name="Cramium SCE module", author="Cramium, Inc.")
 
     subprocess.run(['cargo', 'run', '../include/pio.svd' , '../include/pio_generated.rs'], cwd='./svd2utra')
-    subprocess.run(['sphinx-build', '-M', 'html', 'include/doc/', 'include/doc/_build'])
-    subprocess.run(['rsync', '-a', '--delete', 'include/doc/_build/html/', 'bunnie@ci.betrusted.io:/var/pio/'])
+    subprocess.run(['sphinx-build', '-M', 'html', 'include/pio_doc/', 'include/pio_doc/_build'])
+    subprocess.run(['rsync', '-a', '--delete', 'include/pio_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/pio/'])
 
 if __name__ == "__main__":
     main()
