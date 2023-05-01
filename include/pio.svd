@@ -1,0 +1,2311 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
+    <vendor>cramium</vendor>
+    <name>SOC</name>
+    <description><![CDATA[Cramium SoC, product name TBD]]></description>
+
+    <addressUnitBits>8</addressUnitBits>
+    <width>32</width>
+    <size>32</size>
+    <access>read-write</access>
+    <resetValue>0x00000000</resetValue>
+    <resetMask>0xFFFFFFFF</resetMask>
+
+    <peripherals>
+        <peripheral>
+            <name>PIO</name>
+            <baseAddress>0x40202000</baseAddress>
+            <groupName>PIO</groupName>
+            <registers>
+                <register>
+                    <name>SFR_CTRL</name>
+                    <addressOffset>0x0000</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>en</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[en read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>restart</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[restart read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>clkdiv_restart</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[clkdiv_restart read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FSTAT</name>
+                    <addressOffset>0x0004</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>rx_full</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[rx_full read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant0</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>rx_empty</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[rx_empty read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant1</name>
+                            <msb>15</msb>
+                            <bitRange>[15:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>tx_full</name>
+                            <msb>19</msb>
+                            <bitRange>[19:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[tx_full read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant2</name>
+                            <msb>23</msb>
+                            <bitRange>[23:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>tx_empty</name>
+                            <msb>27</msb>
+                            <bitRange>[27:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[tx_empty read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant3</name>
+                            <msb>31</msb>
+                            <bitRange>[31:28]</bitRange>
+                            <lsb>28</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FDEBUG</name>
+                    <addressOffset>0x0008</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>rxstall</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[rxstall read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>constant0</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>rxunder</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[rxunder read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>constant1</name>
+                            <msb>15</msb>
+                            <bitRange>[15:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>txover</name>
+                            <msb>19</msb>
+                            <bitRange>[19:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[txover read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>constant2</name>
+                            <msb>23</msb>
+                            <bitRange>[23:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>txstall</name>
+                            <msb>27</msb>
+                            <bitRange>[27:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[txstall read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>constant3</name>
+                            <msb>31</msb>
+                            <bitRange>[31:28]</bitRange>
+                            <lsb>28</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_FLEVEL</name>
+                    <addressOffset>0x000c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>tx_level0</name>
+                            <msb>2</msb>
+                            <bitRange>[2:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[tx_level[0] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant0</name>
+                            <msb>3</msb>
+                            <bitRange>[3:3]</bitRange>
+                            <lsb>3</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>rx_level0</name>
+                            <msb>6</msb>
+                            <bitRange>[6:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[rx_level[0] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant1</name>
+                            <msb>7</msb>
+                            <bitRange>[7:7]</bitRange>
+                            <lsb>7</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>tx_level1</name>
+                            <msb>10</msb>
+                            <bitRange>[10:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[tx_level[1] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant2</name>
+                            <msb>11</msb>
+                            <bitRange>[11:11]</bitRange>
+                            <lsb>11</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>rx_level1</name>
+                            <msb>14</msb>
+                            <bitRange>[14:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[rx_level[1] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant3</name>
+                            <msb>15</msb>
+                            <bitRange>[15:15]</bitRange>
+                            <lsb>15</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>tx_level2</name>
+                            <msb>18</msb>
+                            <bitRange>[18:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[tx_level[2] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant4</name>
+                            <msb>19</msb>
+                            <bitRange>[19:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>rx_level2</name>
+                            <msb>22</msb>
+                            <bitRange>[22:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[rx_level[2] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant5</name>
+                            <msb>23</msb>
+                            <bitRange>[23:23]</bitRange>
+                            <lsb>23</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>tx_level3</name>
+                            <msb>26</msb>
+                            <bitRange>[26:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[tx_level[3] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant6</name>
+                            <msb>27</msb>
+                            <bitRange>[27:27]</bitRange>
+                            <lsb>27</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                        <field>
+                            <name>rx_level3</name>
+                            <msb>30</msb>
+                            <bitRange>[30:28]</bitRange>
+                            <lsb>28</lsb>
+                            <description><![CDATA[rx_level[3] read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>constant7</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[constant value of 0]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_TXF0</name>
+                    <addressOffset>0x0010</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>fdin</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[fdin read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_TXF1</name>
+                    <addressOffset>0x0014</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>fdin</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[fdin read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_TXF2</name>
+                    <addressOffset>0x0018</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>fdin</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[fdin read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>RESERVED7</name>
+                    <addressOffset>0x001c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>reserved7</name>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_RXF0</name>
+                    <addressOffset>0x0020</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pdout</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pdout read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_RXF1</name>
+                    <addressOffset>0x0024</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pdout</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pdout read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_RXF2</name>
+                    <addressOffset>0x0028</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pdout</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pdout read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_TXF3</name>
+                    <addressOffset>0x002c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>fdin</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[fdin read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ</name>
+                    <addressOffset>0x0030</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_irq</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_irq read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ_FORCE</name>
+                    <addressOffset>0x0034</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_irq_force</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_irq_force read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SYNC_BYPASS</name>
+                    <addressOffset>0x0038</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_sync_bypass</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_sync_bypass read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_DBG_PADOUT</name>
+                    <addressOffset>0x003c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>gpio_in</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[gpio_in read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_DBG_PADOE</name>
+                    <addressOffset>0x0040</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>gpio_dir</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[gpio_dir read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_DBG_CFGINFO</name>
+                    <addressOffset>0x0044</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>constant0</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[constant value of 4]]></description>
+                        </field>
+                        <field>
+                            <name>constant1</name>
+                            <msb>15</msb>
+                            <bitRange>[15:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[constant value of 4]]></description>
+                        </field>
+                        <field>
+                            <name>constant2</name>
+                            <msb>31</msb>
+                            <bitRange>[31:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[constant value of 32]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM0</name>
+                    <addressOffset>0x0048</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM1</name>
+                    <addressOffset>0x004c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM2</name>
+                    <addressOffset>0x0050</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM3</name>
+                    <addressOffset>0x0054</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM4</name>
+                    <addressOffset>0x0058</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM5</name>
+                    <addressOffset>0x005c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM6</name>
+                    <addressOffset>0x0060</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM7</name>
+                    <addressOffset>0x0064</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM8</name>
+                    <addressOffset>0x0068</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM9</name>
+                    <addressOffset>0x006c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM10</name>
+                    <addressOffset>0x0070</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM11</name>
+                    <addressOffset>0x0074</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM12</name>
+                    <addressOffset>0x0078</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM13</name>
+                    <addressOffset>0x007c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM14</name>
+                    <addressOffset>0x0080</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM15</name>
+                    <addressOffset>0x0084</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM16</name>
+                    <addressOffset>0x0088</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM17</name>
+                    <addressOffset>0x008c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM18</name>
+                    <addressOffset>0x0090</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM19</name>
+                    <addressOffset>0x0094</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM20</name>
+                    <addressOffset>0x0098</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM21</name>
+                    <addressOffset>0x009c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM22</name>
+                    <addressOffset>0x00a0</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM23</name>
+                    <addressOffset>0x00a4</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM24</name>
+                    <addressOffset>0x00a8</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM25</name>
+                    <addressOffset>0x00ac</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM26</name>
+                    <addressOffset>0x00b0</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM27</name>
+                    <addressOffset>0x00b4</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM28</name>
+                    <addressOffset>0x00b8</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM29</name>
+                    <addressOffset>0x00bc</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM30</name>
+                    <addressOffset>0x00c0</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INSTR_MEM31</name>
+                    <addressOffset>0x00c4</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>instr</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM0_CLKDIV</name>
+                    <addressOffset>0x00c8</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>unused_div</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[unused_div read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_frac</name>
+                            <msb>15</msb>
+                            <bitRange>[15:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[div_frac read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_int</name>
+                            <msb>31</msb>
+                            <bitRange>[31:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[div_int read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM0_EXECCTRL</name>
+                    <addressOffset>0x00cc</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>status_n</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[status_n read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>status_sel</name>
+                            <msb>4</msb>
+                            <bitRange>[4:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[status_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_exec</name>
+                            <msb>6</msb>
+                            <bitRange>[6:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[resvd_exec read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>wrap_target</name>
+                            <msb>11</msb>
+                            <bitRange>[11:7]</bitRange>
+                            <lsb>7</lsb>
+                            <description><![CDATA[wrap_target read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pend</name>
+                            <msb>16</msb>
+                            <bitRange>[16:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[pend read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_sticky</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[out_sticky read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>inline_out_en</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[inline_out_en read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_en_sel</name>
+                            <msb>23</msb>
+                            <bitRange>[23:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_en_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>jmp_pin</name>
+                            <msb>28</msb>
+                            <bitRange>[28:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[jmp_pin read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>side_pindir</name>
+                            <msb>29</msb>
+                            <bitRange>[29:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[side_pindir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>sideset_enable_bit</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[sideset_enable_bit read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>exec_stalled</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM0_SHIFTCTRL</name>
+                    <addressOffset>0x00d0</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>resvd_shift</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[resvd_shift read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_push</name>
+                            <msb>16</msb>
+                            <bitRange>[16:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[auto_push read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_pull</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[auto_pull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>in_shift_dir</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[in_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_shift_dir</name>
+                            <msb>19</msb>
+                            <bitRange>[19:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>isr_threshold</name>
+                            <msb>24</msb>
+                            <bitRange>[24:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[isr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>osr_threshold</name>
+                            <msb>29</msb>
+                            <bitRange>[29:25]</bitRange>
+                            <lsb>25</lsb>
+                            <description><![CDATA[osr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_join</name>
+                            <msb>31</msb>
+                            <bitRange>[31:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[resvd_join read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM0_ADDR</name>
+                    <addressOffset>0x00d4</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pc</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pc read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM0_INSTR</name>
+                    <addressOffset>0x00d8</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>imm_instr</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[imm_instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM0_PINCTRL</name>
+                    <addressOffset>0x00dc</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pins_out_base</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pins_out_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_base</name>
+                            <msb>9</msb>
+                            <bitRange>[9:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[pins_set_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_base</name>
+                            <msb>14</msb>
+                            <bitRange>[14:10]</bitRange>
+                            <lsb>10</lsb>
+                            <description><![CDATA[pins_side_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_in_base</name>
+                            <msb>19</msb>
+                            <bitRange>[19:15]</bitRange>
+                            <lsb>15</lsb>
+                            <description><![CDATA[pins_in_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_out_count</name>
+                            <msb>25</msb>
+                            <bitRange>[25:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[pins_out_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_count</name>
+                            <msb>28</msb>
+                            <bitRange>[28:26]</bitRange>
+                            <lsb>26</lsb>
+                            <description><![CDATA[pins_set_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_count</name>
+                            <msb>31</msb>
+                            <bitRange>[31:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[pins_side_count read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM1_CLKDIV</name>
+                    <addressOffset>0x00e0</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>unused_div</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[unused_div read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_frac</name>
+                            <msb>15</msb>
+                            <bitRange>[15:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[div_frac read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_int</name>
+                            <msb>31</msb>
+                            <bitRange>[31:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[div_int read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM1_EXECCTRL</name>
+                    <addressOffset>0x00e4</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>status_n</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[status_n read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>status_sel</name>
+                            <msb>4</msb>
+                            <bitRange>[4:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[status_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_exec</name>
+                            <msb>6</msb>
+                            <bitRange>[6:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[resvd_exec read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>wrap_target</name>
+                            <msb>11</msb>
+                            <bitRange>[11:7]</bitRange>
+                            <lsb>7</lsb>
+                            <description><![CDATA[wrap_target read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pend</name>
+                            <msb>16</msb>
+                            <bitRange>[16:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[pend read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_sticky</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[out_sticky read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>inline_out_en</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[inline_out_en read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_en_sel</name>
+                            <msb>23</msb>
+                            <bitRange>[23:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_en_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>jmp_pin</name>
+                            <msb>28</msb>
+                            <bitRange>[28:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[jmp_pin read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>side_pindir</name>
+                            <msb>29</msb>
+                            <bitRange>[29:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[side_pindir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>sideset_enable_bit</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[sideset_enable_bit read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>exec_stalled</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM1_SHIFTCTRL</name>
+                    <addressOffset>0x00e8</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>resvd_shift</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[resvd_shift read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_push</name>
+                            <msb>16</msb>
+                            <bitRange>[16:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[auto_push read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_pull</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[auto_pull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>in_shift_dir</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[in_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_shift_dir</name>
+                            <msb>19</msb>
+                            <bitRange>[19:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>isr_threshold</name>
+                            <msb>24</msb>
+                            <bitRange>[24:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[isr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>osr_threshold</name>
+                            <msb>29</msb>
+                            <bitRange>[29:25]</bitRange>
+                            <lsb>25</lsb>
+                            <description><![CDATA[osr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_join</name>
+                            <msb>31</msb>
+                            <bitRange>[31:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[resvd_join read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM1_ADDR</name>
+                    <addressOffset>0x00ec</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pc</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pc read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM1_INSTR</name>
+                    <addressOffset>0x00f0</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>imm_instr</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[imm_instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM1_PINCTRL</name>
+                    <addressOffset>0x00f4</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pins_out_base</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pins_out_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_base</name>
+                            <msb>9</msb>
+                            <bitRange>[9:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[pins_set_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_base</name>
+                            <msb>14</msb>
+                            <bitRange>[14:10]</bitRange>
+                            <lsb>10</lsb>
+                            <description><![CDATA[pins_side_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_in_base</name>
+                            <msb>19</msb>
+                            <bitRange>[19:15]</bitRange>
+                            <lsb>15</lsb>
+                            <description><![CDATA[pins_in_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_out_count</name>
+                            <msb>25</msb>
+                            <bitRange>[25:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[pins_out_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_count</name>
+                            <msb>28</msb>
+                            <bitRange>[28:26]</bitRange>
+                            <lsb>26</lsb>
+                            <description><![CDATA[pins_set_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_count</name>
+                            <msb>31</msb>
+                            <bitRange>[31:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[pins_side_count read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM2_CLKDIV</name>
+                    <addressOffset>0x00f8</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>unused_div</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[unused_div read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_frac</name>
+                            <msb>15</msb>
+                            <bitRange>[15:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[div_frac read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_int</name>
+                            <msb>31</msb>
+                            <bitRange>[31:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[div_int read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM2_EXECCTRL</name>
+                    <addressOffset>0x00fc</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>status_n</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[status_n read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>status_sel</name>
+                            <msb>4</msb>
+                            <bitRange>[4:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[status_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_exec</name>
+                            <msb>6</msb>
+                            <bitRange>[6:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[resvd_exec read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>wrap_target</name>
+                            <msb>11</msb>
+                            <bitRange>[11:7]</bitRange>
+                            <lsb>7</lsb>
+                            <description><![CDATA[wrap_target read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pend</name>
+                            <msb>16</msb>
+                            <bitRange>[16:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[pend read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_sticky</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[out_sticky read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>inline_out_en</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[inline_out_en read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_en_sel</name>
+                            <msb>23</msb>
+                            <bitRange>[23:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_en_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>jmp_pin</name>
+                            <msb>28</msb>
+                            <bitRange>[28:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[jmp_pin read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>side_pindir</name>
+                            <msb>29</msb>
+                            <bitRange>[29:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[side_pindir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>sideset_enable_bit</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[sideset_enable_bit read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>exec_stalled</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM2_SHIFTCTRL</name>
+                    <addressOffset>0x0100</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>resvd_shift</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[resvd_shift read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_push</name>
+                            <msb>16</msb>
+                            <bitRange>[16:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[auto_push read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_pull</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[auto_pull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>in_shift_dir</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[in_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_shift_dir</name>
+                            <msb>19</msb>
+                            <bitRange>[19:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>isr_threshold</name>
+                            <msb>24</msb>
+                            <bitRange>[24:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[isr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>osr_threshold</name>
+                            <msb>29</msb>
+                            <bitRange>[29:25]</bitRange>
+                            <lsb>25</lsb>
+                            <description><![CDATA[osr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_join</name>
+                            <msb>31</msb>
+                            <bitRange>[31:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[resvd_join read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM2_ADDR</name>
+                    <addressOffset>0x0104</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pc</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pc read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM2_INSTR</name>
+                    <addressOffset>0x0108</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>imm_instr</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[imm_instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM2_PINCTRL</name>
+                    <addressOffset>0x010c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pins_out_base</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pins_out_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_base</name>
+                            <msb>9</msb>
+                            <bitRange>[9:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[pins_set_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_base</name>
+                            <msb>14</msb>
+                            <bitRange>[14:10]</bitRange>
+                            <lsb>10</lsb>
+                            <description><![CDATA[pins_side_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_in_base</name>
+                            <msb>19</msb>
+                            <bitRange>[19:15]</bitRange>
+                            <lsb>15</lsb>
+                            <description><![CDATA[pins_in_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_out_count</name>
+                            <msb>25</msb>
+                            <bitRange>[25:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[pins_out_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_count</name>
+                            <msb>28</msb>
+                            <bitRange>[28:26]</bitRange>
+                            <lsb>26</lsb>
+                            <description><![CDATA[pins_set_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_count</name>
+                            <msb>31</msb>
+                            <bitRange>[31:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[pins_side_count read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM3_CLKDIV</name>
+                    <addressOffset>0x0110</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>unused_div</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[unused_div read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_frac</name>
+                            <msb>15</msb>
+                            <bitRange>[15:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[div_frac read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>div_int</name>
+                            <msb>31</msb>
+                            <bitRange>[31:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[div_int read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM3_EXECCTRL</name>
+                    <addressOffset>0x0114</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>status_n</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[status_n read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>status_sel</name>
+                            <msb>4</msb>
+                            <bitRange>[4:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[status_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_exec</name>
+                            <msb>6</msb>
+                            <bitRange>[6:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[resvd_exec read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>wrap_target</name>
+                            <msb>11</msb>
+                            <bitRange>[11:7]</bitRange>
+                            <lsb>7</lsb>
+                            <description><![CDATA[wrap_target read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pend</name>
+                            <msb>16</msb>
+                            <bitRange>[16:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[pend read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_sticky</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[out_sticky read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>inline_out_en</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[inline_out_en read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_en_sel</name>
+                            <msb>23</msb>
+                            <bitRange>[23:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_en_sel read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>jmp_pin</name>
+                            <msb>28</msb>
+                            <bitRange>[28:24]</bitRange>
+                            <lsb>24</lsb>
+                            <description><![CDATA[jmp_pin read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>side_pindir</name>
+                            <msb>29</msb>
+                            <bitRange>[29:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[side_pindir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>sideset_enable_bit</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[sideset_enable_bit read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>exec_stalled</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM3_SHIFTCTRL</name>
+                    <addressOffset>0x0118</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>resvd_shift</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[resvd_shift read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_push</name>
+                            <msb>16</msb>
+                            <bitRange>[16:16]</bitRange>
+                            <lsb>16</lsb>
+                            <description><![CDATA[auto_push read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>auto_pull</name>
+                            <msb>17</msb>
+                            <bitRange>[17:17]</bitRange>
+                            <lsb>17</lsb>
+                            <description><![CDATA[auto_pull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>in_shift_dir</name>
+                            <msb>18</msb>
+                            <bitRange>[18:18]</bitRange>
+                            <lsb>18</lsb>
+                            <description><![CDATA[in_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>out_shift_dir</name>
+                            <msb>19</msb>
+                            <bitRange>[19:19]</bitRange>
+                            <lsb>19</lsb>
+                            <description><![CDATA[out_shift_dir read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>isr_threshold</name>
+                            <msb>24</msb>
+                            <bitRange>[24:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[isr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>osr_threshold</name>
+                            <msb>29</msb>
+                            <bitRange>[29:25]</bitRange>
+                            <lsb>25</lsb>
+                            <description><![CDATA[osr_threshold read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>resvd_join</name>
+                            <msb>31</msb>
+                            <bitRange>[31:30]</bitRange>
+                            <lsb>30</lsb>
+                            <description><![CDATA[resvd_join read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM3_ADDR</name>
+                    <addressOffset>0x011c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pc</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pc read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM3_INSTR</name>
+                    <addressOffset>0x0120</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>imm_instr</name>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[imm_instr read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_SM3_PINCTRL</name>
+                    <addressOffset>0x0124</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>pins_out_base</name>
+                            <msb>4</msb>
+                            <bitRange>[4:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[pins_out_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_base</name>
+                            <msb>9</msb>
+                            <bitRange>[9:5]</bitRange>
+                            <lsb>5</lsb>
+                            <description><![CDATA[pins_set_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_base</name>
+                            <msb>14</msb>
+                            <bitRange>[14:10]</bitRange>
+                            <lsb>10</lsb>
+                            <description><![CDATA[pins_side_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_in_base</name>
+                            <msb>19</msb>
+                            <bitRange>[19:15]</bitRange>
+                            <lsb>15</lsb>
+                            <description><![CDATA[pins_in_base read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_out_count</name>
+                            <msb>25</msb>
+                            <bitRange>[25:20]</bitRange>
+                            <lsb>20</lsb>
+                            <description><![CDATA[pins_out_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_set_count</name>
+                            <msb>28</msb>
+                            <bitRange>[28:26]</bitRange>
+                            <lsb>26</lsb>
+                            <description><![CDATA[pins_set_count read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>pins_side_count</name>
+                            <msb>31</msb>
+                            <bitRange>[31:29]</bitRange>
+                            <lsb>29</lsb>
+                            <description><![CDATA[pins_side_count read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_INTR</name>
+                    <addressOffset>0x0128</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>intr_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[intr_rxnempty read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>intr_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[intr_txnfull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>intr_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[intr_sm read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ0_INTE</name>
+                    <addressOffset>0x012c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>irq0_inte_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[irq0_inte_rxnempty read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq0_inte_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[irq0_inte_txnfull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq0_inte_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[irq0_inte_sm read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ0_INTF</name>
+                    <addressOffset>0x0130</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>irq0_intf_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[irq0_intf_rxnempty read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq0_intf_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[irq0_intf_txnfull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq0_intf_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[irq0_intf_sm read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ0_INTS</name>
+                    <addressOffset>0x0134</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>irq0_ints_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[irq0_ints_rxnempty read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>irq0_ints_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[irq0_ints_txnfull read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>irq0_ints_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[irq0_ints_sm read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ1_INTE</name>
+                    <addressOffset>0x0138</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>irq1_inte_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[irq1_inte_rxnempty read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq1_inte_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[irq1_inte_txnfull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq1_inte_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[irq1_inte_sm read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ1_INTF</name>
+                    <addressOffset>0x013c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>irq1_intf_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[irq1_intf_rxnempty read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq1_intf_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[irq1_intf_txnfull read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>irq1_intf_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[irq1_intf_sm read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
+                <register>
+                    <name>SFR_IRQ1_INTS</name>
+                    <addressOffset>0x0140</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>irq1_ints_rxnempty</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[irq1_ints_rxnempty read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>irq1_ints_txnfull</name>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[irq1_ints_txnfull read only status register]]></description>
+                        </field>
+                        <field>
+                            <name>irq1_ints_sm</name>
+                            <msb>11</msb>
+                            <bitRange>[11:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[irq1_ints_sm read only status register]]></description>
+                        </field>
+                    </fields>
+                </register>
+            </registers>
+            <addressBlock>
+                <offset>0</offset>
+                <size>0x144</size>
+                <usage>registers</usage>
+            </addressBlock>
+        </peripheral>
+    </peripherals>
+    <vendorExtensions>
+        <memoryRegions>
+            <memoryRegion>
+                <name>PIO</name>
+                <baseAddress>0x40202000</baseAddress>
+                <size>0x00008000</size>
+            </memoryRegion>
+        </memoryRegions>
+        <constants>
+        </constants>
+    </vendorExtensions>
+</device>
