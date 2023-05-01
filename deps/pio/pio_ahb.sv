@@ -128,6 +128,8 @@ module pio #(
     // Configuration
     reg [4:0]   pend            [0:NUM_MACHINES-1];
     reg [4:0]   wrap_target     [0:NUM_MACHINES-1];
+    reg [15:0]  div_int         [0:NUM_MACHINES-1];
+    reg [7:0]   div_frac        [0:NUM_MACHINES-1];
     reg [23:0]  div             [0:NUM_MACHINES-1];
     reg [4:0]   pins_in_base    [0:NUM_MACHINES-1];
     reg [4:0]   pins_out_base   [0:NUM_MACHINES-1];
@@ -218,88 +220,89 @@ module pio #(
         genvar j;
 
         for(j=0;j<NUM_MACHINES;j=j+1) begin : mach
-        machine machine (
-            .clk(clk),
-            .reset(reset),
-            .en(en[j]),
-            .restart(restart[j]),
-            .mindex(j[1:0]),
-            .jmp_pin(jmp_pin[j]),
-            .input_pins(gpio_in_cleaned),
-            .output_pins(output_pins[j]),
-            .pin_directions(pin_directions[j]),
-            .sideset_enable_bit(pins_side_count[j] > 0 ? sideset_enable_bit[j] : 1'b0),
-            .in_shift_dir(in_shift_dir[j]),
-            .out_shift_dir(out_shift_dir[j]),
-            .div(div[j]),
-            .use_divider(use_divider[j]),
-            .instr(imm[j] ? imm_instr[j] : curr_instr[j]),
-            .imm(imm[j]),
-            .pend(pend[j]),
-            .wrap_target(wrap_target[j]),
-            .pins_out_base(pins_out_base[j]),
-            .pins_out_count(pins_out_count[j]),
-            .pins_set_base(pins_set_base[j]),
-            .pins_set_count(pins_set_count[j]),
-            .pins_in_base(pins_in_base[j]),
-            .pins_side_base(pins_side_base[j]),
-            .pins_side_count(pins_side_count[j]),
-            .auto_pull(auto_pull[j]),
-            .auto_push(auto_push[j]),
-            .isr_threshold(isr_threshold[j]),
-            .osr_threshold(osr_threshold[j]),
-            .irq_flags_in(irq_flags_in),
-            .irq_flags_out(irq_flags_out[j]),
-            .irq_flags_stb(irq_flags_stb[j]),
-            .pc(pc[j]),
-            .din(mdin[j]),
-            .dout(mdout[j]),
-            .pull(mpull[j]),
-            .push(mpush[j]),
-            .pclk(pclk[j]),
-            .empty(mempty[j]),
-            .full(mfull[j]),
-            .status_sel(status_sel[j]),
-            .status_n(status_n[j]),
-            .tx_level(tx_level[j]),
-            .rx_level(rx_level[j]),
-            .dbg_txstall(dbg_txstall[j]),
-            .dbg_rxstall(dbg_rxstall[j])
-        );
+            assign div[j] = {div_int[j], div_frac[j]};
+            machine machine (
+                .clk(clk),
+                .reset(reset),
+                .en(en[j]),
+                .restart(restart[j]),
+                .mindex(j[1:0]),
+                .jmp_pin(jmp_pin[j]),
+                .input_pins(gpio_in_cleaned),
+                .output_pins(output_pins[j]),
+                .pin_directions(pin_directions[j]),
+                .sideset_enable_bit(pins_side_count[j] > 0 ? sideset_enable_bit[j] : 1'b0),
+                .in_shift_dir(in_shift_dir[j]),
+                .out_shift_dir(out_shift_dir[j]),
+                .div(div[j]),
+                .use_divider(use_divider[j]),
+                .instr(imm[j] ? imm_instr[j] : curr_instr[j]),
+                .imm(imm[j]),
+                .pend(pend[j]),
+                .wrap_target(wrap_target[j]),
+                .pins_out_base(pins_out_base[j]),
+                .pins_out_count(pins_out_count[j]),
+                .pins_set_base(pins_set_base[j]),
+                .pins_set_count(pins_set_count[j]),
+                .pins_in_base(pins_in_base[j]),
+                .pins_side_base(pins_side_base[j]),
+                .pins_side_count(pins_side_count[j]),
+                .auto_pull(auto_pull[j]),
+                .auto_push(auto_push[j]),
+                .isr_threshold(isr_threshold[j]),
+                .osr_threshold(osr_threshold[j]),
+                .irq_flags_in(irq_flags_in),
+                .irq_flags_out(irq_flags_out[j]),
+                .irq_flags_stb(irq_flags_stb[j]),
+                .pc(pc[j]),
+                .din(mdin[j]),
+                .dout(mdout[j]),
+                .pull(mpull[j]),
+                .push(mpush[j]),
+                .pclk(pclk[j]),
+                .empty(mempty[j]),
+                .full(mfull[j]),
+                .status_sel(status_sel[j]),
+                .status_n(status_n[j]),
+                .tx_level(tx_level[j]),
+                .rx_level(rx_level[j]),
+                .dbg_txstall(dbg_txstall[j]),
+                .dbg_rxstall(dbg_rxstall[j])
+            );
 
-        fifo fifo_tx (
-            .clk(clk),
-            .reset(reset),
-            .push(push[j]),
-            .pull(mpull[j]),
-            .din(fdin[j]),
-            .dout(mdin[j]),
-            .empty(mempty[j]),
-            .full(tx_full[j]),
-            .level(tx_level[j])
-        );
+            fifo fifo_tx (
+                .clk(clk),
+                .reset(reset),
+                .push(push[j]),
+                .pull(mpull[j]),
+                .din(fdin[j]),
+                .dout(mdin[j]),
+                .empty(mempty[j]),
+                .full(tx_full[j]),
+                .level(tx_level[j])
+            );
 
-        fifo fifo_rx (
-            .clk(clk),
-            .reset(reset),
-            .push(mpush[j]),
-            .pull(pull[j]),
-            .din(mdout[j]),
-            .dout(pdout[j]),
-            .full(mfull[j]),
-            .empty(rx_empty[j]),
-            .level(rx_level[j])
-        );
+            fifo fifo_rx (
+                .clk(clk),
+                .reset(reset),
+                .push(mpush[j]),
+                .pull(pull[j]),
+                .din(mdout[j]),
+                .dout(pdout[j]),
+                .full(mfull[j]),
+                .empty(rx_empty[j]),
+                .level(rx_level[j])
+            );
 
-        always @(posedge clk) begin
-            if (reset) begin
-                irq_flags_stb[j] <= 0;
-                irq_flags_out_r[j] <= 0;
-            end else begin
-                irq_flags_out_r[j] <= irq_flags_out[j];
+            always @(posedge clk) begin
+                if (reset) begin
+                    irq_flags_stb[j] <= 0;
+                    irq_flags_out_r[j] <= 0;
+                end else begin
+                    irq_flags_out_r[j] <= irq_flags_out[j];
+                end
             end
-        end
-        assign irq_flags_stb_edge[j] = !irq_flags_out_r[j] & irq_flags_out[j];
+            assign irq_flags_stb_edge[j] = !irq_flags_out_r[j] & irq_flags_out[j];
         end
     endgenerate
 
@@ -472,16 +475,69 @@ module pio #(
 
     bit do_action;
 
-    wire [7:0] unused_div [0:NUM_MACHINES - 1];
-    wire [1:0] resvd_exec [0:NUM_MACHINES - 1];
-    wire [16:0] resvd_shift [0:NUM_MACHINES - 1];
-    wire [1:0] resvd_join [0:NUM_MACHINES - 1];
+    // documentation clarity fields
+    wire [7:0] unused_div [0:NUM_MACHINES-1];
+    wire [1:0] resvd_exec [0:NUM_MACHINES-1];
+    wire [15:0] resvd_shift [0:NUM_MACHINES-1];
+    wire [1:0] resvd_join [0:NUM_MACHINES-1];
+    // docu debug register
+    wire [3:0] txstall;
+    wire [3:0] txover;
+    wire [3:0] rxunder;
+    wire [3:0] rxstall;
+    assign txstall = dbg_cr[27:24];
+    assign txover = dbg_cr[19:16];
+    assign rxunder = dbg_cr[11:8];
+    assign rxstall = dbg_cr[3:0];
+    // docu interrupt register fields. Kind of a weird combine-then-split we're doing here but whatev...makes the documentation and header files better!
+    wire [3:0] intr_sm;
+    wire [3:0] intr_txnfull;
+    wire [3:0] intr_rxnempty;
+    assign intr_sm       = irq_bundle[11:8];
+    assign intr_txnfull  = irq_bundle[7:4];
+    assign intr_rxnempty = irq_bundle[3:0];
+    wire [3:0] irq0_inte_sm;
+    wire [3:0] irq0_inte_txnfull;
+    wire [3:0] irq0_inte_rxnempty;
+    assign irq0_inte_sm       = irq0_inte[11:8];
+    assign irq0_inte_txnfull  = irq0_inte[7:4];
+    assign irq0_inte_rxnempty = irq0_inte[3:0];
+    wire [3:0] irq0_intf_sm;
+    wire [3:0] irq0_intf_txnfull;
+    wire [3:0] irq0_intf_rxnempty;
+    assign irq0_intf_sm       = irq0_intf[11:8];
+    assign irq0_intf_txnfull  = irq0_intf[7:4];
+    assign irq0_intf_rxnempty = irq0_intf[3:0];
+    wire [3:0] irq0_ints_sm;
+    wire [3:0] irq0_ints_txnfull;
+    wire [3:0] irq0_ints_rxnempty;
+    assign irq0_ints_sm       = irq0_ints[11:8];
+    assign irq0_ints_txnfull  = irq0_ints[7:4];
+    assign irq0_ints_rxnempty = irq0_ints[3:0];
+    wire [3:0] irq1_inte_sm;
+    wire [3:0] irq1_inte_txnfull;
+    wire [3:0] irq1_inte_rxnempty;
+    assign irq1_inte_sm       = irq1_inte[11:8];
+    assign irq1_inte_txnfull  = irq1_inte[7:4];
+    assign irq1_inte_rxnempty = irq1_inte[3:0];
+    wire [3:0] irq1_intf_sm;
+    wire [3:0] irq1_intf_txnfull;
+    wire [3:0] irq1_intf_rxnempty;
+    assign irq1_intf_sm       = irq1_intf[11:8];
+    assign irq1_intf_txnfull  = irq1_intf[7:4];
+    assign irq1_intf_rxnempty = irq1_intf[3:0];
+    wire [3:0] irq1_ints_sm;
+    wire [3:0] irq1_ints_txnfull;
+    wire [3:0] irq1_ints_rxnempty;
+    assign irq1_ints_sm       = irq1_ints[11:8];
+    assign irq1_ints_txnfull  = irq1_ints[7:4];
+    assign irq1_ints_rxnempty = irq1_ints[3:0];
 
     apb_cr  #(.A('h00), .DW(32))      sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))      sfr_fstat            (.sr({4'd0, tx_empty, 4'd0, tx_full, 4'd0, rx_empty, 4'd0, rx_full}), .prdata32(),.*);
-    apb_ascr #(.A('h08), .DW(32))     sfr_fdebug           (.cr(dbg_cr), .sr(dbg_sr), .ar(dbg_trig), .prdata32(),.*);
-    apb_sr  #(.A('h0C), .DW(32))      sfr_flevel           (.sr({rx_level[3], tx_level[3], rx_level[2], tx_level[2],
-                                                            rx_level[1], tx_level[1], rx_level[0], tx_level[0]}), .prdata32(),.*);
+    apb_ascr #(.A('h08), .DW(32))     sfr_fdebug           (.cr({4'd0, txstall, 4'd0, txover, 4'd0, rxunder, 4'd0, rxstall}), .sr(dbg_sr), .ar(dbg_trig), .prdata32(),.*);
+    apb_sr  #(.A('h0C), .DW(32))      sfr_flevel           (.sr({1'd0, rx_level[3], 1'd0, tx_level[3], 1'd0, rx_level[2], 1'd0, tx_level[2],
+                                                            1'd0, rx_level[1], 1'd0, tx_level[1], 1'd0, rx_level[0], 1'd0, tx_level[0]}), .prdata32(),.*);
     apb_acr #(.A('h10), .DW(32))      sfr_txf0             (.cr(fdin[0]), .ar(push[0]), .prdata32(),.*);
     apb_acr #(.A('h14), .DW(32))      sfr_txf1             (.cr(fdin[1]), .ar(push[1]), .prdata32(),.*);
     apb_acr #(.A('h18), .DW(32))      sfr_txf2             (.cr(fdin[2]), .ar(push[2]), .prdata32(),.*);
@@ -529,7 +585,7 @@ module pio #(
     apb_cr  #(.A('hC0), .DW(32))      sfr_instr_mem30      (.cr(instr[30]), .prdata32(),.*);
     apb_cr  #(.A('hC4), .DW(32))      sfr_instr_mem31      (.cr(instr[31]), .prdata32(),.*);
 
-    apb_cr  #(.A('hC8), .DW(32))      sfr_sm0_clkdiv       (.cr({div[0], unused_div[0]}), .prdata32(),.*);
+    apb_cr  #(.A('hC8), .DW(32))      sfr_sm0_clkdiv       (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
     apb_cr  #(.A('hCC), .DW(32))      sfr_sm0_execctrl     (.cr({
                                                                 exec_stalled[0], sideset_enable_bit[0],
                                                                 side_pindir[0], jmp_pin[0], out_en_sel[0],
@@ -550,7 +606,7 @@ module pio #(
                                                                 pins_in_base[0], pins_side_base[0], pins_set_base[0], pins_out_base[0]
                                                                 }), .prdata32(),.*);
 
-    apb_cr  #(.A('hE0), .DW(32))      sfr_sm1_clkdiv       (.cr({div[1], unused_div[1]}), .prdata32(),.*);
+    apb_cr  #(.A('hE0), .DW(32))      sfr_sm1_clkdiv       (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
     apb_cr  #(.A('hE4), .DW(32))      sfr_sm1_execctrl     (.cr({
                                                                 exec_stalled[1], sideset_enable_bit[1],
                                                                 side_pindir[1], jmp_pin[1], out_en_sel[1],
@@ -571,7 +627,7 @@ module pio #(
                                                                 pins_in_base[1], pins_side_base[1], pins_set_base[1], pins_out_base[1]
                                                                 }), .prdata32(),.*);
 
-    apb_cr  #(.A('hF8), .DW(32))      sfr_sm2_clkdiv       (.cr({div[2], unused_div[2]}), .prdata32(),.*);
+    apb_cr  #(.A('hF8), .DW(32))      sfr_sm2_clkdiv       (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
     apb_cr  #(.A('hFC), .DW(32))      sfr_sm2_execctrl     (.cr({
                                                                 exec_stalled[2], sideset_enable_bit[2],
                                                                 side_pindir[2], jmp_pin[2], out_en_sel[2],
@@ -592,7 +648,7 @@ module pio #(
                                                                 pins_in_base[2], pins_side_base[2], pins_set_base[2], pins_out_base[2]
                                                                 }), .prdata32(),.*);
 
-    apb_cr  #(.A('h110), .DW(32))     sfr_sm3_clkdiv       (.cr({div[3], unused_div[3]}), .prdata32(),.*);
+    apb_cr  #(.A('h110), .DW(32))     sfr_sm3_clkdiv       (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
     apb_cr  #(.A('h114), .DW(32))     sfr_sm3_execctrl     (.cr({
                                                                 exec_stalled[3], sideset_enable_bit[3],
                                                                 side_pindir[3], jmp_pin[3], out_en_sel[3],
@@ -613,13 +669,13 @@ module pio #(
                                                                 pins_in_base[3], pins_side_base[3], pins_set_base[3], pins_out_base[3]
                                                                 }), .prdata32(),.*);
 
-    apb_cr #(.A('h128), .DW(12))     sfr_intr             (.cr(irq_bundle), .prdata32(),.*);
-    apb_cr #(.A('h12C), .DW(12))     sfr_irq0_inte        (.cr(irq0_inte), .prdata32(),.*);
-    apb_cr #(.A('h130), .DW(12))     sfr_irq0_intf        (.cr(irq0_intf), .prdata32(),.*);
-    apb_sr #(.A('h134), .DW(12))     sfr_irq0_ints        (.sr(irq0_ints), .prdata32(),.*);
-    apb_cr #(.A('h138), .DW(12))     sfr_irq1_inte        (.cr(irq1_inte), .prdata32(),.*);
-    apb_cr #(.A('h13C), .DW(12))     sfr_irq1_intf        (.cr(irq1_intf), .prdata32(),.*);
-    apb_sr #(.A('h140), .DW(12))     sfr_irq1_ints        (.sr(irq1_ints), .prdata32(),.*);
+    apb_cr #(.A('h128), .DW(12))     sfr_intr             (.cr({intr_sm, intr_txnfull, intr_rxnempty}), .prdata32(),.*);
+    apb_cr #(.A('h12C), .DW(12))     sfr_irq0_inte        (.cr({irq0_inte_sm, irq0_inte_txnfull, irq0_inte_rxnempty}), .prdata32(),.*);
+    apb_cr #(.A('h130), .DW(12))     sfr_irq0_intf        (.cr({irq0_intf_sm, irq0_intf_txnfull, irq0_intf_rxnempty}), .prdata32(),.*);
+    apb_sr #(.A('h134), .DW(12))     sfr_irq0_ints        (.sr({irq0_ints_sm, irq0_ints_txnfull, irq0_ints_rxnempty}), .prdata32(),.*);
+    apb_cr #(.A('h138), .DW(12))     sfr_irq1_inte        (.cr({irq1_inte_sm, irq1_inte_txnfull, irq1_inte_rxnempty}), .prdata32(),.*);
+    apb_cr #(.A('h13C), .DW(12))     sfr_irq1_intf        (.cr({irq1_intf_sm, irq1_intf_txnfull, irq1_intf_rxnempty}), .prdata32(),.*);
+    apb_sr #(.A('h140), .DW(12))     sfr_irq1_ints        (.sr({irq1_ints_sm, irq1_ints_txnfull, irq1_ints_rxnempty}), .prdata32(),.*);
 
 endmodule
 

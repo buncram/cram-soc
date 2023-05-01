@@ -699,7 +699,7 @@ class Expr():
             return self.eval_result
 
         if '{' in self.expression:
-            logging.warning(f"Not expanding braced expression: {self.expression}")
+            logging.warning(f"Not evaluating math expressions (if any) in braced expression: {self.expression}")
             self.evaluated = True
             self.eval_result = self.expression
             return self.eval_result
@@ -835,6 +835,8 @@ def expand_param_list(params):
         return expanded_params
 
 def extract_bitwidth(schema, module, code_line):
+    code_line = code_line.replace('[0:NUM_MACHINES-1]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
+    code_line = code_line.replace('[NUM_MACHINES-1:0]', '')
     bw_re = re.compile('[\s]*(bit|logic|reg|wire)[\s]*(\[.*\])*(.*)')
     matches = bw_re.search(code_line.strip(';'))
     if matches is not None:
@@ -859,9 +861,10 @@ def add_reg(schema, module, code_line):
     REGEX = '(apb_[c,f,a,s]+r)\s+#\((.+)\)\s(.+)\s\((.+)\);'
     line_matcher = re.match(REGEX, code_line)
     if line_matcher is None:
-        logging.error('Regex match error (this is a script bug, regex needs to be fixed)')
-        logging.error(f'Line:  {code_line}')
-        logging.error(f'regex: {REGEX}')
+        if 'apb_sfr2' not in code_line and 'apb_sfrop2' not in code_line: # exceptions for the SFR definitions at the end of the file
+            logging.error('Regex match error (this is a script bug, regex needs to be fixed)')
+            logging.error(f'Line:  {code_line}')
+            logging.error(f'regex: {REGEX}')
     else:
         apb_type = line_matcher.group(1).strip()
         # create a list by mapping 'str.strip' onto the result of splitting the line_matcher's respective group on the ',' character
@@ -988,13 +991,25 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                             if '{' in the_arg.as_str():
                                 base_str = the_arg.as_str().replace('{', '').replace('}', '')
                                 bitfields = base_str.split(',')
-                                for bf in bitfields:
+                                for bf in reversed(bitfields):
                                     bf = bf.strip()
-                                    if bf in schema[module]['localparam']:
+                                    # FIXME: special case hack to remove index from all bitfields except for the [r,t]x_level series
+                                    if '_level' not in bf:
+                                        bf = bf.split('[')[0]
+                                    # FIXME: restore bit width to signals that are aggregate across all machines but
+                                    # consolidated into a single register
+                                    if 'clkdiv_restart' == bf or 'restart' == bf or 'en' == bf:
+                                        bitwidth = 4
+                                    elif bf in schema[module]['localparam']:
                                         bitwidth = schema[module]['localparam'][bf]
                                     else:
-                                        logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
-                                        bitwidth = 1
+                                        # FIXME: special case the rx/tx level entries
+                                        if 'rx_level' in bf or 'tx_level' in bf:
+                                            bitwidth = 3
+                                        else:
+                                            if "'d" not in bf: # we do handle 'd constant fields, just below...
+                                                logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
+                                                bitwidth = 1
                                     assert(rtype != 'ar') # we don't expect multi-bit ar defs
                                     if "'d" in bf: # this is a constant field
                                         bf_sub = bf.split("'d")
@@ -1091,12 +1106,19 @@ def main():
     # ------- extract the general schema of the code ----------
     schema = {}
     with open(args.path, encoding='utf-8') as sv_file:
-        bulk = sv_file.read()
-        bulk = bulk.replace('\n', ' ')
-        bulk = bulk.replace('\r', ' ')
-        bulk = bulk.replace(';', ';\n')
-        bulk = bulk.replace('endmodule', 'endmodule\n')
-        lines = bulk.split('\n')
+        condensed = ''
+        multi_line = ''
+        for line in sv_file.readlines():
+            line = remove_comments(line.strip()).lstrip()
+            if line.strip().endswith(';') or line.strip().endswith('module'):
+                multi_line += line
+                condensed += multi_line
+                condensed += '\n'
+                multi_line = ''
+            else:
+                multi_line += line
+
+        lines = condensed.split('\n')
         mod_or_pkg = ''
         multi_line_param = ''
         state = 'IDLE'
