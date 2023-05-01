@@ -32,6 +32,14 @@ cp ../deps/verilog-axi/rtl/axi_adapter_wr.v .
 cp ../deps/verilog-axi/rtl/axi_adapter_rd.v .
 cp ../deps/verilog-axi/rtl/axi_adapter.v .
 
+# copy over PIO rtl models
+rm -rf pio/*
+cp ../deps/pio/upstream/src/*.v pio/
+# remove the legacy top model
+rm -f pio/pio.v
+# add the correct top model
+cp ../deps/pio/pio_ahb.sv pio/
+
 rm -rf docs
 mkdir docs
 cp -r ../build/gateware/build/documentation/_build/html/* docs/
