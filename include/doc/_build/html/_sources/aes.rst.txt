@@ -119,10 +119,10 @@ AES_SFR_FR
 
         {
             "reg": [
-                {"name": "chnli_done",  "bits": 1},
-                {"name": "chnlo_done",  "bits": 1},
-                {"name": "acore_done",  "bits": 1},
                 {"name": "mfsm_done",  "bits": 1},
+                {"name": "acore_done",  "bits": 1},
+                {"name": "chnlo_done",  "bits": 1},
+                {"name": "chnli_done",  "bits": 1},
                 {"bits": 28}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
@@ -131,16 +131,16 @@ AES_SFR_FR
 +-------+------------+----------------------------------------------------------------------------------+
 | Field | Name       | Description                                                                      |
 +=======+============+==================================================================================+
-| [0]   | CHNLI_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [0]   | MFSM_DONE  | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
-| [1]   | CHNLO_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [1]   | ACORE_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
-| [2]   | ACORE_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [2]   | CHNLO_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
-| [3]   | MFSM_DONE  | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [3]   | CHNLI_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
 
@@ -155,9 +155,9 @@ AES_SFR_OPT
 
         {
             "reg": [
-                {"name": "opt_ifstart0",  "bits": 1},
-                {"name": "opt_mode0",  "bits": 4},
                 {"name": "opt_klen0",  "bits": 4},
+                {"name": "opt_mode0",  "bits": 4},
+                {"name": "opt_ifstart0",  "bits": 1},
                 {"bits": 23}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
@@ -166,11 +166,11 @@ AES_SFR_OPT
 +-------+--------------+----------------------------------------+
 | Field | Name         | Description                            |
 +=======+==============+========================================+
-| [0]   | OPT_IFSTART0 | sfr_crfunc read/write control register |
+| [3:0] | OPT_KLEN0    | sfr_crfunc read/write control register |
 +-------+--------------+----------------------------------------+
-| [4:1] | OPT_MODE0    | sfr_crfunc read/write control register |
+| [7:4] | OPT_MODE0    | sfr_crfunc read/write control register |
 +-------+--------------+----------------------------------------+
-| [8:5] | OPT_KLEN0    | sfr_crfunc read/write control register |
+| [8]   | OPT_IFSTART0 | sfr_crfunc read/write control register |
 +-------+--------------+----------------------------------------+
 
 AES_SFR_OPT1

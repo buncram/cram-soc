@@ -70,7 +70,7 @@
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>chnli_done</name>
+                            <name>mfsm_done</name>
                             <msb>0</msb>
                             <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
@@ -78,7 +78,7 @@
 bit position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>chnlo_done</name>
+                            <name>acore_done</name>
                             <msb>1</msb>
                             <bitRange>[1:1]</bitRange>
                             <lsb>1</lsb>
@@ -86,7 +86,7 @@ bit position to clear the flag]]></description>
 bit position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>acore_done</name>
+                            <name>chnlo_done</name>
                             <msb>2</msb>
                             <bitRange>[2:2]</bitRange>
                             <lsb>2</lsb>
@@ -94,7 +94,7 @@ bit position to clear the flag]]></description>
 bit position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>mfsm_done</name>
+                            <name>chnli_done</name>
                             <msb>3</msb>
                             <bitRange>[3:3]</bitRange>
                             <lsb>3</lsb>
@@ -110,24 +110,24 @@ bit position to clear the flag]]></description>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>opt_ifstart0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
+                            <name>opt_klen0</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_crfunc read/write control register]]></description>
                         </field>
                         <field>
                             <name>opt_mode0</name>
-                            <msb>4</msb>
-                            <bitRange>[4:1]</bitRange>
-                            <lsb>1</lsb>
+                            <msb>7</msb>
+                            <bitRange>[7:4]</bitRange>
+                            <lsb>4</lsb>
                             <description><![CDATA[sfr_crfunc read/write control register]]></description>
                         </field>
                         <field>
-                            <name>opt_klen0</name>
+                            <name>opt_ifstart0</name>
                             <msb>8</msb>
-                            <bitRange>[8:5]</bitRange>
-                            <lsb>5</lsb>
+                            <bitRange>[8:8]</bitRange>
+                            <lsb>8</lsb>
                             <description><![CDATA[sfr_crfunc read/write control register]]></description>
                         </field>
                     </fields>
@@ -355,7 +355,7 @@ bit position to clear the flag]]></description>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>chnli_done</name>
+                            <name>mfsm_done</name>
                             <msb>0</msb>
                             <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
@@ -363,7 +363,7 @@ bit position to clear the flag]]></description>
 position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>chnlo_done</name>
+                            <name>hash_done</name>
                             <msb>1</msb>
                             <bitRange>[1:1]</bitRange>
                             <lsb>1</lsb>
@@ -371,7 +371,7 @@ position to clear the flag]]></description>
 position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>hash_done</name>
+                            <name>chnlo_done</name>
                             <msb>2</msb>
                             <bitRange>[2:2]</bitRange>
                             <lsb>2</lsb>
@@ -379,7 +379,7 @@ position to clear the flag]]></description>
 position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>mfsm_done</name>
+                            <name>chnli_done</name>
                             <msb>3</msb>
                             <bitRange>[3:3]</bitRange>
                             <lsb>3</lsb>
@@ -410,7 +410,7 @@ position to clear the flag]]></description>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>cr_opt_ifstart</name>
+                            <name>cr_opt_scrtchk</name>
                             <msb>0</msb>
                             <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
@@ -424,7 +424,7 @@ position to clear the flag]]></description>
                             <description><![CDATA[cr_opt_hashcnt read/write control register]]></description>
                         </field>
                         <field>
-                            <name>cr_opt_scrtchk</name>
+                            <name>cr_opt_ifstart</name>
                             <msb>2</msb>
                             <bitRange>[2:2]</bitRange>
                             <lsb>2</lsb>
@@ -613,17 +613,17 @@ position to clear the flag]]></description>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>modinvready</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
+                            <name>mfsm</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[cr_segptrstart read only status register]]></description>
                         </field>
                         <field>
-                            <name>mfsm</name>
+                            <name>modinvready</name>
                             <msb>8</msb>
-                            <bitRange>[8:1]</bitRange>
-                            <lsb>1</lsb>
+                            <bitRange>[8:8]</bitRange>
+                            <lsb>8</lsb>
                             <description><![CDATA[cr_segptrstart read only status register]]></description>
                         </field>
                     </fields>
@@ -635,7 +635,7 @@ position to clear the flag]]></description>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>chnlx_done</name>
+                            <name>mfsm_done</name>
                             <msb>0</msb>
                             <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
@@ -643,7 +643,7 @@ position to clear the flag]]></description>
 respective bit position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>chnli_done</name>
+                            <name>pcore_done</name>
                             <msb>1</msb>
                             <bitRange>[1:1]</bitRange>
                             <lsb>1</lsb>
@@ -659,7 +659,7 @@ respective bit position to clear the flag]]></description>
 respective bit position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>pcore_done</name>
+                            <name>chnli_done</name>
                             <msb>3</msb>
                             <bitRange>[3:3]</bitRange>
                             <lsb>3</lsb>
@@ -667,7 +667,7 @@ respective bit position to clear the flag]]></description>
 respective bit position to clear the flag]]></description>
                         </field>
                         <field>
-                            <name>mfsm_done</name>
+                            <name>chnlx_done</name>
                             <msb>4</msb>
                             <bitRange>[4:4]</bitRange>
                             <lsb>4</lsb>

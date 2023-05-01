@@ -196,10 +196,10 @@
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "chnli_done",  "bits": 1},
-        {"name": "chnlo_done",  "bits": 1},
-        {"name": "hash_done",  "bits": 1},
         {"name": "mfsm_done",  "bits": 1},
+        {"name": "hash_done",  "bits": 1},
+        {"name": "chnlo_done",  "bits": 1},
+        {"name": "chnli_done",  "bits": 1},
         {"bits": 28}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
@@ -215,22 +215,22 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>[0]</p></td>
-<td><p>CHNLI_DONE</p></td>
+<td><p>MFSM_DONE</p></td>
 <td><p>mfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective bit
 position to clear the flag</p></td>
 </tr>
 <tr class="row-odd"><td><p>[1]</p></td>
-<td><p>CHNLO_DONE</p></td>
-<td><p>mfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective bit
-position to clear the flag</p></td>
-</tr>
-<tr class="row-even"><td><p>[2]</p></td>
 <td><p>HASH_DONE</p></td>
 <td><p>mfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective bit
 position to clear the flag</p></td>
 </tr>
+<tr class="row-even"><td><p>[2]</p></td>
+<td><p>CHNLO_DONE</p></td>
+<td><p>mfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective bit
+position to clear the flag</p></td>
+</tr>
 <tr class="row-odd"><td><p>[3]</p></td>
-<td><p>MFSM_DONE</p></td>
+<td><p>CHNLI_DONE</p></td>
 <td><p>mfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective bit
 position to clear the flag</p></td>
 </tr>
@@ -277,9 +277,9 @@ position to clear the flag</p></td>
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "cr_opt_ifstart",  "bits": 1},
-        {"name": "cr_opt_ifsob",  "bits": 1},
         {"name": "cr_opt_scrtchk",  "bits": 1},
+        {"name": "cr_opt_ifsob",  "bits": 1},
+        {"name": "cr_opt_ifstart",  "bits": 1},
         {"bits": 29}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
@@ -295,7 +295,7 @@ position to clear the flag</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>[0]</p></td>
-<td><p>CR_OPT_IFSTART</p></td>
+<td><p>CR_OPT_SCRTCHK</p></td>
 <td><p>cr_opt_hashcnt read/write control register</p></td>
 </tr>
 <tr class="row-odd"><td><p>[1]</p></td>
@@ -303,7 +303,7 @@ position to clear the flag</p></td>
 <td><p>cr_opt_hashcnt read/write control register</p></td>
 </tr>
 <tr class="row-even"><td><p>[2]</p></td>
-<td><p>CR_OPT_SCRTCHK</p></td>
+<td><p>CR_OPT_IFSTART</p></td>
 <td><p>cr_opt_hashcnt read/write control register</p></td>
 </tr>
 </tbody>

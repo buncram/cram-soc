@@ -171,8 +171,8 @@
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "modinvready",  "bits": 1},
         {"name": "mfsm",  "bits": 8},
+        {"name": "modinvready",  "bits": 1},
         {"bits": 23}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
@@ -187,12 +187,12 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>MODINVREADY</p></td>
+<tr class="row-even"><td><p>[7:0]</p></td>
+<td><p>MFSM</p></td>
 <td><p>cr_segptrstart read only status register</p></td>
 </tr>
-<tr class="row-odd"><td><p>[8:1]</p></td>
-<td><p>MFSM</p></td>
+<tr class="row-odd"><td><p>[8]</p></td>
+<td><p>MODINVREADY</p></td>
 <td><p>cr_segptrstart read only status register</p></td>
 </tr>
 </tbody>
@@ -207,11 +207,11 @@
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "chnlx_done",  "bits": 1},
-        {"name": "chnli_done",  "bits": 1},
-        {"name": "chnlo_done",  "bits": 1},
-        {"name": "pcore_done",  "bits": 1},
         {"name": "mfsm_done",  "bits": 1},
+        {"name": "pcore_done",  "bits": 1},
+        {"name": "chnlo_done",  "bits": 1},
+        {"name": "chnli_done",  "bits": 1},
+        {"name": "chnlx_done",  "bits": 1},
         {"bits": 27}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
@@ -227,12 +227,12 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>[0]</p></td>
-<td><p>CHNLX_DONE</p></td>
+<td><p>MFSM_DONE</p></td>
 <td><p>cr_segptrstart flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in
 respective bit position to clear the flag</p></td>
 </tr>
 <tr class="row-odd"><td><p>[1]</p></td>
-<td><p>CHNLI_DONE</p></td>
+<td><p>PCORE_DONE</p></td>
 <td><p>cr_segptrstart flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in
 respective bit position to clear the flag</p></td>
 </tr>
@@ -242,12 +242,12 @@ respective bit position to clear the flag</p></td>
 respective bit position to clear the flag</p></td>
 </tr>
 <tr class="row-odd"><td><p>[3]</p></td>
-<td><p>PCORE_DONE</p></td>
+<td><p>CHNLI_DONE</p></td>
 <td><p>cr_segptrstart flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in
 respective bit position to clear the flag</p></td>
 </tr>
 <tr class="row-even"><td><p>[4]</p></td>
-<td><p>MFSM_DONE</p></td>
+<td><p>CHNLX_DONE</p></td>
 <td><p>cr_segptrstart flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in
 respective bit position to clear the flag</p></td>
 </tr>

@@ -18,7 +18,13 @@ Register Groups
 .. toctree::
     :maxdepth: 1
 
-    pio
+    aes
+    combohash
+    pke
+    scedma
+    sce_glbsfr
+    trng
+    alu
 
 Indices and tables
 ==================

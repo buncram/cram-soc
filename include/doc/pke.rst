@@ -98,8 +98,8 @@ PKE_SFR_SRMFSM
 
         {
             "reg": [
-                {"name": "modinvready",  "bits": 1},
                 {"name": "mfsm",  "bits": 8},
+                {"name": "modinvready",  "bits": 1},
                 {"bits": 23}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
@@ -108,9 +108,9 @@ PKE_SFR_SRMFSM
 +-------+-------------+------------------------------------------+
 | Field | Name        | Description                              |
 +=======+=============+==========================================+
-| [0]   | MODINVREADY | cr_segptrstart read only status register |
+| [7:0] | MFSM        | cr_segptrstart read only status register |
 +-------+-------------+------------------------------------------+
-| [8:1] | MFSM        | cr_segptrstart read only status register |
+| [8]   | MODINVREADY | cr_segptrstart read only status register |
 +-------+-------------+------------------------------------------+
 
 PKE_SFR_FR
@@ -124,11 +124,11 @@ PKE_SFR_FR
 
         {
             "reg": [
-                {"name": "chnlx_done",  "bits": 1},
-                {"name": "chnli_done",  "bits": 1},
-                {"name": "chnlo_done",  "bits": 1},
-                {"name": "pcore_done",  "bits": 1},
                 {"name": "mfsm_done",  "bits": 1},
+                {"name": "pcore_done",  "bits": 1},
+                {"name": "chnlo_done",  "bits": 1},
+                {"name": "chnli_done",  "bits": 1},
+                {"name": "chnlx_done",  "bits": 1},
                 {"bits": 27}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
@@ -137,19 +137,19 @@ PKE_SFR_FR
 +-------+------------+---------------------------------------------------------------------------+
 | Field | Name       | Description                                                               |
 +=======+============+===========================================================================+
-| [0]   | CHNLX_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
+| [0]   | MFSM_DONE  | cr_segptrstart flag register. `1` means event happened, write back `1` in |
 |       |            | respective bit position to clear the flag                                 |
 +-------+------------+---------------------------------------------------------------------------+
-| [1]   | CHNLI_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
+| [1]   | PCORE_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
 |       |            | respective bit position to clear the flag                                 |
 +-------+------------+---------------------------------------------------------------------------+
 | [2]   | CHNLO_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
 |       |            | respective bit position to clear the flag                                 |
 +-------+------------+---------------------------------------------------------------------------+
-| [3]   | PCORE_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
+| [3]   | CHNLI_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
 |       |            | respective bit position to clear the flag                                 |
 +-------+------------+---------------------------------------------------------------------------+
-| [4]   | MFSM_DONE  | cr_segptrstart flag register. `1` means event happened, write back `1` in |
+| [4]   | CHNLX_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
 |       |            | respective bit position to clear the flag                                 |
 +-------+------------+---------------------------------------------------------------------------+
 

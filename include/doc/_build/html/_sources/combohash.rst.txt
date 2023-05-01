@@ -117,10 +117,10 @@ COMBOHASH_SFR_FR
 
         {
             "reg": [
-                {"name": "chnli_done",  "bits": 1},
-                {"name": "chnlo_done",  "bits": 1},
-                {"name": "hash_done",  "bits": 1},
                 {"name": "mfsm_done",  "bits": 1},
+                {"name": "hash_done",  "bits": 1},
+                {"name": "chnlo_done",  "bits": 1},
+                {"name": "chnli_done",  "bits": 1},
                 {"bits": 28}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
@@ -129,16 +129,16 @@ COMBOHASH_SFR_FR
 +-------+------------+--------------------------------------------------------------------------------+
 | Field | Name       | Description                                                                    |
 +=======+============+================================================================================+
-| [0]   | CHNLI_DONE | mfsm flag register. `1` means event happened, write back `1` in respective bit |
+| [0]   | MFSM_DONE  | mfsm flag register. `1` means event happened, write back `1` in respective bit |
 |       |            | position to clear the flag                                                     |
 +-------+------------+--------------------------------------------------------------------------------+
-| [1]   | CHNLO_DONE | mfsm flag register. `1` means event happened, write back `1` in respective bit |
+| [1]   | HASH_DONE  | mfsm flag register. `1` means event happened, write back `1` in respective bit |
 |       |            | position to clear the flag                                                     |
 +-------+------------+--------------------------------------------------------------------------------+
-| [2]   | HASH_DONE  | mfsm flag register. `1` means event happened, write back `1` in respective bit |
+| [2]   | CHNLO_DONE | mfsm flag register. `1` means event happened, write back `1` in respective bit |
 |       |            | position to clear the flag                                                     |
 +-------+------------+--------------------------------------------------------------------------------+
-| [3]   | MFSM_DONE  | mfsm flag register. `1` means event happened, write back `1` in respective bit |
+| [3]   | CHNLI_DONE | mfsm flag register. `1` means event happened, write back `1` in respective bit |
 |       |            | position to clear the flag                                                     |
 +-------+------------+--------------------------------------------------------------------------------+
 
@@ -176,9 +176,9 @@ COMBOHASH_SFR_OPT2
 
         {
             "reg": [
-                {"name": "cr_opt_ifstart",  "bits": 1},
-                {"name": "cr_opt_ifsob",  "bits": 1},
                 {"name": "cr_opt_scrtchk",  "bits": 1},
+                {"name": "cr_opt_ifsob",  "bits": 1},
+                {"name": "cr_opt_ifstart",  "bits": 1},
                 {"bits": 29}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
@@ -187,11 +187,11 @@ COMBOHASH_SFR_OPT2
 +-------+----------------+--------------------------------------------+
 | Field | Name           | Description                                |
 +=======+================+============================================+
-| [0]   | CR_OPT_IFSTART | cr_opt_hashcnt read/write control register |
+| [0]   | CR_OPT_SCRTCHK | cr_opt_hashcnt read/write control register |
 +-------+----------------+--------------------------------------------+
 | [1]   | CR_OPT_IFSOB   | cr_opt_hashcnt read/write control register |
 +-------+----------------+--------------------------------------------+
-| [2]   | CR_OPT_SCRTCHK | cr_opt_hashcnt read/write control register |
+| [2]   | CR_OPT_IFSTART | cr_opt_hashcnt read/write control register |
 +-------+----------------+--------------------------------------------+
 
 COMBOHASH_RESERVED6

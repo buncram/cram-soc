@@ -199,10 +199,10 @@
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "chnli_done",  "bits": 1},
-        {"name": "chnlo_done",  "bits": 1},
-        {"name": "acore_done",  "bits": 1},
         {"name": "mfsm_done",  "bits": 1},
+        {"name": "acore_done",  "bits": 1},
+        {"name": "chnlo_done",  "bits": 1},
+        {"name": "chnli_done",  "bits": 1},
         {"bits": 28}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
@@ -218,22 +218,22 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>[0]</p></td>
-<td><p>CHNLI_DONE</p></td>
+<td><p>MFSM_DONE</p></td>
 <td><p>sfr_srmfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective
 bit position to clear the flag</p></td>
 </tr>
 <tr class="row-odd"><td><p>[1]</p></td>
-<td><p>CHNLO_DONE</p></td>
-<td><p>sfr_srmfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective
-bit position to clear the flag</p></td>
-</tr>
-<tr class="row-even"><td><p>[2]</p></td>
 <td><p>ACORE_DONE</p></td>
 <td><p>sfr_srmfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective
 bit position to clear the flag</p></td>
 </tr>
+<tr class="row-even"><td><p>[2]</p></td>
+<td><p>CHNLO_DONE</p></td>
+<td><p>sfr_srmfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective
+bit position to clear the flag</p></td>
+</tr>
 <tr class="row-odd"><td><p>[3]</p></td>
-<td><p>MFSM_DONE</p></td>
+<td><p>CHNLI_DONE</p></td>
 <td><p>sfr_srmfsm flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective
 bit position to clear the flag</p></td>
 </tr>
@@ -249,9 +249,9 @@ bit position to clear the flag</p></td>
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "opt_ifstart0",  "bits": 1},
-        {"name": "opt_mode0",  "bits": 4},
         {"name": "opt_klen0",  "bits": 4},
+        {"name": "opt_mode0",  "bits": 4},
+        {"name": "opt_ifstart0",  "bits": 1},
         {"bits": 23}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
@@ -266,16 +266,16 @@ bit position to clear the flag</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>OPT_IFSTART0</p></td>
+<tr class="row-even"><td><p>[3:0]</p></td>
+<td><p>OPT_KLEN0</p></td>
 <td><p>sfr_crfunc read/write control register</p></td>
 </tr>
-<tr class="row-odd"><td><p>[4:1]</p></td>
+<tr class="row-odd"><td><p>[7:4]</p></td>
 <td><p>OPT_MODE0</p></td>
 <td><p>sfr_crfunc read/write control register</p></td>
 </tr>
-<tr class="row-even"><td><p>[8:5]</p></td>
-<td><p>OPT_KLEN0</p></td>
+<tr class="row-even"><td><p>[8]</p></td>
+<td><p>OPT_IFSTART0</p></td>
 <td><p>sfr_crfunc read/write control register</p></td>
 </tr>
 </tbody>
