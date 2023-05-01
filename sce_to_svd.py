@@ -973,7 +973,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                             if '{' in the_arg.as_str():
                                 base_str = the_arg.as_str().replace('{', '').replace('}', '')
                                 bitfields = base_str.split(',')
-                                for bf in bitfields:
+                                for bf in reversed(bitfields):
                                     bf = bf.strip()
                                     if bf in schema[module]['localparam']:
                                         bitwidth = schema[module]['localparam'][bf]
