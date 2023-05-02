@@ -1172,18 +1172,18 @@ def main():
 
     print("done parsing")
     # Setup the memory region that the CSRs are destined for. This is currently a temporary value, just for testing.
-    doc_soc.mem_regions['pio'] = SoCRegion(
+    doc_soc.mem_regions['rp_pio'] = SoCRegion(
         origin=0x4020_2000,
         size=0x8000,
         mode='rw',
         cached=False
     )
-    banks = {'pio' : 0} # fix the pio_wrap block to the 0th bank offset in this generator
+    banks = {'rp_pio' : 0} # fix the pio_wrap block to the 0th bank offset in this generator
     # ----------- print the tree and create CSRs
     for (module, leaves) in schema.items():
         eval_tree(leaves, schema, module, level=2, do_print=False)
         # ctrl_offset is the base of the SCE register set, as extracted from the core documentation
-        create_csrs(doc_soc, schema, module, banks, ctrl_offset=doc_soc.mem_regions['pio'].origin)
+        create_csrs(doc_soc, schema, module, banks, ctrl_offset=doc_soc.mem_regions['rp_pio'].origin)
 
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
     from litex.soc.interconnect.csr import _sort_gathered_items

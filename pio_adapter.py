@@ -120,6 +120,7 @@ class PioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
+        platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio")
         platform.add_source(os.path.join(rtl_dir, "pio_ahb.sv"))
