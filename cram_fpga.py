@@ -36,14 +36,18 @@ from deps.gateware.gateware import memlcd
 from deps.gateware.gateware import sram_32_cached
 
 from axi_crossbar import AXICrossbar
+from axil_crossbar import AXILiteCrossbar
 from axi_adapter import AXIAdapter
 from axi_ram import AXIRAM
 from axi_common import *
 
+from axil_ahb_adapter import AXILite2AHBAdapter
+from litex.soc.interconnect import ahb
+
 import subprocess
 
 
-VEX_VERILOG_PATH = "VexRiscv/src/VexRiscv_CramSoC.v"
+VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
 
 # Equivalent to the powershell Get-Command, and kinda like `which`
 def get_command(cmd):
@@ -187,6 +191,17 @@ _io = [
      # Noise generator
      Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
      ),
+
+    ("pio", 0,
+        # 32 bogus signals to satisfy vivado
+        Subsignal("gpio", Pins(
+            "B13 A13 A14 A15 B16 A16 C14 B17",
+            "A17 C17 B18 D16 D17 C18 E14 E15",
+            "F13 K16 J16 H13 K14 J15 J13 K13",
+            "A6 E6 D6 E5 D5 F4 E4 E1"
+        ), IOStandard("LVCMOS33")
+        ),
+    ),
 
      # Simulation "I/O"
      ("sim", 0,
@@ -570,8 +585,45 @@ class CramSoC(SoCMini):
         mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_map["sram"],  size=0x0100_0000)
 
         # 4) Add peripherals
+        # This region is used for testbench elements (e.g., does not appear in the final SoC):
+        # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
+        testbench_region = SoCIORegion(0x4000_0000, 0x20_0000, mode="rw", cached=False)
+        testbench_axil = AXILiteInterface()
+        # This region is used for SoC elements (e.g. items in the final SoC that we want to verify,
+        # but are not necessarily in their final address offset or topological configuration)
+        soc_region = SoCIORegion(0x4020_0000, 0x20_0000, mode="rw", cached=False)
+        soc_axil = AXILiteInterface()
+
+        self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
+        pxbar.add_slave(
+            name = "p_axil", s_axil = p_axi
+        )
+        pxbar.add_master(
+            name = "testbench",
+            m_axil = testbench_axil,
+            origin = testbench_region.origin,
+            size = testbench_region.size
+        )
+        pxbar.add_master(
+            name = "soc",
+            m_axil = soc_axil,
+            origin = soc_region.origin,
+            size = soc_region.size
+        )
+        #    masters=[p_axil],
+        #    slaves =[(testbench_region.decoder(p_axil), testbench_axil), (soc_region.decoder(p_axil), soc_axil)],
+        #    register = False,
+        self.bus.add_master(name="pbus", master=testbench_axil)
         # setup p_axi as the local bus master
-        self.bus.add_master(name="pbus", master=p_axi)
+        #self.bus.add_master(name="pbus", master=p_axi)
+        local_ahb = ahb.Interface()
+        self.submodules += AXILite2AHBAdapter(platform, soc_axil, local_ahb)
+        # from duart_adapter import DuartAdapter
+        # self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x201000)
+        from pio_adapter import PioAdapter
+        pio_irq0 = Signal()
+        pio_irq1 = Signal()
+        self.submodules += PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000)
 
         # add interrupt handler
         interrupt = Signal(32)
@@ -921,7 +973,7 @@ class CramSoC(SoCMini):
             o_coreuser            = coreuser          ,
             i_irqarray_bank0      = self.irqtest0.fields.trigger,
             i_irqarray_bank1      = self.irqtest1.fields.trigger,
-            i_irqarray_bank2      = zero_irq,
+            i_irqarray_bank2      = Cat(pio_irq0, pio_irq1, zero_irq[2:]),
             i_irqarray_bank3      = zero_irq,
             i_irqarray_bank4      = zero_irq,
             i_irqarray_bank5      = zero_irq,
