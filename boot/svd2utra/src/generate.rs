@@ -578,6 +578,8 @@ impl Register {
     pub const fn new(offset: usize, mask: usize) -> Register {
         Register { offset, mask }
     }
+    pub const fn offset(&self) -> usize { self.offset }
+    pub const fn mask(&self) -> usize { self.mask }
 }
 #[derive(Debug, Copy, Clone)]
 pub struct Field {

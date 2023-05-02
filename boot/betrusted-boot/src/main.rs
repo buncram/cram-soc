@@ -37,6 +37,11 @@ use core::mem::size_of;
 #[cfg(feature="ahb-test")]
 mod duart;
 
+#[cfg(feature="pio-test")]
+mod pio;
+#[cfg(feature="pio-test")]
+mod pio_generated;
+
 mod debug;
 #[cfg(feature="sim")]
 mod satp;
@@ -471,7 +476,7 @@ where
 */
 #[cfg(feature="sim")]
 /// our desired test length is 512 entries, so pick an LFSR with a period of 2^9-1...
-fn lfsr_next(state: u16) -> u16 {
+pub fn lfsr_next(state: u16) -> u16 {
     let bit = ((state >> 8) ^
                (state >>  4)) & 1;
 
@@ -481,7 +486,7 @@ fn lfsr_next(state: u16) -> u16 {
 #[cfg(feature="sim")]
 #[allow(dead_code)]
 /// shortened test length is 16 entries, so pick an LFSR with a period of 2^4-1...
-fn lfsr_next_16(state: u16) -> u16 {
+pub fn lfsr_next_16(state: u16) -> u16 {
     let bit = ((state >> 3) ^
                (state >>  2)) & 1;
 
@@ -565,14 +570,8 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         // ---------- ahb test option -------------
         #[cfg(feature="ahb-test")]
         ahb_tests();
-        let mut pio = CSR::new(0x4020_2000 as *mut u32);
-        let pio_cr = utralib::Register::new(0, 0xffff_ffff);
-        let pio_sr = utralib::Register::new(1, 0xffff_ffff);
-        for i in 0..16 {
-            report.wfo(utra::main::REPORT_REPORT, i);
-            pio.wo(pio_cr, i);
-            report.wfo(utra::main::REPORT_REPORT, pio.r(pio_sr));
-        }
+        #[cfg(feature="pio-test")]
+        pio::pio_tests();
 
         // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics

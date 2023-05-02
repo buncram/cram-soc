@@ -7,6 +7,8 @@ edition = "2018"
 [dependencies]
 utralib = {path = "../utralib"}
 riscv = { version = "0.5.6", package = "xous-riscv" }
+pio-proc = "0.2.2"
+pio = "0.2.1"
 
 [dependencies.com_rs]
 git="https://github.com/betrusted-io/com_rs"
@@ -28,10 +30,11 @@ optional = true
 debug-print = []
 small-soc = []
 ahb-test = []
+pio-test = []
 # default = ["debug-print", "small-soc"]
 hw-sec = ["curve25519-dalek", "ed25519-dalek"]
 sim = []
-default = ["sim"]
+default = ["sim", "pio-test"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}
