@@ -27,6 +27,10 @@ then
   cd ../cram-soc
   BIOS="../xous-cramium/sipmspi.init"
 else
+  # regenerate PIO include from source
+  python3 ./pio_to_svd.py
+  cp include/pio_generated.rs boot/betrusted-boot/src/
+
   cd boot
   cargo xtask boot-image --feature sim
 
