@@ -30,6 +30,39 @@ impl SmConfig {
         }
     }
 }
+#[derive(Debug)]
+pub struct LoadedProg {
+    program: Program::<RP2040_MAX_PROGRAM_SIZE>,
+    offset: usize,
+}
+impl LoadedProg {
+    pub fn load(program: Program::<RP2040_MAX_PROGRAM_SIZE>, pio_sm: &mut PioSm) -> Result<Self, PioError> {
+        let offset = pio_sm.add_program(&program)?;
+        Ok({
+            LoadedProg {
+                program,
+                offset: offset as usize,
+            }
+        })
+    }
+    pub fn start(&self) -> usize {
+        self.program.wrap.target as usize + self.offset
+    }
+    pub fn end(&self) -> usize {
+        self.program.wrap.source as usize + self.offset
+    }
+    pub fn setup_default_config(&self, pio_sm: &mut PioSm) {
+        pio_sm.config_set_defaults();
+        pio_sm.config_set_wrap(self.start(), self.end());
+        if self.program.side_set.bits() > 0 {
+            pio_sm.config_set_sideset(
+                self.program.side_set.bits() as usize,
+                self.program.side_set.optional(),
+                self.program.side_set.pindirs(),
+            )
+        }
+    }
+}
 #[derive(Debug, Copy, Clone)]
 #[repr(u32)]
 pub enum SmBit {
@@ -67,7 +100,8 @@ impl PioSm {
     pub fn txfifo_is_full(&self) -> bool {
         (self.pio.rf(rp_pio::SFR_FSTAT_TX_FULL) & (self.sm as u32)) != 0
     }
-    pub fn txfifo_push(&mut self, data: u32) {
+    #[allow(dead_code)]
+    pub fn txfifo_push_u32(&mut self, data: u32) {
         match self.sm {
             SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data),
             SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data),
@@ -75,15 +109,32 @@ impl PioSm {
             SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data),
         }
     }
+    pub fn txfifo_push_u8_msb(&mut self, data: u8) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 24),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 24),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, (data as u32) << 24),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 24),
+        }
+    }
     pub fn rxfifo_is_empty(&self) -> bool {
         (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm as u32)) != 0
     }
-    pub fn rxfifo_pull(&mut self) -> u32 {
+    #[allow(dead_code)]
+    pub fn rxfifo_pull_u32(&mut self) -> u32 {
         match self.sm {
             SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0),
             SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF0),
             SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF0),
             SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF0),
+        }
+    }
+    pub fn rxfifo_pull_u8_lsb(&mut self) -> u8 {
+        match self.sm {
+            SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0) as u8,
+            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF0) as u8,
+            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF0) as u8,
+            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF0) as u8,
         }
     }
     fn find_offset_for_program(&self, program: &Program<RP2040_MAX_PROGRAM_SIZE>) -> Option<usize> {
@@ -120,17 +171,27 @@ impl PioSm {
     /// returns the offset of the program once loaded
     pub fn add_program(
         &mut self,
-        program: Program<RP2040_MAX_PROGRAM_SIZE>,
-    ) -> Result<Program<RP2040_MAX_PROGRAM_SIZE>, PioError> {
+        program: &Program<RP2040_MAX_PROGRAM_SIZE>,
+    ) -> Result<usize, PioError> {
         if self.can_add_program(&program) {
             if let Some(origin) = self.find_offset_for_program(&program) {
-                let program = program.set_origin(Some(origin as u8));
                 for (i, &instr) in program.code.iter().enumerate() {
-                    self.write_progmem(origin + i, instr);
+                    // I feel like if I were somehow more clever I could find somewhere in one of these
+                    // libraries a macro that defines the jump instruction coding. But I can't. So,
+                    // this function literally just masks off the opcode (top 3 bits) and checks if
+                    // it's a jump instrution (3b000).
+                    let located_instr = if instr & 0xE000 != 0x0000 {
+                        instr
+                    } else {
+                        // this works because the offset is the LSB, and, generally the code is
+                        // assembled to address 0. Gross, but that's how the API is defined.
+                        instr + origin as u16
+                    };
+                    self.write_progmem(origin + i, located_instr);
                 }
                 let prog_mask = (1 << program.code.len()) - 1;
                 self.used_mask |= prog_mask << origin as u32;
-                Ok(program)
+                Ok(origin as usize)
             } else {
                 Err(PioError::Oom)
             }
@@ -142,7 +203,7 @@ impl PioSm {
     #[allow(dead_code)]
     pub fn remove_program(
         &mut self,
-        program: Program<RP2040_MAX_PROGRAM_SIZE>,
+        program: &Program<RP2040_MAX_PROGRAM_SIZE>,
         loaded_offset: usize,
     ) {
         let prog_mask = (((1 << program.code.len()) - 1) << loaded_offset) as u32;
@@ -453,14 +514,14 @@ pub fn pio_spi_write8_read8_blocking (
     loop {
         if !pio_sm.txfifo_is_full() {
             if let Some(&s) = src_iter.next() {
-                pio_sm.txfifo_push(s as u32);
+                pio_sm.txfifo_push_u8_msb(s);
             } else {
                 tx_done = true;
             }
         }
         if !pio_sm.rxfifo_is_empty() {
             if let Some(d) = dst_iter_mut.next() {
-                *d = pio_sm.rxfifo_pull() as u8;
+                *d = pio_sm.rxfifo_pull_u8_lsb();
             } else {
                 rx_done = true;
             }
@@ -475,8 +536,8 @@ pub fn spi_test_core(pio_sm: &mut PioSm) -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
 
-    const BUF_SIZE: usize = 20;
-    let mut state: u16 = 1;
+    const BUF_SIZE: usize = 4;
+    let mut state: u16 = 0xFF;
     let mut tx_buf = [0u8; BUF_SIZE];
     let mut rx_buf = [0u8; BUF_SIZE];
     // init the TX buf
@@ -500,7 +561,7 @@ pub fn spi_test_core(pio_sm: &mut PioSm) -> bool {
 #[inline(always)]
 pub fn pio_spi_init(
     pio_sm: &mut PioSm,
-    program: Program::<RP2040_MAX_PROGRAM_SIZE>,
+    program: &LoadedProg,
     n_bits: usize,
     clkdiv: f32,
     // TODO: not implemented!
@@ -509,8 +570,8 @@ pub fn pio_spi_init(
     pin_mosi: usize,
     pin_miso: usize
 ) {
-    pio_sm.config_set_defaults();
-    pio_sm.config_set_wrap(program.wrap.target as _, program.wrap.source as _);
+    // this applies a default config to the PioSm object that is relevant to the program
+    program.setup_default_config(pio_sm);
 
     pio_sm.config_set_out_pins(pin_mosi, 1);
     pio_sm.config_set_in_pins(pin_miso);
@@ -520,8 +581,14 @@ pub fn pio_spi_init(
     pio_sm.config_set_clkdiv(clkdiv);
 
     // MOSI, SCK output are low, MISO is input
-    pio_sm.sm_set_pins_with_mask(0, (1 << pin_sck) | (1 << pin_mosi));
-    pio_sm.sm_set_pindirs_with_mask((1 << pin_sck) | (1 << pin_mosi), (1 << pin_sck) | (1 << pin_mosi) | (1 << pin_miso));
+    pio_sm.sm_set_pins_with_mask(
+        0,
+        (1 << pin_sck) | (1 << pin_mosi)
+    );
+    pio_sm.sm_set_pindirs_with_mask(
+        (1 << pin_sck) | (1 << pin_mosi),
+        (1 << pin_sck) | (1 << pin_mosi) | (1 << pin_miso)
+    );
 
     // NOTE: cpol setting is not implemented
 
@@ -529,7 +596,7 @@ pub fn pio_spi_init(
     pio_sm.pio.wo(rp_pio::SFR_SYNC_BYPASS, 1 << pin_miso);
 
     // program origin should already be set by the loader. sm_init() also disables the engine.
-    pio_sm.sm_init(program.origin.unwrap() as _);
+    pio_sm.sm_init(program.start());
     pio_sm.sm_set_enabled(true);
 }
 
@@ -556,20 +623,18 @@ pub fn spi_test() -> bool {
         "mov pins, x side 1 [1]", // Output data, assert SCK (mov pins uses OUT mapping)
         "in pins, 1  side 0" // Input data, deassert SCK
     );
-    let mut prog_cpha0 = spi_cpha0_prog.program;
+    let prog_cpha0 = LoadedProg::load(spi_cpha0_prog.program, &mut pio_sm).unwrap();
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0000);
-    prog_cpha0 = pio_sm.add_program(prog_cpha0).unwrap();
+    let prog_cpha1 = LoadedProg::load(spi_cpha1_prog.program, &mut pio_sm).unwrap();
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0001);
-    let mut prog_cpha1 = spi_cpha1_prog.program;
-    prog_cpha1 = pio_sm.add_program(prog_cpha1).unwrap();
 
-    let clkdiv: f32 = 31.25;
+    let clkdiv: f32 = 47.25;
     let mut passing = true;
     // pha = 1
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
     pio_spi_init(
         &mut pio_sm,
-        prog_cpha0, // cpha set here
+        &prog_cpha0, // cpha set here
         8,
         clkdiv,
         false,
@@ -586,7 +651,7 @@ pub fn spi_test() -> bool {
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0004);
     pio_spi_init(
         &mut pio_sm,
-        prog_cpha1, // cpha set here
+        &prog_cpha1, // cpha set here
         8,
         clkdiv,
         false,
