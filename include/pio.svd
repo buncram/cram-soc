@@ -14,9 +14,9 @@
 
     <peripherals>
         <peripheral>
-            <name>PIO</name>
+            <name>RP_PIO</name>
             <baseAddress>0x40202000</baseAddress>
-            <groupName>PIO</groupName>
+            <groupName>RP_PIO</groupName>
             <registers>
                 <register>
                     <name>SFR_CTRL</name>
@@ -125,11 +125,11 @@
                             <description><![CDATA[rxstall read/write control register]]></description>
                         </field>
                         <field>
-                            <name>constant0</name>
+                            <name>nc_dbg3</name>
                             <msb>7</msb>
                             <bitRange>[7:4]</bitRange>
                             <lsb>4</lsb>
-                            <description><![CDATA[constant value of 0]]></description>
+                            <description><![CDATA[nc_dbg3 read/write control register]]></description>
                         </field>
                         <field>
                             <name>rxunder</name>
@@ -139,11 +139,11 @@
                             <description><![CDATA[rxunder read/write control register]]></description>
                         </field>
                         <field>
-                            <name>constant1</name>
+                            <name>nc_dbg2</name>
                             <msb>15</msb>
                             <bitRange>[15:12]</bitRange>
                             <lsb>12</lsb>
-                            <description><![CDATA[constant value of 0]]></description>
+                            <description><![CDATA[nc_dbg2 read/write control register]]></description>
                         </field>
                         <field>
                             <name>txover</name>
@@ -153,11 +153,11 @@
                             <description><![CDATA[txover read/write control register]]></description>
                         </field>
                         <field>
-                            <name>constant2</name>
+                            <name>nc_dbg1</name>
                             <msb>23</msb>
                             <bitRange>[23:20]</bitRange>
                             <lsb>20</lsb>
-                            <description><![CDATA[constant value of 0]]></description>
+                            <description><![CDATA[nc_dbg1 read/write control register]]></description>
                         </field>
                         <field>
                             <name>txstall</name>
@@ -167,11 +167,11 @@
                             <description><![CDATA[txstall read/write control register]]></description>
                         </field>
                         <field>
-                            <name>constant3</name>
+                            <name>nc_dbg0</name>
                             <msb>31</msb>
                             <bitRange>[31:28]</bitRange>
                             <lsb>28</lsb>
-                            <description><![CDATA[constant value of 0]]></description>
+                            <description><![CDATA[nc_dbg0 read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -466,11 +466,11 @@
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>gpio_in</name>
+                            <name>sfr_dbg_padout</name>
                             <msb>31</msb>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[gpio_in read only status register]]></description>
+                            <description><![CDATA[sfr_dbg_padout read only status register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -481,11 +481,11 @@
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>gpio_dir</name>
+                            <name>sfr_dbg_padoe</name>
                             <msb>31</msb>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[gpio_dir read only status register]]></description>
+                            <description><![CDATA[sfr_dbg_padoe read only status register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -526,8 +526,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -541,8 +541,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -556,8 +556,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -571,8 +571,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -586,8 +586,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -601,8 +601,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -616,8 +616,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -631,8 +631,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -646,8 +646,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -661,8 +661,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -676,8 +676,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -691,8 +691,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -706,8 +706,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -721,8 +721,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -736,8 +736,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -751,8 +751,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -766,8 +766,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -781,8 +781,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -796,8 +796,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -811,8 +811,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -826,8 +826,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -841,8 +841,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -856,8 +856,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -871,8 +871,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -886,8 +886,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -901,8 +901,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -916,8 +916,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -931,8 +931,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -946,8 +946,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -961,8 +961,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -976,8 +976,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -991,8 +991,8 @@
                     <fields>
                         <field>
                             <name>instr</name>
-                            <msb>31</msb>
-                            <bitRange>[31:0]</bitRange>
+                            <msb>15</msb>
+                            <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[instr read/write control register]]></description>
                         </field>
@@ -1175,11 +1175,18 @@
                             <description><![CDATA[osr_threshold read/write control register]]></description>
                         </field>
                         <field>
-                            <name>resvd_join</name>
-                            <msb>31</msb>
-                            <bitRange>[31:30]</bitRange>
+                            <name>join_tx</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
                             <lsb>30</lsb>
-                            <description><![CDATA[resvd_join read/write control register]]></description>
+                            <description><![CDATA[join_tx read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>join_rx</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[join_rx read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1447,11 +1454,18 @@
                             <description><![CDATA[osr_threshold read/write control register]]></description>
                         </field>
                         <field>
-                            <name>resvd_join</name>
-                            <msb>31</msb>
-                            <bitRange>[31:30]</bitRange>
+                            <name>join_tx</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
                             <lsb>30</lsb>
-                            <description><![CDATA[resvd_join read/write control register]]></description>
+                            <description><![CDATA[join_tx read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>join_rx</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[join_rx read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1719,11 +1733,18 @@
                             <description><![CDATA[osr_threshold read/write control register]]></description>
                         </field>
                         <field>
-                            <name>resvd_join</name>
-                            <msb>31</msb>
-                            <bitRange>[31:30]</bitRange>
+                            <name>join_tx</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
                             <lsb>30</lsb>
-                            <description><![CDATA[resvd_join read/write control register]]></description>
+                            <description><![CDATA[join_tx read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>join_rx</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[join_rx read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1991,11 +2012,18 @@
                             <description><![CDATA[osr_threshold read/write control register]]></description>
                         </field>
                         <field>
-                            <name>resvd_join</name>
-                            <msb>31</msb>
-                            <bitRange>[31:30]</bitRange>
+                            <name>join_tx</name>
+                            <msb>30</msb>
+                            <bitRange>[30:30]</bitRange>
                             <lsb>30</lsb>
-                            <description><![CDATA[resvd_join read/write control register]]></description>
+                            <description><![CDATA[join_tx read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>join_rx</name>
+                            <msb>31</msb>
+                            <bitRange>[31:31]</bitRange>
+                            <lsb>31</lsb>
+                            <description><![CDATA[join_rx read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -2097,21 +2125,21 @@
                             <msb>3</msb>
                             <bitRange>[3:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[intr_rxnempty read/write control register]]></description>
+                            <description><![CDATA[intr_rxnempty read only status register]]></description>
                         </field>
                         <field>
                             <name>intr_txnfull</name>
                             <msb>7</msb>
                             <bitRange>[7:4]</bitRange>
                             <lsb>4</lsb>
-                            <description><![CDATA[intr_txnfull read/write control register]]></description>
+                            <description><![CDATA[intr_txnfull read only status register]]></description>
                         </field>
                         <field>
                             <name>intr_sm</name>
                             <msb>11</msb>
                             <bitRange>[11:8]</bitRange>
                             <lsb>8</lsb>
-                            <description><![CDATA[intr_sm read/write control register]]></description>
+                            <description><![CDATA[intr_sm read only status register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -2300,7 +2328,7 @@
     <vendorExtensions>
         <memoryRegions>
             <memoryRegion>
-                <name>PIO</name>
+                <name>RP_PIO</name>
                 <baseAddress>0x40202000</baseAddress>
                 <size>0x00008000</size>
             </memoryRegion>

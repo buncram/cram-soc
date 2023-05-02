@@ -18,7 +18,7 @@ Register Groups
 .. toctree::
     :maxdepth: 1
 
-    pio
+    rp_pio
 
 Indices and tables
 ==================

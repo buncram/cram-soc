@@ -254,36 +254,37 @@ PIO_SFR_FDEBUG
         {
             "reg": [
                 {"name": "rxstall",  "bits": 4},
-                {"name": "constant0",  "bits": 4},
+                {"name": "nc_dbg3",  "bits": 1},
                 {"name": "rxunder",  "bits": 4},
-                {"name": "constant1",  "bits": 4},
+                {"name": "nc_dbg2",  "bits": 4},
                 {"name": "txover",  "bits": 4},
-                {"name": "constant2",  "bits": 4},
+                {"name": "nc_dbg1",  "bits": 4},
                 {"name": "txstall",  "bits": 4},
-                {"name": "constant3",  "bits": 4}
+                {"name": "nc_dbg0",  "bits": 4},
+                {"bits": 3}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
 
-+---------+-----------+-------------------------------------+
-| Field   | Name      | Description                         |
-+=========+===========+=====================================+
-| [3:0]   | RXSTALL   | rxstall read/write control register |
-+---------+-----------+-------------------------------------+
-| [7:4]   | CONSTANT0 | constant value of 0                 |
-+---------+-----------+-------------------------------------+
-| [11:8]  | RXUNDER   | rxunder read/write control register |
-+---------+-----------+-------------------------------------+
-| [15:12] | CONSTANT1 | constant value of 0                 |
-+---------+-----------+-------------------------------------+
-| [19:16] | TXOVER    | txover read/write control register  |
-+---------+-----------+-------------------------------------+
-| [23:20] | CONSTANT2 | constant value of 0                 |
-+---------+-----------+-------------------------------------+
-| [27:24] | TXSTALL   | txstall read/write control register |
-+---------+-----------+-------------------------------------+
-| [31:28] | CONSTANT3 | constant value of 0                 |
-+---------+-----------+-------------------------------------+
++---------+---------+-------------------------------------+
+| Field   | Name    | Description                         |
++=========+=========+=====================================+
+| [3:0]   | RXSTALL | rxstall read/write control register |
++---------+---------+-------------------------------------+
+| [4]     | NC_DBG3 | nc_dbg3 read/write control register |
++---------+---------+-------------------------------------+
+| [8:5]   | RXUNDER | rxunder read/write control register |
++---------+---------+-------------------------------------+
+| [12:9]  | NC_DBG2 | nc_dbg2 read/write control register |
++---------+---------+-------------------------------------+
+| [16:13] | TXOVER  | txover read/write control register  |
++---------+---------+-------------------------------------+
+| [20:17] | NC_DBG1 | nc_dbg1 read/write control register |
++---------+---------+-------------------------------------+
+| [24:21] | TXSTALL | txstall read/write control register |
++---------+---------+-------------------------------------+
+| [28:25] | NC_DBG0 | nc_dbg0 read/write control register |
++---------+---------+-------------------------------------+
 
 PIO_SFR_FLEVEL
 ^^^^^^^^^^^^^^
@@ -1468,7 +1469,8 @@ PIO_SFR_SM0_SHIFTCTRL
                 {"name": "out_shift_dir",  "bits": 1},
                 {"name": "isr_threshold",  "bits": 5},
                 {"name": "osr_threshold",  "bits": 5},
-                {"name": "resvd_join",  "bits": 2}
+                {"name": "join_tx",  "bits": 1},
+                {"name": "join_rx",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -1490,7 +1492,9 @@ PIO_SFR_SM0_SHIFTCTRL
 +---------+---------------+-------------------------------------------+
 | [29:25] | OSR_THRESHOLD | osr_threshold read/write control register |
 +---------+---------------+-------------------------------------------+
-| [31:30] | RESVD_JOIN    | resvd_join read/write control register    |
+| [30]    | JOIN_TX       | join_tx read/write control register       |
++---------+---------------+-------------------------------------------+
+| [31]    | JOIN_RX       | join_rx read/write control register       |
 +---------+---------------+-------------------------------------------+
 
 PIO_SFR_SM0_ADDR
@@ -1680,7 +1684,8 @@ PIO_SFR_SM1_SHIFTCTRL
                 {"name": "out_shift_dir",  "bits": 1},
                 {"name": "isr_threshold",  "bits": 5},
                 {"name": "osr_threshold",  "bits": 5},
-                {"name": "resvd_join",  "bits": 2}
+                {"name": "join_tx",  "bits": 1},
+                {"name": "join_rx",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -1702,7 +1707,9 @@ PIO_SFR_SM1_SHIFTCTRL
 +---------+---------------+-------------------------------------------+
 | [29:25] | OSR_THRESHOLD | osr_threshold read/write control register |
 +---------+---------------+-------------------------------------------+
-| [31:30] | RESVD_JOIN    | resvd_join read/write control register    |
+| [30]    | JOIN_TX       | join_tx read/write control register       |
++---------+---------------+-------------------------------------------+
+| [31]    | JOIN_RX       | join_rx read/write control register       |
 +---------+---------------+-------------------------------------------+
 
 PIO_SFR_SM1_ADDR
@@ -1892,7 +1899,8 @@ PIO_SFR_SM2_SHIFTCTRL
                 {"name": "out_shift_dir",  "bits": 1},
                 {"name": "isr_threshold",  "bits": 5},
                 {"name": "osr_threshold",  "bits": 5},
-                {"name": "resvd_join",  "bits": 2}
+                {"name": "join_tx",  "bits": 1},
+                {"name": "join_rx",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -1914,7 +1922,9 @@ PIO_SFR_SM2_SHIFTCTRL
 +---------+---------------+-------------------------------------------+
 | [29:25] | OSR_THRESHOLD | osr_threshold read/write control register |
 +---------+---------------+-------------------------------------------+
-| [31:30] | RESVD_JOIN    | resvd_join read/write control register    |
+| [30]    | JOIN_TX       | join_tx read/write control register       |
++---------+---------------+-------------------------------------------+
+| [31]    | JOIN_RX       | join_rx read/write control register       |
 +---------+---------------+-------------------------------------------+
 
 PIO_SFR_SM2_ADDR
@@ -2104,7 +2114,8 @@ PIO_SFR_SM3_SHIFTCTRL
                 {"name": "out_shift_dir",  "bits": 1},
                 {"name": "isr_threshold",  "bits": 5},
                 {"name": "osr_threshold",  "bits": 5},
-                {"name": "resvd_join",  "bits": 2}
+                {"name": "join_tx",  "bits": 1},
+                {"name": "join_rx",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -2126,7 +2137,9 @@ PIO_SFR_SM3_SHIFTCTRL
 +---------+---------------+-------------------------------------------+
 | [29:25] | OSR_THRESHOLD | osr_threshold read/write control register |
 +---------+---------------+-------------------------------------------+
-| [31:30] | RESVD_JOIN    | resvd_join read/write control register    |
+| [30]    | JOIN_TX       | join_tx read/write control register       |
++---------+---------------+-------------------------------------------+
+| [31]    | JOIN_RX       | join_rx read/write control register       |
 +---------+---------------+-------------------------------------------+
 
 PIO_SFR_SM3_ADDR
@@ -2234,15 +2247,15 @@ PIO_SFR_INTR
         }
 
 
-+--------+---------------+-------------------------------------------+
-| Field  | Name          | Description                               |
-+========+===============+===========================================+
-| [3:0]  | INTR_RXNEMPTY | intr_rxnempty read/write control register |
-+--------+---------------+-------------------------------------------+
-| [7:4]  | INTR_TXNFULL  | intr_txnfull read/write control register  |
-+--------+---------------+-------------------------------------------+
-| [11:8] | INTR_SM       | intr_sm read/write control register       |
-+--------+---------------+-------------------------------------------+
++--------+---------------+-----------------------------------------+
+| Field  | Name          | Description                             |
++========+===============+=========================================+
+| [3:0]  | INTR_RXNEMPTY | intr_rxnempty read only status register |
++--------+---------------+-----------------------------------------+
+| [7:4]  | INTR_TXNFULL  | intr_txnfull read only status register  |
++--------+---------------+-----------------------------------------+
+| [11:8] | INTR_SM       | intr_sm read only status register       |
++--------+---------------+-----------------------------------------+
 
 PIO_SFR_IRQ0_INTE
 ^^^^^^^^^^^^^^^^^
