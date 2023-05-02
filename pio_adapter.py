@@ -70,8 +70,17 @@ class PioAdapter(Module):
             i_PSLVERR              = apb_slverr,
         )
 
-        self.gpio = TSTriple(32)
-        self.specials += self.gpio.get_tristate(pads.gpio)
+        gpio_i = Signal(32)
+        gpio_o = Signal(32)
+        gpio_oe = Signal(32)
+        for i in range(32):
+            self.gpio = TSTriple()
+            self.specials += self.gpio.get_tristate(pads.gpio[i])
+            self.comb += [
+                self.gpio.o.eq(gpio_o[i]),
+                self.gpio.oe.eq(gpio_oe[i]),
+                gpio_i[i].eq(self.gpio.i),
+            ]
 
         self.specials += Instance("pio_ahb",
             # Parameters.
@@ -100,13 +109,13 @@ class PioAdapter(Module):
             o_PSLVERR              = apb_slverr,
 
             # gpio interfaces
-            i_gpio_in              = self.gpio.i,
-            o_gpio_out             = self.gpio.o,
-            o_gpio_dir             = self.gpio.oe, # 1 is output
+            i_gpio_in              = gpio_i,
+            o_gpio_out             = gpio_o,
+            o_gpio_dir             = gpio_oe, # 1 is output
 
             # irq interfaces
-            i_irq0                 = irq0,
-            i_irq1                 = irq1,
+            o_irq0                 = irq0,
+            o_irq1                 = irq1,
         )
 
         # Add Sources.

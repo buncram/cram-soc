@@ -29,7 +29,7 @@ from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.interconnect.csr import *
 
-from litex.soc.interconnect.axi import AXIInterface, AXILiteCrossbar, AXILiteInterface
+from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
 from litex.soc.integration.soc import SoCBusHandler
 from litex.soc.cores import uart
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
@@ -39,6 +39,7 @@ from deps.gateware.gateware import memlcd
 from axi_crossbar import AXICrossbar
 from axi_adapter import AXIAdapter
 from axi_ram import AXIRAM
+from axil_crossbar import AXILiteCrossbar
 from axi_common import *
 
 from axil_ahb_adapter import AXILite2AHBAdapter
@@ -354,12 +355,25 @@ class CramSoC(SoCMini):
             soc_region = SoCIORegion(0x4020_0000, 0x20_0000, mode="rw", cached=False)
             soc_axil = AXILiteInterface()
 
-            # FIXME: replace this crossbar with the verilog version. This one seems to have...pipeline errors? not quite sure.
-            self.submodules.pxbar = AXILiteCrossbar(
-                masters=[p_axil],
-                slaves =[(testbench_region.decoder(p_axil), testbench_axil), (soc_region.decoder(p_axil), soc_axil)],
-                register = False,
+            self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
+            pxbar.add_slave(
+                name = "p_axil", s_axil = p_axil
             )
+            pxbar.add_master(
+                name = "testbench",
+                m_axil = testbench_axil,
+                origin = testbench_region.origin,
+                size = testbench_region.size
+            )
+            pxbar.add_master(
+                name = "soc",
+                m_axil = soc_axil,
+                origin = soc_region.origin,
+                size = soc_region.size
+            )
+            #    masters=[p_axil],
+            #    slaves =[(testbench_region.decoder(p_axil), testbench_axil), (soc_region.decoder(p_axil), soc_axil)],
+            #    register = False,
             self.bus.add_master(name="pbus", master=testbench_axil)
 
             local_ahb = ahb.Interface()
