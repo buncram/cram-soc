@@ -203,6 +203,11 @@ module rp_pio #(
     reg  [31:0] gpio_in_sync0;
     reg  [31:0] gpio_in_sync1;
 
+    // handle GPIO inversions, for better compatibility with existing code
+    wire [31:0] oe_invert;
+    wire [31:0] out_invert;
+    wire [31:0] in_invert;
+
     wire join_rx [0:NUM_MACHINES-1];
     wire join_tx [0:NUM_MACHINES-1];
     wire [1:0] join_rx_tx [0:NUM_MACHINES-1];
@@ -232,9 +237,9 @@ module rp_pio #(
 
     generate
         for (genvar gp = 0; gp < 32; gp++) begin: gp_iface
-            assign pio_gpio[gp].po = gpio_out[gp];
-            assign pio_gpio[gp].oe = gpio_dir[gp];
-            assign gpio_in[gp] = pio_gpio[gp].pi;
+            assign pio_gpio[gp].po = gpio_out[gp] ^ out_invert[gp];
+            assign pio_gpio[gp].oe = gpio_dir[gp] ^ oe_invert[gp];
+            assign gpio_in[gp] = pio_gpio[gp].pi ^ in_invert[gp];
         end
     endgenerate
 
@@ -753,6 +758,13 @@ module rp_pio #(
     apb_cr #(.A('h138), .DW(12))     sfr_irq1_inte        (.cr({irq1_inte_sm, irq1_inte_txnfull, irq1_inte_rxnempty}), .prdata32(),.*);
     apb_cr #(.A('h13C), .DW(12))     sfr_irq1_intf        (.cr({irq1_intf_sm, irq1_intf_txnfull, irq1_intf_rxnempty}), .prdata32(),.*);
     apb_sr #(.A('h140), .DW(12))     sfr_irq1_ints        (.sr({irq1_ints_sm, irq1_ints_txnfull, irq1_ints_rxnempty}), .prdata32(),.*);
+
+    // leave some registers unused as a "buffer" for forward compatibility
+
+    // implement GPIO inversions within this block
+    apb_cr #(.A('h180), .DW(32))     sfr_io_oe_inv        (.cr(oe_invert), .prdata32(),.*);
+    apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
+    apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
 
 endmodule
 
