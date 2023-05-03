@@ -493,6 +493,31 @@ impl PioSm {
 
         self.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
     }
+    pub fn gpio_reset_overrides(&mut self) {
+        self.pio.wo(rp_pio::SFR_IO_O_INV, 0);
+        self.pio.wo(rp_pio::SFR_IO_OE_INV, 0);
+        self.pio.wo(rp_pio::SFR_IO_I_INV, 0);
+    }
+    pub fn gpio_set_outover(&mut self, pin: usize, value: bool) {
+        self.pio.wo(rp_pio::SFR_IO_O_INV,
+            (if value {1} else {0}) << pin
+            | (self.pio.r(rp_pio::SFR_IO_O_INV) & !(1 << pin))
+        );
+    }
+    #[allow(dead_code)]
+    pub fn gpio_set_oeover(&mut self, pin: usize, value: bool) {
+        self.pio.wo(rp_pio::SFR_IO_OE_INV,
+            (if value {1} else {0}) << pin
+            | (self.pio.r(rp_pio::SFR_IO_OE_INV) & !(1 << pin))
+        );
+    }
+    #[allow(dead_code)]
+    pub fn gpio_set_inover(&mut self, pin: usize, value: bool) {
+        self.pio.wo(rp_pio::SFR_IO_I_INV,
+            (if value {1} else {0}) << pin
+            | (self.pio.r(rp_pio::SFR_IO_I_INV) & !(1 << pin))
+        );
+    }
 }
 
 pub fn pio_tests() {
@@ -569,8 +594,7 @@ pub fn pio_spi_init(
     program: &LoadedProg,
     n_bits: usize,
     clkdiv: f32,
-    // TODO: not implemented!
-    _cpol: bool,
+    cpol: bool,
     pin_sck: usize,
     pin_mosi: usize,
     pin_miso: usize
@@ -595,7 +619,7 @@ pub fn pio_spi_init(
         (1 << pin_sck) | (1 << pin_mosi) | (1 << pin_miso)
     );
 
-    // NOTE: cpol setting is not implemented
+    pio_sm.gpio_set_outover(pin_sck, cpol);
 
     // SPI is synchronous, so bypass input synchroniser to reduce input delay.
     pio_sm.pio.wo(rp_pio::SFR_SYNC_BYPASS, 1 << pin_miso);
@@ -635,39 +659,49 @@ pub fn spi_test() -> bool {
 
     let clkdiv: f32 = 37.25;
     let mut passing = true;
-    // pha = 1
-    report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
-    pio_spi_init(
-        &mut pio_sm,
-        &prog_cpha0, // cpha set here
-        8,
-        clkdiv,
-        false,
-        PIN_SCK,
-        PIN_MOSI,
-        PIN_MISO
-    );
-    report.wfo(utra::main::REPORT_REPORT, 0x05D1_0003);
-    if spi_test_core(&mut pio_sm) == false {
-        passing = false;
-    };
+    let mut cpol = false;
+    loop {
+        // pha = 1
+        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
+        pio_spi_init(
+            &mut pio_sm,
+            &prog_cpha0, // cpha set here
+            8,
+            clkdiv,
+            cpol,
+            PIN_SCK,
+            PIN_MOSI,
+            PIN_MISO
+        );
+        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0003);
+        if spi_test_core(&mut pio_sm) == false {
+            passing = false;
+        };
 
-    // pha = 0
-    report.wfo(utra::main::REPORT_REPORT, 0x05D1_0004);
-    pio_spi_init(
-        &mut pio_sm,
-        &prog_cpha1, // cpha set here
-        8,
-        clkdiv,
-        false,
-        PIN_SCK,
-        PIN_MOSI,
-        PIN_MISO
-    );
-    report.wfo(utra::main::REPORT_REPORT, 0x05D1_0005);
-    if spi_test_core(&mut pio_sm) == false {
-        passing = false;
-    };
+        // pha = 0
+        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0004);
+        pio_spi_init(
+            &mut pio_sm,
+            &prog_cpha1, // cpha set here
+            8,
+            clkdiv,
+            cpol,
+            PIN_SCK,
+            PIN_MOSI,
+            PIN_MISO
+        );
+        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0005);
+        if spi_test_core(&mut pio_sm) == false {
+            passing = false;
+        };
+        if cpol {
+            break;
+        }
+        // switch to next cpol value for test
+        cpol = true;
+    }
+    // cleanup external side effects for next test
+    pio_sm.gpio_reset_overrides();
 
     if passing {
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_600D);

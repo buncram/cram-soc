@@ -275,7 +275,7 @@ pub const HW_RP_PIO_BASE :   usize = 0x40202000;
 pub mod utra {
 
     pub mod rp_pio {
-        pub const RP_PIO_NUMREGS: usize = 81;
+        pub const RP_PIO_NUMREGS: usize = 99;
 
         pub const SFR_CTRL: crate::Register = crate::Register::new(0, 0xfff);
         pub const SFR_CTRL_EN: crate::Field = crate::Field::new(4, 0, SFR_CTRL);
@@ -674,6 +674,60 @@ pub mod utra {
         pub const SFR_IRQ1_INTS_IRQ1_INTS_RXNEMPTY: crate::Field = crate::Field::new(4, 0, SFR_IRQ1_INTS);
         pub const SFR_IRQ1_INTS_IRQ1_INTS_TXNFULL: crate::Field = crate::Field::new(4, 4, SFR_IRQ1_INTS);
         pub const SFR_IRQ1_INTS_IRQ1_INTS_SM: crate::Field = crate::Field::new(4, 8, SFR_IRQ1_INTS);
+
+        pub const RESERVED81: crate::Register = crate::Register::new(81, 0x1);
+        pub const RESERVED81_RESERVED81: crate::Field = crate::Field::new(1, 0, RESERVED81);
+
+        pub const RESERVED82: crate::Register = crate::Register::new(82, 0x1);
+        pub const RESERVED82_RESERVED82: crate::Field = crate::Field::new(1, 0, RESERVED82);
+
+        pub const RESERVED83: crate::Register = crate::Register::new(83, 0x1);
+        pub const RESERVED83_RESERVED83: crate::Field = crate::Field::new(1, 0, RESERVED83);
+
+        pub const RESERVED84: crate::Register = crate::Register::new(84, 0x1);
+        pub const RESERVED84_RESERVED84: crate::Field = crate::Field::new(1, 0, RESERVED84);
+
+        pub const RESERVED85: crate::Register = crate::Register::new(85, 0x1);
+        pub const RESERVED85_RESERVED85: crate::Field = crate::Field::new(1, 0, RESERVED85);
+
+        pub const RESERVED86: crate::Register = crate::Register::new(86, 0x1);
+        pub const RESERVED86_RESERVED86: crate::Field = crate::Field::new(1, 0, RESERVED86);
+
+        pub const RESERVED87: crate::Register = crate::Register::new(87, 0x1);
+        pub const RESERVED87_RESERVED87: crate::Field = crate::Field::new(1, 0, RESERVED87);
+
+        pub const RESERVED88: crate::Register = crate::Register::new(88, 0x1);
+        pub const RESERVED88_RESERVED88: crate::Field = crate::Field::new(1, 0, RESERVED88);
+
+        pub const RESERVED89: crate::Register = crate::Register::new(89, 0x1);
+        pub const RESERVED89_RESERVED89: crate::Field = crate::Field::new(1, 0, RESERVED89);
+
+        pub const RESERVED90: crate::Register = crate::Register::new(90, 0x1);
+        pub const RESERVED90_RESERVED90: crate::Field = crate::Field::new(1, 0, RESERVED90);
+
+        pub const RESERVED91: crate::Register = crate::Register::new(91, 0x1);
+        pub const RESERVED91_RESERVED91: crate::Field = crate::Field::new(1, 0, RESERVED91);
+
+        pub const RESERVED92: crate::Register = crate::Register::new(92, 0x1);
+        pub const RESERVED92_RESERVED92: crate::Field = crate::Field::new(1, 0, RESERVED92);
+
+        pub const RESERVED93: crate::Register = crate::Register::new(93, 0x1);
+        pub const RESERVED93_RESERVED93: crate::Field = crate::Field::new(1, 0, RESERVED93);
+
+        pub const RESERVED94: crate::Register = crate::Register::new(94, 0x1);
+        pub const RESERVED94_RESERVED94: crate::Field = crate::Field::new(1, 0, RESERVED94);
+
+        pub const RESERVED95: crate::Register = crate::Register::new(95, 0x1);
+        pub const RESERVED95_RESERVED95: crate::Field = crate::Field::new(1, 0, RESERVED95);
+
+        pub const SFR_IO_OE_INV: crate::Register = crate::Register::new(96, 0xffffffff);
+        pub const SFR_IO_OE_INV_SFR_IO_OE_INV: crate::Field = crate::Field::new(32, 0, SFR_IO_OE_INV);
+
+        pub const SFR_IO_O_INV: crate::Register = crate::Register::new(97, 0xffffffff);
+        pub const SFR_IO_O_INV_SFR_IO_O_INV: crate::Field = crate::Field::new(32, 0, SFR_IO_O_INV);
+
+        pub const SFR_IO_I_INV: crate::Register = crate::Register::new(98, 0xffffffff);
+        pub const SFR_IO_I_INV_SFR_IO_I_INV: crate::Field = crate::Field::new(32, 0, SFR_IO_I_INV);
 
         pub const HW_RP_PIO_BASE: usize = 0x40202000;
     }
@@ -2113,5 +2167,149 @@ mod tests {
         let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_IRQ1_INTS_IRQ1_INTS_SM, bar);
         baz |= rp_pio_csr.ms(utra::rp_pio::SFR_IRQ1_INTS_IRQ1_INTS_SM, 1);
         rp_pio_csr.wfo(utra::rp_pio::SFR_IRQ1_INTS_IRQ1_INTS_SM, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED81);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED81, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED81_RESERVED81);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED81_RESERVED81, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED81_RESERVED81, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED81_RESERVED81, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED81_RESERVED81, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED82);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED82, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED82_RESERVED82);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED82_RESERVED82, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED82_RESERVED82, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED82_RESERVED82, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED82_RESERVED82, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED83);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED83, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED83_RESERVED83);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED83_RESERVED83, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED83_RESERVED83, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED83_RESERVED83, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED83_RESERVED83, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED84);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED84, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED84_RESERVED84);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED84_RESERVED84, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED84_RESERVED84, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED84_RESERVED84, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED84_RESERVED84, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED85);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED85, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED85_RESERVED85);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED85_RESERVED85, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED85_RESERVED85, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED85_RESERVED85, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED85_RESERVED85, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED86);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED86, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED86_RESERVED86);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED86_RESERVED86, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED86_RESERVED86, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED86_RESERVED86, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED86_RESERVED86, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED87);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED87, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED87_RESERVED87);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED87_RESERVED87, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED87_RESERVED87, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED87_RESERVED87, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED87_RESERVED87, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED88);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED88, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED88_RESERVED88);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED88_RESERVED88, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED88_RESERVED88, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED88_RESERVED88, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED88_RESERVED88, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED89);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED89, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED89_RESERVED89);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED89_RESERVED89, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED89_RESERVED89, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED89_RESERVED89, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED89_RESERVED89, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED90);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED90, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED90_RESERVED90);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED90_RESERVED90, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED90_RESERVED90, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED90_RESERVED90, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED90_RESERVED90, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED91);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED91, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED91_RESERVED91);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED91_RESERVED91, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED91_RESERVED91, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED91_RESERVED91, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED91_RESERVED91, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED92);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED92, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED92_RESERVED92);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED92_RESERVED92, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED92_RESERVED92, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED92_RESERVED92, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED92_RESERVED92, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED93);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED93, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED93_RESERVED93);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED93_RESERVED93, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED93_RESERVED93, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED93_RESERVED93, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED93_RESERVED93, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED94);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED94, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED94_RESERVED94);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED94_RESERVED94, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED94_RESERVED94, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED94_RESERVED94, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED94_RESERVED94, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::RESERVED95);
+        rp_pio_csr.wo(utra::rp_pio::RESERVED95, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::RESERVED95_RESERVED95);
+        rp_pio_csr.rmwf(utra::rp_pio::RESERVED95_RESERVED95, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::RESERVED95_RESERVED95, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::RESERVED95_RESERVED95, 1);
+        rp_pio_csr.wfo(utra::rp_pio::RESERVED95_RESERVED95, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_IO_OE_INV);
+        rp_pio_csr.wo(utra::rp_pio::SFR_IO_OE_INV, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_IO_OE_INV_SFR_IO_OE_INV);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_IO_OE_INV_SFR_IO_OE_INV, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_IO_OE_INV_SFR_IO_OE_INV, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_IO_OE_INV_SFR_IO_OE_INV, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_IO_OE_INV_SFR_IO_OE_INV, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_IO_O_INV);
+        rp_pio_csr.wo(utra::rp_pio::SFR_IO_O_INV, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_IO_O_INV_SFR_IO_O_INV);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_IO_O_INV_SFR_IO_O_INV, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_IO_O_INV_SFR_IO_O_INV, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_IO_O_INV_SFR_IO_O_INV, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_IO_O_INV_SFR_IO_O_INV, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_IO_I_INV);
+        rp_pio_csr.wo(utra::rp_pio::SFR_IO_I_INV, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_IO_I_INV_SFR_IO_I_INV);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_IO_I_INV_SFR_IO_I_INV, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_IO_I_INV_SFR_IO_I_INV, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_IO_I_INV_SFR_IO_I_INV, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_IO_I_INV_SFR_IO_I_INV, baz);
   }
 }
