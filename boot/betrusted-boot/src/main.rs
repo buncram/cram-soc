@@ -585,6 +585,8 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
         // ---------- CPU CSR tests --------------
         report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
+        // for now abort the simulation here
+        report.wfo(utra::main::DONE_DONE, 1);
         let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
         let mut passing = true;
         for i in 0..4 {

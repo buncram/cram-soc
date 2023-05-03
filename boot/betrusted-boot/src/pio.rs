@@ -508,7 +508,7 @@ pub fn pio_spi_write8_read8_blocking (
     assert!(src.len() == dst.len(), "src and dst arrays are not the same length!");
 
     let mut src_iter = src.iter();
-    let mut dst_iter_mut = dst.iter_mut();
+    let mut dst_iter_mut = dst.iter_mut().peekable();
     let mut tx_done = false;
     let mut rx_done = false;
     loop {
@@ -522,9 +522,14 @@ pub fn pio_spi_write8_read8_blocking (
         if !pio_sm.rxfifo_is_empty() {
             if let Some(d) = dst_iter_mut.next() {
                 *d = pio_sm.rxfifo_pull_u8_lsb();
-            } else {
-                rx_done = true;
             }
+        }
+        // always have to peek ahead at this, because
+        // we won't ever reach this if we have to wait for the rxfifo
+        // to be "not empty" before peeking at it (the last element
+        // never generates a new pending element...
+        if dst_iter_mut.peek().is_none() {
+            rx_done = true;
         }
         if tx_done && rx_done {
             break
@@ -536,8 +541,8 @@ pub fn spi_test_core(pio_sm: &mut PioSm) -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
 
-    const BUF_SIZE: usize = 4;
-    let mut state: u16 = 0xFF;
+    const BUF_SIZE: usize = 20;
+    let mut state: u16 = 0xAA;
     let mut tx_buf = [0u8; BUF_SIZE];
     let mut rx_buf = [0u8; BUF_SIZE];
     // init the TX buf
@@ -628,7 +633,7 @@ pub fn spi_test() -> bool {
     let prog_cpha1 = LoadedProg::load(spi_cpha1_prog.program, &mut pio_sm).unwrap();
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0001);
 
-    let clkdiv: f32 = 47.25;
+    let clkdiv: f32 = 37.25;
     let mut passing = true;
     // pha = 1
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
@@ -669,9 +674,6 @@ pub fn spi_test() -> bool {
     } else {
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_DEAD);
     }
-
-    // for now abort the simulation here
-    report.wfo(utra::main::DONE_DONE, 1);
 
     passing
 }
