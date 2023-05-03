@@ -11,6 +11,7 @@ pycharm.env
 *.jou
 *.log
 *.map
+*.lst
 run/
 target/
 /venv/*
