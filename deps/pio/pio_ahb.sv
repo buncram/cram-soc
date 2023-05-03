@@ -191,6 +191,8 @@ module rp_pio #(
     reg [7:0]       irq_flags_stb_r [0:NUM_MACHINES-1];
     wire [7:0]      irq_flags_stb_edge [0:NUM_MACHINES-1];
     reg [7:0]       irq_flags_in;
+    wire [7:0]      irq_flags_in_clear;
+    wire            do_irq_flags_in_clear;
 
     wire [11:0]     irq_bundle;
     wire [11:0]     irq0_bank;
@@ -390,6 +392,8 @@ module rp_pio #(
         for (k=0; k<8; k=k+1) begin: irq_bits
             always @(posedge clk) begin
                 if (reset) begin
+                    irq_flags_in[k] <= 0;
+                end else if (do_irq_flags_in_clear & irq_flags_in_clear[k]) begin
                     irq_flags_in[k] <= 0;
                 end else begin
                     // machine priority order is m0 < m1 < m2 < m3. Datasheet is vague on this
@@ -628,7 +632,7 @@ module rp_pio #(
     apb_asr #(.A('h24), .DW(32))      sfr_rxf1             (.sr(pdout[1]), .ar(pull[1]), .prdata32(),.*);
     apb_asr #(.A('h28), .DW(32))      sfr_rxf2             (.sr(pdout[2]), .ar(pull[2]), .prdata32(),.*);
     apb_asr #(.A('h2C), .DW(32))      sfr_rxf3             (.sr(pdout[3]), .ar(pull[3]), .prdata32(),.*);
-    apb_sr  #(.A('h30), .DW(8))       sfr_irq              (.sr(irq_flags_in), .prdata32(),.*);
+    apb_ascr #(.A('h30), .DW(8))      sfr_irq              (.cr(irq_flags_in_clear), .sr(irq_flags_in), .ar(do_irq_flags_in_clear), .prdata32(),.*);
     apb_acr #(.A('h34), .DW(8))       sfr_irq_force        (.cr(irq_force_level), .ar(irq_force_action), .prdata32(),.*);
     apb_cr  #(.A('h38), .DW(32))      sfr_sync_bypass      (.cr(sync_bypass), .prdata32(),.*);
     apb_sr  #(.A('h3C), .DW(32))      sfr_dbg_padout       (.sr(gpio_in), .prdata32(),.*);
