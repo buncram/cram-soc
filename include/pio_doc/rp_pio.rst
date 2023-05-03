@@ -169,6 +169,42 @@ Register Listing for RP_PIO
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_IRQ1_INTS <RP_PIO_SFR_IRQ1_INTS>`         | :ref:`0x40202140 <RP_PIO_SFR_IRQ1_INTS>`     |
 +------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED81 <RP_PIO_RESERVED81>`               | :ref:`0x40202144 <RP_PIO_RESERVED81>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED82 <RP_PIO_RESERVED82>`               | :ref:`0x40202148 <RP_PIO_RESERVED82>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED83 <RP_PIO_RESERVED83>`               | :ref:`0x4020214c <RP_PIO_RESERVED83>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED84 <RP_PIO_RESERVED84>`               | :ref:`0x40202150 <RP_PIO_RESERVED84>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED85 <RP_PIO_RESERVED85>`               | :ref:`0x40202154 <RP_PIO_RESERVED85>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED86 <RP_PIO_RESERVED86>`               | :ref:`0x40202158 <RP_PIO_RESERVED86>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED87 <RP_PIO_RESERVED87>`               | :ref:`0x4020215c <RP_PIO_RESERVED87>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED88 <RP_PIO_RESERVED88>`               | :ref:`0x40202160 <RP_PIO_RESERVED88>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED89 <RP_PIO_RESERVED89>`               | :ref:`0x40202164 <RP_PIO_RESERVED89>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED90 <RP_PIO_RESERVED90>`               | :ref:`0x40202168 <RP_PIO_RESERVED90>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED91 <RP_PIO_RESERVED91>`               | :ref:`0x4020216c <RP_PIO_RESERVED91>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED92 <RP_PIO_RESERVED92>`               | :ref:`0x40202170 <RP_PIO_RESERVED92>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED93 <RP_PIO_RESERVED93>`               | :ref:`0x40202174 <RP_PIO_RESERVED93>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED94 <RP_PIO_RESERVED94>`               | :ref:`0x40202178 <RP_PIO_RESERVED94>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_RESERVED95 <RP_PIO_RESERVED95>`               | :ref:`0x4020217c <RP_PIO_RESERVED95>`        |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_SFR_IO_OE_INV <RP_PIO_SFR_IO_OE_INV>`         | :ref:`0x40202180 <RP_PIO_SFR_IO_OE_INV>`     |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_SFR_IO_O_INV <RP_PIO_SFR_IO_O_INV>`           | :ref:`0x40202184 <RP_PIO_SFR_IO_O_INV>`      |
++------------------------------------------------------------+----------------------------------------------+
+| :ref:`RP_PIO_SFR_IO_I_INV <RP_PIO_SFR_IO_I_INV>`           | :ref:`0x40202188 <RP_PIO_SFR_IO_I_INV>`      |
++------------------------------------------------------------+----------------------------------------------+
 
 RP_PIO_SFR_CTRL
 ^^^^^^^^^^^^^^^
@@ -2461,4 +2497,325 @@ RP_PIO_SFR_IRQ1_INTS
 +--------+--------------------+----------------------------------------------+
 | [11:8] | IRQ1_INTS_SM       | irq1_ints_sm read only status register       |
 +--------+--------------------+----------------------------------------------+
+
+RP_PIO_RESERVED81
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x144 = 0x40202144`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED81
+
+        {
+            "reg": [
+                {"name": "reserved81", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED82
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x148 = 0x40202148`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED82
+
+        {
+            "reg": [
+                {"name": "reserved82", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED83
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x14c = 0x4020214c`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED83
+
+        {
+            "reg": [
+                {"name": "reserved83", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED84
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x150 = 0x40202150`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED84
+
+        {
+            "reg": [
+                {"name": "reserved84", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED85
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x154 = 0x40202154`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED85
+
+        {
+            "reg": [
+                {"name": "reserved85", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED86
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x158 = 0x40202158`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED86
+
+        {
+            "reg": [
+                {"name": "reserved86", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED87
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x15c = 0x4020215c`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED87
+
+        {
+            "reg": [
+                {"name": "reserved87", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED88
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x160 = 0x40202160`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED88
+
+        {
+            "reg": [
+                {"name": "reserved88", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED89
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x164 = 0x40202164`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED89
+
+        {
+            "reg": [
+                {"name": "reserved89", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED90
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x168 = 0x40202168`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED90
+
+        {
+            "reg": [
+                {"name": "reserved90", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED91
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x16c = 0x4020216c`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED91
+
+        {
+            "reg": [
+                {"name": "reserved91", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED92
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x170 = 0x40202170`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED92
+
+        {
+            "reg": [
+                {"name": "reserved92", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED93
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x174 = 0x40202174`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED93
+
+        {
+            "reg": [
+                {"name": "reserved93", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED94
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x178 = 0x40202178`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED94
+
+        {
+            "reg": [
+                {"name": "reserved94", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_RESERVED95
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x17c = 0x4020217c`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_RESERVED95
+
+        {
+            "reg": [
+                {"name": "reserved95", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+RP_PIO_SFR_IO_OE_INV
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x180 = 0x40202180`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_SFR_IO_OE_INV
+
+        {
+            "reg": [
+                {"name": "sfr_io_oe_inv",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------------+-------------------------------------------+
+| Field  | Name          | Description                               |
++========+===============+===========================================+
+| [31:0] | SFR_IO_OE_INV | sfr_io_oe_inv read/write control register |
++--------+---------------+-------------------------------------------+
+
+RP_PIO_SFR_IO_O_INV
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x184 = 0x40202184`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_SFR_IO_O_INV
+
+        {
+            "reg": [
+                {"name": "sfr_io_o_inv",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------------+------------------------------------------+
+| Field  | Name         | Description                              |
++========+==============+==========================================+
+| [31:0] | SFR_IO_O_INV | sfr_io_o_inv read/write control register |
++--------+--------------+------------------------------------------+
+
+RP_PIO_SFR_IO_I_INV
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40202000 + 0x188 = 0x40202188`
+
+
+    .. wavedrom::
+        :caption: RP_PIO_SFR_IO_I_INV
+
+        {
+            "reg": [
+                {"name": "sfr_io_i_inv",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------------+------------------------------------------+
+| Field  | Name         | Description                              |
++========+==============+==========================================+
+| [31:0] | SFR_IO_I_INV | sfr_io_i_inv read/write control register |
++--------+--------------+------------------------------------------+
 
