@@ -21,7 +21,7 @@ pub enum PioRawIntSource {
     RxNotEmpty1 = 0b0000_0000_0010,
     RxNotEmpty0 = 0b0000_0000_0001,
 }
-
+#[allow(dead_code)]
 #[derive(Debug, Copy, Clone)]
 #[repr(u32)]
 pub enum PioIntSource {
@@ -118,8 +118,8 @@ pub enum SmBit {
 }
 #[derive(Debug)]
 pub struct PioSm {
-    pio: CSR<u32>,
-    sm: SmBit,
+    pub pio: CSR<u32>,
+    pub sm: SmBit,
     // using a 32-bit wide bitmask to track used locations pins this implementation
     // to a 32-instruction PIO memory. ¯\_(ツ)_/¯
     // 0 means unused; 1 means used. LSB is lowest address.
@@ -142,11 +142,22 @@ impl PioSm {
             config: SmConfig::default(),
         })
     }
-    pub fn txfifo_is_full(&self) -> bool {
+    pub fn sm_index(&self) -> usize {
+        match self.sm {
+            SmBit::Sm0 => 0,
+            SmBit::Sm1 => 1,
+            SmBit::Sm2 => 2,
+            SmBit::Sm3 => 3,
+        }
+    }
+    pub fn sm_txfifo_is_full(&self) -> bool {
         (self.pio.rf(rp_pio::SFR_FSTAT_TX_FULL) & (self.sm as u32)) != 0
     }
+    pub fn sm_txfifo_is_empty(&self) -> bool {
+        (self.pio.rf(rp_pio::SFR_FSTAT_TX_EMPTY) & (self.sm as u32)) != 0
+    }
     #[allow(dead_code)]
-    pub fn txfifo_push_u32(&mut self, data: u32) {
+    pub fn sm_txfifo_push_u32(&mut self, data: u32) {
         match self.sm {
             SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data),
             SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data),
@@ -154,7 +165,23 @@ impl PioSm {
             SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data),
         }
     }
-    pub fn txfifo_push_u8_msb(&mut self, data: u8) {
+    pub fn sm_txfifo_push_u16_msb(&mut self, data: u16) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 16),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 16),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, (data as u32) << 16),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 16),
+        }
+    }
+    pub fn sm_txfifo_push_u16_lsb(&mut self, data: u16) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data as u32),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data as u32),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, data as u32),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data as u32),
+        }
+    }
+    pub fn sm_txfifo_push_u8_msb(&mut self, data: u8) {
         match self.sm {
             SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 24),
             SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 24),
@@ -162,11 +189,11 @@ impl PioSm {
             SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 24),
         }
     }
-    pub fn rxfifo_is_empty(&self) -> bool {
+    pub fn sm_rxfifo_is_empty(&self) -> bool {
         (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm as u32)) != 0
     }
     #[allow(dead_code)]
-    pub fn rxfifo_pull_u32(&mut self) -> u32 {
+    pub fn sm_rxfifo_pull_u32(&mut self) -> u32 {
         match self.sm {
             SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0),
             SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF0),
@@ -174,7 +201,7 @@ impl PioSm {
             SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF0),
         }
     }
-    pub fn rxfifo_pull_u8_lsb(&mut self) -> u8 {
+    pub fn sm_rxfifo_pull_u8_lsb(&mut self) -> u8 {
         match self.sm {
             SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0) as u8,
             SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF0) as u8,
@@ -583,6 +610,45 @@ impl PioSm {
 
         self.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
     }
+    pub fn sm_interrupt_get(&self, int_number: usize) -> bool {
+        assert!(int_number < 8);
+        (self.pio.r(rp_pio::SFR_IRQ) & (1 << int_number)) != 0
+    }
+    pub fn sm_drain_tx_fifo(&mut self) {
+        let sm_offset = self.sm_to_stride_offset();
+        let instr = {
+            if (unsafe { self.pio.base.add(rp_pio::SFR_SM0_SHIFTCTRL.offset() + sm_offset).read_volatile() }
+            & self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_AUTO_PULL, 1)) != 0 {
+                // autopull is true
+                let mut a = pio::Assembler::<32>::new();
+                a.out(pio::OutDestination::NULL, 32);
+                let p= a.assemble_program();
+                p.code[0]
+            } else {
+                // autopull is false
+                let mut a = pio::Assembler::<32>::new();
+                a.pull(false, false);
+                let p= a.assemble_program();
+                p.code[0]
+            }
+        };
+        while !self.sm_txfifo_is_empty() {
+            self.sm_exec(instr);
+        }
+    }
+    /// Changes the PC to the lowest address of the wrap range.
+    pub fn sm_jump_to_wrap_bottom(&mut self) {
+        // HACK: a jump instruction is just the address of the location you want to run
+        // so we can just extract the wrap target and "use that as an instruction".
+        let instr = match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_SM0_EXECCTRL_WRAP_TARGET),
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_SM1_EXECCTRL_WRAP_TARGET),
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_SM2_EXECCTRL_WRAP_TARGET),
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_SM3_EXECCTRL_WRAP_TARGET),
+        } as u16;
+        self.sm_exec(instr);
+    }
+
     pub fn gpio_reset_overrides(&mut self) {
         self.pio.wo(rp_pio::SFR_IO_O_INV, 0);
         self.pio.wo(rp_pio::SFR_IO_OE_INV, 0);
@@ -628,16 +694,16 @@ pub fn pio_spi_write8_read8_blocking (
     let mut tx_done = false;
     let mut rx_done = false;
     loop {
-        if !pio_sm.txfifo_is_full() {
+        if !pio_sm.sm_txfifo_is_full() {
             if let Some(&s) = src_iter.next() {
-                pio_sm.txfifo_push_u8_msb(s);
+                pio_sm.sm_txfifo_push_u8_msb(s);
             } else {
                 tx_done = true;
             }
         }
-        if !pio_sm.rxfifo_is_empty() {
+        if !pio_sm.sm_rxfifo_is_empty() {
             if let Some(d) = dst_iter_mut.next() {
-                *d = pio_sm.rxfifo_pull_u8_lsb();
+                *d = pio_sm.sm_rxfifo_pull_u8_lsb();
             }
         }
         // always have to peek ahead at this, because
@@ -821,7 +887,7 @@ pub fn i2c_init(
 
     pio_sm.config_set_out_shift(false, true, 16);
     pio_sm.config_set_in_shift(false, true, 8);
-    let div: f32 = 800_000_000.0 / (32.0 * 100_000.0);
+    let div: f32 = 800_000_000.0 / (32.0 * 1_000_000.0);
     pio_sm.config_set_clkdiv(div);
     // require: use external pull-up
     let both_pins = (1 << pin_sda) | (1 << pin_scl);
@@ -837,12 +903,175 @@ pub fn i2c_init(
     pio_sm.sm_init(program.entry());
     pio_sm.sm_set_enabled(true);
 }
+pub fn i2c_check_error(pio_sm: &mut PioSm) -> bool {
+    pio_sm.sm_interrupt_get(pio_sm.sm_index())
+}
+pub fn i2c_resume_after_error(pio_sm: &mut PioSm) {
+    pio_sm.sm_drain_tx_fifo();
+    pio_sm.sm_jump_to_wrap_bottom();
+    // this will clear the IRQ set by the current SM, relying on the fact that sm's encoding is a bitmask
+    pio_sm.pio.wfo(rp_pio::SFR_IRQ_SFR_IRQ, pio_sm.sm as u32);
+}
+pub fn i2c_rx_enable(pio_sm: &mut PioSm, en: bool) {
+    let sm_offset = pio_sm.sm_to_stride_offset();
+    unsafe {
+        let baseval = pio_sm.pio.base.add(rp_pio::SFR_SM0_SHIFTCTRL.offset() + sm_offset).read_volatile();
+        let bitval = pio_sm.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_AUTO_PUSH, 1);
+        pio_sm.pio.base.add(rp_pio::SFR_SM0_SHIFTCTRL.offset() + sm_offset).write_volatile(
+            baseval & !bitval
+            | if en {bitval} else {0}
+        );
+    }
+}
+pub fn i2c_put16(pio_sm: &mut PioSm, data: u16) {
+    while pio_sm.sm_txfifo_is_full() {
+        // wait
+    }
+    pio_sm.sm_txfifo_push_u16_msb(data);
+}
+pub fn i2c_put_or_err(pio_sm: &mut PioSm, data: u16) {
+    while pio_sm.sm_txfifo_is_full() {
+        if i2c_check_error(pio_sm) {
+            return
+        }
+    }
+    if i2c_check_error(pio_sm) {
+        return;
+    }
+    pio_sm.sm_txfifo_push_u16_msb(data);
+}
+pub fn i2c_get(pio_sm: &mut PioSm) -> u8 {
+    pio_sm.sm_rxfifo_pull_u8_lsb() as u8
+}
+const PIO_I2C_ICOUNT_LSB: u16 = 10;
+const PIO_I2C_FINAL_LSB: u16  = 9;
+#[allow(dead_code)]
+const PIO_I2C_DATA_LSB: u16   = 1;
+const PIO_I2C_NAK_LSB: u16    = 0;
+const I2C_SC0_SD0: usize = 0;
+#[allow(dead_code)]
+const I2C_SC0_SD1: usize = 1;
+const I2C_SC1_SD0: usize = 2;
+const I2C_SC1_SD1: usize = 3;
+pub fn i2c_start(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16; 4]) {
+    i2c_put_or_err(pio_sm, 1 << PIO_I2C_ICOUNT_LSB);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC1_SD0]);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC0_SD0]);
+}
+pub fn i2c_stop(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16; 4]) {
+    i2c_put_or_err(pio_sm, 2 << PIO_I2C_ICOUNT_LSB);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC0_SD0]);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC1_SD0]);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC1_SD1]);
+}
+#[allow(dead_code)]
+pub fn i2c_repstart(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16; 4]) {
+    i2c_put_or_err(pio_sm, 3 << PIO_I2C_ICOUNT_LSB);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC0_SD1]);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC1_SD1]);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC1_SD0]);
+    i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC0_SD0]);
+}
+pub fn i2c_wait_idle(pio_sm: &mut PioSm) {
+    pio_sm.pio.wfo(rp_pio::SFR_FDEBUG_TXSTALL, pio_sm.sm as u32);
+    while ((pio_sm.pio.rf(rp_pio::SFR_FDEBUG_TXSTALL) & pio_sm.sm as u32) == 0)
+    || i2c_check_error(pio_sm) {
+        // busy loop
+    }
+}
+/// returns false if there is an error; true if no error
+#[allow(dead_code)]
+pub fn i2c_write_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16; 4], addr: u8, txbuf: &[u8]) -> bool {
+    i2c_start(pio_sm, set_scl_sda_program_instructions);
+    i2c_rx_enable(pio_sm, false);
+    i2c_put16(pio_sm, ((addr as u16) << 2) | 1);
+    let mut txbuf_iter = txbuf.iter().peekable();
+    loop {
+        if i2c_check_error(pio_sm) {
+            break;
+        }
+        if !pio_sm.sm_txfifo_is_full() {
+            if let Some(&d) = txbuf_iter.next() {
+                i2c_put_or_err(pio_sm,
+                    (d as u16) << PIO_I2C_DATA_LSB |
+                    if txbuf_iter.peek().is_none() { 1 } else { 0 }
+                );
+            } else {
+                break;
+            }
+        }
+    }
+    i2c_stop(pio_sm, set_scl_sda_program_instructions);
+    i2c_wait_idle(pio_sm);
+    if i2c_check_error(pio_sm) {
+        i2c_resume_after_error(pio_sm);
+        i2c_stop(pio_sm, set_scl_sda_program_instructions);
+        false
+    } else {
+        true
+    }
+}
+/// returns false if there is an error; true if no error
+pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16; 4], addr: u8, rxbuf: &mut [u8]) -> bool {
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000);
+
+    i2c_start(pio_sm, set_scl_sda_program_instructions);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0001);
+    i2c_rx_enable(pio_sm, false);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0002);
+    while !pio_sm.sm_rxfifo_is_empty() {
+        i2c_get(pio_sm);
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0003);
+    i2c_put16(pio_sm, ((addr as u16) << 2)  | 3);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0004);
+    let mut first = true;
+    let mut tx_remain = rxbuf.len();
+    let mut len = rxbuf.len();
+    let mut i = 0;
+    while (tx_remain != 0) || (len != 0) && !i2c_check_error(pio_sm) {  // here
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0005 + ((tx_remain as u32) << 8));
+        if (tx_remain != 0) && !pio_sm.sm_txfifo_is_full() {
+            tx_remain -= 1;
+            i2c_put16(pio_sm,
+                (0xff << 1)
+                | if tx_remain != 0 { 0 } else {
+                    1 << PIO_I2C_FINAL_LSB
+                    | 1 << PIO_I2C_NAK_LSB
+                }
+            );
+        }
+        if !pio_sm.sm_rxfifo_is_empty() {
+            if first {
+                i2c_get(pio_sm);
+                first = false;
+            } else {
+                len -= 1;
+                rxbuf[i] = i2c_get(pio_sm);
+                i += 1;
+            }
+        }
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0020);
+    i2c_stop(pio_sm, set_scl_sda_program_instructions);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0021);
+    i2c_wait_idle(pio_sm);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0022);
+    if i2c_check_error(pio_sm) {
+        i2c_resume_after_error(pio_sm);
+        i2c_stop(pio_sm, set_scl_sda_program_instructions);
+        false
+    } else {
+        true
+    }
+}
 pub fn i2c_test() -> bool {
     const PIN_SDA: usize = 2;
     const PIN_SCL: usize = 3;
 
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
+    report.wfo(utra::main::REPORT_REPORT, 0x0D10_012C);
 
     let mut pio_sm = PioSm::new(0).unwrap();
 
@@ -888,11 +1117,11 @@ pub fn i2c_test() -> bool {
         "    irq wait 0 rel",             // Otherwise stop, ask for help
 
         "do_byte:",
-        "    set x, 7",                   // Loop 8 times
+        "    set x, 7",                   // E027 Loop 8 times
         "bitloop:",
-        "    out pindirs, 1         [7]", // Serialise write data (all-ones if reading)
-        "    nop             side 1 [2]", // SCL rising edge
-        "    wait 1 pin, 1          [4]", // Allow clock to be stretched
+        "    out pindirs, 1         [7]", // 6781 Serialise write data (all-ones if reading)
+        "    nop             side 1 [2]", // BA42 SCL rising edge
+        "    wait 1 pin, 1          [4]", // 24A1 Allow clock to be stretched
         "    in pins, 1             [7]", // Sample read data in middle of SCL pulse
         "    jmp x-- bitloop side 0 [7]", // SCL falling edge
 
@@ -904,9 +1133,9 @@ pub fn i2c_test() -> bool {
 
         "public entry_point:",
         ".wrap_target",
-        "    out x, 6                  ", // Unpack Instr count
-        "    out y, 1                  ", // Unpack the NAK ignore bit
-        "    jmp !x do_byte            ", // Instr == 0, this is a data record.
+        "    out x, 6                  ", // 6026 Unpack Instr count
+        "    out y, 1                  ", // 6041 Unpack the NAK ignore bit
+        "    jmp !x do_byte            ", // 002F Instr == 0, this is a data record.
         "    out null, 32              ", // Instr > 0, remainder of this OSR is invalid
         "do_exec:                      ",
         "    out exec, 16              ", // Execute one instruction per FIFO word
@@ -916,6 +1145,26 @@ pub fn i2c_test() -> bool {
     let ep = i2c_prog.public_defines.entry_point as usize;
     let prog_i2c = LoadedProg::load_with_entrypoint(i2c_prog.program, ep, &mut pio_sm).unwrap();
     i2c_init(&mut pio_sm, &prog_i2c, PIN_SDA, PIN_SCL);
+    report.wfo(utra::main::REPORT_REPORT, 0x012C_3333);
 
+    let i2c_cmds_raw = pio_proc::pio_asm!(
+        ".side_set 1 opt",
+        // Assemble a table of instructions which software can select from, and pass
+        // into the FIFO, to issue START/STOP/RSTART. This isn't intended to be run as
+        // a complete program.
+        "    set pindirs, 0 side 0 [7] ; SCL = 0, SDA = 0",
+        "    set pindirs, 1 side 0 [7] ; SCL = 0, SDA = 1",
+        "    set pindirs, 0 side 1 [7] ; SCL = 1, SDA = 0",
+        "    set pindirs, 1 side 1 [7] ; SCL = 1, SDA = 1",
+    ).program.code;
+    let mut i2c_cmds = [0u16; 4];
+    i2c_cmds.copy_from_slice(&i2c_cmds_raw[..4]);
+
+    let mut rxbuf = [0u8];
+    for addr in 10..14 {
+        i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf);
+        report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + addr as u32);
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0x012C_1111);
     false
 }
