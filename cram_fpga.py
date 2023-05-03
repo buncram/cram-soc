@@ -34,6 +34,7 @@ from litex.soc.cores import uart
 
 from deps.gateware.gateware import memlcd
 from deps.gateware.gateware import sram_32_cached
+from deps.gateware.gateware import sram_32
 
 from axi_crossbar import AXICrossbar
 from axil_crossbar import AXILiteCrossbar
@@ -198,7 +199,7 @@ _io = [
             "B13 A13 A14 A15 B16 A16 C14 B17",
             "A17 C17 B18 D16 D17 C18 E14 E15",
             "F13 K16 J16 H13 K14 J15 J13 K13",
-            "A6 E6 D6 E5 D5 F4 E4 E1"
+            "A6 J5 D6 E5 D5 F4 E4 E1"
         ), IOStandard("LVCMOS33")
         ),
     ),
@@ -416,7 +417,7 @@ class CramSoC(SoCMini):
     # 1 is allocateable
     #    "interop1" : 2,
     #}
-    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=True):
+    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=True, cached=False):
         axi_map = {
             "spiflash"  : 0x20000000,
             "reram"     : 0x6000_0000, # +3M
@@ -540,7 +541,10 @@ class CramSoC(SoCMini):
         if real_ram:
             sram_axil = AXILiteInterface(data_width=32, address_width=32, bursting=False)
             self.submodules += AXI2AXILiteAdapter(platform, sram_axi, sram_axil)
-            self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
+            if cached:
+                self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
+            else:
+                self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3)
 
             self.add_csr("sram_ext")
             # self.bus.add_slave(name="sram_ext", slave=self.sram_ext.bus, region=SoCRegion(self.mem_map["sram_ext"], size=SRAM_EXT_SIZE))
@@ -771,7 +775,7 @@ class CramSoC(SoCMini):
                                         )),
 
         # Managed TRNG Interface -------------------------------------------------------------------
-        if ~sim:
+        if False: # ~sim  commented out for now just for synthesis/timing closure studies
             from deps.gateware.gateware.trng.trng_managed import TrngManaged, TrngManagedKernel, TrngManagedServer
             self.submodules.trng_kernel = ClockDomainsRenamer({"sys":"sys_always_on"})(TrngManagedKernel())
             self.add_csr("trng_kernel")
