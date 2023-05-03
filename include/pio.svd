@@ -425,7 +425,7 @@
                             <msb>7</msb>
                             <bitRange>[7:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_irq read only status register]]></description>
+                            <description><![CDATA[sfr_irq read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
