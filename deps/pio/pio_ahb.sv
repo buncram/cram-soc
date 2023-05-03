@@ -6,7 +6,7 @@
 //   - OUT_STICKY is not implemented (but seems not used in any examples)
 //   - INLINE_OUT_EN not implemented
 //   - OUT_EN_SEL not implemented
-//   - SIDE_PINDIR not implemented
+//   - SIDE_PINDIR implemented but not tested
 //   - FIFO chaining is missing
 
 module pio_ahb #(
@@ -208,7 +208,7 @@ module rp_pio #(
     wire [1:0] join_rx_tx [0:NUM_MACHINES-1];
     reg  [1:0] join_rx_tx_r [0:NUM_MACHINES-1];
     wire [1:0] join_rx_tx_change [0:NUM_MACHINES-1];
-    /* aborted attempt to join muxes
+    /* aborted attempt to join fifos
     wire [NUM_MACHINES-1:0] tx_mux_push;
     wire [NUM_MACHINES-1:0] tx_mux_pull;
     wire [31:0] tx_mux_din  [NUM_MACHINES-1:0];
