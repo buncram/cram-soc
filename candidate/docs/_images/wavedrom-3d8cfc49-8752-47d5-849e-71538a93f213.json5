@@ -1,0 +1,17 @@
+{ "config": {skin : "default"},
+"signal" : [
+    {"name": "clk",          "wave": "p.....|......."},
+    {"name": "w_cpu_op",     "wave": "=.=...........", "node": "...........", "data" : ["initiate abort", "XXX"]},
+  {"name": "w_abort_done_int", "wave": "0.........10..", "node": "..........g"},
+    {"name": "w_abort",      "wave": "0.1...|...0...", "node": "..a........"},
+    {"name": "r_abort",      "wave": "0.....|..10...", "node": ".........e."},
+    {},
+    {"name": "w_state",      "wave": "=.=...|...=...", "data" : ["XXX", "REQ    ", "IDLE"]},
+    {"name": "w_fifo",       "wave": "x..=..|.......", "node": "...b.....", "data" : ["EMPTY        "]},
+    {},
+    {"name": "r_cpu_op",     "wave": "=.....|.==....", "node": "...........", "data" : ["XXX", "ack", "XXX"]},
+    {"name": "r_state",      "wave": "=...=.|...=...", "data" : ["XXX", "ACK", "IDLE"], "node": "....d..."},
+    {"name": "r_fifo",       "wave": "x.....|...=...", "data" : ["EMPTY"], "node": "..........f.."},
+    {"name": "r_abort_int",  "wave": "0..10.|.......", "node": "...c......"},
+],
+  "edge" : ['a->b hw enforced', 'a->c', 'c->d ', 'd~->e IRQ handler latency', 'e->f hw enforced', 'e->g ']}
