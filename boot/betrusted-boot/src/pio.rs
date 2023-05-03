@@ -4,6 +4,32 @@ use pio::RP2040_MAX_PROGRAM_SIZE;
 use utralib::generated::*;
 use crate::pio_generated::utra::rp_pio;
 
+#[allow(dead_code)]
+#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+pub enum PioRawIntSource {
+    Sm3         = 0b1000_0000_0000,
+    Sm2         = 0b0100_0000_0000,
+    Sm1         = 0b0010_0000_0000,
+    Sm0         = 0b0001_0000_0000,
+    TxNotFull3  = 0b0000_1000_0000,
+    TxNotFull2  = 0b0000_0100_0000,
+    TxNotFull1  = 0b0000_0010_0000,
+    TxNotFull0  = 0b0000_0001_0000,
+    RxNotEmpty3 = 0b0000_0000_1000,
+    RxNotEmpty2 = 0b0000_0000_0100,
+    RxNotEmpty1 = 0b0000_0000_0010,
+    RxNotEmpty0 = 0b0000_0000_0001,
+}
+
+#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+pub enum PioIntSource {
+    Sm,
+    TxNotFull,
+    RxNotEmpty,
+}
+
 #[derive(Debug)]
 pub enum PioError {
     /// specified state machine is not valid
@@ -34,6 +60,7 @@ impl SmConfig {
 pub struct LoadedProg {
     program: Program::<RP2040_MAX_PROGRAM_SIZE>,
     offset: usize,
+    entry_point: Option<usize>,
 }
 impl LoadedProg {
     pub fn load(program: Program::<RP2040_MAX_PROGRAM_SIZE>, pio_sm: &mut PioSm) -> Result<Self, PioError> {
@@ -42,8 +69,26 @@ impl LoadedProg {
             LoadedProg {
                 program,
                 offset: offset as usize,
+                entry_point: None,
             }
         })
+    }
+    pub fn load_with_entrypoint(program: Program::<RP2040_MAX_PROGRAM_SIZE>, entry_point: usize, pio_sm: &mut PioSm) -> Result<Self, PioError> {
+        let offset = pio_sm.add_program(&program)?;
+        Ok({
+            LoadedProg {
+                program,
+                offset: offset as usize,
+                entry_point: Some(entry_point)
+            }
+        })
+    }
+    pub fn entry(&self) -> usize {
+        if let Some(ep) = self.entry_point {
+            ep + self.offset
+        } else {
+            self.start()
+        }
     }
     pub fn start(&self) -> usize {
         self.program.wrap.target as usize + self.offset
@@ -337,6 +382,15 @@ impl PioSm {
     pub fn config_set_defaults(&mut self) {
         self.config = SmConfig::default();
     }
+    pub fn config_set_jmp_pin(&mut self, pin: usize) {
+        assert!(pin < 32);
+        self.config.execctl =
+            self.pio.zf(
+                rp_pio::SFR_SM0_EXECCTRL_JMP_PIN,
+                self.config.execctl
+            )
+            | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_JMP_PIN, pin as _);
+    }
 
     /// returns tuple as (int, frac)
     pub fn clkdiv_from_float(&self, div: f32) -> (u16, u8) {
@@ -431,6 +485,42 @@ impl PioSm {
             self.pio.base.add(rp_pio::SFR_SM0_EXECCTRL.offset() + sm_offset).write_volatile(exectrl_saved);
         }
     }
+    #[allow(dead_code)]
+    pub fn global_irq0_source_enabled(&mut self, source: PioRawIntSource, enabled: bool) {
+        self.pio.wo(rp_pio::SFR_IRQ0_INTE,
+            if enabled {source as u32} else {0}
+            | self.pio.r(rp_pio::SFR_IRQ0_INTE) & !(source as u32)
+        );
+    }
+    #[allow(dead_code)]
+    pub fn global_irq1_source_enabled(&mut self, source: PioRawIntSource, enabled: bool) {
+        self.pio.wo(rp_pio::SFR_IRQ1_INTE,
+            if enabled {source as u32} else {0}
+            | self.pio.r(rp_pio::SFR_IRQ1_INTE) & !(source as u32)
+        );
+    }
+    pub fn sm_irq0_source_enabled(&mut self, source: PioIntSource, enabled: bool) {
+        let mask = match source {
+            PioIntSource::Sm => (self.sm as u32) << 8,
+            PioIntSource::TxNotFull => (self.sm as u32) << 4,
+            PioIntSource::RxNotEmpty => (self.sm as u32) << 0,
+        };
+        self.pio.wo(rp_pio::SFR_IRQ0_INTE,
+            if enabled {mask} else {0}
+            | self.pio.r(rp_pio::SFR_IRQ0_INTE) & !mask
+        );
+    }
+    pub fn sm_irq1_source_enabled(&mut self, source: PioIntSource, enabled: bool) {
+        let mask = match source {
+            PioIntSource::Sm => (self.sm as u32) << 8,
+            PioIntSource::TxNotFull => (self.sm as u32) << 4,
+            PioIntSource::RxNotEmpty => (self.sm as u32) << 0,
+        };
+        self.pio.wo(rp_pio::SFR_IRQ1_INTE,
+            if enabled{mask} else {0}
+            | self.pio.r(rp_pio::SFR_IRQ1_INTE) & !mask
+        );
+    }
 
     pub fn sm_set_enabled(&mut self, enabled: bool) {
         if enabled {
@@ -521,6 +611,7 @@ impl PioSm {
 }
 
 pub fn pio_tests() {
+    i2c_test();
     spi_test();
 }
 
@@ -580,7 +671,7 @@ pub fn spi_test_core(pio_sm: &mut PioSm) -> bool {
     let mut pass = true;
     for (&s, &d) in tx_buf.iter().zip(rx_buf.iter()) {
         if s != d {
-            report.wfo(utra::main::REPORT_REPORT, 0xDEAD_0000 | s as u32 | ((d as u32) << 8));
+            report.wfo(utra::main::REPORT_REPORT, 0xDEAD_0000 | (s as u32) << 8 | ((d as u32) << 0));
             pass = false;
         }
     }
@@ -599,6 +690,7 @@ pub fn pio_spi_init(
     pin_mosi: usize,
     pin_miso: usize
 ) {
+    pio_sm.sm_set_enabled(false);
     // this applies a default config to the PioSm object that is relevant to the program
     program.setup_default_config(pio_sm);
 
@@ -710,4 +802,120 @@ pub fn spi_test() -> bool {
     }
 
     passing
+}
+
+pub fn i2c_init(
+    pio_sm: &mut PioSm,
+    program: &LoadedProg,
+    pin_sda: usize,
+    pin_scl: usize,
+) {
+    pio_sm.sm_set_enabled(false);
+    program.setup_default_config(pio_sm);
+
+    pio_sm.config_set_out_pins(pin_sda, 1);
+    pio_sm.config_set_set_pins(pin_sda, 1);
+    pio_sm.config_set_in_pins(pin_sda);
+    pio_sm.config_set_sideset_pins(pin_scl);
+    pio_sm.config_set_jmp_pin(pin_sda);
+
+    pio_sm.config_set_out_shift(false, true, 16);
+    pio_sm.config_set_in_shift(false, true, 8);
+    let div: f32 = 800_000_000.0 / (32.0 * 100_000.0);
+    pio_sm.config_set_clkdiv(div);
+    // require: use external pull-up
+    let both_pins = (1 << pin_sda) | (1 << pin_scl);
+    pio_sm.sm_set_pins_with_mask(both_pins, both_pins);
+    pio_sm.sm_set_pindirs_with_mask(both_pins, both_pins);
+    pio_sm.gpio_set_oeover(pin_sda, true);
+    pio_sm.gpio_set_oeover(pin_scl, true);
+    pio_sm.sm_set_pins_with_mask(0, both_pins);
+
+    pio_sm.sm_irq0_source_enabled(PioIntSource::Sm, false);
+    pio_sm.sm_irq1_source_enabled(PioIntSource::Sm, false);
+
+    pio_sm.sm_init(program.entry());
+    pio_sm.sm_set_enabled(true);
+}
+pub fn i2c_test() -> bool {
+    const PIN_SDA: usize = 2;
+    const PIN_SCL: usize = 3;
+
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
+
+    let mut pio_sm = PioSm::new(0).unwrap();
+
+    let i2c_prog = pio_proc::pio_asm!(
+        ".side_set 1 opt pindirs",
+
+        // TX Encoding:
+        // | 15:10 | 9     | 8:1  | 0   |
+        // | Instr | Final | Data | NAK |
+        //
+        // If Instr has a value n > 0, then this FIFO word has no
+        // data payload, and the next n + 1 words will be executed as instructions.
+        // Otherwise, shift out the 8 data bits, followed by the ACK bit.
+        //
+        // The Instr mechanism allows stop/start/repstart sequences to be programmed
+        // by the processor, and then carried out by the state machine at defined points
+        // in the datastream.
+        //
+        // The "Final" field should be set for the final byte in a transfer.
+        // This tells the state machine to ignore a NAK: if this field is not
+        // set, then any NAK will cause the state machine to halt and interrupt.
+        //
+        // Autopull should be enabled, with a threshold of 16.
+        // Autopush should be enabled, with a threshold of 8.
+        // The TX FIFO should be accessed with halfword writes, to ensure
+        // the data is immediately available in the OSR.
+        //
+        // Pin mapping:
+        // - Input pin 0 is SDA, 1 is SCL (if clock stretching used)
+        // - Jump pin is SDA
+        // - Side-set pin 0 is SCL
+        // - Set pin 0 is SDA
+        // - OUT pin 0 is SDA
+        // - SCL must be SDA + 1 (for wait mapping)
+        //
+        // The OE outputs should be inverted in the system IO controls!
+        // (It's possible for the inversion to be done in this program,
+        // but costs 2 instructions: 1 for inversion, and one to cope
+        // with the side effect of the MOV on TX shift counter.)
+
+        "do_nack:",
+        "    jmp y-- entry_point",        // Continue if NAK was expected
+        "    irq wait 0 rel",             // Otherwise stop, ask for help
+
+        "do_byte:",
+        "    set x, 7",                   // Loop 8 times
+        "bitloop:",
+        "    out pindirs, 1         [7]", // Serialise write data (all-ones if reading)
+        "    nop             side 1 [2]", // SCL rising edge
+        "    wait 1 pin, 1          [4]", // Allow clock to be stretched
+        "    in pins, 1             [7]", // Sample read data in middle of SCL pulse
+        "    jmp x-- bitloop side 0 [7]", // SCL falling edge
+
+        // Handle ACK pulse
+        "    out pindirs, 1         [7]", // On reads, we provide the ACK.
+        "    nop             side 1 [7]", // SCL rising edge
+        "    wait 1 pin, 1          [7]", // Allow clock to be stretched
+        "    jmp pin do_nack side 0 [2]", // Test SDA for ACK/NAK, fall through if ACK
+
+        "public entry_point:",
+        ".wrap_target",
+        "    out x, 6                  ", // Unpack Instr count
+        "    out y, 1                  ", // Unpack the NAK ignore bit
+        "    jmp !x do_byte            ", // Instr == 0, this is a data record.
+        "    out null, 32              ", // Instr > 0, remainder of this OSR is invalid
+        "do_exec:                      ",
+        "    out exec, 16              ", // Execute one instruction per FIFO word
+        "    jmp x-- do_exec           ", // Repeat n + 1 times
+        ".wrap",
+    );
+    let ep = i2c_prog.public_defines.entry_point as usize;
+    let prog_i2c = LoadedProg::load_with_entrypoint(i2c_prog.program, ep, &mut pio_sm).unwrap();
+    i2c_init(&mut pio_sm, &prog_i2c, PIN_SDA, PIN_SCL);
+
+    false
 }
