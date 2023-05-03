@@ -21,7 +21,7 @@ from axi_common import *
 
 class PioAdapter(Module):
     def __init__(self, platform, s_ahb, pads, irq0, irq1, sel_addr = 0x2000,
-        address_width = 12,
+        address_width = 12, sim=False,
     ):
         self.logger = logging.getLogger("PioAdapter")
 
@@ -81,6 +81,8 @@ class PioAdapter(Module):
                 self.gpio.oe.eq(gpio_oe[i]),
                 gpio_i[i].eq(self.gpio.i),
             ]
+            if sim and (i == 2 or i == 3):
+                self.comb += self.gpio.i.eq(~gpio_oe[i]) # funky setup to try and "fake" some I2C-ish pullups
 
         self.specials += Instance("pio_ahb",
             # Parameters.
