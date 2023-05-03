@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Lawrie Griffiths
 // SPDX-License-Identifier: BSD-2-Clause
 
-`default_nettype none
+// `default_nettype none
 module pc (
   input        clk,
   input        penable,
@@ -11,17 +11,18 @@ module pc (
   input [4:0]  pend,
   input        stalled,
   input [4:0]  wrap_target,
+  input        imm,
   output [4:0] dout
 );
 
   reg [4:0] index = 0;
 
-  assign dout = (penable && !stalled) ? (jmp ? din : index == pend ? wrap_target : index + 1) : index;
+  assign dout = (penable && !stalled || imm) ? (jmp ? din : index == pend ? wrap_target : index + 1) : index;
 
   always @(posedge clk) begin
     if (reset)
       index <= 0;
-    else if (penable && !stalled) begin
+    else if (penable && !stalled || imm) begin
       if (jmp)
         index <= din;
       else

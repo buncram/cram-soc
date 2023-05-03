@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Lawrie Griffiths
 // SPDX-License-Identifier: BSD-2-Clause
 
-`default_nettype none
+// `default_nettype none
 module machine (
   input         clk,
   input         reset,
@@ -16,6 +16,7 @@ module machine (
   input         empty,
   input         full,
   input         restart,
+  input         clkdiv_restart,
 
   // Configuration
   input [1:0]   mindex,
@@ -23,6 +24,7 @@ module machine (
   input [4:0]   wrap_target,
   input [4:0]   jmp_pin,
   input         sideset_enable_bit,
+  input         side_pindir,
   input [4:0]   pins_out_base,
   input [5:0]   pins_out_count,
   input [4:0]   pins_set_base,
@@ -45,6 +47,7 @@ module machine (
   output [4:0]  pc,
   output reg    push, // Send data to RX FIFO
   output reg    pull, // Get data from TX FIFO
+  output reg    exec_stalled,
   output reg [31:0] dout,
   output reg [31:0] output_pins,
   output reg [31:0] pin_directions,
@@ -117,7 +120,10 @@ module machine (
   // Miscellaneous signals
   wire [31:0] null_src = 0; // NULL source
   wire [5:0]  isr_count, osr_count;
-  wire [31:0] in_pins = input_pins << pins_in_base;
+  // Input pins rotate with pins_in_base
+  wire [63:0] in_pins64 = {input_pins, input_pins};
+  wire [63:0] in_pins64_rot = in_pins64 << pins_in_base;
+  wire [31:0] in_pins = in_pins64_rot[63:32];
 
   // Values for use in gtkwave during simulation
   wire        pin0 = output_pins[0];
@@ -287,9 +293,12 @@ module machine (
   // Count down if delay
   always @(posedge clk) begin
     if (reset || restart) begin
+      if (reset) begin
+        // these are *not* affected by restart
+        pin_directions <= 32'h00000000;
+        output_pins <= 32'h00000000;
+      end
       delay_cnt <= 0;
-      pin_directions <= 32'h00000000;
-      output_pins <= 32'h00000000;
     end else if (en & penable) begin
       exec1 <= exec; // Do execition on next cycle after exec set
       exec_instr <= new_val;
@@ -302,21 +311,30 @@ module machine (
 
   always @(posedge clk) begin
     if (enabled && !delaying) begin
-      if (sideset_enabled && !(auto && !waiting)) // TODO Is auto test correct?
-        for (i=0;i<5;i++) 
-          if (pins_side_count > i) output_pins[pins_side_base+i] <= side_set[i];
       if (set_set_pins)
-        for (i=0;i<5;i++) 
+        for (i=0;i<5;i=i+1)
           if (pins_set_count > i) output_pins[pins_set_base+i] <= new_val[i];
       if (set_set_dirs)
-        for (i=0;i<5;i++) 
+        for (i=0;i<5;i=i+1)
           if (pins_set_count > i) pin_directions[pins_set_base+i] <= new_val[i];
+
       if (set_out_pins)
-        for (i=0;i<5;i++) 
+        for (i=0;i<5;i=i+1)
           if (pins_out_count > i) output_pins[pins_out_base+i] <= new_val[i];
       if (set_out_dirs)
-        for (i=0;i<5;i++) 
+        for (i=0;i<5;i=i+1)
           if (pins_out_count > i) pin_directions[pins_out_base+i] <= new_val[i];
+
+      // sideset should override out (so it is last in order)
+      if (sideset_enabled && !(auto && !waiting))
+        if (!side_pindir) begin
+          for (i=0;i<5;i=i+1)
+            if (pins_side_count > i) output_pins[pins_side_base+i] <= side_set[i];
+        end else begin
+          for (i=0;i<5;i=i+1)
+            if (pins_side_count > i) pin_directions[pins_side_base+i] <= side_set[i];
+        end
+
     end
   end
 
@@ -366,14 +384,16 @@ module machine (
                 0: waiting = input_pins[index] != polarity;
                 1: waiting = input_pins[pins_in_base + index] != polarity;
                 2: begin
-                   waiting = irq_flags_in[irq_index] != polarity;
+                  // clear wait on irq in case of restart assert
+                   waiting = (irq_flags_in[irq_index] != polarity) & !restart;
                    if (polarity && irq_flags_in[irq_index]) begin
                       irq_flags_out[irq_index] = 0;  // auto clear when polarity is 1
                       irq_flags_stb[irq_index] = 1;
                    end
                 end
               endcase
-        IN:   if (auto_push && isr_count >= isr_threshold) begin // Auto push
+        IN:   begin
+              if (auto_push && isr_count >= isr_threshold) begin // Auto push
                  do_push();
                  set_isr(0);
                  if (full) begin
@@ -381,7 +401,8 @@ module machine (
                  end
                  waiting = full;
                  auto = 1;
-              end else case (source) // Source
+              end
+              case (source) // Source
                 0: do_shift_in(in_pins);
                 1: do_shift_in(x);
                 2: do_shift_in(y);
@@ -389,14 +410,17 @@ module machine (
                 6: do_shift_in(in_shift);
                 7: do_shift_in(out_shift);
               endcase
-        OUT:  if (auto_pull && osr_count >= osr_threshold) begin // Auto pull
+              end
+        OUT:  begin
+              if (auto_pull && osr_count >= osr_threshold) begin // Auto pull
                  do_pull();
                  if (empty) begin
                   dbg_txstall = 1;
                  end
                  waiting = empty;
                  auto = 1;
-              end else case (destination) // Destination
+              end
+              case (destination) // Destination
                 0: begin do_out_shift = 1; pins_out(out_shift); end                                    // PINS
                 1: begin do_out_shift = 1; set_x(out_shift); end                                       // X
                 2: begin do_out_shift = 1; set_y(out_shift); end                                       // Y
@@ -405,6 +429,7 @@ module machine (
                 6: begin do_out_shift = 1; set_isr(out_shift); bit_count = op2; end                    // ISR
                 7: begin do_out_shift = 1; set_exec(out_shift[15:0]); end                              // EXEC
               endcase
+              end
         PUSH: if (!op1[2]) begin // PUSH TODO No-op when auto-push?
                 if (!if_full || (isr_count >= isr_threshold)) begin
                   do_push();
@@ -427,7 +452,7 @@ module machine (
               end
         MOV:  case (destination)  // Destination
                 0: case (mov_source) // PINS
-                     1: pins_out(bit_op(in_pins, mov_op));   // x
+                     1: pins_out(bit_op(x, mov_op));         // X
                      2: pins_out(bit_op(y, mov_op));         // Y
                      3: pins_out(bit_op(null_src, mov_op));  // NULL
                      5: pins_out(status_sel ? (rx_level < status_n ? 32'hffffffff : 32'h0) : (tx_level < status_n ? 32'hffffffff : 32'h0)); // STATUS
@@ -510,7 +535,7 @@ module machine (
   // Clock divider
   divider clk_divider (
     .clk(clk),
-    .reset(reset | restart),
+    .reset(reset | clkdiv_restart),
     .div(div),
     .use_divider(use_divider),
     .penable(penable),
@@ -532,15 +557,21 @@ module machine (
 
   // Synchronous modules
   // PC
+  always @(posedge clk) begin
+    if (en & penable) begin
+      exec_stalled <= (waiting || /* auto || */ exec1 || delaying) && !restart;
+    end
+  end
   pc pc_reg (
     .clk(clk),
     .penable(en & penable),
-    .reset(reset | restart),
+    .reset(reset),
     .din(new_val[4:0]),
     .jmp(jmp),
-    .stalled(waiting || auto || imm || exec1 || delaying),
+    .stalled((waiting || /* auto || */ exec1 || delaying) && !restart), // clear stall in caes of restart
     .pend(pend),
     .wrap_target(wrap_target),
+    .imm(imm),
     .dout(pc)
   );
 
@@ -548,7 +579,7 @@ module machine (
   scratch scratch_x (
     .clk(clk),
     .penable(enabled),
-    .reset(reset | restart),
+    .reset(reset),
     .stalled(delaying),
     .din(new_val),
     .set(setx),
@@ -560,7 +591,7 @@ module machine (
   scratch scratch_y (
     .clk(clk),
     .penable(enabled),
-    .reset(reset | restart),
+    .reset(reset),
     .stalled(delaying),
     .din(new_val),
     .set(sety),
@@ -588,13 +619,17 @@ module machine (
   osr shift_out (
     .clk(clk),
     .penable(enabled),
-    .reset(reset | restart),
+    .reset(reset),
+    .restart(restart),
     .stalled(waiting || delaying),
     .dir(out_shift_dir),
     .shift(op2),
     .set(set_shift_out),
     .do_shift(do_out_shift),
-    .din(new_val),
+    // override new_val computation in case of a do_pull() task
+    // TODO: check that this still works for OUT values derived computationally...
+    // I think it's OK because pull only overrides new_val during at autopull event.
+    .din(pull ? din : new_val),
     .dout(out_shift),
     .shift_count(osr_count)
   );

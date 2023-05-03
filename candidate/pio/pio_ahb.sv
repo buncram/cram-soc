@@ -2,6 +2,13 @@
 // SPDX-FileCopyrightText: 2022 Lawrie Griffiths
 // SPDX-License-Identifier: BSD-2-Clause
 
+// TODO:
+//   - OUT_STICKY is not implemented (but seems not used in any examples)
+//   - INLINE_OUT_EN not implemented
+//   - OUT_EN_SEL not implemented
+//   - SIDE_PINDIR implemented but not tested
+//   - FIFO chaining is missing
+
 module pio_ahb #(
     parameter AW = 12
 )(
@@ -129,7 +136,6 @@ module rp_pio #(
     reg [NUM_MACHINES-1:0]   inline_out_en;
     reg [NUM_MACHINES-1:0]   side_pindir;
     reg [NUM_MACHINES-1:0]   exec_stalled;
-    reg [NUM_MACHINES-1:0]   use_divider;
 
     // Control
     reg [NUM_MACHINES-1:0]   imm;
@@ -202,7 +208,7 @@ module rp_pio #(
     wire [1:0] join_rx_tx [0:NUM_MACHINES-1];
     reg  [1:0] join_rx_tx_r [0:NUM_MACHINES-1];
     wire [1:0] join_rx_tx_change [0:NUM_MACHINES-1];
-    /* aborted attempt to join muxes
+    /* aborted attempt to join fifos
     wire [NUM_MACHINES-1:0] tx_mux_push;
     wire [NUM_MACHINES-1:0] tx_mux_pull;
     wire [31:0] tx_mux_din  [NUM_MACHINES-1:0];
@@ -211,6 +217,8 @@ module rp_pio #(
     wire tx_mux_full        [NUM_MACHINES-1:0];
     wire [2:0] tx_mux_level [NUM_MACHINES-1:0];
     */
+
+    wire ctl_action;
 
     // debug
     logic [31:0] dbg_cr;
@@ -222,23 +230,31 @@ module rp_pio #(
     integer i;
     integer gpio_idx;
 
+    generate
+        for (genvar gp = 0; gp < 32; gp++) begin: gp_iface
+            assign pio_gpio[gp].po = gpio_out[gp];
+            assign pio_gpio[gp].oe = gpio_dir[gp];
+            assign gpio_in[gp] = pio_gpio[gp].pi;
+        end
+    endgenerate
+
     // Synchronous fetch of current instruction for each machine
     always @(posedge clk) begin
         for(i=0;i<NUM_MACHINES;i=i+1) begin
-        curr_instr[i] <= instr[pc[i]];
+            curr_instr[i] <= instr[pc[i]];
 
-        // Coalesce output pins, making sure the highest PIO wins
-        for(gpio_idx=0;gpio_idx<32;gpio_idx=gpio_idx+1) begin
-            output_pins_prev[i][gpio_idx] <= output_pins[i][gpio_idx];
-            if (output_pins[i][gpio_idx] != output_pins_prev[i][gpio_idx]) begin
-            gpio_out[gpio_idx] <= output_pins[i][gpio_idx];
-            end
+            // Coalesce output pins, making sure the highest PIO wins
+            for(gpio_idx=0;gpio_idx<32;gpio_idx=gpio_idx+1) begin
+                output_pins_prev[i][gpio_idx] <= output_pins[i][gpio_idx];
+                if (output_pins[i][gpio_idx] != output_pins_prev[i][gpio_idx]) begin
+                    gpio_out[gpio_idx] <= output_pins[i][gpio_idx];
+                end
 
-            pin_directions_prev[i][gpio_idx] <= pin_directions[i][gpio_idx];
-            if (pin_directions[i][gpio_idx] != pin_directions_prev[i][gpio_idx]) begin
-            gpio_dir[gpio_idx] <= pin_directions[i][gpio_idx];
+                pin_directions_prev[i][gpio_idx] <= pin_directions[i][gpio_idx];
+                if (pin_directions[i][gpio_idx] != pin_directions_prev[i][gpio_idx]) begin
+                    gpio_dir[gpio_idx] <= pin_directions[i][gpio_idx];
+                end
             end
-        end
         end
     end
 
@@ -252,20 +268,23 @@ module rp_pio #(
                 .clk(clk),
                 .reset(reset),
                 .en(en[j]),
-                .restart(restart[j]),
+                .restart(restart[j] & ctl_action),
+                .clkdiv_restart(clkdiv_restart[j] & ctl_action),
                 .mindex(j[1:0]),
                 .jmp_pin(jmp_pin[j]),
                 .input_pins(gpio_in_cleaned),
                 .output_pins(output_pins[j]),
                 .pin_directions(pin_directions[j]),
                 .sideset_enable_bit(pins_side_count[j] > 0 ? sideset_enable_bit[j] : 1'b0),
+                .side_pindir(side_pindir[j]),
                 .in_shift_dir(in_shift_dir[j]),
                 .out_shift_dir(out_shift_dir[j]),
                 .div(div[j]),
-                .use_divider(use_divider[j]),
+                .use_divider(1),
                 .instr(imm[j] ? imm_instr[j] : curr_instr[j]),
                 .imm(imm[j]),
                 .pend(pend[j]),
+                .exec_stalled(exec_stalled[j]),
                 .wrap_target(wrap_target[j]),
                 .pins_out_base(pins_out_base[j]),
                 .pins_out_count(pins_out_count[j]),
@@ -591,7 +610,7 @@ module rp_pio #(
     assign irq1_ints_txnfull  = irq1_ints[7:4];
     assign irq1_ints_rxnempty = irq1_ints[3:0];
 
-    apb_cr  #(.A('h00), .DW(12))      sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .prdata32(),.*);
+    apb_acr #(.A('h00), .DW(12))      sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))      sfr_fstat            (.sr({4'd0, tx_empty, 4'd0, tx_full, 4'd0, rx_empty, 4'd0, rx_full}), .prdata32(),.*);
     apb_ascr #(.A('h08), .DW(32))     sfr_fdebug           (.cr({nc_dbg0, txstall, nc_dbg1, txover, nc_dbg2, rxunder, nc_dbg3, rxstall}), .sr(dbg_sr), .ar(dbg_trig), .prdata32(),.*);
     apb_sr  #(.A('h0C), .DW(32))      sfr_flevel           (.sr({1'd0, rx_level[3], 1'd0, tx_level[3], 1'd0, rx_level[2], 1'd0, tx_level[2],

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Lawrie Griffiths
 // SPDX-License-Identifier: BSD-2-Clause
 
-`default_nettype none
+// `default_nettype none
 module divider (
   input         clk,
   input         reset,
