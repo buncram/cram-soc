@@ -383,7 +383,10 @@ class CramSoC(SoCMini):
             from pio_adapter import PioAdapter
             pio_irq0 = Signal()
             pio_irq1 = Signal()
-            self.submodules += PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000)
+            self.submodules += PioAdapter(platform,
+                local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000,
+                sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
+            )
         else:
             from duart_adapter import DuartAdapter
             local_ahb = ahb.Interface()
