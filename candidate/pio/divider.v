@@ -5,16 +5,21 @@
 module divider (
   input         clk,
   input         reset,
-  input [23:0]  div,
-  input         use_divider,
-  output        penable,
-  output        pclk
+  input [15:0]  div_int,
+  input [7:0]   div_frac,
+  output        penable
 );
+  wire use_divider;
+  wire divint_1;
+  assign use_divider = !((div_int == 0) && (div_frac == 0));
+  assign divint_1 = (div_int == 16'd1);
 
+  wire [23:0] div;
   reg [23:0] div_counter;
-  reg        pen;
-  reg        old_pen;
+  reg pen;
+  reg old_pen;
 
+  assign div = {div_int, div_frac};
   always @(posedge clk) begin
     if (reset) begin
       div_counter <= 0;
@@ -31,7 +36,5 @@ module divider (
     end
   end
 
-  assign penable = pen & ~old_pen;
-  assign pclk = pen;
-
+  assign penable = ((pen & ~old_pen) || !use_divider) ^ divint_1;
 endmodule

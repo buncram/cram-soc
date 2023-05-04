@@ -6,8 +6,8 @@ module machine (
   input         clk,
   input         reset,
   input         en,
-  input [23:0]  div,
-  input         use_divider,
+  input [16:0]  div_int,
+  input [7:0]   div_frac,
   input [31:0]  din,
   input [15:0]  instr,
   input [31:0]  input_pins,
@@ -55,8 +55,7 @@ module machine (
   output reg [7:0]  irq_flags_stb,
 
   output reg    dbg_txstall,
-  output reg    dbg_rxstall,
-  output        pclk
+  output reg    dbg_rxstall
 );
 
   // Strobes to implement instructions (combinatorial)
@@ -536,10 +535,9 @@ module machine (
   divider clk_divider (
     .clk(clk),
     .reset(reset | clkdiv_restart),
-    .div(div),
-    .use_divider(use_divider),
-    .penable(penable),
-    .pclk(pclk)
+    .div_int(div_int),
+    .div_frac(div_frac),
+    .penable(penable)
   );
 
   // Instruction decoder
