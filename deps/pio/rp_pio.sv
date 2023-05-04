@@ -5,6 +5,7 @@
 // TODO:
 //   - SIDE_PINDIR implemented but not tested
 //   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
+//   - Ensure that irq0/irq1 are available to system DMA controller for chaining
 //   - FIFO chaining is missing
 //   - OUT_STICKY is not implemented (but seems not used in any examples)
 //   - INLINE_OUT_EN not implemented
@@ -52,7 +53,6 @@ module rp_pio #(
     wire  [3:0]      tx_full;
     wire  [3:0]      rx_empty;
     wire  [3:0]      rx_full;
-    wire  [3:0]      pclk_pio; // unused, this is mostly for debug purposes
 
     // ----- peripheral module. Pulled into wrapper level so we can connect to state machine bits directly. ------
     // Shared instructions memory
@@ -83,7 +83,6 @@ module rp_pio #(
     reg [4:0]   wrap_target     [0:NUM_MACHINES-1];
     reg [15:0]  div_int         [0:NUM_MACHINES-1];
     reg [7:0]   div_frac        [0:NUM_MACHINES-1];
-    reg [23:0]  div             [0:NUM_MACHINES-1];
     reg [4:0]   pins_in_base    [0:NUM_MACHINES-1];
     reg [4:0]   pins_out_base   [0:NUM_MACHINES-1];
     reg [4:0]   pins_set_base   [0:NUM_MACHINES-1];
@@ -204,7 +203,6 @@ module rp_pio #(
         genvar j;
 
         for(j=0;j<NUM_MACHINES;j=j+1) begin : mach
-            assign div[j] = {div_int[j], div_frac[j]};
             machine machine (
                 .clk(clk),
                 .reset(reset),
@@ -220,8 +218,8 @@ module rp_pio #(
                 .side_pindir(side_pindir[j]),
                 .in_shift_dir(in_shift_dir[j]),
                 .out_shift_dir(out_shift_dir[j]),
-                .div(div[j]),
-                .use_divider(1),
+                .div_int(div_int[j]),
+                .div_frac(div_frac[j]),
                 .instr(imm[j] ? imm_instr[j] : curr_instr[j]),
                 .imm(imm[j]),
                 .pend(pend[j]),
@@ -246,7 +244,6 @@ module rp_pio #(
                 .dout(mdout[j]),
                 .pull(mpull[j]),
                 .push(mpush[j]),
-                .pclk(pclk_pio[j]),
                 .empty(mempty[j]),
                 .full(mfull[j]),
                 .status_sel(status_sel[j]),

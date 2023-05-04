@@ -21,7 +21,7 @@ Register Listing for RP_PIO
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_TXF2 <RP_PIO_SFR_TXF2>`                   | :ref:`0x40202018 <RP_PIO_SFR_TXF2>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED7 <RP_PIO_RESERVED7>`                 | :ref:`0x4020201c <RP_PIO_RESERVED7>`         |
+| :ref:`RP_PIO_SFR_TXF3 <RP_PIO_SFR_TXF3>`                   | :ref:`0x4020201c <RP_PIO_SFR_TXF3>`          |
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_RXF0 <RP_PIO_SFR_RXF0>`                   | :ref:`0x40202020 <RP_PIO_SFR_RXF0>`          |
 +------------------------------------------------------------+----------------------------------------------+
@@ -29,7 +29,7 @@ Register Listing for RP_PIO
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_RXF2 <RP_PIO_SFR_RXF2>`                   | :ref:`0x40202028 <RP_PIO_SFR_RXF2>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_TXF3 <RP_PIO_SFR_TXF3>`                   | :ref:`0x4020202c <RP_PIO_SFR_TXF3>`          |
+| :ref:`RP_PIO_SFR_RXF3 <RP_PIO_SFR_RXF3>`                   | :ref:`0x4020202c <RP_PIO_SFR_RXF3>`          |
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_IRQ <RP_PIO_SFR_IRQ>`                     | :ref:`0x40202030 <RP_PIO_SFR_IRQ>`           |
 +------------------------------------------------------------+----------------------------------------------+
@@ -454,22 +454,27 @@ RP_PIO_SFR_TXF2
 | [31:0] | FDIN | fdin read/write control register |
 +--------+------+----------------------------------+
 
-RP_PIO_RESERVED7
-^^^^^^^^^^^^^^^^
+RP_PIO_SFR_TXF3
+^^^^^^^^^^^^^^^
 
 `Address: 0x40202000 + 0x1c = 0x4020201c`
 
 
     .. wavedrom::
-        :caption: RP_PIO_RESERVED7
+        :caption: RP_PIO_SFR_TXF3
 
         {
             "reg": [
-                {"name": "reserved7", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+                {"name": "fdin",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
+
++--------+------+----------------------------------+
+| Field  | Name | Description                      |
++========+======+==================================+
+| [31:0] | FDIN | fdin read/write control register |
++--------+------+----------------------------------+
 
 RP_PIO_SFR_RXF0
 ^^^^^^^^^^^^^^^
@@ -537,27 +542,27 @@ RP_PIO_SFR_RXF2
 | [31:0] | PDOUT | pdout read only status register |
 +--------+-------+---------------------------------+
 
-RP_PIO_SFR_TXF3
+RP_PIO_SFR_RXF3
 ^^^^^^^^^^^^^^^
 
 `Address: 0x40202000 + 0x2c = 0x4020202c`
 
 
     .. wavedrom::
-        :caption: RP_PIO_SFR_TXF3
+        :caption: RP_PIO_SFR_RXF3
 
         {
             "reg": [
-                {"name": "fdin",  "bits": 32}
+                {"name": "pdout",  "bits": 32}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-+--------+------+----------------------------------+
-| Field  | Name | Description                      |
-+========+======+==================================+
-| [31:0] | FDIN | fdin read/write control register |
-+--------+------+----------------------------------+
++--------+-------+---------------------------------+
+| Field  | Name  | Description                     |
++========+=======+=================================+
+| [31:0] | PDOUT | pdout read only status register |
++--------+-------+---------------------------------+
 
 RP_PIO_SFR_IRQ
 ^^^^^^^^^^^^^^

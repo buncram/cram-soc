@@ -341,16 +341,17 @@
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED7</name>
+                    <name>SFR_TXF3</name>
                     <addressOffset>0x001c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>reserved7</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
+                            <name>fdin</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
+                            <description><![CDATA[fdin read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -400,17 +401,17 @@
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_TXF3</name>
+                    <name>SFR_RXF3</name>
                     <addressOffset>0x002c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>fdin</name>
+                            <name>pdout</name>
                             <msb>31</msb>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[fdin read/write control register]]></description>
+                            <description><![CDATA[pdout read only status register]]></description>
                         </field>
                     </fields>
                 </register>

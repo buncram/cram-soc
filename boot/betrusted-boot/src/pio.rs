@@ -196,17 +196,17 @@ impl PioSm {
     pub fn sm_rxfifo_pull_u32(&mut self) -> u32 {
         match self.sm {
             SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0),
-            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF0),
-            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF0),
-            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF0),
+            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF1),
+            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF2),
+            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF3),
         }
     }
     pub fn sm_rxfifo_pull_u8_lsb(&mut self) -> u8 {
         match self.sm {
             SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0) as u8,
-            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF0) as u8,
-            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF0) as u8,
-            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF0) as u8,
+            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF1) as u8,
+            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF2) as u8,
+            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF3) as u8,
         }
     }
     fn find_offset_for_program(&self, program: &Program<RP2040_MAX_PROGRAM_SIZE>) -> Option<usize> {
@@ -676,11 +676,6 @@ impl PioSm {
     }
 }
 
-pub fn pio_tests() {
-    i2c_test();
-    spi_test();
-}
-
 #[inline(always)]
 pub fn pio_spi_write8_read8_blocking (
     pio_sm: &mut PioSm,
@@ -765,7 +760,8 @@ pub fn pio_spi_init(
     pio_sm.config_set_sideset_pins(pin_sck);
     pio_sm.config_set_out_shift(false, true, n_bits);
     pio_sm.config_set_in_shift(false, true, n_bits);
-    pio_sm.config_set_clkdiv(clkdiv);
+    // pio_sm.config_set_clkdiv(clkdiv);
+    pio_sm.config_set_clkdiv_int_frac(2, 128);
 
     // MOSI, SCK output are low, MISO is input
     pio_sm.sm_set_pins_with_mask(
@@ -795,7 +791,7 @@ pub fn spi_test() -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
 
-    let mut pio_sm = PioSm::new(0).unwrap();
+    let mut pio_sm = PioSm::new(3).unwrap();
 
     // spi_cpha0 example
     let spi_cpha0_prog = pio_proc::pio_asm!(
@@ -1024,14 +1020,16 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
         i2c_get(pio_sm);
     }
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0003);
-    i2c_put16(pio_sm, ((addr as u16) << 2)  | 3);
+    let addr_composed = ((addr as u16) << 2)  | 3;
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 | addr_composed as u32);
+    i2c_put16(pio_sm, addr_composed);
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0004);
     let mut first = true;
     let mut tx_remain = rxbuf.len();
     let mut len = rxbuf.len();
     let mut i = 0;
     while (tx_remain != 0) || (len != 0) && !i2c_check_error(pio_sm) {  // here
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0005 + ((tx_remain as u32) << 8));
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + ((tx_remain as u32) << 8) | len as u32);
         if (tx_remain != 0) && !pio_sm.sm_txfifo_is_full() {
             tx_remain -= 1;
             i2c_put16(pio_sm,
@@ -1113,33 +1111,33 @@ pub fn i2c_test() -> bool {
         // with the side effect of the MOV on TX shift counter.)
 
         "do_nack:",
-        "    jmp y-- entry_point",        // Continue if NAK was expected
-        "    irq wait 0 rel",             // Otherwise stop, ask for help
+        "    jmp y-- entry_point",        // 0D Continue if NAK was expected
+        "    irq wait 0 rel",             // 0E Otherwise stop, ask for help
 
         "do_byte:",
-        "    set x, 7",                   // E027 Loop 8 times
+        "    set x, 7",                   // 0F E027 Loop 8 times
         "bitloop:",
-        "    out pindirs, 1         [7]", // 6781 Serialise write data (all-ones if reading)
-        "    nop             side 1 [2]", // BA42 SCL rising edge
-        "    wait 1 pin, 1          [4]", // 24A1 Allow clock to be stretched
-        "    in pins, 1             [7]", // Sample read data in middle of SCL pulse
-        "    jmp x-- bitloop side 0 [7]", // SCL falling edge
+        "    out pindirs, 1         [7]", // 10 6781 Serialise write data (all-ones if reading)
+        "    nop             side 1 [2]", // 11 BA42 SCL rising edge
+        "    wait 1 pin, 1          [4]", // 12 24A1 Allow clock to be stretched
+        "    in pins, 1             [7]", // 13 Sample read data in middle of SCL pulse
+        "    jmp x-- bitloop side 0 [7]", // 14 SCL falling edge
 
         // Handle ACK pulse
-        "    out pindirs, 1         [7]", // On reads, we provide the ACK.
-        "    nop             side 1 [7]", // SCL rising edge
-        "    wait 1 pin, 1          [7]", // Allow clock to be stretched
-        "    jmp pin do_nack side 0 [2]", // Test SDA for ACK/NAK, fall through if ACK
+        "    out pindirs, 1         [7]", // 15 On reads, we provide the ACK.
+        "    nop             side 1 [7]", // 16 SCL rising edge
+        "    wait 1 pin, 1          [7]", // 17 Allow clock to be stretched
+        "    jmp pin do_nack side 0 [2]", // 18 Test SDA for ACK/NAK, fall through if ACK
 
         "public entry_point:",
         ".wrap_target",
-        "    out x, 6                  ", // 6026 Unpack Instr count
-        "    out y, 1                  ", // 6041 Unpack the NAK ignore bit
-        "    jmp !x do_byte            ", // 002F Instr == 0, this is a data record.
-        "    out null, 32              ", // Instr > 0, remainder of this OSR is invalid
+        "    out x, 6                  ", // 19 6026 Unpack Instr count
+        "    out y, 1                  ", // 1A 6041 Unpack the NAK ignore bit
+        "    jmp !x do_byte            ", // 1B 002F Instr == 0, this is a data record.
+        "    out null, 32              ", // 1C Instr > 0, remainder of this OSR is invalid
         "do_exec:                      ",
-        "    out exec, 16              ", // Execute one instruction per FIFO word
-        "    jmp x-- do_exec           ", // Repeat n + 1 times
+        "    out exec, 16              ", // 1D 60F0 Execute one instruction per FIFO word
+        "    jmp x-- do_exec           ", // 1E Repeat n + 1 times
         ".wrap",
     );
     let ep = i2c_prog.public_defines.entry_point as usize;
@@ -1152,19 +1150,28 @@ pub fn i2c_test() -> bool {
         // Assemble a table of instructions which software can select from, and pass
         // into the FIFO, to issue START/STOP/RSTART. This isn't intended to be run as
         // a complete program.
-        "    set pindirs, 0 side 0 [7] ; SCL = 0, SDA = 0",
-        "    set pindirs, 1 side 0 [7] ; SCL = 0, SDA = 1",
-        "    set pindirs, 0 side 1 [7] ; SCL = 1, SDA = 0",
-        "    set pindirs, 1 side 1 [7] ; SCL = 1, SDA = 1",
+        "    set pindirs, 0 side 0 [7] ", // SCL = 0, SDA = 0"
+        "    set pindirs, 1 side 0 [7] ", // SCL = 0, SDA = 1",
+        "    set pindirs, 0 side 1 [7] ", // SCL = 1, SDA = 0",
+        "    set pindirs, 1 side 1 [7] ", // SCL = 1, SDA = 1",
     ).program.code;
     let mut i2c_cmds = [0u16; 4];
     i2c_cmds.copy_from_slice(&i2c_cmds_raw[..4]);
+    // print the compiled program for debug purposes
+    for i in 0..4 {
+        report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + i2c_cmds[i] as u32);
+    }
 
     let mut rxbuf = [0u8];
     for addr in 10..14 {
-        i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf);
         report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + addr as u32);
+        i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf);
     }
     report.wfo(utra::main::REPORT_REPORT, 0x012C_1111);
     false
+}
+
+pub fn pio_tests() {
+    spi_test();
+    i2c_test();
 }
