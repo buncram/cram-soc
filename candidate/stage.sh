@@ -39,6 +39,7 @@ cp ../deps/pio/upstream/src/*.v pio/
 rm -f pio/pio.v
 # add the correct top model
 cp ../deps/pio/pio_ahb.sv pio/
+cp ../deps/pio/rp_pio.sv pio/
 
 rm -rf docs
 mkdir docs
