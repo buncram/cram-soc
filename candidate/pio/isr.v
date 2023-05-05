@@ -36,7 +36,7 @@ module isr (
     end else if (penable && !stalled) begin
        if (set) begin
          shift_reg <= din;
-         count <= 0;
+         count <= bit_count;
        end else if (do_shift) begin
          shift_reg <= dir ? new_shift[31:0] : new_shift[63:32];
          count <= (count + shift_val) > 7'd32 ? 7'd32 : count + shift_val;

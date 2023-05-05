@@ -484,7 +484,10 @@ module rp_pio #(
             sfr_irq0_ints    .prdata32 |
             sfr_irq1_inte    .prdata32 |
             sfr_irq1_intf    .prdata32 |
-            sfr_irq1_ints    .prdata32
+            sfr_irq1_ints    .prdata32 |
+            sfr_io_oe_inv    .prdata32 |
+            sfr_io_o_inv     .prdata32 |
+            sfr_io_i_inv     .prdata32
             ;
 
     bit do_action;
