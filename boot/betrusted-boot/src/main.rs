@@ -580,6 +580,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         irqs::irq_setup();
         // ---------- coreuser test --------------------
         satp::satp_test();
+
+        // TEMPORARY STOP
+        report.wfo(utra::main::DONE_DONE, 1);
+
         // ---------- exception test -------------------
         irqs::irq_test();
 

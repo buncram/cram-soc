@@ -1082,7 +1082,8 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
     i2c_stop(pio_sm, set_scl_sda_program_instructions);
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0021);
     i2c_wait_idle(pio_sm);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0022);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000);
+    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + rxbuf[0] as u32);
     if i2c_check_error(pio_sm) {
         i2c_resume_after_error(pio_sm);
         i2c_stop(pio_sm, set_scl_sda_program_instructions);
@@ -1177,10 +1178,10 @@ pub fn i2c_test() -> bool {
         // Assemble a table of instructions which software can select from, and pass
         // into the FIFO, to issue START/STOP/RSTART. This isn't intended to be run as
         // a complete program.
-        "    set pindirs, 0 side 0 [7] ", // SCL = 0, SDA = 0"
-        "    set pindirs, 1 side 0 [7] ", // SCL = 0, SDA = 1",
-        "    set pindirs, 0 side 1 [7] ", // SCL = 1, SDA = 0",
-        "    set pindirs, 1 side 1 [7] ", // SCL = 1, SDA = 1",
+        "    set pindirs, 0 side 0 [7] ", // F780 SCL = 0, SDA = 0"
+        "    set pindirs, 1 side 0 [7] ", // F781 SCL = 0, SDA = 1",
+        "    set pindirs, 0 side 1 [7] ", // FF80 SCL = 1, SDA = 0",
+        "    set pindirs, 1 side 1 [7] ", // FF81 SCL = 1, SDA = 1",
     ).program.code;
     let mut i2c_cmds = [0u16; 4];
     i2c_cmds.copy_from_slice(&i2c_cmds_raw[..4]);
@@ -1192,13 +1193,21 @@ pub fn i2c_test() -> bool {
     let mut rxbuf = [0u8];
     for addr in 10..14 {
         report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + addr as u32);
-        i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf);
+        if i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf) {
+            report.wfo(utra::main::REPORT_REPORT, 0x012C_600D);
+        } else {
+            report.wfo(utra::main::REPORT_REPORT, 0x012C_DEAD);
+        }
+        for i in 0..256 {
+            // just some dummy writes
+            report.wfo(utra::main::WDATA_WDATA, (0x012C_0000 + addr as u32) + (i << 8));
+        }
     }
     report.wfo(utra::main::REPORT_REPORT, 0x012C_1111);
     false
 }
 
 pub fn pio_tests() {
-    spi_test();
     i2c_test();
+    spi_test();
 }
