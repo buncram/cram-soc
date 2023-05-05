@@ -473,11 +473,25 @@ class CramSoC(SoCMini):
         jtag_cpu = platform.request("jtag_cpu")
 
         # Add simulation "output pins" -----------------------------------------------------
-        if sim:
-            self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
-            self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
-            self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
+        self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
+        self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
+        self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
+        # test that caching is OFF for the I/O regions
+        self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
+        self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
+        self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
 
+        self.sync += [
+            If(self.sim_coherence_inc.we,
+                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
+            ).Else(
+                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
+            )
+        ]
+        self.comb += [
+            self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
+        ]
+        if sim:
             sim_pads = platform.request("sim")
             self.comb += [
                 sim_pads.report.eq(self.sim_report.storage),
@@ -485,21 +499,6 @@ class CramSoC(SoCMini):
                 sim_pads.done.eq(self.sim_done.storage),
             ]
 
-            # test that caching is OFF for the I/O regions
-            self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
-            self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
-            self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
-
-            self.sync += [
-                If(self.sim_coherence_inc.we,
-                    self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
-                ).Else(
-                    self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
-                )
-            ]
-            self.comb += [
-                self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
-            ]
 
         # Add AXI RAM to SoC (Through AXI Crossbar).
         # ------------------------------------------
