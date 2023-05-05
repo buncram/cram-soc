@@ -80,11 +80,11 @@ module machine (
 
   reg [5:0]   bit_count;
   reg [31:0]  new_val;
-  
+
   reg         exec1 = 0;
   reg [15:0]  exec_instr;
- 
-  // Divided clock enable signal 
+
+  // Divided clock enable signal
   wire        penable;
 
   // Output from modules
@@ -98,7 +98,7 @@ module machine (
   wire [4:0]  delay;
   wire [4:0]  side_set;
   wire        sideset_enabled;
-  
+
   // Names of operands
   wire        blocking = op1[0];
   wire        if_full = op1[1];
@@ -118,7 +118,7 @@ module machine (
 
   // Miscellaneous signals
   wire [31:0] null_src = 0; // NULL source
-  wire [5:0]  isr_count, osr_count;
+  wire [5:0]  isr_count, osr_count, osr_count_lookahead;
   // Input pins rotate with pins_in_base
   wire [63:0] in_pins64 = {input_pins, input_pins};
   wire [63:0] in_pins64_rot = in_pins64 << pins_in_base;
@@ -135,7 +135,7 @@ module machine (
   reg [4:0]   delay_cnt = 0;
 
   // States
-  wire enabled  = exec1 || imm || (en && penable); // Instruction execution enabled
+  wire enabled  = (exec1 && penable) || imm || (en && penable); // Instruction execution enabled
   wire delaying = delay_cnt > 0;
 
   // Function to reverse the order of bits in a word
@@ -155,7 +155,7 @@ module machine (
     input [1:0] op
   );
 
-    case (op) 
+    case (op)
       0: bit_op = in;
       1: bit_op = ~in;
       2: bit_op = reverse(in);
@@ -167,7 +167,7 @@ module machine (
   task set_x (
     input [31:0] val
   );
-    begin 
+    begin
       setx = 1;
       new_val = val;
     end
@@ -299,13 +299,13 @@ module machine (
       end
       delay_cnt <= 0;
     end else if (en & penable) begin
-      exec1 <= exec; // Do execition on next cycle after exec set
+      exec1 <= exec; // Do execution on next cycle after exec set
       exec_instr <= new_val;
       if (delaying) delay_cnt <= delay_cnt - 1;
       else if (!waiting && !exec && delay > 0) delay_cnt <= delay;
     end
   end
- 
+
   integer i;
 
   always @(posedge clk) begin
@@ -325,7 +325,7 @@ module machine (
           if (pins_out_count > i) pin_directions[pins_out_base+i] <= new_val[i];
 
       // sideset should override out (so it is last in order)
-      if (sideset_enabled && !(auto && !waiting))
+      if (sideset_enabled) begin // && !(auto && !waiting))  /* is this !(auto && !waiting) really correct?? */
         if (!side_pindir) begin
           for (i=0;i<5;i=i+1)
             if (pins_side_count > i) output_pins[pins_side_base+i] <= side_set[i];
@@ -333,7 +333,7 @@ module machine (
           for (i=0;i<5;i=i+1)
             if (pins_side_count > i) pin_directions[pins_side_base+i] <= side_set[i];
         end
-
+      end
     end
   end
 
@@ -392,53 +392,68 @@ module machine (
                 end
               endcase
         IN:   begin
-              if (auto_push && isr_count >= isr_threshold) begin // Auto push
-                 do_push();
-                 set_isr(0);
-                 if (full) begin
-                  dbg_rxstall = 1;
-                 end
-                 waiting = full;
-                 auto = 1;
-              end
-              case (source) // Source
-                0: do_shift_in(in_pins);
-                1: do_shift_in(x);
-                2: do_shift_in(y);
-                3: do_shift_in(null_src);
-                6: do_shift_in(in_shift);
-                7: do_shift_in(out_shift);
-              endcase
+                if (auto_push && isr_count >= isr_threshold) begin // Auto push
+                  if (full) begin
+                    dbg_rxstall = 1;
+                  end else begin
+                    do_push();
+                    set_isr(0);
+                  end
+                  waiting = full;
+                  auto = 1;
+                end
+                case (source) // Source
+                  0: do_shift_in(in_pins);
+                  1: do_shift_in(x);
+                  2: do_shift_in(y);
+                  3: do_shift_in(null_src);
+                  6: do_shift_in(in_shift);
+                  7: do_shift_in(out_shift);
+                endcase
               end
         OUT:  begin
-              if (auto_pull && osr_count >= osr_threshold) begin // Auto pull
-                 do_pull();
-                 if (empty) begin
-                  dbg_txstall = 1;
-                 end
-                 waiting = empty;
-                 auto = 1;
+                if (auto_pull && osr_count >= osr_threshold) begin // Auto pull
+                  if (empty) begin
+                    dbg_txstall = 1;
+                  end else begin
+                    do_pull();
+                  end
+                  // OUT can stall in this case
+                  waiting = 1;
+                  auto = 1;
+                end else begin
+                  // Look-ahead on OUT for the next value, if the FIFO is not empty...
+                  if (auto_pull && osr_count_lookahead >= osr_threshold) begin
+                    if (empty) begin
+                      dbg_txstall = 1;
+                    end else begin
+                      do_pull();
+                    end
+                  end
+                  case (destination) // Destination
+                    0: begin do_out_shift = 1; pins_out(out_shift); end                                    // PINS
+                    1: begin do_out_shift = 1; set_x(out_shift); end                                       // X
+                    2: begin do_out_shift = 1; set_y(out_shift); end                                       // Y
+                    4: begin do_out_shift = 1; dirs_out(out_shift); end                                    // PINDIRS
+                    5: begin do_out_shift = 1; set_pc(out_shift);          ; end                           // PC
+                    6: begin do_out_shift = 1; set_isr(out_shift); bit_count = op2; end                    // ISR
+                    7: begin do_out_shift = 1; set_exec(out_shift[15:0]); end                              // EXEC
+                  endcase
+                end
               end
-              case (destination) // Destination
-                0: begin do_out_shift = 1; pins_out(out_shift); end                                    // PINS
-                1: begin do_out_shift = 1; set_x(out_shift); end                                       // X
-                2: begin do_out_shift = 1; set_y(out_shift); end                                       // Y
-                4: begin do_out_shift = 1; dirs_out(out_shift); end                                    // PINDIRS
-                5: begin do_out_shift = 1; set_pc(out_shift);          ; end                           // PC
-                6: begin do_out_shift = 1; set_isr(out_shift); bit_count = op2; end                    // ISR
-                7: begin do_out_shift = 1; set_exec(out_shift[15:0]); end                              // EXEC
-              endcase
-              end
-        PUSH: if (!op1[2]) begin // PUSH TODO No-op when auto-push?
+        PUSH: if (!op1[2]) begin
+                // if auto-push and PUSH in the same instruction, just one PUSH happens.
                 if (!if_full || (isr_count >= isr_threshold)) begin
                   do_push();
                   set_isr(0);
                   waiting = blocking && full;
                 end
-              end else begin // PULL TODO No-op when auto-pull?
+              end else begin // PULL. If PULL and auto-pull, do a pull "as usual"
                 if (!if_empty || (osr_count >= osr_threshold)) begin
                   if (blocking) begin // Blocking
-                    do_pull();
+                    if (!empty) begin // don't affect state until we're not empty.
+                        do_pull();
+                    end
                     waiting = empty;
                   end else begin
                     if (empty) begin // Copy X to OSR
@@ -528,6 +543,17 @@ module machine (
                 4: dirs_set(data);                           // PINDIRS
               endcase
       endcase
+      // an autopull can happen on any cycle that's not an OUT, if it's not blocking.
+      if (op != OUT) begin
+        // question: should we be doing a "lookahead" in the case that the current instruction set the osr_count to 0?
+        // I think no, because the only way osr_count changes is do_shift is asserted, and that only happens in
+        // the op == OUT state. And this consideration only happens in the op != OUT state....
+        if (osr_count >= osr_threshold) begin // Auto pull
+          if (!empty) begin
+            do_pull();
+          end
+        end
+      end
     end
   end
 
@@ -619,16 +645,18 @@ module machine (
     .penable(enabled),
     .reset(reset),
     .restart(restart),
-    .stalled(waiting || delaying),
+    // during auto-pull, we always wait a cycle. But we still want the FIFO to load!
+    .stalled((waiting && !auto) || delaying),
     .dir(out_shift_dir),
     .shift(op2),
     .set(set_shift_out),
     .do_shift(do_out_shift),
     // override new_val computation in case of a do_pull() task
-    // TODO: check that this still works for OUT values derived computationally...
-    // I think it's OK because pull only overrides new_val during at autopull event.
+    // TODO: check that this still works for OUT values derived via instructions not autopull...
+    // Update: I think it's OK because pull only overrides new_val during at autopull event.
     .din(pull ? din : new_val),
     .dout(out_shift),
+    .shift_count_lookahead(osr_count_lookahead),
     .shift_count(osr_count)
   );
 
