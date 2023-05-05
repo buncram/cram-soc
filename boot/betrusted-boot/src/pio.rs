@@ -156,6 +156,14 @@ impl PioSm {
     pub fn sm_txfifo_is_empty(&self) -> bool {
         (self.pio.rf(rp_pio::SFR_FSTAT_TX_EMPTY) & (self.sm as u32)) != 0
     }
+    pub fn sm_txfifo_level(&self) -> usize {
+        match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL0) as usize,
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL1) as usize,
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL2) as usize,
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL3) as usize,
+        }
+    }
     #[allow(dead_code)]
     pub fn sm_txfifo_push_u32(&mut self, data: u32) {
         match self.sm {
@@ -191,6 +199,9 @@ impl PioSm {
     }
     pub fn sm_rxfifo_is_empty(&self) -> bool {
         (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm as u32)) != 0
+    }
+    pub fn sm_rxfifo_is_full(&self) -> bool {
+        (self.pio.rf(rp_pio::SFR_FSTAT_RX_FULL) & (self.sm as u32)) != 0
     }
     #[allow(dead_code)]
     pub fn sm_rxfifo_pull_u32(&mut self) -> u32 {
@@ -688,6 +699,8 @@ pub fn pio_spi_write8_read8_blocking (
     let mut dst_iter_mut = dst.iter_mut().peekable();
     let mut tx_done = false;
     let mut rx_done = false;
+    // this weirdness checks that the SPI machine stalls when RX FIFO is full, and no data is lost
+    let mut rx_reached_full = false;
     loop {
         if !pio_sm.sm_txfifo_is_full() {
             if let Some(&s) = src_iter.next() {
@@ -696,9 +709,22 @@ pub fn pio_spi_write8_read8_blocking (
                 tx_done = true;
             }
         }
-        if !pio_sm.sm_rxfifo_is_empty() {
-            if let Some(d) = dst_iter_mut.next() {
-                *d = pio_sm.sm_rxfifo_pull_u8_lsb();
+        if !rx_reached_full && pio_sm.sm_rxfifo_is_full() {
+            rx_reached_full = true;
+            let level = pio_sm.sm_txfifo_level();
+            while level != 0 && pio_sm.sm_txfifo_level() == level {
+                // wait
+            }
+            for _ in 0..16 {
+                // dummy reads to cause some delay to confirm RX full stalls the machine
+                pio_sm.sm_txfifo_level();
+            }
+        }
+        if rx_reached_full {
+            if !pio_sm.sm_rxfifo_is_empty() {
+                if let Some(d) = dst_iter_mut.next() {
+                    *d = pio_sm.sm_rxfifo_pull_u8_lsb();
+                }
             }
         }
         // always have to peek ahead at this, because
@@ -760,8 +786,7 @@ pub fn pio_spi_init(
     pio_sm.config_set_sideset_pins(pin_sck);
     pio_sm.config_set_out_shift(false, true, n_bits);
     pio_sm.config_set_in_shift(false, true, n_bits);
-    // pio_sm.config_set_clkdiv(clkdiv);
-    pio_sm.config_set_clkdiv_int_frac(2, 128);
+    pio_sm.config_set_clkdiv(clkdiv);
 
     // MOSI, SCK output are low, MISO is input
     pio_sm.sm_set_pins_with_mask(
@@ -791,7 +816,7 @@ pub fn spi_test() -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
 
-    let mut pio_sm = PioSm::new(3).unwrap();
+    let mut pio_sm = PioSm::new(0).unwrap();
 
     // spi_cpha0 example
     let spi_cpha0_prog = pio_proc::pio_asm!(
@@ -814,6 +839,8 @@ pub fn spi_test() -> bool {
     let clkdiv: f32 = 37.25;
     let mut passing = true;
     let mut cpol = false;
+    pio_sm.pio.wo(rp_pio::SFR_IRQ0_INTE, pio_sm.sm as u32);
+    pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, (pio_sm.sm as u32) << 4);
     loop {
         // pha = 1
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
@@ -1014,7 +1041,7 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
 
     i2c_start(pio_sm, set_scl_sda_program_instructions);
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0001);
-    i2c_rx_enable(pio_sm, false);
+    i2c_rx_enable(pio_sm, true);
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0002);
     while !pio_sm.sm_rxfifo_is_empty() {
         i2c_get(pio_sm);
@@ -1120,24 +1147,24 @@ pub fn i2c_test() -> bool {
         "    out pindirs, 1         [7]", // 10 6781 Serialise write data (all-ones if reading)
         "    nop             side 1 [2]", // 11 BA42 SCL rising edge
         "    wait 1 pin, 1          [4]", // 12 24A1 Allow clock to be stretched
-        "    in pins, 1             [7]", // 13 Sample read data in middle of SCL pulse
-        "    jmp x-- bitloop side 0 [7]", // 14 SCL falling edge
+        "    in pins, 1             [7]", // 13 4701 Sample read data in middle of SCL pulse
+        "    jmp x-- bitloop side 0 [7]", // 14 1750 SCL falling edge
 
         // Handle ACK pulse
-        "    out pindirs, 1         [7]", // 15 On reads, we provide the ACK.
-        "    nop             side 1 [7]", // 16 SCL rising edge
-        "    wait 1 pin, 1          [7]", // 17 Allow clock to be stretched
-        "    jmp pin do_nack side 0 [2]", // 18 Test SDA for ACK/NAK, fall through if ACK
+        "    out pindirs, 1         [7]", // 15 6781 On reads, we provide the ACK.
+        "    nop             side 1 [7]", // 16 BF42 SCL rising edge
+        "    wait 1 pin, 1          [7]", // 17 27A1 Allow clock to be stretched
+        "    jmp pin do_nack side 0 [2]", // 18 12CD Test SDA for ACK/NAK, fall through if ACK
 
         "public entry_point:",
         ".wrap_target",
         "    out x, 6                  ", // 19 6026 Unpack Instr count
         "    out y, 1                  ", // 1A 6041 Unpack the NAK ignore bit
         "    jmp !x do_byte            ", // 1B 002F Instr == 0, this is a data record.
-        "    out null, 32              ", // 1C Instr > 0, remainder of this OSR is invalid
+        "    out null, 32              ", // 1C 6060 Instr > 0, remainder of this OSR is invalid
         "do_exec:                      ",
         "    out exec, 16              ", // 1D 60F0 Execute one instruction per FIFO word
-        "    jmp x-- do_exec           ", // 1E Repeat n + 1 times
+        "    jmp x-- do_exec           ", // 1E 005D Repeat n + 1 times
         ".wrap",
     );
     let ep = i2c_prog.public_defines.entry_point as usize;
