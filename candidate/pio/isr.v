@@ -14,6 +14,7 @@ module isr (
   input         do_shift,
   input [5:0]   bit_count,
   output [31:0] dout,
+  output [31:0] push_dout,
   output [5:0]  shift_count
 );
 
@@ -43,7 +44,8 @@ module isr (
     end
   end
 
-  assign dout = do_shift ? (dir ? new_shift[31:0] : new_shift[63:32]) : shift_reg;
+  assign dout = shift_reg;
+  assign push_dout = do_shift ? (dir ? new_shift[31:0] : new_shift[63:32]) : shift_reg;
   // count must be made available "early" to comply with timing
   assign shift_count = ((count + shift_val) > 7'd32) ? 7'd32 : count + shift_val;
 

@@ -98,6 +98,7 @@ module machine (
   wire [4:0]  delay;
   wire [4:0]  side_set;
   wire        sideset_enabled;
+  wire [31:0] push_dout;
 
   // Names of operands
   wire        blocking = op1[0];
@@ -266,7 +267,7 @@ module machine (
   task do_push();
     begin
       push = 1;
-      dout = in_shift;
+      dout = push_dout;
     end
   endtask
 
@@ -635,6 +636,7 @@ module machine (
     .do_shift(do_in_shift),
     .din(new_val),
     .dout(in_shift),
+    .push_dout(push_dout),
     .bit_count(bit_count),
     .shift_count(isr_count)
   );

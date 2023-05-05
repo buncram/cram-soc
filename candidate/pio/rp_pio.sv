@@ -346,7 +346,7 @@ module rp_pio #(
     endgenerate
 
     // reduce IRQ state to just two bits going to the CPU
-    assign irq_bundle = {irq_flags_in[3:0], !tx_full, !rx_empty};
+    assign irq_bundle = {irq_flags_in[3:0], ~tx_full, ~rx_empty};
     assign irq0_ints = (irq_bundle | irq0_intf) & irq0_inte;
     assign irq1_ints = (irq_bundle | irq1_intf) & irq1_inte;
     assign irq0 = irq0_ints != 0;
