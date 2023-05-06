@@ -73,16 +73,109 @@ class PioAdapter(Module):
         gpio_i = Signal(32)
         gpio_o = Signal(32)
         gpio_oe = Signal(32)
+        if sim:
+            FAILING_ADDRESS = 0x17
+            i2c_scl = Signal()
+            i2c_sda = Signal()
+            i2c_scl_d = Signal()
+            i2c_sda_d = Signal()
+            i2c_ctr = Signal(4)
+            i2c_adr_in = Signal(8)
+            i2c_dout = Signal(8)
+            zero = Signal()
+            self.sync += [
+                i2c_sda_d.eq(i2c_sda),
+                i2c_scl_d.eq(i2c_scl),
+            ]
+            i2c_sda_controller_drive_low = Signal()
+            i2c_sda_peripheral_drive_low = Signal()
+            # crappy I2C peripheral emulator just for testing purposes. Because it was faster
+            # to write this than try to find a verilog model and adapt it into this purpose.
+            # Note: this would never work in any real situation because it doesn't handle noise, spurious edges, etc.
+            self.submodules.i2c_peri = i2c_p = FSM(reset_state="IDLE")
+            i2c_p.act("IDLE",
+                If(i2c_sda_d & ~i2c_sda & i2c_scl & i2c_scl_d, # start condition
+                   NextValue(i2c_ctr, 8),
+                   NextState("START_A")
+                )
+            )
+            i2c_p.act("START_A",
+                If(i2c_sda_d & ~i2c_sda & i2c_scl & i2c_scl_d, # start condition
+                   NextValue(i2c_ctr, 8),
+                   NextState("START_A")
+                ).Elif(~i2c_sda_d & i2c_sda & i2c_scl & i2c_scl_d, # stop condition
+                   NextState("IDLE")
+                ).Elif(i2c_scl & ~i2c_scl_d, # rising edge
+                    NextValue(i2c_ctr, i2c_ctr - 1),
+                    If(i2c_ctr != 0,
+                        NextValue(i2c_adr_in, Cat(i2c_sda, i2c_adr_in[:-1]))
+                    )
+                ).Elif(~i2c_scl & i2c_scl_d, # falling edge
+                    If(i2c_ctr == 0,
+                        NextState("ACK_A")
+                    )
+                )
+            )
+            i2c_p.act("ACK_A",
+                If(i2c_adr_in != FAILING_ADDRESS, # simulate a failure to ACK on the failing address
+                    i2c_sda_peripheral_drive_low.eq(1),
+                ),
+                If(~i2c_sda_d & i2c_sda & i2c_scl & i2c_scl_d, # stop condition
+                    NextState("IDLE")
+                ).Elif(~i2c_scl & i2c_scl_d, # falling edge
+                    NextValue(i2c_dout, ~i2c_adr_in), # reflect the inverse of the address back for testing
+                    If(i2c_adr_in != FAILING_ADDRESS,
+                        NextState("RESP_D"),
+                        NextValue(i2c_ctr, 8)
+                    ).Else(
+                        # on the failing case, just go back to idle because the cycle aborts here
+                        NextState("IDLE")
+                    )
+                )
+            )
+            i2c_p.act("RESP_D",
+                If(~i2c_scl & i2c_scl_d, # falling edge
+                    NextValue(i2c_ctr, i2c_ctr - 1),
+                    If(i2c_ctr != 0,
+                        NextValue(i2c_dout, Cat(zero, i2c_dout[:-1]))
+                    )
+                ).Elif(i2c_scl & ~i2c_scl_d, # rising edge
+                    If(i2c_ctr == 0,
+                        NextState("ACK_D")
+                    )
+                ),
+                i2c_sda_controller_drive_low.eq(~i2c_dout[7])
+            )
+            i2c_p.act("ACK_D",
+                If(~i2c_scl & i2c_scl_d, # falling edge
+                   NextState("IDLE")
+                ),
+                # host drives it here
+                # i2c_sda_peripheral_drive_low.eq(1),
+            )
+
         for i in range(32):
             self.gpio = TSTriple()
             self.specials += self.gpio.get_tristate(pads.gpio[i])
             self.comb += [
                 self.gpio.o.eq(gpio_o[i]),
                 self.gpio.oe.eq(gpio_oe[i]),
-                gpio_i[i].eq(self.gpio.i),
             ]
-            if sim and (i == 2 or i == 3):
-                self.comb += self.gpio.i.eq(~gpio_oe[i]) # funky setup to try and "fake" some I2C-ish pullups
+            if sim:
+                if (i == 2): # SDA
+                    self.comb += [
+                        i2c_sda_controller_drive_low.eq(gpio_oe[i]),
+                        i2c_sda.eq(~(i2c_sda_controller_drive_low | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
+                        gpio_i[i].eq(i2c_sda)
+                    ]
+                    # self.comb += gpio_i[i].eq(0) # for NAK testing
+                elif (i == 3): # SCL
+                    self.comb += gpio_i[i].eq(~gpio_oe[i]) # funky setup to try and "fake" some I2C-ish pullups
+                    self.comb += i2c_scl.eq(~gpio_oe[i])
+                else:
+                    self.comb += gpio_i[i].eq(self.gpio.i)
+            else:
+                self.comb += gpio_i[i].eq(self.gpio.i)
 
         self.specials += Instance("pio_ahb",
             # Parameters.
