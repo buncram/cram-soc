@@ -126,6 +126,7 @@ pub struct PioSm {
     used_mask: u32,
     config: SmConfig,
 }
+// note: items with #[allow(dead_code)] have not been tested.
 impl PioSm {
     pub fn new(sm: usize) -> Result<PioSm, PioError> {
         let sm = match sm {
@@ -559,6 +560,31 @@ impl PioSm {
             | self.pio.r(rp_pio::SFR_IRQ1_INTE) & !mask
         );
     }
+    #[allow(dead_code)]
+    pub fn sm_irq0_status(&mut self, source: Option<PioIntSource>) -> bool {
+        let mask = if let Some(source) = source {
+            match source {
+                PioIntSource::Sm => (self.sm as u32) << 8,
+                PioIntSource::TxNotFull => (self.sm as u32) << 4,
+                PioIntSource::RxNotEmpty => (self.sm as u32) << 0,
+            }
+        } else {
+            0xFFF
+        };
+        (self.pio.r(rp_pio::SFR_IRQ0_INTS) & mask) != 0
+    }
+    pub fn sm_irq1_status(&mut self, source: Option<PioIntSource>) -> bool {
+        let mask = if let Some(source) = source {
+            match source {
+                PioIntSource::Sm => (self.sm as u32) << 0,
+                PioIntSource::TxNotFull => (self.sm as u32) << 4,
+                PioIntSource::RxNotEmpty => (self.sm as u32) << 8,
+            }
+        } else {
+            0xFFF
+        };
+        (self.pio.r(rp_pio::SFR_IRQ1_INTS) & mask) != 0
+    }
 
     pub fn sm_set_enabled(&mut self, enabled: bool) {
         if enabled {
@@ -648,7 +674,20 @@ impl PioSm {
         }
     }
     /// Changes the PC to the lowest address of the wrap range.
+    /// Also restarts the relevant state machine.
     pub fn sm_jump_to_wrap_bottom(&mut self) {
+        // disable the machine
+        self.pio.wo(
+            rp_pio::SFR_CTRL,
+            self.pio.r(rp_pio::SFR_CTRL)
+            & !self.pio.ms(rp_pio::SFR_CTRL_EN, self.sm as u32)
+        );
+        // restart it
+        self.pio.wo(
+            rp_pio::SFR_CTRL,
+            self.pio.r(rp_pio::SFR_CTRL)
+            | self.pio.ms(rp_pio::SFR_CTRL_RESTART, self.sm as u32)
+        );
         // HACK: a jump instruction is just the address of the location you want to run
         // so we can just extract the wrap target and "use that as an instruction".
         let instr = match self.sm {
@@ -658,6 +697,12 @@ impl PioSm {
             SmBit::Sm3 => self.pio.rf(rp_pio::SFR_SM3_EXECCTRL_WRAP_TARGET),
         } as u16;
         self.sm_exec(instr);
+        // re-enable the machine
+        self.pio.wo(
+            rp_pio::SFR_CTRL,
+            self.pio.r(rp_pio::SFR_CTRL)
+            | self.pio.ms(rp_pio::SFR_CTRL_EN, self.sm as u32)
+        );
     }
 
     pub fn gpio_reset_overrides(&mut self) {
@@ -921,7 +966,7 @@ pub fn i2c_init(
     pio_sm.sm_set_pins_with_mask(0, both_pins);
 
     pio_sm.sm_irq0_source_enabled(PioIntSource::Sm, false);
-    pio_sm.sm_irq1_source_enabled(PioIntSource::Sm, false);
+    pio_sm.sm_irq1_source_enabled(PioIntSource::Sm, true);
 
     pio_sm.sm_init(program.entry());
     pio_sm.sm_set_enabled(true);
@@ -934,6 +979,10 @@ pub fn i2c_resume_after_error(pio_sm: &mut PioSm) {
     pio_sm.sm_jump_to_wrap_bottom();
     // this will clear the IRQ set by the current SM, relying on the fact that sm's encoding is a bitmask
     pio_sm.pio.wfo(rp_pio::SFR_IRQ_SFR_IRQ, pio_sm.sm as u32);
+    while i2c_check_error(pio_sm) {
+        // wait for the IRQ to report cleared. This in not necessary on the RP2040, but because
+        // our core can run much faster than the PIO we have to wait for the PIO to catch up to the core's state.
+    }
 }
 pub fn i2c_rx_enable(pio_sm: &mut PioSm, en: bool) {
     let sm_offset = pio_sm.sm_to_stride_offset();
@@ -1047,7 +1096,9 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
         i2c_get(pio_sm);
     }
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0003);
-    let addr_composed = ((addr as u16) << 2)  | 3;
+    let addr_composed = ((addr as u16) << 2)
+        | 2  // "read address"
+        | 1 << PIO_I2C_NAK_LSB;
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 | addr_composed as u32);
     i2c_put16(pio_sm, addr_composed);
     report.wfo(utra::main::REPORT_REPORT, 0x12C0_0004);
@@ -1055,7 +1106,7 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
     let mut tx_remain = rxbuf.len();
     let mut len = rxbuf.len();
     let mut i = 0;
-    while (tx_remain != 0) || (len != 0) && !i2c_check_error(pio_sm) {  // here
+    while (tx_remain != 0) || (len != 0) && !i2c_check_error(pio_sm) {
         report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + ((tx_remain as u32) << 8) | len as u32);
         if (tx_remain != 0) && !pio_sm.sm_txfifo_is_full() {
             tx_remain -= 1;
@@ -1077,18 +1128,27 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
                 i += 1;
             }
         }
+        if pio_sm.sm_irq1_status(Some(PioIntSource::Sm)) {
+            report.wfo(utra::main::REPORT_REPORT, 0x12C0_1111);
+            // detects NAK and aborts transaction
+            i2c_resume_after_error(pio_sm);
+            i2c_stop(pio_sm, set_scl_sda_program_instructions);
+            return false;
+        }
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0020);
-    i2c_stop(pio_sm, set_scl_sda_program_instructions);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0021);
-    i2c_wait_idle(pio_sm);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + rxbuf[0] as u32);
     if i2c_check_error(pio_sm) {
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_2222);
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + rxbuf[0] as u32);
         i2c_resume_after_error(pio_sm);
         i2c_stop(pio_sm, set_scl_sda_program_instructions);
         false
     } else {
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0020);
+        i2c_stop(pio_sm, set_scl_sda_program_instructions);
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0021);
+        i2c_wait_idle(pio_sm);
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000);
+        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + rxbuf[0] as u32);
         true
     }
 }
@@ -1139,8 +1199,8 @@ pub fn i2c_test() -> bool {
         // with the side effect of the MOV on TX shift counter.)
 
         "do_nack:",
-        "    jmp y-- entry_point",        // 0D Continue if NAK was expected
-        "    irq wait 0 rel",             // 0E Otherwise stop, ask for help
+        "    jmp y-- entry_point",        // 0D 0099 Continue if NAK was expected
+        "    irq wait 0 rel",             // 0E C030 Otherwise stop, ask for help
 
         "do_byte:",
         "    set x, 7",                   // 0F E027 Loop 8 times
