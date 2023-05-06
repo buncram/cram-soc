@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 // TODO:
-//   - SIDE_PINDIR implemented but not tested
 //   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
 //   - FIFO chaining is missing
@@ -870,7 +869,7 @@ module apb_ascr
             .SFRCNT      ( SFRCNT        ),
             .RMASK       ( RMASK         ),      // read mask to remove undefined bit
             .FRMASK      ( 32'h0         ),      // set write 1 to clr ( for status reg )
-            .SRMASK      ( 32'h0         )       // read ext mask
+            .SRMASK      ( 32'hFFFF_FFFF )       // read ext mask
          )apb_sfr(
             .pclk        (pclk           ),
             .resetn      (resetn         ),
