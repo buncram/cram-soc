@@ -121,21 +121,18 @@ module machine (
   wire [2:0]  mov_source = op2[2:0];
   wire [1:0]  mov_op = op2[4:3];
 
+  // IRQ waiting - indicates to listen to the IRQ scoreboard instead of the locally generated wait signal
+  reg         irq_waiting;      // registered
+  reg         irq_waiting_next; // combinational
+
   // Miscellaneous signals
   wire [31:0] null_src = 0; // NULL source
   wire [5:0]  isr_count, osr_count, osr_count_lookahead;
+
   // Input pins rotate with pins_in_base
   wire [63:0] in_pins64 = {input_pins, input_pins};
-  wire [63:0] in_pins64_rot = in_pins64 << pins_in_base;
-  wire [31:0] in_pins = in_pins64_rot[63:32];
-
-  // Values for use in gtkwave during simulation
-  wire        pin0 = output_pins[0];
-  wire        pin1 = output_pins[1];
-  wire        pin2 = output_pins[2];
-  wire        pin3 = output_pins[3];
-
-  wire        in_pin0 = input_pins[0];
+  wire [63:0] in_pins64_rot = in_pins64 >> pins_in_base;
+  wire [31:0] in_pins = in_pins64_rot[31:0];
 
   reg [4:0]   delay_cnt = 0;
 
@@ -309,6 +306,11 @@ module machine (
       if (delaying) delay_cnt <= delay_cnt - 1;
       else if (!waiting && !exec && delay > 0) delay_cnt <= delay;
     end
+    if (reset || restart || (imm && (op != IRQ))) begin
+      irq_waiting <= 0;
+    end else begin
+      irq_waiting <= irq_waiting_next;
+    end
   end
 
   integer i;
@@ -371,6 +373,7 @@ module machine (
     dbg_txstall = 0;
     dbg_rxstall = 0;
     if (enabled && !delaying) begin
+      irq_waiting_next = 0;
       case (op)
         JMP:  begin
                 new_val[4:0] = address;
@@ -381,7 +384,7 @@ module machine (
                   3: jmp = (y == 0);
                   4: begin jmp = (y != 0); decy = (y != 0); end
                   5: jmp = (x != y);
-                  6: jmp = jmp_pin;
+                  6: jmp = ((input_pins >> jmp_pin) & 1);
                   7: jmp = (osr_count < osr_threshold_wide);
                 endcase
               end
@@ -553,7 +556,12 @@ module machine (
                 end else begin                               // SET
                   irq_flags_out[irq_index] = 1;
                   irq_flags_stb[irq_index] = 1;
-                  waiting = blocking && irq_flags_in[irq_index] != 0; // If wait set, wait for irq cleared
+                  waiting = !restart && blocking && // stop waiting if restart is specified
+                    (!irq_waiting || imm) && (irq_flags_out[irq_index] != 0) || // if not currently waiting or we're doing an imm IRQ, consult the flags_out, because flags_in takes a cycle to set
+                    irq_waiting && (irq_flags_in[irq_index] != 0); // If wait set, wait for irq cleared
+                  // always set waiting on the first cycle, and then after that we watch the in flags for the reset condition
+                  // the restart flag will also reset the flag, but this is handle in the actual synchronous block
+                  irq_waiting_next = !irq_waiting || (irq_flags_in[irq_index] != 0);
                 end
               end
         SET:  case (destination) // Destination

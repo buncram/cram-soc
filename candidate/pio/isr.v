@@ -26,8 +26,6 @@ module isr (
   // Left align the input value and concatenate it with the shift register to produce a 64-bit value
   wire [63:0] new_shift = dir ? {din, shift_reg} >> shift_val
                               : {shift_reg, din << (32 - shift_val)} << shift_val;
-  // wire [63:0] new_shift = dir ? {din, set ? din : shift_reg} >> shift_val
-  //                            : {set ? din : shift_reg, din << (32 - shift_val)} << shift_val;
 
   always @(posedge clk) begin
     if (reset) begin
