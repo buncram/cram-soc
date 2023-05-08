@@ -1505,7 +1505,7 @@ pub fn restart_imm_test() {
     report.wfo(utra::main::REPORT_REPORT, 0x0133_600d);
 }
 
-pub fn fifo_join_test() {
+pub fn fifo_join_test() -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_0000);
 
@@ -1518,7 +1518,7 @@ pub fn fifo_join_test() {
     sm_a.sm_set_enabled(false);
     a_prog.setup_default_config(&mut sm_a);
     sm_a.config_set_out_pins(0, 32);
-    sm_a.config_set_clkdiv(16.0);
+    sm_a.config_set_clkdiv(128.0); // could make as aggressive as 64.0 and have it still work with 1:1 bus timings...
     sm_a.config_set_out_shift(false, true, 0);
     sm_a.sm_init(a_prog.entry());
 
@@ -1530,10 +1530,23 @@ pub fn fifo_join_test() {
         entries += 1;
         sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
     }
+    let mut passing = true;
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1000 + entries);
-    // should push the FIFO out
+    // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
+    let mut last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+    let mut detected = 0;
+    // run the machine
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
-    delay(50);
+    while detected < entries {
+        let latest_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+        if latest_val != last_val {
+            detected += 1;
+            if latest_val != (0xF1F0_0000 + detected) {
+                passing = false;
+            }
+            last_val = latest_val;
+        }
+    }
 
     // this should set Join TX and also halt the engine
     sm_a.config_set_fifo_join(PioFifoJoin::JoinTx);
@@ -1547,8 +1560,19 @@ pub fn fifo_join_test() {
     }
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2000 + entries);
     // should push the FIFO out
+    last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+    detected = 0;
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
-    delay(50);
+    while detected < entries {
+        let latest_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+        if latest_val != last_val {
+            detected += 1;
+            if latest_val != (0xF1F0_0000 + detected) {
+                passing = false;
+            }
+            last_val = latest_val;
+        }
+    }
 
     // a program for testing IN
     let b_code = pio_proc::pio_asm!(
@@ -1577,7 +1601,6 @@ pub fn fifo_join_test() {
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
     entries = 0;
     let mut expected = 16;
-    let mut passing = true;
     while !sm_a.sm_rxfifo_is_empty() {
         let val = sm_a.sm_rxfifo_pull_u32();
         if val != expected {
@@ -1624,6 +1647,7 @@ pub fn fifo_join_test() {
     } else {
         report.wfo(utra::main::REPORT_REPORT, 0xF1F0_DEAD);
     }
+    passing
 }
 
 pub fn pio_tests() {
