@@ -29,7 +29,13 @@ pub enum PioIntSource {
     TxNotFull,
     RxNotEmpty,
 }
-
+#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+pub enum PioFifoJoin {
+    None = 0,
+    JoinTx = 1,
+    JoinRx = 2,
+}
 #[derive(Debug)]
 pub enum PioError {
     /// specified state machine is not valid
@@ -51,7 +57,7 @@ impl SmConfig {
         SmConfig {
             clkdiv: 0x1_0000,
             execctl: 31 << 12,
-            shiftctl: 1 << 18 | 1 << 19 | 32 << 25 | 32 << 20,
+            shiftctl: (1 << 18) | (1 << 19),
             pinctl: 0,
         }
     }
@@ -142,6 +148,10 @@ impl PioSm {
             used_mask: 0,
             config: SmConfig::default(),
         })
+    }
+    #[allow(dead_code)]
+    pub fn dbg_get_shiftctl(&self) -> u32 {
+        self.config.shiftctl
     }
     pub fn sm_index(&self) -> usize {
         match self.sm {
@@ -473,6 +483,22 @@ impl PioSm {
             | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_INLINE_OUT_EN, if has_enable {1} else {0})
             | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_OUT_EN_SEL, enable_index as u32)
             ;
+    }
+    pub fn config_set_fifo_join(&mut self, join: PioFifoJoin) {
+        self.config.shiftctl =
+            self.pio.zf(
+                rp_pio::SFR_SM0_SHIFTCTRL_JOIN_RX,
+                self.pio.zf(
+                    rp_pio::SFR_SM0_SHIFTCTRL_JOIN_TX,
+                    self.config.shiftctl
+                )
+            )
+            |
+            match join {
+                PioFifoJoin::None => 0,
+                PioFifoJoin::JoinTx => self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_JOIN_TX, 1),
+                PioFifoJoin::JoinRx => self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_JOIN_RX, 1),
+            }
     }
 
     pub fn sm_exec(&mut self, instr: u16) {
@@ -1479,8 +1505,112 @@ pub fn restart_imm_test() {
     report.wfo(utra::main::REPORT_REPORT, 0x0133_600d);
 }
 
+pub fn fifo_join_test() {
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_0000);
+
+    // test TX fifo with non-join. Simple program that just copies the TX fifo content to pins, then stalls.
+    let mut sm_a = PioSm::new(0).unwrap();
+    let a_code = pio_proc::pio_asm!(
+        "out pins, 32",
+    );
+    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    sm_a.sm_set_enabled(false);
+    a_prog.setup_default_config(&mut sm_a);
+    sm_a.config_set_out_pins(0, 32);
+    sm_a.config_set_clkdiv(16.0);
+    sm_a.config_set_out_shift(false, true, 0);
+    sm_a.sm_init(a_prog.entry());
+
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1111);
+    // load up the TX fifo, count how many entries it takes until it is full
+    let mut entries = 0;
+    while !sm_a.sm_txfifo_is_full() {
+        entries += 1;
+        sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1000 + entries);
+    // should push the FIFO out
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
+    delay(50);
+
+    // this should set Join TX and also halt the engine
+    sm_a.config_set_fifo_join(PioFifoJoin::JoinTx);
+    sm_a.sm_init(a_prog.entry());
+
+    // repeat, this time measuring the depth of the FIFO with join
+    let mut entries = 0;
+    while !sm_a.sm_txfifo_is_full() {
+        entries += 1;
+        sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2000 + entries);
+    // should push the FIFO out
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
+    delay(50);
+
+    // a program for testing IN
+    let b_code = pio_proc::pio_asm!(
+        "   set x, 16",
+        "loop: ",
+        "   in x, 32",
+        "   push block",
+        "   jmp x--, loop",
+    );
+    let b_prog = LoadedProg::load(b_code.program, &mut sm_a).unwrap();
+
+    // setup for rx test
+    sm_a.sm_set_enabled(false);
+    b_prog.setup_default_config(&mut sm_a);
+    sm_a.config_set_fifo_join(PioFifoJoin::None);
+    sm_a.config_set_clkdiv(16.0);
+
+    sm_a.sm_init(b_prog.entry());
+    // start the program running
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_3333);
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
+    while !sm_a.sm_rxfifo_is_full() {
+        // just wait until the rx fifo fill sup
+    }
+    // stop filling it
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
+    entries = 0;
+    while !sm_a.sm_rxfifo_is_empty() {
+        report.wfo(utra::main::REPORT_REPORT,
+            0xF1F0_0000 + sm_a.sm_rxfifo_pull_u32()
+        );
+        entries += 1;
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_3000 + entries);
+
+    // now join
+    sm_a.config_set_fifo_join(PioFifoJoin::JoinRx);
+    sm_a.sm_init(b_prog.entry());
+    // start the program running
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4444);
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
+    while !sm_a.sm_rxfifo_is_full() {
+        // just wait until the rx fifo fill sup
+    }
+    // stop filling it
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
+    entries = 0;
+    while !sm_a.sm_rxfifo_is_empty() {
+        report.wfo(utra::main::REPORT_REPORT,
+            0xF1F0_0000 + sm_a.sm_rxfifo_pull_u32()
+        );
+        entries += 1;
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4000 + entries);
+
+    sm_a.clear_instruction_memory();
+
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_600d);
+}
+
 pub fn pio_tests() {
     restart_imm_test();
+    fifo_join_test();
     sticky_test();
     i2c_test();
     spi_test();
