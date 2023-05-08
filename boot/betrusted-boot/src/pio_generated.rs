@@ -477,7 +477,7 @@ pub mod utra {
         pub const SFR_SM0_EXECCTRL_JMP_PIN: crate::Field = crate::Field::new(5, 24, SFR_SM0_EXECCTRL);
         pub const SFR_SM0_EXECCTRL_SIDE_PINDIR: crate::Field = crate::Field::new(1, 29, SFR_SM0_EXECCTRL);
         pub const SFR_SM0_EXECCTRL_SIDESET_ENABLE_BIT: crate::Field = crate::Field::new(1, 30, SFR_SM0_EXECCTRL);
-        pub const SFR_SM0_EXECCTRL_EXEC_STALLED: crate::Field = crate::Field::new(1, 31, SFR_SM0_EXECCTRL);
+        pub const SFR_SM0_EXECCTRL_EXEC_STALLED_RO0: crate::Field = crate::Field::new(1, 31, SFR_SM0_EXECCTRL);
 
         pub const SFR_SM0_SHIFTCTRL: crate::Register = crate::Register::new(52, 0xffffffff);
         pub const SFR_SM0_SHIFTCTRL_RESVD_SHIFT: crate::Field = crate::Field::new(16, 0, SFR_SM0_SHIFTCTRL);
@@ -522,7 +522,7 @@ pub mod utra {
         pub const SFR_SM1_EXECCTRL_JMP_PIN: crate::Field = crate::Field::new(5, 24, SFR_SM1_EXECCTRL);
         pub const SFR_SM1_EXECCTRL_SIDE_PINDIR: crate::Field = crate::Field::new(1, 29, SFR_SM1_EXECCTRL);
         pub const SFR_SM1_EXECCTRL_SIDESET_ENABLE_BIT: crate::Field = crate::Field::new(1, 30, SFR_SM1_EXECCTRL);
-        pub const SFR_SM1_EXECCTRL_EXEC_STALLED: crate::Field = crate::Field::new(1, 31, SFR_SM1_EXECCTRL);
+        pub const SFR_SM1_EXECCTRL_EXEC_STALLED_RO1: crate::Field = crate::Field::new(1, 31, SFR_SM1_EXECCTRL);
 
         pub const SFR_SM1_SHIFTCTRL: crate::Register = crate::Register::new(58, 0xffffffff);
         pub const SFR_SM1_SHIFTCTRL_RESVD_SHIFT: crate::Field = crate::Field::new(16, 0, SFR_SM1_SHIFTCTRL);
@@ -567,7 +567,7 @@ pub mod utra {
         pub const SFR_SM2_EXECCTRL_JMP_PIN: crate::Field = crate::Field::new(5, 24, SFR_SM2_EXECCTRL);
         pub const SFR_SM2_EXECCTRL_SIDE_PINDIR: crate::Field = crate::Field::new(1, 29, SFR_SM2_EXECCTRL);
         pub const SFR_SM2_EXECCTRL_SIDESET_ENABLE_BIT: crate::Field = crate::Field::new(1, 30, SFR_SM2_EXECCTRL);
-        pub const SFR_SM2_EXECCTRL_EXEC_STALLED: crate::Field = crate::Field::new(1, 31, SFR_SM2_EXECCTRL);
+        pub const SFR_SM2_EXECCTRL_EXEC_STALLED_RO2: crate::Field = crate::Field::new(1, 31, SFR_SM2_EXECCTRL);
 
         pub const SFR_SM2_SHIFTCTRL: crate::Register = crate::Register::new(64, 0xffffffff);
         pub const SFR_SM2_SHIFTCTRL_RESVD_SHIFT: crate::Field = crate::Field::new(16, 0, SFR_SM2_SHIFTCTRL);
@@ -612,7 +612,7 @@ pub mod utra {
         pub const SFR_SM3_EXECCTRL_JMP_PIN: crate::Field = crate::Field::new(5, 24, SFR_SM3_EXECCTRL);
         pub const SFR_SM3_EXECCTRL_SIDE_PINDIR: crate::Field = crate::Field::new(1, 29, SFR_SM3_EXECCTRL);
         pub const SFR_SM3_EXECCTRL_SIDESET_ENABLE_BIT: crate::Field = crate::Field::new(1, 30, SFR_SM3_EXECCTRL);
-        pub const SFR_SM3_EXECCTRL_EXEC_STALLED: crate::Field = crate::Field::new(1, 31, SFR_SM3_EXECCTRL);
+        pub const SFR_SM3_EXECCTRL_EXEC_STALLED_RO3: crate::Field = crate::Field::new(1, 31, SFR_SM3_EXECCTRL);
 
         pub const SFR_SM3_SHIFTCTRL: crate::Register = crate::Register::new(70, 0xffffffff);
         pub const SFR_SM3_SHIFTCTRL_RESVD_SHIFT: crate::Field = crate::Field::new(16, 0, SFR_SM3_SHIFTCTRL);
@@ -1385,11 +1385,11 @@ mod tests {
         let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM0_EXECCTRL_SIDESET_ENABLE_BIT, bar);
         baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM0_EXECCTRL_SIDESET_ENABLE_BIT, 1);
         rp_pio_csr.wfo(utra::rp_pio::SFR_SM0_EXECCTRL_SIDESET_ENABLE_BIT, baz);
-        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED);
-        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED, bar);
-        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED, bar);
-        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED, 1);
-        rp_pio_csr.wfo(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED, baz);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0, baz);
 
         let foo = rp_pio_csr.r(utra::rp_pio::SFR_SM0_SHIFTCTRL);
         rp_pio_csr.wo(utra::rp_pio::SFR_SM0_SHIFTCTRL, foo);
@@ -1568,11 +1568,11 @@ mod tests {
         let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM1_EXECCTRL_SIDESET_ENABLE_BIT, bar);
         baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM1_EXECCTRL_SIDESET_ENABLE_BIT, 1);
         rp_pio_csr.wfo(utra::rp_pio::SFR_SM1_EXECCTRL_SIDESET_ENABLE_BIT, baz);
-        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED);
-        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED, bar);
-        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED, bar);
-        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED, 1);
-        rp_pio_csr.wfo(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED, baz);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED_RO1);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED_RO1, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED_RO1, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED_RO1, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED_RO1, baz);
 
         let foo = rp_pio_csr.r(utra::rp_pio::SFR_SM1_SHIFTCTRL);
         rp_pio_csr.wo(utra::rp_pio::SFR_SM1_SHIFTCTRL, foo);
@@ -1751,11 +1751,11 @@ mod tests {
         let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM2_EXECCTRL_SIDESET_ENABLE_BIT, bar);
         baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM2_EXECCTRL_SIDESET_ENABLE_BIT, 1);
         rp_pio_csr.wfo(utra::rp_pio::SFR_SM2_EXECCTRL_SIDESET_ENABLE_BIT, baz);
-        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED);
-        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED, bar);
-        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED, bar);
-        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED, 1);
-        rp_pio_csr.wfo(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED, baz);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED_RO2);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED_RO2, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED_RO2, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED_RO2, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED_RO2, baz);
 
         let foo = rp_pio_csr.r(utra::rp_pio::SFR_SM2_SHIFTCTRL);
         rp_pio_csr.wo(utra::rp_pio::SFR_SM2_SHIFTCTRL, foo);
@@ -1934,11 +1934,11 @@ mod tests {
         let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM3_EXECCTRL_SIDESET_ENABLE_BIT, bar);
         baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM3_EXECCTRL_SIDESET_ENABLE_BIT, 1);
         rp_pio_csr.wfo(utra::rp_pio::SFR_SM3_EXECCTRL_SIDESET_ENABLE_BIT, baz);
-        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED);
-        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED, bar);
-        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED, bar);
-        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED, 1);
-        rp_pio_csr.wfo(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED, baz);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED_RO3);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED_RO3, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED_RO3, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED_RO3, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED_RO3, baz);
 
         let foo = rp_pio_csr.r(utra::rp_pio::SFR_SM3_SHIFTCTRL);
         rp_pio_csr.wo(utra::rp_pio::SFR_SM3_SHIFTCTRL, foo);

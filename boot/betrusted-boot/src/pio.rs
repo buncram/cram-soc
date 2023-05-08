@@ -301,15 +301,9 @@ impl PioSm {
     ) {
         self.used_mask = 0;
 
-        // write it to program memory
+        // jump is instruction 0; so a jump to yourself is simply your address
         for i in 0..RP2040_MAX_PROGRAM_SIZE {
-            // small program that jumps to itself
-            let mut a = pio::Assembler::<32>::new();
-            let mut self_label = a.label_at_offset(i as u8);
-            a.jmp(pio::JmpCondition::Always, &mut self_label);
-            let mut p= a.assemble_program();
-            p = p.set_origin(Some(i as u8));
-            self.write_progmem(i, p.code[p.origin.unwrap_or(0) as usize]);
+            self.write_progmem(i, i as u16);
         }
     }
     fn sm_to_stride_offset(&self) -> usize {
@@ -460,6 +454,23 @@ impl PioSm {
             )
             | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_PEND, end as _)
             | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_WRAP_TARGET, start as _)
+            ;
+    }
+    pub fn config_set_out_special(&mut self, sticky: bool, has_enable: bool, enable_index: usize) {
+        self.config.execctl =
+            self.pio.zf(
+                rp_pio::SFR_SM0_EXECCTRL_OUT_STICKY,
+                self.pio.zf(
+                    rp_pio::SFR_SM0_EXECCTRL_OUT_EN_SEL,
+                    self.pio.zf(
+                        rp_pio::SFR_SM0_EXECCTRL_INLINE_OUT_EN,
+                        self.config.execctl
+                    )
+                )
+            )
+            | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_OUT_STICKY, if sticky {1} else {0})
+            | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_INLINE_OUT_EN, if has_enable {1} else {0})
+            | self.pio.ms(rp_pio::SFR_SM0_EXECCTRL_OUT_EN_SEL, enable_index as u32)
             ;
     }
 
@@ -1267,7 +1278,144 @@ pub fn i2c_test() -> bool {
     false
 }
 
+/// Test the sticky out bits
+pub fn sticky_test() {
+    /* Test case from https://forums.raspberrypi.com/viewtopic.php?t=313962
+
+    No sticky, but B using enable bit
+    Cycle 1 :   A writes A1                                    : result = A1
+    Cycle 2:    A writes A2, B writes B2 (without enable bit)  : result = A2
+    Cycle 3:    A writes A3, B writes B3 (with enable bit)     : result = B3
+    Cycle 4:    A writes A4                                    : result = A4
+    Cycle 5:    A writes A5, B writes B5 (with enable bit)     : result = B5
+    Cycle 5:    B writes B6 (without enable bit)               : result = B5
+
+    With sticky set on both state machines (i.e. it is as if you did the OUT write on every cycle)
+    Cycle 1 :   A writes A1                                    : result = A1
+    Cycle 2:    A writes A2, B writes B2 (without enable bit)  : result = A2
+    Cycle 3:    A writes A3, B writes B3 (with enable bit)     : result = B3
+    Cycle 4:    A writes A4  (B rewrites B3)                   : result = B3
+    Cycle 5:    A writes A5, B writes B5 (with enable bit)     : result = B5
+    Cycle 5:   (A rewrites A5), B writes B6 (without enable bit) : result = A5
+     */
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x51C2_0000);
+
+    let mut sm_a = PioSm::new(1).unwrap();
+    let mut sm_b = PioSm::new(2).unwrap();
+
+    let a_code = pio_proc::pio_asm!(
+        "set pins, 1",
+        "set pins, 2",
+        "set pins, 3",
+        "set pins, 4",
+        "set pins, 5",
+        "nop"
+    );
+    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    let b_code = pio_proc::pio_asm!(
+        // bit 4 indicates enable; bit 3 is the "B" machine flag. bits 2:0 are the payload
+        "nop",
+        "set pins, 0x0A", // without enable
+        "set pins, 0x1B", // with enable
+        "nop",
+        "set pins, 0x1D", // with enable
+        "set pins, 0x0E", // without enable
+    );
+    // note: this loads using sm_a so we can share the "used" vector state, but the code is global across all SM's
+    let b_prog = LoadedProg::load(b_code.program, &mut sm_a).unwrap();
+
+    sm_a.sm_set_enabled(false);
+    sm_b.sm_set_enabled(false);
+
+    a_prog.setup_default_config(&mut sm_a);
+    b_prog.setup_default_config(&mut sm_b);
+
+    sm_a.config_set_set_pins(24, 5);
+    sm_b.config_set_set_pins(24, 5);
+
+    sm_a.config_set_sideset(0, false, false);
+    sm_b.config_set_sideset(0, false, false);
+
+    sm_a.config_set_clkdiv(4.0);
+    sm_b.config_set_clkdiv(4.0);
+
+    sm_a.config_set_out_special(false, false, 0); // A has no special enabling
+    sm_b.config_set_out_special(false, true, 28); // B uses output enable
+
+    sm_a.sm_init(a_prog.entry());
+    sm_b.sm_init(b_prog.entry());
+
+    // use sm_a's PIO object to set state for both a & b here
+    // restart dividers and machines so they are synchronized
+    sm_a.pio.wo(
+        rp_pio::SFR_CTRL,
+        sm_a.pio.ms(rp_pio::SFR_CTRL_CLKDIV_RESTART, sm_a.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_RESTART, sm_a.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_CLKDIV_RESTART, sm_b.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_RESTART, sm_b.sm as u32)
+    );
+    // now set both running at the same time
+    report.wfo(utra::main::REPORT_REPORT, 0x51C2_1111);
+    sm_a.pio.wo(
+        rp_pio::SFR_CTRL,
+        sm_a.pio.ms(rp_pio::SFR_CTRL_EN, sm_a.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_EN, sm_b.sm as u32)
+    );
+    // wait for it to run
+    for i in 0..16 {
+        report.wfo(utra::main::REPORT_REPORT, 0x51C2_0000 + i as u32);
+    }
+    // disable the machines
+    sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
+
+    report.wfo(utra::main::REPORT_REPORT, 0x51C2_2222);
+
+    // now turn on the sticky bit
+    sm_a.config_set_out_special(true, false, 0);
+    sm_b.config_set_out_special(true, true, 28);
+    // change clkdiv just to hit another corner case
+    sm_a.config_set_clkdiv(1.0);
+    sm_b.config_set_clkdiv(1.0);
+    // commit config changes
+    sm_a.sm_init(a_prog.entry());
+    sm_b.sm_init(b_prog.entry());
+
+    // restart dividers and machines so they are synchronized
+    sm_a.pio.wo(
+        rp_pio::SFR_CTRL,
+        sm_a.pio.ms(rp_pio::SFR_CTRL_CLKDIV_RESTART, sm_a.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_RESTART, sm_a.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_CLKDIV_RESTART, sm_b.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_RESTART, sm_b.sm as u32)
+    );
+    // now set both running at the same time
+    report.wfo(utra::main::REPORT_REPORT, 0x51C2_3333);
+    sm_a.pio.wo(
+        rp_pio::SFR_CTRL,
+        sm_a.pio.ms(rp_pio::SFR_CTRL_EN, sm_a.sm as u32)
+        | sm_a.pio.ms(rp_pio::SFR_CTRL_EN, sm_b.sm as u32)
+    );
+    // wait for it to run
+    for i in 0..16 {
+        report.wfo(utra::main::REPORT_REPORT, 0x51C2_1000 + i as u32);
+    }
+
+    // disable the machines and cleanup
+    sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
+    // clear the sticky bits
+    sm_a.config_set_out_special(false, false, 0);
+    sm_b.config_set_out_special(false, false, 0);
+    sm_a.sm_init(a_prog.entry());
+    sm_b.sm_init(b_prog.entry());
+    // clear the instruction memory
+    sm_a.clear_instruction_memory();
+
+    report.wfo(utra::main::REPORT_REPORT, 0x51C2_600d);
+}
+
 pub fn pio_tests() {
+    sticky_test();
     i2c_test();
     spi_test();
 }
