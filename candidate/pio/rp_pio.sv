@@ -4,7 +4,13 @@
 
 // TODO:
 //   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
+//   - Write simple tests for every register in the register set
+//   - Write simple tests for every instruction and mode of instruction (??
+//   - Port 4 more examples in as tests
+
+// INTEGRATION:
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
+//   - Ensure that the "regular" GPIO block exists and can read input pins (otherwise there is no simple way to do this)
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
@@ -45,8 +51,8 @@ module rp_pio #(
     wire  [11:0]     irq0_ints;
     wire  [11:0]     irq1_ints;
     wire  [3:0]      tx_empty;
-    wire  [3:0]      tx_full;
-    wire  [3:0]      rx_empty;
+    logic [3:0]      tx_full;
+    logic [3:0]      rx_empty;
     wire  [3:0]      rx_full;
 
     // ----- peripheral module. Pulled into wrapper level so we can connect to state machine bits directly. ------
@@ -108,12 +114,12 @@ module rp_pio #(
     wire [2:0]  tx_level            [0:NUM_MACHINES-1];
     wire [31:0] fdin                [0:NUM_MACHINES-1];
 
-    wire [NUM_MACHINES-1:0]  mempty;
-    wire [NUM_MACHINES-1:0]  mfull;
-    wire [NUM_MACHINES-1:0]  mpush;
-    wire [NUM_MACHINES-1:0]  mpull;
-    wire [NUM_MACHINES-1:0]  dbg_txstall;
-    wire [NUM_MACHINES-1:0]  dbg_rxstall;
+    logic [NUM_MACHINES-1:0]  mempty;
+    logic [NUM_MACHINES-1:0]  mfull;
+    wire  [NUM_MACHINES-1:0]  mpush;
+    wire  [NUM_MACHINES-1:0]  mpull;
+    wire  [NUM_MACHINES-1:0]  dbg_txstall;
+    wire  [NUM_MACHINES-1:0]  dbg_rxstall;
 
     wire [7:0]      irq_flags_stb [0:NUM_MACHINES-1];
     reg [7:0]       irq_flags_stb_r [0:NUM_MACHINES-1];
