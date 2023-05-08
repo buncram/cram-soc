@@ -6,9 +6,6 @@
 //   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
 //   - FIFO chaining is missing
-//   - OUT_STICKY is not implemented (but seems not used in any examples)
-//   - INLINE_OUT_EN not implemented
-//   - OUT_EN_SEL not implemented
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
@@ -97,12 +94,12 @@ module rp_pio #(
 
     reg [15:0]  curr_instr      [0:NUM_MACHINES-1];
     reg [15:0]  imm_instr       [0:NUM_MACHINES-1];
+    reg [31:0]  do_sticky       [0:NUM_MACHINES-1];
 
     // Output from machines and fifos
     wire [31:0] output_pins         [0:NUM_MACHINES-1];
-    reg  [31:0] output_pins_prev    [0:NUM_MACHINES-1];
     wire [31:0] pin_directions      [0:NUM_MACHINES-1];
-    reg  [31:0] pin_directions_prev [0:NUM_MACHINES-1];
+    wire [31:0] output_pins_stb     [0:NUM_MACHINES-1];
     wire [4:0]  pc                  [0:NUM_MACHINES-1];
     wire [31:0] mdin                [0:NUM_MACHINES-1];
     wire [31:0] mdout               [0:NUM_MACHINES-1];
@@ -160,7 +157,6 @@ module rp_pio #(
     wire ctl_action;
 
     // debug
-    logic [31:0] dbg_cr;
     logic [31:0] dbg_sr;
     wire         dbg_trig;
 
@@ -177,20 +173,46 @@ module rp_pio #(
         end
     endgenerate
 
-    // Synchronous fetch of current instruction for each machine
+    // resolve sticky & enable configurations
+    logic [31:0] update_output [0:NUM_MACHINES-1];
+    always @* begin
+        for(i=0;i<NUM_MACHINES;i=i+1) begin
+            for(gpio_idx=0;gpio_idx<32;gpio_idx=gpio_idx+1) begin
+                case ({out_sticky[i], inline_out_en[i]})
+                    2'b00: begin // only assert when out or set is run
+                        update_output[i][gpio_idx] = output_pins_stb[i][gpio_idx];
+                    end
+                    2'b01: begin // inline out enable only
+                        update_output[i][gpio_idx] = output_pins_stb[i][gpio_idx] && output_pins[i][out_en_sel[i]];
+                    end
+                    2'b10: begin // just sticky
+                        update_output[i][gpio_idx] = // assert and continue to assert after the first out strobe
+                                        (do_sticky[i][gpio_idx] || output_pins_stb[i][gpio_idx]);
+                    end
+                    2'b11: begin // sticky and inline enable
+                        update_output[i][gpio_idx] = output_pins[i][out_en_sel[i]] // assert only if the designated output pin is set
+                                        && (do_sticky[i][gpio_idx] || output_pins_stb[i][gpio_idx]);
+                    end
+                endcase
+            end
+        end
+    end
+    // Synchronous fetch of current instruction for each machine, and output priority resolution
     always @(posedge clk) begin
         for(i=0;i<NUM_MACHINES;i=i+1) begin
             curr_instr[i] <= instr[pc[i]];
 
             // Coalesce output pins, making sure the highest PIO wins
             for(gpio_idx=0;gpio_idx<32;gpio_idx=gpio_idx+1) begin
-                output_pins_prev[i][gpio_idx] <= output_pins[i][gpio_idx];
-                if (output_pins[i][gpio_idx] != output_pins_prev[i][gpio_idx]) begin
-                    gpio_out[gpio_idx] <= output_pins[i][gpio_idx];
+                // don't assert an out in sticky mode until an OUT strobe has happened
+                if (reset || restart[i]) begin
+                    do_sticky[i][gpio_idx] <= 0; // de-assert any sticky OUTs previously set by machine
+                end else if (out_sticky[i] && output_pins_stb[i][gpio_idx]) begin
+                    do_sticky[i][gpio_idx] <= 1;
                 end
 
-                pin_directions_prev[i][gpio_idx] <= pin_directions[i][gpio_idx];
-                if (pin_directions[i][gpio_idx] != pin_directions_prev[i][gpio_idx]) begin
+                if (update_output[i][gpio_idx]) begin
+                    gpio_out[gpio_idx] <= output_pins[i][gpio_idx];
                     gpio_dir[gpio_idx] <= pin_directions[i][gpio_idx];
                 end
             end
@@ -212,6 +234,7 @@ module rp_pio #(
                 .jmp_pin(jmp_pin[j]),
                 .input_pins(gpio_in_cleaned),
                 .output_pins(output_pins[j]),
+                .output_pins_stb(output_pins_stb[j]),
                 .pin_directions(pin_directions[j]),
                 .sideset_enable_bit(pins_side_count[j] > 0 ? sideset_enable_bit[j] : 1'b0),
                 .side_pindir(side_pindir[j]),
@@ -365,28 +388,28 @@ module rp_pio #(
 
     // add debug signals
     bit txstall0, txstall1, txstall2, txstall3;
-    `theregfull(clk, resetn, txstall0, '0) <= ((dbg_txstall[0] | txstall0) & !(dbg_cr[24] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txstall1, '0) <= ((dbg_txstall[1] | txstall1) & !(dbg_cr[25] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txstall2, '0) <= ((dbg_txstall[2] | txstall2) & !(dbg_cr[26] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txstall3, '0) <= ((dbg_txstall[3] | txstall3) & !(dbg_cr[27] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall0, '0) <= ((dbg_txstall[0] | txstall0) & !(txstall[0] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall1, '0) <= ((dbg_txstall[1] | txstall1) & !(txstall[1] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall2, '0) <= ((dbg_txstall[2] | txstall2) & !(txstall[2] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall3, '0) <= ((dbg_txstall[3] | txstall3) & !(txstall[3] & dbg_trig)) ? 1 : 0;
 
     bit txover0, txover1, txover2, txover3;
-    `theregfull(clk, resetn, txover0, '0) <= (((tx_full[0] & push[0]) | txover0) & !(dbg_cr[16] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txover1, '0) <= (((tx_full[1] & push[1]) | txover1) & !(dbg_cr[17] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txover2, '0) <= (((tx_full[2] & push[2]) | txover2) & !(dbg_cr[18] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txover3, '0) <= (((tx_full[3] & push[3]) | txover3) & !(dbg_cr[19] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txover0, '0) <= (((tx_full[0] & push[0]) | txover0) & !(txover[0] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txover1, '0) <= (((tx_full[1] & push[1]) | txover1) & !(txover[1] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txover2, '0) <= (((tx_full[2] & push[2]) | txover2) & !(txover[2] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txover3, '0) <= (((tx_full[3] & push[3]) | txover3) & !(txover[3] & dbg_trig)) ? 1 : 0;
 
     bit rxstall0, rxstall1, rxstall2, rxstall3;
-    `theregfull(clk, resetn, rxstall0, '0) <= ((dbg_rxstall[0] | rxstall0) & !(dbg_cr[0] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxstall1, '0) <= ((dbg_rxstall[1] | rxstall1) & !(dbg_cr[1] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxstall2, '0) <= ((dbg_rxstall[2] | rxstall2) & !(dbg_cr[2] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxstall3, '0) <= ((dbg_rxstall[3] | rxstall3) & !(dbg_cr[3] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall0, '0) <= ((dbg_rxstall[0] | rxstall0) & !(rxstall[0] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall1, '0) <= ((dbg_rxstall[1] | rxstall1) & !(rxstall[1] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall2, '0) <= ((dbg_rxstall[2] | rxstall2) & !(rxstall[2] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall3, '0) <= ((dbg_rxstall[3] | rxstall3) & !(rxstall[3] & dbg_trig)) ? 1 : 0;
 
     bit rxunder0, rxunder1, rxunder2, rxunder3;
-    `theregfull(clk, resetn, rxunder0, '0) <= (((rx_empty[0] & pull[0]) | rxunder0) & !(dbg_cr[8] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxunder1, '0) <= (((rx_empty[1] & pull[1]) | rxunder1) & !(dbg_cr[9] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxunder2, '0) <= (((rx_empty[2] & pull[2]) | rxunder2) & !(dbg_cr[10] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxunder3, '0) <= (((rx_empty[3] & pull[3]) | rxunder3) & !(dbg_cr[11] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder0, '0) <= (((rx_empty[0] & pull[0]) | rxunder0) & !(rxunder[0] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder1, '0) <= (((rx_empty[1] & pull[1]) | rxunder1) & !(rxunder[1] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder2, '0) <= (((rx_empty[2] & pull[2]) | rxunder2) & !(rxunder[2] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder3, '0) <= (((rx_empty[3] & pull[3]) | rxunder3) & !(rxunder[3] & dbg_trig)) ? 1 : 0;
     assign dbg_sr = {
         4'd0, txstall3, txstall2, txstall1, txstall0,
         4'd0, txover3, txover2, txover1, txover0,
@@ -500,10 +523,6 @@ module rp_pio #(
     wire [3:0] txover;
     wire [3:0] rxunder;
     wire [3:0] rxstall;
-    assign txstall = dbg_cr[27:24];
-    assign txover = dbg_cr[19:16];
-    assign rxunder = dbg_cr[11:8];
-    assign rxstall = dbg_cr[3:0];
     wire [3:0] nc_dbg0;
     wire [3:0] nc_dbg1;
     wire [3:0] nc_dbg2;
@@ -551,6 +570,12 @@ module rp_pio #(
     assign irq1_ints_sm       = irq1_ints[11:8];
     assign irq1_ints_txnfull  = irq1_ints[7:4];
     assign irq1_ints_rxnempty = irq1_ints[3:0];
+    // nc fields
+    wire exec_stalled_ro0;
+    wire exec_stalled_ro1;
+    wire exec_stalled_ro2;
+    wire exec_stalled_ro3;
+    wire [3:0] nc_exec_ar;
 
     // TODO: move pclk to its own clock domain. APB bus may run as slow as 20MHz when CPU is idle.
 
@@ -607,14 +632,23 @@ module rp_pio #(
     apb_cr  #(.A('hC4), .DW(16))      sfr_instr_mem31      (.cr(instr[31]), .prdata32(),.*);
 
     apb_cr  #(.A('hC8), .DW(32))      sfr_sm0_clkdiv       (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
-    apb_cr  #(.A('hCC), .DW(32))      sfr_sm0_execctrl     (.cr({
+    apb_ascr #(.A('hCC), .DW(32))     sfr_sm0_execctrl     (.cr({
+                                                                exec_stalled_ro0, sideset_enable_bit[0],
+                                                                side_pindir[0], jmp_pin[0], out_en_sel[0],
+                                                                inline_out_en[0], out_sticky[0], pend[0],
+                                                                wrap_target[0],
+                                                                resvd_exec[0],
+                                                                status_sel[0], status_n[0]
+                                                                }),
+                                                            .sr({
                                                                 exec_stalled[0], sideset_enable_bit[0],
                                                                 side_pindir[0], jmp_pin[0], out_en_sel[0],
                                                                 inline_out_en[0], out_sticky[0], pend[0],
                                                                 wrap_target[0],
                                                                 resvd_exec[0],
                                                                 status_sel[0], status_n[0]
-                                                                }), .prdata32(),.*);
+                                                                }),
+                                                            .ar(nc_exec_ar[0]), .prdata32(),.*);
     apb_cr  #(.A('hD0), .DW(32))      sfr_sm0_shiftctrl    (.cr({
                                                                 join_rx[0], join_tx[0], osr_threshold[0], isr_threshold[0],
                                                                 out_shift_dir[0], in_shift_dir[0], auto_pull[0], auto_push[0],
@@ -628,14 +662,23 @@ module rp_pio #(
                                                                 }), .prdata32(),.*);
 
     apb_cr  #(.A('hE0), .DW(32))      sfr_sm1_clkdiv       (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
-    apb_cr  #(.A('hE4), .DW(32))      sfr_sm1_execctrl     (.cr({
+    apb_ascr #(.A('hE4), .DW(32))     sfr_sm1_execctrl     (.cr({
+                                                                exec_stalled_ro1, sideset_enable_bit[1],
+                                                                side_pindir[1], jmp_pin[1], out_en_sel[1],
+                                                                inline_out_en[1], out_sticky[1], pend[1],
+                                                                wrap_target[1],
+                                                                resvd_exec[1],
+                                                                status_sel[1], status_n[1]
+                                                                }),
+                                                            .sr({
                                                                 exec_stalled[1], sideset_enable_bit[1],
                                                                 side_pindir[1], jmp_pin[1], out_en_sel[1],
                                                                 inline_out_en[1], out_sticky[1], pend[1],
                                                                 wrap_target[1],
                                                                 resvd_exec[1],
                                                                 status_sel[1], status_n[1]
-                                                                }), .prdata32(),.*);
+                                                                }),
+                                                            .ar(nc_exec_ar[1]), .prdata32(),.*);
     apb_cr  #(.A('hE8), .DW(32))      sfr_sm1_shiftctrl    (.cr({
                                                                 join_rx[1], join_tx[1], osr_threshold[1], isr_threshold[1],
                                                                 out_shift_dir[1], in_shift_dir[1], auto_pull[1], auto_push[1],
@@ -649,14 +692,23 @@ module rp_pio #(
                                                                 }), .prdata32(),.*);
 
     apb_cr  #(.A('hF8), .DW(32))      sfr_sm2_clkdiv       (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
-    apb_cr  #(.A('hFC), .DW(32))      sfr_sm2_execctrl     (.cr({
+    apb_ascr #(.A('hFC), .DW(32))     sfr_sm2_execctrl     (.cr({
+                                                                exec_stalled_ro2, sideset_enable_bit[2],
+                                                                side_pindir[2], jmp_pin[2], out_en_sel[2],
+                                                                inline_out_en[2], out_sticky[2], pend[2],
+                                                                wrap_target[2],
+                                                                resvd_exec[2],
+                                                                status_sel[2], status_n[2]
+                                                                }),
+                                                            .sr({
                                                                 exec_stalled[2], sideset_enable_bit[2],
                                                                 side_pindir[2], jmp_pin[2], out_en_sel[2],
                                                                 inline_out_en[2], out_sticky[2], pend[2],
                                                                 wrap_target[2],
                                                                 resvd_exec[2],
                                                                 status_sel[2], status_n[2]
-                                                                }), .prdata32(),.*);
+                                                                }),
+                                                            .ar(nc_exec_ar[2]), .prdata32(),.*);
     apb_cr  #(.A('h100), .DW(32))     sfr_sm2_shiftctrl    (.cr({
                                                                 join_rx[2], join_tx[2], osr_threshold[2], isr_threshold[2],
                                                                 out_shift_dir[2], in_shift_dir[2], auto_pull[2], auto_push[2],
@@ -670,14 +722,23 @@ module rp_pio #(
                                                                 }), .prdata32(),.*);
 
     apb_cr  #(.A('h110), .DW(32))     sfr_sm3_clkdiv       (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
-    apb_cr  #(.A('h114), .DW(32))     sfr_sm3_execctrl     (.cr({
+    apb_ascr #(.A('h114), .DW(32))    sfr_sm3_execctrl     (.cr({
+                                                                exec_stalled_ro3, sideset_enable_bit[3],
+                                                                side_pindir[3], jmp_pin[3], out_en_sel[3],
+                                                                inline_out_en[3], out_sticky[3], pend[3],
+                                                                wrap_target[3],
+                                                                resvd_exec[3],
+                                                                status_sel[3], status_n[3]
+                                                                }),
+                                                            .sr({
                                                                 exec_stalled[3], sideset_enable_bit[3],
                                                                 side_pindir[3], jmp_pin[3], out_en_sel[3],
                                                                 inline_out_en[3], out_sticky[3], pend[3],
                                                                 wrap_target[3],
                                                                 resvd_exec[3],
                                                                 status_sel[3], status_n[3]
-                                                                }), .prdata32(),.*);
+                                                                }),
+                                                            .ar(nc_exec_ar[3]), .prdata32(),.*);
     apb_cr  #(.A('h118), .DW(32))     sfr_sm3_shiftctrl    (.cr({
                                                                 join_rx[3], join_tx[3], osr_threshold[3], isr_threshold[3],
                                                                 out_shift_dir[3], in_shift_dir[3], auto_pull[3], auto_push[3],
