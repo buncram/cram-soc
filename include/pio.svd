@@ -1112,11 +1112,11 @@
                             <description><![CDATA[sideset_enable_bit read/write control register]]></description>
                         </field>
                         <field>
-                            <name>exec_stalled</name>
+                            <name>exec_stalled_ro0</name>
                             <msb>31</msb>
                             <bitRange>[31:31]</bitRange>
                             <lsb>31</lsb>
-                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                            <description><![CDATA[exec_stalled_ro0 read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1391,11 +1391,11 @@
                             <description><![CDATA[sideset_enable_bit read/write control register]]></description>
                         </field>
                         <field>
-                            <name>exec_stalled</name>
+                            <name>exec_stalled_ro1</name>
                             <msb>31</msb>
                             <bitRange>[31:31]</bitRange>
                             <lsb>31</lsb>
-                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                            <description><![CDATA[exec_stalled_ro1 read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1670,11 +1670,11 @@
                             <description><![CDATA[sideset_enable_bit read/write control register]]></description>
                         </field>
                         <field>
-                            <name>exec_stalled</name>
+                            <name>exec_stalled_ro2</name>
                             <msb>31</msb>
                             <bitRange>[31:31]</bitRange>
                             <lsb>31</lsb>
-                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                            <description><![CDATA[exec_stalled_ro2 read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
@@ -1949,11 +1949,11 @@
                             <description><![CDATA[sideset_enable_bit read/write control register]]></description>
                         </field>
                         <field>
-                            <name>exec_stalled</name>
+                            <name>exec_stalled_ro3</name>
                             <msb>31</msb>
                             <bitRange>[31:31]</bitRange>
                             <lsb>31</lsb>
-                            <description><![CDATA[exec_stalled read/write control register]]></description>
+                            <description><![CDATA[exec_stalled_ro3 read/write control register]]></description>
                         </field>
                     </fields>
                 </register>

@@ -1490,7 +1490,7 @@ RP_PIO_SFR_SM0_EXECCTRL
                 {"name": "jmp_pin",  "bits": 5},
                 {"name": "side_pindir",  "bits": 1},
                 {"name": "sideset_enable_bit",  "bits": 1},
-                {"name": "exec_stalled",  "bits": 1}
+                {"name": "exec_stalled_ro0",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -1520,7 +1520,7 @@ RP_PIO_SFR_SM0_EXECCTRL
 +---------+--------------------+------------------------------------------------+
 | [30]    | SIDESET_ENABLE_BIT | sideset_enable_bit read/write control register |
 +---------+--------------------+------------------------------------------------+
-| [31]    | EXEC_STALLED       | exec_stalled read/write control register       |
+| [31]    | EXEC_STALLED_RO0   | exec_stalled_ro0 read/write control register   |
 +---------+--------------------+------------------------------------------------+
 
 RP_PIO_SFR_SM0_SHIFTCTRL
@@ -1705,7 +1705,7 @@ RP_PIO_SFR_SM1_EXECCTRL
                 {"name": "jmp_pin",  "bits": 5},
                 {"name": "side_pindir",  "bits": 1},
                 {"name": "sideset_enable_bit",  "bits": 1},
-                {"name": "exec_stalled",  "bits": 1}
+                {"name": "exec_stalled_ro1",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -1735,7 +1735,7 @@ RP_PIO_SFR_SM1_EXECCTRL
 +---------+--------------------+------------------------------------------------+
 | [30]    | SIDESET_ENABLE_BIT | sideset_enable_bit read/write control register |
 +---------+--------------------+------------------------------------------------+
-| [31]    | EXEC_STALLED       | exec_stalled read/write control register       |
+| [31]    | EXEC_STALLED_RO1   | exec_stalled_ro1 read/write control register   |
 +---------+--------------------+------------------------------------------------+
 
 RP_PIO_SFR_SM1_SHIFTCTRL
@@ -1920,7 +1920,7 @@ RP_PIO_SFR_SM2_EXECCTRL
                 {"name": "jmp_pin",  "bits": 5},
                 {"name": "side_pindir",  "bits": 1},
                 {"name": "sideset_enable_bit",  "bits": 1},
-                {"name": "exec_stalled",  "bits": 1}
+                {"name": "exec_stalled_ro2",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -1950,7 +1950,7 @@ RP_PIO_SFR_SM2_EXECCTRL
 +---------+--------------------+------------------------------------------------+
 | [30]    | SIDESET_ENABLE_BIT | sideset_enable_bit read/write control register |
 +---------+--------------------+------------------------------------------------+
-| [31]    | EXEC_STALLED       | exec_stalled read/write control register       |
+| [31]    | EXEC_STALLED_RO2   | exec_stalled_ro2 read/write control register   |
 +---------+--------------------+------------------------------------------------+
 
 RP_PIO_SFR_SM2_SHIFTCTRL
@@ -2135,7 +2135,7 @@ RP_PIO_SFR_SM3_EXECCTRL
                 {"name": "jmp_pin",  "bits": 5},
                 {"name": "side_pindir",  "bits": 1},
                 {"name": "sideset_enable_bit",  "bits": 1},
-                {"name": "exec_stalled",  "bits": 1}
+                {"name": "exec_stalled_ro3",  "bits": 1}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
@@ -2165,7 +2165,7 @@ RP_PIO_SFR_SM3_EXECCTRL
 +---------+--------------------+------------------------------------------------+
 | [30]    | SIDESET_ENABLE_BIT | sideset_enable_bit read/write control register |
 +---------+--------------------+------------------------------------------------+
-| [31]    | EXEC_STALLED       | exec_stalled read/write control register       |
+| [31]    | EXEC_STALLED_RO3   | exec_stalled_ro3 read/write control register   |
 +---------+--------------------+------------------------------------------------+
 
 RP_PIO_SFR_SM3_SHIFTCTRL
