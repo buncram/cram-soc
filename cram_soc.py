@@ -377,6 +377,8 @@ class CramSoC(SoCMini):
             self.bus.add_master(name="pbus", master=testbench_axil)
 
             local_ahb = ahb.Interface()
+            # TODO: add CDC to reduce speed of AXIL here to the target AHB PCLK speed
+            # TODO: add separate clock for PIO block rate
             self.submodules += AXILite2AHBAdapter(platform, soc_axil, local_ahb)
             # from duart_adapter import DuartAdapter
             # self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x201000)
