@@ -9,7 +9,8 @@ module machine (
   input [16:0]  div_int,
   input [7:0]   div_frac,
   input [31:0]  din,
-  input [15:0]  instr,
+  input [15:0]  imm_instr,
+  input [15:0]  curr_instr,
   input [31:0]  input_pins,
   input [7:0]   irq_flags_in,
   input         imm,
@@ -86,8 +87,8 @@ module machine (
   reg         exec1 = 0;
   reg [15:0]  exec_instr;
 
-  // Expand OSR explicitly to full width of osr_threshold
-  wire [5:0]  osr_threshold_wide = {1'b0, osr_threshold};
+  // Expand OSR explicitly to full width of osr_threshold, and handle 0 encoding 32
+  wire [5:0]  osr_threshold_wide = (osr_threshold == 0) ? 6'd32 : {1'b0, osr_threshold};
 
   // Divided clock enable signal
   wire        penable;
@@ -139,7 +140,10 @@ module machine (
 
   // States
   wire stalling;
-  wire enabled  = (exec1 && penable) || imm || (en && penable); // Instruction execution enabled
+  reg  imm_stalled;
+  wire imm_until_resolved;
+  wire [15:0] instr;
+  wire enabled  = (exec1 && penable) || imm_until_resolved || (en && penable); // Instruction execution enabled
   wire delaying = delay_cnt > 0;
 
   // Function to reverse the order of bits in a word
@@ -303,12 +307,23 @@ module machine (
       if (delaying) delay_cnt <= delay_cnt - 1;
       else if (!waiting && !exec && delay > 0) delay_cnt <= delay;
     end
-    if (reset || restart || (imm && (op != IRQ))) begin
+    if (reset || restart || (imm_until_resolved && (op != IRQ))) begin
       irq_waiting <= 0;
     end else begin
       irq_waiting <= irq_waiting_next;
     end
+    if (reset || restart) begin
+      imm_stalled <= 0;
+    end else begin
+      if (imm && waiting) begin
+        imm_stalled <= 1;
+      end else if (!waiting) begin
+        imm_stalled <= 0;
+      end
+    end
   end
+  assign imm_until_resolved = imm || imm_stalled;
+  assign instr = imm_until_resolved ? imm_instr :  curr_instr;
 
   integer i;
 
@@ -336,13 +351,13 @@ module machine (
             output_pins_stb[pins_set_base+i] <= 1;
           end
       if (set_out_pins)
-        for (i=0;i<5;i=i+1)
+        for (i=0;i<32;i=i+1)
           if (pins_out_count > i) begin
             output_pins[pins_out_base+i] <= new_val[i];
             output_pins_stb[pins_out_base+i] <= 1;
           end
       if (set_out_dirs)
-        for (i=0;i<5;i=i+1)
+        for (i=0;i<32;i=i+1)
           if (pins_out_count > i) begin
             pin_directions[pins_out_base+i] <= new_val[i];
             output_pins_stb[pins_out_base+i] <= 1;
@@ -580,7 +595,7 @@ module machine (
                   irq_flags_out[irq_index] = 1;
                   irq_flags_stb[irq_index] = 1;
                   waiting = !restart && blocking && // stop waiting if restart is specified
-                    (!irq_waiting || imm) && (irq_flags_out[irq_index] != 0) || // if not currently waiting or we're doing an imm IRQ, consult the flags_out, because flags_in takes a cycle to set
+                    (!irq_waiting || imm_until_resolved) && (irq_flags_out[irq_index] != 0) || // if not currently waiting or we're doing an imm IRQ, consult the flags_out, because flags_in takes a cycle to set
                     irq_waiting && (irq_flags_in[irq_index] != 0); // If wait set, wait for irq cleared
                   // always set waiting on the first cycle, and then after that we watch the in flags for the reset condition
                   // the restart flag will also reset the flag, but this is handle in the actual synchronous block
@@ -596,7 +611,7 @@ module machine (
       endcase
       // an autopull can happen on any cycle that's not an OUT, if it's not blocking.
       // also don't autopull during exec1 or imm
-      if (op != OUT && !exec1 && !imm) begin
+      if (op != OUT && !exec1 && !imm_until_resolved) begin
         // question: should we be doing a "lookahead" in the case that the current instruction set the osr_count to 0?
         // I think no, because the only way osr_count changes is do_shift is asserted, and that only happens in
         // the op == OUT state. And this consideration only happens in the op != OUT state....
@@ -648,7 +663,7 @@ module machine (
     .stalled(stalling),
     .pend(pend),
     .wrap_target(wrap_target),
-    .imm(imm),
+    .imm(imm_until_resolved),
     .dout(pc)
   );
 

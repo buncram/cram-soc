@@ -17,12 +17,12 @@ module pc (
 
   reg [4:0] index = 0;
 
-  assign dout = (penable && !stalled || imm) ? (jmp ? din : index == pend ? wrap_target : index + 1) : index;
+  assign dout = ((penable || imm) && !stalled) ? (jmp ? din : index == pend ? wrap_target : index + 1) : index;
 
   always @(posedge clk) begin
     if (reset)
       index <= 0;
-    else if (penable && !stalled || imm) begin
+    else if ((penable || imm) && !stalled) begin
       if (jmp)
         index <= din;
       else
@@ -31,4 +31,3 @@ module pc (
   end
 
 endmodule
- 
