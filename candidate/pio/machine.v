@@ -50,6 +50,7 @@ module machine (
   output reg    exec_stalled,
   output reg [31:0] dout,
   output reg [31:0] output_pins,
+  output reg [31:0] output_pins_stb,
   output reg [31:0] pin_directions,
   output reg [7:0]  irq_flags_out,
   output reg [7:0]  irq_flags_stb,
@@ -137,6 +138,7 @@ module machine (
   reg [4:0]   delay_cnt = 0;
 
   // States
+  wire stalling;
   wire enabled  = (exec1 && penable) || imm || (en && penable); // Instruction execution enabled
   wire delaying = delay_cnt > 0;
 
@@ -294,11 +296,6 @@ module machine (
   // Count down if delay
   always @(posedge clk) begin
     if (reset || restart) begin
-      if (reset) begin
-        // these are *not* affected by restart
-        pin_directions <= 32'h00000000;
-        output_pins <= 32'h00000000;
-      end
       delay_cnt <= 0;
     end else if (en & penable) begin
       exec1 <= exec; // Do execution on next cycle after exec set
@@ -316,29 +313,55 @@ module machine (
   integer i;
 
   always @(posedge clk) begin
-    if (enabled && !delaying) begin
+    if (reset || restart) begin
+      if (reset) begin
+        // these are *not* affected by restart
+        pin_directions <= 32'h00000000;
+        output_pins <= 32'h00000000;
+      end
+      output_pins_stb <= 32'h00000000;
+    end else if (enabled && !delaying) begin
+      output_pins_stb <= 32'h00000000;
+      // compute the actual pin values now
       if (set_set_pins)
         for (i=0;i<5;i=i+1)
-          if (pins_set_count > i) output_pins[pins_set_base+i] <= new_val[i];
+          if (pins_set_count > i) begin
+            output_pins[pins_set_base+i] <= new_val[i];
+            output_pins_stb[pins_set_base+i] <= 1;
+          end
       if (set_set_dirs)
         for (i=0;i<5;i=i+1)
-          if (pins_set_count > i) pin_directions[pins_set_base+i] <= new_val[i];
-
+          if (pins_set_count > i) begin
+            pin_directions[pins_set_base+i] <= new_val[i];
+            output_pins_stb[pins_set_base+i] <= 1;
+          end
       if (set_out_pins)
         for (i=0;i<5;i=i+1)
-          if (pins_out_count > i) output_pins[pins_out_base+i] <= new_val[i];
+          if (pins_out_count > i) begin
+            output_pins[pins_out_base+i] <= new_val[i];
+            output_pins_stb[pins_out_base+i] <= 1;
+          end
       if (set_out_dirs)
         for (i=0;i<5;i=i+1)
-          if (pins_out_count > i) pin_directions[pins_out_base+i] <= new_val[i];
+          if (pins_out_count > i) begin
+            pin_directions[pins_out_base+i] <= new_val[i];
+            output_pins_stb[pins_out_base+i] <= 1;
+          end
 
       // sideset should override out (so it is last in order)
-      if (sideset_enabled) begin // && !(auto && !waiting))  /* is this !(auto && !waiting) really correct?? */
+      if (sideset_enabled) begin
         if (!side_pindir) begin
           for (i=0;i<5;i=i+1)
-            if (pins_side_count > i) output_pins[pins_side_base+i] <= side_set[i];
+            if (pins_side_count > i) begin
+              output_pins[pins_side_base+i] <= side_set[i];
+              output_pins_stb[pins_side_base+i] <= 1;
+            end
         end else begin
           for (i=0;i<5;i=i+1)
-            if (pins_side_count > i) pin_directions[pins_side_base+i] <= side_set[i];
+            if (pins_side_count > i) begin
+              pin_directions[pins_side_base+i] <= side_set[i];
+              output_pins_stb[pins_side_base+i] <= 1;
+            end
         end
       end
     end
@@ -610,9 +633,10 @@ module machine (
 
   // Synchronous modules
   // PC
+  assign stalling = (waiting || (exec1 & !restart) || delaying);
   always @(posedge clk) begin
     if (en & penable) begin
-      exec_stalled <= (waiting || /* auto || */ exec1 || delaying) && !restart;
+      exec_stalled <= stalling;
     end
   end
   pc pc_reg (
@@ -621,7 +645,7 @@ module machine (
     .reset(reset),
     .din(new_val[4:0]),
     .jmp(jmp),
-    .stalled((waiting || /* auto || */ exec1 || delaying) && !restart), // clear stall in caes of restart
+    .stalled(stalling),
     .pend(pend),
     .wrap_target(wrap_target),
     .imm(imm),
