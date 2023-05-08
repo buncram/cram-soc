@@ -1524,6 +1524,7 @@ pub fn fifo_join_test() {
 
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1111);
     // load up the TX fifo, count how many entries it takes until it is full
+    // note: full test requires manual inspection of waveform to confirm GPIO out has the expected report value.
     let mut entries = 0;
     while !sm_a.sm_txfifo_is_full() {
         entries += 1;
@@ -1575,11 +1576,18 @@ pub fn fifo_join_test() {
     // stop filling it
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
     entries = 0;
+    let mut expected = 16;
+    let mut passing = true;
     while !sm_a.sm_rxfifo_is_empty() {
+        let val = sm_a.sm_rxfifo_pull_u32();
+        if val != expected {
+            passing = false;
+        }
         report.wfo(utra::main::REPORT_REPORT,
-            0xF1F0_0000 + sm_a.sm_rxfifo_pull_u32()
+            0xF1F0_0000 + val
         );
         entries += 1;
+        expected -= 1;
     }
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_3000 + entries);
 
@@ -1595,17 +1603,27 @@ pub fn fifo_join_test() {
     // stop filling it
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
     entries = 0;
+    expected = 16;
     while !sm_a.sm_rxfifo_is_empty() {
+        let val = sm_a.sm_rxfifo_pull_u32();
+        if val != expected {
+            passing = false;
+        }
         report.wfo(utra::main::REPORT_REPORT,
-            0xF1F0_0000 + sm_a.sm_rxfifo_pull_u32()
+            0xF1F0_0000 + val
         );
         entries += 1;
+        expected -= 1;
     }
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4000 + entries);
 
     sm_a.clear_instruction_memory();
 
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_600d);
+    if passing {
+        report.wfo(utra::main::REPORT_REPORT, 0xF1F0_600D);
+    } else {
+        report.wfo(utra::main::REPORT_REPORT, 0xF1F0_DEAD);
+    }
 }
 
 pub fn pio_tests() {
