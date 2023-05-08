@@ -5,7 +5,6 @@
 // TODO:
 //   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
-//   - FIFO chaining is missing
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
@@ -630,7 +629,7 @@ module rp_pio #(
     apb_ascr #(.A('h30), .DW(8))      sfr_irq              (.cr(irq_flags_in_clear), .sr(irq_flags_in), .ar(do_irq_flags_in_clear), .prdata32(),.*);
     apb_acr #(.A('h34), .DW(8))       sfr_irq_force        (.cr(irq_force_level), .ar(irq_force_action), .prdata32(),.*);
     apb_cr  #(.A('h38), .DW(32))      sfr_sync_bypass      (.cr(sync_bypass), .prdata32(),.*);
-    apb_sr  #(.A('h3C), .DW(32))      sfr_dbg_padout       (.sr(gpio_in), .prdata32(),.*);
+    apb_sr  #(.A('h3C), .DW(32))      sfr_dbg_padout       (.sr(gpio_out), .prdata32(),.*);
     apb_sr  #(.A('h40), .DW(32))      sfr_dbg_padoe        (.sr(gpio_dir), .prdata32(),.*);
     apb_sr  #(.A('h44), .DW(32))      sfr_dbg_cfginfo      (.sr({16'd32, 8'd4, 8'd4}), .prdata32(),.*);
     apb_cr  #(.A('h48), .DW(16))      sfr_instr_mem0       (.cr(instr[0 ]), .prdata32(),.*);
