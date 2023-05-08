@@ -182,6 +182,7 @@ impl PioSm {
             SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 16),
         }
     }
+    #[allow(dead_code)]
     pub fn sm_txfifo_push_u16_lsb(&mut self, data: u16) {
         match self.sm {
             SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data as u32),
@@ -1414,7 +1415,72 @@ pub fn sticky_test() {
     report.wfo(utra::main::REPORT_REPORT, 0x51C2_600d);
 }
 
+pub fn delay(count: usize) {
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    // dummy writes
+    for i in 0..count {
+        report.wo(utra::main::WDATA, i as u32);
+    }
+}
+/// test that stalled imm instructions are restarted on restart
+pub fn restart_imm_test() {
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_0000);
+
+    let mut sm_a = PioSm::new(0).unwrap();
+    let a_code = pio_proc::pio_asm!(
+        "set pins, 1",
+        "set pins, 2",
+        "set pins, 3",
+        "set pins, 4",
+        "set pins, 5",
+        "nop"
+    );
+    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    sm_a.sm_set_enabled(false);
+    a_prog.setup_default_config(&mut sm_a);
+    sm_a.config_set_set_pins(24, 5);
+    sm_a.config_set_out_pins(24, 5);
+    sm_a.config_set_sideset(0, false, false);
+    sm_a.config_set_clkdiv(8.25);
+    sm_a.config_set_out_shift(false, true, 16);
+    sm_a.sm_init(a_prog.entry());
+    // run the loop on A
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_1111);
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm as u32);
+    delay(50);
+
+    let mut a = pio::Assembler::<32>::new();
+    a.out(pio::OutDestination::PINS, 16);
+    let p= a.assemble_program();
+
+    // this should stall the state machine
+    sm_a.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_2222);
+    delay(50);
+
+    // this should clear the stall
+    sm_a.pio.rmwf(rp_pio::SFR_CTRL_RESTART, sm_a.sm as u32);
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_3333);
+    delay(50);
+
+    // this should stall the state machine again
+    sm_a.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_4444);
+    delay(50);
+
+    // this should also clear the stall by resolving the halt condition with a tx_fifo push
+    sm_a.sm_txfifo_push_u16_msb(0xFFFF);
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_5555);
+    delay(50);
+
+    sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
+    sm_a.clear_instruction_memory();
+    report.wfo(utra::main::REPORT_REPORT, 0x0133_600d);
+}
+
 pub fn pio_tests() {
+    restart_imm_test();
     sticky_test();
     i2c_test();
     spi_test();
