@@ -139,20 +139,22 @@ module rp_pio #(
     wire [31:0] out_invert;
     wire [31:0] in_invert;
 
-    wire join_rx [0:NUM_MACHINES-1];
-    wire join_tx [0:NUM_MACHINES-1];
-    wire [1:0] join_rx_tx [0:NUM_MACHINES-1];
-    reg  [1:0] join_rx_tx_r [0:NUM_MACHINES-1];
-    wire [1:0] join_rx_tx_change [0:NUM_MACHINES-1];
-    /* aborted attempt to join fifos
-    wire [NUM_MACHINES-1:0] tx_mux_push;
-    wire [NUM_MACHINES-1:0] tx_mux_pull;
-    wire [31:0] tx_mux_din  [NUM_MACHINES-1:0];
-    wire [31:0] tx_mux_dout [NUM_MACHINES-1:0];
-    wire [NUM_MACHINES-1:0] tx_mux_empty;
-    wire tx_mux_full        [NUM_MACHINES-1:0];
-    wire [2:0] tx_mux_level [NUM_MACHINES-1:0];
-    */
+    // FIFO joining muxes
+    logic [NUM_MACHINES-1:0] join_rx;
+    logic [NUM_MACHINES-1:0] join_tx;
+    logic [1:0] join_rx_tx [0:NUM_MACHINES-1];
+    logic [1:0] join_rx_tx_r [0:NUM_MACHINES-1];
+    logic [1:0] join_rx_tx_change [0:NUM_MACHINES-1];
+    logic [31:0] tx_mux_din  [NUM_MACHINES-1:0];
+    logic [31:0] rx_mux_din  [NUM_MACHINES-1:0];
+    logic [NUM_MACHINES-1:0] tx_mux_push;
+    logic [NUM_MACHINES-1:0] tx_mux_pull;
+    logic [NUM_MACHINES-1:0] tx_fifo_empty;
+    logic [NUM_MACHINES-1:0] tx_fifo_full;
+    logic [NUM_MACHINES-1:0] rx_mux_push;
+    logic [NUM_MACHINES-1:0] rx_mux_pull;
+    logic [NUM_MACHINES-1:0] rx_fifo_empty;
+    logic [NUM_MACHINES-1:0] rx_fifo_full;
 
     wire ctl_action;
 
@@ -283,49 +285,81 @@ module rp_pio #(
                 join_rx_tx_r[j] <= join_rx_tx[j];
             end
             assign join_rx_tx_change[j] = join_rx_tx_r[j] ^ join_rx_tx[j];
-            /* aborted attempt to join muxes
-            always @(*) begin
-                if (join_tx[j]) begin
-                    tx_mux_push[j] = ~rx_mux_empty[j] & ~tx_mux_full[j];
-                    tx_mux_pull[j] = mpull[j];
-                    tx_mux_din[j] = rx_mux_din[j];
-                    mdin[j] = tx_mux_dout[j];
-                    mempty[j] = tx_mux_empty[j] & rx_mux_empty[j];
-                    tx_full[j] = tx_mux_full[j] & rx_mux_full[j];
-                    tx_level[j] = tx_mux_level[j];
-                end else if (join_rx[j]) begin
-                end else begin
-                    tx_mux_push[j] = push[j];
-                    tx_mux_pull[j] = mpull[j];
-                    tx_mux_din[j] = fdin[j];
-                    mdin[j] = tx_mux_dout[j];
-                    mempty[j] = tx_mux_empty[j];
-                    tx_full[j] = tx_mux_full[j];
-                    tx_level[j] = tx_mux_level[j];
-                end
+            // FIFO join muxes
+            always @* begin
+                case ({join_rx[j], join_tx[j]})
+                    2'b00: begin
+                        tx_mux_din[j] = fdin[j];  // base case tx FIFO input
+                        rx_mux_din[j] = mdout[j]; // base case rx FIFO input
+                        tx_mux_push[j] = push[j];
+                        tx_mux_pull[j] = mpull[j];
+                        mempty[j] = tx_fifo_empty[j];
+                        tx_full[j] = tx_fifo_full[j];
+                        rx_mux_push[j] = mpush[j];
+                        rx_mux_pull[j] = pull[j];
+                        mfull[j] = rx_fifo_full[j];
+                        rx_empty[j] = rx_fifo_empty[j];
+                    end
+                    2'b10: begin // join RX case
+                        tx_mux_din[j] = mdout[j]; // wire incoming data to the tx fifo
+                        rx_mux_din[j] = mdin[j];  // wire rx fifo data input to tx fifo output
+                        tx_mux_push[j] = mpush[j];
+                        tx_mux_pull[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
+                        mempty[j] = 1; // tx fifo is disabled
+                        tx_full[j] = 1;
+                        rx_mux_push[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
+                        rx_mux_pull[j] = pull[j];
+                        mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
+                        rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
+                    end
+                    2'b01: begin // join TX case
+                        tx_mux_din[j] = pdout[j]; // wire tx fifo data input to rx fifo output
+                        rx_mux_din[j] = fdin[j];  // wire incoming data to the rx fifo
+                        tx_mux_push[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
+                        tx_mux_pull[j] = mpull[j];
+                        mempty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
+                        tx_full[j] = rx_fifo_full[j]; // full only when outer FIFO (RX fifo) is full
+                        rx_mux_push[j] = push[j];
+                        rx_mux_pull[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
+                        mfull[j] = 1;
+                        rx_empty[j] = 1;
+                    end
+                    2'b11: begin // both joined, error condition: both FIFOs are disabled
+                        tx_mux_din[j] = fdin[j];
+                        rx_mux_din[j] = mdout[j];
+                        tx_mux_push[j] = 0;
+                        tx_mux_pull[j] = 0;
+                        mempty[j] = 1;
+                        tx_full[j] = 1;
+                        rx_mux_push[j] = 0;
+                        rx_mux_pull[j] = 0;
+                        mfull[j] = 1;
+                        rx_empty[j] = 1;
+                    end
+                endcase
             end
-            */
+
             fifo fifo_tx (
                 .clk(clk),
                 .reset(reset | (join_rx_tx_change[j] != 0)),
-                .push(push[j]),
-                .pull(mpull[j]),
-                .din(fdin[j]),
+                .push(/*push[j]*/ tx_mux_push[j]),
+                .pull(/*mpull[j]*/ tx_mux_pull[j]),
+                .din(/*fdin[j]*/ tx_mux_din[j]),
                 .dout(mdin[j]),
-                .empty(mempty[j]),
-                .full(tx_full[j]),
+                .empty(/*mempty[j]*/ tx_fifo_empty[j]),
+                .full(/*tx_full[j]*/ tx_fifo_full[j]),
                 .level(tx_level[j])
             );
 
             fifo fifo_rx (
                 .clk(clk),
                 .reset(reset | (join_rx_tx_change[j] != 0)),
-                .push(mpush[j]),
-                .pull(pull[j]),
-                .din(mdout[j]),
+                .push(/*mpush[j]*/ rx_mux_push[j]),
+                .pull(/*pull[j]*/ rx_mux_pull[j]),
+                .din(/*mdout[j]*/ rx_mux_din[j]),
                 .dout(pdout[j]),
-                .full(mfull[j]),
-                .empty(rx_empty[j]),
+                .full(/*mfull[j]*/ rx_fifo_full[j]),
+                .empty(/*rx_empty[j]*/ rx_fifo_empty[j]),
                 .level(rx_level[j])
             );
 
@@ -633,7 +667,8 @@ module rp_pio #(
     apb_cr  #(.A('hC4), .DW(16))      sfr_instr_mem31      (.cr(instr[31]), .prdata32(),.*);
 
     apb_cr  #(.A('hC8), .DW(32))      sfr_sm0_clkdiv       (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
-    apb_ascr #(.A('hCC), .DW(32))     sfr_sm0_execctrl     (.cr({
+    apb_ascr #(.A('hCC), .DW(32),
+               .IV(32'h1F000))        sfr_sm0_execctrl     (.cr({
                                                                 exec_stalled_ro0, sideset_enable_bit[0],
                                                                 side_pindir[0], jmp_pin[0], out_en_sel[0],
                                                                 inline_out_en[0], out_sticky[0], pend[0],
@@ -650,20 +685,23 @@ module rp_pio #(
                                                                 status_sel[0], status_n[0]
                                                                 }),
                                                             .ar(nc_exec_ar[0]), .prdata32(),.*);
-    apb_cr  #(.A('hD0), .DW(32))      sfr_sm0_shiftctrl    (.cr({
+    apb_cr  #(.A('hD0), .DW(32),
+              .IV(32'hC0000))         sfr_sm0_shiftctrl    (.cr({
                                                                 join_rx[0], join_tx[0], osr_threshold[0], isr_threshold[0],
                                                                 out_shift_dir[0], in_shift_dir[0], auto_pull[0], auto_push[0],
                                                                 resvd_shift[0]
                                                                 }), .prdata32(),.*);
     apb_sr  #(.A('hD4), .DW(5))       sfr_sm0_addr         (.sr(pc[0]), .prdata32(),.*);
     apb_ascr #(.A('hD8), .DW(16))     sfr_sm0_instr        (.cr(imm_instr[0]), .sr(curr_instr[0]), .ar(imm[0]), .prdata32(),.*);
-    apb_cr  #(.A('hDC), .DW(32))      sfr_sm0_pinctrl      (.cr({
+    apb_cr  #(.A('hDC), .DW(32),
+             .IV(32'h14000000))       sfr_sm0_pinctrl      (.cr({
                                                                 pins_side_count[0], pins_set_count[0], pins_out_count[0],
                                                                 pins_in_base[0], pins_side_base[0], pins_set_base[0], pins_out_base[0]
                                                                 }), .prdata32(),.*);
 
     apb_cr  #(.A('hE0), .DW(32))      sfr_sm1_clkdiv       (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
-    apb_ascr #(.A('hE4), .DW(32))     sfr_sm1_execctrl     (.cr({
+    apb_ascr #(.A('hE4), .DW(32),
+               .IV(32'h1F000))        sfr_sm1_execctrl     (.cr({
                                                                 exec_stalled_ro1, sideset_enable_bit[1],
                                                                 side_pindir[1], jmp_pin[1], out_en_sel[1],
                                                                 inline_out_en[1], out_sticky[1], pend[1],
@@ -680,20 +718,23 @@ module rp_pio #(
                                                                 status_sel[1], status_n[1]
                                                                 }),
                                                             .ar(nc_exec_ar[1]), .prdata32(),.*);
-    apb_cr  #(.A('hE8), .DW(32))      sfr_sm1_shiftctrl    (.cr({
+    apb_cr  #(.A('hE8), .DW(32),
+              .IV(32'hC0000))         sfr_sm1_shiftctrl    (.cr({
                                                                 join_rx[1], join_tx[1], osr_threshold[1], isr_threshold[1],
                                                                 out_shift_dir[1], in_shift_dir[1], auto_pull[1], auto_push[1],
                                                                 resvd_shift[1]
                                                                 }), .prdata32(),.*);
     apb_sr  #(.A('hEC), .DW(5))       sfr_sm1_addr         (.sr(pc[1]), .prdata32(),.*);
     apb_ascr #(.A('hF0), .DW(16))     sfr_sm1_instr        (.cr(imm_instr[1]), .sr(curr_instr[1]), .ar(imm[1]), .prdata32(),.*);
-    apb_cr  #(.A('hF4), .DW(32))      sfr_sm1_pinctrl      (.cr({
+    apb_cr  #(.A('hF4), .DW(32),
+              .IV(32'h14000000))      sfr_sm1_pinctrl      (.cr({
                                                                 pins_side_count[1], pins_set_count[1], pins_out_count[1],
                                                                 pins_in_base[1], pins_side_base[1], pins_set_base[1], pins_out_base[1]
                                                                 }), .prdata32(),.*);
 
     apb_cr  #(.A('hF8), .DW(32))      sfr_sm2_clkdiv       (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
-    apb_ascr #(.A('hFC), .DW(32))     sfr_sm2_execctrl     (.cr({
+    apb_ascr #(.A('hFC), .DW(32),
+               .IV(32'h1F000))        sfr_sm2_execctrl     (.cr({
                                                                 exec_stalled_ro2, sideset_enable_bit[2],
                                                                 side_pindir[2], jmp_pin[2], out_en_sel[2],
                                                                 inline_out_en[2], out_sticky[2], pend[2],
@@ -710,20 +751,23 @@ module rp_pio #(
                                                                 status_sel[2], status_n[2]
                                                                 }),
                                                             .ar(nc_exec_ar[2]), .prdata32(),.*);
-    apb_cr  #(.A('h100), .DW(32))     sfr_sm2_shiftctrl    (.cr({
+    apb_cr  #(.A('h100), .DW(32),
+              .IV(32'hC0000))         sfr_sm2_shiftctrl    (.cr({
                                                                 join_rx[2], join_tx[2], osr_threshold[2], isr_threshold[2],
                                                                 out_shift_dir[2], in_shift_dir[2], auto_pull[2], auto_push[2],
                                                                 resvd_shift[2]
                                                                 }), .prdata32(),.*);
     apb_sr  #(.A('h104), .DW(5))      sfr_sm2_addr         (.sr(pc[2]), .prdata32(),.*);
     apb_ascr #(.A('h108), .DW(16))    sfr_sm2_instr        (.cr(imm_instr[2]), .sr(curr_instr[2]), .ar(imm[2]), .prdata32(),.*);
-    apb_cr  #(.A('h10C), .DW(32))     sfr_sm2_pinctrl      (.cr({
+    apb_cr  #(.A('h10C), .DW(32),
+              .IV(32'h14000000))      sfr_sm2_pinctrl      (.cr({
                                                                 pins_side_count[2], pins_set_count[2], pins_out_count[2],
                                                                 pins_in_base[2], pins_side_base[2], pins_set_base[2], pins_out_base[2]
                                                                 }), .prdata32(),.*);
 
     apb_cr  #(.A('h110), .DW(32))     sfr_sm3_clkdiv       (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
-    apb_ascr #(.A('h114), .DW(32))    sfr_sm3_execctrl     (.cr({
+    apb_ascr #(.A('h114), .DW(32),
+               .IV(32'h1F000))        sfr_sm3_execctrl     (.cr({
                                                                 exec_stalled_ro3, sideset_enable_bit[3],
                                                                 side_pindir[3], jmp_pin[3], out_en_sel[3],
                                                                 inline_out_en[3], out_sticky[3], pend[3],
@@ -740,14 +784,16 @@ module rp_pio #(
                                                                 status_sel[3], status_n[3]
                                                                 }),
                                                             .ar(nc_exec_ar[3]), .prdata32(),.*);
-    apb_cr  #(.A('h118), .DW(32))     sfr_sm3_shiftctrl    (.cr({
+    apb_cr  #(.A('h118), .DW(32),
+              .IV(32'hC0000))         sfr_sm3_shiftctrl    (.cr({
                                                                 join_rx[3], join_tx[3], osr_threshold[3], isr_threshold[3],
                                                                 out_shift_dir[3], in_shift_dir[3], auto_pull[3], auto_push[3],
                                                                 resvd_shift[3]
                                                                 }), .prdata32(),.*);
     apb_sr  #(.A('h11C), .DW(5))      sfr_sm3_addr         (.sr(pc[3]), .prdata32(),.*);
     apb_ascr #(.A('h120), .DW(16))    sfr_sm3_instr        (.cr(imm_instr[3]), .sr(curr_instr[3]), .ar(imm[3]), .prdata32(),.*);
-    apb_cr  #(.A('h124), .DW(32))     sfr_sm3_pinctrl      (.cr({
+    apb_cr  #(.A('h124), .DW(32),
+              .IV(32'h14000000))      sfr_sm3_pinctrl      (.cr({
                                                                 pins_side_count[3], pins_set_count[3], pins_out_count[3],
                                                                 pins_in_base[3], pins_side_base[3], pins_set_base[3], pins_out_base[3]
                                                                 }), .prdata32(),.*);
