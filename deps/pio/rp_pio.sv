@@ -5,7 +5,6 @@
 // TODO:
 //   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
-//   - FIFO chaining is missing
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
