@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 // TODO:
-//   - PCLK to lower frequency clock domain + synchronizers on AR registers. TODO: consider which busses need sync.
 //   - Write simple tests for every register in the register set
 //   - Write simple tests for every instruction and mode of instruction (??
 //   - Port 4 more examples in as tests
@@ -11,6 +10,11 @@
 // INTEGRATION:
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
 //   - Ensure that the "regular" GPIO block exists and can read input pins (otherwise there is no simple way to do this)
+//   - If the PIO main clk is much slower than pclk, the CPU has to be careful about reading values
+//     back that need to be side-effected (e.g. push to FIFO, then check to see level). This is because
+//     it can take longer for the flag to update than a single loop of the CPU. However, as long as
+//     clk is within 2x of pclk it should be OK. However, this is not the expected corner case, typically
+//     we would expect that clk is faster or equal to pclk.
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
