@@ -193,7 +193,9 @@ class SimCRG(Module):
             self.cd_por.clk.eq(clk),
             self.cd_sys.rst.eq(int_rst),
             self.cd_p.clk.eq(p_clk),
+            self.cd_p.rst.eq(int_rst),
             self.cd_pio.clk.eq(pio_clk),
+            self.cd_pio.rst.eq(int_rst),
         ]
 
 # CramSoC ------------------------------------------------------------------------------------------
@@ -254,7 +256,16 @@ class CramSoC(SoCMini):
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
-        self.crg = SimCRG(platform.request("sys_clk"), platform.request("p_clk"), platform.request("pio_clk"))
+        reset_cycles = 32
+        reset_counter = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
+        ic_reset      = Signal(reset=1)
+        self.sync.por += \
+            If(reset_counter != 0,
+                reset_counter.eq(reset_counter - 1)
+            ).Else(
+                ic_reset.eq(0)
+            )
+        self.crg = SimCRG(platform.request("sys_clk"), platform.request("p_clk"), platform.request("pio_clk"), ic_reset)
         self.clock_domains.cd_sys_always_on = ClockDomain()
         self.comb += self.cd_sys_always_on.clk.eq(ClockSignal())
 
