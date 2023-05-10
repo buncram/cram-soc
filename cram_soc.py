@@ -826,7 +826,7 @@ def main():
     sys_clk_freq = int(800e6)
     sim_config   = SimConfig()
     sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
-    sim_config.add_clocker("p_clk", freq_hz=50e6)
+    sim_config.add_clocker("p_clk", freq_hz=100e6) # simulated down to 50MHz, but left at 100MHz to speed up simulations
     sim_config.add_clocker("pio_clk", freq_hz=200e6)
 
     ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
