@@ -40,6 +40,7 @@ from axi_crossbar import AXICrossbar
 from axi_adapter import AXIAdapter
 from axi_ram import AXIRAM
 from axil_crossbar import AXILiteCrossbar
+from axil_cdc import AXILiteCDC
 from axi_common import *
 
 from axil_ahb_adapter import AXILite2AHBAdapter
@@ -56,6 +57,8 @@ AHB_TEST = False
 _io = [
     # Clk / Rst.
     ("sys_clk", 0, Pins(1)),
+    ("p_clk", 0, Pins(1)),
+    ("pio_clk", 0, Pins(1)),
     # ("sys_reset", 0, Pins(1)),
 
     ("jtag", 0,
@@ -174,6 +177,25 @@ class SimUartPhy(Module, AutoCSR):
         self.submodules.rx = SimPhyRx(data_in, data_in_valid, data_in_ready)
         self.sink, self.source = self.tx.sink, self.rx.source
 
+# Simulation CRG -----------------------------------------------------------------------------------
+class SimCRG(Module):
+    def __init__(self, clk, p_clk, pio_clk, rst=0):
+        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_por = ClockDomain(reset_less=True)
+        self.clock_domains.cd_p = ClockDomain()
+        self.clock_domains.cd_pio = ClockDomain()
+
+        # Power on Reset (vendor agnostic)
+        int_rst = Signal(reset=1)
+        self.sync.por += int_rst.eq(rst)
+        self.comb += [
+            self.cd_sys.clk.eq(clk),
+            self.cd_por.clk.eq(clk),
+            self.cd_sys.rst.eq(int_rst),
+            self.cd_p.clk.eq(p_clk),
+            self.cd_pio.clk.eq(pio_clk),
+        ]
+
 # CramSoC ------------------------------------------------------------------------------------------
 
 class CramSoC(SoCMini):
@@ -232,7 +254,7 @@ class CramSoC(SoCMini):
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
-        self.crg = CRG(platform.request("sys_clk"))
+        self.crg = SimCRG(platform.request("sys_clk"), platform.request("p_clk"), platform.request("pio_clk"))
         self.clock_domains.cd_sys_always_on = ClockDomain()
         self.comb += self.cd_sys_always_on.clk.eq(ClockSignal())
 
@@ -376,19 +398,22 @@ class CramSoC(SoCMini):
             #    register = False,
             self.bus.add_master(name="pbus", master=testbench_axil)
 
+            soc_slower_axil = AXILiteInterface(clock_domain="p")
+            self.submodules.slower_axi = slower_axi = AXILiteCDC(platform, soc_axil, soc_slower_axil)
+
             local_ahb = ahb.Interface()
             # TODO: add CDC to reduce speed of AXIL here to the target AHB PCLK speed
             # TODO: add separate clock for PIO block rate
-            self.submodules += AXILite2AHBAdapter(platform, soc_axil, local_ahb)
+            self.submodules += ClockDomainsRenamer({"sys": "p"})(AXILite2AHBAdapter(platform, soc_slower_axil, local_ahb))
             # from duart_adapter import DuartAdapter
             # self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x201000)
             from pio_adapter import PioAdapter
             pio_irq0 = Signal()
             pio_irq1 = Signal()
-            self.submodules += PioAdapter(platform,
+            self.submodules += ClockDomainsRenamer({"sys": "p"})(PioAdapter(platform,
                 local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000,
                 sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
-            )
+            ))
         else:
             from duart_adapter import DuartAdapter
             local_ahb = ahb.Interface()
@@ -801,6 +826,8 @@ def main():
     sys_clk_freq = int(800e6)
     sim_config   = SimConfig()
     sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
+    sim_config.add_clocker("p_clk", freq_hz=50e6)
+    sim_config.add_clocker("pio_clk", freq_hz=200e6)
 
     ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
     ##### define the soc

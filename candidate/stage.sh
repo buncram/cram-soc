@@ -40,6 +40,8 @@ rm -f pio/pio.v
 # add the correct top model
 cp ../deps/pio/pio_ahb.sv pio/
 cp ../deps/pio/rp_pio.sv pio/
+# add support modules
+cp ../sim_support/cdc_blinded.v .
 
 rm -rf docs
 mkdir docs

@@ -184,7 +184,8 @@ class PioAdapter(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
+            i_clk = ClockSignal("pio"),
+            i_pclk = ClockSignal(),
             i_resetn = ~ResetSignal(),
             i_cmatpg = Open(),
             i_cmbist = Open(),
@@ -239,3 +240,6 @@ class PioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "osr.v"))
         platform.add_source(os.path.join(rtl_dir, "pc.v"))
         platform.add_source(os.path.join(rtl_dir, "scratch.v"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "sim_support")
+        platform.add_source(os.path.join(rtl_dir, "cdc_blinded.v"))

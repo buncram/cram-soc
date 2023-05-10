@@ -7,7 +7,8 @@
 module pio_ahb #(
     parameter AW = 12
 )(
-    input logic clk,
+    input logic clk,   // clock of the PIO block itself
+    input logic pclk,  // clock of the AHB bus
     input logic resetn,
     input logic cmatpg, cmbist,
 
@@ -62,6 +63,7 @@ module pio_ahb #(
 
     rp_pio rp_pio(
         .clk     ,
+        .pclk    ,
         .resetn  ,
         .cmatpg  ,
         .cmbist  ,

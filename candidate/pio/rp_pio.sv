@@ -17,6 +17,7 @@
 module rp_pio #(
 )(
     input logic         clk,
+    input logic         pclk,
     input logic         resetn,
     input logic cmatpg, cmbist,
 
@@ -167,6 +168,15 @@ module rp_pio #(
     logic [31:0] dbg_sr;
     wire         dbg_trig;
 
+    // synchronizers for .ar pulses
+    logic ctl_action_sync;
+    logic dbg_trig_sync;
+    logic do_irq_flags_in_clear_sync;
+    logic irq_force_action_sync;
+    logic [3:0] push_sync;
+    logic [3:0] pull_sync;
+    logic [3:0] imm_sync;
+
     assign reset = !resetn;
 
     integer i;
@@ -235,8 +245,8 @@ module rp_pio #(
                 .clk(clk),
                 .reset(reset),
                 .en(en[j]),
-                .restart(restart[j] & ctl_action),
-                .clkdiv_restart(clkdiv_restart[j] & ctl_action),
+                .restart(restart[j] & ctl_action_sync),
+                .clkdiv_restart(clkdiv_restart[j] & ctl_action_sync),
                 .mindex(j[1:0]),
                 .jmp_pin(jmp_pin[j]),
                 .input_pins(gpio_in_cleaned),
@@ -251,7 +261,7 @@ module rp_pio #(
                 .div_frac(div_frac[j]),
                 .imm_instr(imm_instr[j]),
                 .curr_instr(curr_instr[j]),
-                .imm(imm[j]),
+                .imm(imm_sync[j]),
                 .pend(pend[j]),
                 .exec_stalled(exec_stalled[j]),
                 .wrap_target(wrap_target[j]),
@@ -296,12 +306,12 @@ module rp_pio #(
                     2'b00: begin
                         tx_mux_din[j] = fdin[j];  // base case tx FIFO input
                         rx_mux_din[j] = mdout[j]; // base case rx FIFO input
-                        tx_mux_push[j] = push[j];
+                        tx_mux_push[j] = push_sync[j];
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = tx_fifo_empty[j];
                         tx_full[j] = tx_fifo_full[j];
                         rx_mux_push[j] = mpush[j];
-                        rx_mux_pull[j] = pull[j];
+                        rx_mux_pull[j] = pull_sync[j];
                         mfull[j] = rx_fifo_full[j];
                         rx_empty[j] = rx_fifo_empty[j];
                     end
@@ -313,7 +323,7 @@ module rp_pio #(
                         mempty[j] = 1; // tx fifo is disabled
                         tx_full[j] = 1;
                         rx_mux_push[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
-                        rx_mux_pull[j] = pull[j];
+                        rx_mux_pull[j] = pull_sync[j];
                         mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
                         rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                     end
@@ -324,7 +334,7 @@ module rp_pio #(
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                         tx_full[j] = rx_fifo_full[j]; // full only when outer FIFO (RX fifo) is full
-                        rx_mux_push[j] = push[j];
+                        rx_mux_push[j] = push_sync[j];
                         rx_mux_pull[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
                         mfull[j] = 1;
                         rx_empty[j] = 1;
@@ -386,7 +396,7 @@ module rp_pio #(
             always @(posedge clk) begin
                 if (reset) begin
                     irq_flags_in[k] <= 0;
-                end else if (do_irq_flags_in_clear & irq_flags_in_clear[k]) begin
+                end else if (do_irq_flags_in_clear_sync & irq_flags_in_clear[k]) begin
                     irq_flags_in[k] <= 0;
                 end else begin
                     // machine priority order is m0 < m1 < m2 < m3. Datasheet is vague on this
@@ -428,28 +438,28 @@ module rp_pio #(
 
     // add debug signals
     bit txstall0, txstall1, txstall2, txstall3;
-    `theregfull(clk, resetn, txstall0, '0) <= ((dbg_txstall[0] | txstall0) & !(txstall[0] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txstall1, '0) <= ((dbg_txstall[1] | txstall1) & !(txstall[1] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txstall2, '0) <= ((dbg_txstall[2] | txstall2) & !(txstall[2] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txstall3, '0) <= ((dbg_txstall[3] | txstall3) & !(txstall[3] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall0, '0) <= ((dbg_txstall[0] | txstall0) & !(txstall[0] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall1, '0) <= ((dbg_txstall[1] | txstall1) & !(txstall[1] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall2, '0) <= ((dbg_txstall[2] | txstall2) & !(txstall[2] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, txstall3, '0) <= ((dbg_txstall[3] | txstall3) & !(txstall[3] & dbg_trig_sync)) ? 1 : 0;
 
     bit txover0, txover1, txover2, txover3;
-    `theregfull(clk, resetn, txover0, '0) <= (((tx_full[0] & push[0]) | txover0) & !(txover[0] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txover1, '0) <= (((tx_full[1] & push[1]) | txover1) & !(txover[1] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txover2, '0) <= (((tx_full[2] & push[2]) | txover2) & !(txover[2] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, txover3, '0) <= (((tx_full[3] & push[3]) | txover3) & !(txover[3] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, txover0, '0) <= (((tx_full[0] & push_sync[0]) | txover0) & !(txover[0] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, txover1, '0) <= (((tx_full[1] & push_sync[1]) | txover1) & !(txover[1] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, txover2, '0) <= (((tx_full[2] & push_sync[2]) | txover2) & !(txover[2] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, txover3, '0) <= (((tx_full[3] & push_sync[3]) | txover3) & !(txover[3] & dbg_trig_sync)) ? 1 : 0;
 
     bit rxstall0, rxstall1, rxstall2, rxstall3;
-    `theregfull(clk, resetn, rxstall0, '0) <= ((dbg_rxstall[0] | rxstall0) & !(rxstall[0] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxstall1, '0) <= ((dbg_rxstall[1] | rxstall1) & !(rxstall[1] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxstall2, '0) <= ((dbg_rxstall[2] | rxstall2) & !(rxstall[2] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxstall3, '0) <= ((dbg_rxstall[3] | rxstall3) & !(rxstall[3] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall0, '0) <= ((dbg_rxstall[0] | rxstall0) & !(rxstall[0] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall1, '0) <= ((dbg_rxstall[1] | rxstall1) & !(rxstall[1] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall2, '0) <= ((dbg_rxstall[2] | rxstall2) & !(rxstall[2] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, rxstall3, '0) <= ((dbg_rxstall[3] | rxstall3) & !(rxstall[3] & dbg_trig_sync)) ? 1 : 0;
 
     bit rxunder0, rxunder1, rxunder2, rxunder3;
-    `theregfull(clk, resetn, rxunder0, '0) <= (((rx_empty[0] & pull[0]) | rxunder0) & !(rxunder[0] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxunder1, '0) <= (((rx_empty[1] & pull[1]) | rxunder1) & !(rxunder[1] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxunder2, '0) <= (((rx_empty[2] & pull[2]) | rxunder2) & !(rxunder[2] & dbg_trig)) ? 1 : 0;
-    `theregfull(clk, resetn, rxunder3, '0) <= (((rx_empty[3] & pull[3]) | rxunder3) & !(rxunder[3] & dbg_trig)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder0, '0) <= (((rx_empty[0] & pull_sync[0]) | rxunder0) & !(rxunder[0] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder1, '0) <= (((rx_empty[1] & pull_sync[1]) | rxunder1) & !(rxunder[1] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder2, '0) <= (((rx_empty[2] & pull_sync[2]) | rxunder2) & !(rxunder[2] & dbg_trig_sync)) ? 1 : 0;
+    `theregfull(clk, resetn, rxunder3, '0) <= (((rx_empty[3] & pull_sync[3]) | rxunder3) & !(rxunder[3] & dbg_trig_sync)) ? 1 : 0;
     assign dbg_sr = {
         4'd0, txstall3, txstall2, txstall1, txstall0,
         4'd0, txover3, txover2, txover1, txover0,
@@ -457,10 +467,10 @@ module rp_pio #(
         4'd0, rxstall3, rxstall2, rxstall1, rxstall0
     };
 
-    assign irq_force_pulse = irq_force_action ? irq_force_level : 8'h0;
+    assign irq_force_pulse = irq_force_action_sync ? irq_force_level : 8'h0;
     // ---- SFR bank ----
-    logic pclk;
-    assign pclk = clk;
+    // logic pclk;
+    // assign pclk = clk;
     logic apbrd, apbwr, sfrlock;
     assign sfrlock = '0;
 
@@ -616,8 +626,6 @@ module rp_pio #(
     wire exec_stalled_ro2;
     wire exec_stalled_ro3;
     wire [3:0] nc_exec_ar;
-
-    // TODO: move pclk to its own clock domain. APB bus may run as slow as 20MHz when CPU is idle.
 
     apb_acr #(.A('h00), .DW(12))      sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))      sfr_fstat            (.sr({4'd0, tx_empty, 4'd0, tx_full, 4'd0, rx_empty, 4'd0, rx_full}), .prdata32(),.*);
@@ -818,6 +826,13 @@ module rp_pio #(
     apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
     apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
 
+    cdc_blinded       ctl_action_cdc   (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
+    cdc_blinded       dbg_trig_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(dbg_trig              ), .out_b(dbg_trig_sync              ));
+    cdc_blinded       irq_flags_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(do_irq_flags_in_clear ), .out_b(do_irq_flags_in_clear_sync ));
+    cdc_blinded       irq_force_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(irq_force_action      ), .out_b(irq_force_action_sync      ));
+    cdc_blinded       push_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync                  ));
+    cdc_blinded       pull_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_blinded       imm_cdc[3:0]     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(imm                   ), .out_b(imm_sync                   ));
 endmodule
 
 // action + control register. Any write to this register will cause a pulse that
