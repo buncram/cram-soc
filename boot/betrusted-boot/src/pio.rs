@@ -245,7 +245,7 @@ impl PioSm {
                 }
             }
         } else {
-            for i in (0..(32 - program.code.len())).rev() {
+            for i in (0..=(32 - program.code.len())).rev() {
                 if (self.used_mask & (prog_mask << i)) == 0 {
                     return Some(i)
                 }
