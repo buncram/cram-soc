@@ -139,7 +139,7 @@ module axi2ahb_cmd (clk,
     always @(posedge clk) begin
         AVALID_R <= AVALID;
     end
-    assign               cmd_push = AVALID & !AVALID_R; // & AREADY;
+    assign               cmd_push = AVALID & AREADY;
     assign               cmd_pop  = ahb_finish;
 
     prgen_fifo #(4+24+4+2+1+1, 1)
