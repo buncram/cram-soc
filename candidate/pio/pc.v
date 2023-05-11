@@ -17,7 +17,13 @@ module pc (
 
   reg [4:0] index = 0;
 
-  assign dout = ((penable || imm) && !stalled) ? (jmp ? din : index == pend ? wrap_target : index + 1) : index;
+  assign dout = ((penable || imm) && !stalled) ?
+        (jmp ?
+          din // PC will get jmp target, even if IMM
+          : imm ?
+              index  // PC does not increment if it's an IMM and not a JMP
+              : (index == pend) ? wrap_target : index + 1)
+        : index;
 
   always @(posedge clk) begin
     if (reset)
@@ -26,7 +32,8 @@ module pc (
       if (jmp)
         index <= din;
       else
-        index <= index == pend ? wrap_target : index + 1;
+        if (!imm)
+          index <= index == pend ? wrap_target : index + 1;
     end
   end
 

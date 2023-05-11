@@ -82,6 +82,7 @@ module machine (
 
   reg [5:0]   bit_count;
   reg [31:0]  new_val;
+  reg [31:0]  isr_val;
   reg [31:0]  pull_val;
 
   reg         exec1 = 0;
@@ -213,7 +214,7 @@ module machine (
   );
     begin
       set_shift_in = 1;
-      new_val = val;
+      isr_val = val;
     end
   endtask
 
@@ -231,7 +232,7 @@ module machine (
   );
     begin
       do_in_shift = 1;
-      new_val = val;
+      isr_val = val;
     end
   endtask
 
@@ -505,9 +506,19 @@ module machine (
         PUSH: if (!op1[2]) begin
                 // if auto-push and PUSH in the same instruction, just one PUSH happens.
                 if (!if_full || (isr_count >= isr_threshold)) begin
-                  do_push();
-                  set_isr(0);
-                  waiting = blocking && full;
+                  if (blocking) begin
+                    if (full) begin
+                      dbg_rxstall = 1;
+                    end else begin
+                      do_push();
+                      set_isr(0);
+                    end
+                    waiting = blocking && full;
+                  end else begin
+                    // disregard the full signal, just do the push and maybe lose data
+                    do_push();
+                    set_isr(0);
+                  end
                 end
               end else begin // PULL. If PULL and auto-pull, do a pull "as usual"
                 if (!if_empty || (osr_count >= osr_threshold_wide)) begin
@@ -515,7 +526,7 @@ module machine (
                     if (!empty) begin // don't affect state until we're not empty.
                         do_pull();
                     end
-                    waiting = empty;
+                    waiting = blocking && empty;
                   end else begin
                     if (empty) begin // Copy X to OSR
                       set_osr(x);
@@ -651,7 +662,7 @@ module machine (
   assign stalling = (waiting || (exec1 & !restart) || delaying);
   always @(posedge clk) begin
     if (en & penable) begin
-      exec_stalled <= stalling;
+      exec_stalled <= imm_until_resolved;
     end
   end
   pc pc_reg (
@@ -701,7 +712,7 @@ module machine (
     .shift(op2),
     .set(set_shift_in),
     .do_shift(do_in_shift),
-    .din(new_val),
+    .din(isr_val),
     .dout(in_shift),
     .push_dout(push_dout),
     .bit_count(bit_count),

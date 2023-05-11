@@ -4,7 +4,8 @@
 
 // TODO:
 //   - Write simple tests for every register in the register set
-//   - Write simple tests for every instruction and mode of instruction (??
+//   - Test end-to-end IRQ handling with "actual handler"
+//   - Write simple tests for instructions and modes that have not been covered by anything else.
 //   - Port 4 more examples in as tests
 
 // INTEGRATION:
@@ -78,11 +79,12 @@ module rp_pio #(
     reg [NUM_MACHINES-1:0]   exec_stalled;
 
     // Control
-    reg [NUM_MACHINES-1:0]   imm;
     reg [NUM_MACHINES-1:0]   push;
     reg [NUM_MACHINES-1:0]   pull;
     reg [NUM_MACHINES-1:0]   restart;
     reg [NUM_MACHINES-1:0]   clkdiv_restart;
+    logic [NUM_MACHINES-1:0] imm;
+    logic [NUM_MACHINES-1:0] imm_aligned; // this takes imm_sync and aligns it to the change of instruction state
 
     // Configuration
     reg [4:0]   pend            [0:NUM_MACHINES-1];
@@ -103,8 +105,9 @@ module rp_pio #(
     reg [4:0]   jmp_pin         [0:NUM_MACHINES-1];
 
     reg [15:0]  curr_instr      [0:NUM_MACHINES-1];
-    reg [15:0]  imm_instr       [0:NUM_MACHINES-1];
     reg [31:0]  do_sticky       [0:NUM_MACHINES-1];
+    logic [15:0]  imm_instr        [0:NUM_MACHINES-1];
+    logic [15:0]  imm_instr_sync   [0:NUM_MACHINES-1];
 
     // Output from machines and fifos
     wire [31:0] output_pins         [0:NUM_MACHINES-1];
@@ -245,6 +248,17 @@ module rp_pio #(
         genvar j;
 
         for(j=0;j<NUM_MACHINES;j=j+1) begin : mach
+            // this aligns the immediate instruction to the actual "imm" pulse, so the two change
+            // on exactly the same clock cycle. Otherwise, the instruction changes before the "imm" pulse
+            // arrives, and this can cause a previously stalled "imm" instruction to double-execute the
+            // imm command (because the unblocking instruction would present itself to the blocked/waiting
+            // state machine before the next imm pulse arrives)
+            always @(posedge clk) begin
+                imm_aligned <= imm_sync;
+                if (imm_sync) begin
+                    imm_instr_sync[j] <= imm_instr[j];
+                end
+            end
             machine machine (
                 .clk(clk),
                 .reset(reset),
@@ -263,9 +277,9 @@ module rp_pio #(
                 .out_shift_dir(out_shift_dir[j]),
                 .div_int(div_int[j]),
                 .div_frac(div_frac[j]),
-                .imm_instr(imm_instr[j]),
+                .imm_instr(imm_instr_sync[j]),
                 .curr_instr(curr_instr[j]),
-                .imm(imm_sync[j]),
+                .imm(imm_aligned[j]),
                 .pend(pend[j]),
                 .exec_stalled(exec_stalled[j]),
                 .wrap_target(wrap_target[j]),
