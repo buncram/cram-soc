@@ -483,6 +483,9 @@ pub fn register_tests() {
     sm_d.config_set_clkdiv(REGTEST_DIV);
     sm_d.sm_init(d_prog.entry());
 
+    // enable interrupts for readback on IRQ0
+    sm_a.pio.wo(rp_pio::SFR_IRQ0_INTE, 0xFFF);
+
     report.wfo(utra::main::REPORT_REPORT, 0x1336_0001);
 
     // confirm that the FIFOs are all in expected states. Hard-coded as expected values for efficiency.
@@ -552,6 +555,10 @@ pub fn register_tests() {
         ); */
         assert!(sm.sm_txfifo_is_empty() == true);
         assert!(sm.sm_txfifo_level() == 0);
+        // TXNFULL should be asserted
+        assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 4) & sm.sm_bitmask() != 0);
+        // RXNEMPTY should be de-asserted
+        assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 0) & sm.sm_bitmask() == 0);
         for (index, &word) in tx_vals[sm_index].iter().enumerate() {
             sm.sm_txfifo_push_u32(word);
             // report.wfo(utra::main::REPORT_REPORT, 0x1336_0031);
@@ -562,6 +569,8 @@ pub fn register_tests() {
         }
         // report.wfo(utra::main::REPORT_REPORT, 0x1336_0004);
         assert!(sm.sm_txfifo_is_full() == true);
+        // TXNFULL should be de-asserted
+        assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 4) & sm.sm_bitmask() == 0);
         // push an extra value and confirm that we cause an overflow
         sm.sm_txfifo_push_u8_msb(0x7); // Note: this number does not appear in the loaded set
         // confirm that we see the overflow flag; then clear it, and confirm it's cleared.
@@ -678,6 +687,9 @@ pub fn register_tests() {
     for expected_fifo_level in (1..=4).rev() {
         report.wfo(utra::main::REPORT_REPORT, 0x1336_001D | (expected_fifo_level as u32) << 8);
         for (sm_index, sm) in sm_array.iter_mut().enumerate() {
+            // RXNEMPTY should be asserted
+            assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 0) & sm.sm_bitmask() != 0);
+
             // check that the fifo level is correct
             assert!(sm.sm_rxfifo_level() == expected_fifo_level);
             // check that the index matched
