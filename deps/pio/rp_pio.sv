@@ -3,10 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 // TODO:
-//   - Write simple tests for every register in the register set
 //   - Test end-to-end IRQ handling with "actual handler"
 //   - Write simple tests for instructions and modes that have not been covered by anything else.
-//   - Port 4 more examples in as tests
+//   - Port in NEC IR loopback test, and the addition test
 
 // INTEGRATION:
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
