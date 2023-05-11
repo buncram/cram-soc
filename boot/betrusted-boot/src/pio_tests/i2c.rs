@@ -42,7 +42,7 @@ pub fn i2c_resume_after_error(pio_sm: &mut PioSm) {
     pio_sm.sm_drain_tx_fifo();
     pio_sm.sm_jump_to_wrap_bottom();
     // this will clear the IRQ set by the current SM, relying on the fact that sm's encoding is a bitmask
-    pio_sm.pio.wfo(rp_pio::SFR_IRQ_SFR_IRQ, pio_sm.sm as u32);
+    pio_sm.pio.wfo(rp_pio::SFR_IRQ_SFR_IRQ, pio_sm.sm_bitmask());
     while i2c_check_error(pio_sm) {
         // wait for the IRQ to report cleared. This in not necessary on the RP2040, but because
         // our core can run much faster than the PIO we have to wait for the PIO to catch up to the core's state.
@@ -109,8 +109,8 @@ pub fn i2c_repstart(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16;
     i2c_put_or_err(pio_sm, set_scl_sda_program_instructions[I2C_SC0_SD0]);
 }
 pub fn i2c_wait_idle(pio_sm: &mut PioSm) {
-    pio_sm.pio.wfo(rp_pio::SFR_FDEBUG_TXSTALL, pio_sm.sm as u32);
-    while ((pio_sm.pio.rf(rp_pio::SFR_FDEBUG_TXSTALL) & pio_sm.sm as u32) == 0)
+    pio_sm.pio.wfo(rp_pio::SFR_FDEBUG_TXSTALL, pio_sm.sm_bitmask());
+    while ((pio_sm.pio.rf(rp_pio::SFR_FDEBUG_TXSTALL) & pio_sm.sm_bitmask()) == 0)
     || i2c_check_error(pio_sm) {
         // busy loop
     }
@@ -293,6 +293,7 @@ pub fn i2c_test() -> bool {
         ".wrap",
     );
     let ep = i2c_prog.public_defines.entry_point as usize;
+    // report.wfo(utra::main::REPORT_REPORT, i2c_prog.program.side_set.bits() as u32);
     let prog_i2c = LoadedProg::load_with_entrypoint(i2c_prog.program, ep, &mut pio_sm).unwrap();
     i2c_init(&mut pio_sm, &prog_i2c, PIN_SDA, PIN_SCL);
     report.wfo(utra::main::REPORT_REPORT, 0x012C_3333);

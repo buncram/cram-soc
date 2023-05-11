@@ -154,8 +154,8 @@ pub fn spi_test() -> bool {
     let clkdiv: f32 = 37.25;
     let mut passing = true;
     let mut cpol = false;
-    pio_sm.pio.wo(rp_pio::SFR_IRQ0_INTE, pio_sm.sm as u32);
-    pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, (pio_sm.sm as u32) << 4);
+    pio_sm.pio.wo(rp_pio::SFR_IRQ0_INTE, pio_sm.sm_bitmask());
+    pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, (pio_sm.sm_bitmask()) << 4);
     loop {
         // pha = 1
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
