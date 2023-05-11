@@ -40,6 +40,8 @@ mod duart;
 #[cfg(feature="pio-test")]
 mod pio;
 #[cfg(feature="pio-test")]
+mod pio_tests;
+#[cfg(feature="pio-test")]
 mod pio_generated;
 
 mod debug;
@@ -571,7 +573,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         #[cfg(feature="ahb-test")]
         ahb_tests();
         #[cfg(feature="pio-test")]
-        pio::pio_tests();
+        pio_tests::pio_tests();
 
         // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
