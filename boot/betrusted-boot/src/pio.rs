@@ -122,10 +122,13 @@ pub enum SmBit {
     Sm2 = 4,
     Sm3 = 8
 }
+/// TODO:
+///  - Split the program loading out into a separate, shared object for loading and managing
+///    program state
 #[derive(Debug)]
 pub struct PioSm {
     pub pio: CSR<u32>,
-    pub sm: SmBit,
+    sm: SmBit,
     // using a 32-bit wide bitmask to track used locations pins this implementation
     // to a 32-instruction PIO memory. ¯\_(ツ)_/¯
     // 0 means unused; 1 means used. LSB is lowest address.
@@ -161,11 +164,14 @@ impl PioSm {
             SmBit::Sm3 => 3,
         }
     }
+    pub fn sm_bitmask(&self) -> u32 {
+        self.sm as u32
+    }
     pub fn sm_txfifo_is_full(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_TX_FULL) & (self.sm as u32)) != 0
+        (self.pio.rf(rp_pio::SFR_FSTAT_TX_FULL) & (self.sm_bitmask())) != 0
     }
     pub fn sm_txfifo_is_empty(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_TX_EMPTY) & (self.sm as u32)) != 0
+        (self.pio.rf(rp_pio::SFR_FSTAT_TX_EMPTY) & (self.sm_bitmask())) != 0
     }
     pub fn sm_txfifo_level(&self) -> usize {
         match self.sm {
@@ -210,10 +216,18 @@ impl PioSm {
         }
     }
     pub fn sm_rxfifo_is_empty(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm as u32)) != 0
+        (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm_bitmask())) != 0
     }
     pub fn sm_rxfifo_is_full(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_RX_FULL) & (self.sm as u32)) != 0
+        (self.pio.rf(rp_pio::SFR_FSTAT_RX_FULL) & (self.sm_bitmask())) != 0
+    }
+    pub fn sm_rxfifo_level(&self) -> usize {
+        match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL0) as usize,
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL1) as usize,
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL2) as usize,
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL3) as usize,
+        }
     }
     #[allow(dead_code)]
     pub fn sm_rxfifo_pull_u32(&mut self) -> u32 {
@@ -578,9 +592,9 @@ impl PioSm {
     }
     pub fn sm_irq0_source_enabled(&mut self, source: PioIntSource, enabled: bool) {
         let mask = match source {
-            PioIntSource::Sm => (self.sm as u32) << 8,
-            PioIntSource::TxNotFull => (self.sm as u32) << 4,
-            PioIntSource::RxNotEmpty => (self.sm as u32) << 0,
+            PioIntSource::Sm => (self.sm_bitmask()) << 8,
+            PioIntSource::TxNotFull => (self.sm_bitmask()) << 4,
+            PioIntSource::RxNotEmpty => (self.sm_bitmask()) << 0,
         };
         self.pio.wo(rp_pio::SFR_IRQ0_INTE,
             if enabled {mask} else {0}
@@ -589,9 +603,9 @@ impl PioSm {
     }
     pub fn sm_irq1_source_enabled(&mut self, source: PioIntSource, enabled: bool) {
         let mask = match source {
-            PioIntSource::Sm => (self.sm as u32) << 8,
-            PioIntSource::TxNotFull => (self.sm as u32) << 4,
-            PioIntSource::RxNotEmpty => (self.sm as u32) << 0,
+            PioIntSource::Sm => (self.sm_bitmask()) << 8,
+            PioIntSource::TxNotFull => (self.sm_bitmask()) << 4,
+            PioIntSource::RxNotEmpty => (self.sm_bitmask()) << 0,
         };
         self.pio.wo(rp_pio::SFR_IRQ1_INTE,
             if enabled{mask} else {0}
@@ -602,9 +616,9 @@ impl PioSm {
     pub fn sm_irq0_status(&mut self, source: Option<PioIntSource>) -> bool {
         let mask = if let Some(source) = source {
             match source {
-                PioIntSource::Sm => (self.sm as u32) << 8,
-                PioIntSource::TxNotFull => (self.sm as u32) << 4,
-                PioIntSource::RxNotEmpty => (self.sm as u32) << 0,
+                PioIntSource::Sm => (self.sm_bitmask()) << 8,
+                PioIntSource::TxNotFull => (self.sm_bitmask()) << 4,
+                PioIntSource::RxNotEmpty => (self.sm_bitmask()) << 0,
             }
         } else {
             0xFFF
@@ -614,9 +628,9 @@ impl PioSm {
     pub fn sm_irq1_status(&mut self, source: Option<PioIntSource>) -> bool {
         let mask = if let Some(source) = source {
             match source {
-                PioIntSource::Sm => (self.sm as u32) << 0,
-                PioIntSource::TxNotFull => (self.sm as u32) << 4,
-                PioIntSource::RxNotEmpty => (self.sm as u32) << 8,
+                PioIntSource::Sm => (self.sm_bitmask()) << 0,
+                PioIntSource::TxNotFull => (self.sm_bitmask()) << 4,
+                PioIntSource::RxNotEmpty => (self.sm_bitmask()) << 8,
             }
         } else {
             0xFFF
@@ -627,11 +641,11 @@ impl PioSm {
     pub fn sm_set_enabled(&mut self, enabled: bool) {
         if enabled {
             self.pio.rmwf(rp_pio::SFR_CTRL_EN,
-                self.pio.rf(rp_pio::SFR_CTRL_EN) | (self.sm as u32)
+                self.pio.rf(rp_pio::SFR_CTRL_EN) | (self.sm_bitmask())
             )
         } else {
             self.pio.rmwf(rp_pio::SFR_CTRL_EN,
-                self.pio.rf(rp_pio::SFR_CTRL_EN) & !(self.sm as u32)
+                self.pio.rf(rp_pio::SFR_CTRL_EN) & !(self.sm_bitmask())
             )
         }
     }
@@ -668,15 +682,15 @@ impl PioSm {
         // Clear FIFO debug flags
         self.pio.wo(
             rp_pio::SFR_FDEBUG,
-            self.pio.ms(rp_pio::SFR_FDEBUG_TXSTALL, self.sm as u32)
-            | self.pio.ms(rp_pio::SFR_FDEBUG_TXOVER, self.sm as u32)
-            | self.pio.ms(rp_pio::SFR_FDEBUG_RXUNDER, self.sm as u32)
-            | self.pio.ms(rp_pio::SFR_FDEBUG_RXSTALL, self.sm as u32)
+            self.pio.ms(rp_pio::SFR_FDEBUG_TXSTALL, self.sm_bitmask())
+            | self.pio.ms(rp_pio::SFR_FDEBUG_TXOVER, self.sm_bitmask())
+            | self.pio.ms(rp_pio::SFR_FDEBUG_RXUNDER, self.sm_bitmask())
+            | self.pio.ms(rp_pio::SFR_FDEBUG_RXSTALL, self.sm_bitmask())
         );
 
         // Finally, clear some internal SM state
-        self.pio.rmwf(rp_pio::SFR_CTRL_RESTART, self.sm as u32);
-        self.pio.rmwf(rp_pio::SFR_CTRL_CLKDIV_RESTART, self.sm as u32);
+        self.pio.rmwf(rp_pio::SFR_CTRL_RESTART, self.sm_bitmask());
+        self.pio.rmwf(rp_pio::SFR_CTRL_CLKDIV_RESTART, self.sm_bitmask());
 
         let mut a = pio::Assembler::<32>::new();
         let mut initial_label = a.label_at_offset(initial_pc as u8);
@@ -718,13 +732,13 @@ impl PioSm {
         self.pio.wo(
             rp_pio::SFR_CTRL,
             self.pio.r(rp_pio::SFR_CTRL)
-            & !self.pio.ms(rp_pio::SFR_CTRL_EN, self.sm as u32)
+            & !self.pio.ms(rp_pio::SFR_CTRL_EN, self.sm_bitmask())
         );
         // restart it
         self.pio.wo(
             rp_pio::SFR_CTRL,
             self.pio.r(rp_pio::SFR_CTRL)
-            | self.pio.ms(rp_pio::SFR_CTRL_RESTART, self.sm as u32)
+            | self.pio.ms(rp_pio::SFR_CTRL_RESTART, self.sm_bitmask())
         );
         // HACK: a jump instruction is just the address of the location you want to run
         // so we can just extract the wrap target and "use that as an instruction".
@@ -739,7 +753,7 @@ impl PioSm {
         self.pio.wo(
             rp_pio::SFR_CTRL,
             self.pio.r(rp_pio::SFR_CTRL)
-            | self.pio.ms(rp_pio::SFR_CTRL_EN, self.sm as u32)
+            | self.pio.ms(rp_pio::SFR_CTRL_EN, self.sm_bitmask())
         );
     }
 
