@@ -172,6 +172,8 @@ class PioAdapter(Module):
                 elif (i == 3): # SCL
                     self.comb += gpio_i[i].eq(~gpio_oe[i]) # funky setup to try and "fake" some I2C-ish pullups
                     self.comb += i2c_scl.eq(~gpio_oe[i])
+                elif (i == 31): # for register tests
+                    self.comb += gpio_i[i].eq(gpio_oe[i])
                 else:
                     self.comb += gpio_i[i].eq(self.gpio.i)
             else:
