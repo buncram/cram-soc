@@ -223,6 +223,7 @@ pub fn i2c_test() -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_012C);
 
+    let mut pio_ss = PioSharedState::new();
     let mut pio_sm = PioSm::new(0).unwrap();
 
     let i2c_prog = pio_proc::pio_asm!(
@@ -294,7 +295,7 @@ pub fn i2c_test() -> bool {
     );
     let ep = i2c_prog.public_defines.entry_point as usize;
     // report.wfo(utra::main::REPORT_REPORT, i2c_prog.program.side_set.bits() as u32);
-    let prog_i2c = LoadedProg::load_with_entrypoint(i2c_prog.program, ep, &mut pio_sm).unwrap();
+    let prog_i2c = LoadedProg::load_with_entrypoint(i2c_prog.program, ep, &mut pio_ss).unwrap();
     i2c_init(&mut pio_sm, &prog_i2c, PIN_SDA, PIN_SCL);
     report.wfo(utra::main::REPORT_REPORT, 0x012C_3333);
 

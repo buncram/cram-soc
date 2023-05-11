@@ -26,6 +26,7 @@ pub fn sticky_test() {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x51C2_0000);
 
+    let mut pio_ss = PioSharedState::new();
     let mut sm_a = PioSm::new(1).unwrap();
     let mut sm_b = PioSm::new(2).unwrap();
 
@@ -37,7 +38,7 @@ pub fn sticky_test() {
         "set pins, 5",
         "nop"
     );
-    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    let a_prog = LoadedProg::load(a_code.program, &mut pio_ss).unwrap();
     let b_code = pio_proc::pio_asm!(
         // bit 4 indicates enable; bit 3 is the "B" machine flag. bits 2:0 are the payload
         "nop",
@@ -48,7 +49,7 @@ pub fn sticky_test() {
         "set pins, 0x0E", // without enable
     );
     // note: this loads using sm_a so we can share the "used" vector state, but the code is global across all SM's
-    let b_prog = LoadedProg::load(b_code.program, &mut sm_a).unwrap();
+    let b_prog = LoadedProg::load(b_code.program, &mut pio_ss).unwrap();
 
     sm_a.sm_set_enabled(false);
     sm_b.sm_set_enabled(false);
@@ -134,7 +135,7 @@ pub fn sticky_test() {
     sm_a.sm_init(a_prog.entry());
     sm_b.sm_init(b_prog.entry());
     // clear the instruction memory
-    sm_a.clear_instruction_memory();
+    pio_ss.clear_instruction_memory();
 
     report.wfo(utra::main::REPORT_REPORT, 0x51C2_600d);
 }
@@ -151,6 +152,7 @@ pub fn restart_imm_test() {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0133_0000);
 
+    let mut pio_ss = PioSharedState::new();
     let mut sm_a = PioSm::new(0).unwrap();
     let a_code = pio_proc::pio_asm!(
         "set pins, 1",
@@ -160,7 +162,7 @@ pub fn restart_imm_test() {
         "set pins, 5",
         "nop"
     );
-    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    let a_prog = LoadedProg::load(a_code.program, &mut pio_ss).unwrap();
     sm_a.sm_set_enabled(false);
     a_prog.setup_default_config(&mut sm_a);
     sm_a.config_set_set_pins(24, 5);
@@ -199,7 +201,7 @@ pub fn restart_imm_test() {
     delay(50);
 
     sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
-    sm_a.clear_instruction_memory();
+    pio_ss.clear_instruction_memory();
     report.wfo(utra::main::REPORT_REPORT, 0x0133_600d);
 }
 
@@ -207,12 +209,13 @@ pub fn fifo_join_test() -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_0000);
 
+    let mut pio_ss = PioSharedState::new();
     // test TX fifo with non-join. Simple program that just copies the TX fifo content to pins, then stalls.
     let mut sm_a = PioSm::new(0).unwrap();
     let a_code = pio_proc::pio_asm!(
         "out pins, 32",
     );
-    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    let a_prog = LoadedProg::load(a_code.program, &mut pio_ss).unwrap();
     sm_a.sm_set_enabled(false);
     a_prog.setup_default_config(&mut sm_a);
     sm_a.config_set_out_pins(0, 32);
@@ -280,7 +283,7 @@ pub fn fifo_join_test() -> bool {
         "   push block",
         "   jmp x--, loop",
     );
-    let b_prog = LoadedProg::load(b_code.program, &mut sm_a).unwrap();
+    let b_prog = LoadedProg::load(b_code.program, &mut pio_ss).unwrap();
 
     // setup for rx test
     sm_a.sm_set_enabled(false);
@@ -338,7 +341,7 @@ pub fn fifo_join_test() -> bool {
     }
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4000 + entries);
 
-    sm_a.clear_instruction_memory();
+    pio_ss.clear_instruction_memory();
 
     if passing {
         report.wfo(utra::main::REPORT_REPORT, 0xF1F0_600D);
@@ -384,6 +387,8 @@ pub fn register_tests() {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x1336_0000);
 
+    let mut pio_ss = PioSharedState::new();
+
     let mut sm_a = PioSm::new(0).unwrap();
     sm_a.pio.wo(rp_pio::SFR_CTRL, 0xFF0); // reset all state machines to a known state.
     sm_a.pio.wo(rp_pio::SFR_FDEBUG, 0xFFFF_FFFF); // clear all the FIFO debug registers
@@ -400,10 +405,8 @@ pub fn register_tests() {
         "   wait 0 gpio 31 side 1",     // 1E wait until GPIO 31 is 0
         "   jmp x--, loop",             // 1F
     );
-    // TODO: fix shared state across all SM's so that program loading works right with different SM's...
-    // this is tricky because it is literally awful shared mutable state that is totally unsafe...
     report.wfo(utra::main::REPORT_REPORT, a_code.program.side_set.bits() as u32);
-    let a_prog = LoadedProg::load(a_code.program, &mut sm_a).unwrap();
+    let a_prog = LoadedProg::load(a_code.program, &mut pio_ss).unwrap();
     sm_a.sm_set_enabled(false);
     a_prog.setup_default_config(&mut sm_a);
     sm_a.config_set_out_pins(0, 4);
@@ -427,7 +430,7 @@ pub fn register_tests() {
         "   jmp y--, loop",             // 17
     );
     let mut sm_b = PioSm::new(1).unwrap();
-    let b_prog = LoadedProg::load(b_code.program, &mut sm_a).unwrap();
+    let b_prog = LoadedProg::load(b_code.program, &mut pio_ss).unwrap();
     sm_b.sm_set_enabled(false);
     b_prog.setup_default_config(&mut sm_b);
     sm_b.config_set_out_pins(4, 4);
@@ -450,7 +453,7 @@ pub fn register_tests() {
         "   jmp x--, loop",
     );
     let mut sm_c = PioSm::new(2).unwrap();
-    let c_prog = LoadedProg::load(c_code.program, &mut sm_a).unwrap();
+    let c_prog = LoadedProg::load(c_code.program, &mut pio_ss).unwrap();
     sm_c.sm_set_enabled(false);
     c_prog.setup_default_config(&mut sm_c);
     sm_c.config_set_out_pins(8, 4);
@@ -473,7 +476,7 @@ pub fn register_tests() {
         "   jmp y--, loop",
     );
     let mut sm_d = PioSm::new(3).unwrap();
-    let d_prog = LoadedProg::load(d_code.program, &mut sm_a).unwrap();
+    let d_prog = LoadedProg::load(d_code.program, &mut pio_ss).unwrap();
     sm_d.sm_set_enabled(false);
     d_prog.setup_default_config(&mut sm_d);
     sm_d.config_set_out_pins(12, 4);
@@ -620,7 +623,7 @@ pub fn register_tests() {
         for (index, vals) in tx_vals.iter().enumerate() {
             expected |= (vals[waiting_for] & 0xF) << (index as u32 * 4);
         }
-        // compensate for sideset override on SM3
+        // compensate for sideset override on SM3 (doesn't apply, because the sideset is out of phase with out)
         // expected &= 0x3FFF;
         // expected |= 0x4000; // "side 1" should be executed on SM3 on bits 14-16, overriding any TX fifo value
 

@@ -69,7 +69,7 @@ pub struct LoadedProg {
     entry_point: Option<usize>,
 }
 impl LoadedProg {
-    pub fn load(program: Program::<RP2040_MAX_PROGRAM_SIZE>, pio_sm: &mut PioSm) -> Result<Self, PioError> {
+    pub fn load(program: Program::<RP2040_MAX_PROGRAM_SIZE>, pio_sm: &mut PioSharedState) -> Result<Self, PioError> {
         let offset = pio_sm.add_program(&program)?;
         Ok({
             LoadedProg {
@@ -79,7 +79,7 @@ impl LoadedProg {
             }
         })
     }
-    pub fn load_with_entrypoint(program: Program::<RP2040_MAX_PROGRAM_SIZE>, entry_point: usize, pio_sm: &mut PioSm) -> Result<Self, PioError> {
+    pub fn load_with_entrypoint(program: Program::<RP2040_MAX_PROGRAM_SIZE>, entry_point: usize, pio_sm: &mut PioSharedState) -> Result<Self, PioError> {
         let offset = pio_sm.add_program(&program)?;
         Ok({
             LoadedProg {
@@ -114,136 +114,19 @@ impl LoadedProg {
         }
     }
 }
-#[derive(Debug, Copy, Clone)]
-#[repr(u32)]
-pub enum SmBit {
-    Sm0 = 1,
-    Sm1 = 2,
-    Sm2 = 4,
-    Sm3 = 8
-}
-/// TODO:
-///  - Split the program loading out into a separate, shared object for loading and managing
-///    program state
-#[derive(Debug)]
-pub struct PioSm {
+
+pub struct PioSharedState {
     pub pio: CSR<u32>,
-    sm: SmBit,
     // using a 32-bit wide bitmask to track used locations pins this implementation
     // to a 32-instruction PIO memory. ¯\_(ツ)_/¯
     // 0 means unused; 1 means used. LSB is lowest address.
     used_mask: u32,
-    config: SmConfig,
 }
-// note: items with #[allow(dead_code)] have not been tested.
-impl PioSm {
-    pub fn new(sm: usize) -> Result<PioSm, PioError> {
-        let sm = match sm {
-            0 => SmBit::Sm0,
-            1 => SmBit::Sm1,
-            2 => SmBit::Sm2,
-            3 => SmBit::Sm3,
-            _ => return Err(PioError::InvalidSm),
-        };
-        Ok(PioSm {
+impl PioSharedState {
+    pub fn new() -> Self {
+        PioSharedState {
             pio: CSR::new(rp_pio::HW_RP_PIO_BASE as *mut u32),
-            sm,
             used_mask: 0,
-            config: SmConfig::default(),
-        })
-    }
-    #[allow(dead_code)]
-    pub fn dbg_get_shiftctl(&self) -> u32 {
-        self.config.shiftctl
-    }
-    pub fn sm_index(&self) -> usize {
-        match self.sm {
-            SmBit::Sm0 => 0,
-            SmBit::Sm1 => 1,
-            SmBit::Sm2 => 2,
-            SmBit::Sm3 => 3,
-        }
-    }
-    pub fn sm_bitmask(&self) -> u32 {
-        self.sm as u32
-    }
-    pub fn sm_txfifo_is_full(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_TX_FULL) & (self.sm_bitmask())) != 0
-    }
-    pub fn sm_txfifo_is_empty(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_TX_EMPTY) & (self.sm_bitmask())) != 0
-    }
-    pub fn sm_txfifo_level(&self) -> usize {
-        match self.sm {
-            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL0) as usize,
-            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL1) as usize,
-            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL2) as usize,
-            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL3) as usize,
-        }
-    }
-    #[allow(dead_code)]
-    pub fn sm_txfifo_push_u32(&mut self, data: u32) {
-        match self.sm {
-            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data),
-            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data),
-            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, data),
-            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data),
-        }
-    }
-    pub fn sm_txfifo_push_u16_msb(&mut self, data: u16) {
-        match self.sm {
-            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 16),
-            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 16),
-            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, (data as u32) << 16),
-            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 16),
-        }
-    }
-    #[allow(dead_code)]
-    pub fn sm_txfifo_push_u16_lsb(&mut self, data: u16) {
-        match self.sm {
-            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data as u32),
-            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data as u32),
-            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, data as u32),
-            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data as u32),
-        }
-    }
-    pub fn sm_txfifo_push_u8_msb(&mut self, data: u8) {
-        match self.sm {
-            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 24),
-            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 24),
-            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, (data as u32) << 24),
-            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 24),
-        }
-    }
-    pub fn sm_rxfifo_is_empty(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm_bitmask())) != 0
-    }
-    pub fn sm_rxfifo_is_full(&self) -> bool {
-        (self.pio.rf(rp_pio::SFR_FSTAT_RX_FULL) & (self.sm_bitmask())) != 0
-    }
-    pub fn sm_rxfifo_level(&self) -> usize {
-        match self.sm {
-            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL0) as usize,
-            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL1) as usize,
-            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL2) as usize,
-            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL3) as usize,
-        }
-    }
-    #[allow(dead_code)]
-    pub fn sm_rxfifo_pull_u32(&mut self) -> u32 {
-        match self.sm {
-            SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0),
-            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF1),
-            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF2),
-            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF3),
-        }
-    }
-    pub fn sm_rxfifo_pull_u8_lsb(&mut self) -> u8 {
-        match self.sm {
-            SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0) as u8,
-            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF1) as u8,
-            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF2) as u8,
-            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF3) as u8,
         }
     }
     fn find_offset_for_program(&self, program: &Program<RP2040_MAX_PROGRAM_SIZE>) -> Option<usize> {
@@ -330,6 +213,142 @@ impl PioSm {
         for i in 0..RP2040_MAX_PROGRAM_SIZE {
             self.write_progmem(i, i as u16);
         }
+    }
+}
+#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+pub enum SmBit {
+    Sm0 = 1,
+    Sm1 = 2,
+    Sm2 = 4,
+    Sm3 = 8
+}
+#[derive(Debug)]
+pub struct PioSm {
+    pub pio: CSR<u32>,
+    sm: SmBit,
+    config: SmConfig,
+}
+// note: items with #[allow(dead_code)] have not been tested.
+impl PioSm {
+    pub fn new(sm: usize) -> Result<PioSm, PioError> {
+        let sm = match sm {
+            0 => SmBit::Sm0,
+            1 => SmBit::Sm1,
+            2 => SmBit::Sm2,
+            3 => SmBit::Sm3,
+            _ => return Err(PioError::InvalidSm),
+        };
+        Ok(PioSm {
+            pio: CSR::new(rp_pio::HW_RP_PIO_BASE as *mut u32),
+            sm,
+            config: SmConfig::default(),
+        })
+    }
+    #[allow(dead_code)]
+    pub fn dbg_get_shiftctl(&self) -> u32 {
+        self.config.shiftctl
+    }
+    pub fn sm_index(&self) -> usize {
+        match self.sm {
+            SmBit::Sm0 => 0,
+            SmBit::Sm1 => 1,
+            SmBit::Sm2 => 2,
+            SmBit::Sm3 => 3,
+        }
+    }
+    pub fn sm_bitmask(&self) -> u32 {
+        self.sm as u32
+    }
+    pub fn sm_txfifo_is_full(&self) -> bool {
+        (self.pio.rf(rp_pio::SFR_FSTAT_TX_FULL) & (self.sm_bitmask())) != 0
+    }
+    pub fn sm_txfifo_is_empty(&self) -> bool {
+        (self.pio.rf(rp_pio::SFR_FSTAT_TX_EMPTY) & (self.sm_bitmask())) != 0
+    }
+    pub fn sm_txfifo_level(&self) -> usize {
+        match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL0) as usize,
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL1) as usize,
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL2) as usize,
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FLEVEL_TX_LEVEL3) as usize,
+        }
+    }
+    pub fn sm_txfifo_push_u32(&mut self, data: u32) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, data),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data),
+        }
+    }
+    pub fn sm_txfifo_push_u16_msb(&mut self, data: u16) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 16),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 16),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, (data as u32) << 16),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 16),
+        }
+    }
+    #[allow(dead_code)]
+    pub fn sm_txfifo_push_u16_lsb(&mut self, data: u16) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, data as u32),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, data as u32),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, data as u32),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, data as u32),
+        }
+    }
+    pub fn sm_txfifo_push_u8_msb(&mut self, data: u8) {
+        match self.sm {
+            SmBit::Sm0 => self.pio.wo(rp_pio::SFR_TXF0, (data as u32) << 24),
+            SmBit::Sm1 => self.pio.wo(rp_pio::SFR_TXF1, (data as u32) << 24),
+            SmBit::Sm2 => self.pio.wo(rp_pio::SFR_TXF2, (data as u32) << 24),
+            SmBit::Sm3 => self.pio.wo(rp_pio::SFR_TXF3, (data as u32) << 24),
+        }
+    }
+    pub fn sm_rxfifo_is_empty(&self) -> bool {
+        (self.pio.rf(rp_pio::SFR_FSTAT_RX_EMPTY) & (self.sm_bitmask())) != 0
+    }
+    pub fn sm_rxfifo_is_full(&self) -> bool {
+        (self.pio.rf(rp_pio::SFR_FSTAT_RX_FULL) & (self.sm_bitmask())) != 0
+    }
+    pub fn sm_rxfifo_level(&self) -> usize {
+        match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL0) as usize,
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL1) as usize,
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL2) as usize,
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FLEVEL_RX_LEVEL3) as usize,
+        }
+    }
+    #[allow(dead_code)]
+    pub fn sm_rxfifo_pull_u32(&mut self) -> u32 {
+        match self.sm {
+            SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0),
+            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF1),
+            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF2),
+            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF3),
+        }
+    }
+    pub fn sm_rxfifo_pull_u8_lsb(&mut self) -> u8 {
+        match self.sm {
+            SmBit::Sm0 => self.pio.r(rp_pio::SFR_RXF0) as u8,
+            SmBit::Sm1 => self.pio.r(rp_pio::SFR_RXF1) as u8,
+            SmBit::Sm2 => self.pio.r(rp_pio::SFR_RXF2) as u8,
+            SmBit::Sm3 => self.pio.r(rp_pio::SFR_RXF3) as u8,
+        }
+    }
+    pub fn sm_put_blocking(&mut self, data: u32) {
+        while self.sm_txfifo_is_full() {
+            // idle
+        }
+        self.sm_txfifo_push_u32(data);
+    }
+    pub fn sm_get_blocking(&mut self) -> u32 {
+        while self.sm_rxfifo_is_empty() {
+            // idle
+        }
+        self.sm_rxfifo_pull_u32()
     }
     pub fn sm_to_stride_offset(&self) -> usize {
         // derive the constant value of the stride between SMs

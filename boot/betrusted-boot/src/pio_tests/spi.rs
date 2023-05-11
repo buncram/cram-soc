@@ -131,6 +131,7 @@ pub fn spi_test() -> bool {
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
 
+    let mut pio_ss = PioSharedState::new();
     let mut pio_sm = PioSm::new(0).unwrap();
 
     // spi_cpha0 example
@@ -146,9 +147,9 @@ pub fn spi_test() -> bool {
         "mov pins, x side 1 [1]", // Output data, assert SCK (mov pins uses OUT mapping)
         "in pins, 1  side 0" // Input data, deassert SCK
     );
-    let prog_cpha0 = LoadedProg::load(spi_cpha0_prog.program, &mut pio_sm).unwrap();
+    let prog_cpha0 = LoadedProg::load(spi_cpha0_prog.program, &mut pio_ss).unwrap();
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0000);
-    let prog_cpha1 = LoadedProg::load(spi_cpha1_prog.program, &mut pio_sm).unwrap();
+    let prog_cpha1 = LoadedProg::load(spi_cpha1_prog.program, &mut pio_ss).unwrap();
     report.wfo(utra::main::REPORT_REPORT, 0x05D1_0001);
 
     let clkdiv: f32 = 37.25;
