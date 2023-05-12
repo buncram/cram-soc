@@ -231,6 +231,7 @@ pub struct PioSm {
 }
 // note: items with #[allow(dead_code)] have not been tested.
 impl PioSm {
+    /// TODO: recode this so it takes PioSharedState as an argument and poops out an SM based on an allocation table
     pub fn new(sm: usize) -> Result<PioSm, PioError> {
         let sm = match sm {
             0 => SmBit::Sm0,
@@ -438,7 +439,7 @@ impl PioSm {
                     )
                 )
             )
-            | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_OSR_THRESHOLD, pull_threshold as _)
+            | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_OSR_THRESHOLD, if pull_threshold == 32 {0} else {pull_threshold as _})
             | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_AUTO_PULL, if autopull {1} else {0})
             | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_OUT_SHIFT_DIR, if shift_right {1} else {0});
     }
@@ -452,7 +453,7 @@ impl PioSm {
                     )
                 )
             )
-            | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_ISR_THRESHOLD, push_threshold as _)
+            | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_ISR_THRESHOLD, if push_threshold == 32 {0} else {push_threshold as _})
             | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_AUTO_PUSH, if autopush {1} else {0})
             | self.pio.ms(rp_pio::SFR_SM0_SHIFTCTRL_IN_SHIFT_DIR, if shift_right {1} else {0});
     }
