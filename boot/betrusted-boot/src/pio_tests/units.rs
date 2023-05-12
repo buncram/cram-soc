@@ -7,6 +7,10 @@ use crate::pio::*;
 pub fn sticky_test() {
     /* Test case from https://forums.raspberrypi.com/viewtopic.php?t=313962
 
+    Reading the waveforms: bits 24-26 correspond to the number in the test result
+    Bit 27 indicates A/B: 0 means A, 1 means B
+    Bit 28 is the side-set enable bit
+
     No sticky, but B using enable bit
     Cycle 1 :   A writes A1                                    : result = A1
     Cycle 2:    A writes A2, B writes B2 (without enable bit)  : result = A2
@@ -186,21 +190,25 @@ pub fn restart_imm_test() {
     sm_a.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
     report.wfo(utra::main::REPORT_REPORT, 0x0133_2222);
     delay(50);
+    assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 1);
 
     // this should clear the stall
     sm_a.pio.rmwf(rp_pio::SFR_CTRL_RESTART, sm_a.sm_bitmask());
     report.wfo(utra::main::REPORT_REPORT, 0x0133_3333);
     delay(50);
+    assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
 
     // this should stall the state machine again
     sm_a.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
     report.wfo(utra::main::REPORT_REPORT, 0x0133_4444);
     delay(50);
+    assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 1);
 
     // this should also clear the stall by resolving the halt condition with a tx_fifo push
     sm_a.sm_txfifo_push_u16_msb(0xFFFF);
     report.wfo(utra::main::REPORT_REPORT, 0x0133_5555);
     delay(50);
+    assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
 
     sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
     pio_ss.clear_instruction_memory();
@@ -350,6 +358,7 @@ pub fn fifo_join_test() -> bool {
     } else {
         report.wfo(utra::main::REPORT_REPORT, 0xF1F0_DEAD);
     }
+    assert!(passing); // stop the test bench if there was a failure
     passing
 }
 

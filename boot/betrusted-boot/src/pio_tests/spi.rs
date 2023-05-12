@@ -205,6 +205,6 @@ pub fn spi_test() -> bool {
     } else {
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_DEAD);
     }
-
+    assert!(passing);
     passing
 }

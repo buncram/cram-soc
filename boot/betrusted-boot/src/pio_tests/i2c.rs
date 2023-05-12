@@ -317,11 +317,21 @@ pub fn i2c_test() -> bool {
     }
 
     let mut rxbuf = [0u8];
+    // expected pass or fails of reads, for automated regression testing
+    // these are wired directly into the LiteX test harness inside the PioAdapter block
+    let failing_address = 0x17 >> 1; // 0x17 is exactly what is inside the testbench code, shift right by one to disregard r/w bit
+    let mut passing = true;
     for addr in 10..14 {
         report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + addr as u32);
         if i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf) {
+            if addr == failing_address {
+                passing = false;
+            }
             report.wfo(utra::main::REPORT_REPORT, 0x012C_600D);
         } else {
+            if addr != failing_address {
+                passing = false;
+            }
             report.wfo(utra::main::REPORT_REPORT, 0x012C_DEAD);
         }
         for i in 0..256 {
@@ -330,5 +340,6 @@ pub fn i2c_test() -> bool {
         }
     }
     report.wfo(utra::main::REPORT_REPORT, 0x012C_1111);
-    false
+    assert!(passing);
+    passing
 }
