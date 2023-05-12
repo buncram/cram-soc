@@ -90,6 +90,8 @@ module machine (
 
   // Expand OSR explicitly to full width of osr_threshold, and handle 0 encoding 32
   wire [5:0]  osr_threshold_wide = (osr_threshold == 0) ? 6'd32 : {1'b0, osr_threshold};
+  // Expand ISR explicitly to full width of isr_threshold, and handle 0 encoding 32
+  wire [5:0]  isr_threshold_wide = (isr_threshold == 0) ? 6'd32 : {1'b0, isr_threshold};
 
   // Divided clock enable signal
   wire        penable;
@@ -440,7 +442,7 @@ module machine (
                 end
               endcase
         IN:   begin
-                if (auto_push && isr_count >= isr_threshold) begin // Auto push
+                if (auto_push && isr_count >= isr_threshold_wide) begin // Auto push
                   if (full) begin
                     dbg_rxstall = 1;
                   end else begin
@@ -505,7 +507,7 @@ module machine (
               end
         PUSH: if (!op1[2]) begin
                 // if auto-push and PUSH in the same instruction, just one PUSH happens.
-                if (!if_full || (isr_count >= isr_threshold)) begin
+                if (!if_full || (isr_count >= isr_threshold_wide)) begin
                   if (blocking) begin
                     if (full) begin
                       dbg_rxstall = 1;
