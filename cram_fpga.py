@@ -626,7 +626,14 @@ class CramSoC(SoCMini):
         from pio_adapter import PioAdapter
         pio_irq0 = Signal()
         pio_irq1 = Signal()
-        self.submodules += PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000)
+        self.submodules += ClockDomainsRenamer({"pio":"sys"})(
+            PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000))
+        # 100->50MHz domain false paths. Should really find a way to exclude the async pulse generators, but for now this will do.
+        # platform.add_platform_command("set_multicycle_path 2 -setup -start -from [get_clocks sys_clk] -to [get_clocks clk50] -through [get_cells pio_ahb/rp_pio/*]")
+        # platform.add_platform_command("set_multicycle_path 1 -hold -end -from [get_clocks sys_clk] -to [get_clocks clk50] -through [get_cells pio_ahb/rp_pio/*]")
+        # 50->100MHz domain false paths
+        # platform.add_platform_command("set_multicycle_path 3 -setup -start -from [get_clocks clk50] -to [get_clocks sys_clk] -through [get_cells pio_ahb/rp_pio/*]")
+        # platform.add_platform_command("set_multicycle_path 2 -hold -end -from [get_clocks clk50] -to [get_clocks sys_clk] -through [get_cells pio_ahb/rp_pio/*]")
 
         # add interrupt handler
         interrupt = Signal(32)
@@ -1169,7 +1176,7 @@ def main():
     if args.sim:
         clk_freq = 100e6
     else:
-        clk_freq = 75e6 # slow it down for the actual FPGA, can't close timing at 100MHz
+        clk_freq = 50e6 # slow it down for the actual FPGA, can't close timing at 100MHz
 
     soc = CramSoC(
         platform,
