@@ -42,6 +42,8 @@ pub enum PioError {
     InvalidSm,
     /// program can't fit in memory, for one reason or another
     Oom,
+    /// no more machines available
+    NoFreeMachines,
 }
 
 #[derive(Debug)]
@@ -121,14 +123,79 @@ pub struct PioSharedState {
     // to a 32-instruction PIO memory. ¯\_(ツ)_/¯
     // 0 means unused; 1 means used. LSB is lowest address.
     used_mask: u32,
+    used_machines: [bool; 4],
 }
 impl PioSharedState {
+    #[cfg(not(target_os="xous"))]
     pub fn new() -> Self {
         PioSharedState {
             pio: CSR::new(rp_pio::HW_RP_PIO_BASE as *mut u32),
             used_mask: 0,
+            used_machines: [false; 4],
         }
     }
+    #[cfg(target_os="xous")]
+    pub fn new() -> Self {
+        let csr = xous::syscall::map_memory(
+            xous::MemoryAddress::new(utra::rp_pi::HW_RP_PIO_BASE),
+            None,
+            4096,
+            xous::MemoryFlags::R | xous::MemoryFlags::W,
+        )
+        .unwrap();
+
+        PioSharedState {
+            pio: CSR::new(csr.as_mut_ptr() as *mut u32),
+            used_mask: 0,
+            used_machines: [false; 4],
+        }
+    }
+    pub fn alloc_sm(&mut self) -> Result<PioSm, PioError> {
+        if let Some(sm_index) = self.used_machines.iter().position(|&used| used == false) {
+            self.used_machines[sm_index] = true;
+            let sm = match sm_index {
+                0 => SmBit::Sm0,
+                1 => SmBit::Sm1,
+                2 => SmBit::Sm2,
+                3 => SmBit::Sm3,
+                _ => return Err(PioError::InvalidSm),
+            };
+            Ok(PioSm {
+                pio: CSR::new(self.pio.base as *mut u32),
+                sm,
+                config: SmConfig::default(),
+            })
+        } else {
+            return Err(PioError::NoFreeMachines)
+        }
+    }
+    /// Safety: it's up to the caller to make sure the SM index is not used. This function
+    /// will happily double-allocate an SM if it is already used.
+    ///
+    /// There are situations where this can be useful for test & validation routines where
+    /// we really actually want to allocate a particular SM to force edge cases, but this routine
+    /// probably should not be used in any normal user facing code.
+    pub unsafe fn force_alloc_sm(&mut self, sm: usize) -> Result<PioSm, PioError> {
+        let sm_bit = match sm {
+            0 => SmBit::Sm0,
+            1 => SmBit::Sm1,
+            2 => SmBit::Sm2,
+            3 => SmBit::Sm3,
+            _ => return Err(PioError::InvalidSm),
+        };
+        self.used_machines[sm] = true;
+        Ok(PioSm {
+            pio: CSR::new(rp_pio::HW_RP_PIO_BASE as *mut u32),
+            sm: sm_bit,
+            config: SmConfig::default(),
+        })
+    }
+    /// Safety: the user must make sure that the SM in question is no longer running.
+    #[allow(dead_code)]
+    pub unsafe fn free_sm(&mut self, sm: PioSm) {
+        self.used_machines[sm.sm_index()] = false;
+    }
+
     fn find_offset_for_program(&self, program: &Program<RP2040_MAX_PROGRAM_SIZE>) -> Option<usize> {
         let prog_mask = (1 << program.code.len() as u32) - 1;
         if let Some(origin) = program.origin {
@@ -223,29 +290,15 @@ pub enum SmBit {
     Sm2 = 4,
     Sm3 = 8
 }
+/// Allocate a PioSm using PioSharedState. There is no way to create this object
+/// without going through that gate-keeper object.
 #[derive(Debug)]
 pub struct PioSm {
     pub pio: CSR<u32>,
     sm: SmBit,
     config: SmConfig,
 }
-// note: items with #[allow(dead_code)] have not been tested.
 impl PioSm {
-    /// TODO: recode this so it takes PioSharedState as an argument and poops out an SM based on an allocation table
-    pub fn new(sm: usize) -> Result<PioSm, PioError> {
-        let sm = match sm {
-            0 => SmBit::Sm0,
-            1 => SmBit::Sm1,
-            2 => SmBit::Sm2,
-            3 => SmBit::Sm3,
-            _ => return Err(PioError::InvalidSm),
-        };
-        Ok(PioSm {
-            pio: CSR::new(rp_pio::HW_RP_PIO_BASE as *mut u32),
-            sm,
-            config: SmConfig::default(),
-        })
-    }
     #[allow(dead_code)]
     pub fn dbg_get_shiftctl(&self) -> u32 {
         self.config.shiftctl

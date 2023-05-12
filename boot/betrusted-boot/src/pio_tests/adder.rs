@@ -8,7 +8,7 @@ pub fn adder_test() -> bool {
 
     let mut pio_ss = PioSharedState::new();
 
-    let mut pio_sm = PioSm::new(0).unwrap();
+    let mut pio_sm = pio_ss.alloc_sm().unwrap();
 
     let adder_prog = pio_proc::pio_asm!(
         // Pop two 32 bit integers from the TX FIFO, add them together, and push the

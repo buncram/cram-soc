@@ -132,7 +132,7 @@ pub fn spi_test() -> bool {
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
 
     let mut pio_ss = PioSharedState::new();
-    let mut pio_sm = PioSm::new(0).unwrap();
+    let mut pio_sm = pio_ss.alloc_sm().unwrap();
 
     // spi_cpha0 example
     let spi_cpha0_prog = pio_proc::pio_asm!(

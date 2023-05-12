@@ -27,8 +27,8 @@ pub fn sticky_test() {
     report.wfo(utra::main::REPORT_REPORT, 0x51C2_0000);
 
     let mut pio_ss = PioSharedState::new();
-    let mut sm_a = PioSm::new(1).unwrap();
-    let mut sm_b = PioSm::new(2).unwrap();
+    let mut sm_a = unsafe{pio_ss.force_alloc_sm(1).unwrap()};
+    let mut sm_b = unsafe{pio_ss.force_alloc_sm(2).unwrap()};
 
     let a_code = pio_proc::pio_asm!(
         "set pins, 1",
@@ -137,6 +137,7 @@ pub fn sticky_test() {
     // clear the instruction memory
     pio_ss.clear_instruction_memory();
 
+    // NOTE: this test requires manual inspection of the output waveforms for pass/fail.
     report.wfo(utra::main::REPORT_REPORT, 0x51C2_600d);
 }
 
@@ -153,7 +154,7 @@ pub fn restart_imm_test() {
     report.wfo(utra::main::REPORT_REPORT, 0x0133_0000);
 
     let mut pio_ss = PioSharedState::new();
-    let mut sm_a = PioSm::new(0).unwrap();
+    let mut sm_a = pio_ss.alloc_sm().unwrap();
     let a_code = pio_proc::pio_asm!(
         "set pins, 1",
         "set pins, 2",
@@ -175,6 +176,7 @@ pub fn restart_imm_test() {
     report.wfo(utra::main::REPORT_REPORT, 0x0133_1111);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     delay(50);
+    assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
 
     let mut a = pio::Assembler::<32>::new();
     a.out(pio::OutDestination::PINS, 16);
@@ -211,7 +213,7 @@ pub fn fifo_join_test() -> bool {
 
     let mut pio_ss = PioSharedState::new();
     // test TX fifo with non-join. Simple program that just copies the TX fifo content to pins, then stalls.
-    let mut sm_a = PioSm::new(0).unwrap();
+    let mut sm_a = pio_ss.alloc_sm().unwrap();
     let a_code = pio_proc::pio_asm!(
         "out pins, 32",
     );
@@ -389,7 +391,7 @@ pub fn register_tests() {
 
     let mut pio_ss = PioSharedState::new();
 
-    let mut sm_a = PioSm::new(0).unwrap();
+    let mut sm_a = pio_ss.alloc_sm().unwrap();
     sm_a.pio.wo(rp_pio::SFR_CTRL, 0xFF0); // reset all state machines to a known state.
     sm_a.pio.wo(rp_pio::SFR_FDEBUG, 0xFFFF_FFFF); // clear all the FIFO debug registers
 
@@ -429,7 +431,7 @@ pub fn register_tests() {
         "   wait 0 pin 0   side 1",     // 16 wait until the mapped input pin is 0. Map this to GPIO 31.
         "   jmp y--, loop",             // 17
     );
-    let mut sm_b = PioSm::new(1).unwrap();
+    let mut sm_b = pio_ss.alloc_sm().unwrap();
     let b_prog = LoadedProg::load(b_code.program, &mut pio_ss).unwrap();
     sm_b.sm_set_enabled(false);
     b_prog.setup_default_config(&mut sm_b);
@@ -452,7 +454,7 @@ pub fn register_tests() {
         "   wait 0 gpio 31 side 1",     // wait until GPIO 31 is 0
         "   jmp x--, loop",
     );
-    let mut sm_c = PioSm::new(2).unwrap();
+    let mut sm_c =  pio_ss.alloc_sm().unwrap();
     let c_prog = LoadedProg::load(c_code.program, &mut pio_ss).unwrap();
     sm_c.sm_set_enabled(false);
     c_prog.setup_default_config(&mut sm_c);
@@ -475,7 +477,7 @@ pub fn register_tests() {
         "   wait 0 pin 7   side 0",     // wait until the mapped input pin is 0. Map this to GPIO 31.
         "   jmp y--, loop",
     );
-    let mut sm_d = PioSm::new(3).unwrap();
+    let mut sm_d =  pio_ss.alloc_sm().unwrap();
     let d_prog = LoadedProg::load(d_code.program, &mut pio_ss).unwrap();
     sm_d.sm_set_enabled(false);
     d_prog.setup_default_config(&mut sm_d);

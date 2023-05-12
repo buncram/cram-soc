@@ -224,7 +224,7 @@ pub fn i2c_test() -> bool {
     report.wfo(utra::main::REPORT_REPORT, 0x0D10_012C);
 
     let mut pio_ss = PioSharedState::new();
-    let mut pio_sm = PioSm::new(0).unwrap();
+    let mut pio_sm = pio_ss.alloc_sm().unwrap();
 
     let i2c_prog = pio_proc::pio_asm!(
         ".side_set 1 opt pindirs",

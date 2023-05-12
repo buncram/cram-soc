@@ -66,8 +66,8 @@ pub fn carrier_control_init(pio_sm: &mut PioSm, program: &LoadedProg, tick_rate:
 }
 
 pub fn nec_tx_init(pio_ss: &mut PioSharedState, pin_num: usize) -> PioSm {
-    let mut burst_sm = PioSm::new(0).unwrap();
-    let mut control_sm = PioSm::new(1).unwrap();
+    let mut burst_sm = pio_ss.alloc_sm().unwrap();
+    let mut control_sm = pio_ss.alloc_sm().unwrap();
 
     let carrier_burst_prog = pio_proc::pio_asm!(
         // Generate bursts of carrier.
@@ -81,7 +81,7 @@ pub fn nec_tx_init(pio_ss: &mut PioSharedState, pin_num: usize) -> PioSm {
         ".define public TICKS_PER_LOOP 4    ", // the number of instructions in the loop (for timing)
 
         ".wrap_target                       ",
-        "    set x, (NUM_CYCLES - 1)        ", // initialise the loop counter
+        "    set x, (NUM_CYCLES - 1)        ", // initialize the loop counter
         "    wait 1 irq BURST_IRQ     side 0", // wait for the IRQ then clear it
         "cycle_loop:                        ",
         "    set pins, 1              side 1", // set the pin high (1 cycle)
@@ -188,7 +188,7 @@ pub fn nec_receive_init(pio_sm: &mut PioSm, program: &LoadedProg, pin: usize, bu
 }
 
 pub fn nec_rx_init(pio_ss: &mut PioSharedState, pin_num: usize) -> PioSm {
-    let mut rx_sm = PioSm::new(3).unwrap();
+    let mut rx_sm = pio_ss.alloc_sm().unwrap();
 
     let nec_receive = pio_proc::pio_asm!(
         // Decode IR frames in NEC format and push 32-bit words to the input FIFO.
@@ -196,12 +196,12 @@ pub fn nec_rx_init(pio_ss: &mut PioSharedState, pin_num: usize) -> PioSm {
         // The input pin should be connected to an IR detector with an 'active low' output.
         //
         // This program expects there to be 10 state machine clock ticks per 'normal' 562.5us burst period
-        // in order to permit timely detection of start of a burst. The initailisation function below sets
-        // the correct divisor to achive this relative to the system clock.
+        // in order to permit timely detection of start of a burst. The initialization function below sets
+        // the correct divisor to achieve this relative to the system clock.
         //
-        // Within the 'NEC' protocol frames consists of 32 bits sent least-siginificant bit first; so the
+        // Within the 'NEC' protocol frames consists of 32 bits sent least-significant bit first; so the
         // Input Shift Register should be configured to shift right and autopush after 32 bits, as in the
-        // initialisation function below.
+        // initialization function below.
         //
         ".define BURST_LOOP_COUNTER 30                 ",  // the detection threshold for a 'frame sync' burst
         ".define BIT_SAMPLE_DELAY 15                   ",  // how long to wait after the end of the burst before sampling
