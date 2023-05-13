@@ -24,7 +24,7 @@ module rp_pio #(
     input logic         resetn,
     input logic cmatpg, cmbist,
 
-    ioif.drive          pio_gpio[31:0],
+    ioif.drive          pio_gpio[0:31],
     output logic        irq0,
     output logic        irq1,
 

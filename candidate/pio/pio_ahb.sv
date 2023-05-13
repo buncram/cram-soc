@@ -52,7 +52,7 @@ module pio_ahb #(
         .pslverr      (PSLVERR)
     );
 
-    ioif  pio_gpio[31:0]();
+    ioif  pio_gpio[0:31]();
     generate
         for (genvar j = 0; j < 32; j++) begin:gp
             assign gpio_out[j] = pio_gpio[j].po;
