@@ -6,7 +6,7 @@ module machine (
   input         clk,
   input         reset,
   input         en,
-  input [16:0]  div_int,
+  input [15:0]  div_int,
   input [7:0]   div_frac,
   input [31:0]  din,
   input [15:0]  imm_instr,
