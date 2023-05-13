@@ -172,6 +172,10 @@ module rp_pio #(
     // debug
     logic [31:0] dbg_sr;
     wire         dbg_trig;
+    wire [3:0] txstall;
+    wire [3:0] txover;
+    wire [3:0] rxunder;
+    wire [3:0] rxstall;
 
     // synchronizers for .ar pulses
     logic ctl_action_sync;
@@ -453,11 +457,6 @@ module rp_pio #(
     endgenerate
 
     // add debug signals
-    wire [3:0] txstall;
-    wire [3:0] txover;
-    wire [3:0] rxunder;
-    wire [3:0] rxstall;
-
     bit txstall0, txstall1, txstall2, txstall3;
     `theregfull(clk, resetn, txstall0, '0) <= ((dbg_txstall[0] | txstall0) & !(txstall[0] & dbg_trig_sync)) ? 1 : 0;
     `theregfull(clk, resetn, txstall1, '0) <= ((dbg_txstall[1] | txstall1) & !(txstall[1] & dbg_trig_sync)) ? 1 : 0;
