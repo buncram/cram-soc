@@ -453,6 +453,11 @@ module rp_pio #(
     endgenerate
 
     // add debug signals
+    wire [3:0] txstall;
+    wire [3:0] txover;
+    wire [3:0] rxunder;
+    wire [3:0] rxstall;
+
     bit txstall0, txstall1, txstall2, txstall3;
     `theregfull(clk, resetn, txstall0, '0) <= ((dbg_txstall[0] | txstall0) & !(txstall[0] & dbg_trig_sync)) ? 1 : 0;
     `theregfull(clk, resetn, txstall1, '0) <= ((dbg_txstall[1] | txstall1) & !(txstall[1] & dbg_trig_sync)) ? 1 : 0;
@@ -585,10 +590,6 @@ module rp_pio #(
     wire [1:0] resvd_exec [0:NUM_MACHINES-1];
     wire [15:0] resvd_shift [0:NUM_MACHINES-1];
     // docu debug register
-    wire [3:0] txstall;
-    wire [3:0] txover;
-    wire [3:0] rxunder;
-    wire [3:0] rxstall;
     wire [3:0] nc_dbg0;
     wire [3:0] nc_dbg1;
     wire [3:0] nc_dbg2;
@@ -695,7 +696,8 @@ module rp_pio #(
     apb_cr  #(.A('hC0), .DW(16))      sfr_instr_mem30      (.cr(instr[30]), .prdata32(),.*);
     apb_cr  #(.A('hC4), .DW(16))      sfr_instr_mem31      (.cr(instr[31]), .prdata32(),.*);
 
-    apb_cr  #(.A('hC8), .DW(32))      sfr_sm0_clkdiv       (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
+    apb_cr  #(.A('hC8), .DW(32),
+              .IV(32'h00010000))      sfr_sm0_clkdiv       (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
     apb_ascr #(.A('hCC), .DW(32),
                .IV(32'h1F000))        sfr_sm0_execctrl     (.cr({
                                                                 exec_stalled_ro0, sideset_enable_bit[0],
@@ -728,7 +730,8 @@ module rp_pio #(
                                                                 pins_in_base[0], pins_side_base[0], pins_set_base[0], pins_out_base[0]
                                                                 }), .prdata32(),.*);
 
-    apb_cr  #(.A('hE0), .DW(32))      sfr_sm1_clkdiv       (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
+    apb_cr  #(.A('hE0), .DW(32),
+               .IV(32'h00010000))     sfr_sm1_clkdiv       (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
     apb_ascr #(.A('hE4), .DW(32),
                .IV(32'h1F000))        sfr_sm1_execctrl     (.cr({
                                                                 exec_stalled_ro1, sideset_enable_bit[1],
@@ -761,7 +764,8 @@ module rp_pio #(
                                                                 pins_in_base[1], pins_side_base[1], pins_set_base[1], pins_out_base[1]
                                                                 }), .prdata32(),.*);
 
-    apb_cr  #(.A('hF8), .DW(32))      sfr_sm2_clkdiv       (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
+    apb_cr  #(.A('hF8), .DW(32),
+              .IV(32'h00010000))      sfr_sm2_clkdiv       (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
     apb_ascr #(.A('hFC), .DW(32),
                .IV(32'h1F000))        sfr_sm2_execctrl     (.cr({
                                                                 exec_stalled_ro2, sideset_enable_bit[2],
@@ -794,7 +798,8 @@ module rp_pio #(
                                                                 pins_in_base[2], pins_side_base[2], pins_set_base[2], pins_out_base[2]
                                                                 }), .prdata32(),.*);
 
-    apb_cr  #(.A('h110), .DW(32))     sfr_sm3_clkdiv       (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
+    apb_cr  #(.A('h110), .DW(32),
+               .IV(32'h00010000))     sfr_sm3_clkdiv       (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
     apb_ascr #(.A('h114), .DW(32),
                .IV(32'h1F000))        sfr_sm3_execctrl     (.cr({
                                                                 exec_stalled_ro3, sideset_enable_bit[3],
