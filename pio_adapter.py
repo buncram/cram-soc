@@ -36,6 +36,7 @@ class PioAdapter(Module):
         apb_rdata = Signal(32)
         apb_ready = Signal()
         apb_slverr = Signal()
+        sel_fullwidth = Signal(12, reset=(sel_addr >> 12))
 
         self.specials += Instance("cmsdk_ahb_to_apb",
             p_ADDRWIDTH            = address_width,
@@ -43,7 +44,7 @@ class PioAdapter(Module):
             i_HCLK                 = ClockSignal(),
             i_HRESETn              = ~ResetSignal(),
             i_PCLKEN               = 1,
-            i_HSEL                 = s_ahb.addr[12:28] == (sel_addr >> 12),
+            i_HSEL                 = s_ahb.addr[12:24] == sel_fullwidth,
             i_HADDR                = s_ahb.addr[:address_width],
             i_HTRANS               = s_ahb.trans,
             i_HSIZE                = s_ahb.size,
