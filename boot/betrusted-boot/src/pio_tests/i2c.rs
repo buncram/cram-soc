@@ -25,6 +25,10 @@ pub fn i2c_init(
     let both_pins = (1 << pin_sda) | (1 << pin_scl);
     pio_sm.sm_set_pins_with_mask(both_pins, both_pins);
     pio_sm.sm_set_pindirs_with_mask(both_pins, both_pins);
+    // reset the overrides in case previous test had set them and not cleared them
+    pio_sm.pio.wo(rp_pio::SFR_IO_OE_INV, 0);
+    pio_sm.pio.wo(rp_pio::SFR_IO_O_INV, 0);
+    pio_sm.pio.wo(rp_pio::SFR_IO_I_INV, 0);
     pio_sm.gpio_set_oeover(pin_sda, true);
     pio_sm.gpio_set_oeover(pin_scl, true);
     pio_sm.sm_set_pins_with_mask(0, both_pins);
