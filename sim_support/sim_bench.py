@@ -247,6 +247,7 @@ class SimRunner():
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/prims.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("sim_support/cdc_blinded.v") + " run" + os.path.sep)
 
         # initialize with a default waveform that contains the most basic execution tracing
         if os.path.isfile('run/{}_sim.wcfg'.format(tb)) != True:
@@ -273,21 +274,32 @@ class SimRunner():
         # copy any relevant .bin files into the run directory as well
         os.system("{} {} ".format(cpname, vex_dir + os.path.sep + "*.bin") + " run" + os.path.sep) # "{} {} run/".format(cpname, vex_dir + "/*.bin")
 
+        os.system("{} ".format(cpname) + os.path.normpath("deps/pio/upstream/src/*.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("deps/pio/*.sv") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("deps/axi2ahb/*.v") + " run" + os.path.sep)
+
+        os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/rtl/amba/cmsdk_ahb_to_apb.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/rtl/amba/*.sv") + " run" + os.path.sep)
+
         # generate a .init file for the SPINOR memory based on the BIOS we want to boot
         if os.name == 'nt':
             os.system('del /S /Q run\\simspi.init')
         else:
             os.system("rm -f run/simspi.init")  # the "w" argument is not replacing the file for some reason, it's appending. delete it.
-        # bios_path = 'boot{}boot.bin'.format(os.path.sep)
-        bios_path = '..\\xous-cramium\\simspi.init'
+        if False:
+            bios_path = '..\\xous-cramium\\simspi.init' # if simulating Xous
+        else:
+            bios_path = "boot\\boot.bin"
+
         with open(bios_path, "rb") as ifile:
             with open("run/simspi.init", "w") as ofile:
                 binfile = ifile.read()
 
                 count = 0
-                while count < 0x50_0000:
-                    ofile.write("00\n")
-                    count += 1
+                if False: # controls padding
+                    while count < 0x50_0000:
+                        ofile.write("00\n")
+                        count += 1
 
                 for b in binfile:
                     ofile.write("{:02x}\n".format(b))
@@ -334,6 +346,34 @@ class SimRunner():
             "cd run && {}xvlog -sv chacha_core.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv chacha_qr.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv XADC.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv cdc_blinded.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv template.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv amba_interface_def_v0.2.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv apb_sfr_v0.1.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv io_interface_def_v0.1.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv decoder.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv divider.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv fifo.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv isr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv machine.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv osr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv pc.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv scratch.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv pio_ahb.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv rp_pio.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axi2ahb_cmd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axi2ahb_ctrl.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axi2ahb_rd_fifo.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axi2ahb_wr_fifo.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axi2ahb.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv prgen_fifo.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_register_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_register_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_crossbar.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_crossbar_addr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_crossbar_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_crossbar_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv cmsdk_ahb_to_apb.v".format(VIVADO_PATH),
         ]
 
         pool = multiprocessing.Pool(12)

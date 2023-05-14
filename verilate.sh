@@ -43,6 +43,10 @@ else
 fi
 echo "******************** RUN SIM ***********************"
 
+cp do_not_checkin/rtl/amba/apb_sfr_v0.1.sv build/sim/gateware/
+cp do_not_checkin/rtl/amba/template.sv build/sim/gateware/
+cp do_not_checkin/rtl/amba/amba_interface_def_v0.2.sv build/sim/gateware/
+
 THREADS=5
 #for THREADS in 1 2 3 4 5 6 7 8 9
 #do

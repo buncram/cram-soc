@@ -58,19 +58,25 @@ module prgen_fifo(clk,
     wire               fifo_push;
     wire               fifo_pop;
 
-    reg [DEPTH-1:0]           full_mask_in;
-    reg [DEPTH-1:0]           full_mask_out;
-    reg [DEPTH-1:0]           full_mask;
+    // TODO: fix these initializers so they are ASIC-friendly.
+    reg [DEPTH-1:0]           full_mask_in = 0;
+    reg [DEPTH-1:0]           full_mask_out = 0;
+    reg [DEPTH-1:0]           full_mask = 0;
     reg [WIDTH-1:0]           fifo [DEPTH-1:0];
     wire               fifo_empty;
     wire               next;
-    reg [WIDTH-1:0]           dout;
+    reg [WIDTH-1:0]           dout = 0;
     reg                   dout_empty;
-    reg [DEPTH_BITS-1:0]       ptr_in;
-    reg [DEPTH_BITS-1:0]       ptr_out;
+    reg [DEPTH_BITS-1:0]       ptr_in = 0;
+    reg [DEPTH_BITS-1:0]       ptr_out = 0;
 
-
-
+    // TODO: on an ASIC, the RAM powers up as X.
+    integer j;
+    initial begin
+        for (j = 0; j < DEPTH; j = j + 1) begin
+            fifo[j] = 0;
+        end
+    end
 
     assign               reg_push  = push & fifo_empty & (dout_empty | pop);
     assign               reg_pop   = pop & fifo_empty;

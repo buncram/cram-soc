@@ -126,6 +126,7 @@ class AXILite2AHBAdapter(Module):
                 i_EXRESP               = Open()
             )
         else:
+            zero4 = Signal(4)
             self.specials += Instance(SIMULATION_MODULE,
                 # Clk / Rst.
                 # ----------
@@ -136,14 +137,14 @@ class AXILite2AHBAdapter(Module):
                 # --------------------
                 # AW.
                 i_AWADDR     = s_axil.aw.addr,
-                i_AWID       = 0,
-                i_AWLEN      = 0,
+                i_AWID       = zero4,
+                i_AWLEN      = zero4,
                 i_AWSIZE     = log2_int(s_data_width),
                 i_AWVALID    = s_axil.aw.valid,
                 o_AWREADY    = s_axil.aw.ready,
 
                 # W.
-                i_WID        = 0,
+                i_WID        = zero4,
                 i_WLAST      = 1,
                 i_WSTRB      = s_axil.w.strb,
                 i_WDATA      = s_axil.w.data,
@@ -158,8 +159,8 @@ class AXILite2AHBAdapter(Module):
 
                 # AR.
                 i_ARADDR     = s_axil.ar.addr,
-                i_ARID       = 0,
-                i_ARLEN      = 0,
+                i_ARID       = zero4,
+                i_ARLEN      = zero4,
                 i_ARSIZE     = log2_int(s_data_width),
                 i_ARVALID    = s_axil.ar.valid,
                 o_ARREADY    = s_axil.ar.ready,
