@@ -1110,6 +1110,8 @@ def main():
         multi_line = ''
         for line in sv_file.readlines():
             line = remove_comments(line.strip()).lstrip()
+            if line.startswith("`include"):
+                continue
             if line.strip().endswith(';') or line.strip().endswith('module'):
                 multi_line += line
                 condensed += multi_line
