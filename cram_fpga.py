@@ -417,7 +417,7 @@ class CramSoC(SoCMini):
     # 1 is allocateable
     #    "interop1" : 2,
     #}
-    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=True, cached=False):
+    def __init__(self, platform, bios_path=None, sys_clk_freq=75e6, sim=False, litex_axi=False, real_ram=True, cached=True):
         axi_map = {
             "spiflash"  : 0x20000000,
             "reram"     : 0x6000_0000, # +3M
@@ -543,6 +543,7 @@ class CramSoC(SoCMini):
             if cached:
                 self.submodules.sram_ext = sram_32_cached.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3, l2_cache_size=0x1_0000)
             else:
+                # note: something is broken in this implementation, it doesn't work in simulation. I think it may have bit-rotted and/or doesn't work with the narrow verilog model of the RAM that I made.
                 self.submodules.sram_ext = sram_32.SRAM32(platform.request("sram"), rd_timing=7, wr_timing=7, page_rd_timing=3)
 
             self.add_csr("sram_ext")
@@ -565,7 +566,7 @@ class CramSoC(SoCMini):
 
             self.submodules.sram_axi_to_wb = AXILite2Wishbone(sram_axil, self.sram_ext.bus, base_address=axi_map["sram"])
         else:
-            self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=0x1_0000, name="sram")
+            self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=2*1024*1024, name="sram")
 
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
         mbus = AXICrossbar(platform=platform)
@@ -627,7 +628,7 @@ class CramSoC(SoCMini):
         pio_irq0 = Signal()
         pio_irq1 = Signal()
         self.submodules += ClockDomainsRenamer({"pio":"sys"})(
-            PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000))
+            PioAdapter(platform, local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000, sim=sim))
         # 100->50MHz domain false paths. Should really find a way to exclude the async pulse generators, but for now this will do.
         # platform.add_platform_command("set_multicycle_path 2 -setup -start -from [get_clocks sys_clk] -to [get_clocks clk50] -through [get_cells pio_ahb/rp_pio/*]")
         # platform.add_platform_command("set_multicycle_path 1 -hold -end -from [get_clocks sys_clk] -to [get_clocks clk50] -through [get_cells pio_ahb/rp_pio/*]")
@@ -817,7 +818,7 @@ class CramSoC(SoCMini):
             ]
 
         # Cramium platform -------------------------------------------------------------------------
-        trimming_reset = Signal(32, reset=axi_map["reram"]+boot_offset+2)
+        trimming_reset = Signal(32, reset=axi_map["reram"])
         zero_irq = Signal(20)
         self.irqtest0 = CSRStorage(fields=[
             CSRField(
@@ -1160,10 +1161,7 @@ def main():
             builder.software_packages=[] # necessary to bypass Meson dependency checks required by Litex libc
             vns = builder.build(run=False)
 
-            if args.sim:
-                subprocess.run(["cargo", "xtask", "boot-image", "--feature", "sim"], check=True, cwd="boot")
-            else:
-                subprocess.run(["cargo", "xtask", "boot-image"], check=True, cwd="boot")
+            subprocess.run(["cargo", "xtask", "boot-image", "--feature", "sim"], check=True, cwd="boot")
             bios_path = 'boot{}boot.bin'.format(os.path.sep)
     else:
         bios_path=None
