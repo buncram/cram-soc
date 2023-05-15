@@ -97,7 +97,7 @@ pub fn satp_setup() {
     }
     // map peripherals
     const CSR_LEN: usize = 0x2_0000;
-    const PERI_LEN: usize = 0xA000;
+    const PERI_LEN: usize = 0x10_8000; // this will also map the RP PIO block
     for offset in (0..CSR_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R | FLG_U);
     }
@@ -131,7 +131,7 @@ pub fn satp_setup() {
             "sub         a4, ra, t0",
             "csrw        mepc, a4",
 
-            // sp "shouldn't move" because the mapping will take RAM mapping as 1:1 for vA:PA
+            // sp "shouldn't move" because the mapping will take RAM mapping as 1:1 for VA:PA
 
             // Issue the return, which will jump to $mepc in Supervisor mode
             "mret",

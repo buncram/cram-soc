@@ -15,8 +15,8 @@ pub fn irq_setup() {
         core::arch::asm!(
             // Set trap handler, which will be called
             // on interrupts and cpu faults
-            "la t0, _start_trap", // this first one forces the nop sled symbol to be generated
-            "la t0, _start_trap_aligned", // this is the actual target
+            "la   t0, _start_trap", // this first one forces the nop sled symbol to be generated
+            "la   t0, _start_trap_aligned", // this is the actual target
             "csrw stvec, t0",
         );
     }
