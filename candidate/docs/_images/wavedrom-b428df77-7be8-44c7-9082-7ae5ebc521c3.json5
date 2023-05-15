@@ -1,0 +1,6 @@
+{
+    "reg": [
+        {"name": "asid",  "bits": 9},
+        {"bits": 23}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}

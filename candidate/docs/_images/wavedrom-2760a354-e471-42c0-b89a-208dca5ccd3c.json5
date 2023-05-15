@@ -1,0 +1,9 @@
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
