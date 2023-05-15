@@ -9,7 +9,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : ce43e3bb
-// Date       : 2023-05-16 01:20:21
+// Date       : 2023-05-16 03:24:35
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -139,7 +139,7 @@ module cram_axi (
     input  wire          cmbist,
     input  wire          cmatpg,
     output reg           coreuser,
-    output wire          wfi_active,
+    output wire          sleep_req,
     input  wire   [19:0] irqarray_bank0,
     input  wire   [19:0] irqarray_bank1,
     input  wire   [19:0] irqarray_bank2,
@@ -520,6 +520,7 @@ reg    [21:0] coreuser_window_al;
 reg    [21:0] coreuser_window_ah;
 reg    [21:0] coreuser_window_bl;
 reg    [21:0] coreuser_window_bh;
+reg           cpu_int_active;
 wire          irqarray0_irq;
 wire   [19:0] irqarray0_interrupts;
 reg    [19:0] irqarray0_trigger;
@@ -4614,7 +4615,7 @@ assign cramsoc_cmbist = cmbist;
 assign cramsoc_cmatpg = cmatpg;
 assign coreuser_cmbist = cmbist;
 assign coreuser_cmatpg = cmatpg;
-assign wfi_active = cramsoc_wfi_active;
+assign sleep_req = (cramsoc_wfi_active & cpu_int_active);
 assign susres_time_status = ticktimer_timer1;
 assign susres_paused = ticktimer_paused0;
 assign ticktimer_resume_time = susres_resume_time_storage;
@@ -8638,8 +8639,8 @@ assign mailbox_w_fifo_reset_sys = ((~mailbox_reset_n) | mailbox_abort);
 assign mailbox_tx_words = mailbox_syncfifobufferedmacro0_level;
 assign mailbox_tx_err = mailbox_w_over_bit;
 always @(*) begin
-    mailbox_syncfifobufferedmacro0_fifo_we <= 1'd0;
     mailbox_w_over_flag <= 1'd0;
+    mailbox_syncfifobufferedmacro0_fifo_we <= 1'd0;
     if ((mailbox_wdata_re & (~mailbox_syncfifobufferedmacro0_fifo_writable))) begin
         mailbox_w_over_flag <= 1'd1;
     end else begin
@@ -8660,8 +8661,8 @@ assign mailbox_r_fifo_reset_sys = ((~mailbox_reset_n) | mailbox_abort);
 assign mailbox_rx_words = mailbox_syncfifobufferedmacro1_level;
 assign mailbox_rx_err = mailbox_r_over_bit;
 always @(*) begin
-    mailbox_r_over_flag <= 1'd0;
     mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_re <= 1'd0;
+    mailbox_r_over_flag <= 1'd0;
     if ((mailbox_rdata_we & (~mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_readable))) begin
         mailbox_r_over_flag <= 1'd1;
     end else begin
@@ -8756,14 +8757,14 @@ assign mailbox_syncfifobufferedmacro1_fifo_rdport_re = mailbox_syncfifobufferedm
 assign mailbox_syncfifobufferedmacro1_fifo_writable = (mailbox_syncfifobufferedmacro1_fifo_level != 11'd1024);
 assign mailbox_syncfifobufferedmacro1_fifo_readable = (mailbox_syncfifobufferedmacro1_fifo_level != 1'd0);
 always @(*) begin
+    mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
+    mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd0;
+    mailbox_abort_done_trigger <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd0;
     mailbox_w_abort <= 1'd0;
     mailbox_abort_init_trigger <= 1'd0;
     cramsoc_mailbox_next_state <= 2'd0;
-    mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
-    mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd0;
-    mailbox_abort_done_trigger <= 1'd0;
     cramsoc_mailbox_next_state <= cramsoc_mailbox_state;
     case (cramsoc_mailbox_state)
         1'd1: begin
@@ -8953,13 +8954,13 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
+    cramsoc_r_payload_resp <= 2'd0;
     cramsoc_b_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_r_valid <= 1'd0;
     cramsoc_nocomb_axl_w_ready <= 1'd0;
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
     cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_nocomb_axl_ar_ready <= 1'd0;
-    cramsoc_r_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_b_valid <= 1'd0;
     cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
     cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd0;
@@ -9009,8 +9010,8 @@ assign csrbank0_sel = (interface0_bank_bus_adr[15:10] == 2'd2);
 assign csrbank0_re = interface0_bank_bus_re;
 assign csrbank0_set_asid0_r = interface0_bank_bus_dat_w[9:0];
 always @(*) begin
-    csrbank0_set_asid0_re <= 1'd0;
     csrbank0_set_asid0_we <= 1'd0;
+    csrbank0_set_asid0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank0_set_asid0_re <= interface0_bank_bus_we;
         csrbank0_set_asid0_we <= csrbank0_re;
@@ -9018,8 +9019,8 @@ always @(*) begin
 end
 assign csrbank0_get_asid_addr0_r = interface0_bank_bus_dat_w[8:0];
 always @(*) begin
-    csrbank0_get_asid_addr0_we <= 1'd0;
     csrbank0_get_asid_addr0_re <= 1'd0;
+    csrbank0_get_asid_addr0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank0_get_asid_addr0_re <= interface0_bank_bus_we;
         csrbank0_get_asid_addr0_we <= csrbank0_re;
@@ -9036,8 +9037,8 @@ always @(*) begin
 end
 assign csrbank0_set_privilege0_r = interface0_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank0_set_privilege0_re <= 1'd0;
     csrbank0_set_privilege0_we <= 1'd0;
+    csrbank0_set_privilege0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank0_set_privilege0_re <= interface0_bank_bus_we;
         csrbank0_set_privilege0_we <= csrbank0_re;
@@ -9045,8 +9046,8 @@ always @(*) begin
 end
 assign csrbank0_control0_r = interface0_bank_bus_dat_w[4:0];
 always @(*) begin
-    csrbank0_control0_we <= 1'd0;
     csrbank0_control0_re <= 1'd0;
+    csrbank0_control0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd4))) begin
         csrbank0_control0_re <= interface0_bank_bus_we;
         csrbank0_control0_we <= csrbank0_re;
@@ -9063,8 +9064,8 @@ always @(*) begin
 end
 assign csrbank0_window_al0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_al0_re <= 1'd0;
     csrbank0_window_al0_we <= 1'd0;
+    csrbank0_window_al0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank0_window_al0_re <= interface0_bank_bus_we;
         csrbank0_window_al0_we <= csrbank0_re;
@@ -9072,8 +9073,8 @@ always @(*) begin
 end
 assign csrbank0_window_ah0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_ah0_we <= 1'd0;
     csrbank0_window_ah0_re <= 1'd0;
+    csrbank0_window_ah0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd7))) begin
         csrbank0_window_ah0_re <= interface0_bank_bus_we;
         csrbank0_window_ah0_we <= csrbank0_re;
@@ -9081,8 +9082,8 @@ always @(*) begin
 end
 assign csrbank0_window_bl0_r = interface0_bank_bus_dat_w[21:0];
 always @(*) begin
-    csrbank0_window_bl0_re <= 1'd0;
     csrbank0_window_bl0_we <= 1'd0;
+    csrbank0_window_bl0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 4'd8))) begin
         csrbank0_window_bl0_re <= interface0_bank_bus_we;
         csrbank0_window_bl0_we <= csrbank0_re;
@@ -9126,8 +9127,8 @@ assign csrbank1_sel = (interface1_bank_bus_adr[15:10] == 2'd3);
 assign csrbank1_re = interface1_bank_bus_re;
 assign csrbank1_wtest0_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank1_wtest0_we <= 1'd0;
     csrbank1_wtest0_re <= 1'd0;
+    csrbank1_wtest0_we <= 1'd0;
     if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank1_wtest0_re <= interface1_bank_bus_we;
         csrbank1_wtest0_we <= csrbank1_re;
@@ -9135,8 +9136,8 @@ always @(*) begin
 end
 assign csrbank1_rtest_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank1_rtest_re <= 1'd0;
     csrbank1_rtest_we <= 1'd0;
+    csrbank1_rtest_re <= 1'd0;
     if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank1_rtest_re <= interface1_bank_bus_we;
         csrbank1_rtest_we <= csrbank1_re;
@@ -9149,8 +9150,8 @@ assign csrbank2_sel = (interface2_bank_bus_adr[15:10] == 1'd0);
 assign csrbank2_re = interface2_bank_bus_re;
 assign csrbank2_control0_r = interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank2_control0_re <= 1'd0;
     csrbank2_control0_we <= 1'd0;
+    csrbank2_control0_re <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank2_control0_re <= interface2_bank_bus_we;
         csrbank2_control0_we <= csrbank2_re;
@@ -9158,8 +9159,8 @@ always @(*) begin
 end
 assign csrbank2_heartbeat_r = interface2_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank2_heartbeat_we <= 1'd0;
     csrbank2_heartbeat_re <= 1'd0;
+    csrbank2_heartbeat_we <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank2_heartbeat_re <= interface2_bank_bus_we;
         csrbank2_heartbeat_we <= csrbank2_re;
@@ -9174,8 +9175,8 @@ assign csrbank3_sel = (interface3_bank_bus_adr[15:10] == 3'd4);
 assign csrbank3_re = interface3_bank_bus_re;
 assign csrbank3_ev_soft0_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_soft0_we <= 1'd0;
     csrbank3_ev_soft0_re <= 1'd0;
+    csrbank3_ev_soft0_we <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank3_ev_soft0_re <= interface3_bank_bus_we;
         csrbank3_ev_soft0_we <= csrbank3_re;
@@ -9183,8 +9184,8 @@ always @(*) begin
 end
 assign csrbank3_ev_status_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_status_re <= 1'd0;
     csrbank3_ev_status_we <= 1'd0;
+    csrbank3_ev_status_re <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank3_ev_status_re <= interface3_bank_bus_we;
         csrbank3_ev_status_we <= csrbank3_re;
@@ -9192,8 +9193,8 @@ always @(*) begin
 end
 assign csrbank3_ev_pending_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_pending_re <= 1'd0;
     csrbank3_ev_pending_we <= 1'd0;
+    csrbank3_ev_pending_re <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank3_ev_pending_re <= interface3_bank_bus_we;
         csrbank3_ev_pending_we <= csrbank3_re;
@@ -9201,8 +9202,8 @@ always @(*) begin
 end
 assign csrbank3_ev_enable0_r = interface3_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank3_ev_enable0_we <= 1'd0;
     csrbank3_ev_enable0_re <= 1'd0;
+    csrbank3_ev_enable0_we <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank3_ev_enable0_re <= interface3_bank_bus_we;
         csrbank3_ev_enable0_we <= csrbank3_re;
@@ -9299,8 +9300,8 @@ always @(*) begin
 end
 assign csrbank4_ev_status_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank4_ev_status_we <= 1'd0;
     csrbank4_ev_status_re <= 1'd0;
+    csrbank4_ev_status_we <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank4_ev_status_re <= interface4_bank_bus_we;
         csrbank4_ev_status_we <= csrbank4_re;
@@ -9308,8 +9309,8 @@ always @(*) begin
 end
 assign csrbank4_ev_pending_r = interface4_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank4_ev_pending_re <= 1'd0;
     csrbank4_ev_pending_we <= 1'd0;
+    csrbank4_ev_pending_re <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank4_ev_pending_re <= interface4_bank_bus_we;
         csrbank4_ev_pending_we <= csrbank4_re;
@@ -9406,8 +9407,8 @@ assign csrbank5_sel = (interface5_bank_bus_adr[15:10] == 3'd6);
 assign csrbank5_re = interface5_bank_bus_re;
 assign csrbank5_ev_soft0_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_soft0_re <= 1'd0;
     csrbank5_ev_soft0_we <= 1'd0;
+    csrbank5_ev_soft0_re <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank5_ev_soft0_re <= interface5_bank_bus_we;
         csrbank5_ev_soft0_we <= csrbank5_re;
@@ -9415,8 +9416,8 @@ always @(*) begin
 end
 assign csrbank5_ev_status_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_status_we <= 1'd0;
     csrbank5_ev_status_re <= 1'd0;
+    csrbank5_ev_status_we <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank5_ev_status_re <= interface5_bank_bus_we;
         csrbank5_ev_status_we <= csrbank5_re;
@@ -9424,8 +9425,8 @@ always @(*) begin
 end
 assign csrbank5_ev_pending_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_pending_we <= 1'd0;
     csrbank5_ev_pending_re <= 1'd0;
+    csrbank5_ev_pending_we <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank5_ev_pending_re <= interface5_bank_bus_we;
         csrbank5_ev_pending_we <= csrbank5_re;
@@ -9433,8 +9434,8 @@ always @(*) begin
 end
 assign csrbank5_ev_enable0_r = interface5_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank5_ev_enable0_re <= 1'd0;
     csrbank5_ev_enable0_we <= 1'd0;
+    csrbank5_ev_enable0_re <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank5_ev_enable0_re <= interface5_bank_bus_we;
         csrbank5_ev_enable0_we <= csrbank5_re;
@@ -9531,8 +9532,8 @@ always @(*) begin
 end
 assign csrbank6_ev_status_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank6_ev_status_re <= 1'd0;
     csrbank6_ev_status_we <= 1'd0;
+    csrbank6_ev_status_re <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank6_ev_status_re <= interface6_bank_bus_we;
         csrbank6_ev_status_we <= csrbank6_re;
@@ -9540,8 +9541,8 @@ always @(*) begin
 end
 assign csrbank6_ev_pending_r = interface6_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank6_ev_pending_we <= 1'd0;
     csrbank6_ev_pending_re <= 1'd0;
+    csrbank6_ev_pending_we <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank6_ev_pending_re <= interface6_bank_bus_we;
         csrbank6_ev_pending_we <= csrbank6_re;
@@ -9638,8 +9639,8 @@ assign csrbank7_sel = (interface7_bank_bus_adr[15:10] == 4'd8);
 assign csrbank7_re = interface7_bank_bus_re;
 assign csrbank7_ev_soft0_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_soft0_we <= 1'd0;
     csrbank7_ev_soft0_re <= 1'd0;
+    csrbank7_ev_soft0_we <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank7_ev_soft0_re <= interface7_bank_bus_we;
         csrbank7_ev_soft0_we <= csrbank7_re;
@@ -9647,8 +9648,8 @@ always @(*) begin
 end
 assign csrbank7_ev_status_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_status_re <= 1'd0;
     csrbank7_ev_status_we <= 1'd0;
+    csrbank7_ev_status_re <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank7_ev_status_re <= interface7_bank_bus_we;
         csrbank7_ev_status_we <= csrbank7_re;
@@ -9656,8 +9657,8 @@ always @(*) begin
 end
 assign csrbank7_ev_pending_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_pending_re <= 1'd0;
     csrbank7_ev_pending_we <= 1'd0;
+    csrbank7_ev_pending_re <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank7_ev_pending_re <= interface7_bank_bus_we;
         csrbank7_ev_pending_we <= csrbank7_re;
@@ -9665,8 +9666,8 @@ always @(*) begin
 end
 assign csrbank7_ev_enable0_r = interface7_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank7_ev_enable0_we <= 1'd0;
     csrbank7_ev_enable0_re <= 1'd0;
+    csrbank7_ev_enable0_we <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank7_ev_enable0_re <= interface7_bank_bus_we;
         csrbank7_ev_enable0_we <= csrbank7_re;
@@ -9763,8 +9764,8 @@ always @(*) begin
 end
 assign csrbank8_ev_status_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank8_ev_status_we <= 1'd0;
     csrbank8_ev_status_re <= 1'd0;
+    csrbank8_ev_status_we <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank8_ev_status_re <= interface8_bank_bus_we;
         csrbank8_ev_status_we <= csrbank8_re;
@@ -9772,8 +9773,8 @@ always @(*) begin
 end
 assign csrbank8_ev_pending_r = interface8_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank8_ev_pending_re <= 1'd0;
     csrbank8_ev_pending_we <= 1'd0;
+    csrbank8_ev_pending_re <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank8_ev_pending_re <= interface8_bank_bus_we;
         csrbank8_ev_pending_we <= csrbank8_re;
@@ -9870,8 +9871,8 @@ assign csrbank9_sel = (interface9_bank_bus_adr[15:10] == 4'd10);
 assign csrbank9_re = interface9_bank_bus_re;
 assign csrbank9_ev_soft0_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_soft0_re <= 1'd0;
     csrbank9_ev_soft0_we <= 1'd0;
+    csrbank9_ev_soft0_re <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank9_ev_soft0_re <= interface9_bank_bus_we;
         csrbank9_ev_soft0_we <= csrbank9_re;
@@ -9879,8 +9880,8 @@ always @(*) begin
 end
 assign csrbank9_ev_status_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_status_we <= 1'd0;
     csrbank9_ev_status_re <= 1'd0;
+    csrbank9_ev_status_we <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank9_ev_status_re <= interface9_bank_bus_we;
         csrbank9_ev_status_we <= csrbank9_re;
@@ -9888,8 +9889,8 @@ always @(*) begin
 end
 assign csrbank9_ev_pending_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_pending_we <= 1'd0;
     csrbank9_ev_pending_re <= 1'd0;
+    csrbank9_ev_pending_we <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank9_ev_pending_re <= interface9_bank_bus_we;
         csrbank9_ev_pending_we <= csrbank9_re;
@@ -9897,8 +9898,8 @@ always @(*) begin
 end
 assign csrbank9_ev_enable0_r = interface9_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank9_ev_enable0_re <= 1'd0;
     csrbank9_ev_enable0_we <= 1'd0;
+    csrbank9_ev_enable0_re <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank9_ev_enable0_re <= interface9_bank_bus_we;
         csrbank9_ev_enable0_we <= csrbank9_re;
@@ -9995,8 +9996,8 @@ always @(*) begin
 end
 assign csrbank10_ev_status_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank10_ev_status_re <= 1'd0;
     csrbank10_ev_status_we <= 1'd0;
+    csrbank10_ev_status_re <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank10_ev_status_re <= interface10_bank_bus_we;
         csrbank10_ev_status_we <= csrbank10_re;
@@ -10004,8 +10005,8 @@ always @(*) begin
 end
 assign csrbank10_ev_pending_r = interface10_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank10_ev_pending_we <= 1'd0;
     csrbank10_ev_pending_re <= 1'd0;
+    csrbank10_ev_pending_we <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank10_ev_pending_re <= interface10_bank_bus_we;
         csrbank10_ev_pending_we <= csrbank10_re;
@@ -10102,8 +10103,8 @@ assign csrbank11_sel = (interface11_bank_bus_adr[15:10] == 4'd12);
 assign csrbank11_re = interface11_bank_bus_re;
 assign csrbank11_ev_soft0_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_soft0_we <= 1'd0;
     csrbank11_ev_soft0_re <= 1'd0;
+    csrbank11_ev_soft0_we <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank11_ev_soft0_re <= interface11_bank_bus_we;
         csrbank11_ev_soft0_we <= csrbank11_re;
@@ -10111,8 +10112,8 @@ always @(*) begin
 end
 assign csrbank11_ev_status_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_status_re <= 1'd0;
     csrbank11_ev_status_we <= 1'd0;
+    csrbank11_ev_status_re <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank11_ev_status_re <= interface11_bank_bus_we;
         csrbank11_ev_status_we <= csrbank11_re;
@@ -10120,8 +10121,8 @@ always @(*) begin
 end
 assign csrbank11_ev_pending_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_pending_re <= 1'd0;
     csrbank11_ev_pending_we <= 1'd0;
+    csrbank11_ev_pending_re <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank11_ev_pending_re <= interface11_bank_bus_we;
         csrbank11_ev_pending_we <= csrbank11_re;
@@ -10129,8 +10130,8 @@ always @(*) begin
 end
 assign csrbank11_ev_enable0_r = interface11_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank11_ev_enable0_we <= 1'd0;
     csrbank11_ev_enable0_re <= 1'd0;
+    csrbank11_ev_enable0_we <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank11_ev_enable0_re <= interface11_bank_bus_we;
         csrbank11_ev_enable0_we <= csrbank11_re;
@@ -10227,8 +10228,8 @@ always @(*) begin
 end
 assign csrbank12_ev_status_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank12_ev_status_we <= 1'd0;
     csrbank12_ev_status_re <= 1'd0;
+    csrbank12_ev_status_we <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank12_ev_status_re <= interface12_bank_bus_we;
         csrbank12_ev_status_we <= csrbank12_re;
@@ -10236,8 +10237,8 @@ always @(*) begin
 end
 assign csrbank12_ev_pending_r = interface12_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank12_ev_pending_re <= 1'd0;
     csrbank12_ev_pending_we <= 1'd0;
+    csrbank12_ev_pending_re <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank12_ev_pending_re <= interface12_bank_bus_we;
         csrbank12_ev_pending_we <= csrbank12_re;
@@ -10334,8 +10335,8 @@ assign csrbank13_sel = (interface13_bank_bus_adr[15:10] == 4'd14);
 assign csrbank13_re = interface13_bank_bus_re;
 assign csrbank13_ev_soft0_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_soft0_re <= 1'd0;
     csrbank13_ev_soft0_we <= 1'd0;
+    csrbank13_ev_soft0_re <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank13_ev_soft0_re <= interface13_bank_bus_we;
         csrbank13_ev_soft0_we <= csrbank13_re;
@@ -10343,8 +10344,8 @@ always @(*) begin
 end
 assign csrbank13_ev_status_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_status_we <= 1'd0;
     csrbank13_ev_status_re <= 1'd0;
+    csrbank13_ev_status_we <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank13_ev_status_re <= interface13_bank_bus_we;
         csrbank13_ev_status_we <= csrbank13_re;
@@ -10352,8 +10353,8 @@ always @(*) begin
 end
 assign csrbank13_ev_pending_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_pending_we <= 1'd0;
     csrbank13_ev_pending_re <= 1'd0;
+    csrbank13_ev_pending_we <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank13_ev_pending_re <= interface13_bank_bus_we;
         csrbank13_ev_pending_we <= csrbank13_re;
@@ -10361,8 +10362,8 @@ always @(*) begin
 end
 assign csrbank13_ev_enable0_r = interface13_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank13_ev_enable0_re <= 1'd0;
     csrbank13_ev_enable0_we <= 1'd0;
+    csrbank13_ev_enable0_re <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank13_ev_enable0_re <= interface13_bank_bus_we;
         csrbank13_ev_enable0_we <= csrbank13_re;
@@ -10459,8 +10460,8 @@ always @(*) begin
 end
 assign csrbank14_ev_status_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank14_ev_status_re <= 1'd0;
     csrbank14_ev_status_we <= 1'd0;
+    csrbank14_ev_status_re <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank14_ev_status_re <= interface14_bank_bus_we;
         csrbank14_ev_status_we <= csrbank14_re;
@@ -10468,8 +10469,8 @@ always @(*) begin
 end
 assign csrbank14_ev_pending_r = interface14_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank14_ev_pending_we <= 1'd0;
     csrbank14_ev_pending_re <= 1'd0;
+    csrbank14_ev_pending_we <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank14_ev_pending_re <= interface14_bank_bus_we;
         csrbank14_ev_pending_we <= csrbank14_re;
@@ -10566,8 +10567,8 @@ assign csrbank15_sel = (interface15_bank_bus_adr[15:10] == 5'd16);
 assign csrbank15_re = interface15_bank_bus_re;
 assign csrbank15_ev_soft0_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_soft0_we <= 1'd0;
     csrbank15_ev_soft0_re <= 1'd0;
+    csrbank15_ev_soft0_we <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank15_ev_soft0_re <= interface15_bank_bus_we;
         csrbank15_ev_soft0_we <= csrbank15_re;
@@ -10575,8 +10576,8 @@ always @(*) begin
 end
 assign csrbank15_ev_status_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_status_re <= 1'd0;
     csrbank15_ev_status_we <= 1'd0;
+    csrbank15_ev_status_re <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank15_ev_status_re <= interface15_bank_bus_we;
         csrbank15_ev_status_we <= csrbank15_re;
@@ -10584,8 +10585,8 @@ always @(*) begin
 end
 assign csrbank15_ev_pending_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_pending_re <= 1'd0;
     csrbank15_ev_pending_we <= 1'd0;
+    csrbank15_ev_pending_re <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank15_ev_pending_re <= interface15_bank_bus_we;
         csrbank15_ev_pending_we <= csrbank15_re;
@@ -10593,8 +10594,8 @@ always @(*) begin
 end
 assign csrbank15_ev_enable0_r = interface15_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank15_ev_enable0_we <= 1'd0;
     csrbank15_ev_enable0_re <= 1'd0;
+    csrbank15_ev_enable0_we <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank15_ev_enable0_re <= interface15_bank_bus_we;
         csrbank15_ev_enable0_we <= csrbank15_re;
@@ -10691,8 +10692,8 @@ always @(*) begin
 end
 assign csrbank16_ev_status_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank16_ev_status_we <= 1'd0;
     csrbank16_ev_status_re <= 1'd0;
+    csrbank16_ev_status_we <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank16_ev_status_re <= interface16_bank_bus_we;
         csrbank16_ev_status_we <= csrbank16_re;
@@ -10700,8 +10701,8 @@ always @(*) begin
 end
 assign csrbank16_ev_pending_r = interface16_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank16_ev_pending_re <= 1'd0;
     csrbank16_ev_pending_we <= 1'd0;
+    csrbank16_ev_pending_re <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank16_ev_pending_re <= interface16_bank_bus_we;
         csrbank16_ev_pending_we <= csrbank16_re;
@@ -10798,8 +10799,8 @@ assign csrbank17_sel = (interface17_bank_bus_adr[15:10] == 5'd18);
 assign csrbank17_re = interface17_bank_bus_re;
 assign csrbank17_ev_soft0_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_soft0_re <= 1'd0;
     csrbank17_ev_soft0_we <= 1'd0;
+    csrbank17_ev_soft0_re <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank17_ev_soft0_re <= interface17_bank_bus_we;
         csrbank17_ev_soft0_we <= csrbank17_re;
@@ -10807,8 +10808,8 @@ always @(*) begin
 end
 assign csrbank17_ev_status_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_status_we <= 1'd0;
     csrbank17_ev_status_re <= 1'd0;
+    csrbank17_ev_status_we <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank17_ev_status_re <= interface17_bank_bus_we;
         csrbank17_ev_status_we <= csrbank17_re;
@@ -10816,8 +10817,8 @@ always @(*) begin
 end
 assign csrbank17_ev_pending_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_pending_we <= 1'd0;
     csrbank17_ev_pending_re <= 1'd0;
+    csrbank17_ev_pending_we <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank17_ev_pending_re <= interface17_bank_bus_we;
         csrbank17_ev_pending_we <= csrbank17_re;
@@ -10825,8 +10826,8 @@ always @(*) begin
 end
 assign csrbank17_ev_enable0_r = interface17_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank17_ev_enable0_re <= 1'd0;
     csrbank17_ev_enable0_we <= 1'd0;
+    csrbank17_ev_enable0_re <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank17_ev_enable0_re <= interface17_bank_bus_we;
         csrbank17_ev_enable0_we <= csrbank17_re;
@@ -10923,8 +10924,8 @@ always @(*) begin
 end
 assign csrbank18_ev_status_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank18_ev_status_re <= 1'd0;
     csrbank18_ev_status_we <= 1'd0;
+    csrbank18_ev_status_re <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank18_ev_status_re <= interface18_bank_bus_we;
         csrbank18_ev_status_we <= csrbank18_re;
@@ -10932,8 +10933,8 @@ always @(*) begin
 end
 assign csrbank18_ev_pending_r = interface18_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank18_ev_pending_we <= 1'd0;
     csrbank18_ev_pending_re <= 1'd0;
+    csrbank18_ev_pending_we <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank18_ev_pending_re <= interface18_bank_bus_we;
         csrbank18_ev_pending_we <= csrbank18_re;
@@ -11030,8 +11031,8 @@ assign csrbank19_sel = (interface19_bank_bus_adr[15:10] == 5'd20);
 assign csrbank19_re = interface19_bank_bus_re;
 assign csrbank19_ev_soft0_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_soft0_we <= 1'd0;
     csrbank19_ev_soft0_re <= 1'd0;
+    csrbank19_ev_soft0_we <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank19_ev_soft0_re <= interface19_bank_bus_we;
         csrbank19_ev_soft0_we <= csrbank19_re;
@@ -11039,8 +11040,8 @@ always @(*) begin
 end
 assign csrbank19_ev_status_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_status_re <= 1'd0;
     csrbank19_ev_status_we <= 1'd0;
+    csrbank19_ev_status_re <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank19_ev_status_re <= interface19_bank_bus_we;
         csrbank19_ev_status_we <= csrbank19_re;
@@ -11048,8 +11049,8 @@ always @(*) begin
 end
 assign csrbank19_ev_pending_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_pending_re <= 1'd0;
     csrbank19_ev_pending_we <= 1'd0;
+    csrbank19_ev_pending_re <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank19_ev_pending_re <= interface19_bank_bus_we;
         csrbank19_ev_pending_we <= csrbank19_re;
@@ -11057,8 +11058,8 @@ always @(*) begin
 end
 assign csrbank19_ev_enable0_r = interface19_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank19_ev_enable0_we <= 1'd0;
     csrbank19_ev_enable0_re <= 1'd0;
+    csrbank19_ev_enable0_we <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank19_ev_enable0_re <= interface19_bank_bus_we;
         csrbank19_ev_enable0_we <= csrbank19_re;
@@ -11155,8 +11156,8 @@ always @(*) begin
 end
 assign csrbank20_ev_status_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank20_ev_status_we <= 1'd0;
     csrbank20_ev_status_re <= 1'd0;
+    csrbank20_ev_status_we <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank20_ev_status_re <= interface20_bank_bus_we;
         csrbank20_ev_status_we <= csrbank20_re;
@@ -11164,8 +11165,8 @@ always @(*) begin
 end
 assign csrbank20_ev_pending_r = interface20_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank20_ev_pending_re <= 1'd0;
     csrbank20_ev_pending_we <= 1'd0;
+    csrbank20_ev_pending_re <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank20_ev_pending_re <= interface20_bank_bus_we;
         csrbank20_ev_pending_we <= csrbank20_re;
@@ -11262,8 +11263,8 @@ assign csrbank21_sel = (interface21_bank_bus_adr[15:10] == 5'd22);
 assign csrbank21_re = interface21_bank_bus_re;
 assign csrbank21_ev_soft0_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_soft0_re <= 1'd0;
     csrbank21_ev_soft0_we <= 1'd0;
+    csrbank21_ev_soft0_re <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank21_ev_soft0_re <= interface21_bank_bus_we;
         csrbank21_ev_soft0_we <= csrbank21_re;
@@ -11271,8 +11272,8 @@ always @(*) begin
 end
 assign csrbank21_ev_status_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_status_we <= 1'd0;
     csrbank21_ev_status_re <= 1'd0;
+    csrbank21_ev_status_we <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank21_ev_status_re <= interface21_bank_bus_we;
         csrbank21_ev_status_we <= csrbank21_re;
@@ -11280,8 +11281,8 @@ always @(*) begin
 end
 assign csrbank21_ev_pending_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_pending_we <= 1'd0;
     csrbank21_ev_pending_re <= 1'd0;
+    csrbank21_ev_pending_we <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank21_ev_pending_re <= interface21_bank_bus_we;
         csrbank21_ev_pending_we <= csrbank21_re;
@@ -11289,8 +11290,8 @@ always @(*) begin
 end
 assign csrbank21_ev_enable0_r = interface21_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank21_ev_enable0_re <= 1'd0;
     csrbank21_ev_enable0_we <= 1'd0;
+    csrbank21_ev_enable0_re <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank21_ev_enable0_re <= interface21_bank_bus_we;
         csrbank21_ev_enable0_we <= csrbank21_re;
@@ -11387,8 +11388,8 @@ always @(*) begin
 end
 assign csrbank22_ev_status_r = interface22_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank22_ev_status_re <= 1'd0;
     csrbank22_ev_status_we <= 1'd0;
+    csrbank22_ev_status_re <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank22_ev_status_re <= interface22_bank_bus_we;
         csrbank22_ev_status_we <= csrbank22_re;
@@ -11396,8 +11397,8 @@ always @(*) begin
 end
 assign csrbank22_ev_pending_r = interface22_bank_bus_dat_w[19:0];
 always @(*) begin
-    csrbank22_ev_pending_we <= 1'd0;
     csrbank22_ev_pending_re <= 1'd0;
+    csrbank22_ev_pending_we <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank22_ev_pending_re <= interface22_bank_bus_we;
         csrbank22_ev_pending_we <= csrbank22_re;
@@ -11494,8 +11495,8 @@ assign csrbank23_sel = (interface23_bank_bus_adr[15:10] == 5'd24);
 assign csrbank23_re = interface23_bank_bus_re;
 assign csrbank23_wdata0_r = interface23_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank23_wdata0_we <= 1'd0;
     csrbank23_wdata0_re <= 1'd0;
+    csrbank23_wdata0_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank23_wdata0_re <= interface23_bank_bus_we;
         csrbank23_wdata0_we <= csrbank23_re;
@@ -11503,8 +11504,8 @@ always @(*) begin
 end
 assign csrbank23_rdata_r = interface23_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank23_rdata_re <= 1'd0;
     csrbank23_rdata_we <= 1'd0;
+    csrbank23_rdata_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank23_rdata_re <= interface23_bank_bus_we;
         csrbank23_rdata_we <= csrbank23_re;
@@ -11512,8 +11513,8 @@ always @(*) begin
 end
 assign csrbank23_ev_status_r = interface23_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank23_ev_status_re <= 1'd0;
     csrbank23_ev_status_we <= 1'd0;
+    csrbank23_ev_status_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank23_ev_status_re <= interface23_bank_bus_we;
         csrbank23_ev_status_we <= csrbank23_re;
@@ -11521,8 +11522,8 @@ always @(*) begin
 end
 assign csrbank23_ev_pending_r = interface23_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank23_ev_pending_we <= 1'd0;
     csrbank23_ev_pending_re <= 1'd0;
+    csrbank23_ev_pending_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank23_ev_pending_re <= interface23_bank_bus_we;
         csrbank23_ev_pending_we <= csrbank23_re;
@@ -11539,8 +11540,8 @@ always @(*) begin
 end
 assign csrbank23_status_r = interface23_bank_bus_dat_w[25:0];
 always @(*) begin
-    csrbank23_status_re <= 1'd0;
     csrbank23_status_we <= 1'd0;
+    csrbank23_status_re <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 3'd5))) begin
         csrbank23_status_re <= interface23_bank_bus_we;
         csrbank23_status_we <= csrbank23_re;
@@ -11548,8 +11549,8 @@ always @(*) begin
 end
 assign csrbank23_control0_r = interface23_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank23_control0_we <= 1'd0;
     csrbank23_control0_re <= 1'd0;
+    csrbank23_control0_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank23_control0_re <= interface23_bank_bus_we;
         csrbank23_control0_we <= csrbank23_re;
@@ -11619,8 +11620,8 @@ assign csrbank24_sel = (interface24_bank_bus_adr[15:10] == 5'd25);
 assign csrbank24_re = interface24_bank_bus_re;
 assign csrbank24_wdata0_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank24_wdata0_we <= 1'd0;
     csrbank24_wdata0_re <= 1'd0;
+    csrbank24_wdata0_we <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank24_wdata0_re <= interface24_bank_bus_we;
         csrbank24_wdata0_we <= csrbank24_re;
@@ -11628,8 +11629,8 @@ always @(*) begin
 end
 assign csrbank24_rdata_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank24_rdata_re <= 1'd0;
     csrbank24_rdata_we <= 1'd0;
+    csrbank24_rdata_re <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank24_rdata_re <= interface24_bank_bus_we;
         csrbank24_rdata_we <= csrbank24_re;
@@ -11637,8 +11638,8 @@ always @(*) begin
 end
 assign csrbank24_ev_status_r = interface24_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank24_ev_status_re <= 1'd0;
     csrbank24_ev_status_we <= 1'd0;
+    csrbank24_ev_status_re <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank24_ev_status_re <= interface24_bank_bus_we;
         csrbank24_ev_status_we <= csrbank24_re;
@@ -11646,8 +11647,8 @@ always @(*) begin
 end
 assign csrbank24_ev_pending_r = interface24_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank24_ev_pending_we <= 1'd0;
     csrbank24_ev_pending_re <= 1'd0;
+    csrbank24_ev_pending_we <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank24_ev_pending_re <= interface24_bank_bus_we;
         csrbank24_ev_pending_we <= csrbank24_re;
@@ -11664,8 +11665,8 @@ always @(*) begin
 end
 assign csrbank24_status_r = interface24_bank_bus_dat_w[5:0];
 always @(*) begin
-    csrbank24_status_re <= 1'd0;
     csrbank24_status_we <= 1'd0;
+    csrbank24_status_re <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd5))) begin
         csrbank24_status_re <= interface24_bank_bus_we;
         csrbank24_status_we <= csrbank24_re;
@@ -11673,8 +11674,8 @@ always @(*) begin
 end
 assign csrbank24_control0_r = interface24_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank24_control0_we <= 1'd0;
     csrbank24_control0_re <= 1'd0;
+    csrbank24_control0_we <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank24_control0_re <= interface24_bank_bus_we;
         csrbank24_control0_we <= csrbank24_re;
@@ -11744,8 +11745,8 @@ assign csrbank25_sel = (interface25_bank_bus_adr[15:10] == 5'd26);
 assign csrbank25_re = interface25_bank_bus_re;
 assign csrbank25_pc_r = interface25_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank25_pc_we <= 1'd0;
     csrbank25_pc_re <= 1'd0;
+    csrbank25_pc_we <= 1'd0;
     if ((csrbank25_sel & (interface25_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank25_pc_re <= interface25_bank_bus_we;
         csrbank25_pc_we <= csrbank25_re;
@@ -11757,8 +11758,8 @@ assign csrbank26_sel = (interface26_bank_bus_adr[15:10] == 1'd1);
 assign csrbank26_re = interface26_bank_bus_re;
 assign csrbank26_control0_r = interface26_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank26_control0_re <= 1'd0;
     csrbank26_control0_we <= 1'd0;
+    csrbank26_control0_re <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank26_control0_re <= interface26_bank_bus_we;
         csrbank26_control0_we <= csrbank26_re;
@@ -11775,8 +11776,8 @@ always @(*) begin
 end
 assign csrbank26_resume_time0_r = interface26_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank26_resume_time0_we <= 1'd0;
     csrbank26_resume_time0_re <= 1'd0;
+    csrbank26_resume_time0_we <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 2'd2))) begin
         csrbank26_resume_time0_re <= interface26_bank_bus_we;
         csrbank26_resume_time0_we <= csrbank26_re;
@@ -11784,8 +11785,8 @@ always @(*) begin
 end
 assign csrbank26_time1_r = interface26_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank26_time1_re <= 1'd0;
     csrbank26_time1_we <= 1'd0;
+    csrbank26_time1_re <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank26_time1_re <= interface26_bank_bus_we;
         csrbank26_time1_we <= csrbank26_re;
@@ -11802,8 +11803,8 @@ always @(*) begin
 end
 assign csrbank26_status_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_status_we <= 1'd0;
     csrbank26_status_re <= 1'd0;
+    csrbank26_status_we <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd5))) begin
         csrbank26_status_re <= interface26_bank_bus_we;
         csrbank26_status_we <= csrbank26_re;
@@ -11820,8 +11821,8 @@ always @(*) begin
 end
 assign csrbank26_interrupt0_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_interrupt0_re <= 1'd0;
     csrbank26_interrupt0_we <= 1'd0;
+    csrbank26_interrupt0_re <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 3'd7))) begin
         csrbank26_interrupt0_re <= interface26_bank_bus_we;
         csrbank26_interrupt0_we <= csrbank26_re;
@@ -11829,8 +11830,8 @@ always @(*) begin
 end
 assign csrbank26_ev_status_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_ev_status_we <= 1'd0;
     csrbank26_ev_status_re <= 1'd0;
+    csrbank26_ev_status_we <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 4'd8))) begin
         csrbank26_ev_status_re <= interface26_bank_bus_we;
         csrbank26_ev_status_we <= csrbank26_re;
@@ -11847,8 +11848,8 @@ always @(*) begin
 end
 assign csrbank26_ev_enable0_r = interface26_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank26_ev_enable0_re <= 1'd0;
     csrbank26_ev_enable0_we <= 1'd0;
+    csrbank26_ev_enable0_re <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 4'd10))) begin
         csrbank26_ev_enable0_re <= interface26_bank_bus_we;
         csrbank26_ev_enable0_we <= csrbank26_re;
@@ -11892,8 +11893,8 @@ assign csrbank27_sel = (interface27_bank_bus_adr[15:10] == 5'd27);
 assign csrbank27_re = interface27_bank_bus_re;
 assign csrbank27_control0_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank27_control0_re <= 1'd0;
     csrbank27_control0_we <= 1'd0;
+    csrbank27_control0_re <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank27_control0_re <= interface27_bank_bus_we;
         csrbank27_control0_we <= csrbank27_re;
@@ -11901,8 +11902,8 @@ always @(*) begin
 end
 assign csrbank27_time1_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank27_time1_we <= 1'd0;
     csrbank27_time1_re <= 1'd0;
+    csrbank27_time1_we <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank27_time1_re <= interface27_bank_bus_we;
         csrbank27_time1_we <= csrbank27_re;
@@ -11919,8 +11920,8 @@ always @(*) begin
 end
 assign csrbank27_msleep_target1_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank27_msleep_target1_re <= 1'd0;
     csrbank27_msleep_target1_we <= 1'd0;
+    csrbank27_msleep_target1_re <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank27_msleep_target1_re <= interface27_bank_bus_we;
         csrbank27_msleep_target1_we <= csrbank27_re;
@@ -11928,8 +11929,8 @@ always @(*) begin
 end
 assign csrbank27_msleep_target0_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank27_msleep_target0_we <= 1'd0;
     csrbank27_msleep_target0_re <= 1'd0;
+    csrbank27_msleep_target0_we <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd4))) begin
         csrbank27_msleep_target0_re <= interface27_bank_bus_we;
         csrbank27_msleep_target0_we <= csrbank27_re;
@@ -11946,8 +11947,8 @@ always @(*) begin
 end
 assign csrbank27_ev_pending_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank27_ev_pending_re <= 1'd0;
     csrbank27_ev_pending_we <= 1'd0;
+    csrbank27_ev_pending_re <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank27_ev_pending_re <= interface27_bank_bus_we;
         csrbank27_ev_pending_we <= csrbank27_re;
@@ -11955,8 +11956,8 @@ always @(*) begin
 end
 assign csrbank27_ev_enable0_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank27_ev_enable0_we <= 1'd0;
     csrbank27_ev_enable0_re <= 1'd0;
+    csrbank27_ev_enable0_we <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd7))) begin
         csrbank27_ev_enable0_re <= interface27_bank_bus_we;
         csrbank27_ev_enable0_we <= csrbank27_re;
@@ -12264,229 +12265,7 @@ assign ticktimer_target_xfer_obuffer = multiregimpl18_regs1;
 //------------------------------------------------------------------------------
 
 always @(posedge always_on_clk) begin
-    if (ticktimer_reset_xfer_o) begin
-        ticktimer_timer0 <= 1'd0;
-        ticktimer_prescaler <= 20'd800000;
-    end else begin
-        if (ticktimer_load_xfer_o) begin
-            ticktimer_prescaler <= 20'd800000;
-            ticktimer_timer0 <= ticktimer_resume_sync_o;
-        end else begin
-            if ((ticktimer_prescaler == 1'd0)) begin
-                ticktimer_prescaler <= 20'd800000;
-                if ((ticktimer_pause1 == 1'd0)) begin
-                    ticktimer_timer0 <= (ticktimer_timer0 + 1'd1);
-                    ticktimer_paused1 <= 1'd0;
-                end else begin
-                    ticktimer_timer0 <= ticktimer_timer0;
-                    ticktimer_paused1 <= 1'd1;
-                end
-            end else begin
-                ticktimer_prescaler <= (ticktimer_prescaler - 1'd1);
-            end
-        end
-    end
-    ticktimer_alarm3 <= (ticktimer_target_xfer_o <= ticktimer_timer0);
-    ticktimer_load_xfer_ps_toggle_o_r <= ticktimer_load_xfer_ps_toggle_o;
-    if (ticktimer_load_xfer_ps_ack_i) begin
-        ticktimer_load_xfer_ps_ack_toggle_i <= (~ticktimer_load_xfer_ps_ack_toggle_i);
-    end
-    ticktimer_timer_sync_starter <= 1'd0;
-    if (ticktimer_timer_sync_pong_o) begin
-        ticktimer_timer_sync_ibuffer <= ticktimer_timer_sync_i;
-    end
-    if (ticktimer_timer_sync_ping_i) begin
-        ticktimer_timer_sync_ping_toggle_i <= (~ticktimer_timer_sync_ping_toggle_i);
-    end
-    ticktimer_timer_sync_pong_toggle_o_r <= ticktimer_timer_sync_pong_toggle_o;
-    if (ticktimer_timer_sync_wait) begin
-        if ((~ticktimer_timer_sync_done)) begin
-            ticktimer_timer_sync_count <= (ticktimer_timer_sync_count - 1'd1);
-        end
-    end else begin
-        ticktimer_timer_sync_count <= 8'd128;
-    end
-    ticktimer_resume_sync_ping_o1 <= ticktimer_resume_sync_ping_o0;
-    if (ticktimer_resume_sync_ping_o1) begin
-        ticktimer_resume_sync_o <= ticktimer_resume_sync_obuffer;
-    end
-    ticktimer_resume_sync_ping_toggle_o_r <= ticktimer_resume_sync_ping_toggle_o;
-    if (ticktimer_resume_sync_pong_i) begin
-        ticktimer_resume_sync_pong_toggle_i <= (~ticktimer_resume_sync_pong_toggle_i);
-    end
-    ticktimer_reset_xfer_ps_toggle_o_r <= ticktimer_reset_xfer_ps_toggle_o;
-    if (ticktimer_reset_xfer_ps_ack_i) begin
-        ticktimer_reset_xfer_ps_ack_toggle_i <= (~ticktimer_reset_xfer_ps_ack_toggle_i);
-    end
-    ticktimer_ping_ps_toggle_o_r <= ticktimer_ping_ps_toggle_o;
-    if (ticktimer_ping_ps_ack_i) begin
-        ticktimer_ping_ps_ack_toggle_i <= (~ticktimer_ping_ps_ack_toggle_i);
-    end
-    if (ticktimer_pong_i) begin
-        ticktimer_pong_blind <= 1'd1;
-    end
-    if (ticktimer_pong_ps_ack_o) begin
-        ticktimer_pong_blind <= 1'd0;
-    end
-    if (ticktimer_pong_ps_i) begin
-        ticktimer_pong_ps_toggle_i <= (~ticktimer_pong_ps_toggle_i);
-    end
-    ticktimer_pong_ps_ack_toggle_o_r <= ticktimer_pong_ps_ack_toggle_o;
-    ticktimer_target_xfer_ping_o1 <= ticktimer_target_xfer_ping_o0;
-    if (ticktimer_target_xfer_ping_o1) begin
-        ticktimer_target_xfer_o <= ticktimer_target_xfer_obuffer;
-    end
-    ticktimer_target_xfer_ping_toggle_o_r <= ticktimer_target_xfer_ping_toggle_o;
-    if (ticktimer_target_xfer_pong_i) begin
-        ticktimer_target_xfer_pong_toggle_i <= (~ticktimer_target_xfer_pong_toggle_i);
-    end
-    if (always_on_rst) begin
-        ticktimer_prescaler <= 20'd800000;
-        ticktimer_timer0 <= 64'd0;
-        ticktimer_paused1 <= 1'd0;
-        ticktimer_timer_sync_starter <= 1'd1;
-        ticktimer_timer_sync_count <= 8'd128;
-        ticktimer_resume_sync_ping_o1 <= 1'd0;
-        ticktimer_pong_blind <= 1'd0;
-        ticktimer_alarm3 <= 1'd0;
-        ticktimer_target_xfer_ping_o1 <= 1'd0;
-    end
-    multiregimpl0_regs0 <= ticktimer_pause0;
-    multiregimpl0_regs1 <= multiregimpl0_regs0;
-    multiregimpl1_regs0 <= ticktimer_load_xfer_ps_toggle_i;
-    multiregimpl1_regs1 <= multiregimpl1_regs0;
-    multiregimpl5_regs0 <= ticktimer_timer_sync_pong_toggle_i;
-    multiregimpl5_regs1 <= multiregimpl5_regs0;
-    multiregimpl7_regs0 <= ticktimer_resume_sync_ping_toggle_i;
-    multiregimpl7_regs1 <= multiregimpl7_regs0;
-    multiregimpl9_regs0 <= ticktimer_resume_sync_ibuffer;
-    multiregimpl9_regs1 <= multiregimpl9_regs0;
-    multiregimpl10_regs0 <= ticktimer_reset_xfer_ps_toggle_i;
-    multiregimpl10_regs1 <= multiregimpl10_regs0;
-    multiregimpl12_regs0 <= ticktimer_ping_ps_toggle_i;
-    multiregimpl12_regs1 <= multiregimpl12_regs0;
-    multiregimpl15_regs0 <= ticktimer_pong_ps_ack_toggle_i;
-    multiregimpl15_regs1 <= multiregimpl15_regs0;
-    multiregimpl16_regs0 <= ticktimer_target_xfer_ping_toggle_i;
-    multiregimpl16_regs1 <= multiregimpl16_regs0;
-    multiregimpl18_regs0 <= ticktimer_target_xfer_ibuffer;
-    multiregimpl18_regs1 <= multiregimpl18_regs0;
-end
-
-always @(posedge sys_clk) begin
-    p_axi_awvalid <= cramsoc_peripherals_aw_valid;
-    p_axi_awaddr <= cramsoc_peripherals_aw_payload_addr;
-    p_axi_awprot <= cramsoc_peripherals_aw_payload_prot;
-    cramsoc_peripherals_aw_ready <= p_axi_awready;
-    p_axi_wvalid <= cramsoc_peripherals_w_valid;
-    p_axi_wdata <= cramsoc_peripherals_w_payload_data;
-    p_axi_wstrb <= cramsoc_peripherals_w_payload_strb;
-    cramsoc_peripherals_w_ready <= p_axi_wready;
-    cramsoc_peripherals_b_valid <= p_axi_bvalid;
-    cramsoc_peripherals_b_payload_resp <= p_axi_bresp;
-    p_axi_bready <= cramsoc_peripherals_b_ready;
-    p_axi_arvalid <= cramsoc_peripherals_ar_valid;
-    p_axi_araddr <= cramsoc_peripherals_ar_payload_addr;
-    p_axi_arprot <= cramsoc_peripherals_ar_payload_prot;
-    cramsoc_peripherals_ar_ready <= p_axi_arready;
-    cramsoc_peripherals_r_valid <= p_axi_rvalid;
-    cramsoc_peripherals_r_payload_resp <= p_axi_rresp;
-    cramsoc_peripherals_r_payload_data <= p_axi_rdata;
-    p_axi_rready <= cramsoc_peripherals_r_ready;
-    if (socbushandler_axiliterequestcounter0_empty) begin
-        socbushandler_slave_sel_reg0 <= socbushandler_slave_sel_dec0;
-    end
-    if (socbushandler_axiliterequestcounter1_empty) begin
-        socbushandler_slave_sel_reg1 <= socbushandler_slave_sel_dec1;
-    end
-    if (((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & (cramsoc_corecsr_b_valid & cramsoc_corecsr_b_ready))) begin
-        socbushandler_axiliterequestcounter0_counter <= socbushandler_axiliterequestcounter0_counter;
-    end else begin
-        if (((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & (~socbushandler_axiliterequestcounter0_full))) begin
-            socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter + 1'd1);
-        end else begin
-            if (((cramsoc_corecsr_b_valid & cramsoc_corecsr_b_ready) & (~socbushandler_axiliterequestcounter0_empty))) begin
-                socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter - 1'd1);
-            end
-        end
-    end
-    if (((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & (cramsoc_corecsr_r_valid & cramsoc_corecsr_r_ready))) begin
-        socbushandler_axiliterequestcounter1_counter <= socbushandler_axiliterequestcounter1_counter;
-    end else begin
-        if (((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & (~socbushandler_axiliterequestcounter1_full))) begin
-            socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter + 1'd1);
-        end else begin
-            if (((cramsoc_corecsr_r_valid & cramsoc_corecsr_r_ready) & (~socbushandler_axiliterequestcounter1_empty))) begin
-                socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter - 1'd1);
-            end
-        end
-    end
-    if (((cramsoc_aw_valid & cramsoc_aw_ready) & (cramsoc_b_valid & cramsoc_b_ready))) begin
-        socbushandler_wr_lock_counter <= socbushandler_wr_lock_counter;
-    end else begin
-        if (((cramsoc_aw_valid & cramsoc_aw_ready) & (~socbushandler_wr_lock_full))) begin
-            socbushandler_wr_lock_counter <= (socbushandler_wr_lock_counter + 1'd1);
-        end else begin
-            if (((cramsoc_b_valid & cramsoc_b_ready) & (~socbushandler_wr_lock_empty))) begin
-                socbushandler_wr_lock_counter <= (socbushandler_wr_lock_counter - 1'd1);
-            end
-        end
-    end
-    if (((cramsoc_ar_valid & cramsoc_ar_ready) & (cramsoc_r_valid & cramsoc_r_ready))) begin
-        socbushandler_rd_lock_counter <= socbushandler_rd_lock_counter;
-    end else begin
-        if (((cramsoc_ar_valid & cramsoc_ar_ready) & (~socbushandler_rd_lock_full))) begin
-            socbushandler_rd_lock_counter <= (socbushandler_rd_lock_counter + 1'd1);
-        end else begin
-            if (((cramsoc_r_valid & cramsoc_r_ready) & (~socbushandler_rd_lock_empty))) begin
-                socbushandler_rd_lock_counter <= (socbushandler_rd_lock_counter - 1'd1);
-            end
-        end
-    end
-    debug_reset <= (reset_debug_logic | sys_rst);
-    if (o_resetOut) begin
-        reset_debug_logic <= 1'd1;
-    end else begin
-        reset_debug_logic <= 1'd0;
-    end
-    if (sys_rst) begin
-        if (trimming_reset_ena_1) begin
-            resetvalue_latched_value <= trimming_reset_1;
-        end else begin
-            resetvalue_latched_value <= 31'd1610612736;
-        end
-    end else begin
-        resetvalue_latched_value <= resetvalue_latched_value;
-    end
-    if (coreuser_protect) begin
-        coreuser_enable1 <= coreuser_enable1;
-        coreuser_require_asid <= coreuser_require_asid;
-        coreuser_require_ppn_a <= coreuser_require_ppn_a;
-        coreuser_require_ppn_b <= coreuser_require_ppn_b;
-        coreuser_require_priv <= coreuser_require_priv;
-        coreuser_privilege1 <= coreuser_privilege1;
-    end else begin
-        coreuser_enable1 <= coreuser_enable0;
-        coreuser_require_asid <= coreuser_asid2;
-        coreuser_require_ppn_a <= coreuser_ppn_a;
-        coreuser_require_ppn_b <= coreuser_ppn_b;
-        coreuser_require_priv <= coreuser_privilege0;
-        coreuser_privilege1 <= coreuser_mpp;
-    end
-    coreuser_coreuser_mux_delay <= coreuser_asid_rd_adr[3:0];
-    coreuser_readback_shift_delay <= coreuser_asid1[3:0];
-    if (coreuser_protect) begin
-        coreuser_window_al <= coreuser_window_al;
-        coreuser_window_ah <= coreuser_window_ah;
-        coreuser_window_bl <= coreuser_window_bh;
-        coreuser_window_bh <= coreuser_window_bh;
-    end else begin
-        coreuser_window_al <= coreuser_ppn0;
-        coreuser_window_ah <= coreuser_ppn1;
-        coreuser_window_bl <= coreuser_ppn2;
-        coreuser_window_bh <= coreuser_ppn3;
-    end
-    coreuser <= (((~cramsoc_satp_mode) | (~coreuser_enable1)) | ((((coreuser_coreuser_asid | (~coreuser_require_asid)) & ((~coreuser_require_ppn_a) | ((cramsoc_satp_ppn >= coreuser_window_al) & (cramsoc_satp_ppn <= coreuser_window_ah)))) & ((~coreuser_require_ppn_b) | ((cramsoc_satp_ppn >= coreuser_window_bl) & (cramsoc_satp_ppn <= coreuser_window_bh)))) & ((~coreuser_require_priv) | (cramsoc_privilege == coreuser_privilege1))));
+    cpu_int_active <= (cramsoc_interrupt == {1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0, 1'd0});
     if ((irqarray0_interrupts[0] | irqarray0_trigger[0])) begin
         irqarray0_eventsourceflex0_pending <= 1'd1;
     end else begin
@@ -16087,6 +15866,82 @@ always @(posedge sys_clk) begin
             irqarray19_eventsourceflex399_pending <= irqarray19_eventsourceflex399_pending;
         end
     end
+    if (ticktimer_reset_xfer_o) begin
+        ticktimer_timer0 <= 1'd0;
+        ticktimer_prescaler <= 20'd800000;
+    end else begin
+        if (ticktimer_load_xfer_o) begin
+            ticktimer_prescaler <= 20'd800000;
+            ticktimer_timer0 <= ticktimer_resume_sync_o;
+        end else begin
+            if ((ticktimer_prescaler == 1'd0)) begin
+                ticktimer_prescaler <= 20'd800000;
+                if ((ticktimer_pause1 == 1'd0)) begin
+                    ticktimer_timer0 <= (ticktimer_timer0 + 1'd1);
+                    ticktimer_paused1 <= 1'd0;
+                end else begin
+                    ticktimer_timer0 <= ticktimer_timer0;
+                    ticktimer_paused1 <= 1'd1;
+                end
+            end else begin
+                ticktimer_prescaler <= (ticktimer_prescaler - 1'd1);
+            end
+        end
+    end
+    ticktimer_alarm3 <= (ticktimer_target_xfer_o <= ticktimer_timer0);
+    ticktimer_load_xfer_ps_toggle_o_r <= ticktimer_load_xfer_ps_toggle_o;
+    if (ticktimer_load_xfer_ps_ack_i) begin
+        ticktimer_load_xfer_ps_ack_toggle_i <= (~ticktimer_load_xfer_ps_ack_toggle_i);
+    end
+    ticktimer_timer_sync_starter <= 1'd0;
+    if (ticktimer_timer_sync_pong_o) begin
+        ticktimer_timer_sync_ibuffer <= ticktimer_timer_sync_i;
+    end
+    if (ticktimer_timer_sync_ping_i) begin
+        ticktimer_timer_sync_ping_toggle_i <= (~ticktimer_timer_sync_ping_toggle_i);
+    end
+    ticktimer_timer_sync_pong_toggle_o_r <= ticktimer_timer_sync_pong_toggle_o;
+    if (ticktimer_timer_sync_wait) begin
+        if ((~ticktimer_timer_sync_done)) begin
+            ticktimer_timer_sync_count <= (ticktimer_timer_sync_count - 1'd1);
+        end
+    end else begin
+        ticktimer_timer_sync_count <= 8'd128;
+    end
+    ticktimer_resume_sync_ping_o1 <= ticktimer_resume_sync_ping_o0;
+    if (ticktimer_resume_sync_ping_o1) begin
+        ticktimer_resume_sync_o <= ticktimer_resume_sync_obuffer;
+    end
+    ticktimer_resume_sync_ping_toggle_o_r <= ticktimer_resume_sync_ping_toggle_o;
+    if (ticktimer_resume_sync_pong_i) begin
+        ticktimer_resume_sync_pong_toggle_i <= (~ticktimer_resume_sync_pong_toggle_i);
+    end
+    ticktimer_reset_xfer_ps_toggle_o_r <= ticktimer_reset_xfer_ps_toggle_o;
+    if (ticktimer_reset_xfer_ps_ack_i) begin
+        ticktimer_reset_xfer_ps_ack_toggle_i <= (~ticktimer_reset_xfer_ps_ack_toggle_i);
+    end
+    ticktimer_ping_ps_toggle_o_r <= ticktimer_ping_ps_toggle_o;
+    if (ticktimer_ping_ps_ack_i) begin
+        ticktimer_ping_ps_ack_toggle_i <= (~ticktimer_ping_ps_ack_toggle_i);
+    end
+    if (ticktimer_pong_i) begin
+        ticktimer_pong_blind <= 1'd1;
+    end
+    if (ticktimer_pong_ps_ack_o) begin
+        ticktimer_pong_blind <= 1'd0;
+    end
+    if (ticktimer_pong_ps_i) begin
+        ticktimer_pong_ps_toggle_i <= (~ticktimer_pong_ps_toggle_i);
+    end
+    ticktimer_pong_ps_ack_toggle_o_r <= ticktimer_pong_ps_ack_toggle_o;
+    ticktimer_target_xfer_ping_o1 <= ticktimer_target_xfer_ping_o0;
+    if (ticktimer_target_xfer_ping_o1) begin
+        ticktimer_target_xfer_o <= ticktimer_target_xfer_obuffer;
+    end
+    ticktimer_target_xfer_ping_toggle_o_r <= ticktimer_target_xfer_ping_toggle_o;
+    if (ticktimer_target_xfer_pong_i) begin
+        ticktimer_target_xfer_pong_toggle_i <= (~ticktimer_target_xfer_pong_toggle_i);
+    end
     if (ticktimer_msleep_target_re) begin
         ticktimer_lockout_alarm <= 1'd1;
     end else begin
@@ -16181,6 +16036,585 @@ always @(posedge sys_clk) begin
     if (((~susres_soft_int_trigger) & susres_soft_int_trigger_d)) begin
         susres_soft_int_pending <= 1'd1;
     end
+    if (always_on_rst) begin
+        cpu_int_active <= 1'd0;
+        irqarray0_eventsourceflex0_pending <= 1'd0;
+        irqarray0_eventsourceflex1_pending <= 1'd0;
+        irqarray0_eventsourceflex2_pending <= 1'd0;
+        irqarray0_eventsourceflex3_pending <= 1'd0;
+        irqarray0_eventsourceflex4_pending <= 1'd0;
+        irqarray0_eventsourceflex5_pending <= 1'd0;
+        irqarray0_eventsourceflex6_pending <= 1'd0;
+        irqarray0_eventsourceflex7_pending <= 1'd0;
+        irqarray0_eventsourceflex8_pending <= 1'd0;
+        irqarray0_eventsourceflex9_pending <= 1'd0;
+        irqarray0_eventsourceflex10_pending <= 1'd0;
+        irqarray0_eventsourceflex11_pending <= 1'd0;
+        irqarray0_eventsourceflex12_pending <= 1'd0;
+        irqarray0_eventsourceflex13_pending <= 1'd0;
+        irqarray0_eventsourceflex14_pending <= 1'd0;
+        irqarray0_eventsourceflex15_pending <= 1'd0;
+        irqarray0_eventsourceflex16_pending <= 1'd0;
+        irqarray0_eventsourceflex17_pending <= 1'd0;
+        irqarray0_eventsourceflex18_pending <= 1'd0;
+        irqarray0_eventsourceflex19_pending <= 1'd0;
+        irqarray1_eventsourceflex20_pending <= 1'd0;
+        irqarray1_eventsourceflex21_pending <= 1'd0;
+        irqarray1_eventsourceflex22_pending <= 1'd0;
+        irqarray1_eventsourceflex23_pending <= 1'd0;
+        irqarray1_eventsourceflex24_pending <= 1'd0;
+        irqarray1_eventsourceflex25_pending <= 1'd0;
+        irqarray1_eventsourceflex26_pending <= 1'd0;
+        irqarray1_eventsourceflex27_pending <= 1'd0;
+        irqarray1_eventsourceflex28_pending <= 1'd0;
+        irqarray1_eventsourceflex29_pending <= 1'd0;
+        irqarray1_eventsourceflex30_pending <= 1'd0;
+        irqarray1_eventsourceflex31_pending <= 1'd0;
+        irqarray1_eventsourceflex32_pending <= 1'd0;
+        irqarray1_eventsourceflex33_pending <= 1'd0;
+        irqarray1_eventsourceflex34_pending <= 1'd0;
+        irqarray1_eventsourceflex35_pending <= 1'd0;
+        irqarray1_eventsourceflex36_pending <= 1'd0;
+        irqarray1_eventsourceflex37_pending <= 1'd0;
+        irqarray1_eventsourceflex38_pending <= 1'd0;
+        irqarray1_eventsourceflex39_pending <= 1'd0;
+        irqarray2_eventsourceflex40_pending <= 1'd0;
+        irqarray2_eventsourceflex41_pending <= 1'd0;
+        irqarray2_eventsourceflex42_pending <= 1'd0;
+        irqarray2_eventsourceflex43_pending <= 1'd0;
+        irqarray2_eventsourceflex44_pending <= 1'd0;
+        irqarray2_eventsourceflex45_pending <= 1'd0;
+        irqarray2_eventsourceflex46_pending <= 1'd0;
+        irqarray2_eventsourceflex47_pending <= 1'd0;
+        irqarray2_eventsourceflex48_pending <= 1'd0;
+        irqarray2_eventsourceflex49_pending <= 1'd0;
+        irqarray2_eventsourceflex50_pending <= 1'd0;
+        irqarray2_eventsourceflex51_pending <= 1'd0;
+        irqarray2_eventsourceflex52_pending <= 1'd0;
+        irqarray2_eventsourceflex53_pending <= 1'd0;
+        irqarray2_eventsourceflex54_pending <= 1'd0;
+        irqarray2_eventsourceflex55_pending <= 1'd0;
+        irqarray2_eventsourceflex56_pending <= 1'd0;
+        irqarray2_eventsourceflex57_pending <= 1'd0;
+        irqarray2_eventsourceflex58_pending <= 1'd0;
+        irqarray2_eventsourceflex59_pending <= 1'd0;
+        irqarray3_eventsourceflex60_pending <= 1'd0;
+        irqarray3_eventsourceflex61_pending <= 1'd0;
+        irqarray3_eventsourceflex62_pending <= 1'd0;
+        irqarray3_eventsourceflex63_pending <= 1'd0;
+        irqarray3_eventsourceflex64_pending <= 1'd0;
+        irqarray3_eventsourceflex65_pending <= 1'd0;
+        irqarray3_eventsourceflex66_pending <= 1'd0;
+        irqarray3_eventsourceflex67_pending <= 1'd0;
+        irqarray3_eventsourceflex68_pending <= 1'd0;
+        irqarray3_eventsourceflex69_pending <= 1'd0;
+        irqarray3_eventsourceflex70_pending <= 1'd0;
+        irqarray3_eventsourceflex71_pending <= 1'd0;
+        irqarray3_eventsourceflex72_pending <= 1'd0;
+        irqarray3_eventsourceflex73_pending <= 1'd0;
+        irqarray3_eventsourceflex74_pending <= 1'd0;
+        irqarray3_eventsourceflex75_pending <= 1'd0;
+        irqarray3_eventsourceflex76_pending <= 1'd0;
+        irqarray3_eventsourceflex77_pending <= 1'd0;
+        irqarray3_eventsourceflex78_pending <= 1'd0;
+        irqarray3_eventsourceflex79_pending <= 1'd0;
+        irqarray4_eventsourceflex80_pending <= 1'd0;
+        irqarray4_eventsourceflex81_pending <= 1'd0;
+        irqarray4_eventsourceflex82_pending <= 1'd0;
+        irqarray4_eventsourceflex83_pending <= 1'd0;
+        irqarray4_eventsourceflex84_pending <= 1'd0;
+        irqarray4_eventsourceflex85_pending <= 1'd0;
+        irqarray4_eventsourceflex86_pending <= 1'd0;
+        irqarray4_eventsourceflex87_pending <= 1'd0;
+        irqarray4_eventsourceflex88_pending <= 1'd0;
+        irqarray4_eventsourceflex89_pending <= 1'd0;
+        irqarray4_eventsourceflex90_pending <= 1'd0;
+        irqarray4_eventsourceflex91_pending <= 1'd0;
+        irqarray4_eventsourceflex92_pending <= 1'd0;
+        irqarray4_eventsourceflex93_pending <= 1'd0;
+        irqarray4_eventsourceflex94_pending <= 1'd0;
+        irqarray4_eventsourceflex95_pending <= 1'd0;
+        irqarray4_eventsourceflex96_pending <= 1'd0;
+        irqarray4_eventsourceflex97_pending <= 1'd0;
+        irqarray4_eventsourceflex98_pending <= 1'd0;
+        irqarray4_eventsourceflex99_pending <= 1'd0;
+        irqarray5_eventsourceflex100_pending <= 1'd0;
+        irqarray5_eventsourceflex101_pending <= 1'd0;
+        irqarray5_eventsourceflex102_pending <= 1'd0;
+        irqarray5_eventsourceflex103_pending <= 1'd0;
+        irqarray5_eventsourceflex104_pending <= 1'd0;
+        irqarray5_eventsourceflex105_pending <= 1'd0;
+        irqarray5_eventsourceflex106_pending <= 1'd0;
+        irqarray5_eventsourceflex107_pending <= 1'd0;
+        irqarray5_eventsourceflex108_pending <= 1'd0;
+        irqarray5_eventsourceflex109_pending <= 1'd0;
+        irqarray5_eventsourceflex110_pending <= 1'd0;
+        irqarray5_eventsourceflex111_pending <= 1'd0;
+        irqarray5_eventsourceflex112_pending <= 1'd0;
+        irqarray5_eventsourceflex113_pending <= 1'd0;
+        irqarray5_eventsourceflex114_pending <= 1'd0;
+        irqarray5_eventsourceflex115_pending <= 1'd0;
+        irqarray5_eventsourceflex116_pending <= 1'd0;
+        irqarray5_eventsourceflex117_pending <= 1'd0;
+        irqarray5_eventsourceflex118_pending <= 1'd0;
+        irqarray5_eventsourceflex119_pending <= 1'd0;
+        irqarray6_eventsourceflex120_pending <= 1'd0;
+        irqarray6_eventsourceflex121_pending <= 1'd0;
+        irqarray6_eventsourceflex122_pending <= 1'd0;
+        irqarray6_eventsourceflex123_pending <= 1'd0;
+        irqarray6_eventsourceflex124_pending <= 1'd0;
+        irqarray6_eventsourceflex125_pending <= 1'd0;
+        irqarray6_eventsourceflex126_pending <= 1'd0;
+        irqarray6_eventsourceflex127_pending <= 1'd0;
+        irqarray6_eventsourceflex128_pending <= 1'd0;
+        irqarray6_eventsourceflex129_pending <= 1'd0;
+        irqarray6_eventsourceflex130_pending <= 1'd0;
+        irqarray6_eventsourceflex131_pending <= 1'd0;
+        irqarray6_eventsourceflex132_pending <= 1'd0;
+        irqarray6_eventsourceflex133_pending <= 1'd0;
+        irqarray6_eventsourceflex134_pending <= 1'd0;
+        irqarray6_eventsourceflex135_pending <= 1'd0;
+        irqarray6_eventsourceflex136_pending <= 1'd0;
+        irqarray6_eventsourceflex137_pending <= 1'd0;
+        irqarray6_eventsourceflex138_pending <= 1'd0;
+        irqarray6_eventsourceflex139_pending <= 1'd0;
+        irqarray7_eventsourceflex140_pending <= 1'd0;
+        irqarray7_eventsourceflex141_pending <= 1'd0;
+        irqarray7_eventsourceflex142_pending <= 1'd0;
+        irqarray7_eventsourceflex143_pending <= 1'd0;
+        irqarray7_eventsourceflex144_pending <= 1'd0;
+        irqarray7_eventsourceflex145_pending <= 1'd0;
+        irqarray7_eventsourceflex146_pending <= 1'd0;
+        irqarray7_eventsourceflex147_pending <= 1'd0;
+        irqarray7_eventsourceflex148_pending <= 1'd0;
+        irqarray7_eventsourceflex149_pending <= 1'd0;
+        irqarray7_eventsourceflex150_pending <= 1'd0;
+        irqarray7_eventsourceflex151_pending <= 1'd0;
+        irqarray7_eventsourceflex152_pending <= 1'd0;
+        irqarray7_eventsourceflex153_pending <= 1'd0;
+        irqarray7_eventsourceflex154_pending <= 1'd0;
+        irqarray7_eventsourceflex155_pending <= 1'd0;
+        irqarray7_eventsourceflex156_pending <= 1'd0;
+        irqarray7_eventsourceflex157_pending <= 1'd0;
+        irqarray7_eventsourceflex158_pending <= 1'd0;
+        irqarray7_eventsourceflex159_pending <= 1'd0;
+        irqarray8_eventsourceflex160_pending <= 1'd0;
+        irqarray8_eventsourceflex161_pending <= 1'd0;
+        irqarray8_eventsourceflex162_pending <= 1'd0;
+        irqarray8_eventsourceflex163_pending <= 1'd0;
+        irqarray8_eventsourceflex164_pending <= 1'd0;
+        irqarray8_eventsourceflex165_pending <= 1'd0;
+        irqarray8_eventsourceflex166_pending <= 1'd0;
+        irqarray8_eventsourceflex167_pending <= 1'd0;
+        irqarray8_eventsourceflex168_pending <= 1'd0;
+        irqarray8_eventsourceflex169_pending <= 1'd0;
+        irqarray8_eventsourceflex170_pending <= 1'd0;
+        irqarray8_eventsourceflex171_pending <= 1'd0;
+        irqarray8_eventsourceflex172_pending <= 1'd0;
+        irqarray8_eventsourceflex173_pending <= 1'd0;
+        irqarray8_eventsourceflex174_pending <= 1'd0;
+        irqarray8_eventsourceflex175_pending <= 1'd0;
+        irqarray8_eventsourceflex176_pending <= 1'd0;
+        irqarray8_eventsourceflex177_pending <= 1'd0;
+        irqarray8_eventsourceflex178_pending <= 1'd0;
+        irqarray8_eventsourceflex179_pending <= 1'd0;
+        irqarray9_eventsourceflex180_pending <= 1'd0;
+        irqarray9_eventsourceflex181_pending <= 1'd0;
+        irqarray9_eventsourceflex182_pending <= 1'd0;
+        irqarray9_eventsourceflex183_pending <= 1'd0;
+        irqarray9_eventsourceflex184_pending <= 1'd0;
+        irqarray9_eventsourceflex185_pending <= 1'd0;
+        irqarray9_eventsourceflex186_pending <= 1'd0;
+        irqarray9_eventsourceflex187_pending <= 1'd0;
+        irqarray9_eventsourceflex188_pending <= 1'd0;
+        irqarray9_eventsourceflex189_pending <= 1'd0;
+        irqarray9_eventsourceflex190_pending <= 1'd0;
+        irqarray9_eventsourceflex191_pending <= 1'd0;
+        irqarray9_eventsourceflex192_pending <= 1'd0;
+        irqarray9_eventsourceflex193_pending <= 1'd0;
+        irqarray9_eventsourceflex194_pending <= 1'd0;
+        irqarray9_eventsourceflex195_pending <= 1'd0;
+        irqarray9_eventsourceflex196_pending <= 1'd0;
+        irqarray9_eventsourceflex197_pending <= 1'd0;
+        irqarray9_eventsourceflex198_pending <= 1'd0;
+        irqarray9_eventsourceflex199_pending <= 1'd0;
+        irqarray10_eventsourceflex200_pending <= 1'd0;
+        irqarray10_eventsourceflex201_pending <= 1'd0;
+        irqarray10_eventsourceflex202_pending <= 1'd0;
+        irqarray10_eventsourceflex203_pending <= 1'd0;
+        irqarray10_eventsourceflex204_pending <= 1'd0;
+        irqarray10_eventsourceflex205_pending <= 1'd0;
+        irqarray10_eventsourceflex206_pending <= 1'd0;
+        irqarray10_eventsourceflex207_pending <= 1'd0;
+        irqarray10_eventsourceflex208_pending <= 1'd0;
+        irqarray10_eventsourceflex209_pending <= 1'd0;
+        irqarray10_eventsourceflex210_pending <= 1'd0;
+        irqarray10_eventsourceflex211_pending <= 1'd0;
+        irqarray10_eventsourceflex212_pending <= 1'd0;
+        irqarray10_eventsourceflex213_pending <= 1'd0;
+        irqarray10_eventsourceflex214_pending <= 1'd0;
+        irqarray10_eventsourceflex215_pending <= 1'd0;
+        irqarray10_eventsourceflex216_pending <= 1'd0;
+        irqarray10_eventsourceflex217_pending <= 1'd0;
+        irqarray10_eventsourceflex218_pending <= 1'd0;
+        irqarray10_eventsourceflex219_pending <= 1'd0;
+        irqarray11_eventsourceflex220_pending <= 1'd0;
+        irqarray11_eventsourceflex221_pending <= 1'd0;
+        irqarray11_eventsourceflex222_pending <= 1'd0;
+        irqarray11_eventsourceflex223_pending <= 1'd0;
+        irqarray11_eventsourceflex224_pending <= 1'd0;
+        irqarray11_eventsourceflex225_pending <= 1'd0;
+        irqarray11_eventsourceflex226_pending <= 1'd0;
+        irqarray11_eventsourceflex227_pending <= 1'd0;
+        irqarray11_eventsourceflex228_pending <= 1'd0;
+        irqarray11_eventsourceflex229_pending <= 1'd0;
+        irqarray11_eventsourceflex230_pending <= 1'd0;
+        irqarray11_eventsourceflex231_pending <= 1'd0;
+        irqarray11_eventsourceflex232_pending <= 1'd0;
+        irqarray11_eventsourceflex233_pending <= 1'd0;
+        irqarray11_eventsourceflex234_pending <= 1'd0;
+        irqarray11_eventsourceflex235_pending <= 1'd0;
+        irqarray11_eventsourceflex236_pending <= 1'd0;
+        irqarray11_eventsourceflex237_pending <= 1'd0;
+        irqarray11_eventsourceflex238_pending <= 1'd0;
+        irqarray11_eventsourceflex239_pending <= 1'd0;
+        irqarray12_eventsourceflex240_pending <= 1'd0;
+        irqarray12_eventsourceflex241_pending <= 1'd0;
+        irqarray12_eventsourceflex242_pending <= 1'd0;
+        irqarray12_eventsourceflex243_pending <= 1'd0;
+        irqarray12_eventsourceflex244_pending <= 1'd0;
+        irqarray12_eventsourceflex245_pending <= 1'd0;
+        irqarray12_eventsourceflex246_pending <= 1'd0;
+        irqarray12_eventsourceflex247_pending <= 1'd0;
+        irqarray12_eventsourceflex248_pending <= 1'd0;
+        irqarray12_eventsourceflex249_pending <= 1'd0;
+        irqarray12_eventsourceflex250_pending <= 1'd0;
+        irqarray12_eventsourceflex251_pending <= 1'd0;
+        irqarray12_eventsourceflex252_pending <= 1'd0;
+        irqarray12_eventsourceflex253_pending <= 1'd0;
+        irqarray12_eventsourceflex254_pending <= 1'd0;
+        irqarray12_eventsourceflex255_pending <= 1'd0;
+        irqarray12_eventsourceflex256_pending <= 1'd0;
+        irqarray12_eventsourceflex257_pending <= 1'd0;
+        irqarray12_eventsourceflex258_pending <= 1'd0;
+        irqarray12_eventsourceflex259_pending <= 1'd0;
+        irqarray13_eventsourceflex260_pending <= 1'd0;
+        irqarray13_eventsourceflex261_pending <= 1'd0;
+        irqarray13_eventsourceflex262_pending <= 1'd0;
+        irqarray13_eventsourceflex263_pending <= 1'd0;
+        irqarray13_eventsourceflex264_pending <= 1'd0;
+        irqarray13_eventsourceflex265_pending <= 1'd0;
+        irqarray13_eventsourceflex266_pending <= 1'd0;
+        irqarray13_eventsourceflex267_pending <= 1'd0;
+        irqarray13_eventsourceflex268_pending <= 1'd0;
+        irqarray13_eventsourceflex269_pending <= 1'd0;
+        irqarray13_eventsourceflex270_pending <= 1'd0;
+        irqarray13_eventsourceflex271_pending <= 1'd0;
+        irqarray13_eventsourceflex272_pending <= 1'd0;
+        irqarray13_eventsourceflex273_pending <= 1'd0;
+        irqarray13_eventsourceflex274_pending <= 1'd0;
+        irqarray13_eventsourceflex275_pending <= 1'd0;
+        irqarray13_eventsourceflex276_pending <= 1'd0;
+        irqarray13_eventsourceflex277_pending <= 1'd0;
+        irqarray13_eventsourceflex278_pending <= 1'd0;
+        irqarray13_eventsourceflex279_pending <= 1'd0;
+        irqarray14_eventsourceflex280_pending <= 1'd0;
+        irqarray14_eventsourceflex281_pending <= 1'd0;
+        irqarray14_eventsourceflex282_pending <= 1'd0;
+        irqarray14_eventsourceflex283_pending <= 1'd0;
+        irqarray14_eventsourceflex284_pending <= 1'd0;
+        irqarray14_eventsourceflex285_pending <= 1'd0;
+        irqarray14_eventsourceflex286_pending <= 1'd0;
+        irqarray14_eventsourceflex287_pending <= 1'd0;
+        irqarray14_eventsourceflex288_pending <= 1'd0;
+        irqarray14_eventsourceflex289_pending <= 1'd0;
+        irqarray14_eventsourceflex290_pending <= 1'd0;
+        irqarray14_eventsourceflex291_pending <= 1'd0;
+        irqarray14_eventsourceflex292_pending <= 1'd0;
+        irqarray14_eventsourceflex293_pending <= 1'd0;
+        irqarray14_eventsourceflex294_pending <= 1'd0;
+        irqarray14_eventsourceflex295_pending <= 1'd0;
+        irqarray14_eventsourceflex296_pending <= 1'd0;
+        irqarray14_eventsourceflex297_pending <= 1'd0;
+        irqarray14_eventsourceflex298_pending <= 1'd0;
+        irqarray14_eventsourceflex299_pending <= 1'd0;
+        irqarray15_eventsourceflex300_pending <= 1'd0;
+        irqarray15_eventsourceflex301_pending <= 1'd0;
+        irqarray15_eventsourceflex302_pending <= 1'd0;
+        irqarray15_eventsourceflex303_pending <= 1'd0;
+        irqarray15_eventsourceflex304_pending <= 1'd0;
+        irqarray15_eventsourceflex305_pending <= 1'd0;
+        irqarray15_eventsourceflex306_pending <= 1'd0;
+        irqarray15_eventsourceflex307_pending <= 1'd0;
+        irqarray15_eventsourceflex308_pending <= 1'd0;
+        irqarray15_eventsourceflex309_pending <= 1'd0;
+        irqarray15_eventsourceflex310_pending <= 1'd0;
+        irqarray15_eventsourceflex311_pending <= 1'd0;
+        irqarray15_eventsourceflex312_pending <= 1'd0;
+        irqarray15_eventsourceflex313_pending <= 1'd0;
+        irqarray15_eventsourceflex314_pending <= 1'd0;
+        irqarray15_eventsourceflex315_pending <= 1'd0;
+        irqarray15_eventsourceflex316_pending <= 1'd0;
+        irqarray15_eventsourceflex317_pending <= 1'd0;
+        irqarray15_eventsourceflex318_pending <= 1'd0;
+        irqarray15_eventsourceflex319_pending <= 1'd0;
+        irqarray16_eventsourceflex320_pending <= 1'd0;
+        irqarray16_eventsourceflex321_pending <= 1'd0;
+        irqarray16_eventsourceflex322_pending <= 1'd0;
+        irqarray16_eventsourceflex323_pending <= 1'd0;
+        irqarray16_eventsourceflex324_pending <= 1'd0;
+        irqarray16_eventsourceflex325_pending <= 1'd0;
+        irqarray16_eventsourceflex326_pending <= 1'd0;
+        irqarray16_eventsourceflex327_pending <= 1'd0;
+        irqarray16_eventsourceflex328_pending <= 1'd0;
+        irqarray16_eventsourceflex329_pending <= 1'd0;
+        irqarray16_eventsourceflex330_pending <= 1'd0;
+        irqarray16_eventsourceflex331_pending <= 1'd0;
+        irqarray16_eventsourceflex332_pending <= 1'd0;
+        irqarray16_eventsourceflex333_pending <= 1'd0;
+        irqarray16_eventsourceflex334_pending <= 1'd0;
+        irqarray16_eventsourceflex335_pending <= 1'd0;
+        irqarray16_eventsourceflex336_pending <= 1'd0;
+        irqarray16_eventsourceflex337_pending <= 1'd0;
+        irqarray16_eventsourceflex338_pending <= 1'd0;
+        irqarray16_eventsourceflex339_pending <= 1'd0;
+        irqarray17_eventsourceflex340_pending <= 1'd0;
+        irqarray17_eventsourceflex341_pending <= 1'd0;
+        irqarray17_eventsourceflex342_pending <= 1'd0;
+        irqarray17_eventsourceflex343_pending <= 1'd0;
+        irqarray17_eventsourceflex344_pending <= 1'd0;
+        irqarray17_eventsourceflex345_pending <= 1'd0;
+        irqarray17_eventsourceflex346_pending <= 1'd0;
+        irqarray17_eventsourceflex347_pending <= 1'd0;
+        irqarray17_eventsourceflex348_pending <= 1'd0;
+        irqarray17_eventsourceflex349_pending <= 1'd0;
+        irqarray17_eventsourceflex350_pending <= 1'd0;
+        irqarray17_eventsourceflex351_pending <= 1'd0;
+        irqarray17_eventsourceflex352_pending <= 1'd0;
+        irqarray17_eventsourceflex353_pending <= 1'd0;
+        irqarray17_eventsourceflex354_pending <= 1'd0;
+        irqarray17_eventsourceflex355_pending <= 1'd0;
+        irqarray17_eventsourceflex356_pending <= 1'd0;
+        irqarray17_eventsourceflex357_pending <= 1'd0;
+        irqarray17_eventsourceflex358_pending <= 1'd0;
+        irqarray17_eventsourceflex359_pending <= 1'd0;
+        irqarray18_eventsourceflex360_pending <= 1'd0;
+        irqarray18_eventsourceflex361_pending <= 1'd0;
+        irqarray18_eventsourceflex362_pending <= 1'd0;
+        irqarray18_eventsourceflex363_pending <= 1'd0;
+        irqarray18_eventsourceflex364_pending <= 1'd0;
+        irqarray18_eventsourceflex365_pending <= 1'd0;
+        irqarray18_eventsourceflex366_pending <= 1'd0;
+        irqarray18_eventsourceflex367_pending <= 1'd0;
+        irqarray18_eventsourceflex368_pending <= 1'd0;
+        irqarray18_eventsourceflex369_pending <= 1'd0;
+        irqarray18_eventsourceflex370_pending <= 1'd0;
+        irqarray18_eventsourceflex371_pending <= 1'd0;
+        irqarray18_eventsourceflex372_pending <= 1'd0;
+        irqarray18_eventsourceflex373_pending <= 1'd0;
+        irqarray18_eventsourceflex374_pending <= 1'd0;
+        irqarray18_eventsourceflex375_pending <= 1'd0;
+        irqarray18_eventsourceflex376_pending <= 1'd0;
+        irqarray18_eventsourceflex377_pending <= 1'd0;
+        irqarray18_eventsourceflex378_pending <= 1'd0;
+        irqarray18_eventsourceflex379_pending <= 1'd0;
+        irqarray19_eventsourceflex380_pending <= 1'd0;
+        irqarray19_eventsourceflex381_pending <= 1'd0;
+        irqarray19_eventsourceflex382_pending <= 1'd0;
+        irqarray19_eventsourceflex383_pending <= 1'd0;
+        irqarray19_eventsourceflex384_pending <= 1'd0;
+        irqarray19_eventsourceflex385_pending <= 1'd0;
+        irqarray19_eventsourceflex386_pending <= 1'd0;
+        irqarray19_eventsourceflex387_pending <= 1'd0;
+        irqarray19_eventsourceflex388_pending <= 1'd0;
+        irqarray19_eventsourceflex389_pending <= 1'd0;
+        irqarray19_eventsourceflex390_pending <= 1'd0;
+        irqarray19_eventsourceflex391_pending <= 1'd0;
+        irqarray19_eventsourceflex392_pending <= 1'd0;
+        irqarray19_eventsourceflex393_pending <= 1'd0;
+        irqarray19_eventsourceflex394_pending <= 1'd0;
+        irqarray19_eventsourceflex395_pending <= 1'd0;
+        irqarray19_eventsourceflex396_pending <= 1'd0;
+        irqarray19_eventsourceflex397_pending <= 1'd0;
+        irqarray19_eventsourceflex398_pending <= 1'd0;
+        irqarray19_eventsourceflex399_pending <= 1'd0;
+        ticktimer_prescaler <= 20'd800000;
+        ticktimer_timer0 <= 64'd0;
+        ticktimer_load_xfer_blind <= 1'd0;
+        ticktimer_paused1 <= 1'd0;
+        ticktimer_timer_sync_starter <= 1'd1;
+        ticktimer_timer_sync_ping_o1 <= 1'd0;
+        ticktimer_timer_sync_count <= 8'd128;
+        ticktimer_resume_sync_starter <= 1'd1;
+        ticktimer_resume_sync_ping_o1 <= 1'd0;
+        ticktimer_resume_sync_count <= 8'd128;
+        ticktimer_reset_xfer_blind <= 1'd0;
+        ticktimer_ping_blind <= 1'd0;
+        ticktimer_pong_blind <= 1'd0;
+        ticktimer_lockout_alarm <= 1'd0;
+        ticktimer_alarm3 <= 1'd0;
+        ticktimer_target_xfer_starter <= 1'd1;
+        ticktimer_target_xfer_ping_o1 <= 1'd0;
+        ticktimer_target_xfer_count <= 8'd128;
+        d11ctime_counter <= 32'd400000;
+        d11ctime_heartbeat <= 1'd0;
+        susres_soft_int_pending <= 1'd0;
+        susres_soft_int_trigger_d <= 1'd0;
+    end
+    multiregimpl0_regs0 <= ticktimer_pause0;
+    multiregimpl0_regs1 <= multiregimpl0_regs0;
+    multiregimpl1_regs0 <= ticktimer_load_xfer_ps_toggle_i;
+    multiregimpl1_regs1 <= multiregimpl1_regs0;
+    multiregimpl2_regs0 <= ticktimer_load_xfer_ps_ack_toggle_i;
+    multiregimpl2_regs1 <= multiregimpl2_regs0;
+    multiregimpl3_regs0 <= ticktimer_paused1;
+    multiregimpl3_regs1 <= multiregimpl3_regs0;
+    multiregimpl4_regs0 <= ticktimer_timer_sync_ping_toggle_i;
+    multiregimpl4_regs1 <= multiregimpl4_regs0;
+    multiregimpl5_regs0 <= ticktimer_timer_sync_pong_toggle_i;
+    multiregimpl5_regs1 <= multiregimpl5_regs0;
+    multiregimpl6_regs0 <= ticktimer_timer_sync_ibuffer;
+    multiregimpl6_regs1 <= multiregimpl6_regs0;
+    multiregimpl7_regs0 <= ticktimer_resume_sync_ping_toggle_i;
+    multiregimpl7_regs1 <= multiregimpl7_regs0;
+    multiregimpl8_regs0 <= ticktimer_resume_sync_pong_toggle_i;
+    multiregimpl8_regs1 <= multiregimpl8_regs0;
+    multiregimpl9_regs0 <= ticktimer_resume_sync_ibuffer;
+    multiregimpl9_regs1 <= multiregimpl9_regs0;
+    multiregimpl10_regs0 <= ticktimer_reset_xfer_ps_toggle_i;
+    multiregimpl10_regs1 <= multiregimpl10_regs0;
+    multiregimpl11_regs0 <= ticktimer_reset_xfer_ps_ack_toggle_i;
+    multiregimpl11_regs1 <= multiregimpl11_regs0;
+    multiregimpl12_regs0 <= ticktimer_ping_ps_toggle_i;
+    multiregimpl12_regs1 <= multiregimpl12_regs0;
+    multiregimpl13_regs0 <= ticktimer_ping_ps_ack_toggle_i;
+    multiregimpl13_regs1 <= multiregimpl13_regs0;
+    multiregimpl14_regs0 <= ticktimer_pong_ps_toggle_i;
+    multiregimpl14_regs1 <= multiregimpl14_regs0;
+    multiregimpl15_regs0 <= ticktimer_pong_ps_ack_toggle_i;
+    multiregimpl15_regs1 <= multiregimpl15_regs0;
+    multiregimpl16_regs0 <= ticktimer_target_xfer_ping_toggle_i;
+    multiregimpl16_regs1 <= multiregimpl16_regs0;
+    multiregimpl17_regs0 <= ticktimer_target_xfer_pong_toggle_i;
+    multiregimpl17_regs1 <= multiregimpl17_regs0;
+    multiregimpl18_regs0 <= ticktimer_target_xfer_ibuffer;
+    multiregimpl18_regs1 <= multiregimpl18_regs0;
+end
+
+always @(posedge sys_clk) begin
+    p_axi_awvalid <= cramsoc_peripherals_aw_valid;
+    p_axi_awaddr <= cramsoc_peripherals_aw_payload_addr;
+    p_axi_awprot <= cramsoc_peripherals_aw_payload_prot;
+    cramsoc_peripherals_aw_ready <= p_axi_awready;
+    p_axi_wvalid <= cramsoc_peripherals_w_valid;
+    p_axi_wdata <= cramsoc_peripherals_w_payload_data;
+    p_axi_wstrb <= cramsoc_peripherals_w_payload_strb;
+    cramsoc_peripherals_w_ready <= p_axi_wready;
+    cramsoc_peripherals_b_valid <= p_axi_bvalid;
+    cramsoc_peripherals_b_payload_resp <= p_axi_bresp;
+    p_axi_bready <= cramsoc_peripherals_b_ready;
+    p_axi_arvalid <= cramsoc_peripherals_ar_valid;
+    p_axi_araddr <= cramsoc_peripherals_ar_payload_addr;
+    p_axi_arprot <= cramsoc_peripherals_ar_payload_prot;
+    cramsoc_peripherals_ar_ready <= p_axi_arready;
+    cramsoc_peripherals_r_valid <= p_axi_rvalid;
+    cramsoc_peripherals_r_payload_resp <= p_axi_rresp;
+    cramsoc_peripherals_r_payload_data <= p_axi_rdata;
+    p_axi_rready <= cramsoc_peripherals_r_ready;
+    if (socbushandler_axiliterequestcounter0_empty) begin
+        socbushandler_slave_sel_reg0 <= socbushandler_slave_sel_dec0;
+    end
+    if (socbushandler_axiliterequestcounter1_empty) begin
+        socbushandler_slave_sel_reg1 <= socbushandler_slave_sel_dec1;
+    end
+    if (((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & (cramsoc_corecsr_b_valid & cramsoc_corecsr_b_ready))) begin
+        socbushandler_axiliterequestcounter0_counter <= socbushandler_axiliterequestcounter0_counter;
+    end else begin
+        if (((cramsoc_corecsr_aw_valid & cramsoc_corecsr_aw_ready) & (~socbushandler_axiliterequestcounter0_full))) begin
+            socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter + 1'd1);
+        end else begin
+            if (((cramsoc_corecsr_b_valid & cramsoc_corecsr_b_ready) & (~socbushandler_axiliterequestcounter0_empty))) begin
+                socbushandler_axiliterequestcounter0_counter <= (socbushandler_axiliterequestcounter0_counter - 1'd1);
+            end
+        end
+    end
+    if (((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & (cramsoc_corecsr_r_valid & cramsoc_corecsr_r_ready))) begin
+        socbushandler_axiliterequestcounter1_counter <= socbushandler_axiliterequestcounter1_counter;
+    end else begin
+        if (((cramsoc_corecsr_ar_valid & cramsoc_corecsr_ar_ready) & (~socbushandler_axiliterequestcounter1_full))) begin
+            socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter + 1'd1);
+        end else begin
+            if (((cramsoc_corecsr_r_valid & cramsoc_corecsr_r_ready) & (~socbushandler_axiliterequestcounter1_empty))) begin
+                socbushandler_axiliterequestcounter1_counter <= (socbushandler_axiliterequestcounter1_counter - 1'd1);
+            end
+        end
+    end
+    if (((cramsoc_aw_valid & cramsoc_aw_ready) & (cramsoc_b_valid & cramsoc_b_ready))) begin
+        socbushandler_wr_lock_counter <= socbushandler_wr_lock_counter;
+    end else begin
+        if (((cramsoc_aw_valid & cramsoc_aw_ready) & (~socbushandler_wr_lock_full))) begin
+            socbushandler_wr_lock_counter <= (socbushandler_wr_lock_counter + 1'd1);
+        end else begin
+            if (((cramsoc_b_valid & cramsoc_b_ready) & (~socbushandler_wr_lock_empty))) begin
+                socbushandler_wr_lock_counter <= (socbushandler_wr_lock_counter - 1'd1);
+            end
+        end
+    end
+    if (((cramsoc_ar_valid & cramsoc_ar_ready) & (cramsoc_r_valid & cramsoc_r_ready))) begin
+        socbushandler_rd_lock_counter <= socbushandler_rd_lock_counter;
+    end else begin
+        if (((cramsoc_ar_valid & cramsoc_ar_ready) & (~socbushandler_rd_lock_full))) begin
+            socbushandler_rd_lock_counter <= (socbushandler_rd_lock_counter + 1'd1);
+        end else begin
+            if (((cramsoc_r_valid & cramsoc_r_ready) & (~socbushandler_rd_lock_empty))) begin
+                socbushandler_rd_lock_counter <= (socbushandler_rd_lock_counter - 1'd1);
+            end
+        end
+    end
+    debug_reset <= (reset_debug_logic | sys_rst);
+    if (o_resetOut) begin
+        reset_debug_logic <= 1'd1;
+    end else begin
+        reset_debug_logic <= 1'd0;
+    end
+    if (sys_rst) begin
+        if (trimming_reset_ena_1) begin
+            resetvalue_latched_value <= trimming_reset_1;
+        end else begin
+            resetvalue_latched_value <= 31'd1610612736;
+        end
+    end else begin
+        resetvalue_latched_value <= resetvalue_latched_value;
+    end
+    if (coreuser_protect) begin
+        coreuser_enable1 <= coreuser_enable1;
+        coreuser_require_asid <= coreuser_require_asid;
+        coreuser_require_ppn_a <= coreuser_require_ppn_a;
+        coreuser_require_ppn_b <= coreuser_require_ppn_b;
+        coreuser_require_priv <= coreuser_require_priv;
+        coreuser_privilege1 <= coreuser_privilege1;
+    end else begin
+        coreuser_enable1 <= coreuser_enable0;
+        coreuser_require_asid <= coreuser_asid2;
+        coreuser_require_ppn_a <= coreuser_ppn_a;
+        coreuser_require_ppn_b <= coreuser_ppn_b;
+        coreuser_require_priv <= coreuser_privilege0;
+        coreuser_privilege1 <= coreuser_mpp;
+    end
+    coreuser_coreuser_mux_delay <= coreuser_asid_rd_adr[3:0];
+    coreuser_readback_shift_delay <= coreuser_asid1[3:0];
+    if (coreuser_protect) begin
+        coreuser_window_al <= coreuser_window_al;
+        coreuser_window_ah <= coreuser_window_ah;
+        coreuser_window_bl <= coreuser_window_bh;
+        coreuser_window_bh <= coreuser_window_bh;
+    end else begin
+        coreuser_window_al <= coreuser_ppn0;
+        coreuser_window_ah <= coreuser_ppn1;
+        coreuser_window_bl <= coreuser_ppn2;
+        coreuser_window_bh <= coreuser_ppn3;
+    end
+    coreuser <= (((~cramsoc_satp_mode) | (~coreuser_enable1)) | ((((coreuser_coreuser_asid | (~coreuser_require_asid)) & ((~coreuser_require_ppn_a) | ((cramsoc_satp_ppn >= coreuser_window_al) & (cramsoc_satp_ppn <= coreuser_window_ah)))) & ((~coreuser_require_ppn_b) | ((cramsoc_satp_ppn >= coreuser_window_bl) & (cramsoc_satp_ppn <= coreuser_window_bh)))) & ((~coreuser_require_priv) | (cramsoc_privilege == coreuser_privilege1))));
     if (mailbox_available_clear) begin
         mailbox_available_pending <= 1'd0;
     end
@@ -17337,26 +17771,6 @@ always @(posedge sys_clk) begin
         coreuser_window_bh <= 22'd0;
         irqarray0_storage <= 20'd0;
         irqarray0_re <= 1'd0;
-        irqarray0_eventsourceflex0_pending <= 1'd0;
-        irqarray0_eventsourceflex1_pending <= 1'd0;
-        irqarray0_eventsourceflex2_pending <= 1'd0;
-        irqarray0_eventsourceflex3_pending <= 1'd0;
-        irqarray0_eventsourceflex4_pending <= 1'd0;
-        irqarray0_eventsourceflex5_pending <= 1'd0;
-        irqarray0_eventsourceflex6_pending <= 1'd0;
-        irqarray0_eventsourceflex7_pending <= 1'd0;
-        irqarray0_eventsourceflex8_pending <= 1'd0;
-        irqarray0_eventsourceflex9_pending <= 1'd0;
-        irqarray0_eventsourceflex10_pending <= 1'd0;
-        irqarray0_eventsourceflex11_pending <= 1'd0;
-        irqarray0_eventsourceflex12_pending <= 1'd0;
-        irqarray0_eventsourceflex13_pending <= 1'd0;
-        irqarray0_eventsourceflex14_pending <= 1'd0;
-        irqarray0_eventsourceflex15_pending <= 1'd0;
-        irqarray0_eventsourceflex16_pending <= 1'd0;
-        irqarray0_eventsourceflex17_pending <= 1'd0;
-        irqarray0_eventsourceflex18_pending <= 1'd0;
-        irqarray0_eventsourceflex19_pending <= 1'd0;
         irqarray0_status_re <= 1'd0;
         irqarray0_pending_re <= 1'd0;
         irqarray0_pending_r <= 20'd0;
@@ -17364,26 +17778,6 @@ always @(posedge sys_clk) begin
         irqarray0_enable_re <= 1'd0;
         irqarray1_storage <= 20'd0;
         irqarray1_re <= 1'd0;
-        irqarray1_eventsourceflex20_pending <= 1'd0;
-        irqarray1_eventsourceflex21_pending <= 1'd0;
-        irqarray1_eventsourceflex22_pending <= 1'd0;
-        irqarray1_eventsourceflex23_pending <= 1'd0;
-        irqarray1_eventsourceflex24_pending <= 1'd0;
-        irqarray1_eventsourceflex25_pending <= 1'd0;
-        irqarray1_eventsourceflex26_pending <= 1'd0;
-        irqarray1_eventsourceflex27_pending <= 1'd0;
-        irqarray1_eventsourceflex28_pending <= 1'd0;
-        irqarray1_eventsourceflex29_pending <= 1'd0;
-        irqarray1_eventsourceflex30_pending <= 1'd0;
-        irqarray1_eventsourceflex31_pending <= 1'd0;
-        irqarray1_eventsourceflex32_pending <= 1'd0;
-        irqarray1_eventsourceflex33_pending <= 1'd0;
-        irqarray1_eventsourceflex34_pending <= 1'd0;
-        irqarray1_eventsourceflex35_pending <= 1'd0;
-        irqarray1_eventsourceflex36_pending <= 1'd0;
-        irqarray1_eventsourceflex37_pending <= 1'd0;
-        irqarray1_eventsourceflex38_pending <= 1'd0;
-        irqarray1_eventsourceflex39_pending <= 1'd0;
         irqarray1_status_re <= 1'd0;
         irqarray1_pending_re <= 1'd0;
         irqarray1_pending_r <= 20'd0;
@@ -17391,26 +17785,6 @@ always @(posedge sys_clk) begin
         irqarray1_enable_re <= 1'd0;
         irqarray2_storage <= 20'd0;
         irqarray2_re <= 1'd0;
-        irqarray2_eventsourceflex40_pending <= 1'd0;
-        irqarray2_eventsourceflex41_pending <= 1'd0;
-        irqarray2_eventsourceflex42_pending <= 1'd0;
-        irqarray2_eventsourceflex43_pending <= 1'd0;
-        irqarray2_eventsourceflex44_pending <= 1'd0;
-        irqarray2_eventsourceflex45_pending <= 1'd0;
-        irqarray2_eventsourceflex46_pending <= 1'd0;
-        irqarray2_eventsourceflex47_pending <= 1'd0;
-        irqarray2_eventsourceflex48_pending <= 1'd0;
-        irqarray2_eventsourceflex49_pending <= 1'd0;
-        irqarray2_eventsourceflex50_pending <= 1'd0;
-        irqarray2_eventsourceflex51_pending <= 1'd0;
-        irqarray2_eventsourceflex52_pending <= 1'd0;
-        irqarray2_eventsourceflex53_pending <= 1'd0;
-        irqarray2_eventsourceflex54_pending <= 1'd0;
-        irqarray2_eventsourceflex55_pending <= 1'd0;
-        irqarray2_eventsourceflex56_pending <= 1'd0;
-        irqarray2_eventsourceflex57_pending <= 1'd0;
-        irqarray2_eventsourceflex58_pending <= 1'd0;
-        irqarray2_eventsourceflex59_pending <= 1'd0;
         irqarray2_status_re <= 1'd0;
         irqarray2_pending_re <= 1'd0;
         irqarray2_pending_r <= 20'd0;
@@ -17418,26 +17792,6 @@ always @(posedge sys_clk) begin
         irqarray2_enable_re <= 1'd0;
         irqarray3_storage <= 20'd0;
         irqarray3_re <= 1'd0;
-        irqarray3_eventsourceflex60_pending <= 1'd0;
-        irqarray3_eventsourceflex61_pending <= 1'd0;
-        irqarray3_eventsourceflex62_pending <= 1'd0;
-        irqarray3_eventsourceflex63_pending <= 1'd0;
-        irqarray3_eventsourceflex64_pending <= 1'd0;
-        irqarray3_eventsourceflex65_pending <= 1'd0;
-        irqarray3_eventsourceflex66_pending <= 1'd0;
-        irqarray3_eventsourceflex67_pending <= 1'd0;
-        irqarray3_eventsourceflex68_pending <= 1'd0;
-        irqarray3_eventsourceflex69_pending <= 1'd0;
-        irqarray3_eventsourceflex70_pending <= 1'd0;
-        irqarray3_eventsourceflex71_pending <= 1'd0;
-        irqarray3_eventsourceflex72_pending <= 1'd0;
-        irqarray3_eventsourceflex73_pending <= 1'd0;
-        irqarray3_eventsourceflex74_pending <= 1'd0;
-        irqarray3_eventsourceflex75_pending <= 1'd0;
-        irqarray3_eventsourceflex76_pending <= 1'd0;
-        irqarray3_eventsourceflex77_pending <= 1'd0;
-        irqarray3_eventsourceflex78_pending <= 1'd0;
-        irqarray3_eventsourceflex79_pending <= 1'd0;
         irqarray3_status_re <= 1'd0;
         irqarray3_pending_re <= 1'd0;
         irqarray3_pending_r <= 20'd0;
@@ -17445,26 +17799,6 @@ always @(posedge sys_clk) begin
         irqarray3_enable_re <= 1'd0;
         irqarray4_storage <= 20'd0;
         irqarray4_re <= 1'd0;
-        irqarray4_eventsourceflex80_pending <= 1'd0;
-        irqarray4_eventsourceflex81_pending <= 1'd0;
-        irqarray4_eventsourceflex82_pending <= 1'd0;
-        irqarray4_eventsourceflex83_pending <= 1'd0;
-        irqarray4_eventsourceflex84_pending <= 1'd0;
-        irqarray4_eventsourceflex85_pending <= 1'd0;
-        irqarray4_eventsourceflex86_pending <= 1'd0;
-        irqarray4_eventsourceflex87_pending <= 1'd0;
-        irqarray4_eventsourceflex88_pending <= 1'd0;
-        irqarray4_eventsourceflex89_pending <= 1'd0;
-        irqarray4_eventsourceflex90_pending <= 1'd0;
-        irqarray4_eventsourceflex91_pending <= 1'd0;
-        irqarray4_eventsourceflex92_pending <= 1'd0;
-        irqarray4_eventsourceflex93_pending <= 1'd0;
-        irqarray4_eventsourceflex94_pending <= 1'd0;
-        irqarray4_eventsourceflex95_pending <= 1'd0;
-        irqarray4_eventsourceflex96_pending <= 1'd0;
-        irqarray4_eventsourceflex97_pending <= 1'd0;
-        irqarray4_eventsourceflex98_pending <= 1'd0;
-        irqarray4_eventsourceflex99_pending <= 1'd0;
         irqarray4_status_re <= 1'd0;
         irqarray4_pending_re <= 1'd0;
         irqarray4_pending_r <= 20'd0;
@@ -17472,26 +17806,6 @@ always @(posedge sys_clk) begin
         irqarray4_enable_re <= 1'd0;
         irqarray5_storage <= 20'd0;
         irqarray5_re <= 1'd0;
-        irqarray5_eventsourceflex100_pending <= 1'd0;
-        irqarray5_eventsourceflex101_pending <= 1'd0;
-        irqarray5_eventsourceflex102_pending <= 1'd0;
-        irqarray5_eventsourceflex103_pending <= 1'd0;
-        irqarray5_eventsourceflex104_pending <= 1'd0;
-        irqarray5_eventsourceflex105_pending <= 1'd0;
-        irqarray5_eventsourceflex106_pending <= 1'd0;
-        irqarray5_eventsourceflex107_pending <= 1'd0;
-        irqarray5_eventsourceflex108_pending <= 1'd0;
-        irqarray5_eventsourceflex109_pending <= 1'd0;
-        irqarray5_eventsourceflex110_pending <= 1'd0;
-        irqarray5_eventsourceflex111_pending <= 1'd0;
-        irqarray5_eventsourceflex112_pending <= 1'd0;
-        irqarray5_eventsourceflex113_pending <= 1'd0;
-        irqarray5_eventsourceflex114_pending <= 1'd0;
-        irqarray5_eventsourceflex115_pending <= 1'd0;
-        irqarray5_eventsourceflex116_pending <= 1'd0;
-        irqarray5_eventsourceflex117_pending <= 1'd0;
-        irqarray5_eventsourceflex118_pending <= 1'd0;
-        irqarray5_eventsourceflex119_pending <= 1'd0;
         irqarray5_status_re <= 1'd0;
         irqarray5_pending_re <= 1'd0;
         irqarray5_pending_r <= 20'd0;
@@ -17499,26 +17813,6 @@ always @(posedge sys_clk) begin
         irqarray5_enable_re <= 1'd0;
         irqarray6_storage <= 20'd0;
         irqarray6_re <= 1'd0;
-        irqarray6_eventsourceflex120_pending <= 1'd0;
-        irqarray6_eventsourceflex121_pending <= 1'd0;
-        irqarray6_eventsourceflex122_pending <= 1'd0;
-        irqarray6_eventsourceflex123_pending <= 1'd0;
-        irqarray6_eventsourceflex124_pending <= 1'd0;
-        irqarray6_eventsourceflex125_pending <= 1'd0;
-        irqarray6_eventsourceflex126_pending <= 1'd0;
-        irqarray6_eventsourceflex127_pending <= 1'd0;
-        irqarray6_eventsourceflex128_pending <= 1'd0;
-        irqarray6_eventsourceflex129_pending <= 1'd0;
-        irqarray6_eventsourceflex130_pending <= 1'd0;
-        irqarray6_eventsourceflex131_pending <= 1'd0;
-        irqarray6_eventsourceflex132_pending <= 1'd0;
-        irqarray6_eventsourceflex133_pending <= 1'd0;
-        irqarray6_eventsourceflex134_pending <= 1'd0;
-        irqarray6_eventsourceflex135_pending <= 1'd0;
-        irqarray6_eventsourceflex136_pending <= 1'd0;
-        irqarray6_eventsourceflex137_pending <= 1'd0;
-        irqarray6_eventsourceflex138_pending <= 1'd0;
-        irqarray6_eventsourceflex139_pending <= 1'd0;
         irqarray6_status_re <= 1'd0;
         irqarray6_pending_re <= 1'd0;
         irqarray6_pending_r <= 20'd0;
@@ -17526,26 +17820,6 @@ always @(posedge sys_clk) begin
         irqarray6_enable_re <= 1'd0;
         irqarray7_storage <= 20'd0;
         irqarray7_re <= 1'd0;
-        irqarray7_eventsourceflex140_pending <= 1'd0;
-        irqarray7_eventsourceflex141_pending <= 1'd0;
-        irqarray7_eventsourceflex142_pending <= 1'd0;
-        irqarray7_eventsourceflex143_pending <= 1'd0;
-        irqarray7_eventsourceflex144_pending <= 1'd0;
-        irqarray7_eventsourceflex145_pending <= 1'd0;
-        irqarray7_eventsourceflex146_pending <= 1'd0;
-        irqarray7_eventsourceflex147_pending <= 1'd0;
-        irqarray7_eventsourceflex148_pending <= 1'd0;
-        irqarray7_eventsourceflex149_pending <= 1'd0;
-        irqarray7_eventsourceflex150_pending <= 1'd0;
-        irqarray7_eventsourceflex151_pending <= 1'd0;
-        irqarray7_eventsourceflex152_pending <= 1'd0;
-        irqarray7_eventsourceflex153_pending <= 1'd0;
-        irqarray7_eventsourceflex154_pending <= 1'd0;
-        irqarray7_eventsourceflex155_pending <= 1'd0;
-        irqarray7_eventsourceflex156_pending <= 1'd0;
-        irqarray7_eventsourceflex157_pending <= 1'd0;
-        irqarray7_eventsourceflex158_pending <= 1'd0;
-        irqarray7_eventsourceflex159_pending <= 1'd0;
         irqarray7_status_re <= 1'd0;
         irqarray7_pending_re <= 1'd0;
         irqarray7_pending_r <= 20'd0;
@@ -17553,26 +17827,6 @@ always @(posedge sys_clk) begin
         irqarray7_enable_re <= 1'd0;
         irqarray8_storage <= 20'd0;
         irqarray8_re <= 1'd0;
-        irqarray8_eventsourceflex160_pending <= 1'd0;
-        irqarray8_eventsourceflex161_pending <= 1'd0;
-        irqarray8_eventsourceflex162_pending <= 1'd0;
-        irqarray8_eventsourceflex163_pending <= 1'd0;
-        irqarray8_eventsourceflex164_pending <= 1'd0;
-        irqarray8_eventsourceflex165_pending <= 1'd0;
-        irqarray8_eventsourceflex166_pending <= 1'd0;
-        irqarray8_eventsourceflex167_pending <= 1'd0;
-        irqarray8_eventsourceflex168_pending <= 1'd0;
-        irqarray8_eventsourceflex169_pending <= 1'd0;
-        irqarray8_eventsourceflex170_pending <= 1'd0;
-        irqarray8_eventsourceflex171_pending <= 1'd0;
-        irqarray8_eventsourceflex172_pending <= 1'd0;
-        irqarray8_eventsourceflex173_pending <= 1'd0;
-        irqarray8_eventsourceflex174_pending <= 1'd0;
-        irqarray8_eventsourceflex175_pending <= 1'd0;
-        irqarray8_eventsourceflex176_pending <= 1'd0;
-        irqarray8_eventsourceflex177_pending <= 1'd0;
-        irqarray8_eventsourceflex178_pending <= 1'd0;
-        irqarray8_eventsourceflex179_pending <= 1'd0;
         irqarray8_status_re <= 1'd0;
         irqarray8_pending_re <= 1'd0;
         irqarray8_pending_r <= 20'd0;
@@ -17580,26 +17834,6 @@ always @(posedge sys_clk) begin
         irqarray8_enable_re <= 1'd0;
         irqarray9_storage <= 20'd0;
         irqarray9_re <= 1'd0;
-        irqarray9_eventsourceflex180_pending <= 1'd0;
-        irqarray9_eventsourceflex181_pending <= 1'd0;
-        irqarray9_eventsourceflex182_pending <= 1'd0;
-        irqarray9_eventsourceflex183_pending <= 1'd0;
-        irqarray9_eventsourceflex184_pending <= 1'd0;
-        irqarray9_eventsourceflex185_pending <= 1'd0;
-        irqarray9_eventsourceflex186_pending <= 1'd0;
-        irqarray9_eventsourceflex187_pending <= 1'd0;
-        irqarray9_eventsourceflex188_pending <= 1'd0;
-        irqarray9_eventsourceflex189_pending <= 1'd0;
-        irqarray9_eventsourceflex190_pending <= 1'd0;
-        irqarray9_eventsourceflex191_pending <= 1'd0;
-        irqarray9_eventsourceflex192_pending <= 1'd0;
-        irqarray9_eventsourceflex193_pending <= 1'd0;
-        irqarray9_eventsourceflex194_pending <= 1'd0;
-        irqarray9_eventsourceflex195_pending <= 1'd0;
-        irqarray9_eventsourceflex196_pending <= 1'd0;
-        irqarray9_eventsourceflex197_pending <= 1'd0;
-        irqarray9_eventsourceflex198_pending <= 1'd0;
-        irqarray9_eventsourceflex199_pending <= 1'd0;
         irqarray9_status_re <= 1'd0;
         irqarray9_pending_re <= 1'd0;
         irqarray9_pending_r <= 20'd0;
@@ -17607,26 +17841,6 @@ always @(posedge sys_clk) begin
         irqarray9_enable_re <= 1'd0;
         irqarray10_storage <= 20'd0;
         irqarray10_re <= 1'd0;
-        irqarray10_eventsourceflex200_pending <= 1'd0;
-        irqarray10_eventsourceflex201_pending <= 1'd0;
-        irqarray10_eventsourceflex202_pending <= 1'd0;
-        irqarray10_eventsourceflex203_pending <= 1'd0;
-        irqarray10_eventsourceflex204_pending <= 1'd0;
-        irqarray10_eventsourceflex205_pending <= 1'd0;
-        irqarray10_eventsourceflex206_pending <= 1'd0;
-        irqarray10_eventsourceflex207_pending <= 1'd0;
-        irqarray10_eventsourceflex208_pending <= 1'd0;
-        irqarray10_eventsourceflex209_pending <= 1'd0;
-        irqarray10_eventsourceflex210_pending <= 1'd0;
-        irqarray10_eventsourceflex211_pending <= 1'd0;
-        irqarray10_eventsourceflex212_pending <= 1'd0;
-        irqarray10_eventsourceflex213_pending <= 1'd0;
-        irqarray10_eventsourceflex214_pending <= 1'd0;
-        irqarray10_eventsourceflex215_pending <= 1'd0;
-        irqarray10_eventsourceflex216_pending <= 1'd0;
-        irqarray10_eventsourceflex217_pending <= 1'd0;
-        irqarray10_eventsourceflex218_pending <= 1'd0;
-        irqarray10_eventsourceflex219_pending <= 1'd0;
         irqarray10_status_re <= 1'd0;
         irqarray10_pending_re <= 1'd0;
         irqarray10_pending_r <= 20'd0;
@@ -17634,26 +17848,6 @@ always @(posedge sys_clk) begin
         irqarray10_enable_re <= 1'd0;
         irqarray11_storage <= 20'd0;
         irqarray11_re <= 1'd0;
-        irqarray11_eventsourceflex220_pending <= 1'd0;
-        irqarray11_eventsourceflex221_pending <= 1'd0;
-        irqarray11_eventsourceflex222_pending <= 1'd0;
-        irqarray11_eventsourceflex223_pending <= 1'd0;
-        irqarray11_eventsourceflex224_pending <= 1'd0;
-        irqarray11_eventsourceflex225_pending <= 1'd0;
-        irqarray11_eventsourceflex226_pending <= 1'd0;
-        irqarray11_eventsourceflex227_pending <= 1'd0;
-        irqarray11_eventsourceflex228_pending <= 1'd0;
-        irqarray11_eventsourceflex229_pending <= 1'd0;
-        irqarray11_eventsourceflex230_pending <= 1'd0;
-        irqarray11_eventsourceflex231_pending <= 1'd0;
-        irqarray11_eventsourceflex232_pending <= 1'd0;
-        irqarray11_eventsourceflex233_pending <= 1'd0;
-        irqarray11_eventsourceflex234_pending <= 1'd0;
-        irqarray11_eventsourceflex235_pending <= 1'd0;
-        irqarray11_eventsourceflex236_pending <= 1'd0;
-        irqarray11_eventsourceflex237_pending <= 1'd0;
-        irqarray11_eventsourceflex238_pending <= 1'd0;
-        irqarray11_eventsourceflex239_pending <= 1'd0;
         irqarray11_status_re <= 1'd0;
         irqarray11_pending_re <= 1'd0;
         irqarray11_pending_r <= 20'd0;
@@ -17661,26 +17855,6 @@ always @(posedge sys_clk) begin
         irqarray11_enable_re <= 1'd0;
         irqarray12_storage <= 20'd0;
         irqarray12_re <= 1'd0;
-        irqarray12_eventsourceflex240_pending <= 1'd0;
-        irqarray12_eventsourceflex241_pending <= 1'd0;
-        irqarray12_eventsourceflex242_pending <= 1'd0;
-        irqarray12_eventsourceflex243_pending <= 1'd0;
-        irqarray12_eventsourceflex244_pending <= 1'd0;
-        irqarray12_eventsourceflex245_pending <= 1'd0;
-        irqarray12_eventsourceflex246_pending <= 1'd0;
-        irqarray12_eventsourceflex247_pending <= 1'd0;
-        irqarray12_eventsourceflex248_pending <= 1'd0;
-        irqarray12_eventsourceflex249_pending <= 1'd0;
-        irqarray12_eventsourceflex250_pending <= 1'd0;
-        irqarray12_eventsourceflex251_pending <= 1'd0;
-        irqarray12_eventsourceflex252_pending <= 1'd0;
-        irqarray12_eventsourceflex253_pending <= 1'd0;
-        irqarray12_eventsourceflex254_pending <= 1'd0;
-        irqarray12_eventsourceflex255_pending <= 1'd0;
-        irqarray12_eventsourceflex256_pending <= 1'd0;
-        irqarray12_eventsourceflex257_pending <= 1'd0;
-        irqarray12_eventsourceflex258_pending <= 1'd0;
-        irqarray12_eventsourceflex259_pending <= 1'd0;
         irqarray12_status_re <= 1'd0;
         irqarray12_pending_re <= 1'd0;
         irqarray12_pending_r <= 20'd0;
@@ -17688,26 +17862,6 @@ always @(posedge sys_clk) begin
         irqarray12_enable_re <= 1'd0;
         irqarray13_storage <= 20'd0;
         irqarray13_re <= 1'd0;
-        irqarray13_eventsourceflex260_pending <= 1'd0;
-        irqarray13_eventsourceflex261_pending <= 1'd0;
-        irqarray13_eventsourceflex262_pending <= 1'd0;
-        irqarray13_eventsourceflex263_pending <= 1'd0;
-        irqarray13_eventsourceflex264_pending <= 1'd0;
-        irqarray13_eventsourceflex265_pending <= 1'd0;
-        irqarray13_eventsourceflex266_pending <= 1'd0;
-        irqarray13_eventsourceflex267_pending <= 1'd0;
-        irqarray13_eventsourceflex268_pending <= 1'd0;
-        irqarray13_eventsourceflex269_pending <= 1'd0;
-        irqarray13_eventsourceflex270_pending <= 1'd0;
-        irqarray13_eventsourceflex271_pending <= 1'd0;
-        irqarray13_eventsourceflex272_pending <= 1'd0;
-        irqarray13_eventsourceflex273_pending <= 1'd0;
-        irqarray13_eventsourceflex274_pending <= 1'd0;
-        irqarray13_eventsourceflex275_pending <= 1'd0;
-        irqarray13_eventsourceflex276_pending <= 1'd0;
-        irqarray13_eventsourceflex277_pending <= 1'd0;
-        irqarray13_eventsourceflex278_pending <= 1'd0;
-        irqarray13_eventsourceflex279_pending <= 1'd0;
         irqarray13_status_re <= 1'd0;
         irqarray13_pending_re <= 1'd0;
         irqarray13_pending_r <= 20'd0;
@@ -17715,26 +17869,6 @@ always @(posedge sys_clk) begin
         irqarray13_enable_re <= 1'd0;
         irqarray14_storage <= 20'd0;
         irqarray14_re <= 1'd0;
-        irqarray14_eventsourceflex280_pending <= 1'd0;
-        irqarray14_eventsourceflex281_pending <= 1'd0;
-        irqarray14_eventsourceflex282_pending <= 1'd0;
-        irqarray14_eventsourceflex283_pending <= 1'd0;
-        irqarray14_eventsourceflex284_pending <= 1'd0;
-        irqarray14_eventsourceflex285_pending <= 1'd0;
-        irqarray14_eventsourceflex286_pending <= 1'd0;
-        irqarray14_eventsourceflex287_pending <= 1'd0;
-        irqarray14_eventsourceflex288_pending <= 1'd0;
-        irqarray14_eventsourceflex289_pending <= 1'd0;
-        irqarray14_eventsourceflex290_pending <= 1'd0;
-        irqarray14_eventsourceflex291_pending <= 1'd0;
-        irqarray14_eventsourceflex292_pending <= 1'd0;
-        irqarray14_eventsourceflex293_pending <= 1'd0;
-        irqarray14_eventsourceflex294_pending <= 1'd0;
-        irqarray14_eventsourceflex295_pending <= 1'd0;
-        irqarray14_eventsourceflex296_pending <= 1'd0;
-        irqarray14_eventsourceflex297_pending <= 1'd0;
-        irqarray14_eventsourceflex298_pending <= 1'd0;
-        irqarray14_eventsourceflex299_pending <= 1'd0;
         irqarray14_status_re <= 1'd0;
         irqarray14_pending_re <= 1'd0;
         irqarray14_pending_r <= 20'd0;
@@ -17742,26 +17876,6 @@ always @(posedge sys_clk) begin
         irqarray14_enable_re <= 1'd0;
         irqarray15_storage <= 20'd0;
         irqarray15_re <= 1'd0;
-        irqarray15_eventsourceflex300_pending <= 1'd0;
-        irqarray15_eventsourceflex301_pending <= 1'd0;
-        irqarray15_eventsourceflex302_pending <= 1'd0;
-        irqarray15_eventsourceflex303_pending <= 1'd0;
-        irqarray15_eventsourceflex304_pending <= 1'd0;
-        irqarray15_eventsourceflex305_pending <= 1'd0;
-        irqarray15_eventsourceflex306_pending <= 1'd0;
-        irqarray15_eventsourceflex307_pending <= 1'd0;
-        irqarray15_eventsourceflex308_pending <= 1'd0;
-        irqarray15_eventsourceflex309_pending <= 1'd0;
-        irqarray15_eventsourceflex310_pending <= 1'd0;
-        irqarray15_eventsourceflex311_pending <= 1'd0;
-        irqarray15_eventsourceflex312_pending <= 1'd0;
-        irqarray15_eventsourceflex313_pending <= 1'd0;
-        irqarray15_eventsourceflex314_pending <= 1'd0;
-        irqarray15_eventsourceflex315_pending <= 1'd0;
-        irqarray15_eventsourceflex316_pending <= 1'd0;
-        irqarray15_eventsourceflex317_pending <= 1'd0;
-        irqarray15_eventsourceflex318_pending <= 1'd0;
-        irqarray15_eventsourceflex319_pending <= 1'd0;
         irqarray15_status_re <= 1'd0;
         irqarray15_pending_re <= 1'd0;
         irqarray15_pending_r <= 20'd0;
@@ -17769,26 +17883,6 @@ always @(posedge sys_clk) begin
         irqarray15_enable_re <= 1'd0;
         irqarray16_storage <= 20'd0;
         irqarray16_re <= 1'd0;
-        irqarray16_eventsourceflex320_pending <= 1'd0;
-        irqarray16_eventsourceflex321_pending <= 1'd0;
-        irqarray16_eventsourceflex322_pending <= 1'd0;
-        irqarray16_eventsourceflex323_pending <= 1'd0;
-        irqarray16_eventsourceflex324_pending <= 1'd0;
-        irqarray16_eventsourceflex325_pending <= 1'd0;
-        irqarray16_eventsourceflex326_pending <= 1'd0;
-        irqarray16_eventsourceflex327_pending <= 1'd0;
-        irqarray16_eventsourceflex328_pending <= 1'd0;
-        irqarray16_eventsourceflex329_pending <= 1'd0;
-        irqarray16_eventsourceflex330_pending <= 1'd0;
-        irqarray16_eventsourceflex331_pending <= 1'd0;
-        irqarray16_eventsourceflex332_pending <= 1'd0;
-        irqarray16_eventsourceflex333_pending <= 1'd0;
-        irqarray16_eventsourceflex334_pending <= 1'd0;
-        irqarray16_eventsourceflex335_pending <= 1'd0;
-        irqarray16_eventsourceflex336_pending <= 1'd0;
-        irqarray16_eventsourceflex337_pending <= 1'd0;
-        irqarray16_eventsourceflex338_pending <= 1'd0;
-        irqarray16_eventsourceflex339_pending <= 1'd0;
         irqarray16_status_re <= 1'd0;
         irqarray16_pending_re <= 1'd0;
         irqarray16_pending_r <= 20'd0;
@@ -17796,26 +17890,6 @@ always @(posedge sys_clk) begin
         irqarray16_enable_re <= 1'd0;
         irqarray17_storage <= 20'd0;
         irqarray17_re <= 1'd0;
-        irqarray17_eventsourceflex340_pending <= 1'd0;
-        irqarray17_eventsourceflex341_pending <= 1'd0;
-        irqarray17_eventsourceflex342_pending <= 1'd0;
-        irqarray17_eventsourceflex343_pending <= 1'd0;
-        irqarray17_eventsourceflex344_pending <= 1'd0;
-        irqarray17_eventsourceflex345_pending <= 1'd0;
-        irqarray17_eventsourceflex346_pending <= 1'd0;
-        irqarray17_eventsourceflex347_pending <= 1'd0;
-        irqarray17_eventsourceflex348_pending <= 1'd0;
-        irqarray17_eventsourceflex349_pending <= 1'd0;
-        irqarray17_eventsourceflex350_pending <= 1'd0;
-        irqarray17_eventsourceflex351_pending <= 1'd0;
-        irqarray17_eventsourceflex352_pending <= 1'd0;
-        irqarray17_eventsourceflex353_pending <= 1'd0;
-        irqarray17_eventsourceflex354_pending <= 1'd0;
-        irqarray17_eventsourceflex355_pending <= 1'd0;
-        irqarray17_eventsourceflex356_pending <= 1'd0;
-        irqarray17_eventsourceflex357_pending <= 1'd0;
-        irqarray17_eventsourceflex358_pending <= 1'd0;
-        irqarray17_eventsourceflex359_pending <= 1'd0;
         irqarray17_status_re <= 1'd0;
         irqarray17_pending_re <= 1'd0;
         irqarray17_pending_r <= 20'd0;
@@ -17823,26 +17897,6 @@ always @(posedge sys_clk) begin
         irqarray17_enable_re <= 1'd0;
         irqarray18_storage <= 20'd0;
         irqarray18_re <= 1'd0;
-        irqarray18_eventsourceflex360_pending <= 1'd0;
-        irqarray18_eventsourceflex361_pending <= 1'd0;
-        irqarray18_eventsourceflex362_pending <= 1'd0;
-        irqarray18_eventsourceflex363_pending <= 1'd0;
-        irqarray18_eventsourceflex364_pending <= 1'd0;
-        irqarray18_eventsourceflex365_pending <= 1'd0;
-        irqarray18_eventsourceflex366_pending <= 1'd0;
-        irqarray18_eventsourceflex367_pending <= 1'd0;
-        irqarray18_eventsourceflex368_pending <= 1'd0;
-        irqarray18_eventsourceflex369_pending <= 1'd0;
-        irqarray18_eventsourceflex370_pending <= 1'd0;
-        irqarray18_eventsourceflex371_pending <= 1'd0;
-        irqarray18_eventsourceflex372_pending <= 1'd0;
-        irqarray18_eventsourceflex373_pending <= 1'd0;
-        irqarray18_eventsourceflex374_pending <= 1'd0;
-        irqarray18_eventsourceflex375_pending <= 1'd0;
-        irqarray18_eventsourceflex376_pending <= 1'd0;
-        irqarray18_eventsourceflex377_pending <= 1'd0;
-        irqarray18_eventsourceflex378_pending <= 1'd0;
-        irqarray18_eventsourceflex379_pending <= 1'd0;
         irqarray18_status_re <= 1'd0;
         irqarray18_pending_re <= 1'd0;
         irqarray18_pending_r <= 20'd0;
@@ -17850,39 +17904,14 @@ always @(posedge sys_clk) begin
         irqarray18_enable_re <= 1'd0;
         irqarray19_storage <= 20'd0;
         irqarray19_re <= 1'd0;
-        irqarray19_eventsourceflex380_pending <= 1'd0;
-        irqarray19_eventsourceflex381_pending <= 1'd0;
-        irqarray19_eventsourceflex382_pending <= 1'd0;
-        irqarray19_eventsourceflex383_pending <= 1'd0;
-        irqarray19_eventsourceflex384_pending <= 1'd0;
-        irqarray19_eventsourceflex385_pending <= 1'd0;
-        irqarray19_eventsourceflex386_pending <= 1'd0;
-        irqarray19_eventsourceflex387_pending <= 1'd0;
-        irqarray19_eventsourceflex388_pending <= 1'd0;
-        irqarray19_eventsourceflex389_pending <= 1'd0;
-        irqarray19_eventsourceflex390_pending <= 1'd0;
-        irqarray19_eventsourceflex391_pending <= 1'd0;
-        irqarray19_eventsourceflex392_pending <= 1'd0;
-        irqarray19_eventsourceflex393_pending <= 1'd0;
-        irqarray19_eventsourceflex394_pending <= 1'd0;
-        irqarray19_eventsourceflex395_pending <= 1'd0;
-        irqarray19_eventsourceflex396_pending <= 1'd0;
-        irqarray19_eventsourceflex397_pending <= 1'd0;
-        irqarray19_eventsourceflex398_pending <= 1'd0;
-        irqarray19_eventsourceflex399_pending <= 1'd0;
         irqarray19_status_re <= 1'd0;
         irqarray19_pending_re <= 1'd0;
         irqarray19_pending_r <= 20'd0;
         irqarray19_enable_storage <= 20'd0;
         irqarray19_enable_re <= 1'd0;
-        ticktimer_load_xfer_blind <= 1'd0;
-        ticktimer_timer_sync_ping_o1 <= 1'd0;
-        ticktimer_resume_sync_starter <= 1'd1;
-        ticktimer_resume_sync_count <= 8'd128;
         ticktimer_control_storage <= 1'd0;
         ticktimer_control_re <= 1'd0;
         ticktimer_time_re <= 1'd0;
-        ticktimer_reset_xfer_blind <= 1'd0;
         ticktimer_msleep_target_storage <= 64'd0;
         ticktimer_msleep_target_re <= 1'd0;
         ticktimer_status_re <= 1'd0;
@@ -17890,15 +17919,9 @@ always @(posedge sys_clk) begin
         ticktimer_pending_r <= 1'd0;
         ticktimer_enable_storage <= 1'd0;
         ticktimer_enable_re <= 1'd0;
-        ticktimer_ping_blind <= 1'd0;
-        ticktimer_lockout_alarm <= 1'd0;
-        ticktimer_target_xfer_starter <= 1'd1;
-        ticktimer_target_xfer_count <= 8'd128;
         d11ctime_control_storage <= 32'd400000;
         d11ctime_control_re <= 1'd0;
         d11ctime_heartbeat_re <= 1'd0;
-        d11ctime_counter <= 32'd400000;
-        d11ctime_heartbeat <= 1'd0;
         susres_control_storage <= 2'd0;
         susres_control_re <= 1'd0;
         susres_resume_time_storage <= 64'd0;
@@ -17909,8 +17932,6 @@ always @(posedge sys_clk) begin
         susres_state_re <= 1'd0;
         susres_interrupt_storage <= 1'd0;
         susres_interrupt_re <= 1'd0;
-        susres_soft_int_pending <= 1'd0;
-        susres_soft_int_trigger_d <= 1'd0;
         susres_status_re1 <= 1'd0;
         susres_pending_re <= 1'd0;
         susres_pending_r <= 1'd0;
@@ -17986,24 +18007,6 @@ always @(posedge sys_clk) begin
         cramsoc_mailboxclient_state <= 2'd0;
         cramsoc_axilite2csr_state <= 2'd0;
     end
-    multiregimpl2_regs0 <= ticktimer_load_xfer_ps_ack_toggle_i;
-    multiregimpl2_regs1 <= multiregimpl2_regs0;
-    multiregimpl3_regs0 <= ticktimer_paused1;
-    multiregimpl3_regs1 <= multiregimpl3_regs0;
-    multiregimpl4_regs0 <= ticktimer_timer_sync_ping_toggle_i;
-    multiregimpl4_regs1 <= multiregimpl4_regs0;
-    multiregimpl6_regs0 <= ticktimer_timer_sync_ibuffer;
-    multiregimpl6_regs1 <= multiregimpl6_regs0;
-    multiregimpl8_regs0 <= ticktimer_resume_sync_pong_toggle_i;
-    multiregimpl8_regs1 <= multiregimpl8_regs0;
-    multiregimpl11_regs0 <= ticktimer_reset_xfer_ps_ack_toggle_i;
-    multiregimpl11_regs1 <= multiregimpl11_regs0;
-    multiregimpl13_regs0 <= ticktimer_ping_ps_ack_toggle_i;
-    multiregimpl13_regs1 <= multiregimpl13_regs0;
-    multiregimpl14_regs0 <= ticktimer_pong_ps_toggle_i;
-    multiregimpl14_regs1 <= multiregimpl14_regs0;
-    multiregimpl17_regs0 <= ticktimer_target_xfer_pong_toggle_i;
-    multiregimpl17_regs1 <= multiregimpl17_regs0;
 end
 
 
@@ -18451,5 +18454,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-05-16 01:20:22.
+//  Auto-Generated by LiteX on 2023-05-16 03:24:36.
 //------------------------------------------------------------------------------
