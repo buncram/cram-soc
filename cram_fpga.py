@@ -481,8 +481,19 @@ class CramSoC(SoCMini):
         self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
         self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
 
+        # work around AXIL->CSR bugs in Litex. The spec says that "we" should be a single pulse. But,
+        # it seems that the AXIL->CSR adapter will happily generate a longer pulse. Seems to have to do with
+        # some "clever hack" that was done to adapt AXIL to simple csrs, where axi_lite_to_simple() inside axi_lite.py
+        # is not your usual Module but some function that returns a tuple of FSMs and combs to glom into the parent
+        # object. But because of this everything in it has to be computed in just one cycle, but actually it seems
+        # that this causes the "do_read" to trigger a cycle earlier than the FSM's state, which later on gets
+        # OR'd together to create a 2-long cycle for WE, violating the CSR spec. Moving "do_read" back a cycle doesn't
+        # quite fix it because you also need to gate off the "adr" signal, and I can't seem to find that code.
+        # Anyways, this is a Litex-specific bug, so I'm not going to worry about it for SoC integration simulations.
+        sim_coherence_axil_bug = Signal()
         self.sync += [
-            If(self.sim_coherence_inc.we,
+            sim_coherence_axil_bug.eq(self.sim_coherence_inc.we),
+            If(self.sim_coherence_inc.we & ~sim_coherence_axil_bug,
                 self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
             ).Else(
                 self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
