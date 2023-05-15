@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
 // Component : VexRiscvAxi4
-// Git hash  : 8adf36785970c12ffc1654fee73dc791b4e9eeef
+// Git hash  : 6bff8a073575781a7210a728dc764ddabf47a81c
 
 `timescale 1ns/1ps
 
@@ -7726,6 +7726,9 @@ module VexRiscvAxi4 (
       MmuPlugin_status_mxr <= 1'b0;
       MmuPlugin_status_mprv <= 1'b0;
       MmuPlugin_satp_mode <= 1'b0;
+      MmuPlugin_satp_mode <= 1'b0;
+      MmuPlugin_satp_asid <= 9'h0;
+      MmuPlugin_satp_ppn <= 22'h0;
       MmuPlugin_ports_0_cache_0_valid <= 1'b0;
       MmuPlugin_ports_0_cache_1_valid <= 1'b0;
       MmuPlugin_ports_0_cache_2_valid <= 1'b0;
@@ -8306,6 +8309,8 @@ module VexRiscvAxi4 (
       if(execute_CsrPlugin_csr_384) begin
         if(execute_CsrPlugin_writeEnable) begin
           MmuPlugin_satp_mode <= CsrPlugin_csrMapping_writeDataSignal[31];
+          MmuPlugin_satp_asid <= CsrPlugin_csrMapping_writeDataSignal[30 : 22];
+          MmuPlugin_satp_ppn <= CsrPlugin_csrMapping_writeDataSignal[21 : 0];
           MmuPlugin_ports_0_cache_0_valid <= 1'b0;
           MmuPlugin_ports_0_cache_1_valid <= 1'b0;
           MmuPlugin_ports_0_cache_2_valid <= 1'b0;
@@ -9125,12 +9130,6 @@ module VexRiscvAxi4 (
     if(execute_CsrPlugin_csr_323) begin
       if(execute_CsrPlugin_writeEnable) begin
         CsrPlugin_stval <= CsrPlugin_csrMapping_writeDataSignal[31 : 0];
-      end
-    end
-    if(execute_CsrPlugin_csr_384) begin
-      if(execute_CsrPlugin_writeEnable) begin
-        MmuPlugin_satp_asid <= CsrPlugin_csrMapping_writeDataSignal[30 : 22];
-        MmuPlugin_satp_ppn <= CsrPlugin_csrMapping_writeDataSignal[21 : 0];
       end
     end
   end
