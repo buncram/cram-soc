@@ -30,7 +30,7 @@ const PERI_PT_PA: usize = 0x6100_5000;
 // exception handler pages. Mapped 1:1 PA:VA, so no explicit remapping needed as RAM area is already mapped.
 const _SCRATCH_PAGE: usize = 0x6100_6000;
 const _EXCEPTION_STACK_LIMIT: usize = 0x6100_7000; // the start of stack is this + 0x1000 & grows down
-pub const PT_LIMIT: usize = 0x6100_8000;
+pub const PT_LIMIT: usize = 0x6100_8000; // this is carved out in link.x
 
 // VAs
 const CODE_VA: usize = 0x0000_0000;
@@ -81,17 +81,17 @@ pub fn satp_setup() {
     set_l1_pte(SRAM_VA, SRAM_PT_PA, &mut root_pt); // L1 covers 16MiB, so SP_VA will cover all of SRAM
 
     // map code space. This is the only one that has a difference on VA->PA
-    const CODE_LEN: usize = 0x65536;
+    const CODE_LEN: usize = 0x30_0000; // 3 megs
     for offset in (0..CODE_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R | FLG_U);
     }
-    const SPI_OFFSET: usize = 0x50_0000;
+    const SPI_OFFSET: usize = 0x50_0000; // map a window at 5 megs for spi-boot after FPGA loaded image (not used in basic boot image testing)
     for offset in (SPI_OFFSET..SPI_OFFSET + CODE_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code2_pt, FLG_X | FLG_R | FLG_U);
     }
 
     // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
-    const SRAM_LEN: usize = 65536;
+    const SRAM_LEN: usize = 0x20_0000; // 2 megs
     for offset in (0..SRAM_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
     }

@@ -1,6 +1,6 @@
 MEMORY
 {
-  RAM : ORIGIN = 0x61000000, LENGTH = 2M
+  RAM : ORIGIN = 0x61008000, LENGTH = 2M - 32k  /* locate this outside of the page table area, bottom 32k for PT's and EH */
   FLASH : ORIGIN = 0x60000000, LENGTH = 3M
   /*FLASH : ORIGIN = 0x20D00000, LENGTH = 128k*/  /* use for dev work, along with --simple-boot build option for betrusted_soc.py */
   MEMLCD: ORIGIN = 0xB0000000, LENGTH = 32k

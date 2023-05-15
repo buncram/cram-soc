@@ -118,6 +118,9 @@ pub fn pio_spi_init(
     // SPI is synchronous, so bypass input synchroniser to reduce input delay.
     pio_sm.pio.wo(rp_pio::SFR_SYNC_BYPASS, 1 << pin_miso);
 
+    // reset this because prior tests might set this
+    pio_sm.config_set_fifo_join(PioFifoJoin::None);
+
     // program origin should already be set by the loader. sm_init() also disables the engine.
     pio_sm.sm_init(program.start());
     pio_sm.sm_set_enabled(true);
@@ -199,6 +202,9 @@ pub fn spi_test() -> bool {
     }
     // cleanup external side effects for next test
     pio_sm.gpio_reset_overrides();
+    pio_sm.pio.wo(rp_pio::SFR_IRQ0_INTE, 0);
+    pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, 0);
+    pio_sm.pio.wo(rp_pio::SFR_SYNC_BYPASS, 0);
 
     if passing {
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_600D);

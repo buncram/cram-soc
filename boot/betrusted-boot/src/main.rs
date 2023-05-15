@@ -583,16 +583,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         // ---------- coreuser test --------------------
         satp::satp_test();
 
-        // TEMPORARY STOP
-        report.wfo(utra::main::DONE_DONE, 1);
-
         // ---------- exception test -------------------
         irqs::irq_test();
 
         // ---------- CPU CSR tests --------------
         report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
-        // for now abort the simulation here
-        report.wfo(utra::main::DONE_DONE, 1);
         let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
         let mut passing = true;
         for i in 0..4 {
@@ -679,7 +674,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
         // check that repeated reads of a register fetch new contents
         let mut checkdata = 0; // tracked value via simulation
-        let mut computed = 0; // computed value by reading the hardare block
+        let mut computed = 0; // computed value by reading the hardware block
         let mut devstate = 0; // what the state should be
         for _ in 0..20 {
             let readout = report.rf(utra::main::RINC_RINC);

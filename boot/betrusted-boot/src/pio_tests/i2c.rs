@@ -35,6 +35,8 @@ pub fn i2c_init(
 
     pio_sm.sm_irq0_source_enabled(PioIntSource::Sm, false);
     pio_sm.sm_irq1_source_enabled(PioIntSource::Sm, true);
+    // reset this because prior tests might set this
+    pio_sm.config_set_fifo_join(PioFifoJoin::None);
 
     pio_sm.sm_init(program.entry());
     pio_sm.sm_set_enabled(true);
@@ -344,6 +346,11 @@ pub fn i2c_test() -> bool {
         }
     }
     report.wfo(utra::main::REPORT_REPORT, 0x012C_1111);
+
+    // turn off interrupts after the test, otherwise this interferes with later operations
+    pio_sm.sm_irq0_source_enabled(PioIntSource::Sm, false);
+    pio_sm.sm_irq1_source_enabled(PioIntSource::Sm, false);
+
     assert!(passing);
     passing
 }
