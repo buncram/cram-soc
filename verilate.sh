@@ -25,7 +25,7 @@ then
   python3 ./mkimage.py
   ./disasm_load.sh
   cd ../cram-soc
-  BIOS="../xous-cramium/sipmspi.init"
+  BIOS="../xous-cramium/simspi.init"
 else
   # regenerate PIO include from source
   python3 ./pio_to_svd.py

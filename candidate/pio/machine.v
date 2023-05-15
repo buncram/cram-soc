@@ -276,7 +276,7 @@ module machine (
   task do_push();
     begin
       push = 1;
-      // dout = push_dout; // dout is wired directly to the ISR now.
+      // dout = push_dout; // dout is wired directly to the ISR now. Sharing dout here causes inconsistency between verilator and XSIM results (XSIM delays an extra cycle compared to verilator)
     end
   endtask
 
