@@ -37,7 +37,7 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 from litex.soc.interconnect.csr import *
 
-VEX_CPU_PATH = "deps/pythondata-cpu-vexriscv/pythondata_cpu_vexriscv/verilog/VexRiscv_CramSoC.v"
+VEX_CPU_PATH = "VexRiscv/VexRiscv_CramSoC.v"
 TARGET = "riscv32imac-unknown-none-elf"
 
 benchio = [
