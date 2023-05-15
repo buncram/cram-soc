@@ -17,6 +17,10 @@
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
+
+`include "template.sv"
+`include "apb_sfr_v0.1.sv"
+
 module rp_pio #(
 )(
     input logic         clk,
@@ -237,7 +241,10 @@ module rp_pio #(
                     do_sticky[i][gpio_idx] <= 1;
                 end
 
-                if (update_output[i][gpio_idx]) begin
+                if (reset) begin
+                    gpio_out[gpio_idx] <= 0;
+                    gpio_dir[gpio_idx] <= 0;
+                end else if (update_output[i][gpio_idx]) begin
                     gpio_out[gpio_idx] <= output_pins[i][gpio_idx];
                     gpio_dir[gpio_idx] <= pin_directions[i][gpio_idx];
                 end
