@@ -80,7 +80,7 @@ class Platform(GenericPlatform):
     def build(self, fragment, build_dir, build_name, **kwargs):
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
-        conv_output = self.get_verilog(fragment, name=build_name)
+        conv_output = self.get_verilog(fragment, name=build_name, asic=True)
         conv_output.write(f"{build_name}.v")
 
 class CsrTest(Module, AutoCSR, AutoDoc):
@@ -1229,10 +1229,11 @@ class cramSoC(SoCCore):
         platform.name = "litex_soc"
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(
-            clk = platform.request("aclk"),
-            rst = platform.request("rst"),
-        )
+        self.clock_domains.cd_sys = ClockDomain()
+        self.comb += [
+            self.cd_sys.clk.eq(platform.request("aclk")),
+            self.cd_sys.rst.eq(platform.request("rst")),
+        ]
         self.clock_domains.cd_always_on = ClockDomain()
         self.comb += self.cd_always_on.clk.eq(platform.request("always_on"))
 
