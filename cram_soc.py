@@ -179,23 +179,25 @@ class SimUartPhy(Module, AutoCSR):
 
 # Simulation CRG -----------------------------------------------------------------------------------
 class SimCRG(Module):
-    def __init__(self, clk, p_clk, pio_clk, rst=0):
+    def __init__(self, clk, p_clk, pio_clk, rst, sleep_req):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain(reset_less=True)
         self.clock_domains.cd_p = ClockDomain()
         self.clock_domains.cd_pio = ClockDomain()
+        self.clock_domains.cd_sys_always_on = ClockDomain()
 
         # Power on Reset (vendor agnostic)
         int_rst = Signal(reset=1)
         self.sync.por += int_rst.eq(rst)
         self.comb += [
-            self.cd_sys.clk.eq(clk),
+            self.cd_sys.clk.eq(clk & ~sleep_req),
             self.cd_por.clk.eq(clk),
             self.cd_sys.rst.eq(int_rst),
             self.cd_p.clk.eq(p_clk),
             self.cd_p.rst.eq(int_rst),
             self.cd_pio.clk.eq(pio_clk),
             self.cd_pio.rst.eq(int_rst),
+            self.cd_sys_always_on.clk.eq(clk),
         ]
 
 # CramSoC ------------------------------------------------------------------------------------------
@@ -256,6 +258,8 @@ class CramSoC(SoCMini):
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
+        sleep_req = Signal()
+
         reset_cycles = 32
         reset_counter = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
         ic_reset      = Signal(reset=1)
@@ -265,9 +269,7 @@ class CramSoC(SoCMini):
             ).Else(
                 ic_reset.eq(0)
             )
-        self.crg = SimCRG(platform.request("sys_clk"), platform.request("p_clk"), platform.request("pio_clk"), ic_reset)
-        self.clock_domains.cd_sys_always_on = ClockDomain()
-        self.comb += self.cd_sys_always_on.clk.eq(ClockSignal())
+        self.crg = SimCRG(platform.request("sys_clk"), platform.request("p_clk"), platform.request("pio_clk"), ic_reset, sleep_req)
 
         # Simulation debugging ----------------------------------------------------------------------
         if sim_debug:
@@ -582,11 +584,10 @@ class CramSoC(SoCMini):
             )
         ])
         # wfi breakout
-        wfi_active = Signal()
         wfi_loopback = Signal(20)
-        wfi_delay = Signal(7, reset=64) # coded as a one-shot
-        self.sync += [
-            If(wfi_active & (wfi_delay > 0),
+        wfi_delay = Signal(10, reset=512) # coded as a one-shot
+        self.sync.sys_always_on += [
+            If(sleep_req & (wfi_delay > 0),
                 wfi_delay.eq(wfi_delay - 1),
             ),
             If(wfi_delay == 1,
@@ -600,7 +601,7 @@ class CramSoC(SoCMini):
         self.specials += Instance("cram_axi",
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
-            i_always_on           = ClockSignal("sys"),
+            i_always_on           = ClockSignal("sys_always_on"),
             i_cmatpg             = Open(),
             i_cmbist             = Open(),
             i_trimming_reset      = 0x6000_0000,
@@ -752,7 +753,7 @@ class CramSoC(SoCMini):
             i_irqarray_bank18      = zero_irq,
             i_irqarray_bank19      = wfi_loopback,
 
-            o_wfi_active           = wfi_active,
+            o_sleep_req            = sleep_req,
         )
 
     def add_custom_ram(self, custom_bus, name, origin, size, contents=[], mode="rwx"):

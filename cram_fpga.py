@@ -1014,7 +1014,7 @@ class CramSoC(SoCMini):
             i_irqarray_bank18      = zero_irq,
             i_irqarray_bank19      = wfi_loopback,
 
-            o_wfi_active           = wfi_active,
+            o_sleep_req            = wfi_active,
         )
 
     def add_custom_ram(self, custom_bus, name, origin, size, contents=[], mode="rwx"):
