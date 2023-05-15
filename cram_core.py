@@ -51,8 +51,9 @@ def get_common_ios():
         ("trimming_reset_ena", 0, Pins(1)),
         # coreuser signal
         ("coreuser", 0, Pins(1)),
-        # wfi active signal
-        ("wfi_active", 0, Pins(1)),
+        # sleep request: wfi active signal gated with interrupt status
+        # when high, stop aclk, but leave "always_on" on
+        ("sleep_req", 0, Pins(1)),
         # BIST signals
         ("cmbist", 0, Pins(1)),
         ("cmatpg", 0, Pins(1)),
@@ -1354,26 +1355,32 @@ class cramSoC(SoCCore):
         ]
 
         # WFI breakout -----------------------------------------------------------------------------
-        wfi_active = platform.request("wfi_active")
-        self.comb += wfi_active.eq(self.cpu.wfi_active)
+        sleep_req = platform.request("sleep_req")
+        cpu_int_active = Signal()
+        self.sync.always_on += cpu_int_active.eq(self.cpu.interrupt == Cat(
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0))
+        self.comb += sleep_req.eq(self.cpu.wfi_active & cpu_int_active)
 
         # Interrupt Array --------------------------------------------------------------------------
         irqpins = platform.request("irqarray")
         for bank in range(IRQ_BANKS):
             pins = getattr(irqpins, 'bank{}'.format(bank))
-            setattr(self.submodules, 'irqarray{}'.format(bank), IrqArray(bank, pins))
+            setattr(self.submodules, 'irqarray{}'.format(bank), ClockDomainsRenamer({"sys":"always_on"})(IrqArray(bank, pins)))
             self.irq.add("irqarray{}".format(bank))
 
         # Ticktimer --------------------------------------------------------------------------------
-        self.submodules.ticktimer = ticktimer.TickTimer(1000, sys_clk_freq)
+        self.submodules.ticktimer = ClockDomainsRenamer({"sys":"always_on"})(ticktimer.TickTimer(1000, sys_clk_freq))
         self.irq.add("ticktimer")
 
         # Deterministic timeout helper ---------------------------------------------------------------
-        self.submodules.d11ctime = D11cTime(count=400_000, sys_clk_freq=sys_clk_freq)
+        self.submodules.d11ctime = ClockDomainsRenamer({"sys":"always_on"})(D11cTime(count=400_000, sys_clk_freq=sys_clk_freq))
         self.add_csr("d11ctime")
 
         # Suspend/resume ---------------------------------------------------------------------------
-        self.submodules.susres = SusRes(bits=64)
+        self.submodules.susres = ClockDomainsRenamer({"sys":"always_on"})(SusRes(bits=64))
         self.add_csr("susres")
         self.irq.add("susres")
         # wire up signals that cross from the ticktimer's CSR space to the susres CSR space. Allows for virtual memory process isolation
