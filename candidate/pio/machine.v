@@ -49,7 +49,7 @@ module machine (
   output reg    push, // Send data to RX FIFO
   output reg    pull, // Get data from TX FIFO
   output reg    exec_stalled,
-  output reg [31:0] dout,
+  output wire [31:0] dout,
   output reg [31:0] output_pins,
   output reg [31:0] output_pins_stb,
   output reg [31:0] pin_directions,
@@ -107,7 +107,6 @@ module machine (
   wire [4:0]  delay;
   wire [4:0]  side_set;
   wire        sideset_enabled;
-  wire [31:0] push_dout;
 
   // Names of operands
   wire        blocking = op1[0];
@@ -277,7 +276,7 @@ module machine (
   task do_push();
     begin
       push = 1;
-      dout = push_dout;
+      // dout = push_dout; // dout is wired directly to the ISR now.
     end
   endtask
 
@@ -410,7 +409,6 @@ module machine (
     set_out_dirs = 0;
     irq_flags_out = 0;
     irq_flags_stb = 0;
-    dout = 0;
     dbg_txstall = 0;
     dbg_rxstall = 0;
     if (enabled && !delaying) begin
@@ -716,7 +714,7 @@ module machine (
     .do_shift(do_in_shift),
     .din(isr_val),
     .dout(in_shift),
-    .push_dout(push_dout),
+    .push_dout(dout),
     .bit_count(bit_count),
     .shift_count(isr_count)
   );
