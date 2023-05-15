@@ -176,7 +176,7 @@ class PioAdapter(Module):
                 elif (i == 31): # for register tests
                     self.comb += gpio_i[i].eq(gpio_oe[i])
                 else:
-                    self.comb += gpio_i[i].eq(self.gpio.i)
+                    self.comb += gpio_i[i].eq(gpio_o[i]) # loopback for testing
             else:
                 self.comb += gpio_i[i].eq(self.gpio.i)
 
