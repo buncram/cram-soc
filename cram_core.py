@@ -1362,7 +1362,56 @@ class cramSoC(SoCCore):
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0))
-        self.comb += sleep_req.eq(self.cpu.wfi_active & cpu_int_active)
+        axi_active = Signal()
+        ibus_r_active = Signal()
+        dbus_r_active = Signal()
+        dbus_w_active = Signal()
+        pbus_r_active = Signal()
+        pbus_w_active = Signal()
+        AXI_WFI_TIMEOUT=64
+        active_timeout = Signal(max=AXI_WFI_TIMEOUT+1)
+        self.sync += [
+            If(ibus.ar.valid,
+               ibus_r_active.eq(1)
+            ).Elif(ibus.r.valid & ibus.r.ready,
+               ibus_r_active.eq(0)
+            ),
+            If(dbus.ar.valid,
+               dbus_r_active.eq(1)
+            ).Elif(dbus.r.valid & dbus.r.ready,
+               dbus_r_active.eq(0)
+            ),
+            If(dbus.aw.valid,
+               dbus_w_active.eq(1)
+            ).Elif(dbus.b.valid & dbus.b.ready,
+               dbus_w_active.eq(0)
+            ),
+            If(p_bus.ar.valid,
+               pbus_r_active.eq(1)
+            ).Elif(p_bus.r.valid & p_bus.r.ready,
+               pbus_r_active.eq(0)
+            ),
+            If(p_bus.aw.valid,
+               pbus_w_active.eq(1)
+            ).Elif(p_bus.b.valid & p_bus.b.ready,
+               pbus_w_active.eq(0)
+            ),
+            If(axi_active,
+               active_timeout.eq(AXI_WFI_TIMEOUT)
+            ).Elif(active_timeout > 0,
+                active_timeout.eq(active_timeout - 1)
+            ).Else(
+                active_timeout.eq(active_timeout)
+            )
+        ]
+        self.comb += axi_active.eq(
+            ibus.ar.valid | ibus.r.valid
+            | dbus.aw.valid | dbus.w.valid | dbus.b.valid | dbus.ar.valid | dbus.r.valid
+            | p_bus.aw.valid | p_bus.w.valid | p_bus.b.valid | p_bus.ar.valid | p_bus.r.valid
+            | ibus_r_active | dbus_r_active | dbus_w_active | pbus_r_active | pbus_w_active
+        )
+        # TODO: detect when aw -> b, and ar -> ar is pending...
+        self.comb += sleep_req.eq(self.cpu.wfi_active & cpu_int_active & ~axi_active & (active_timeout == 0))
 
         # Interrupt Array --------------------------------------------------------------------------
         irqpins = platform.request("irqarray")
