@@ -2573,10 +2573,25 @@
                         </field>
                     </fields>
                 </register>
+                <register>
+                    <name>SFR_CDC_MODE</name>
+                    <addressOffset>0x018c</addressOffset>
+                    <resetValue>0x00</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>sfr_cdc_mode</name>
+                            <msb>3</msb>
+                            <bitRange>[3:0]</bitRange>
+                            <lsb>0</lsb>
+                            <description><![CDATA[sfr_cdc_mode read/write control register]]></description>
+                        </field>
+                    </fields>
+                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x18c</size>
+                <size>0x190</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
