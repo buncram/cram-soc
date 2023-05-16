@@ -23,6 +23,26 @@ _io = [
     ("reset", 0, Pins("C12"), IOStandard("LVCMOS33")),
 ]
 
+class PulseSynchronizer(Module):
+    def __init__(self, idomain, odomain):
+        self.i = Signal()
+        self.o = Signal()
+
+        ###
+
+        toggle_i = Signal(reset_less=True)
+        toggle_o = Signal()  # registered reset_less by MultiReg
+        toggle_o_r = Signal(reset_less=True)
+
+        sync_i = getattr(self.sync, idomain)
+        sync_o = getattr(self.sync, odomain)
+
+        sync_i += If(self.i, toggle_i.eq(~toggle_i))
+        # sync_o += toggle_o.eq(toggle_i) # Require that clocks are mesochronous, e.g., edges aligned but not same rate
+        self.specials += MultiReg(toggle_i, toggle_o, odomain, n=1)
+        sync_o += toggle_o_r.eq(toggle_o)
+        self.comb += self.o.eq(toggle_o ^ toggle_o_r)
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(SimPlatform):
@@ -31,6 +51,12 @@ class Platform(SimPlatform):
 
     def __init__(self):
         SimPlatform.__init__(self, "generic", _io)# (self, "xc7a100t-csg324-1", _io, toolchain="vivado")
+
+    def build(self, fragment, build_dir, build_name, **kwargs):
+        os.makedirs(build_dir, exist_ok=True)
+        os.chdir(build_dir)
+        conv_output = self.get_verilog(fragment, name=build_name, asic=True)
+        conv_output.write(f"{build_name}.v")
 
 # Design -------------------------------------------------------------------------------------------
 
@@ -51,7 +77,7 @@ class Cdc(Module):
         ]
         in_a = platform.request("in_a")
         out_b = platform.request("out_b")
-        self.submodules.xfer = xfer = BlindTransfer("a", "b")
+        self.submodules.xfer = xfer = PulseSynchronizer("a", "b") # was BlindTransfer, but latency is too large for DMA
         self.comb += [
             xfer.i.eq(in_a),
             out_b.eq(xfer.o),
@@ -63,4 +89,4 @@ cdc = Cdc(platform)
 
 # Build --------------------------------------------------------------------------------------------
 
-platform.build(cdc)
+platform.build(cdc, build_dir="sim_support", build_name="cdc_pulse")
