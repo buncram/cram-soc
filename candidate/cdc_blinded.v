@@ -39,19 +39,19 @@ wire          i;
 wire          o;
 wire          ps_i;
 wire          ps_o;
-reg           ps_toggle_i = 1'd0;
+reg           ps_toggle_i;
 wire          ps_toggle_o;
-reg           ps_toggle_o_r = 1'd0;
+reg           ps_toggle_o_r;
 wire          ps_ack_i;
 wire          ps_ack_o;
-reg           ps_ack_toggle_i = 1'd0;
+reg           ps_ack_toggle_i;
 wire          ps_ack_toggle_o;
-reg           ps_ack_toggle_o_r = 1'd0;
-reg           blind = 1'd0;
-reg           multiregimpl00 = 1'd0;
-reg           multiregimpl01 = 1'd0;
-reg           multiregimpl10 = 1'd0;
-reg           multiregimpl11 = 1'd0;
+reg           ps_ack_toggle_o_r;
+reg           blind;
+reg           multiregimpl00;
+reg           multiregimpl01;
+reg           multiregimpl10;
+reg           multiregimpl11;
 
 //------------------------------------------------------------------------------
 // Combinatorial Logic
