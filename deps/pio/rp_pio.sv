@@ -97,8 +97,10 @@
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
 
-//`include "template.sv"
-//`include "apb_sfr_v0.1.sv"
+`ifdef XVLOG // required for compatibility with xsim
+`include "template.sv"
+`include "apb_sfr_v0.1.sv"
+`endif
 
 module rp_pio #(
 )(
