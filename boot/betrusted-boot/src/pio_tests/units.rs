@@ -679,6 +679,7 @@ pub fn register_tests() {
             // this requires the testbench to reflect that bit back correctly!
             sm_array[0].sm_exec(set_bit31_oe);
             sm_array[0].sm_exec(clear_bit31_oe);
+            delay(4); // give some time for the state machines to run to the stall point (necessary for fast pclk case)
         }
     }
     // stop the machine from running, so we can test RX fifo underflow, etc.

@@ -231,6 +231,7 @@ pub fn i2c_test() -> bool {
 
     let mut pio_ss = PioSharedState::new();
     let mut pio_sm = pio_ss.alloc_sm().unwrap();
+    pio_sm.sm_set_enabled(false); // stop the machine from running so we can initialize it
 
     let i2c_prog = pio_proc::pio_asm!(
         ".side_set 1 opt pindirs",
