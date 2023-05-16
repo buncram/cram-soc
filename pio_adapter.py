@@ -246,3 +246,4 @@ class PioAdapter(Module):
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "sim_support")
         platform.add_source(os.path.join(rtl_dir, "cdc_blinded.v"))
+        platform.add_source(os.path.join(rtl_dir, "cdc_pulse.v"))
