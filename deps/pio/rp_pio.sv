@@ -3,23 +3,102 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 // TODO:
-//   - Write simple tests for instructions and modes that have not been covered by anything else.
+//   - Write simple tests for instructions and modes that have not been covered by anything else (see list below)
 //   - Test end-to-end IRQ handling with "actual handler"
+//   - Test end-to-end DMA to the block with "actual controller"
+//
+// Additional unit tests required:
+// EXEC-related:
+//
+// - OUT EXEC should be able to execute an OUT EXEC or OUT PC
+// - OUT EXEC of a WAIT instruction should latch the EXEC'd instruction until its stall condition clears
+// - EXEC write during a stalled imem-resident instruction will interrupt that instruction and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem can be interrupted by a IRQ instruction, which can set the same IRQ and cause the WAIT IRQ to fall through once resuming)
+// - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall and begin executing at the jump target
+// - A stalled imem-resident WAIT should be replaced by a imem overwrite of that instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
+// - EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE
+//
+// FIFOs:
+//
+// - A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should permit exactly 10 words to be written to the TX FIFO before the TX FIFO becomes full -- 4 for each FIFO, plus 1 word in the X register and 1 in the OSR.
+//
+// IOs:
+//
+// - Side-set still takes place on cycles where the SM is stalled
+// - Simultaneous side-set and OUT/SET of the same pin values gives precedence to side-set
+// - pin indices > 32 wrap back through pin 0
+//
+// IRQs:
+//
+// - Multiple SMs can safely wait for and clear the same IRQ, as long as they have the same clock divisor and their
+// dividers are sync'd
+//
+// Autopush/pull:
+//
+// - Autopull does not take place while the SM is disabled
+// - Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point. (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
+// - OUT with empty OSR but nonempty TX FIFO should not set the TX stall flag
+// - OUT with empty OSR and nonempty TX FIFO experiences a 1-cycle stall as there's no bypass of FIFO through OSR.
+// - An EXEC write of any instruction (e.g. nop) to a disabled SM, with empty OSR and nonempty TX FIFO, should perform an autopull
+// - An EXEC write of an OUT 32 to a disabled SM, with an empty OSR, and at least two words in the TX FIFO, consumes two words from the TX FIFO: one to fill the OSR so the OUT can execute, and the second to backfill the OSR when the OUT empties it. The latter is required to achieve full 1 OUT/clock throughput
+//
+// You'll also want to make sure you're covering all of the possible 16-bit opcodes, all combinations of shift direction/count, etc. I also remember the shift counter logic being quite fussy, so possibly a rich seam of bugs to mine there. Hopefully some of that is useful, let me know if you have any questions and I should be able to clarify
+//
+// Also: https://github.com/raspberrypi/pico-extras
 
 // INTEGRATION:
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
+//   - In general clock ratios bigger than 1:1 (bus clock faster than PIO clock) are not tested and likely invalid.
 //   - Ensure that the "regular" GPIO block exists and can read input pins (otherwise there is no simple way to do this)
 //   - If the PIO main clk is much slower than pclk, the CPU has to be careful about reading values
 //     back that need to be side-effected (e.g. push to FIFO, then check to see level). This is because
 //     it can take longer for the flag to update than a single loop of the CPU. However, as long as
 //     clk is within 2x of pclk it should be OK. However, this is not the expected corner case, typically
 //     we would expect that clk is faster or equal to pclk.
+//
+// DMA TIMING RESTRICTIONS:
+//
+// DMA cycles need to drop their request within 2 cycles of
+// a write request on APB otherwise it will re-trigger the DMA request:
+//
+// T0  T1  T2  T3
+// --------------
+// W   I   I   S
+//
+// T0 is the last "write" on the APB of the DMA data.
+//
+// T1 and T2 are internal cycles for the DMAC as it cleans up
+// the transfer.
+//
+// T3 is when it samples the level-sensitive request signal again.
+//
+// Thus, the APB would assert the write on T0, but the PIO block
+// won't sample it until T1. It must drop the request by the end
+// of T2, so that on the edge T3 it is not high again.
+//
+// This is a very tight timing when PCLK:PIO_CLK is equal to 1:1.
+// In order to meet this timing, a CDC mode bit is provided in
+// the supplemental configuration area, where each channel can have
+// its push/pull pulse signals either run through a regular CDC,
+// or it can just go through a simple edge-to-pulse converter.
+// (see SFR_CDC_MODE)
+//
+// For ratios slower than 1:4 bus:pio clock, the regular CDC
+// can meet timing, and thus any ratio less than 1:4 should
+// be acceptable (1:5, 1:6, etc..)
+//
+// For ratios 1:2 and 1:1, the pulse converter should be used,
+// and it is mandatory that the edges are synchronous and aligned
+// between these two domains as there is effectively no CDC
+// present.
+//
+// A ratio of 1:3 or any other fractional ratios are not compatible
+// with DMA. However, any ratio can be used if DMA is not required.
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
 
-`include "template.sv"
-`include "apb_sfr_v0.1.sv"
+//`include "template.sv"
+//`include "apb_sfr_v0.1.sv"
 
 module rp_pio #(
 )(
@@ -187,8 +266,13 @@ module rp_pio #(
     logic do_irq_flags_in_clear_sync;
     logic irq_force_action_sync;
     logic [3:0] push_sync;
+    logic [3:0] push_sync_dma;
+    logic [3:0] push_sync_selected;
     logic [3:0] pull_sync;
+    logic [3:0] pull_sync_dma;
+    logic [3:0] pull_sync_selected;
     logic [3:0] imm_sync;
+    logic [3:0] dma_mode;
 
     assign reset = !resetn;
 
@@ -329,16 +413,28 @@ module rp_pio #(
             assign join_rx_tx_change[j] = join_rx_tx_r[j] ^ join_rx_tx[j];
             // FIFO join muxes
             always @* begin
+                // select a synchronizer based on DMA mode. If DMA mode is asserted, a "weak" but fast
+                // synchronizer is selected. This is necessary because the DMA requires that the wire pulse
+                // processes within 2 cycles of the write happening, otherwise DMA triggers again. This leaves
+                // no time for proper synchronization, so in DMA mode there are extra constraints on the bus
+                // clock ratios (in particular, AHB bus must be edge-aligned and an even power of 2 of the PIO clock)
+                if (dma_mode[j]) begin
+                    push_sync_selected[j] = push_sync_dma[j];
+                    pull_sync_selected[j] = pull_sync_dma[j];
+                end else begin
+                    push_sync_selected[j] = push_sync[j];
+                    pull_sync_selected[j] = pull_sync[j];
+                end
                 case ({join_rx[j], join_tx[j]})
                     2'b00: begin
                         tx_mux_din[j] = fdin[j];  // base case tx FIFO input
                         rx_mux_din[j] = mdout[j]; // base case rx FIFO input
-                        tx_mux_push[j] = push_sync[j];
+                        tx_mux_push[j] = push_sync_selected[j];
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = tx_fifo_empty[j];
                         tx_full[j] = tx_fifo_full[j];
                         rx_mux_push[j] = mpush[j];
-                        rx_mux_pull[j] = pull_sync[j];
+                        rx_mux_pull[j] = pull_sync_selected[j];
                         mfull[j] = rx_fifo_full[j];
                         rx_empty[j] = rx_fifo_empty[j];
                     end
@@ -350,7 +446,7 @@ module rp_pio #(
                         mempty[j] = 1; // tx fifo is disabled
                         tx_full[j] = 1;
                         rx_mux_push[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
-                        rx_mux_pull[j] = pull_sync[j];
+                        rx_mux_pull[j] = pull_sync_selected[j];
                         mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
                         rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                     end
@@ -361,7 +457,7 @@ module rp_pio #(
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                         tx_full[j] = rx_fifo_full[j]; // full only when outer FIFO (RX fifo) is full
-                        rx_mux_push[j] = push_sync[j];
+                        rx_mux_push[j] = push_sync_selected[j];
                         rx_mux_pull[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
                         mfull[j] = 1;
                         rx_empty[j] = 1;
@@ -852,6 +948,7 @@ module rp_pio #(
     apb_cr #(.A('h180), .DW(32))     sfr_io_oe_inv        (.cr(oe_invert), .prdata32(),.*);
     apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
     apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
+    apb_cr #(.A('h18C), .DW(4))      sfr_cdc_mode         (.cr(dma_mode), .prdata32(),.*); // set dma_mode to use a fast CDC on FIFO push/pull
 
     cdc_blinded       ctl_action_cdc   (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       dbg_trig_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(dbg_trig              ), .out_b(dbg_trig_sync              ));
@@ -859,6 +956,8 @@ module rp_pio #(
     cdc_blinded       irq_force_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(irq_force_action      ), .out_b(irq_force_action_sync      ));
     cdc_blinded       push_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync                  ));
     cdc_blinded       pull_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_pulse         push_cdc_p[3:0]  (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync_dma              ));
+    cdc_pulse         pull_cdc_p[3:0]  (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync_dma              ));
     cdc_blinded       imm_cdc[3:0]     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(imm                   ), .out_b(imm_sync                   ));
 endmodule
 
