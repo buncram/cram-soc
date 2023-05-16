@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 // TODO:
-//   - Write simple tests for instructions and modes that have not been covered by anything else.
+//   - Write simple tests for instructions and modes that have not been covered by anything else (see list below)
 //   - Test end-to-end IRQ handling with "actual handler"
-
+//   - Test end-to-end DMA to the block with "actual controller"
+//
+// Additional unit tests required:
 // EXEC-related:
 //
 // - OUT EXEC should be able to execute an OUT EXEC or OUT PC
@@ -45,6 +47,11 @@
 
 // INTEGRATION:
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
+//     - Note that if pclk:pio_clk ratio is 1:4, or less then IRQ can be used directly for level-sensitive DMA trigger
+//       At ratios lower than 1:4 you can use misaligned edges between the DMAC and PIO controller domains.
+//     - If pclk:pio_clk ratio is 1:2 or 1:1, then SFR_CDC_MODE must be set to 1, and the clock edges must be aligned and synchronous
+//       A ratio of 1:3, for example, is simply not supported for DMA.
+//   - In general clock ratios bigger than 1:1 (bus clock faster than PIO clock) are not tested and likely invalid.
 //   - Ensure that the "regular" GPIO block exists and can read input pins (otherwise there is no simple way to do this)
 //   - If the PIO main clk is much slower than pclk, the CPU has to be careful about reading values
 //     back that need to be side-effected (e.g. push to FIFO, then check to see level). This is because
@@ -55,8 +62,8 @@
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
 
-`include "template.sv"
-`include "apb_sfr_v0.1.sv"
+//`include "template.sv"
+//`include "apb_sfr_v0.1.sv"
 
 module rp_pio #(
 )(
@@ -224,8 +231,13 @@ module rp_pio #(
     logic do_irq_flags_in_clear_sync;
     logic irq_force_action_sync;
     logic [3:0] push_sync;
+    logic [3:0] push_sync_dma;
+    logic [3:0] push_sync_selected;
     logic [3:0] pull_sync;
+    logic [3:0] pull_sync_dma;
+    logic [3:0] pull_sync_selected;
     logic [3:0] imm_sync;
+    logic [3:0] dma_mode;
 
     assign reset = !resetn;
 
@@ -366,16 +378,28 @@ module rp_pio #(
             assign join_rx_tx_change[j] = join_rx_tx_r[j] ^ join_rx_tx[j];
             // FIFO join muxes
             always @* begin
+                // select a synchronizer based on DMA mode. If DMA mode is asserted, a "weak" but fast
+                // synchronizer is selected. This is necessary because the DMA requires that the wire pulse
+                // processes within 2 cycles of the write happening, otherwise DMA triggers again. This leaves
+                // no time for proper synchronization, so in DMA mode there are extra constraints on the bus
+                // clock ratios (in particular, AHB bus must be edge-aligned and an even power of 2 of the PIO clock)
+                if (dma_mode[j]) begin
+                    push_sync_selected[j] = push_sync_dma[j];
+                    pull_sync_selected[j] = pull_sync_dma[j];
+                end else begin
+                    push_sync_selected[j] = push_sync[j];
+                    pull_sync_selected[j] = pull_sync[j];
+                end
                 case ({join_rx[j], join_tx[j]})
                     2'b00: begin
                         tx_mux_din[j] = fdin[j];  // base case tx FIFO input
                         rx_mux_din[j] = mdout[j]; // base case rx FIFO input
-                        tx_mux_push[j] = push_sync[j];
+                        tx_mux_push[j] = push_sync_selected[j];
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = tx_fifo_empty[j];
                         tx_full[j] = tx_fifo_full[j];
                         rx_mux_push[j] = mpush[j];
-                        rx_mux_pull[j] = pull_sync[j];
+                        rx_mux_pull[j] = pull_sync_selected[j];
                         mfull[j] = rx_fifo_full[j];
                         rx_empty[j] = rx_fifo_empty[j];
                     end
@@ -387,7 +411,7 @@ module rp_pio #(
                         mempty[j] = 1; // tx fifo is disabled
                         tx_full[j] = 1;
                         rx_mux_push[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
-                        rx_mux_pull[j] = pull_sync[j];
+                        rx_mux_pull[j] = pull_sync_selected[j];
                         mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
                         rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                     end
@@ -398,7 +422,7 @@ module rp_pio #(
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                         tx_full[j] = rx_fifo_full[j]; // full only when outer FIFO (RX fifo) is full
-                        rx_mux_push[j] = push_sync[j];
+                        rx_mux_push[j] = push_sync_selected[j];
                         rx_mux_pull[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
                         mfull[j] = 1;
                         rx_empty[j] = 1;
@@ -889,6 +913,7 @@ module rp_pio #(
     apb_cr #(.A('h180), .DW(32))     sfr_io_oe_inv        (.cr(oe_invert), .prdata32(),.*);
     apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
     apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
+    apb_cr #(.A('h18C), .DW(4))      sfr_cdc_mode         (.cr(dma_mode), .prdata32(),.*); // set dma_mode to use a fast CDC on FIFO push/pull
 
     cdc_blinded       ctl_action_cdc   (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       dbg_trig_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(dbg_trig              ), .out_b(dbg_trig_sync              ));
@@ -896,6 +921,8 @@ module rp_pio #(
     cdc_blinded       irq_force_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(irq_force_action      ), .out_b(irq_force_action_sync      ));
     cdc_blinded       push_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync                  ));
     cdc_blinded       pull_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_pulse         push_cdc_p[3:0]  (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync_dma              ));
+    cdc_pulse         pull_cdc_p[3:0]  (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync_dma              ));
     cdc_blinded       imm_cdc[3:0]     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(imm                   ), .out_b(imm_sync                   ));
 endmodule
 

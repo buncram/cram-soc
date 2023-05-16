@@ -42,6 +42,7 @@ cp ../deps/pio/pio_ahb.sv pio/
 cp ../deps/pio/rp_pio.sv pio/
 # add support modules
 cp ../sim_support/cdc_blinded.v .
+cp ../sim_support/cdc_pulse.v .
 
 rm -rf docs
 mkdir docs

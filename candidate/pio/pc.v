@@ -28,12 +28,14 @@ module pc (
   always @(posedge clk) begin
     if (reset)
       index <= 0;
-    else if ((penable || imm) && !stalled) begin
+    else if (imm) begin
+      if (jmp)
+        index <= din;
+    end else if (penable && !stalled) begin
       if (jmp)
         index <= din;
       else
-        if (!imm)
-          index <= index == pend ? wrap_target : index + 1;
+        index <= index == pend ? wrap_target : index + 1;
     end
   end
 

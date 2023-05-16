@@ -81,7 +81,15 @@ module machine (
   reg         auto;
 
   reg [5:0]   bit_count;
-  reg [31:0]  new_val;
+  reg [4:0]   new_pc;
+  reg [31:0]  new_x;
+  reg [31:0]  new_y;
+  reg [31:0]  new_pins;
+  reg [15:0]  new_exec;
+  reg [31:0]  new_set_pins;
+  reg [31:0]  new_set_dirs;
+  reg [31:0]  new_out_pins;
+  reg [31:0]  new_out_dirs;
   reg [31:0]  isr_val;
   reg [31:0]  pull_val;
 
@@ -179,7 +187,7 @@ module machine (
   );
     begin
       setx = 1;
-      new_val = val;
+      new_x = val;
     end
   endtask
 
@@ -188,16 +196,16 @@ module machine (
   );
     begin
       sety = 1;
-      new_val = val;
+      new_y = val;
     end
   endtask
 
   task set_exec (
-    input [31:0] val
+    input [15:0] val
   );
     begin
       exec = 1;
-      new_val = val;
+      new_exec = val;
     end
   endtask
 
@@ -206,7 +214,7 @@ module machine (
   );
     begin
       jmp = 1;
-      new_val = val;
+      new_pc = val;
     end
   endtask
 
@@ -224,7 +232,7 @@ module machine (
   );
     begin
       set_shift_out = 1;
-      new_val = val;
+      // new_val = val; // now hard-wired to din or pull value intead of using tasks
     end
   endtask
 
@@ -242,7 +250,7 @@ module machine (
   );
     begin
       set_set_pins = 1;
-      new_val = val;
+      new_set_pins = val;
     end
   endtask
 
@@ -251,7 +259,7 @@ module machine (
   );
     begin
       set_set_dirs = 1;
-      new_val = val;
+      new_set_dirs = val;
     end
   endtask
 
@@ -260,7 +268,7 @@ module machine (
   );
     begin
       set_out_pins = 1;
-      new_val = val;
+      new_out_pins = val;
     end
   endtask
 
@@ -269,7 +277,7 @@ module machine (
   );
     begin
       set_out_dirs = 1;
-      new_val = val;
+      new_out_dirs = val;
     end
   endtask
 
@@ -303,9 +311,10 @@ module machine (
   always @(posedge clk) begin
     if (reset || restart) begin
       delay_cnt <= 0;
+      exec1 <= 0;
     end else if (en & penable) begin
       exec1 <= exec; // Do execution on next cycle after exec set
-      exec_instr <= new_val;
+      exec_instr <= new_exec;
       if (delaying) delay_cnt <= delay_cnt - 1;
       else if (!waiting && !exec && delay > 0) delay_cnt <= delay;
     end
@@ -343,25 +352,25 @@ module machine (
       if (set_set_pins)
         for (i=0;i<5;i=i+1)
           if (pins_set_count > i) begin
-            output_pins[pins_set_base+i] <= new_val[i];
+            output_pins[pins_set_base+i] <= new_set_pins[i];
             output_pins_stb[pins_set_base+i] <= 1;
           end
       if (set_set_dirs)
         for (i=0;i<5;i=i+1)
           if (pins_set_count > i) begin
-            pin_directions[pins_set_base+i] <= new_val[i];
+            pin_directions[pins_set_base+i] <= new_set_dirs[i];
             output_pins_stb[pins_set_base+i] <= 1;
           end
       if (set_out_pins)
         for (i=0;i<32;i=i+1)
           if (pins_out_count > i) begin
-            output_pins[pins_out_base+i] <= new_val[i];
+            output_pins[pins_out_base+i] <= new_out_pins[i];
             output_pins_stb[pins_out_base+i] <= 1;
           end
       if (set_out_dirs)
         for (i=0;i<32;i=i+1)
           if (pins_out_count > i) begin
-            pin_directions[pins_out_base+i] <= new_val[i];
+            pin_directions[pins_out_base+i] <= new_out_dirs[i];
             output_pins_stb[pins_out_base+i] <= 1;
           end
 
@@ -400,7 +409,15 @@ module machine (
     exec = 0;
     waiting = 0;
     auto = 0;
-    new_val = 0;
+    new_pc = 0;
+    new_x = 0;
+    new_y = 0;
+    new_pins = 0;
+    new_exec = 0;
+    new_set_pins = 0;
+    new_set_dirs = 0;
+    new_out_pins = 0;
+    new_out_dirs = 0;
     pull_val = 0;
     bit_count = 0;
     set_set_pins = 0;
@@ -415,7 +432,7 @@ module machine (
       irq_waiting_next = 0;
       case (op)
         JMP:  begin
-                new_val[4:0] = address;
+                new_pc[4:0] = address;
                 case (condition) // Condition
                   0: jmp = 1;
                   1: jmp = (x == 0);
@@ -669,7 +686,7 @@ module machine (
     .clk(clk),
     .penable(en & penable),
     .reset(reset),
-    .din(new_val[4:0]),
+    .din(new_pc[4:0]),
     .jmp(jmp),
     .stalled(stalling),
     .pend(pend),
@@ -684,7 +701,7 @@ module machine (
     .penable(enabled),
     .reset(reset),
     .stalled(delaying),
-    .din(new_val),
+    .din(new_x),
     .set(setx),
     .dec(decx),
     .dout(x)
@@ -696,7 +713,7 @@ module machine (
     .penable(enabled),
     .reset(reset),
     .stalled(delaying),
-    .din(new_val),
+    .din(new_y),
     .set(sety),
     .dec(decy),
     .dout(y)
@@ -731,9 +748,6 @@ module machine (
     .shift(op2),
     .set(set_shift_out),
     .do_shift(do_out_shift),
-    // override new_val computation in case of a do_pull() task
-    // TODO: check that this still works for OUT values derived via instructions not autopull...
-    // Update: I think it's OK because pull only overrides new_val during at autopull event.
     .din(pull ? din : pull_val),
     .dout(out_shift),
     .shift_count_lookahead(osr_count_lookahead),
