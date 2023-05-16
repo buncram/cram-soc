@@ -248,6 +248,7 @@ class SimRunner():
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/prims.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/cdc_blinded.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("sim_support/cdc_pulse.v") + " run" + os.path.sep)
 
         # initialize with a default waveform that contains the most basic execution tracing
         if os.path.isfile('run/{}_sim.wcfg'.format(tb)) != True:
@@ -347,6 +348,7 @@ class SimRunner():
             "cd run && {}xvlog -sv chacha_qr.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv XADC.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cdc_blinded.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv cdc_pulse.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv template.sv".format(VIVADO_PATH),
             "cd run && {}xvlog -sv amba_interface_def_v0.2.sv".format(VIVADO_PATH),
             "cd run && {}xvlog -sv apb_sfr_v0.1.sv".format(VIVADO_PATH),
@@ -360,7 +362,7 @@ class SimRunner():
             "cd run && {}xvlog -sv pc.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv scratch.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv pio_ahb.sv".format(VIVADO_PATH),
-            "cd run && {}xvlog -sv rp_pio.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv rp_pio.sv -d XVLOG".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axi2ahb_cmd.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axi2ahb_ctrl.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axi2ahb_rd_fifo.v".format(VIVADO_PATH),

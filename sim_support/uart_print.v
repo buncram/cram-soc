@@ -1,5 +1,10 @@
 `timescale 1ns/1ps
 
+`ifdef XVLOG
+`include "template.sv"
+`include "apb_sfr_v0.1.sv"
+`endif
+
 module uart_print #(
     parameter TYPE="generic"
 )(
@@ -9,6 +14,7 @@ module uart_print #(
     input logic clk
 );
     // print debug strings
+    /*
     `define theregfull( theclk, theresetn, theregname, theinitvalue ) \
         always@( posedge theclk or negedge theresetn ) \
         if( ~theresetn) \
@@ -18,6 +24,7 @@ module uart_print #(
 
     `define theregrn(theregname) \
         `theregfull( clk, resetn, theregname, '0 )
+        */
 
     localparam CHARLEN = 256;
     logic                       charbufwr, charbuffill, charbufclr;
