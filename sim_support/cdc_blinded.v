@@ -83,7 +83,9 @@ always @(posedge a_clk) begin
     if (ps_ack_o) begin
         blind <= 1'd0;
     end
-    if (ps_i) begin
+    if (a_rst) begin
+        ps_toggle_i <= 0;
+    end else if (ps_i) begin
         ps_toggle_i <= (~ps_toggle_i);
     end
     ps_ack_toggle_o_r <= ps_ack_toggle_o;
@@ -96,10 +98,10 @@ end
 
 always @(posedge b_clk) begin
     ps_toggle_o_r <= ps_toggle_o;
-    if (ps_ack_i) begin
-        ps_ack_toggle_i <= (~ps_ack_toggle_i);
-    end
     if (b_rst) begin
+        ps_ack_toggle_i <= 0;
+    end else if (ps_ack_i) begin
+        ps_ack_toggle_i <= (~ps_ack_toggle_i);
     end
     multiregimpl00 <= ps_toggle_i;
     multiregimpl01 <= multiregimpl00;
