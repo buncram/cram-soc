@@ -1,0 +1,5 @@
+{
+    "reg": [
+        {"name": "wtest[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}

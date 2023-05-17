@@ -1,0 +1,25 @@
+{
+    "reg": [
+        {"name": "source0",  "bits": 1},
+        {"name": "source1",  "bits": 1},
+        {"name": "source2",  "bits": 1},
+        {"name": "source3",  "bits": 1},
+        {"name": "source4",  "bits": 1},
+        {"name": "source5",  "bits": 1},
+        {"name": "source6",  "bits": 1},
+        {"name": "source7",  "bits": 1},
+        {"name": "source8",  "bits": 1},
+        {"name": "source9",  "bits": 1},
+        {"name": "source10",  "bits": 1},
+        {"name": "source11",  "bits": 1},
+        {"name": "source12",  "bits": 1},
+        {"name": "source13",  "bits": 1},
+        {"name": "source14",  "bits": 1},
+        {"name": "source15",  "bits": 1},
+        {"name": "source16",  "bits": 1},
+        {"name": "source17",  "bits": 1},
+        {"name": "source18",  "bits": 1},
+        {"name": "source19",  "bits": 1},
+        {"bits": 12}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
