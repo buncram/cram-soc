@@ -15,7 +15,7 @@
 // - EXEC write during a stalled imem-resident instruction will interrupt that instruction and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem can be interrupted by a IRQ instruction, which can set the same IRQ and cause the WAIT IRQ to fall through once resuming)
 // - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall and begin executing at the jump target
 // - A stalled imem-resident WAIT should be replaced by a imem overwrite of that instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
-// - EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE 
+// - EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE
 //
 // FIFOs:
 //
@@ -29,7 +29,7 @@
 //
 // IRQs:
 //
-// - Multiple SMs can safely wait for and clear the same IRQ, as long as they have the same clock divisor and their 
+// - Multiple SMs can safely wait for and clear the same IRQ, as long as they have the same clock divisor and their
 // dividers are sync'd
 //
 // Autopush/pull:
@@ -47,10 +47,6 @@
 
 // INTEGRATION:
 //   - Ensure that irq0/irq1 are available to system DMA controller for chaining
-//     - Note that if pclk:pio_clk ratio is 1:4, or less then IRQ can be used directly for level-sensitive DMA trigger
-//       At ratios lower than 1:4 you can use misaligned edges between the DMAC and PIO controller domains.
-//     - If pclk:pio_clk ratio is 1:2 or 1:1, then SFR_CDC_MODE must be set to 1, and the clock edges must be aligned and synchronous
-//       A ratio of 1:3, for example, is simply not supported for DMA.
 //   - In general clock ratios bigger than 1:1 (bus clock faster than PIO clock) are not tested and likely invalid.
 //   - Ensure that the "regular" GPIO block exists and can read input pins (otherwise there is no simple way to do this)
 //   - If the PIO main clk is much slower than pclk, the CPU has to be careful about reading values
@@ -58,12 +54,53 @@
 //     it can take longer for the flag to update than a single loop of the CPU. However, as long as
 //     clk is within 2x of pclk it should be OK. However, this is not the expected corner case, typically
 //     we would expect that clk is faster or equal to pclk.
+//
+// DMA TIMING RESTRICTIONS:
+//
+// DMA cycles need to drop their request within 2 cycles of
+// a write request on APB otherwise it will re-trigger the DMA request:
+//
+// T0  T1  T2  T3
+// --------------
+// W   I   I   S
+//
+// T0 is the last "write" on the APB of the DMA data.
+//
+// T1 and T2 are internal cycles for the DMAC as it cleans up
+// the transfer.
+//
+// T3 is when it samples the level-sensitive request signal again.
+//
+// Thus, the APB would assert the write on T0, but the PIO block
+// won't sample it until T1. It must drop the request by the end
+// of T2, so that on the edge T3 it is not high again.
+//
+// This is a very tight timing when PCLK:PIO_CLK is equal to 1:1.
+// In order to meet this timing, a CDC mode bit is provided in
+// the supplemental configuration area, where each channel can have
+// its push/pull pulse signals either run through a regular CDC,
+// or it can just go through a simple edge-to-pulse converter.
+// (see SFR_CDC_MODE)
+//
+// For ratios slower than 1:4 bus:pio clock, the regular CDC
+// can meet timing, and thus any ratio less than 1:4 should
+// be acceptable (1:5, 1:6, etc..)
+//
+// For ratios 1:2 and 1:1, the pulse converter should be used,
+// and it is mandatory that the edges are synchronous and aligned
+// between these two domains as there is effectively no CDC
+// present.
+//
+// A ratio of 1:3 or any other fractional ratios are not compatible
+// with DMA. However, any ratio can be used if DMA is not required.
 
 // To PX: hopefully we can integrate this module with no manual fix-up for pin names, module names etc.
 // if you need to make any changes let me know so I can pull them into the original source file!
 
-//`include "template.sv"
-//`include "apb_sfr_v0.1.sv"
+`ifdef XVLOG // required for compatibility with xsim
+`include "template.sv"
+`include "apb_sfr_v0.1.sv"
+`endif
 
 module rp_pio #(
 )(
@@ -647,7 +684,12 @@ module rp_pio #(
             sfr_irq1_ints    .prdata32 |
             sfr_io_oe_inv    .prdata32 |
             sfr_io_o_inv     .prdata32 |
-            sfr_io_i_inv     .prdata32
+            sfr_io_i_inv     .prdata32 |
+            sfr_cdc_mode     .prdata32 |
+            sfr_zero0        .prdata32 |
+            sfr_zero1        .prdata32 |
+            sfr_zero2        .prdata32 |
+            sfr_zero3        .prdata32
             ;
 
     bit do_action;
@@ -914,6 +956,10 @@ module rp_pio #(
     apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
     apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
     apb_cr #(.A('h18C), .DW(4))      sfr_cdc_mode         (.cr(dma_mode), .prdata32(),.*); // set dma_mode to use a fast CDC on FIFO push/pull
+    apb_sr #(.A('h190), .DW(32))     sfr_zero0            (.sr(32'h0), .prdata32(),.*);  // bank of "zero reads" as DMA source target for initializing RAM
+    apb_sr #(.A('h194), .DW(32))     sfr_zero1            (.sr(32'h0), .prdata32(),.*);
+    apb_sr #(.A('h198), .DW(32))     sfr_zero2            (.sr(32'h0), .prdata32(),.*);
+    apb_sr #(.A('h19C), .DW(32))     sfr_zero3            (.sr(32'h0), .prdata32(),.*);
 
     cdc_blinded       ctl_action_cdc   (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       dbg_trig_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(dbg_trig              ), .out_b(dbg_trig_sync              ));

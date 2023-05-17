@@ -1388,7 +1388,7 @@ class cramSoC(SoCCore):
             ),
             If(p_bus.ar.valid,
                pbus_r_active.eq(1)
-            ).Elif(p_bus.r.valid & p_bus.r.ready & p_bus.r.last,
+            ).Elif(p_bus.r.valid & p_bus.r.ready, # PBUS does not support bursts
                pbus_r_active.eq(0)
             ),
             If(p_bus.aw.valid,

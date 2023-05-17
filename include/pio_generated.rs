@@ -275,7 +275,7 @@ pub const HW_RP_PIO_BASE :   usize = 0x40202000;
 pub mod utra {
 
     pub mod rp_pio {
-        pub const RP_PIO_NUMREGS: usize = 100;
+        pub const RP_PIO_NUMREGS: usize = 104;
 
         pub const SFR_CTRL: crate::Register = crate::Register::new(0, 0xfff);
         pub const SFR_CTRL_EN: crate::Field = crate::Field::new(4, 0, SFR_CTRL);
@@ -731,6 +731,18 @@ pub mod utra {
 
         pub const SFR_CDC_MODE: crate::Register = crate::Register::new(99, 0xf);
         pub const SFR_CDC_MODE_SFR_CDC_MODE: crate::Field = crate::Field::new(4, 0, SFR_CDC_MODE);
+
+        pub const SFR_ZERO0: crate::Register = crate::Register::new(100, 0xffffffff);
+        pub const SFR_ZERO0_SFR_ZERO0: crate::Field = crate::Field::new(32, 0, SFR_ZERO0);
+
+        pub const SFR_ZERO1: crate::Register = crate::Register::new(101, 0xffffffff);
+        pub const SFR_ZERO1_SFR_ZERO1: crate::Field = crate::Field::new(32, 0, SFR_ZERO1);
+
+        pub const SFR_ZERO2: crate::Register = crate::Register::new(102, 0xffffffff);
+        pub const SFR_ZERO2_SFR_ZERO2: crate::Field = crate::Field::new(32, 0, SFR_ZERO2);
+
+        pub const SFR_ZERO3: crate::Register = crate::Register::new(103, 0xffffffff);
+        pub const SFR_ZERO3_SFR_ZERO3: crate::Field = crate::Field::new(32, 0, SFR_ZERO3);
 
         pub const HW_RP_PIO_BASE: usize = 0x40202000;
     }
@@ -2322,5 +2334,37 @@ mod tests {
         let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_CDC_MODE_SFR_CDC_MODE, bar);
         baz |= rp_pio_csr.ms(utra::rp_pio::SFR_CDC_MODE_SFR_CDC_MODE, 1);
         rp_pio_csr.wfo(utra::rp_pio::SFR_CDC_MODE_SFR_CDC_MODE, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_ZERO0);
+        rp_pio_csr.wo(utra::rp_pio::SFR_ZERO0, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_ZERO0_SFR_ZERO0);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_ZERO0_SFR_ZERO0, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_ZERO0_SFR_ZERO0, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_ZERO0_SFR_ZERO0, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_ZERO0_SFR_ZERO0, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_ZERO1);
+        rp_pio_csr.wo(utra::rp_pio::SFR_ZERO1, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_ZERO1_SFR_ZERO1);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_ZERO1_SFR_ZERO1, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_ZERO1_SFR_ZERO1, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_ZERO1_SFR_ZERO1, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_ZERO1_SFR_ZERO1, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_ZERO2);
+        rp_pio_csr.wo(utra::rp_pio::SFR_ZERO2, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_ZERO2_SFR_ZERO2);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_ZERO2_SFR_ZERO2, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_ZERO2_SFR_ZERO2, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_ZERO2_SFR_ZERO2, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_ZERO2_SFR_ZERO2, baz);
+
+        let foo = rp_pio_csr.r(utra::rp_pio::SFR_ZERO3);
+        rp_pio_csr.wo(utra::rp_pio::SFR_ZERO3, foo);
+        let bar = rp_pio_csr.rf(utra::rp_pio::SFR_ZERO3_SFR_ZERO3);
+        rp_pio_csr.rmwf(utra::rp_pio::SFR_ZERO3_SFR_ZERO3, bar);
+        let mut baz = rp_pio_csr.zf(utra::rp_pio::SFR_ZERO3_SFR_ZERO3, bar);
+        baz |= rp_pio_csr.ms(utra::rp_pio::SFR_ZERO3_SFR_ZERO3, 1);
+        rp_pio_csr.wfo(utra::rp_pio::SFR_ZERO3_SFR_ZERO3, baz);
   }
 }

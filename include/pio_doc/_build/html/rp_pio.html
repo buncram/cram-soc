@@ -347,6 +347,18 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#rp-pio-sfr-cdc-mode"><span class="std std-ref">RP_PIO_SFR_CDC_MODE</span></a></p></td>
 <td><p><a class="reference internal" href="#rp-pio-sfr-cdc-mode"><span class="std std-ref">0x4020218c</span></a></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#rp-pio-sfr-zero0"><span class="std std-ref">RP_PIO_SFR_ZERO0</span></a></p></td>
+<td><p><a class="reference internal" href="#rp-pio-sfr-zero0"><span class="std std-ref">0x40202190</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rp-pio-sfr-zero1"><span class="std std-ref">RP_PIO_SFR_ZERO1</span></a></p></td>
+<td><p><a class="reference internal" href="#rp-pio-sfr-zero1"><span class="std std-ref">0x40202194</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#rp-pio-sfr-zero2"><span class="std std-ref">RP_PIO_SFR_ZERO2</span></a></p></td>
+<td><p><a class="reference internal" href="#rp-pio-sfr-zero2"><span class="std std-ref">0x40202198</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rp-pio-sfr-zero3"><span class="std std-ref">RP_PIO_SFR_ZERO3</span></a></p></td>
+<td><p><a class="reference internal" href="#rp-pio-sfr-zero3"><span class="std std-ref">0x4020219c</span></a></p></td>
+</tr>
 </tbody>
 </table>
 <section id="rp-pio-sfr-ctrl">
@@ -3976,6 +3988,126 @@
 <tr class="row-even"><td><p>[3:0]</p></td>
 <td><p>SFR_CDC_MODE</p></td>
 <td><p>sfr_cdc_mode read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rp-pio-sfr-zero0">
+<h3>RP_PIO_SFR_ZERO0<a class="headerlink" href="#rp-pio-sfr-zero0" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40202000 + 0x190 = 0x40202190</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_zero0",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>SFR_ZERO0</p></td>
+<td><p>sfr_zero0 read only status register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rp-pio-sfr-zero1">
+<h3>RP_PIO_SFR_ZERO1<a class="headerlink" href="#rp-pio-sfr-zero1" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40202000 + 0x194 = 0x40202194</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_zero1",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>SFR_ZERO1</p></td>
+<td><p>sfr_zero1 read only status register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rp-pio-sfr-zero2">
+<h3>RP_PIO_SFR_ZERO2<a class="headerlink" href="#rp-pio-sfr-zero2" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40202000 + 0x198 = 0x40202198</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_zero2",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>SFR_ZERO2</p></td>
+<td><p>sfr_zero2 read only status register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rp-pio-sfr-zero3">
+<h3>RP_PIO_SFR_ZERO3<a class="headerlink" href="#rp-pio-sfr-zero3" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40202000 + 0x19c = 0x4020219c</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_zero3",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>SFR_ZERO3</p></td>
+<td><p>sfr_zero3 read only status register</p></td>
 </tr>
 </tbody>
 </table>

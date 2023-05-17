@@ -684,7 +684,12 @@ module rp_pio #(
             sfr_irq1_ints    .prdata32 |
             sfr_io_oe_inv    .prdata32 |
             sfr_io_o_inv     .prdata32 |
-            sfr_io_i_inv     .prdata32
+            sfr_io_i_inv     .prdata32 |
+            sfr_cdc_mode     .prdata32 |
+            sfr_zero0        .prdata32 |
+            sfr_zero1        .prdata32 |
+            sfr_zero2        .prdata32 |
+            sfr_zero3        .prdata32
             ;
 
     bit do_action;
@@ -951,6 +956,10 @@ module rp_pio #(
     apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
     apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
     apb_cr #(.A('h18C), .DW(4))      sfr_cdc_mode         (.cr(dma_mode), .prdata32(),.*); // set dma_mode to use a fast CDC on FIFO push/pull
+    apb_sr #(.A('h190), .DW(32))     sfr_zero0            (.sr(32'h0), .prdata32(),.*);  // bank of "zero reads" as DMA source target for initializing RAM
+    apb_sr #(.A('h194), .DW(32))     sfr_zero1            (.sr(32'h0), .prdata32(),.*);
+    apb_sr #(.A('h198), .DW(32))     sfr_zero2            (.sr(32'h0), .prdata32(),.*);
+    apb_sr #(.A('h19C), .DW(32))     sfr_zero3            (.sr(32'h0), .prdata32(),.*);
 
     cdc_blinded       ctl_action_cdc   (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       dbg_trig_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(dbg_trig              ), .out_b(dbg_trig_sync              ));
