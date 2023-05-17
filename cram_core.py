@@ -1373,12 +1373,12 @@ class cramSoC(SoCCore):
         self.sync += [
             If(ibus.ar.valid,
                ibus_r_active.eq(1)
-            ).Elif(ibus.r.valid & ibus.r.ready,
+            ).Elif(ibus.r.valid & ibus.r.ready & ibus.r.last,
                ibus_r_active.eq(0)
             ),
             If(dbus.ar.valid,
                dbus_r_active.eq(1)
-            ).Elif(dbus.r.valid & dbus.r.ready,
+            ).Elif(dbus.r.valid & dbus.r.ready & dbus.r.last,
                dbus_r_active.eq(0)
             ),
             If(dbus.aw.valid,
@@ -1388,7 +1388,7 @@ class cramSoC(SoCCore):
             ),
             If(p_bus.ar.valid,
                pbus_r_active.eq(1)
-            ).Elif(p_bus.r.valid & p_bus.r.ready,
+            ).Elif(p_bus.r.valid & p_bus.r.ready & p_bus.r.last,
                pbus_r_active.eq(0)
             ),
             If(p_bus.aw.valid,
