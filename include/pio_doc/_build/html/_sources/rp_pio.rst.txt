@@ -205,7 +205,7 @@ Register Listing for RP_PIO
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_IO_I_INV <RP_PIO_SFR_IO_I_INV>`           | :ref:`0x40202188 <RP_PIO_SFR_IO_I_INV>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_CDC_MODE <RP_PIO_SFR_CDC_MODE>`           | :ref:`0x4020218c <RP_PIO_SFR_CDC_MODE>`      |
+| :ref:`RP_PIO_SFR_FIFO_MARGIN <RP_PIO_SFR_FIFO_MARGIN>`     | :ref:`0x4020218c <RP_PIO_SFR_FIFO_MARGIN>`   |
 +------------------------------------------------------------+----------------------------------------------+
 | :ref:`RP_PIO_SFR_ZERO0 <RP_PIO_SFR_ZERO0>`                 | :ref:`0x40202190 <RP_PIO_SFR_ZERO0>`         |
 +------------------------------------------------------------+----------------------------------------------+
@@ -2834,28 +2834,49 @@ RP_PIO_SFR_IO_I_INV
 | [31:0] | SFR_IO_I_INV | sfr_io_i_inv read/write control register |
 +--------+--------------+------------------------------------------+
 
-RP_PIO_SFR_CDC_MODE
-^^^^^^^^^^^^^^^^^^^
+RP_PIO_SFR_FIFO_MARGIN
+^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x40202000 + 0x18c = 0x4020218c`
 
 
     .. wavedrom::
-        :caption: RP_PIO_SFR_CDC_MODE
+        :caption: RP_PIO_SFR_FIFO_MARGIN
 
         {
             "reg": [
-                {"name": "sfr_cdc_mode",  "bits": 4},
-                {"bits": 28}
+                {"name": "fifo_tx_margin0",  "bits": 2},
+                {"name": "fifo_rx_margin0",  "bits": 2},
+                {"name": "fifo_tx_margin1",  "bits": 2},
+                {"name": "fifo_rx_margin1",  "bits": 2},
+                {"name": "fifo_tx_margin2",  "bits": 2},
+                {"name": "fifo_rx_margin2",  "bits": 2},
+                {"name": "fifo_tx_margin3",  "bits": 2},
+                {"name": "fifo_rx_margin3",  "bits": 2},
+                {"bits": 16}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
 
-+-------+--------------+------------------------------------------+
-| Field | Name         | Description                              |
-+=======+==============+==========================================+
-| [3:0] | SFR_CDC_MODE | sfr_cdc_mode read/write control register |
-+-------+--------------+------------------------------------------+
++---------+-----------------+---------------------------------------------+
+| Field   | Name            | Description                                 |
++=========+=================+=============================================+
+| [1:0]   | FIFO_TX_MARGIN0 | fifo_tx_margin0 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [3:2]   | FIFO_RX_MARGIN0 | fifo_rx_margin0 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [5:4]   | FIFO_TX_MARGIN1 | fifo_tx_margin1 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [7:6]   | FIFO_RX_MARGIN1 | fifo_rx_margin1 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [9:8]   | FIFO_TX_MARGIN2 | fifo_tx_margin2 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [11:10] | FIFO_RX_MARGIN2 | fifo_rx_margin2 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [13:12] | FIFO_TX_MARGIN3 | fifo_tx_margin3 read/write control register |
++---------+-----------------+---------------------------------------------+
+| [15:14] | FIFO_RX_MARGIN3 | fifo_rx_margin3 read/write control register |
++---------+-----------------+---------------------------------------------+
 
 RP_PIO_SFR_ZERO0
 ^^^^^^^^^^^^^^^^

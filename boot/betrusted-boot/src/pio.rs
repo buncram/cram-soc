@@ -404,6 +404,40 @@ impl PioSm {
         }
         self.sm_rxfifo_pull_u32()
     }
+    pub fn sm_set_tx_fifo_margin(&mut self, margin: usize) {
+        let checked_margin = if margin > 3 {3u32} else {margin as u32};
+        match self.sm {
+            SmBit::Sm0 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN0, checked_margin),
+            SmBit::Sm1 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN1, checked_margin),
+            SmBit::Sm2 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN2, checked_margin),
+            SmBit::Sm3 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN3, checked_margin),
+        }
+    }
+    pub fn sm_get_tx_fifo_margin(&mut self) -> u32 {
+        match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN0),
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN1),
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN2),
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_TX_MARGIN3),
+        }
+    }
+    pub fn sm_set_rx_fifo_margin(&mut self, margin: usize) {
+        let checked_margin = if margin > 3 {3u32} else {margin as u32};
+        match self.sm {
+            SmBit::Sm0 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN0, checked_margin),
+            SmBit::Sm1 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN1, checked_margin),
+            SmBit::Sm2 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN2, checked_margin),
+            SmBit::Sm3 => self.pio.rmwf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN3, checked_margin),
+        }
+    }
+    pub fn sm_get_rx_fifo_margin(&mut self) -> u32 {
+        match self.sm {
+            SmBit::Sm0 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN0),
+            SmBit::Sm1 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN1),
+            SmBit::Sm2 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN2),
+            SmBit::Sm3 => self.pio.rf(rp_pio::SFR_FIFO_MARGIN_FIFO_RX_MARGIN3),
+        }
+    }
     pub fn sm_to_stride_offset(&self) -> usize {
         // derive the constant value of the stride between SMs
         const STRIDE: usize = rp_pio::SFR_SM1_EXECCTRL.offset() - rp_pio::SFR_SM0_EXECCTRL.offset();

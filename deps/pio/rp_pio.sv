@@ -141,7 +141,9 @@ module rp_pio #(
     wire  [11:0]     irq1_ints;
     wire  [3:0]      tx_empty;
     logic [3:0]      tx_full;
+    logic [3:0]      tx_full_margin; // margined full signal for routing to INTs -> DMA; margin is to compensate for DMA sync latency
     logic [3:0]      rx_empty;
+    logic [3:0]      rx_empty_margin; // margined empty signal for routing to INTs -> DMA; margin is to compensate for DMA sync latency
     wire  [3:0]      rx_full;
 
     // ----- peripheral module. Pulled into wrapper level so we can connect to state machine bits directly. ------
@@ -247,10 +249,16 @@ module rp_pio #(
     logic [NUM_MACHINES-1:0] tx_mux_pull;
     logic [NUM_MACHINES-1:0] tx_fifo_empty;
     logic [NUM_MACHINES-1:0] tx_fifo_full;
+    logic [NUM_MACHINES-1:0] tx_fifo_empty_margin;
+    logic [NUM_MACHINES-1:0] tx_fifo_full_margin;
     logic [NUM_MACHINES-1:0] rx_mux_push;
     logic [NUM_MACHINES-1:0] rx_mux_pull;
     logic [NUM_MACHINES-1:0] rx_fifo_empty;
     logic [NUM_MACHINES-1:0] rx_fifo_full;
+    logic [NUM_MACHINES-1:0] rx_fifo_empty_margin;
+    logic [NUM_MACHINES-1:0] rx_fifo_full_margin;
+    logic [1:0] fifo_tx_margin [0:NUM_MACHINES-1];
+    logic [1:0] fifo_rx_margin [0:NUM_MACHINES-1];
 
     wire ctl_action;
 
@@ -268,13 +276,8 @@ module rp_pio #(
     logic do_irq_flags_in_clear_sync;
     logic irq_force_action_sync;
     logic [3:0] push_sync;
-    logic [3:0] push_sync_dma;
-    logic [3:0] push_sync_selected;
     logic [3:0] pull_sync;
-    logic [3:0] pull_sync_dma;
-    logic [3:0] pull_sync_selected;
     logic [3:0] imm_sync;
-    logic [3:0] dma_mode;
 
     assign reset = !resetn;
 
@@ -406,8 +409,7 @@ module rp_pio #(
                 .dbg_txstall(dbg_txstall[j]),
                 .dbg_rxstall(dbg_rxstall[j])
             );
-            // join_tx/join_rx is not implemented, but this is *also* the method for
-            // resetting the FIFOs, so at a bare minimum we monitor these lines for that condition
+            // join_tx/join_rx is the method for resetting FIFOs.
             assign join_rx_tx[j] = {join_rx[j], join_tx[j]};
             always @(posedge clk) begin
                 join_rx_tx_r[j] <= join_rx_tx[j];
@@ -415,30 +417,20 @@ module rp_pio #(
             assign join_rx_tx_change[j] = join_rx_tx_r[j] ^ join_rx_tx[j];
             // FIFO join muxes
             always @* begin
-                // select a synchronizer based on DMA mode. If DMA mode is asserted, a "weak" but fast
-                // synchronizer is selected. This is necessary because the DMA requires that the wire pulse
-                // processes within 2 cycles of the write happening, otherwise DMA triggers again. This leaves
-                // no time for proper synchronization, so in DMA mode there are extra constraints on the bus
-                // clock ratios (in particular, AHB bus must be edge-aligned and an even power of 2 of the PIO clock)
-                if (dma_mode[j]) begin
-                    push_sync_selected[j] = push_sync_dma[j];
-                    pull_sync_selected[j] = pull_sync_dma[j];
-                end else begin
-                    push_sync_selected[j] = push_sync[j];
-                    pull_sync_selected[j] = pull_sync[j];
-                end
                 case ({join_rx[j], join_tx[j]})
                     2'b00: begin
                         tx_mux_din[j] = fdin[j];  // base case tx FIFO input
                         rx_mux_din[j] = mdout[j]; // base case rx FIFO input
-                        tx_mux_push[j] = push_sync_selected[j];
+                        tx_mux_push[j] = push_sync[j];
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = tx_fifo_empty[j];
                         tx_full[j] = tx_fifo_full[j];
+                        tx_full_margin[j] = tx_fifo_full_margin[j];
                         rx_mux_push[j] = mpush[j];
-                        rx_mux_pull[j] = pull_sync_selected[j];
+                        rx_mux_pull[j] = pull_sync[j];
                         mfull[j] = rx_fifo_full[j];
                         rx_empty[j] = rx_fifo_empty[j];
+                        rx_empty_margin[j] = rx_fifo_empty_margin[j];
                     end
                     2'b10: begin // join RX case
                         tx_mux_din[j] = mdout[j]; // wire incoming data to the tx fifo
@@ -447,10 +439,12 @@ module rp_pio #(
                         tx_mux_pull[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
                         mempty[j] = 1; // tx fifo is disabled
                         tx_full[j] = 1;
+                        tx_full_margin[j] = 1;
                         rx_mux_push[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
-                        rx_mux_pull[j] = pull_sync_selected[j];
+                        rx_mux_pull[j] = pull_sync[j];
                         mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
                         rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
+                        rx_empty_margin[j] = rx_fifo_empty_margin[j] && tx_fifo_empty[j];
                     end
                     2'b01: begin // join TX case
                         tx_mux_din[j] = pdout[j]; // wire tx fifo data input to rx fifo output
@@ -459,10 +453,12 @@ module rp_pio #(
                         tx_mux_pull[j] = mpull[j];
                         mempty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                         tx_full[j] = rx_fifo_full[j]; // full only when outer FIFO (RX fifo) is full
-                        rx_mux_push[j] = push_sync_selected[j];
+                        tx_full_margin[j] = rx_fifo_full_margin[j]; // rx is the "exposed" fifo
+                        rx_mux_push[j] = push_sync[j];
                         rx_mux_pull[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
                         mfull[j] = 1;
                         rx_empty[j] = 1;
+                        rx_empty_margin[j] = 1;
                     end
                     2'b11: begin // both joined, error condition: both FIFOs are disabled
                         tx_mux_din[j] = fdin[j];
@@ -475,6 +471,8 @@ module rp_pio #(
                         rx_mux_pull[j] = 0;
                         mfull[j] = 1;
                         rx_empty[j] = 1;
+                        tx_full_margin[j] = 1;
+                        rx_empty_margin[j] = 1;
                     end
                 endcase
             end
@@ -488,6 +486,9 @@ module rp_pio #(
                 .dout(mdin[j]),
                 .empty(/*mempty[j]*/ tx_fifo_empty[j]),
                 .full(/*tx_full[j]*/ tx_fifo_full[j]),
+                .margin(join_rx ? fifo_rx_margin[j]: fifo_tx_margin[j]),
+                .margin_empty(tx_fifo_empty_margin[j]),
+                .margin_full(tx_fifo_full_margin[j]),
                 .level(tx_level[j])
             );
 
@@ -500,6 +501,9 @@ module rp_pio #(
                 .dout(pdout[j]),
                 .full(/*mfull[j]*/ rx_fifo_full[j]),
                 .empty(/*rx_empty[j]*/ rx_fifo_empty[j]),
+                .margin_empty(rx_fifo_empty_margin[j]),
+                .margin_full(rx_fifo_full_margin[j]),
+                .margin(join_tx ? fifo_tx_margin[j] : fifo_rx_margin[j]),
                 .level(rx_level[j])
             );
 
@@ -543,7 +547,7 @@ module rp_pio #(
     endgenerate
 
     // reduce IRQ state to just two bits going to the CPU
-    assign irq_bundle = {irq_flags_in[3:0], ~tx_full, ~rx_empty};
+    assign irq_bundle = {irq_flags_in[3:0], ~tx_full_margin, ~rx_empty_margin};
     assign irq0_ints = (irq_bundle | irq0_intf) & irq0_inte;
     assign irq1_ints = (irq_bundle | irq1_intf) & irq1_inte;
     assign irq0 = irq0_ints != 0;
@@ -685,7 +689,7 @@ module rp_pio #(
             sfr_io_oe_inv    .prdata32 |
             sfr_io_o_inv     .prdata32 |
             sfr_io_i_inv     .prdata32 |
-            sfr_cdc_mode     .prdata32 |
+            sfr_fifo_margin  .prdata32 |
             sfr_zero0        .prdata32 |
             sfr_zero1        .prdata32 |
             sfr_zero2        .prdata32 |
@@ -746,6 +750,25 @@ module rp_pio #(
     assign irq1_ints_sm       = irq1_ints[11:8];
     assign irq1_ints_txnfull  = irq1_ints[7:4];
     assign irq1_ints_rxnempty = irq1_ints[3:0];
+
+    wire [1:0] fifo_tx_margin3;
+    assign fifo_tx_margin[3] = fifo_tx_margin3;
+    wire [1:0] fifo_tx_margin2;
+    assign fifo_tx_margin[2] = fifo_tx_margin2;
+    wire [1:0] fifo_tx_margin1;
+    assign fifo_tx_margin[1] = fifo_tx_margin1;
+    wire [1:0] fifo_tx_margin0;
+    assign fifo_tx_margin[0] = fifo_tx_margin0;
+
+    wire [1:0] fifo_rx_margin3;
+    assign fifo_rx_margin[3] = fifo_rx_margin3;
+    wire [1:0] fifo_rx_margin2;
+    assign fifo_rx_margin[2] = fifo_rx_margin2;
+    wire [1:0] fifo_rx_margin1;
+    assign fifo_rx_margin[1] = fifo_rx_margin1;
+    wire [1:0] fifo_rx_margin0;
+    assign fifo_rx_margin[0] = fifo_rx_margin0;
+
     // nc fields
     wire exec_stalled_ro0;
     wire exec_stalled_ro1;
@@ -955,7 +978,11 @@ module rp_pio #(
     apb_cr #(.A('h180), .DW(32))     sfr_io_oe_inv        (.cr(oe_invert), .prdata32(),.*);
     apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
     apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
-    apb_cr #(.A('h18C), .DW(4))      sfr_cdc_mode         (.cr(dma_mode), .prdata32(),.*); // set dma_mode to use a fast CDC on FIFO push/pull
+    apb_cr #(.A('h18C), .DW(16))     sfr_fifo_margin      (.cr({
+                                                            fifo_rx_margin3, fifo_tx_margin3,
+                                                            fifo_rx_margin2, fifo_tx_margin2,
+                                                            fifo_rx_margin1, fifo_tx_margin1,
+                                                            fifo_rx_margin0, fifo_tx_margin0}), .prdata32(),.*);
     apb_sr #(.A('h190), .DW(32))     sfr_zero0            (.sr(32'h0), .prdata32(),.*);  // bank of "zero reads" as DMA source target for initializing RAM
     apb_sr #(.A('h194), .DW(32))     sfr_zero1            (.sr(32'h0), .prdata32(),.*);
     apb_sr #(.A('h198), .DW(32))     sfr_zero2            (.sr(32'h0), .prdata32(),.*);
@@ -967,8 +994,6 @@ module rp_pio #(
     cdc_blinded       irq_force_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(irq_force_action      ), .out_b(irq_force_action_sync      ));
     cdc_blinded       push_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync                  ));
     cdc_blinded       pull_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync                  ));
-    cdc_pulse         push_cdc_p[3:0]  (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(push                  ), .out_b(push_sync_dma              ));
-    cdc_pulse         pull_cdc_p[3:0]  (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(pull                  ), .out_b(pull_sync_dma              ));
     cdc_blinded       imm_cdc[3:0]     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(imm                   ), .out_b(imm_sync                   ));
 endmodule
 

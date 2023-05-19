@@ -344,8 +344,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#rp-pio-sfr-io-i-inv"><span class="std std-ref">RP_PIO_SFR_IO_I_INV</span></a></p></td>
 <td><p><a class="reference internal" href="#rp-pio-sfr-io-i-inv"><span class="std std-ref">0x40202188</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#rp-pio-sfr-cdc-mode"><span class="std std-ref">RP_PIO_SFR_CDC_MODE</span></a></p></td>
-<td><p><a class="reference internal" href="#rp-pio-sfr-cdc-mode"><span class="std std-ref">0x4020218c</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rp-pio-sfr-fifo-margin"><span class="std std-ref">RP_PIO_SFR_FIFO_MARGIN</span></a></p></td>
+<td><p><a class="reference internal" href="#rp-pio-sfr-fifo-margin"><span class="std std-ref">0x4020218c</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#rp-pio-sfr-zero0"><span class="std std-ref">RP_PIO_SFR_ZERO0</span></a></p></td>
 <td><p><a class="reference internal" href="#rp-pio-sfr-zero0"><span class="std std-ref">0x40202190</span></a></p></td>
@@ -3961,8 +3961,8 @@
 </tbody>
 </table>
 </section>
-<section id="rp-pio-sfr-cdc-mode">
-<h3>RP_PIO_SFR_CDC_MODE<a class="headerlink" href="#rp-pio-sfr-cdc-mode" title="Permalink to this heading">¶</a></h3>
+<section id="rp-pio-sfr-fifo-margin">
+<h3>RP_PIO_SFR_FIFO_MARGIN<a class="headerlink" href="#rp-pio-sfr-fifo-margin" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x18c = 0x4020218c</cite></p>
 <blockquote>
 <div>
@@ -3970,8 +3970,15 @@
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "sfr_cdc_mode",  "bits": 4},
-        {"bits": 28}
+        {"name": "fifo_tx_margin0",  "bits": 2},
+        {"name": "fifo_rx_margin0",  "bits": 2},
+        {"name": "fifo_tx_margin1",  "bits": 2},
+        {"name": "fifo_rx_margin1",  "bits": 2},
+        {"name": "fifo_tx_margin2",  "bits": 2},
+        {"name": "fifo_rx_margin2",  "bits": 2},
+        {"name": "fifo_tx_margin3",  "bits": 2},
+        {"name": "fifo_rx_margin3",  "bits": 2},
+        {"bits": 16}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
 </script>
@@ -3985,9 +3992,37 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>SFR_CDC_MODE</p></td>
-<td><p>sfr_cdc_mode read/write control register</p></td>
+<tr class="row-even"><td><p>[1:0]</p></td>
+<td><p>FIFO_TX_MARGIN0</p></td>
+<td><p>fifo_tx_margin0 read/write control register</p></td>
+</tr>
+<tr class="row-odd"><td><p>[3:2]</p></td>
+<td><p>FIFO_RX_MARGIN0</p></td>
+<td><p>fifo_rx_margin0 read/write control register</p></td>
+</tr>
+<tr class="row-even"><td><p>[5:4]</p></td>
+<td><p>FIFO_TX_MARGIN1</p></td>
+<td><p>fifo_tx_margin1 read/write control register</p></td>
+</tr>
+<tr class="row-odd"><td><p>[7:6]</p></td>
+<td><p>FIFO_RX_MARGIN1</p></td>
+<td><p>fifo_rx_margin1 read/write control register</p></td>
+</tr>
+<tr class="row-even"><td><p>[9:8]</p></td>
+<td><p>FIFO_TX_MARGIN2</p></td>
+<td><p>fifo_tx_margin2 read/write control register</p></td>
+</tr>
+<tr class="row-odd"><td><p>[11:10]</p></td>
+<td><p>FIFO_RX_MARGIN2</p></td>
+<td><p>fifo_rx_margin2 read/write control register</p></td>
+</tr>
+<tr class="row-even"><td><p>[13:12]</p></td>
+<td><p>FIFO_TX_MARGIN3</p></td>
+<td><p>fifo_tx_margin3 read/write control register</p></td>
+</tr>
+<tr class="row-odd"><td><p>[15:14]</p></td>
+<td><p>FIFO_RX_MARGIN3</p></td>
+<td><p>fifo_rx_margin3 read/write control register</p></td>
 </tr>
 </tbody>
 </table>

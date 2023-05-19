@@ -160,7 +160,6 @@ pub fn spi_test() -> bool {
     let mut cpol = false;
     pio_sm.pio.wo(rp_pio::SFR_IRQ0_INTE, pio_sm.sm_bitmask());
     pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, (pio_sm.sm_bitmask()) << 4);
-    pio_sm.pio.wo(rp_pio::SFR_CDC_MODE, 0xF); // remove CDC on FIFO pushes to work with DMAC timing
     loop {
         // pha = 1
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
@@ -206,7 +205,6 @@ pub fn spi_test() -> bool {
     pio_sm.pio.wo(rp_pio::SFR_IRQ0_INTE, 0);
     pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, 0);
     pio_sm.pio.wo(rp_pio::SFR_SYNC_BYPASS, 0);
-    pio_sm.pio.wo(rp_pio::SFR_CDC_MODE, 0x0);
 
     if passing {
         report.wfo(utra::main::REPORT_REPORT, 0x05D1_600D);

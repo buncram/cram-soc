@@ -231,7 +231,7 @@ class PioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio")
-        platform.add_source(os.path.join(rtl_dir, "pio_ahb.sv"))
+        platform.add_source(os.path.join(rtl_dir, "pio_apb.sv"))
         platform.add_source(os.path.join(rtl_dir, "rp_pio.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio", "upstream", "src")

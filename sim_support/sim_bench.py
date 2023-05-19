@@ -361,7 +361,7 @@ class SimRunner():
             "cd run && {}xvlog -sv osr.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv pc.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv scratch.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -sv pio_ahb.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv pio_apb.sv".format(VIVADO_PATH),
             "cd run && {}xvlog -sv rp_pio.sv -d XVLOG".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axi2ahb_cmd.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axi2ahb_ctrl.v".format(VIVADO_PATH),

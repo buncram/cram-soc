@@ -227,11 +227,14 @@ pub fn fifo_join_test() -> bool {
     );
     let a_prog = LoadedProg::load(a_code.program, &mut pio_ss).unwrap();
     sm_a.sm_set_enabled(false);
+    pio_ss.pio.wo(rp_pio::SFR_IRQ0_INTE, 0); // clear these in case a previous test set them
+    pio_ss.pio.wo(rp_pio::SFR_IRQ1_INTE, 0);
     a_prog.setup_default_config(&mut sm_a);
     sm_a.config_set_out_pins(0, 32);
     sm_a.config_set_clkdiv(128.0); // could make as aggressive as 64.0 and have it still work with 1:1 bus timings...
     sm_a.config_set_out_shift(false, true, 0);
     sm_a.sm_init(a_prog.entry());
+    sm_a.sm_irq0_source_enabled(PioIntSource::TxNotFull, true);
 
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1111);
     // load up the TX fifo, count how many entries it takes until it is full
@@ -241,6 +244,7 @@ pub fn fifo_join_test() -> bool {
         entries += 1;
         sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
     }
+    assert!(entries == 4);
     let mut passing = true;
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1000 + entries);
     // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
@@ -270,6 +274,7 @@ pub fn fifo_join_test() -> bool {
         sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
     }
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2000 + entries);
+    assert!(entries == 8);
     // should push the FIFO out
     last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
     detected = 0;
@@ -284,6 +289,88 @@ pub fn fifo_join_test() -> bool {
             last_val = latest_val;
         }
     }
+
+    // this should reset join TX and also halt the engine
+    sm_a.config_set_fifo_join(PioFifoJoin::None);
+    sm_a.sm_init(a_prog.entry());
+
+    // now test with "margin" on the FIFOs.
+    assert!(sm_a.sm_get_tx_fifo_margin() == 0);
+    sm_a.sm_set_tx_fifo_margin(1);
+    assert!(sm_a.sm_get_tx_fifo_margin() == 1);
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)));
+
+    // repeat, this time measuring the depth of the FIFO with margin
+    let mut entries = 0;
+    // loop looks at the raw interrupt value, the asserts look at the feedback INTS value, so we have coverage of both views
+    while (pio_ss.pio.rf(rp_pio::SFR_INTR_INTR_TXNFULL) & sm_a.sm_bitmask()) != 0 {
+        entries += 1;
+        sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
+    }
+    assert!(entries == 3);
+    assert!(sm_a.sm_txfifo_level() == 3); // should have space for one more item.
+    assert!(sm_a.sm_txfifo_is_full() == false); // the actual "full" signal should not be asserted.
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)) == false);
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2100 + entries);
+    // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
+    let mut last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+    let mut detected = 0;
+    // run the machine
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
+    while detected < entries {
+        let latest_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+        if latest_val != last_val {
+            detected += 1;
+            if latest_val != (0xF1F0_0000 + detected) {
+                passing = false;
+            }
+            last_val = latest_val;
+        }
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2100 + if passing {1} else {0});
+    sm_a.sm_set_tx_fifo_margin(0);
+
+    // this should reset join TX and also halt the engine
+    sm_a.config_set_fifo_join(PioFifoJoin::JoinTx);
+    sm_a.sm_init(a_prog.entry());
+
+    // now test with "margin" on the FIFOs.
+    assert!(sm_a.sm_get_tx_fifo_margin() == 0);
+    sm_a.sm_set_tx_fifo_margin(1);
+    assert!(sm_a.sm_get_tx_fifo_margin() == 1);
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)));
+
+    // repeat, this time measuring the depth of the FIFO with margin
+    let mut entries = 0;
+    // loop looks at the raw interrupt value, the asserts look at the feedback INTS value, so we have coverage of both views
+    while (sm_a.pio.rf(rp_pio::SFR_INTR_INTR_TXNFULL) & sm_a.sm_bitmask()) != 0 {
+        entries += 1;
+        sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2200 + entries);
+    assert!(entries == 7);
+    assert!(sm_a.sm_rxfifo_level() == 3); // should have space for one more item.
+    assert!(sm_a.sm_txfifo_level() == 4); // this one should be full
+    assert!(sm_a.sm_txfifo_is_full() == false); // the actual "full" signal should not be asserted.
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)) == false);
+    // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
+    let mut last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+    let mut detected = 0;
+    // run the machine
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
+    while detected < entries {
+        let latest_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
+        if latest_val != last_val {
+            detected += 1;
+            if latest_val != (0xF1F0_0000 + detected) {
+                passing = false;
+            }
+            last_val = latest_val;
+        }
+    }
+    sm_a.sm_irq0_source_enabled(PioIntSource::TxNotFull, false);
+    sm_a.sm_set_tx_fifo_margin(0);
+    sm_a.sm_irq0_source_enabled(PioIntSource::RxNotEmpty, true);
 
     // a program for testing IN
     let b_code = pio_proc::pio_asm!(
@@ -324,6 +411,7 @@ pub fn fifo_join_test() -> bool {
         expected -= 1;
     }
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_3000 + entries);
+    assert!(entries == 4);
 
     // now join
     sm_a.config_set_fifo_join(PioFifoJoin::JoinRx);
@@ -332,7 +420,7 @@ pub fn fifo_join_test() -> bool {
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4444);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     while !sm_a.sm_rxfifo_is_full() {
-        // just wait until the rx fifo fill sup
+        // just wait until the rx fifo fills up
     }
     // stop filling it
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
@@ -349,8 +437,90 @@ pub fn fifo_join_test() -> bool {
         entries += 1;
         expected -= 1;
     }
+    assert!(entries == 8);
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4000 + entries);
 
+    // no join, but with margin
+    sm_a.config_set_fifo_join(PioFifoJoin::None);
+    sm_a.sm_init(b_prog.entry());
+
+    // now test with "margin" on the FIFOs.
+    assert!(sm_a.sm_get_rx_fifo_margin() == 0);
+    sm_a.sm_set_rx_fifo_margin(1);
+    assert!(sm_a.sm_get_rx_fifo_margin() == 1);
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
+
+    // start the program running
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4555);
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
+    while !sm_a.sm_rxfifo_is_full() {
+        // just wait until the rx fifo fills up
+    }
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == true);
+    // stop filling it
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
+    entries = 0;
+    expected = 16;
+    while (pio_ss.pio.rf(rp_pio::SFR_INTR_INTR_RXNEMPTY) & sm_a.sm_bitmask()) != 0  {
+        let val = sm_a.sm_rxfifo_pull_u32();
+        if val != expected {
+            passing = false;
+        }
+        report.wfo(utra::main::REPORT_REPORT,
+            0xF1F0_0000 + val
+        );
+        entries += 1;
+        expected -= 1;
+    }
+    assert!(entries == 3);
+    assert!(sm_a.sm_rxfifo_level() == 1); // should be exactly one entry left
+    assert!(sm_a.sm_rxfifo_is_empty() == false); // the actual "empty" signal should not be asserted.
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4100 + entries);
+    sm_a.sm_set_rx_fifo_margin(0);
+
+    // join, but with margin
+    sm_a.config_set_fifo_join(PioFifoJoin::JoinRx);
+    sm_a.sm_init(b_prog.entry());
+
+    // now test with "margin" on the FIFOs.
+    assert!(sm_a.sm_get_rx_fifo_margin() == 0);
+    sm_a.sm_set_rx_fifo_margin(1);
+    assert!(sm_a.sm_get_rx_fifo_margin() == 1);
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
+
+    // start the program running
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4666);
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
+    while !sm_a.sm_rxfifo_is_full() {
+        // just wait until the rx fifo fills up
+    }
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == true);
+    // stop filling it
+    sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, 0);
+    entries = 0;
+    expected = 16;
+    while (pio_ss.pio.rf(rp_pio::SFR_INTR_INTR_RXNEMPTY) & sm_a.sm_bitmask()) != 0  {
+        let val = sm_a.sm_rxfifo_pull_u32();
+        if val != expected {
+            passing = false;
+        }
+        report.wfo(utra::main::REPORT_REPORT,
+            0xF1F0_0000 + val
+        );
+        entries += 1;
+        expected -= 1;
+    }
+    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4200 + entries);
+    assert!(entries == 7);
+    assert!(sm_a.sm_rxfifo_level() == 1); // this one should have one entry left
+    assert!(sm_a.sm_txfifo_level() == 0); // should be empty
+    assert!(sm_a.sm_rxfifo_is_empty() == false); // the actual "empty" signal should not be asserted.
+    assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
+
+    // clean up
+    sm_a.sm_irq0_source_enabled(PioIntSource::RxNotEmpty, false);
+    sm_a.sm_set_rx_fifo_margin(0);
     pio_ss.clear_instruction_memory();
 
     if passing {

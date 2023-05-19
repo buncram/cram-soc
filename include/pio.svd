@@ -2574,17 +2574,66 @@
                     </fields>
                 </register>
                 <register>
-                    <name>SFR_CDC_MODE</name>
+                    <name>SFR_FIFO_MARGIN</name>
                     <addressOffset>0x018c</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>sfr_cdc_mode</name>
-                            <msb>3</msb>
-                            <bitRange>[3:0]</bitRange>
+                            <name>fifo_tx_margin0</name>
+                            <msb>1</msb>
+                            <bitRange>[1:0]</bitRange>
                             <lsb>0</lsb>
-                            <description><![CDATA[sfr_cdc_mode read/write control register]]></description>
+                            <description><![CDATA[fifo_tx_margin0 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_rx_margin0</name>
+                            <msb>3</msb>
+                            <bitRange>[3:2]</bitRange>
+                            <lsb>2</lsb>
+                            <description><![CDATA[fifo_rx_margin0 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_tx_margin1</name>
+                            <msb>5</msb>
+                            <bitRange>[5:4]</bitRange>
+                            <lsb>4</lsb>
+                            <description><![CDATA[fifo_tx_margin1 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_rx_margin1</name>
+                            <msb>7</msb>
+                            <bitRange>[7:6]</bitRange>
+                            <lsb>6</lsb>
+                            <description><![CDATA[fifo_rx_margin1 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_tx_margin2</name>
+                            <msb>9</msb>
+                            <bitRange>[9:8]</bitRange>
+                            <lsb>8</lsb>
+                            <description><![CDATA[fifo_tx_margin2 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_rx_margin2</name>
+                            <msb>11</msb>
+                            <bitRange>[11:10]</bitRange>
+                            <lsb>10</lsb>
+                            <description><![CDATA[fifo_rx_margin2 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_tx_margin3</name>
+                            <msb>13</msb>
+                            <bitRange>[13:12]</bitRange>
+                            <lsb>12</lsb>
+                            <description><![CDATA[fifo_tx_margin3 read/write control register]]></description>
+                        </field>
+                        <field>
+                            <name>fifo_rx_margin3</name>
+                            <msb>15</msb>
+                            <bitRange>[15:14]</bitRange>
+                            <lsb>14</lsb>
+                            <description><![CDATA[fifo_rx_margin3 read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
