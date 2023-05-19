@@ -231,7 +231,7 @@ pub fn fifo_join_test() -> bool {
     pio_ss.pio.wo(rp_pio::SFR_IRQ1_INTE, 0);
     a_prog.setup_default_config(&mut sm_a);
     sm_a.config_set_out_pins(0, 32);
-    sm_a.config_set_clkdiv(128.0); // could make as aggressive as 64.0 and have it still work with 1:1 bus timings...
+    sm_a.config_set_clkdiv(192.0); // slow down the machine so we can read out the values after writing them...
     sm_a.config_set_out_shift(false, true, 0);
     sm_a.sm_init(a_prog.entry());
     sm_a.sm_irq0_source_enabled(PioIntSource::TxNotFull, true);
