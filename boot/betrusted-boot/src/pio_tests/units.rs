@@ -294,7 +294,7 @@ pub fn fifo_join_test() -> bool {
     sm_a.config_set_fifo_join(PioFifoJoin::None);
     sm_a.sm_init(a_prog.entry());
 
-    // now test with "margin" on the FIFOs.
+    // ----------- now test with "margin" on the FIFOs. ----------
     assert!(sm_a.sm_get_tx_fifo_margin() == 0);
     sm_a.sm_set_tx_fifo_margin(1);
     assert!(sm_a.sm_get_tx_fifo_margin() == 1);
@@ -312,6 +312,13 @@ pub fn fifo_join_test() -> bool {
     assert!(sm_a.sm_txfifo_is_full() == false); // the actual "full" signal should not be asserted.
     assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)) == false);
     report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2100 + entries);
+    // push one more entry in, to simulate the DMA overrun case
+    entries += 1;
+    sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
+    assert!(sm_a.sm_txfifo_level() == 4);
+    assert!(sm_a.sm_txfifo_is_full() == true);
+    assert!(pio_ss.pio.rf(rp_pio::SFR_FDEBUG_TXOVER) == 0); // should not indicate overflow
+
     // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
     let mut last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
     let mut detected = 0;
@@ -334,7 +341,7 @@ pub fn fifo_join_test() -> bool {
     sm_a.config_set_fifo_join(PioFifoJoin::JoinTx);
     sm_a.sm_init(a_prog.entry());
 
-    // now test with "margin" on the FIFOs.
+    // ----------- now test with "margin" on the FIFOs. ----------
     assert!(sm_a.sm_get_tx_fifo_margin() == 0);
     sm_a.sm_set_tx_fifo_margin(1);
     assert!(sm_a.sm_get_tx_fifo_margin() == 1);
@@ -353,6 +360,14 @@ pub fn fifo_join_test() -> bool {
     assert!(sm_a.sm_txfifo_level() == 4); // this one should be full
     assert!(sm_a.sm_txfifo_is_full() == false); // the actual "full" signal should not be asserted.
     assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)) == false);
+    // push one more entry in, to simulate the DMA overrun case
+    entries += 1;
+    sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
+    assert!(sm_a.sm_txfifo_level() == 4);
+    assert!(sm_a.sm_rxfifo_level() == 4);
+    assert!(sm_a.sm_txfifo_is_full() == true);
+    assert!(pio_ss.pio.rf(rp_pio::SFR_FDEBUG_TXOVER) == 0); // should not indicate overflow
+
     // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
     let mut last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
     let mut detected = 0;
