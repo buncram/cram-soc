@@ -357,7 +357,7 @@ module rp_pio #(
                     imm_instr_sync[j] <= imm_instr[j];
                 end
             end
-            machine machine (
+            pio_machine machine (
                 .clk(clk),
                 .reset(reset),
                 .en(en[j]),
@@ -477,7 +477,7 @@ module rp_pio #(
                 endcase
             end
 
-            fifo fifo_tx (
+            pio_fifo fifo_tx (
                 .clk(clk),
                 .reset(reset | (join_rx_tx_change[j] != 0)),
                 .push(/*push[j]*/ tx_mux_push[j]),
@@ -492,7 +492,7 @@ module rp_pio #(
                 .level(tx_level[j])
             );
 
-            fifo fifo_rx (
+            pio_fifo fifo_rx (
                 .clk(clk),
                 .reset(reset | (join_rx_tx_change[j] != 0)),
                 .push(/*mpush[j]*/ rx_mux_push[j]),
