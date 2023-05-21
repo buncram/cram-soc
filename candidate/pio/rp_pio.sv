@@ -352,7 +352,7 @@ module rp_pio #(
             // imm command (because the unblocking instruction would present itself to the blocked/waiting
             // state machine before the next imm pulse arrives)
             always @(posedge clk) begin
-                imm_aligned <= imm_sync;
+                imm_aligned[j] <= imm_sync[j];
                 if (imm_sync) begin
                     imm_instr_sync[j] <= imm_instr[j];
                 end
