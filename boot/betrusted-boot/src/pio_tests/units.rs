@@ -1,7 +1,7 @@
 use pio::RP2040_MAX_PROGRAM_SIZE;
-use utralib::generated::*;
 use crate::pio_generated::utra::rp_pio::{self, SFR_FDEBUG, SFR_FLEVEL, SFR_FSTAT, SFR_DBG_CFGINFO};
 use crate::pio::*;
+use crate::report_api;
 
 /// Test the sticky out bits
 pub fn sticky_test() {
@@ -27,8 +27,7 @@ pub fn sticky_test() {
     Cycle 5:    A writes A5, B writes B5 (with enable bit)     : result = B5
     Cycle 5:   (A rewrites A5), B writes B6 (without enable bit) : result = A5
      */
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x51C2_0000);
+    report_api(0x51C2_0000);
 
     let mut pio_ss = PioSharedState::new();
     let mut sm_a = unsafe{pio_ss.force_alloc_sm(1).unwrap()};
@@ -86,7 +85,7 @@ pub fn sticky_test() {
         | sm_a.pio.ms(rp_pio::SFR_CTRL_RESTART, sm_b.sm_bitmask())
     );
     // now set both running at the same time
-    report.wfo(utra::main::REPORT_REPORT, 0x51C2_1111);
+    report_api(0x51C2_1111);
     sm_a.pio.wo(
         rp_pio::SFR_CTRL,
         sm_a.pio.ms(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask())
@@ -94,12 +93,12 @@ pub fn sticky_test() {
     );
     // wait for it to run
     for i in 0..16 {
-        report.wfo(utra::main::REPORT_REPORT, 0x51C2_0000 + i as u32);
+        report_api(0x51C2_0000 + i as u32);
     }
     // disable the machines
     sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
 
-    report.wfo(utra::main::REPORT_REPORT, 0x51C2_2222);
+    report_api(0x51C2_2222);
 
     // now turn on the sticky bit
     sm_a.config_set_out_special(true, false, 0);
@@ -120,7 +119,7 @@ pub fn sticky_test() {
         | sm_a.pio.ms(rp_pio::SFR_CTRL_RESTART, sm_b.sm_bitmask())
     );
     // now set both running at the same time
-    report.wfo(utra::main::REPORT_REPORT, 0x51C2_3333);
+    report_api(0x51C2_3333);
     sm_a.pio.wo(
         rp_pio::SFR_CTRL,
         sm_a.pio.ms(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask())
@@ -128,7 +127,7 @@ pub fn sticky_test() {
     );
     // wait for it to run
     for i in 0..16 {
-        report.wfo(utra::main::REPORT_REPORT, 0x51C2_1000 + i as u32);
+        report_api(0x51C2_1000 + i as u32);
     }
 
     // disable the machines and cleanup
@@ -142,20 +141,19 @@ pub fn sticky_test() {
     pio_ss.clear_instruction_memory();
 
     // NOTE: this test requires manual inspection of the output waveforms for pass/fail.
-    report.wfo(utra::main::REPORT_REPORT, 0x51C2_600d);
+    report_api(0x51C2_600d);
 }
 
 pub fn delay(count: usize) {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    // dummy writes
-    for i in 0..count {
-        report.wo(utra::main::WDATA, i as u32);
+    let mut target = [0u32; 1];
+    for i in 0..count * 2 {
+        unsafe {target.as_mut_ptr().write_volatile(i as u32)}
+        core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
     }
 }
 /// test that stalled imm instructions are restarted on restart
 pub fn restart_imm_test() {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_0000);
+    report_api(0x0133_0000);
 
     let mut pio_ss = PioSharedState::new();
     let mut sm_a = pio_ss.alloc_sm().unwrap();
@@ -177,7 +175,7 @@ pub fn restart_imm_test() {
     sm_a.config_set_out_shift(false, true, 16);
     sm_a.sm_init(a_prog.entry());
     // run the loop on A
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_1111);
+    report_api(0x0133_1111);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     delay(50);
     assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
@@ -188,36 +186,35 @@ pub fn restart_imm_test() {
 
     // this should stall the state machine
     sm_a.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_2222);
+    report_api(0x0133_2222);
     delay(50);
     assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 1);
 
     // this should clear the stall
     sm_a.pio.rmwf(rp_pio::SFR_CTRL_RESTART, sm_a.sm_bitmask());
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_3333);
+    report_api(0x0133_3333);
     delay(50);
     assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
 
     // this should stall the state machine again
     sm_a.sm_exec(p.code[p.origin.unwrap_or(0) as usize]);
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_4444);
+    report_api(0x0133_4444);
     delay(50);
     assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 1);
 
     // this should also clear the stall by resolving the halt condition with a tx_fifo push
     sm_a.sm_txfifo_push_u16_msb(0xFFFF);
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_5555);
+    report_api(0x0133_5555);
     delay(50);
     assert!(sm_a.pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
 
     sm_a.pio.wo(rp_pio::SFR_CTRL, 0);
     pio_ss.clear_instruction_memory();
-    report.wfo(utra::main::REPORT_REPORT, 0x0133_600d);
+    report_api(0x0133_600d);
 }
 
 pub fn fifo_join_test() -> bool {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_0000);
+    report_api(0xF1F0_0000);
 
     let mut pio_ss = PioSharedState::new();
     // test TX fifo with non-join. Simple program that just copies the TX fifo content to pins, then stalls.
@@ -236,7 +233,7 @@ pub fn fifo_join_test() -> bool {
     sm_a.sm_init(a_prog.entry());
     sm_a.sm_irq0_source_enabled(PioIntSource::TxNotFull, true);
 
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1111);
+    report_api(0xF1F0_1111);
     // load up the TX fifo, count how many entries it takes until it is full
     // note: full test requires manual inspection of waveform to confirm GPIO out has the expected report value.
     let mut entries = 0;
@@ -246,7 +243,7 @@ pub fn fifo_join_test() -> bool {
     }
     assert!(entries == 4);
     let mut passing = true;
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_1000 + entries);
+    report_api(0xF1F0_1000 + entries);
     // push the FIFO data out, and try to compare using PIO capture (clkdiv set slow so we can do this...)
     let mut last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
     let mut detected = 0;
@@ -273,7 +270,7 @@ pub fn fifo_join_test() -> bool {
         entries += 1;
         sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
     }
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2000 + entries);
+    report_api(0xF1F0_2000 + entries);
     assert!(entries == 8);
     // should push the FIFO out
     last_val = sm_a.pio.r(rp_pio::SFR_DBG_PADOUT);
@@ -311,7 +308,7 @@ pub fn fifo_join_test() -> bool {
     assert!(sm_a.sm_txfifo_level() == 3); // should have space for one more item.
     assert!(sm_a.sm_txfifo_is_full() == false); // the actual "full" signal should not be asserted.
     assert!(sm_a.sm_irq0_status(Some(PioIntSource::TxNotFull)) == false);
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2100 + entries);
+    report_api(0xF1F0_2100 + entries);
     // push one more entry in, to simulate the DMA overrun case
     entries += 1;
     sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
@@ -334,7 +331,7 @@ pub fn fifo_join_test() -> bool {
             last_val = latest_val;
         }
     }
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2100 + if passing {1} else {0});
+    report_api(0xF1F0_2100 + if passing {1} else {0});
     sm_a.sm_set_tx_fifo_margin(0);
 
     // this should reset join TX and also halt the engine
@@ -354,7 +351,7 @@ pub fn fifo_join_test() -> bool {
         entries += 1;
         sm_a.sm_txfifo_push_u32(0xF1F0_0000 + entries);
     }
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_2200 + entries);
+    report_api(0xF1F0_2200 + entries);
     assert!(entries == 7);
     assert!(sm_a.sm_rxfifo_level() == 3); // should have space for one more item.
     assert!(sm_a.sm_txfifo_level() == 4); // this one should be full
@@ -405,7 +402,7 @@ pub fn fifo_join_test() -> bool {
 
     sm_a.sm_init(b_prog.entry());
     // start the program running
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_3333);
+    report_api(0xF1F0_3333);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     while !sm_a.sm_rxfifo_is_full() {
         // just wait until the rx fifo fill sup
@@ -419,20 +416,20 @@ pub fn fifo_join_test() -> bool {
         if val != expected {
             passing = false;
         }
-        report.wfo(utra::main::REPORT_REPORT,
+        report_api(
             0xF1F0_0000 + val
         );
         entries += 1;
         expected -= 1;
     }
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_3000 + entries);
+    report_api(0xF1F0_3000 + entries);
     assert!(entries == 4);
 
     // now join
     sm_a.config_set_fifo_join(PioFifoJoin::JoinRx);
     sm_a.sm_init(b_prog.entry());
     // start the program running
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4444);
+    report_api(0xF1F0_4444);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     while !sm_a.sm_rxfifo_is_full() {
         // just wait until the rx fifo fills up
@@ -446,14 +443,14 @@ pub fn fifo_join_test() -> bool {
         if val != expected {
             passing = false;
         }
-        report.wfo(utra::main::REPORT_REPORT,
+        report_api(
             0xF1F0_0000 + val
         );
         entries += 1;
         expected -= 1;
     }
     assert!(entries == 8);
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4000 + entries);
+    report_api(0xF1F0_4000 + entries);
 
     // no join, but with margin
     sm_a.config_set_fifo_join(PioFifoJoin::None);
@@ -466,7 +463,7 @@ pub fn fifo_join_test() -> bool {
     assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
 
     // start the program running
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4555);
+    report_api(0xF1F0_4555);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     while !sm_a.sm_rxfifo_is_full() {
         // just wait until the rx fifo fills up
@@ -481,7 +478,7 @@ pub fn fifo_join_test() -> bool {
         if val != expected {
             passing = false;
         }
-        report.wfo(utra::main::REPORT_REPORT,
+        report_api(
             0xF1F0_0000 + val
         );
         entries += 1;
@@ -491,7 +488,7 @@ pub fn fifo_join_test() -> bool {
     assert!(sm_a.sm_rxfifo_level() == 1); // should be exactly one entry left
     assert!(sm_a.sm_rxfifo_is_empty() == false); // the actual "empty" signal should not be asserted.
     assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4100 + entries);
+    report_api(0xF1F0_4100 + entries);
     sm_a.sm_set_rx_fifo_margin(0);
 
     // join, but with margin
@@ -505,7 +502,7 @@ pub fn fifo_join_test() -> bool {
     assert!(sm_a.sm_irq0_status(Some(PioIntSource::RxNotEmpty)) == false);
 
     // start the program running
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4666);
+    report_api(0xF1F0_4666);
     sm_a.pio.wfo(rp_pio::SFR_CTRL_EN, sm_a.sm_bitmask());
     while !sm_a.sm_rxfifo_is_full() {
         // just wait until the rx fifo fills up
@@ -520,13 +517,13 @@ pub fn fifo_join_test() -> bool {
         if val != expected {
             passing = false;
         }
-        report.wfo(utra::main::REPORT_REPORT,
+        report_api(
             0xF1F0_0000 + val
         );
         entries += 1;
         expected -= 1;
     }
-    report.wfo(utra::main::REPORT_REPORT, 0xF1F0_4200 + entries);
+    report_api(0xF1F0_4200 + entries);
     assert!(entries == 7);
     assert!(sm_a.sm_rxfifo_level() == 1); // this one should have one entry left
     assert!(sm_a.sm_txfifo_level() == 0); // should be empty
@@ -539,9 +536,9 @@ pub fn fifo_join_test() -> bool {
     pio_ss.clear_instruction_memory();
 
     if passing {
-        report.wfo(utra::main::REPORT_REPORT, 0xF1F0_600D);
+        report_api(0xF1F0_600D);
     } else {
-        report.wfo(utra::main::REPORT_REPORT, 0xF1F0_DEAD);
+        report_api(0xF1F0_DEAD);
     }
     assert!(passing); // stop the test bench if there was a failure
     passing
@@ -580,8 +577,7 @@ pub fn fifo_join_test() -> bool {
 
 pub fn register_tests() {
     const REGTEST_DIV: f32 = 2.5;
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_0000);
+    report_api(0x1336_0000);
 
     let mut pio_ss = PioSharedState::new();
 
@@ -601,7 +597,7 @@ pub fn register_tests() {
         "   wait 0 gpio 31 side 1",     // 1E wait until GPIO 31 is 0
         "   jmp x--, loop",             // 1F
     );
-    report.wfo(utra::main::REPORT_REPORT, a_code.program.side_set.bits() as u32);
+    report_api(a_code.program.side_set.bits() as u32);
     let a_prog = LoadedProg::load(a_code.program, &mut pio_ss).unwrap();
     sm_a.sm_set_enabled(false);
     a_prog.setup_default_config(&mut sm_a);
@@ -685,7 +681,7 @@ pub fn register_tests() {
     // enable interrupts for readback on IRQ0
     sm_a.pio.wo(rp_pio::SFR_IRQ0_INTE, 0xFFF);
 
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_0001);
+    report_api(0x1336_0001);
 
     // confirm that the FIFOs are all in expected states. Hard-coded as expected values for efficiency.
     assert!(sm_a.pio.r(SFR_FDEBUG) == 0);
@@ -731,10 +727,10 @@ pub fn register_tests() {
     ];
     for i in 0..RP2040_MAX_PROGRAM_SIZE {
         let rbk = unsafe{sm_a.pio.base.add(rp_pio::SFR_INSTR_MEM0.offset() + i).read_volatile()};
-        report.wfo(utra::main::REPORT_REPORT, rbk + ((i as u32) << 24));
+        report_api(rbk + ((i as u32) << 24));
         assert!(rbk as u16 == expected_instrs[i]);
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_0002);
+    report_api(0x1336_0002);
 
     // load the TX fifos with output data we expect to see on the GPIO pins
     let tx_vals: [[u32; 4]; 4] =
@@ -747,7 +743,7 @@ pub fn register_tests() {
     // load the FIFO values, and check that the levels & flags change as we expected.
     let mut sm_array = [sm_a, sm_b, sm_c, sm_d];
     for (sm_index, sm) in sm_array.iter_mut().enumerate() {
-        /* report.wfo(utra::main::REPORT_REPORT,
+        /* report_api(
             (sm_index as u32) << 16 |
             if sm.sm_txfifo_is_empty() {0x8000} else {0x0} |
             sm.sm_txfifo_level() as u32
@@ -760,23 +756,23 @@ pub fn register_tests() {
         assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 0) & sm.sm_bitmask() == 0);
         for (index, &word) in tx_vals[sm_index].iter().enumerate() {
             sm.sm_txfifo_push_u32(word);
-            // report.wfo(utra::main::REPORT_REPORT, 0x1336_0031);
+            // report_api(0x1336_0031);
             assert!(sm.sm_txfifo_is_empty() == false);
-            // report.wfo(utra::main::REPORT_REPORT, 0x1336_0000 + sm.sm_txfifo_level() as u32);
+            // report_api(0x1336_0000 + sm.sm_txfifo_level() as u32);
             assert!(sm.sm_txfifo_level() == index + 1);
-            // report.wfo(utra::main::REPORT_REPORT, 0x1336_0033);
+            // report_api(0x1336_0033);
         }
-        // report.wfo(utra::main::REPORT_REPORT, 0x1336_0004);
+        // report_api(0x1336_0004);
         assert!(sm.sm_txfifo_is_full() == true);
         // TXNFULL should be de-asserted
         assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 4) & sm.sm_bitmask() == 0);
         // push an extra value and confirm that we cause an overflow
         sm.sm_txfifo_push_u8_msb(0x7); // Note: this number does not appear in the loaded set
         // confirm that we see the overflow flag; then clear it, and confirm it's cleared.
-        report.wfo(utra::main::REPORT_REPORT, 0x1336_0005);
+        report_api(0x1336_0005);
         assert!(sm.pio.rf(rp_pio::SFR_FDEBUG_TXOVER) == sm.sm_bitmask());
         sm.pio.wfo(rp_pio::SFR_FDEBUG_TXOVER, sm.sm_bitmask());
-        report.wfo(utra::main::REPORT_REPORT, 0x1336_0006);
+        report_api(0x1336_0006);
         assert!(sm.pio.rf(rp_pio::SFR_FDEBUG_TXOVER) == 0);
     }
 
@@ -797,7 +793,7 @@ pub fn register_tests() {
     let p_wait = b.assemble_program();
 
     // check that the RX FIFOs have the correct levels
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_0007);
+    report_api(0x1336_0007);
     for sm in sm_array.iter_mut() {
         assert!(sm.sm_rxfifo_is_empty());
         assert!(sm.sm_rxfifo_level() == 0);
@@ -806,12 +802,12 @@ pub fn register_tests() {
     // start the machines running
     sm_array[0].pio.wfo(rp_pio::SFR_CTRL_CLKDIV_RESTART, 0xF); // sync the clocks; the clock free-runs after the div is setup, and the divs are set up at arbitrary points in time
     sm_array[0].pio.wfo(rp_pio::SFR_CTRL_EN, 0xF);
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_0008);
+    report_api(0x1336_0008);
 
     let mut waiting_for = 0;
     loop {
         if waiting_for >= tx_vals[0].len() {
-            report.wfo(utra::main::REPORT_REPORT, 0x1336_000B);
+            report_api(0x1336_000B);
             break;
         }
         // assembled the expected value
@@ -824,25 +820,25 @@ pub fn register_tests() {
         // expected |= 0x4000; // "side 1" should be executed on SM3 on bits 14-16, overriding any TX fifo value
 
         let outputs = sm_array[0].pio.r(rp_pio::SFR_DBG_PADOUT);
-        report.wfo(utra::main::REPORT_REPORT, 0x1336_0000 | (outputs & 0xFFFF));
+        report_api(0x1336_0000 | (outputs & 0xFFFF));
         if expected == (outputs & 0xFFFF) {
             // got it, moving forward
             waiting_for += 1;
-            report.wfo(utra::main::REPORT_REPORT, 0x0000_1336 | ((waiting_for as u32) << 16)); // report waiting_for
+            report_api(0x0000_1336 | ((waiting_for as u32) << 16)); // report waiting_for
 
             // check that RX fifos have the right number of entries
             for sm in sm_array.iter_mut() {
                 assert!(sm.sm_rxfifo_level() == waiting_for);
             }
             // no "exec" is in progress, so the stall bit should not be set
-            report.wfo(utra::main::REPORT_REPORT, 0x1336_0007);
+            report_api(0x1336_0007);
             assert!(sm_array[0].pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 0);
             assert!(sm_array[1].pio.rf(rp_pio::SFR_SM1_EXECCTRL_EXEC_STALLED_RO1) == 0);
             assert!(sm_array[2].pio.rf(rp_pio::SFR_SM2_EXECCTRL_EXEC_STALLED_RO2) == 0);
             assert!(sm_array[3].pio.rf(rp_pio::SFR_SM3_EXECCTRL_EXEC_STALLED_RO3) == 0);
 
             // read the address of the PC, and confirm the instruction is correct
-            report.wfo(utra::main::REPORT_REPORT, 0x1336_0008);
+            report_api(0x1336_0008);
             assert!(expected_instrs[sm_array[0].pio.rf(rp_pio::SFR_SM0_ADDR_PC) as usize] ==
                     sm_array[0].pio.rf(rp_pio::SFR_SM0_INSTR_IMM_INSTR) as u16);
             assert!(expected_instrs[sm_array[1].pio.rf(rp_pio::SFR_SM1_ADDR_PC) as usize] ==
@@ -853,11 +849,11 @@ pub fn register_tests() {
                     sm_array[3].pio.rf(rp_pio::SFR_SM3_INSTR_IMM_INSTR) as u16);
 
             // execute the "program" that flips the OE bit, which should get us to the next iteration
-            report.wfo(utra::main::REPORT_REPORT, 0x1336_0009);
+            report_api(0x1336_0009);
             // exec an instruction that can't complete
             sm_array[0].sm_exec(p_wait.code[p_wait.origin.unwrap_or(0) as usize]);
             // confirm that the stall bit is set
-            report.wfo(utra::main::REPORT_REPORT, 0x1336_000A);
+            report_api(0x1336_000A);
             assert!(sm_array[0].pio.rf(rp_pio::SFR_SM0_EXECCTRL_EXEC_STALLED_RO0) == 1);
 
             // now exec the instruction that should clear the wait condition on an input pin by flipping bit 31 via a side-set operation
@@ -868,11 +864,11 @@ pub fn register_tests() {
         }
     }
     // stop the machine from running, so we can test RX fifo underflow, etc.
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_000C);
+    report_api(0x1336_000C);
     sm_array[0].pio.wfo(rp_pio::SFR_CTRL_EN, 0);
 
     // since the program ran one extra iteration out the bottom of the loop, we should have overflowed the RX fifo, etc.
-    report.wfo(utra::main::REPORT_REPORT,
+    report_api(
         sm_array[0].pio.r(rp_pio::SFR_FDEBUG)
     );
     assert!(sm_array[0].pio.r(rp_pio::SFR_FDEBUG) == 0xF); // stalls should be asserted
@@ -880,12 +876,12 @@ pub fn register_tests() {
     assert!(sm_array[0].pio.r(rp_pio::SFR_FDEBUG) == 0); // confirm it is cleared
 
     // read back the FIFOs and check that the correct values were committed
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_000D);
+    report_api(0x1336_000D);
     let loop_ivs = [24u8, 16u8, 8u8, 2u8];
     let mut loop_counters = [0u8; 4];
     loop_counters.copy_from_slice(&loop_ivs);
     for expected_fifo_level in (1..=4).rev() {
-        report.wfo(utra::main::REPORT_REPORT, 0x1336_001D | (expected_fifo_level as u32) << 8);
+        report_api(0x1336_001D | (expected_fifo_level as u32) << 8);
         for (sm_index, sm) in sm_array.iter_mut().enumerate() {
             // RXNEMPTY should be asserted
             assert!((sm.pio.r(rp_pio::SFR_IRQ0_INTS) >> 0) & sm.sm_bitmask() != 0);
@@ -894,11 +890,11 @@ pub fn register_tests() {
             assert!(sm.sm_rxfifo_level() == expected_fifo_level);
             // check that the index matched
             let rxval = sm.sm_rxfifo_pull_u8_lsb();
-            report.wfo(utra::main::REPORT_REPORT, 0x1336_001D | (rxval as u32) << 8);
+            report_api(0x1336_001D | (rxval as u32) << 8);
             assert!(rxval == loop_counters[sm_index]);
         }
         // update the expected indices
-        report.wfo(utra::main::REPORT_REPORT, 0x1336_002D | (expected_fifo_level as u32) << 8);
+        report_api(0x1336_002D | (expected_fifo_level as u32) << 8);
         for (index, loop_counter) in loop_counters.iter_mut().enumerate() {
             if *loop_counter != 0 {
                 *loop_counter -= 1;
@@ -908,7 +904,7 @@ pub fn register_tests() {
         }
     }
     // check that the RX fifos are empty and no underflow, we should be "just nice"
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_000E);
+    report_api(0x1336_000E);
     assert!(sm_array[0].pio.rf(rp_pio::SFR_FDEBUG_RXUNDER) == 0);
     let mut expected_underflows = 0;
     for sm in sm_array.iter_mut() {
@@ -922,7 +918,7 @@ pub fn register_tests() {
     // clear all the FIFOs and check default states
     // we also clear the RXUNDER bit progressively and confirm that it can be incrementally cleared
     // (this checks the action register implementation is bit-wise and not register-wide)
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_000F);
+    report_api(0x1336_000F);
     for sm in sm_array.iter_mut() {
         sm.sm_clear_fifos();
         assert!(sm.sm_rxfifo_level() == 0);
@@ -934,5 +930,5 @@ pub fn register_tests() {
         assert!(sm.pio.rf(rp_pio::SFR_FDEBUG_RXUNDER) == expected_underflows);
     }
 
-    report.wfo(utra::main::REPORT_REPORT, 0x1336_600d);
+    report_api(0x1336_600d);
 }

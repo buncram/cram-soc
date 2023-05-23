@@ -82,6 +82,14 @@ mod panic_handler {
     }
 }
 
+static mut REPORT: CSR::<u32> = CSR::<u32>{base: utra::main::HW_MAIN_BASE as *mut u32};
+
+pub fn report_api(d: u32) {
+    unsafe {
+        REPORT.wo(utra::main::REPORT, d);
+    }
+}
+
 struct Point {
     x: i16,
     y: i16,
@@ -314,7 +322,6 @@ unsafe fn ramtest_all<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
 {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     let mut sum: u32 = 0;
     for (index, d) in test_slice.iter_mut().enumerate() {
         // Convert the element into a `u32`, failing
@@ -332,16 +339,16 @@ where
             .try_into()
             .unwrap_or_default();
         checksum += a;
-        // report.wfo(utra::main::REPORT_REPORT, a);
+        // report_api(a);
     }
 
     if sum == checksum {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(0x600d_0000 + test_index);
     } else {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, sum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(sum as u32);
+        report_api(0x0bad_0000 + test_index);
     }
 }
 
@@ -355,7 +362,6 @@ where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
 {
     const CACHE_LINE_SIZE: usize = 32;
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     let mut sum: u32 = 0;
     for (index, d) in test_slice.chunks_mut(CACHE_LINE_SIZE / size_of::<T>()).enumerate() {
         let idxp1 = index + 0;
@@ -388,12 +394,12 @@ where
     }
 
     if sum == checksum {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(0x600d_0000 + test_index);
     } else {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, sum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(sum as u32);
+        report_api(0x0bad_0000 + test_index);
     }
 }
 
@@ -404,7 +410,6 @@ where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
 {
     const CACHE_LINE_SIZE: usize = 32;
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     let mut sum: u32 = 0;
     for (index, d) in test_slice.chunks_mut(CACHE_LINE_SIZE / size_of::<T>()).enumerate() {
         let idxp1 = index + 1;
@@ -435,17 +440,17 @@ where
             .try_into()
             .unwrap_or_default();
         checksum = checksum + a + b;
-        // report.wfo(utra::main::REPORT_REPORT, a);
-        // report.wfo(utra::main::REPORT_REPORT, b);
+        // report_api(a);
+        // report_api(b);
     }
 
     if sum == checksum {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(0x600d_0000 + test_index);
     } else {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, sum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(sum as u32);
+        report_api(0x0bad_0000 + test_index);
     }
 }
 
@@ -503,10 +508,9 @@ unsafe fn ramtest_lfsr<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
 {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
 
     if test_slice.len() != 512 {
-        report.wfo(utra::main::REPORT_REPORT, 0x0bad_000 + test_index + 0x0F00); // indicate a failure due to configuration
+        report_api(0x0bad_000 + test_index + 0x0F00); // indicate a failure due to configuration
         return;
     }
     let mut state: u16 = 1;
@@ -523,11 +527,11 @@ where
     }
 
     // flush cache
-    report.wfo(utra::main::REPORT_REPORT, 0xff00_ff00);
+    report_api(0xff00_ff00);
     core::arch::asm!(
         ".word 0x500F",
     );
-    report.wfo(utra::main::REPORT_REPORT, 0x0f0f_0f0f);
+    report_api(0x0f0f_0f0f);
 
     // we should be able to just iterate in-order and sum all the values, and get the same thing back as above
     let mut checksum: u32 = 0;
@@ -537,16 +541,16 @@ where
             .try_into()
             .unwrap_or_default();
         checksum += a;
-        // report.wfo(utra::main::REPORT_REPORT, a);
+        // report_api(a);
     }
 
     if sum == checksum {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x600d_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(0x600d_0000 + test_index);
     } else {
-        report.wfo(utra::main::REPORT_REPORT, checksum as u32);
-        report.wfo(utra::main::REPORT_REPORT, sum as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x0bad_0000 + test_index);
+        report_api(checksum as u32);
+        report_api(sum as u32);
+        report_api(0x0bad_0000 + test_index);
     }
 }
 
@@ -563,11 +567,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     #[cfg(feature="sim")]
     {
         let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x600dc0de);
+        report_api(0x600dc0de);
 
         // report the measured reset value
         let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
-        report.wfo(utra::main::REPORT_REPORT, resetvalue.r(utra::resetvalue::PC));
+        report_api(resetvalue.r(utra::resetvalue::PC));
 
         // ---------- ahb test option -------------
         #[cfg(feature="ahb-test")]
@@ -577,7 +581,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
         // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
-        report.wfo(utra::main::REPORT_REPORT, 0x5a1d_6060);
+        report_api(0x5a1d_6060);
         // ---------- exception setup ------------------
         irqs::irq_setup();
         // ---------- coreuser test --------------------
@@ -587,13 +591,13 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         irqs::irq_test();
 
         // ---------- CPU CSR tests --------------
-        report.wfo(utra::main::REPORT_REPORT, 0xc520_0000);
+        report_api(0xc520_0000);
         let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
         let mut passing = true;
         for i in 0..4 {
             csrtest.wfo(utra::csrtest::WTEST_WTEST, i);
             let val = csrtest.rf(utra::csrtest::RTEST_RTEST);
-            report.wfo(utra::main::REPORT_REPORT,
+            report_api(
                 val
             );
             if val != i + 0x1000_0000 {
@@ -601,9 +605,9 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             }
         }
         if passing {
-            report.wfo(utra::main::REPORT_REPORT, 0xc520_600d);
+            report_api(0xc520_600d);
         } else {
-            report.wfo(utra::main::REPORT_REPORT, 0xc520_dead);
+            report_api(0xc520_dead);
         }
 
         // ---------- wfi test -------------------------
@@ -611,47 +615,47 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
         // ----------- caching tests -------------
         // test of the 0x500F cache flush instruction - this requires manual inspection of the report values
-        report.wfo(utra::main::REPORT_REPORT, 0x000c_ac7e);
+        report_api(0x000c_ac7e);
         const CACHE_WAYS: usize = 4;
         const CACHE_SET_SIZE: usize = 4096 / size_of::<u32>();
         let test_slice = core::slice::from_raw_parts_mut(0x6100_0000 as *mut u32, CACHE_SET_SIZE * CACHE_WAYS);
         // bottom of cache
         for set in 0..4 {
-            report.wfo(utra::main::REPORT_REPORT, (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32) as u32);
+            report_api((&mut test_slice[set * CACHE_SET_SIZE] as *mut u32) as u32);
             (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).write_volatile(0x0011_1111 * (1 + set as u32));
         }
         // top of cache
         for set in 0..4 {
-            report.wfo(utra::main::REPORT_REPORT, (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32) as u32);
+            report_api((&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32) as u32);
             (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).write_volatile(0x1100_2222 * (1 + set as u32));
         }
         // read cached values - first iteration populates the cache; second iteration should be cached
         for iter in 0..2 {
-            report.wfo(utra::main::REPORT_REPORT, 0xb1d0_0000 + iter + 1);
+            report_api(0xb1d0_0000 + iter + 1);
             for set in 0..4 {
                 let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
-                report.wfo(utra::main::REPORT_REPORT, a);
+                report_api(a);
                 let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
-                report.wfo(utra::main::REPORT_REPORT, b);
+                report_api(b);
             }
         }
         // flush cache
-        report.wfo(utra::main::REPORT_REPORT, 0xff00_ff00);
+        report_api(0xff00_ff00);
         core::arch::asm!(
             ".word 0x500F",
         );
-        report.wfo(utra::main::REPORT_REPORT, 0x0f0f_0f0f);
+        report_api(0x0f0f_0f0f);
         // read cached values - first iteration populates the cache; second iteration should be cached
         for iter in 0..2 {
-            report.wfo(utra::main::REPORT_REPORT, 0xb2d0_0000 + iter + 1);
+            report_api(0xb2d0_0000 + iter + 1);
             for set in 0..4 {
                 let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
-                report.wfo(utra::main::REPORT_REPORT, a);
+                report_api(a);
                 let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
-                report.wfo(utra::main::REPORT_REPORT, b);
+                report_api(b);
             }
         }
-        report.wfo(utra::main::REPORT_REPORT, 0x600c_ac7e);
+        report_api(0x600c_ac7e);
 
         // check that caching is disabled for I/O regions
         let mut checkstate = 0x1234_0000;
@@ -660,16 +664,16 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         for _ in 0..100 {
             checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
             report.wfo(utra::main::WDATA_WDATA, checkdata);
-            // report.wfo(utra::main::REPORT_REPORT, checkdata);
+            // report_api(checkdata);
             checkstate += 5;
         }
         if checkdata == checkstate {
-            report.wfo(utra::main::REPORT_REPORT, checkstate);
-            report.wfo(utra::main::REPORT_REPORT, 0x600d_0001);
+            report_api(checkstate);
+            report_api(0x600d_0001);
         } else {
-            report.wfo(utra::main::REPORT_REPORT, checkstate);
-            report.wfo(utra::main::REPORT_REPORT, checkdata);
-            report.wfo(utra::main::REPORT_REPORT, 0x0bad_0001);
+            report_api(checkstate);
+            report_api(checkdata);
+            report_api(0x0bad_0001);
         }
 
         // check that repeated reads of a register fetch new contents
@@ -679,17 +683,17 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         for _ in 0..20 {
             let readout = report.rf(utra::main::RINC_RINC);
             computed += readout;
-            // report.wfo(utra::main::REPORT_REPORT, readout);
+            // report_api(readout);
             checkdata += devstate;
             devstate += 3;
         }
         if checkdata == computed {
-            report.wfo(utra::main::REPORT_REPORT, checkdata);
-            report.wfo(utra::main::REPORT_REPORT, 0x600d_0002);
+            report_api(checkdata);
+            report_api(0x600d_0002);
         } else {
-            report.wfo(utra::main::REPORT_REPORT, checkdata);
-            report.wfo(utra::main::REPORT_REPORT, computed);
-            report.wfo(utra::main::REPORT_REPORT, 0x0bad_0002);
+            report_api(checkdata);
+            report_api(computed);
+            report_api(0x0bad_0002);
         }
 
         // ----------- bus tests -------------

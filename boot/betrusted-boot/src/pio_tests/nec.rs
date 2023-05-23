@@ -1,6 +1,6 @@
 use crate::pio::*;
-use utralib::generated::*;
 use crate::pio_generated::utra::rp_pio;
+use crate::report_api;
 
 const SIM_SCALE_FACTOR: f32 = 200.0; // speedup over real time to have simulation finish in a reasonable amount of time
 const BURST_PERIOD: f32 =  562.5e-6 / SIM_SCALE_FACTOR;
@@ -261,28 +261,27 @@ pub fn nec_ir_loopback_test() {
     const TX_GPIO: usize = 14;
     const RX_GPIO: usize = 31;
 
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_0000);
+    report_api(0x1300_0000);
 
     let mut pio_ss = PioSharedState::new();
     pio_ss.pio.wo(rp_pio::SFR_IO_I_INV, 0x8000_0000); // invert the input to emulate hardware behavior
 
     let mut tx_sm = nec_tx_init(&mut pio_ss, TX_GPIO);
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_0001);
+    report_api(0x1300_0001);
     let mut rx_sm = nec_rx_init(&mut pio_ss, RX_GPIO);
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_0002);
+    report_api(0x1300_0002);
 
     let tx_frame = nec_encode_frame(0xAA, 0x33);
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_0003);
-    report.wfo(utra::main::REPORT_REPORT, tx_frame);
+    report_api(0x1300_0003);
+    report_api(tx_frame);
     tx_sm.sm_put_blocking(tx_frame);
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_0004);
+    report_api(0x1300_0004);
 
     // insert a delay of some sort here to wait for the loop back
 
     let rx_frame = rx_sm.sm_get_blocking();
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_0005);
-    report.wfo(utra::main::REPORT_REPORT, rx_frame);
+    report_api(0x1300_0005);
+    report_api(rx_frame);
     let mut addr: u8 = 0;
     let mut data: u8 = 0;
     assert!(nec_decode_frame(rx_frame, &mut addr, &mut data));
@@ -291,6 +290,6 @@ pub fn nec_ir_loopback_test() {
 
     pio_ss.pio.wo(rp_pio::SFR_IO_I_INV, 0x0000_0000); // cleanup the inversion for next tests
 
-    report.wfo(utra::main::REPORT_REPORT, 0x1300_600D);
+    report_api(0x1300_600D);
 }
 

@@ -1,6 +1,6 @@
-use utralib::generated::*;
 use crate::pio_generated::utra::rp_pio;
 use crate::pio::*;
+use crate::report_api;
 
 #[inline(always)]
 pub fn pio_spi_write8_read8_blocking (
@@ -56,8 +56,7 @@ pub fn pio_spi_write8_read8_blocking (
 }
 
 pub fn spi_test_core(pio_sm: &mut PioSm) -> bool {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
+    report_api(0x0D10_05D1);
 
     const BUF_SIZE: usize = 20;
     let mut state: u16 = 0xAA;
@@ -67,17 +66,17 @@ pub fn spi_test_core(pio_sm: &mut PioSm) -> bool {
     for d in tx_buf.iter_mut() {
         state = crate::lfsr_next(state);
         *d = state as u8;
-        report.wfo(utra::main::REPORT_REPORT, *d as u32);
+        report_api(*d as u32);
     }
     pio_spi_write8_read8_blocking(pio_sm, &tx_buf, &mut rx_buf);
     let mut pass = true;
     for (&s, &d) in tx_buf.iter().zip(rx_buf.iter()) {
         if s != d {
-            report.wfo(utra::main::REPORT_REPORT, 0xDEAD_0000 | (s as u32) << 8 | ((d as u32) << 0));
+            report_api(0xDEAD_0000 | (s as u32) << 8 | ((d as u32) << 0));
             pass = false;
         }
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x600D_05D1);
+    report_api(0x600D_05D1);
     pass
 }
 
@@ -131,8 +130,7 @@ pub fn spi_test() -> bool {
     const PIN_MOSI: usize = 16;
     const PIN_MISO: usize = 16; // loopback
 
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x0D10_05D1);
+    report_api(0x0D10_05D1);
 
     let mut pio_ss = PioSharedState::new();
     let mut pio_sm = pio_ss.alloc_sm().unwrap();
@@ -151,9 +149,9 @@ pub fn spi_test() -> bool {
         "in pins, 1  side 0" // Input data, deassert SCK
     );
     let prog_cpha0 = LoadedProg::load(spi_cpha0_prog.program, &mut pio_ss).unwrap();
-    report.wfo(utra::main::REPORT_REPORT, 0x05D1_0000);
+    report_api(0x05D1_0000);
     let prog_cpha1 = LoadedProg::load(spi_cpha1_prog.program, &mut pio_ss).unwrap();
-    report.wfo(utra::main::REPORT_REPORT, 0x05D1_0001);
+    report_api(0x05D1_0001);
 
     let clkdiv: f32 = 37.25;
     let mut passing = true;
@@ -162,7 +160,7 @@ pub fn spi_test() -> bool {
     pio_sm.pio.wo(rp_pio::SFR_IRQ1_INTE, (pio_sm.sm_bitmask()) << 4);
     loop {
         // pha = 1
-        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0002);
+        report_api(0x05D1_0002);
         pio_spi_init(
             &mut pio_sm,
             &prog_cpha0, // cpha set here
@@ -173,13 +171,13 @@ pub fn spi_test() -> bool {
             PIN_MOSI,
             PIN_MISO
         );
-        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0003);
+        report_api(0x05D1_0003);
         if spi_test_core(&mut pio_sm) == false {
             passing = false;
         };
 
         // pha = 0
-        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0004);
+        report_api(0x05D1_0004);
         pio_spi_init(
             &mut pio_sm,
             &prog_cpha1, // cpha set here
@@ -190,7 +188,7 @@ pub fn spi_test() -> bool {
             PIN_MOSI,
             PIN_MISO
         );
-        report.wfo(utra::main::REPORT_REPORT, 0x05D1_0005);
+        report_api(0x05D1_0005);
         if spi_test_core(&mut pio_sm) == false {
             passing = false;
         };
@@ -207,9 +205,9 @@ pub fn spi_test() -> bool {
     pio_sm.pio.wo(rp_pio::SFR_SYNC_BYPASS, 0);
 
     if passing {
-        report.wfo(utra::main::REPORT_REPORT, 0x05D1_600D);
+        report_api(0x05D1_600D);
     } else {
-        report.wfo(utra::main::REPORT_REPORT, 0x05D1_DEAD);
+        report_api(0x05D1_DEAD);
     }
     assert!(passing);
     passing

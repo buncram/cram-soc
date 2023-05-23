@@ -1,4 +1,5 @@
 use utralib::generated::*;
+use crate::report_api;
 
 pub const PAGE_SIZE: usize = 4096;
 const WORD_SIZE: usize = core::mem::size_of::<usize>();
@@ -151,8 +152,7 @@ pub fn to_user_mode() {
 }
 
 pub fn satp_test() {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0000);
+    report_api(0x5a1d_0000);
 
     let mut coreuser = CSR::new(utra::coreuser::HW_COREUSER_BASE as *mut u32);
     // first, clear the ASID table to 0
@@ -174,7 +174,7 @@ pub fn satp_test() {
     // readback of table
     for asid in 0..512 {
         coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
-        report.wfo(utra::main::REPORT_REPORT,
+        report_api(
             coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
         );
     }
@@ -206,7 +206,7 @@ pub fn satp_test() {
     // partial readback of table; `2` should not be trusted
     for asid in 0..4 {
         coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
-        report.wfo(utra::main::REPORT_REPORT,
+        report_api(
     coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
         );
     }
@@ -214,7 +214,7 @@ pub fn satp_test() {
     // now try changing the SATP around and see that the coreuser value updates
     // since we are in supervisor mode we can diddle with this at will, normally
     // user processes can't change this
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0001);
+    report_api(0x5a1d_0001);
     for asid in 0..512 {
         let satp: u32 =
         0x8000_0000
@@ -242,13 +242,13 @@ pub fn satp_test() {
     }
 
     // switch to user mode
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0002);
+    report_api(0x5a1d_0002);
     to_user_mode();
 
     // attempt to change ASID. This should be ignored or cause a trap, depending on the config of the device!
     // confirmed that without interrupts configured this has no effect; although it causes the following three
     // instructions to be ignored on the error.
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0003);
+    report_api(0x5a1d_0003);
     let satp: u32 =
     0x8000_0000
     | 4 << 22
@@ -266,7 +266,7 @@ pub fn satp_test() {
             satp_val = in(reg) satp,
         );
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_0004);
+    report_api(0x5a1d_0004);
 
-    report.wfo(utra::main::REPORT_REPORT, 0x5a1d_600d);
+    report_api(0x5a1d_600d);
 }

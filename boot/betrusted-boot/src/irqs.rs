@@ -1,5 +1,6 @@
 use utralib::generated::*;
 use riscv::register::{scause, sepc, stval, vexriscv::sim, vexriscv::sip, sie};
+use crate::report_api;
 
 pub fn enable_irq(irq_no: usize) {
     // Note that the vexriscv "IRQ Mask" register is inverse-logic --
@@ -21,8 +22,7 @@ pub fn irq_setup() {
         );
     }
 
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x1dcd_0000);
+    report_api(0x1dcd_0000);
 
     let mut irqarray0 = CSR::new(utra::irqarray0::HW_IRQARRAY0_BASE as *mut u32);
     let mut irqarray1 = CSR::new(utra::irqarray1::HW_IRQARRAY1_BASE as *mut u32);
@@ -44,35 +44,33 @@ pub fn irq_setup() {
     // must enable external interrupts on the CPU for any of the above to matter
     unsafe{sie::set_sext()};
 
-    report.wfo(utra::main::REPORT_REPORT, 0x1dcd_600d);
+    report_api(0x1dcd_600d);
 }
 
 pub fn irq_test() {
     // trigger an interrupt
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x3dcd_0000);
+    report_api(0x3dcd_0000);
 
     let mut main = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     // simulate hw trigger from IRQ0
-    report.wfo(utra::main::REPORT_REPORT, 0x3dcd_0001);
+    report_api(0x3dcd_0001);
     main.wfo(utra::main::IRQTEST0_TRIGGER, 4);
     // simulate hw trigger from IRQ1
-    report.wfo(utra::main::REPORT_REPORT, 0x3dcd_0002);
+    report_api(0x3dcd_0002);
     main.wfo(utra::main::IRQTEST1_TRIGGER, 1);
     // software-only trigger from IRQ2
-    report.wfo(utra::main::REPORT_REPORT, 0x3dcd_0003);
+    report_api(0x3dcd_0003);
     let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
     irqarray2.wfo(utra::irqarray2::EV_SOFT_TRIGGER, 0x80);
-    report.wfo(utra::main::REPORT_REPORT, 0x3dcd_600d);
+    report_api(0x3dcd_600d);
 }
 
 pub fn wfi_test() {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x03f1_0000);
+    report_api(0x03f1_0000);
     unsafe { core::arch::asm!(
         "wfi",
     ); }
-    report.wfo(utra::main::REPORT_REPORT, 0x03f1_600d);
+    report_api(0x03f1_600d);
 }
 
 // Notes: 403 CPU cycles to enter the handler (~4us wall-clock @ 100MHz).
@@ -218,12 +216,11 @@ pub extern "C" fn trap_handler(
     _a6: usize,
     _a7: usize,
 ) -> ! {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     let mut main = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x2dcd_0000);
+    report_api(0x2dcd_0000);
 
     let sc = scause::read();
-    report.wfo(utra::main::REPORT_REPORT, sc.bits() as u32);
+    report_api(sc.bits() as u32);
     // 2 is illegal instruction
     if sc.bits() == 2 {
         // skip past the illegal instruction, since we are just testing that they trigger exceptions.
@@ -237,13 +234,13 @@ pub extern "C" fn trap_handler(
     } else if sc.bits() == 0x8000_0009 {
         // external interrupt. find out which ones triggered it, and clear the source.
         let irqs_pending = sip::read();
-        report.wfo(utra::main::REPORT_REPORT, irqs_pending as u32);
+        report_api(irqs_pending as u32);
         if (irqs_pending & 0x1) != 0 {
             // handle irq0 hw test
             main.wfo(utra::main::IRQTEST0_TRIGGER, 0);
             let mut irqarray0 = CSR::new(utra::irqarray0::HW_IRQARRAY0_BASE as *mut u32);
             let pending = irqarray0.r(utra::irqarray0::EV_PENDING);
-            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 0); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 0); // encode the irq bank number and bit number as [bit | bank]
             irqarray0.wo(utra::irqarray0::EV_PENDING, pending);
         }
         if (irqs_pending & 0x2) != 0 {
@@ -251,14 +248,14 @@ pub extern "C" fn trap_handler(
             main.wfo(utra::main::IRQTEST1_TRIGGER, 0);
             let mut irqarray1 = CSR::new(utra::irqarray1::HW_IRQARRAY1_BASE as *mut u32);
             let pending = irqarray1.r(utra::irqarray1::EV_PENDING);
-            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 1); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 1); // encode the irq bank number and bit number as [bit | bank]
             irqarray1.wo(utra::irqarray1::EV_PENDING, pending);
         }
         if (irqs_pending & 4) != 0 {
             // handle irq2 sw trigger test
             let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
             let pending = irqarray2.r(utra::irqarray2::EV_PENDING);
-            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
             irqarray2.wo(utra::irqarray2::EV_PENDING, pending);
             // software interrupt should not require a 0-write to reset it
         }
@@ -266,15 +263,15 @@ pub extern "C" fn trap_handler(
             // handle wfi wakeup signal
             let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
             let pending = irqarray19.r(utra::irqarray19::EV_PENDING);
-            report.wfo(utra::main::REPORT_REPORT, pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
             irqarray19.wo(utra::irqarray19::EV_PENDING, pending);
         }
     }
 
     // report interrupt status
-    report.wfo(utra::main::REPORT_REPORT, sepc::read() as u32);
-    report.wfo(utra::main::REPORT_REPORT, stval::read() as u32);
-    report.wfo(utra::main::REPORT_REPORT, sim::read() as u32);
+    report_api(sepc::read() as u32);
+    report_api(stval::read() as u32);
+    report_api(sim::read() as u32);
 
     // re-enable interrupts
     let status: u32;
@@ -288,9 +285,9 @@ pub extern "C" fn trap_handler(
         )
     }
     unsafe{sie::set_sext()};
-    report.wfo(utra::main::REPORT_REPORT, status);
+    report_api(status);
 
     // drop us back to user mode
-    report.wfo(utra::main::REPORT_REPORT, 0x2dcd_600d);
+    report_api(0x2dcd_600d);
     unsafe {_resume_context(0x61006000)};
 }

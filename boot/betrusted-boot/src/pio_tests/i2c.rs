@@ -1,6 +1,6 @@
-use utralib::generated::*;
 use crate::pio_generated::utra::rp_pio;
 use crate::pio::*;
+use crate::report_api;
 
 pub fn i2c_init(
     pio_sm: &mut PioSm,
@@ -155,29 +155,28 @@ pub fn i2c_write_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: 
 }
 /// returns false if there is an error; true if no error
 pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &[u16; 4], addr: u8, rxbuf: &mut [u8]) -> bool {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000);
+    report_api(0x12C0_0000);
 
     i2c_start(pio_sm, set_scl_sda_program_instructions);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0001);
+    report_api(0x12C0_0001);
     i2c_rx_enable(pio_sm, true);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0002);
+    report_api(0x12C0_0002);
     while !pio_sm.sm_rxfifo_is_empty() {
         i2c_get(pio_sm);
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0003);
+    report_api(0x12C0_0003);
     let addr_composed = ((addr as u16) << 2)
         | 2  // "read address"
         | 1 << PIO_I2C_NAK_LSB;
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 | addr_composed as u32);
+    report_api(0x12C0_0000 | addr_composed as u32);
     i2c_put16(pio_sm, addr_composed);
-    report.wfo(utra::main::REPORT_REPORT, 0x12C0_0004);
+    report_api(0x12C0_0004);
     let mut first = true;
     let mut tx_remain = rxbuf.len();
     let mut len = rxbuf.len();
     let mut i = 0;
     while (tx_remain != 0) || (len != 0) && !i2c_check_error(pio_sm) {
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + ((tx_remain as u32) << 8) | len as u32);
+        report_api(0x12C0_0000 + ((tx_remain as u32) << 8) | len as u32);
         if (tx_remain != 0) && !pio_sm.sm_txfifo_is_full() {
             tx_remain -= 1;
             i2c_put16(pio_sm,
@@ -199,7 +198,7 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
             }
         }
         if pio_sm.sm_irq1_status(Some(PioIntSource::Sm)) {
-            report.wfo(utra::main::REPORT_REPORT, 0x12C0_1111);
+            report_api(0x12C0_1111);
             // detects NAK and aborts transaction
             i2c_resume_after_error(pio_sm);
             i2c_stop(pio_sm, set_scl_sda_program_instructions);
@@ -207,18 +206,18 @@ pub fn i2c_read_blocking(pio_sm: &mut PioSm, set_scl_sda_program_instructions: &
         }
     }
     if i2c_check_error(pio_sm) {
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_2222);
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + rxbuf[0] as u32);
+        report_api(0x12C0_2222);
+        report_api(0x12C0_0000 + rxbuf[0] as u32);
         i2c_resume_after_error(pio_sm);
         i2c_stop(pio_sm, set_scl_sda_program_instructions);
         false
     } else {
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0020);
+        report_api(0x12C0_0020);
         i2c_stop(pio_sm, set_scl_sda_program_instructions);
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0021);
+        report_api(0x12C0_0021);
         i2c_wait_idle(pio_sm);
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000);
-        report.wfo(utra::main::REPORT_REPORT, 0x12C0_0000 + rxbuf[0] as u32);
+        report_api(0x12C0_0000);
+        report_api(0x12C0_0000 + rxbuf[0] as u32);
         true
     }
 }
@@ -226,8 +225,7 @@ pub fn i2c_test() -> bool {
     const PIN_SDA: usize = 2;
     const PIN_SCL: usize = 3;
 
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x0D10_012C);
+    report_api(0x0D10_012C);
 
     let mut pio_ss = PioSharedState::new();
     let mut pio_sm = pio_ss.alloc_sm().unwrap();
@@ -301,10 +299,10 @@ pub fn i2c_test() -> bool {
         ".wrap",
     );
     let ep = i2c_prog.public_defines.entry_point as usize;
-    // report.wfo(utra::main::REPORT_REPORT, i2c_prog.program.side_set.bits() as u32);
+    // report_api(i2c_prog.program.side_set.bits() as u32);
     let prog_i2c = LoadedProg::load_with_entrypoint(i2c_prog.program, ep, &mut pio_ss).unwrap();
     i2c_init(&mut pio_sm, &prog_i2c, PIN_SDA, PIN_SCL);
-    report.wfo(utra::main::REPORT_REPORT, 0x012C_3333);
+    report_api(0x012C_3333);
 
     let i2c_cmds_raw = pio_proc::pio_asm!(
         ".side_set 1 opt",
@@ -320,7 +318,7 @@ pub fn i2c_test() -> bool {
     i2c_cmds.copy_from_slice(&i2c_cmds_raw[..4]);
     // print the compiled program for debug purposes
     for i in 0..4 {
-        report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + i2c_cmds[i] as u32);
+        report_api(0x012C_0000 + i2c_cmds[i] as u32);
     }
 
     let mut rxbuf = [0u8];
@@ -329,24 +327,21 @@ pub fn i2c_test() -> bool {
     let failing_address = 0x17 >> 1; // 0x17 is exactly what is inside the testbench code, shift right by one to disregard r/w bit
     let mut passing = true;
     for addr in 10..14 {
-        report.wfo(utra::main::REPORT_REPORT, 0x012C_0000 + addr as u32);
+        report_api(0x012C_0000 + addr as u32);
         if i2c_read_blocking(&mut pio_sm, &i2c_cmds, addr, &mut rxbuf) {
             if addr == failing_address {
                 passing = false;
             }
-            report.wfo(utra::main::REPORT_REPORT, 0x012C_600D);
+            report_api(0x012C_600D);
         } else {
             if addr != failing_address {
                 passing = false;
             }
-            report.wfo(utra::main::REPORT_REPORT, 0x012C_DEAD);
+            report_api(0x012C_DEAD);
         }
-        for i in 0..256 {
-            // just some dummy writes
-            report.wfo(utra::main::WDATA_WDATA, (0x012C_0000 + addr as u32) + (i << 8));
-        }
+        crate::pio_tests::units::delay(256);
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x012C_1111);
+    report_api(0x012C_1111);
 
     // turn off interrupts after the test, otherwise this interferes with later operations
     pio_sm.sm_irq0_source_enabled(PioIntSource::Sm, false);

@@ -1,10 +1,8 @@
-use utralib::generated::*;
 use crate::pio::*;
-
+use crate::report_api;
 
 pub fn adder_test() -> bool {
-    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-    report.wfo(utra::main::REPORT_REPORT, 0x5030_0000);
+    report_api(0x5030_0000);
 
     let mut pio_ss = PioSharedState::new();
 
@@ -41,14 +39,14 @@ pub fn adder_test() -> bool {
         let a = state % 100;
         state = crate::lfsr_next(state);
         let b = state % 100;
-        report.wfo(utra::main::REPORT_REPORT, 0x5030_0000 | a as u32 | ((b as u32) << 8));
+        report_api(0x5030_0000 | a as u32 | ((b as u32) << 8));
         pio_sm.sm_put_blocking(a as u32);
         pio_sm.sm_put_blocking(b as u32);
         let sum = pio_sm.sm_get_blocking();
         assert!(sum == a as u32 + b as u32);
-        report.wfo(utra::main::REPORT_REPORT, 0x5030_0000 | sum as u32);
+        report_api(0x5030_0000 | sum as u32);
     }
-    report.wfo(utra::main::REPORT_REPORT, 0x5030_600D);
+    report_api(0x5030_600D);
     // loop panics if the sum doesn't work
     true
 }
