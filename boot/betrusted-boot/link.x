@@ -1,7 +1,7 @@
 MEMORY
 {
   RAM : ORIGIN = 0x61008000, LENGTH = 2M - 32k  /* locate this outside of the page table area, bottom 32k for PT's and EH */
-  FLASH : ORIGIN = 0x60000000, LENGTH = 3M
+  FLASH : ORIGIN = 0x00000000, LENGTH = 3M /* tests *have* to be run in virtual memory mode. We rely on the initial code being PIC to set things up. */
   /*FLASH : ORIGIN = 0x20D00000, LENGTH = 128k*/  /* use for dev work, along with --simple-boot build option for betrusted_soc.py */
   MEMLCD: ORIGIN = 0xB0000000, LENGTH = 32k
 }
@@ -45,12 +45,6 @@ ENTRY(_start)
 
 SECTIONS
 {
-  .text.dummy (NOLOAD) :
-  {
-    /* This section is intended to make _stext address work */
-    . = _stext;
-  } > REGION_TEXT
-
   .text _stext :
   {
     /* Put reset handler first in .text section so it ends up as the entry */
@@ -63,6 +57,7 @@ SECTIONS
     KEEP(*(.trap.rust));
 
     *(.text .text.*);
+    . = ALIGN(4);
   } > REGION_TEXT
 
   .rodata : ALIGN(4)

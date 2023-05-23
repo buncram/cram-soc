@@ -29,10 +29,11 @@ then
 else
   # regenerate PIO include from source
   python3 ./pio_to_svd.py
-  cp include/pio_generated.rs boot/betrusted-boot/src/
+  cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
+  cp include/pio.svd ../xous-cramium/precursors/
 
   cd boot
-  cargo xtask boot-image --feature sim
+  cargo xtask boot-image --feature sim --feature pio-test
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > boot.lst
   riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst

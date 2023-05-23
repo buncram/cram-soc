@@ -2,7 +2,7 @@ use utralib::generated::*;
 use crate::report_api;
 
 pub const PAGE_SIZE: usize = 4096;
-const WORD_SIZE: usize = core::mem::size_of::<usize>();
+const WORD_SIZE: usize = core::mem::size_of::<u32>();
 
 const FLG_VALID: usize = 0x1;
 const FLG_X: usize = 0x8;
@@ -31,7 +31,8 @@ const PERI_PT_PA: usize = 0x6100_5000;
 // exception handler pages. Mapped 1:1 PA:VA, so no explicit remapping needed as RAM area is already mapped.
 const _SCRATCH_PAGE: usize = 0x6100_6000;
 const _EXCEPTION_STACK_LIMIT: usize = 0x6100_7000; // the start of stack is this + 0x1000 & grows down
-pub const PT_LIMIT: usize = 0x6100_8000; // this is carved out in link.x
+const BSS_PAGE: usize = 0x6100_8000; // this is manually read out of the link file, as we don't have a "loader" :-/
+pub const PT_LIMIT: usize = 0x6100_9000; // this is carved out in link.x
 
 // VAs
 const CODE_VA: usize = 0x0000_0000;
@@ -93,7 +94,12 @@ pub fn satp_setup() {
 
     // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
     const SRAM_LEN: usize = 0x20_0000; // 2 megs
-    for offset in (0..SRAM_LEN).step_by(PAGE_SIZE) {
+    // make the page tables not writeable
+    for offset in (0.._SCRATCH_PAGE - utralib::HW_SRAM_MEM).step_by(PAGE_SIZE) {
+        set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_R | FLG_U);
+    }
+    // rest of RAM is r/w
+    for offset in ((_SCRATCH_PAGE - utralib::HW_SRAM_MEM)..SRAM_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
     }
     // map peripherals
@@ -105,6 +111,15 @@ pub fn satp_setup() {
     for offset in (0..PERI_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(PERI_VA + offset, PERI_VA + offset, &mut peri_pt, FLG_W | FLG_R | FLG_U);
     }
+    // clear BSS
+    unsafe {
+        let bss_region = core::slice::from_raw_parts_mut(BSS_PAGE as *mut u32, PAGE_SIZE / WORD_SIZE);
+        for d in bss_region.iter_mut() {
+            *d = 0;
+            core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::SeqCst);
+        }
+    }
+
     let asid: u32 = 1;
     let satp: u32 =
         0x8000_0000

@@ -37,13 +37,6 @@ use core::mem::size_of;
 #[cfg(feature="ahb-test")]
 mod duart;
 
-#[cfg(feature="pio-test")]
-mod pio;
-#[cfg(feature="pio-test")]
-mod pio_tests;
-#[cfg(feature="pio-test")]
-mod pio_generated;
-
 mod debug;
 #[cfg(feature="sim")]
 mod satp;
@@ -573,15 +566,18 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
         report_api(resetvalue.r(utra::resetvalue::PC));
 
+        // ---------- vm setup -------------------------
+        satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
+        report_api(0x5a1d_6060);
+
         // ---------- ahb test option -------------
         #[cfg(feature="ahb-test")]
         ahb_tests();
         #[cfg(feature="pio-test")]
-        pio_tests::pio_tests();
+        xous_pio::pio_tests::setup_reporting((utra::main::REPORT.offset() + utra::main::HW_MAIN_BASE) as *mut u32);
+        #[cfg(feature="pio-test")]
+        xous_pio::pio_tests::pio_tests();
 
-        // ---------- vm setup -------------------------
-        satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
-        report_api(0x5a1d_6060);
         // ---------- exception setup ------------------
         irqs::irq_setup();
         // ---------- coreuser test --------------------
@@ -618,7 +614,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         report_api(0x000c_ac7e);
         const CACHE_WAYS: usize = 4;
         const CACHE_SET_SIZE: usize = 4096 / size_of::<u32>();
-        let test_slice = core::slice::from_raw_parts_mut(0x6100_0000 as *mut u32, CACHE_SET_SIZE * CACHE_WAYS);
+        let test_slice = core::slice::from_raw_parts_mut(satp::PT_LIMIT as *mut u32, CACHE_SET_SIZE * CACHE_WAYS);
         // bottom of cache
         for set in 0..4 {
             report_api((&mut test_slice[set * CACHE_SET_SIZE] as *mut u32) as u32);
