@@ -11,15 +11,22 @@
 // EXEC-related:
 //
 // - OUT EXEC should be able to execute an OUT EXEC or OUT PC
-// - OUT EXEC of a WAIT instruction should latch the EXEC'd instruction until its stall condition clears
-// - EXEC write during a stalled imem-resident instruction will interrupt that instruction and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem can be interrupted by a IRQ instruction, which can set the same IRQ and cause the WAIT IRQ to fall through once resuming)
-// - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall and begin executing at the jump target
-// - A stalled imem-resident WAIT should be replaced by a imem overwrite of that instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
+// - [register_tests] OUT EXEC of a WAIT instruction should latch the EXEC'd instruction until its stall condition clears
+// - EXEC write during a stalled imem-resident instruction will interrupt that instruction
+//   and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem
+//   can be interrupted by a IRQ instruction, which can set the same IRQ and cause the
+//   WAIT IRQ to fall through once resuming)
+// - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall
+//   and begin executing at the jump target
+// - A stalled imem-resident WAIT should be replaced by a imem overwrite of that
+//   instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
 // - EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE
 //
 // FIFOs:
 //
-// - A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should permit exactly 10 words to be written to the TX FIFO before the TX FIFO becomes full -- 4 for each FIFO, plus 1 word in the X register and 1 in the OSR.
+// - [corner_cases] A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should
+//   permit exactly 10 words to be written to the TX FIFO before the TX FIFO becomes full
+//   -- 4 for each FIFO, plus 1 word in the X register and 1 in the OSR.
 //
 // IOs:
 //
@@ -29,13 +36,14 @@
 //
 // IRQs:
 //
-// - Multiple SMs can safely wait for and clear the same IRQ, as long as they have the same clock divisor and their
-// dividers are sync'd
+// - [register_tests, at least the waiting part] Multiple SMs can safely wait for and clear the same IRQ, as long as they
+//   have the same clock divisor and their dividers are sync'd
 //
 // Autopush/pull:
 //
 // - Autopull does not take place while the SM is disabled
-// - Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point. (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
+// - Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point.
+//   (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
 // - OUT with empty OSR but nonempty TX FIFO should not set the TX stall flag
 // - OUT with empty OSR and nonempty TX FIFO experiences a 1-cycle stall as there's no bypass of FIFO through OSR.
 // - An EXEC write of any instruction (e.g. nop) to a disabled SM, with empty OSR and nonempty TX FIFO, should perform an autopull
