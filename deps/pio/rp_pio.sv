@@ -32,7 +32,7 @@
 //
 // - [corner_cases 7] Side-set still takes place on cycles where the SM is stalled
 // - [corner_cases 8] Simultaneous side-set and OUT/SET of the same pin values gives precedence to side-set
-// - pin indices > 32 wrap back through pin 0
+// - [corner_cases 9 & a] pin indices > 32 wrap back through pin 0
 //
 // IRQs:
 //

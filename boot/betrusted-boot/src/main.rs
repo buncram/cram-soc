@@ -83,30 +83,44 @@ pub fn report_api(d: u32) {
     }
 }
 
+#[cfg(feature="gfx")]
 struct Point {
     x: i16,
     y: i16,
 }
 #[derive(PartialEq, Eq)]
+#[cfg(feature="gfx")]
 enum Color {
     Light,
     Dark
 }
+#[cfg(feature="gfx")]
 const FB_WIDTH_WORDS: usize = 11;
+#[cfg(feature="gfx")]
+#[cfg(feature="gfx")]
 const FB_WIDTH_PIXELS: usize = 336;
+#[cfg(feature="gfx")]
 const FB_LINES: usize = 536;
+#[cfg(feature="gfx")]
 const FB_SIZE: usize = FB_WIDTH_WORDS * FB_LINES; // 44 bytes by 536 lines
 // this font is from the embedded graphics crate https://docs.rs/embedded-graphics/0.7.1/embedded_graphics/
+#[cfg(feature="gfx")]
 const FONT_IMAGE: &'static [u8] = include_bytes!("font6x12_1bpp.raw");
+#[cfg(feature="gfx")]
 const CHAR_HEIGHT: u32 = 12;
+#[cfg(feature="gfx")]
 const CHAR_WIDTH: u32 = 6;
+#[cfg(feature="gfx")]
 const FONT_IMAGE_WIDTH: u32 = 96;
+#[cfg(feature="gfx")]
 const LEFT_MARGIN: i16 = 10;
 
+#[cfg(feature="gfx")]
 struct Gfx {
     csr: utralib::CSR<u32>,
     fb: &'static mut [u32],
 }
+#[cfg(feature="gfx")]
 impl<'a> Gfx {
     pub fn init(&mut self, clk_mhz: u32) {
         self.csr.wfo(utra::memlcd::PRESCALER_PRESCALER, (clk_mhz / 2_000_000) - 1);
@@ -745,6 +759,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         let sig_ptr = LOADER_SIG_OFFSET as *const SignatureInFlash;
         let sig: &SignatureInFlash = sig_ptr.as_ref().unwrap();
     }
+    #[cfg(feature="gfx")]
     let mut cursor = Point {x: LEFT_MARGIN, y: 10};
 
     // initial banner
@@ -752,16 +767,21 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     uart.tiny_write_str("  ");
 
     // clear screen to all black
+    #[cfg(feature="gfx")]
     let mut gfx = Gfx {
         csr: CSR::new(utra::memlcd::HW_MEMLCD_BASE as *mut u32),
         fb: core::slice::from_raw_parts_mut(utralib::HW_MEMLCD_MEM as *mut u32, FB_SIZE), // unsafe but inside an unsafe already
     };
+    #[cfg(feature="gfx")]
     gfx.init(100_000_000);
 
+    #[cfg(feature="gfx")]
     for word in gfx.fb.iter_mut() {
         *word = 0x0; // set to all black
     }
+    #[cfg(feature="gfx")]
     gfx.update_all();
+    #[cfg(feature="gfx")]
     while gfx.busy() { }
 
     #[cfg(feature="hw-sec")]
@@ -770,6 +790,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     // now characters should actually be able to print
     uart.tiny_write_str(VERSION_STR);
+    #[cfg(feature="gfx")]
     gfx.msg(VERSION_STR, &mut cursor);
 
     #[cfg(feature="hw-sec")]
@@ -904,7 +925,9 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     }
     uart.tiny_write_str("Free stack: 0x");
     uart.print_hex_word(unused_stack_words * 4);
+    #[cfg(feature="gfx")]
     gfx.msg("Free stack: 0x", &mut cursor);
+    #[cfg(feature="gfx")]
     gfx.hex_word(unused_stack_words * 4, &mut cursor);
     uart.newline();
 
@@ -924,6 +947,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             }
         }
     }
+    #[cfg(feature="gfx")]
     gfx.msg("\n\r\n\rJumping to loader...\n\r", &mut cursor);
     uart.tiny_write_str("\n\r\n\rJumping to loader...\n\r");
 

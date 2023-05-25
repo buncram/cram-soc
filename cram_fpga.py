@@ -85,21 +85,21 @@ def check_vivado():
 
 _io = [
     # Clk / Rst.
-    ("clk12", 0, Pins("R3"), IOStandard("LVCMOS18")),
-    ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS18")),
+    ("clk12", 0, Pins("R3"), IOStandard("LVCMOS33")),
+    ("lpclk", 0, Pins("N15"), IOStandard("LVCMOS33")),
     ("reset", 0, Pins(1)),
 
     ("jtag", 0,
-         Subsignal("tck", Pins("U11"), IOStandard("LVCMOS18")),
-         Subsignal("tms", Pins("P6"), IOStandard("LVCMOS18")),
-         Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS18")),
-         Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS18")),
+         Subsignal("tck", Pins("U11"), IOStandard("LVCMOS33")),
+         Subsignal("tms", Pins("P6"), IOStandard("LVCMOS33")),
+         Subsignal("tdi", Pins("P7"), IOStandard("LVCMOS33")),
+         Subsignal("tdo", Pins("R6"), IOStandard("LVCMOS33")),
     ),
 
     # mapped to GPIOs 0-4
     ("jtag_cpu", 0,
-         Subsignal("tck", Pins("F14"), IOStandard("LVCMOS33")),
-         Subsignal("tms", Pins("F15"), IOStandard("LVCMOS33")),
+         Subsignal("tck", Pins("F15"), IOStandard("LVCMOS33")),
+         Subsignal("tms", Pins("F14"), IOStandard("LVCMOS33")),
          Subsignal("tdi", Pins("E6"), IOStandard("LVCMOS33")),
          Subsignal("tdo", Pins("G15"), IOStandard("LVCMOS33")),
          Subsignal("trst", Pins("H15"), IOStandard("LVCMOS33")),
@@ -109,7 +109,7 @@ _io = [
     ("serial", 0, # wired to the RPi
         Subsignal("tx", Pins("V6")),
         Subsignal("rx", Pins("V7"), Misc("PULLUP True")),
-        IOStandard("LVCMOS18"),
+        IOStandard("LVCMOS33"),
         Misc("SLEW=SLOW"),
     ),
 
@@ -130,7 +130,7 @@ _io = [
         Subsignal("cipo", Pins("K18")),
         Subsignal("wp",   Pins("L14")), # provisional
         Subsignal("hold", Pins("M15")), # provisional
-        IOStandard("LVCMOS18")
+        IOStandard("LVCMOS33")
     ),
     ("spiflash_8x", 0, # clock needs a separate override to meet timing
         Subsignal("cs_n", Pins("M13")),
@@ -138,7 +138,7 @@ _io = [
         Subsignal("dqs",  Pins("R14")),
         Subsignal("ecs_n", Pins("L16")),
         Subsignal("sclk", Pins("C12")),  # DVT
-        IOStandard("LVCMOS18"),
+        IOStandard("LVCMOS33"),
         Misc("SLEW=SLOW"),
      ),
 
@@ -148,22 +148,22 @@ _io = [
             "V12 M5 P5 N4  V14 M3 R17 U15",
             "M4  L6 K3 R18 U16 K1 R5  T2",
             "U1  N1 L5 K2  M18 T6"),
-            IOStandard("LVCMOS18"),
+            IOStandard("LVCMOS33"),
             Misc("SLEW=SLOW"),
         ),
-        Subsignal("ce_n", Pins("V5"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
-        Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS18"), Misc("PULLUP True")),
-        Subsignal("we_n", Pins("K4"),  IOStandard("LVCMOS18"), Misc("PULLUP True")),
-        Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS18"), Misc("PULLUP True"), Misc("SLEW=SLOW")),
+        Subsignal("ce_n", Pins("V5"),  IOStandard("LVCMOS33"), Misc("PULLUP True")),
+        Subsignal("oe_n", Pins("U12"), IOStandard("LVCMOS33"), Misc("PULLUP True")),
+        Subsignal("we_n", Pins("K4"),  IOStandard("LVCMOS33"), Misc("PULLUP True")),
+        Subsignal("zz_n", Pins("V17"), IOStandard("LVCMOS33"), Misc("PULLUP True"), Misc("SLEW=SLOW")),
         Subsignal("d", Pins(
             "M2  R4  P2  L4  L1  M1  R1  P1",
             "U3  V2  V4  U2  N2  T1  K6  J6",
             "V16 V15 U17 U18 P17 T18 P18 M17",
             "N3  T4  V13 P15 T14 R15 T3  R7"),
-            IOStandard("LVCMOS18"),
+            IOStandard("LVCMOS33"),
             Misc("SLEW=SLOW"),
         ),
-        Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS18")),
+        Subsignal("dm_n", Pins("V3 R2 T5 T13"), IOStandard("LVCMOS33")),
     ),
 
     ("analog", 0,
@@ -190,7 +190,7 @@ _io = [
     ("noise", 0,
      Subsignal("noisebias_on", Pins("H14"), IOStandard("LVCMOS33")),  # PVT2
      # Noise generator
-     Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS18")),
+     Subsignal("noise_on", Pins("P14 R13"), IOStandard("LVCMOS33")),
      ),
 
     ("pio", 0,
@@ -751,9 +751,10 @@ class CramSoC(SoCMini):
         self.irq.add("app_uart")
 
         # LCD interface ----------------------------------------------------------------------------
-        self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
-        self.add_csr("memlcd")
-        self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
+        if False:
+            self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
+            self.add_csr("memlcd")
+            self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # XADC analog interface---------------------------------------------------------------------
         if ~sim:
@@ -1047,8 +1048,8 @@ class CramSoC(SoCMini):
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    def __init__(self, io, toolchain="vivado", programmer="vivado", part="50", encrypt=False, make_mod=False, bbram=False, strategy='default'):
-        part = "xc7s" + part + "-csga324-1il"
+    def __init__(self, io, toolchain="vivado", programmer="vivado", encrypt=False, make_mod=False, bbram=False, strategy='default'):
+        part = "xc7a100t-csg324-1"
         XilinxPlatform.__init__(self, part, io, toolchain=toolchain)
 
         if strategy != 'default':
@@ -1058,7 +1059,7 @@ class Platform(XilinxPlatform):
         # NOTE: to do quad-SPI mode, the QE bit has to be set in the SPINOR status register. OpenOCD
         # won't do this natively, have to find a work-around (like using iMPACT to set it once)
         self.add_platform_command(
-            "set_property CONFIG_VOLTAGE 1.8 [current_design]")
+            "set_property CONFIG_VOLTAGE 3.3 [current_design]")
         self.add_platform_command(
             "set_property CFGBVS GND [current_design]")
         self.add_platform_command(
@@ -1066,7 +1067,7 @@ class Platform(XilinxPlatform):
         self.add_platform_command(
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]")
         self.toolchain.bitstream_commands = [
-            "set_property CONFIG_VOLTAGE 1.8 [current_design]",
+            "set_property CONFIG_VOLTAGE 3.3 [current_design]",
             "set_property CFGBVS GND [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 66 [current_design]",
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
