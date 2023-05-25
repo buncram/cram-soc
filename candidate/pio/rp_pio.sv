@@ -10,16 +10,23 @@
 // Additional unit tests required:
 // EXEC-related:
 //
-// - OUT EXEC should be able to execute an OUT EXEC or OUT PC
-// - OUT EXEC of a WAIT instruction should latch the EXEC'd instruction until its stall condition clears
-// - EXEC write during a stalled imem-resident instruction will interrupt that instruction and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem can be interrupted by a IRQ instruction, which can set the same IRQ and cause the WAIT IRQ to fall through once resuming)
-// - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall and begin executing at the jump target
-// - A stalled imem-resident WAIT should be replaced by a imem overwrite of that instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
+// - [corner_cases] OUT EXEC should be able to execute an OUT EXEC or OUT PC
+// - [register_tests] OUT EXEC of a WAIT instruction should latch the EXEC'd instruction until its stall condition clears
+// - [corner_cases] EXEC write during a stalled imem-resident instruction will interrupt that instruction
+//   and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem
+//   can be interrupted by a IRQ instruction, which can set the same IRQ and cause the
+//   WAIT IRQ to fall through once resuming)
+// - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall
+//   and begin executing at the jump target
+// - A stalled imem-resident WAIT should be replaced by a imem overwrite of that
+//   instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
 // - EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE
 //
 // FIFOs:
 //
-// - A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should permit exactly 10 words to be written to the TX FIFO before the TX FIFO becomes full -- 4 for each FIFO, plus 1 word in the X register and 1 in the OSR.
+// - [corner_cases] A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should
+//   permit exactly 10 words to be written to the TX FIFO before the TX FIFO becomes full
+//   -- 4 for each FIFO, plus 1 word in the X register and 1 in the OSR.
 //
 // IOs:
 //
@@ -29,13 +36,14 @@
 //
 // IRQs:
 //
-// - Multiple SMs can safely wait for and clear the same IRQ, as long as they have the same clock divisor and their
-// dividers are sync'd
+// - [register_tests, at least the waiting part] Multiple SMs can safely wait for and clear the same IRQ, as long as they
+//   have the same clock divisor and their dividers are sync'd
 //
 // Autopush/pull:
 //
 // - Autopull does not take place while the SM is disabled
-// - Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point. (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
+// - Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point.
+//   (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
 // - OUT with empty OSR but nonempty TX FIFO should not set the TX stall flag
 // - OUT with empty OSR and nonempty TX FIFO experiences a 1-cycle stall as there's no bypass of FIFO through OSR.
 // - An EXEC write of any instruction (e.g. nop) to a disabled SM, with empty OSR and nonempty TX FIFO, should perform an autopull
@@ -152,6 +160,7 @@ module rp_pio #(
 
     // Configuration
     reg [NUM_MACHINES-1:0]   en;
+    reg [NUM_MACHINES-1:0]   en_sync; // enable has to be synchronized to the ar bit so it hits when clkdivreset, restart hits
     reg [NUM_MACHINES-1:0]   auto_pull;
     reg [NUM_MACHINES-1:0]   auto_push;
     reg [NUM_MACHINES-1:0]   sideset_enable_bit;
@@ -215,8 +224,6 @@ module rp_pio #(
     wire  [NUM_MACHINES-1:0]  dbg_rxstall;
 
     wire [7:0]      irq_flags_stb [0:NUM_MACHINES-1];
-    reg [7:0]       irq_flags_stb_r [0:NUM_MACHINES-1];
-    wire [7:0]      irq_flags_stb_edge [0:NUM_MACHINES-1];
     reg [7:0]       irq_flags_in;
     wire [7:0]      irq_flags_in_clear;
     wire            do_irq_flags_in_clear;
@@ -346,21 +353,29 @@ module rp_pio #(
         genvar j;
 
         for(j=0;j<NUM_MACHINES;j=j+1) begin : mach
-            // this aligns the immediate instruction to the actual "imm" pulse, so the two change
-            // on exactly the same clock cycle. Otherwise, the instruction changes before the "imm" pulse
-            // arrives, and this can cause a previously stalled "imm" instruction to double-execute the
-            // imm command (because the unblocking instruction would present itself to the blocked/waiting
-            // state machine before the next imm pulse arrives)
-            always @(posedge clk) begin
+            always @(posedge clk or negedge resetn) begin
+                // this aligns the immediate instruction to the actual "imm" pulse, so the two change
+                // on exactly the same clock cycle. Otherwise, the instruction changes before the "imm" pulse
+                // arrives, and this can cause a previously stalled "imm" instruction to double-execute the
+                // imm command (because the unblocking instruction would present itself to the blocked/waiting
+                // state machine before the next imm pulse arrives)
                 imm_aligned[j] <= imm_sync[j];
-                if (imm_sync) begin
+                if (~resetn) begin
+                    imm_instr_sync[j] <= 0;
+                end else if (imm_sync) begin
                     imm_instr_sync[j] <= imm_instr[j];
+                end
+                // this aligns the enable so that it in concurrent with restart/clkdiv_restart
+                if (~resetn) begin
+                    en_sync[j] <= 0;
+                end else if (ctl_action_sync) begin
+                    en_sync[j] <= en[j];
                 end
             end
             pio_machine machine (
                 .clk(clk),
                 .reset(reset),
-                .en(en[j]),
+                .en(en_sync[j]),
                 .restart(restart[j] & ctl_action_sync),
                 .clkdiv_restart(clkdiv_restart[j] & ctl_action_sync),
                 .mindex(j[1:0]),
@@ -507,14 +522,6 @@ module rp_pio #(
                 .level(rx_level[j])
             );
 
-            always @(posedge clk) begin
-                if (reset) begin
-                    irq_flags_stb_r[j] <= 0;
-                end else begin
-                    irq_flags_stb_r[j] <= irq_flags_stb[j];
-                end
-            end
-            assign irq_flags_stb_edge[j] = ~irq_flags_stb_r[j] & irq_flags_stb[j];
         end
     endgenerate
 
@@ -532,13 +539,13 @@ module rp_pio #(
                     // but inferred from SMn_EXECCTRL docs stating this as a precedence order.
                     if (irq_force_pulse[k]) begin
                         irq_flags_in[k] <= 1;
-                    end else if (irq_flags_stb_edge[3][k] != 0) begin
+                    end else if (irq_flags_stb[3][k] != 0) begin
                         irq_flags_in[k] <= irq_flags_out[3][k];
-                    end else if (irq_flags_stb_edge[2][k] != 0) begin
+                    end else if (irq_flags_stb[2][k] != 0) begin
                         irq_flags_in[k] <= irq_flags_out[2][k];
-                    end else if (irq_flags_stb_edge[1][k] != 0) begin
+                    end else if (irq_flags_stb[1][k] != 0) begin
                         irq_flags_in[k] <= irq_flags_out[1][k];
-                    end else if (irq_flags_stb_edge[0][k] != 0) begin
+                    end else if (irq_flags_stb[0][k] != 0) begin
                         irq_flags_in[k] <= irq_flags_out[0][k];
                     end
                 end
@@ -775,8 +782,9 @@ module rp_pio #(
     wire exec_stalled_ro2;
     wire exec_stalled_ro3;
     wire [3:0] nc_exec_ar;
+    wire ctl_action_sync_ack;
 
-    apb_acr #(.A('h00), .DW(12))      sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .prdata32(),.*);
+    apb_ac2r #(.A('h00), .DW(12))     sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))      sfr_fstat            (.sr({4'd0, tx_empty, 4'd0, tx_full, 4'd0, rx_empty, 4'd0, rx_full}), .prdata32(),.*);
     apb_ascr #(.A('h08), .DW(32))     sfr_fdebug           (.cr({nc_dbg0, txstall, nc_dbg1, txover, nc_dbg2, rxunder, nc_dbg3, rxstall}), .sr(dbg_sr), .ar(dbg_trig), .prdata32(),.*);
     apb_sr  #(.A('h0C), .DW(32))      sfr_flevel           (.sr({1'd0, rx_level[3], 1'd0, tx_level[3], 1'd0, rx_level[2], 1'd0, tx_level[2],
@@ -988,7 +996,8 @@ module rp_pio #(
     apb_sr #(.A('h198), .DW(32))     sfr_zero2            (.sr(32'h0), .prdata32(),.*);
     apb_sr #(.A('h19C), .DW(32))     sfr_zero3            (.sr(32'h0), .prdata32(),.*);
 
-    cdc_blinded       ctl_action_cdc   (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
+    cdc_blinded       ctl_action_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
+    cdc_blinded       ctl_action_ack_cdc (.reset(!resetn), .clk_a(clk), .clk_b(pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
     cdc_blinded       dbg_trig_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(dbg_trig              ), .out_b(dbg_trig_sync              ));
     cdc_blinded       irq_flags_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(do_irq_flags_in_clear ), .out_b(do_irq_flags_in_clear_sync ));
     cdc_blinded       irq_force_cdc    (.reset(!resetn), .clk_a(pclk), .clk_b(clk), .in_a(irq_force_action      ), .out_b(irq_force_action_sync      ));
@@ -1047,6 +1056,89 @@ module apb_acr
          );
 
     logic sfrapbwr;
+    apb_sfrop2 #(
+            .AW          ( AW            )
+         )apb_sfrop(
+            .apbslave    (apbs           ),
+            .sfrlock     (sfrlock        ),
+            .sfrpaddr    (A[AW-1:0]      ),
+            .apbrd       (               ),
+            .apbwr       (sfrapbwr       )
+         );
+    `theregfull(pclk, resetn, ar, '0) <= sfrapbwr;
+endmodule
+
+// action + control register. Any write to this register will cause a pulse that
+// can trigger an action, while also updating the value of the register
+// this is a "special case" register because the spec requires select bits of one register
+// to also be self-clearing, while others are sticky. :-/
+module apb_ac2r
+#(
+      parameter A=0,
+      parameter AW=12,
+      parameter DW=12,
+      parameter IV=32'h0,
+      parameter SFRCNT=1,
+//      parameter SRMASK=32'h0,               // set write 1 to clr ( for status reg )
+      parameter RMASK=32'h0000_0fff        // read mask to remove undefined bit
+//      parameter REXTMASK=32'h0              // read ext mask
+)(
+        input  logic                          pclk        ,
+        input  logic                          resetn      ,
+        apbif.slavein                         apbs        ,
+        input  bit                            sfrlock     ,
+        input  bit                            self_clear,
+//        input  bit   [AW-1:0]               sfrpaddr    ,
+//        input  bit   [0:SFRCNT-1][DW-1:0]   sfrprdataext,
+//        input  bit   [0:SFRCNT-1][DW-1:0]   sfrsr       ,
+        output logic [31:0]                 prdata32    ,
+        output logic [0:SFRCNT-1][DW-1:0]   cr          ,
+        output bit                          ar
+);
+
+
+    logic[DW-1:0] prdata;
+    assign prdata32 = prdata[3:0] | 32'h0;
+
+    logic sfrapbwr;
+    logic [7:0] self_clear_bits;
+    logic [11:0] regular_bits;
+    assign cr = {self_clear_bits[7:0], regular_bits[3:0]};
+
+    always @(posedge pclk or negedge resetn) begin
+        if(~resetn)
+            self_clear_bits <= 8'h0;
+        else begin
+            if (self_clear) begin // clear to 0 after the pulse has cleared the synchronizer
+                self_clear_bits[7:0] <= 8'h0;
+            end else if (ar) begin // load value on write
+                self_clear_bits[7:0] <= regular_bits[11:4];
+            end else begin // else hold value
+                self_clear_bits[7:0] <= self_clear_bits[7:0];
+            end
+        end
+    end
+
+    apb_sfr2 #(
+            .AW          ( AW            ),
+            .DW          ( DW            ),
+            .IV          ( IV            ),
+            .SFRCNT      ( SFRCNT        ),
+            .RMASK       ( RMASK         ),      // read mask to remove undefined bit
+            .FRMASK      ( 32'h0         ),      // set write 1 to clr ( for status reg )
+            .SRMASK      ( 32'h0         )       // read ext mask
+         )apb_sfr(
+            .pclk        (pclk           ),
+            .resetn      (resetn         ),
+            .apbslave    (apbs           ),
+            .sfrlock     (sfrlock        ),
+            .sfrpaddr    (A[AW-1:0]      ),
+            .sfrsr       ('0             ),
+            .sfrfr       ('0             ),
+            .sfrprdata   (prdata         ),
+            .sfrdata     (regular_bits   )
+         );
+
     apb_sfrop2 #(
             .AW          ( AW            )
          )apb_sfrop(
