@@ -353,7 +353,7 @@ module rp_pio #(
         genvar j;
 
         for(j=0;j<NUM_MACHINES;j=j+1) begin : mach
-            always @(posedge clk or negedge resetn) begin
+            always @(posedge clk) begin
                 // this aligns the immediate instruction to the actual "imm" pulse, so the two change
                 // on exactly the same clock cycle. Otherwise, the instruction changes before the "imm" pulse
                 // arrives, and this can cause a previously stalled "imm" instruction to double-execute the
