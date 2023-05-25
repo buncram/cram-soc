@@ -10,28 +10,28 @@
 // Additional unit tests required:
 // EXEC-related:
 //
-// - [corner_cases] OUT EXEC should be able to execute an OUT EXEC or OUT PC
+// - [corner_cases 1] OUT EXEC should be able to execute an OUT EXEC or OUT PC
 // - [register_tests] OUT EXEC of a WAIT instruction should latch the EXEC'd instruction until its stall condition clears
-// - [corner_cases] EXEC write during a stalled imem-resident instruction will interrupt that instruction
+// - [corner_cases 2] EXEC write during a stalled imem-resident instruction will interrupt that instruction
 //   and then resume it after the EXEC'd instruction completes (e.g. a WAIT IRQ in imem
 //   can be interrupted by a IRQ instruction, which can set the same IRQ and cause the
 //   WAIT IRQ to fall through once resuming)
-// - EXEC write of a jump during a stalled imem-resident instruction will break out of the stall
+// - [corner_cases 3] EXEC write of a jump during a stalled imem-resident instruction will break out of the stall
 //   and begin executing at the jump target
-// - A stalled imem-resident WAIT should be replaced by a imem overwrite of that
+// - [corner_cases 3] A stalled imem-resident WAIT should be replaced by a imem overwrite of that
 //   instruction (i.e. fetch is coherent with imem writes and repeatedly fetches during stall)
-// - EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE
+// - [corner_cases 6] EXEC writes execute even when the SM is disabled via CTRL_SM_ENABLE
 //
 // FIFOs:
 //
-// - [corner_cases] A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should
+// - [corner_cases 0] A program of the form out x, 32; in x, 32 (with autopull + autopush enabled) should
 //   permit exactly 10 words to be written to the TX FIFO before the TX FIFO becomes full
 //   -- 4 for each FIFO, plus 1 word in the X register and 1 in the OSR.
 //
 // IOs:
 //
-// - Side-set still takes place on cycles where the SM is stalled
-// - Simultaneous side-set and OUT/SET of the same pin values gives precedence to side-set
+// - [corner_cases 7] Side-set still takes place on cycles where the SM is stalled
+// - [corner_cases 8] Simultaneous side-set and OUT/SET of the same pin values gives precedence to side-set
 // - pin indices > 32 wrap back through pin 0
 //
 // IRQs:
