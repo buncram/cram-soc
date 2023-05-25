@@ -858,7 +858,7 @@ def extract_bitwidth(schema, module, code_line):
                     logging.debug(f"bit expression not handled: {bw}, not creating an entry")
 
 def add_reg(schema, module, code_line):
-    REGEX = '(apb_[c,f,a,s]+r)\s+#\((.+)\)\s(.+)\s\((.+)\);'
+    REGEX = '(apb_[c,f,a,s,2]+r)\s+#\((.+)\)\s(.+)\s\((.+)\);'
     line_matcher = re.match(REGEX, code_line)
     if line_matcher is None:
         if 'apb_sfr2' not in code_line and 'apb_sfrop2' not in code_line: # exceptions for the SFR definitions at the end of the file
@@ -874,7 +874,7 @@ def add_reg(schema, module, code_line):
         args = cleanup_braces(list(map(str.strip, line_matcher.group(4).split(','))))
         #if module == 'aes':
         #    print(f'type: {apb_type}, params: {params}, reg_name: {reg_name}, args: {args}')
-        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' and apb_type != 'apb_ar' and apb_type != 'apb_asr' and apb_type != 'apb_acr' and apb_type != 'apb_ascr':
+        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' and apb_type != 'apb_ar' and apb_type != 'apb_asr' and apb_type != 'apb_acr' and apb_type != 'apb_ac2r' and apb_type != 'apb_ascr':
             logging.error(f"Parse error extracting APB register type: unrecognized register macro {apb_type}, ignoring!!!")
             return
 
@@ -924,7 +924,7 @@ def eval_tree(tree, schema, module, level=0, do_print=False):
                 print(' ' * level + f'{tree}')
 
 def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
-    regtypes = ['cr', 'sr', 'fr', 'ar', 'asr', 'acr', 'ascr']
+    regtypes = ['cr', 'sr', 'fr', 'ar', 'asr', 'acr', 'ascr', 'ac2r']
     regdescs = {
         'cr': ' read/write control register',
         'sr': ' read only status register',
@@ -932,6 +932,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
         'fr': ' flag register. `1` means event happened, write back `1` in respective bit position to clear the flag',
         'asr': 'status register which triggers an action on read',
         'acr': 'control register which triggers an action on write',
+        'ac2r': 'control register which triggers an action on write, with a special case self-clearing bank of bits',
         'ascr': 'combination control/status register which can also trigger an action',
     }
     regfuncs = {
@@ -941,6 +942,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
         'fr': CSRStatus,
         'asr': CSRStatus,
         'acr': CSRStorage,
+        'ac2r': CSRStorage,
         'ascr': CSRStatus,
     }
     if module in banks:
@@ -982,6 +984,8 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                             if rtype == 'asr':
                                 rtype = 'sr'
                             if rtype == 'acr':
+                                rtype = 'cr'
+                            if rtype == 'ac2r':
                                 rtype = 'cr'
                             if rtype == 'ascr':
                                 rtype = 'cr'
@@ -1141,6 +1145,7 @@ def main():
                             'apb_ar' : {},
                             'apb_asr': {},
                             'apb_acr': {},
+                            'apb_ac2r': {},
                             'apb_ascr': {},
                         }
             elif state == 'ACTIVE':
@@ -1149,7 +1154,7 @@ def main():
                     mod_or_pkg = ''
                 else:
                     code_line = remove_comments(line.strip()).lstrip()
-                    if re.match('^apb_[csfa]+r', code_line):
+                    if re.match('^apb_[csfa2]+r', code_line):
                         add_reg(schema, mod_or_pkg, code_line)
                     elif code_line.startswith('localparam'):
                         # simple one line case
