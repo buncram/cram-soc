@@ -47,6 +47,13 @@ echo "******************** RUN SIM ***********************"
 cp do_not_checkin/rtl/amba/apb_sfr_v0.1.sv build/sim/gateware/
 cp do_not_checkin/rtl/amba/template.sv build/sim/gateware/
 cp do_not_checkin/rtl/amba/amba_interface_def_v0.2.sv build/sim/gateware/
+cp do_not_checkin/ram/artisan_ram_def_v0.1.svh build/sim/gateware/
+
+cp do_not_checkin/ram/rdram128x22.v build/sim/gateware/
+cp do_not_checkin/ram/rdram1kx32.v build/sim/gateware/
+cp do_not_checkin/ram/rdram32x16.v build/sim/gateware/
+cp do_not_checkin/ram/rdram512x64.v build/sim/gateware/
+cp do_not_checkin/ram/icg_v0.2.v build/sim/gateware/
 
 THREADS=5
 #for THREADS in 1 2 3 4 5 6 7 8 9

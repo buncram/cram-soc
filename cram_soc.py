@@ -51,6 +51,7 @@ import shutil
 
 VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
 AHB_TEST = False
+PRODUCTION_MODELS = False
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -281,7 +282,11 @@ class CramSoC(SoCMini):
         platform.add_source("build/gateware/cram_axi.v")
         platform.add_source(VEX_VERILOG_PATH)
         platform.add_source("sim_support/ram_1w_1ra.v")
-        platform.add_source("sim_support/ram_1w_1rs.v")
+        if PRODUCTION_MODELS:
+            platform.add_source("do_not_checkin/ram/vexram_v0.1.sv")
+            platform.add_source("do_not_checkin/ram/icg_v0.2.v")
+        else:
+            platform.add_source("sim_support/ram_1w_1rs.v")
         platform.add_source("sim_support/fdre_cosim.v")
 
         # this must be pulled in manually because it's instantiated in the core design, but not in the SoC design

@@ -82,9 +82,12 @@ reg serial_rx;
 initial serial_rx = 1;
 wire serial_tx;
 
+`ifdef GFX
 wire sclk;
 wire scs;
 wire si;
+`endif
+
 wire coreuser;
 
 wire spi_sclk;
@@ -152,9 +155,11 @@ cram_fpga dut (
 
     .serial_tx(serial_tx),
     .serial_rx(serial_rx),
+`ifdef GFX
     .lcd_sclk(sclk),
     .lcd_si(si),
     .lcd_scs(scs),
+`endif
 
     .sim_uart_kernel(uart_kernel),
     .sim_uart_kernel_valid(uart_kernel_valid),
@@ -188,9 +193,11 @@ uart_print #(
 
 // extra reporting for CI
 initial begin
+`ifdef GFX
         $dumpvars(0, sclk);
         $dumpvars(0, si);
         $dumpvars(0, scs);
+`endif
         $dumpvars(0, uart_kernel);
         $dumpvars(0, uart_kernel_valid);
         $dumpvars(0, uart_log);
