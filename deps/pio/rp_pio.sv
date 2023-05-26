@@ -41,13 +41,15 @@
 //
 // Autopush/pull:
 //
-// - Autopull does not take place while the SM is disabled
-// - Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point.
+// - [corner_cases b] Autopull does not take place while the SM is disabled
+// - [corner_cases b] Autopull will take place when an instruction is EXEC'd, even if the SM is not enabled via CTRL at that point.
 //   (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
-// - OUT with empty OSR but nonempty TX FIFO should not set the TX stall flag
-// - OUT with empty OSR and nonempty TX FIFO experiences a 1-cycle stall as there's no bypass of FIFO through OSR.
+// - [corner_cases b] OUT with empty OSR but nonempty TX FIFO should not set the TX stall flag
+// - [corner_cases b] OUT with empty OSR and nonempty TX FIFO experiences a 1-cycle stall as there's no bypass of FIFO through OSR.
 // - An EXEC write of any instruction (e.g. nop) to a disabled SM, with empty OSR and nonempty TX FIFO, should perform an autopull
-// - An EXEC write of an OUT 32 to a disabled SM, with an empty OSR, and at least two words in the TX FIFO, consumes two words from the TX FIFO: one to fill the OSR so the OUT can execute, and the second to backfill the OSR when the OUT empties it. The latter is required to achieve full 1 OUT/clock throughput
+// - [corner_cases b] An EXEC write of an OUT 32 to a disabled SM, with an empty OSR, and at least two words in the TX FIFO,
+//   consumes two words from the TX FIFO: one to fill the OSR so the OUT can execute, and the second to backfill the OSR when the
+//   OUT empties it. The latter is required to achieve full 1 OUT/clock throughput
 //
 // You'll also want to make sure you're covering all of the possible 16-bit opcodes, all combinations of shift direction/count, etc. I also remember the shift counter logic being quite fussy, so possibly a rich seam of bugs to mine there. Hopefully some of that is useful, let me know if you have any questions and I should be able to clarify
 //
