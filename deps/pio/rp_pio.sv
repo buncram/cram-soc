@@ -216,6 +216,8 @@ module rp_pio #(
     wire [7:0]  irq_flags_out       [0:NUM_MACHINES-1];
     wire [2:0]  rx_level            [0:NUM_MACHINES-1];
     wire [2:0]  tx_level            [0:NUM_MACHINES-1];
+    reg  [3:0]  rx_level_joined     [0:NUM_MACHINES-1];
+    reg  [3:0]  tx_level_joined     [0:NUM_MACHINES-1];
     wire [31:0] fdin                [0:NUM_MACHINES-1];
 
     logic [NUM_MACHINES-1:0]  mempty;
@@ -423,6 +425,8 @@ module rp_pio #(
                 .status_n(status_n[j]),
                 .tx_level(tx_level[j]),
                 .rx_level(rx_level[j]),
+                .tx_level_joined(tx_level_joined[j]),
+                .rx_level_joined(rx_level_joined[j]),
                 .dbg_txstall(dbg_txstall[j]),
                 .dbg_rxstall(dbg_rxstall[j])
             );
@@ -448,6 +452,8 @@ module rp_pio #(
                         mfull[j] = rx_fifo_full[j];
                         rx_empty[j] = rx_fifo_empty[j];
                         rx_empty_margin[j] = rx_fifo_empty_margin[j];
+                        tx_level_joined[j] = tx_level[j];
+                        rx_level_joined[j] = rx_level[j];
                     end
                     2'b10: begin // join RX case
                         tx_mux_din[j] = mdout[j]; // wire incoming data to the tx fifo
@@ -462,6 +468,8 @@ module rp_pio #(
                         mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
                         rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
                         rx_empty_margin[j] = rx_fifo_empty_margin[j] && tx_fifo_empty[j];
+                        tx_level_joined[j] = 0;
+                        rx_level_joined[j] = tx_level[j] + rx_level[j];
                     end
                     2'b01: begin // join TX case
                         tx_mux_din[j] = pdout[j]; // wire tx fifo data input to rx fifo output
@@ -476,6 +484,8 @@ module rp_pio #(
                         mfull[j] = 1;
                         rx_empty[j] = 1;
                         rx_empty_margin[j] = 1;
+                        tx_level_joined[j] = tx_level[j] + rx_level[j];
+                        rx_level_joined[j] = 0;
                     end
                     2'b11: begin // both joined, error condition: both FIFOs are disabled
                         tx_mux_din[j] = fdin[j];
@@ -490,6 +500,8 @@ module rp_pio #(
                         rx_empty[j] = 1;
                         tx_full_margin[j] = 1;
                         rx_empty_margin[j] = 1;
+                        tx_level_joined[j] = 0;
+                        rx_level_joined[j] = 0;
                     end
                 endcase
             end
