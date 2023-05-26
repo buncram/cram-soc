@@ -46,7 +46,7 @@
 //   (The EXEC write forcibly enables the SM for the duration of the EXEC'd instruction).
 // - [corner_cases b] OUT with empty OSR but nonempty TX FIFO should not set the TX stall flag
 // - [corner_cases b] OUT with empty OSR and nonempty TX FIFO experiences a 1-cycle stall as there's no bypass of FIFO through OSR.
-// - An EXEC write of any instruction (e.g. nop) to a disabled SM, with empty OSR and nonempty TX FIFO, should perform an autopull
+// - [corner_cases b] An EXEC write of any instruction (e.g. nop) to a disabled SM, with empty OSR and nonempty TX FIFO, should perform an autopull
 // - [corner_cases b] An EXEC write of an OUT 32 to a disabled SM, with an empty OSR, and at least two words in the TX FIFO,
 //   consumes two words from the TX FIFO: one to fill the OSR so the OUT can execute, and the second to backfill the OSR when the
 //   OUT empties it. The latter is required to achieve full 1 OUT/clock throughput
