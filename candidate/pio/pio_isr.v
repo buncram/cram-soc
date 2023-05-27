@@ -15,6 +15,7 @@ module pio_isr (
   input [5:0]   bit_count,
   output [31:0] dout,
   output [31:0] push_dout,
+  output [5:0]  shift_count_autopush,
   output [5:0]  shift_count
 );
 
@@ -46,6 +47,7 @@ module pio_isr (
   assign dout = shift_reg;
   assign push_dout = do_shift ? immediate_shift : shift_reg;
   // count must be made available "early" to comply with timing
-  assign shift_count = ((count + shift_val) > 7'd32) ? 7'd32 : count + shift_val;
+  assign shift_count_autopush = ((count + shift_val) > 7'd32) ? 7'd32 : count + shift_val;
+  assign shift_count = count;
 endmodule
 

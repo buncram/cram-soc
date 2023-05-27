@@ -50,7 +50,7 @@ module pio_osr (
   end
 
   // The output value is the amount shifted out if do_shift ia active otherwise the current shift register
-  assign dout = (do_shift ? shift_out : shift_reg) & ~(32'hFFFFFFFF << shift_val);
+  assign dout = (do_shift ? shift_out & ~(32'hFFFFFFFF << shift_val) : shift_reg);
   assign shift_count = count;
   // This provides a "lookahead" count value to trigger an autopull if the current out instruction would empty the FIFO
   assign shift_count_lookahead = do_shift ? ((count + shift_val) > 7'd32 ? 7'd32 : count + shift_val) : count;

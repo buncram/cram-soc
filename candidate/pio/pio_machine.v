@@ -142,7 +142,7 @@ module pio_machine (
 
   // Miscellaneous signals
   wire [31:0] null_src = 0; // NULL source
-  wire [5:0]  isr_count, osr_count, osr_count_lookahead;
+  wire [5:0]  isr_count, isr_count_autopush, osr_count, osr_count_lookahead;
 
   // Input pins rotate with pins_in_base
   wire [63:0] in_pins64 = {input_pins, input_pins};
@@ -235,7 +235,7 @@ module pio_machine (
   );
     begin
       set_shift_out = 1;
-      // new_val = val; // now hard-wired to din or pull value intead of using tasks
+      pull_val = val;
     end
   endtask
 
@@ -284,6 +284,7 @@ module pio_machine (
     end
   endtask
 
+  // this must be paired with a set_isr() task otherwise what are you pushing?
   task do_push();
     begin
       push = 1;
@@ -476,7 +477,7 @@ module pio_machine (
                 end
               endcase
         IN:   begin
-                if (auto_push && isr_count >= isr_threshold_wide) begin // Auto push
+                if (auto_push && isr_count_autopush >= isr_threshold_wide) begin // Auto push
                   if (full) begin
                     dbg_rxstall = 1;
                   end else begin
@@ -554,6 +555,9 @@ module pio_machine (
                     end
                     waiting = blocking && full;
                   end else begin
+                    if (full) begin
+                      dbg_rxstall = 1;
+                    end
                     // disregard the full signal, just do the push and maybe lose data
                     do_push();
                     set_isr(0);
@@ -577,6 +581,7 @@ module pio_machine (
               end
         MOV:  case (destination)  // Destination
                 0: case (mov_source) // PINS
+                     0: pins_out(bit_op(in_pins, mov_op));   // PINS
                      1: pins_out(bit_op(x, mov_op));         // X
                      2: pins_out(bit_op(y, mov_op));         // Y
                      3: pins_out(bit_op(null_src, mov_op));  // NULL
@@ -659,18 +664,6 @@ module pio_machine (
                 4: dirs_set(data);                           // PINDIRS
               endcase
       endcase
-      // an autopull can happen on any cycle that's not an OUT, if it's not blocking.
-      // also don't autopull during exec1 or imm
-      if (op != OUT && !exec1 && !imm_until_resolved) begin
-        // question: should we be doing a "lookahead" in the case that the current instruction set the osr_count to 0?
-        // I think no, because the only way osr_count changes is do_shift is asserted, and that only happens in
-        // the op == OUT state. And this consideration only happens in the op != OUT state....
-        if (osr_count >= osr_threshold_wide) begin // Auto pull
-          if (!empty) begin
-            do_pull();
-          end
-        end
-      end
     end
   end
 
@@ -767,6 +760,7 @@ module pio_machine (
     .dout(in_shift),
     .push_dout(dout),
     .bit_count(bit_count),
+    .shift_count_autopush(isr_count_autopush),
     .shift_count(isr_count)
   );
 
