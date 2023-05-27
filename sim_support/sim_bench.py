@@ -244,11 +244,6 @@ class SimRunner():
         # copy over the top test bench and common code
         os.system("{} {}.v run".format(cpname, tb) + os.path.sep + "{}.v".format(tb)) # "cp top_tb.v run/top_tb.v"
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/common.v") + " run" + os.path.sep) # "cp sim_support/common.v run/"
-        if False:
-            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
-            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
-        else:
-            os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/ram/*") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/prims.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/cdc_blinded.v") + " run" + os.path.sep)
 
@@ -317,8 +312,24 @@ class SimRunner():
                 ofile.write("DE\n")
                 ofile.write("C0\n")
 
+        deps = []
+        PRODUCTION_MODELS = True
+        if not PRODUCTION_MODELS:
+            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
+            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
+        else:
+            os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/ram/*") + " run" + os.path.sep)
+            deps += [
+                "cd run && {}xvlog -d SIM -sv icg_v0.2.v".format(VIVADO_PATH),
+                "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram128x22.v".format(VIVADO_PATH),
+                "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram1kx32.v".format(VIVADO_PATH),
+                "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram32x16.v".format(VIVADO_PATH),
+                "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram512x64.v".format(VIVADO_PATH),
+                "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv vexram_v0.1.sv".format(VIVADO_PATH),
+            ]
+
         # compile
-        deps = [
+        deps += [
             "cd run && {}xvlog {}".format(VIVADO_PATH, os.path.normpath("../sim_support/glbl.v")),
             "cd run && {}xvlog -sv -d ASIC_TARGET prims.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cram_soc.v".format(VIVADO_PATH),
@@ -376,13 +387,6 @@ class SimRunner():
             "cd run && {}xvlog -sv axil_crossbar_wr.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axil_crossbar_rd.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cmsdk_ahb_to_apb.v".format(VIVADO_PATH),
-
-            "cd run && {}xvlog -d SIM -sv icg_v0.2.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram128x22.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram1kx32.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram32x16.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram512x64.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv vexram_v0.1.sv".format(VIVADO_PATH),
         ]
 
         pool = multiprocessing.Pool(12)
