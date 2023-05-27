@@ -455,7 +455,7 @@ module rp_pio #(
                         tx_level_joined[j] = tx_level[j];
                         rx_level_joined[j] = rx_level[j];
                     end
-                    2'b10: begin // join RX case
+                    2'b10: begin // join RX case: data goes machine -> TX -> RX -> system
                         tx_mux_din[j] = mdout[j]; // wire incoming data to the tx fifo
                         rx_mux_din[j] = mdin[j];  // wire rx fifo data input to tx fifo output
                         tx_mux_push[j] = mpush[j];
@@ -466,17 +466,17 @@ module rp_pio #(
                         rx_mux_push[j] = !rx_fifo_full[j] && (tx_level[j] != 0);
                         rx_mux_pull[j] = pull_sync[j];
                         mfull[j] = tx_fifo_full[j]; // only full if the outer fifo (TX fifo) is full
-                        rx_empty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
-                        rx_empty_margin[j] = rx_fifo_empty_margin[j] && tx_fifo_empty[j];
+                        rx_empty[j] = rx_fifo_empty[j]; // empty when RX fifo is empty (as a pull would generate an underflow)
+                        rx_empty_margin[j] = rx_fifo_empty_margin[j]; // we only consider the FIFO that can respond to the DMA requests. Doesn't matter if data is already in the tx fifo, it's still inaccessible!
                         tx_level_joined[j] = 0;
                         rx_level_joined[j] = tx_level[j] + rx_level[j];
                     end
-                    2'b01: begin // join TX case
+                    2'b01: begin // join TX case: date goes system -> RX -> TX -> machine
                         tx_mux_din[j] = pdout[j]; // wire tx fifo data input to rx fifo output
                         rx_mux_din[j] = fdin[j];  // wire incoming data to the rx fifo
                         tx_mux_push[j] = !tx_fifo_full[j] && (rx_level[j] != 0);
                         tx_mux_pull[j] = mpull[j];
-                        mempty[j] = rx_fifo_empty[j] && tx_fifo_empty[j]; // empty only when both are empty
+                        mempty[j] = tx_fifo_empty[j]; // empty when the inner fifo (TX fifo) is empty (otherwise we could get early pull from machine while the data is percolating through the fifos)
                         tx_full[j] = rx_fifo_full[j]; // full only when outer FIFO (RX fifo) is full
                         tx_full_margin[j] = rx_fifo_full_margin[j]; // rx is the "exposed" fifo
                         rx_mux_push[j] = push_sync[j];

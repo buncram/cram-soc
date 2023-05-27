@@ -327,7 +327,9 @@ module pio_machine (
     if (reset || restart || (imm_until_resolved && (op != IRQ))) begin
       irq_waiting <= 0;
     end else begin
-      irq_waiting <= irq_waiting_next;
+      if (en & penable) begin
+        irq_waiting <= irq_waiting_next;
+      end
     end
     if (reset || restart) begin
       imm_stalled <= 0;
