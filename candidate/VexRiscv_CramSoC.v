@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
 // Component : VexRiscvAxi4
-// Git hash  : 6bff8a073575781a7210a728dc764ddabf47a81c
+// Git hash  : c3db1c9f4620b8104620da40354933b9e65a1838
 
 `timescale 1ns/1ps
 
@@ -9327,6 +9327,7 @@ module SystemDebugger (
   assign io_remote_rsp_payload_data = io_mem_rsp_payload;
   always @(posedge clk) begin
     if(debugReset) begin
+      dispatcher_dataShifter <= 67'h0;
       dispatcher_dataLoaded <= 1'b0;
       dispatcher_headerLoaded <= 1'b0;
       dispatcher_counter <= 3'b000;
@@ -9337,6 +9338,8 @@ module SystemDebugger (
           if(when_Fragment_l349) begin
             dispatcher_headerLoaded <= 1'b1;
           end
+        end else begin
+          dispatcher_dataShifter <= ({io_remote_cmd_payload_fragment,dispatcher_dataShifter} >>> 1);
         end
         if(io_remote_cmd_payload_last) begin
           dispatcher_headerLoaded <= 1'b1;
@@ -9355,8 +9358,6 @@ module SystemDebugger (
     if(io_remote_cmd_valid) begin
       if(when_Fragment_l346) begin
         dispatcher_headerShifter <= ({io_remote_cmd_payload_fragment,dispatcher_headerShifter} >>> 1);
-      end else begin
-        dispatcher_dataShifter <= ({io_remote_cmd_payload_fragment,dispatcher_dataShifter} >>> 1);
       end
     end
   end
