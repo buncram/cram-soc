@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
 // Component : VexRiscvAxi4
-// Git hash  : f05cf440e8d5744eaaedfb21d43e16cded1a23c0
+// Git hash  : 74019ed7a495ac74f369577f78f23eb4e6c132ff
 
 `timescale 1ns/1ps
 
@@ -7679,6 +7679,8 @@ module VexRiscvAxi4 (
       _zz_CsrPlugin_privilege <= 2'b11;
       CsrPlugin_misa_base <= 2'b01;
       CsrPlugin_misa_extensions <= 26'h0;
+      CsrPlugin_mtvec_mode <= 2'b00;
+      CsrPlugin_mtvec_base <= 30'h18000000;
       CsrPlugin_mstatus_MIE <= 1'b0;
       CsrPlugin_mstatus_MPIE <= 1'b0;
       CsrPlugin_mstatus_MPP <= 2'b11;
@@ -8237,6 +8239,12 @@ module VexRiscvAxi4 (
           CsrPlugin_sie_SEIE <= CsrPlugin_csrMapping_writeDataSignal[9];
           CsrPlugin_sie_STIE <= CsrPlugin_csrMapping_writeDataSignal[5];
           CsrPlugin_sie_SSIE <= CsrPlugin_csrMapping_writeDataSignal[1];
+        end
+      end
+      if(execute_CsrPlugin_csr_773) begin
+        if(execute_CsrPlugin_writeEnable) begin
+          CsrPlugin_mtvec_base <= CsrPlugin_csrMapping_writeDataSignal[31 : 2];
+          CsrPlugin_mtvec_mode <= CsrPlugin_csrMapping_writeDataSignal[1 : 0];
         end
       end
       if(execute_CsrPlugin_csr_2816) begin
@@ -9076,12 +9084,6 @@ module VexRiscvAxi4 (
     if(execute_CsrPlugin_csr_836) begin
       if(execute_CsrPlugin_writeEnable) begin
         CsrPlugin_mip_MSIP <= CsrPlugin_csrMapping_writeDataSignal[3];
-      end
-    end
-    if(execute_CsrPlugin_csr_773) begin
-      if(execute_CsrPlugin_writeEnable) begin
-        CsrPlugin_mtvec_base <= CsrPlugin_csrMapping_writeDataSignal[31 : 2];
-        CsrPlugin_mtvec_mode <= CsrPlugin_csrMapping_writeDataSignal[1 : 0];
       end
     end
     if(execute_CsrPlugin_csr_833) begin

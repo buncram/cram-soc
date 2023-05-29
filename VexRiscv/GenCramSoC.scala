@@ -167,7 +167,7 @@ object GenCramSoC{
           new DivPlugin,
           new AesPlugin,
           new CsrPlugin(
-              CsrPluginConfig.linuxFull(mtVecInit = null)
+              CsrPluginConfig.linuxFull(mtVecInit = 0x60000000)
               .copy(ebreakGen = true)
               .copy(pipelineCsrRead = true)
               .copy(wfiOutput = true)
