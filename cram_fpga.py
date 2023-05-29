@@ -49,7 +49,7 @@ import subprocess
 
 
 VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
-PRODUCTION_MODELS = False
+PRODUCTION_MODELS = True # not compatible with FPGA synthesis...
 
 # Equivalent to the powershell Get-Command, and kinda like `which`
 def get_command(cmd):
@@ -871,6 +871,8 @@ class CramSoC(SoCMini):
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
             i_always_on           = ClockSignal("sys"),
+            i_cmatpg              = 0,
+            i_cmbist              = 0,
             i_trimming_reset      = trimming_reset,
             i_trimming_reset_ena  = 1, # load code from SPI flash directly
             o_p_axi_awvalid       = p_axi.aw.valid,
@@ -1242,7 +1244,7 @@ def main():
 
     if args.sim and not args.document_only:
         from sim_support.sim_bench import SimRunner
-        SimRunner(args.ci, [], vex_verilog_path=VEX_VERILOG_PATH, tb='top_tb_fpga')
+        SimRunner(args.ci, [], vex_verilog_path=VEX_VERILOG_PATH, tb='top_tb_fpga', production_models=PRODUCTION_MODELS)
 
     return 0
 

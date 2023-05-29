@@ -223,7 +223,7 @@ def compile(file):
     return None
 
 class SimRunner():
-    def __init__(self, ci, os_cmds, vex_verilog_path=VEX_CPU_PATH, tb='top_tb'):
+    def __init__(self, ci, os_cmds, vex_verilog_path=VEX_CPU_PATH, tb='top_tb', production_models=False):
         VIVADO_PATH = 'C:\\Xilinx\\Vivado\\2022.2\\bin\\'
         # we need to use wildcards, so shutil is rather hard to code around. Use this hack instead.
         if os.name == 'nt':
@@ -313,11 +313,7 @@ class SimRunner():
                 ofile.write("C0\n")
 
         deps = []
-        PRODUCTION_MODELS = True
-        if not PRODUCTION_MODELS:
-            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
-            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
-        else:
+        if production_models:
             os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/ram/*") + " run" + os.path.sep)
             deps += [
                 "cd run && {}xvlog -d SIM -sv icg_v0.2.v".format(VIVADO_PATH),
@@ -327,6 +323,9 @@ class SimRunner():
                 "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv rdram512x64.v".format(VIVADO_PATH),
                 "cd run && {}xvlog -d ARM_UD_MODEL -d ARM_DISABLE_EMA_CHECK -sv vexram_v0.1.sv".format(VIVADO_PATH),
             ]
+        else:
+            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1ra.v") + " run" + os.path.sep)
+            os.system("{} ".format(cpname) + os.path.normpath("sim_support/ram_1w_1rs.v") + " run" + os.path.sep)
 
         # compile
         deps += [
@@ -335,7 +334,6 @@ class SimRunner():
             "cd run && {}xvlog -sv cram_soc.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cram_fpga.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cram_axi.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -sv ram_1w_1rs.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv {}.v".format(VIVADO_PATH, tb),
             "cd run && {}xvlog -sv axi_ram.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axi_axil_adapter.v".format(VIVADO_PATH),
