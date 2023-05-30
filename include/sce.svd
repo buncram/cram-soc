@@ -1380,30 +1380,32 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED8</name>
+                    <name>SFR_TICKCYC</name>
                     <addressOffset>0x0020</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>reserved8</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
+                            <name>sfr_tickcyc</name>
+                            <msb>7</msb>
+                            <bitRange>[7:0]</bitRange>
                             <lsb>0</lsb>
+                            <description><![CDATA[sfr_tickcyc read/write control register]]></description>
                         </field>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED9</name>
+                    <name>SFR_TICKCNT</name>
                     <addressOffset>0x0024</addressOffset>
                     <resetValue>0x00</resetValue>
                     <size>32</size>
                     <fields>
                         <field>
-                            <name>reserved9</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
+                            <name>sfr_tickcnt</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
+                            <description><![CDATA[sfr_tickcnt read only status register]]></description>
                         </field>
                     </fields>
                 </register>

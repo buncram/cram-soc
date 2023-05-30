@@ -23,9 +23,9 @@ Register Listing for SCE_GLBSFR
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_ARCLR <SCE_GLBSFR_SFR_ARCLR>`               | :ref:`0x4002801c <SCE_GLBSFR_SFR_ARCLR>`        |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED8 <SCE_GLBSFR_RESERVED8>`               | :ref:`0x40028020 <SCE_GLBSFR_RESERVED8>`        |
+| :ref:`SCE_GLBSFR_SFR_TICKCYC <SCE_GLBSFR_SFR_TICKCYC>`           | :ref:`0x40028020 <SCE_GLBSFR_SFR_TICKCYC>`      |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED9 <SCE_GLBSFR_RESERVED9>`               | :ref:`0x40028024 <SCE_GLBSFR_RESERVED9>`        |
+| :ref:`SCE_GLBSFR_SFR_TICKCNT <SCE_GLBSFR_SFR_TICKCNT>`           | :ref:`0x40028024 <SCE_GLBSFR_SFR_TICKCNT>`      |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_RESERVED10 <SCE_GLBSFR_RESERVED10>`             | :ref:`0x40028028 <SCE_GLBSFR_RESERVED10>`       |
 +------------------------------------------------------------------+-------------------------------------------------+
@@ -231,39 +231,50 @@ SCE_GLBSFR_SFR_ARCLR
 | [31:0] | AR_CLRRAM | ar_clrram performs action on write of value: 0xa5 |
 +--------+-----------+---------------------------------------------------+
 
-SCE_GLBSFR_RESERVED8
-^^^^^^^^^^^^^^^^^^^^
+SCE_GLBSFR_SFR_TICKCYC
+^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x40028000 + 0x20 = 0x40028020`
 
 
     .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED8
+        :caption: SCE_GLBSFR_SFR_TICKCYC
 
         {
             "reg": [
-                {"name": "reserved8", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+                {"name": "sfr_tickcyc",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-SCE_GLBSFR_RESERVED9
-^^^^^^^^^^^^^^^^^^^^
++-------+-------------+-----------------------------------------+
+| Field | Name        | Description                             |
++=======+=============+=========================================+
+| [7:0] | SFR_TICKCYC | sfr_tickcyc read/write control register |
++-------+-------------+-----------------------------------------+
+
+SCE_GLBSFR_SFR_TICKCNT
+^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x40028000 + 0x24 = 0x40028024`
 
 
     .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED9
+        :caption: SCE_GLBSFR_SFR_TICKCNT
 
         {
             "reg": [
-                {"name": "reserved9", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+                {"name": "sfr_tickcnt",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
+
++--------+-------------+---------------------------------------+
+| Field  | Name        | Description                           |
++========+=============+=======================================+
+| [31:0] | SFR_TICKCNT | sfr_tickcnt read only status register |
++--------+-------------+---------------------------------------+
 
 SCE_GLBSFR_RESERVED10
 ^^^^^^^^^^^^^^^^^^^^^

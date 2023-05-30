@@ -998,7 +998,7 @@ class CramSoC(SoCMini):
             o_jtag_tdo            = jtag_cpu.tdo      ,
             i_jtag_tms            = jtag_cpu.tms      ,
             i_jtag_tck            = jtag_cpu.tck      ,
-            i_jtag_trst           = jtag_cpu.trst     ,
+            i_jtag_trst           = jtag_cpu.trst | ResetSignal("sys"), # integration note: this needs to be wired up
 
             o_coreuser            = coreuser          ,
             i_irqarray_bank0      = self.irqtest0.fields.trigger,
