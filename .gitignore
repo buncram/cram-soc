@@ -58,3 +58,6 @@ VexRiscv/.vscode/
 .metals/
 .env
 .vscode/
+
+# cross-validation target directory
+deps/pio/cross-validation/target
