@@ -458,9 +458,9 @@ module pio_machine (
                 case (condition) // Condition
                   0: jmp = 1;
                   1: jmp = (x == 0);
-                  2: begin jmp = (x != 0); decx = (x != 0); end
+                  2: begin jmp = (x != 0); decx = 1; end
                   3: jmp = (y == 0);
-                  4: begin jmp = (y != 0); decy = (y != 0); end
+                  4: begin jmp = (y != 0); decy = 1; end
                   5: jmp = (x != y);
                   6: jmp = ((input_pins >> jmp_pin) & 1);
                   7: jmp = (osr_count < osr_threshold_wide);
