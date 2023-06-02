@@ -35,7 +35,7 @@ pio-test = ["xous-pio"]
 hw-sec = ["curve25519-dalek", "ed25519-dalek"]
 sim = []
 gfx = []
-default = ["sim"]
+default = ["sim", "daric"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

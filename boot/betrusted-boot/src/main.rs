@@ -34,7 +34,7 @@ use core::convert::TryFrom;
 #[cfg(feature="sim")]
 use core::mem::size_of;
 
-#[cfg(feature="ahb-test")]
+#[cfg(any(feature="ahb-test"))]
 mod duart;
 
 mod debug;
@@ -583,6 +583,12 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         // ---------- vm setup -------------------------
         satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
         report_api(0x5a1d_6060);
+
+        #[cfg(feature="daric")]
+        {
+            let mut uart = debug::Uart {};
+            uart.tiny_write_str("hello world!\n\r");
+        }
 
         // ---------- ahb test option -------------
         #[cfg(feature="ahb-test")]

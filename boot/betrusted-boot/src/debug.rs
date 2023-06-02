@@ -3,6 +3,19 @@ pub struct Uart {
     // pub base: *mut u32,
 }
 
+#[allow(dead_code)]
+#[cfg(feature="daric")]
+pub mod duart {
+    pub const UART_DOUT: utralib::Register = utralib::Register::new(0, 0xff);
+    pub const UART_DOUT_DOUT: utralib::Field = utralib::Field::new(8, 0, UART_DOUT);
+    pub const UART_CTL: utralib::Register = utralib::Register::new(1, 1);
+    pub const UART_CTL_EN: utralib::Field = utralib::Field::new(1, 0, UART_CTL);
+    pub const UART_BUSY: utralib::Register = utralib::Register::new(2, 1);
+    pub const UART_BUSY_BUSY: utralib::Field = utralib::Field::new(1, 0, UART_BUSY);
+
+    pub const HW_DUART_BASE: usize = 0x4004_2000;
+}
+
 impl Uart {
     fn put_digit(&mut self, d: u8) {
         let nyb = d & 0xF;
@@ -26,6 +39,7 @@ impl Uart {
         }
     }
 
+    #[cfg(not(feature="daric"))]
     pub fn putc(&self, c: u8) {
         let base = utra::uart::HW_UART_BASE as *mut u32;
         let mut uart = CSR::new(base);
@@ -33,7 +47,7 @@ impl Uart {
         while uart.r(utra::uart::TXFULL) != 0 {}
         uart.wo(utra::uart::RXTX, c as u32)
     }
-
+    #[cfg(not(feature="daric"))]
     pub fn getc(&self) -> Option<u8> {
         let base = utra::uart::HW_UART_BASE as *mut u32;
         let mut uart = CSR::new(base);
@@ -45,6 +59,25 @@ impl Uart {
                 c
             }
         }
+    }
+
+    #[cfg(feature="daric")]
+    pub fn putc(&self, c: u8) {
+        let base = duart::HW_DUART_BASE as *mut u32;
+        let mut uart = CSR::new(base);
+
+        if uart.rf(duart::UART_CTL_EN) == 0 {
+            uart.wfo(duart::UART_CTL_EN, 1);
+        }
+        while uart.rf(duart::UART_BUSY_BUSY) != 0 {
+            // spin wait
+        }
+        uart.wfo(duart::UART_DOUT_DOUT, c as u32);
+    }
+
+    #[cfg(feature="daric")]
+    pub fn getc(&self) -> Option<u8> {
+        unimplemented!()
     }
 
     pub fn tiny_write_str(&mut self, s: &str) {

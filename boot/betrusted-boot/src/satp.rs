@@ -35,10 +35,10 @@ const BSS_PAGE: usize = 0x6100_8000; // this is manually read out of the link fi
 pub const PT_LIMIT: usize = 0x6100_9000; // this is carved out in link.x
 
 // VAs
-const CODE_VA: usize = 0x0000_0000;
-const CSR_VA:  usize = 0x5800_0000;
-const PERI_VA: usize = 0x4010_0000;
-const SRAM_VA: usize = 0x6100_0000;
+const CODE_VA:     usize = 0x0000_0000;
+const CSR_VA:      usize = 0x5800_0000;
+const PERI_VA:     usize = 0x4000_0000;
+const SRAM_VA:     usize = 0x6100_0000;
 
 // PAs (when different from VAs)
 const RERAM_PA: usize = 0x6000_0000;
@@ -104,7 +104,7 @@ pub fn satp_setup() {
     }
     // map peripherals
     const CSR_LEN: usize = 0x2_0000;
-    const PERI_LEN: usize = 0x10_8000; // this will also map the RP PIO block
+    const PERI_LEN: usize = 0x40_0000; // this will also map the RP PIO block & SoC peripherals
     for offset in (0..CSR_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R | FLG_U);
     }

@@ -6,7 +6,7 @@ pub mod duart {
     pub const UART_BUSY: utralib::Register = utralib::Register::new(2, 1);
     pub const UART_BUSY_BUSY: utralib::Field = utralib::Field::new(1, 0, UART_BUSY);
 
-    pub const HW_DUART_BASE: usize = 0x4020_1000;
+    pub const HW_DUART_BASE: usize = 0x4004_2000;
 }
 pub struct Duart {
     csr: utralib::CSR::<u32>,
