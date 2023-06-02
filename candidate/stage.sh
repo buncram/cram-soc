@@ -9,6 +9,9 @@ sphinx-build -M latexpdf build/gateware/build/documentation/ build/gateware/buil
 sphinx-build -M html build/gateware/build/documentation/ build/gateware/build/documentation/_build
 cd candidate
 
+cp ../build/software/soc.svd .
+cp ../build/software/core.svd .
+
 cp ../sim_support/ram_1w_1ra.v .
 cp ../sim_support/ram_1w_1rs.v .
 cp ../VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin .
