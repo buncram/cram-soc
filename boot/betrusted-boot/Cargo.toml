@@ -29,6 +29,7 @@ optional = true
 debug-print = []
 small-soc = []
 ahb-test = []
+daric = []
 pio-test = ["xous-pio"]
 # default = ["debug-print", "small-soc"]
 hw-sec = ["curve25519-dalek", "ed25519-dalek"]
