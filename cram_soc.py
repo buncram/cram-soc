@@ -444,10 +444,44 @@ class CramSoC(SoCMini):
                 sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
             ))
         else:
+            # placeholders to not break things between builds
+            pio_irq0 = Signal()
+            pio_irq1 = Signal()
+            # This region is used for testbench elements (e.g., does not appear in the final SoC):
+            # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
+            testbench_region = SoCIORegion(0x4010_0000, 0x1_0000, mode="rw", cached=False)
+            testbench_axil = AXILiteInterface()
+            # This region is used for SoC elements (e.g. items in the final SoC that we want to verify,
+            # but are not necessarily in their final address offset or topological configuration)
+            soc_region = SoCIORegion(0x4004_0000, 0x1_0000, mode="rw", cached=False)
+            soc_axil = AXILiteInterface()
+
+            self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
+            pxbar.add_slave(
+                name = "p_axil", s_axil = p_axil,
+            )
+            pxbar.add_master(
+                name = "testbench",
+                m_axil = testbench_axil,
+                origin = testbench_region.origin,
+                size = testbench_region.size,
+            )
+            pxbar.add_master(
+                name = "soc",
+                m_axil = soc_axil,
+                origin = soc_region.origin,
+                size = soc_region.size,
+            )
+            self.bus.add_master(name="pbus", master=testbench_axil)
+
+            soc_slower_axil = AXILiteInterface(clock_domain="p")
+            self.submodules.slower_axi = slower_axi = AXILiteCDC(platform, soc_axil, soc_slower_axil)
+
             from duart_adapter import DuartAdapter
             local_ahb = ahb.Interface()
-            self.submodules += AXILite2AHBAdapter(platform, p_axil, local_ahb)
-            self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x1000)
+            self.submodules += ClockDomainsRenamer({"sys": "p"})(AXILite2AHBAdapter(platform, soc_slower_axil, local_ahb))
+            self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"),
+                                            sel_addr=0x04_2000)
 
         # add interrupt handler
         interrupt = Signal(32)
