@@ -1,10 +1,8 @@
-# betrusted.io SoC
+# Cramium SoC
 
-This is the core secure-domain SoC for Betrusted.
+This is the open source RISC-V core on the Cramium SoC.
 
-Compiled documentation: https://ci.betrusted.io/betrusted-soc/doc/[latest register set], https://ci.betrusted.io/betrusted-soc/rustdoc/betrusted_pac/[latest Rust API] documentation.
-
-image::soc_diagram.png[]
+Compiled documentation: https://ci.betrusted.io/cramium/index.html[RV core complex register set].
 
 ## Building ##
 
@@ -17,42 +15,11 @@ image::soc_diagram.png[]
 1. Go to https://www.xilinx.com/support/download.html and download `All OS installer Single-File Download`. Our CI system uses version 2019.2, but it has also been tested against 2020.2. The hashes of the binaries used to build the release SoC can be found in https://github.com/betrusted-io/betrusted-soc/blob/main/manifest.txt[manifest.txt]. Note that this toolchain has been patched for log4j via https://support.xilinx.com/s/article/76957?language=en_US[Xilinx KB76957], patch log https://github.com/betrusted-io/betrusted-soc/blob/main/log4j_patch.log[log4j_patch.log].
 1. Do a minimal Xilinx install to /opt/Xilinx/, and untick everything except `Design Tools / Vivado Design Suite / Vivado` and `Devices / Production Devices / 7 Series`
 1. Go to https://www.xilinx.com/member/forms/license-form.html, get a license, and place it in ~/.Xilinx/Xilinx.lic
-1. Run `./betrusted_soc.py` (or `python3 ./betrusted-soc.py`)
+1. Run `./cram_core.py` (or `python3 ./cram_core.py`) to build the core complex
+1. Run `./cram_soc.py` (or `python3 ./cram-soc.py`) to build the SoC validation model. This is the core complex wrapped in additional peripherals so that we can do end-to-end testing in simulation.
+1. Run `./cram_fpga.py` (or `python3 ./cram-fpga.py`) to build the FPGA validation model. This is the core complex wrapped in an "approximation" of the SoC that allows us to run the core complex at real-time, albeit with some compromises in how accurately it reflects the SoC.
 
-There's a lot of options for betrusted_soc.py. The exact command line used to build a Betrusted SoC that is
-compatible with Xous v0.9.9 as of July 2022 is:
-
-`./betrusted_soc.py -e dummy.nky`
-
-The script will expect a file called `keystore.bin` to exist in the same directory. This is the initial
-keystore, documented at https://github.com/betrusted-io/betrusted-wiki/wiki/Secure-Boot-and-KEYROM-Layout.
-For brand new, "blank" devices with an all-0's key, only the developer public key is necessary for boot.
-
-Explanation:
-* `-e dummy.nky` forces the creation of an encrypted image using the all-0's key.
-This means we are always using the decryption pathway to configure an FPGA, even if
-we don't want to burn a key into the device.
-
-Legacy notes:
-* `-u spinal` selects the spinal USB PHY. You want this, so you can do firmware updates and can use USB HID.
-* `-x` selects the Xous boot configuration
-* `-s NoTimingRelaxation` forces the compiler to exactly meet timing constraints. You can
-probably drop this for a faster compilation time, but we prefer to leave it in for our sanity's sake
-* `-r pvt2` selects the PVT2 version of the hardware. This is the version shipped to CrowdSupply backers
-* `-p` selects physical UART connectivity (as opposed to routing UARTs over wishbone). Physical UARTs
-are currently much faster than wishbone UARTs, although less convenient to use as it requires the debug cable
-to be attached. You can drop this flag and use `wishbone-tool` to do UART debugging over USB, but because
-we are using one USB packet per character, effective baud rate is the *packet rate* of USB, which is maybe
-a couple hundred characters per second at best, and dozens of characters per second on some OSes.
-
-## Updating ##
-
-To update the repo to the upstream version, including all dependencies, run:
-
-```sh
-git pull
-git submodule update --recursive
-```
+For simulation, the `verilate.sh` script will get you running. However, it requires you to build and install the latest version of verilator (the version packaged in most distros is too old to work with the tools here).
 
 ## Using lxbuildenv.py Environment ##
 
@@ -78,56 +45,6 @@ In exchange for some deviation from other build environments, `lxbuildenv` gives
 1. Hardware, moreso than software, depends on exact version numbers.  By using `git` to track dependency versions, this build becomes more reproducible.
 1. It is cross-platform, and works anywhere Xilinx does.
 1. The `lxbuildenv` environment doesn't rely on opaque environment variables, or otherwise have a special environment you enter.  Everything is documented behind `--help` flags.
-
-## Working with Dependencies ##
-
-Dependencies are managed through `git`, and managing their usage is largely an exercise
-in working with `git`.
-
-For example, if you would like to make a change to `litex`, go into `deps/litex` and checkout
-a new branch and create a new upstream repo.  If you're working on Github, you would do
-something like fork the repo to your own organization.
-
-As an example, assume `sutajiokousagi` has forked upstream `litex`:
-
-```sh
-$ cd deps/litex
-$ git checkout -b new-feature
-$ git remote add kosagi git@github.com:sutajiokousagi/litex.git
-$ cd -
-```
-
-Then, make changes to `deps/litex` as needed.
-
-When you want to merge changes upstream, go into `deps/litex/` and push the branch to your remote:
-
-```sh
-$ cd deps/litex
-$ git push kosagi new-feature
-$ cd -
-```
-
-Then you can go and open a Pull Request on Github.
-
-## Fetching Updates ##
-
-Dependencies are designed to be independent, and you should update them as needed.  To update a particular
-dependency, go into that dependency's subdirectory and run `git pull`.  You may also find it easier to
-pull updates from a particular dependency and merge them.  For example, if you're working on the `new-feature`
-branch of `litex` and want to pull changes from upstream, run:
-
-```sh
-$ cd deps/litex
-$ git fetch origin
-$ git merge master
-$ cd -
-```
-
-This will merge all changes from upstream onto your own branch.
-
-## Support programs ##
-
-There is a wrapper script in this repo to run support programs such as `litex_server` and `litex_term`.  These may be invoked either with python (`python bin/litex_server udp`) or on shebang-aware systems they may be executed directly (`./bin/litex_server udp`).
 
 ## Xilinx PATH ##
 
@@ -173,6 +90,6 @@ By participating in this project you agree to abide its terms.
 
 ## License
 
-Copyright © 2019 - 2022
+Copyright © 2019 - 2023
 
-Licensed under the https://ohwr.org/project/licenses/wikis/cern-ohl-v1.2[CERN OHL v1.2] link:LICENSE[LICENSE]
+Licensed under the https://ohwr.org/cern_ohl_w_v2.txt[CERN OHL v2-W] link:LICENSE[LICENSE]
