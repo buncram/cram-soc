@@ -33,7 +33,7 @@ else
   cp include/pio.svd ../xous-cramium/precursors/
 
   cd boot
-  cargo xtask boot-image --feature sim --feature pio-test
+  cargo xtask boot-image --feature sim --feature pio-test #--feature daric
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > boot.lst
   riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst

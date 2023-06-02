@@ -78,6 +78,7 @@ mod panic_handler {
 static mut REPORT: CSR::<u32> = CSR::<u32>{base: utra::main::HW_MAIN_BASE as *mut u32};
 
 pub fn report_api(d: u32) {
+    #[cfg(not(feature="daric"))]
     unsafe {
         REPORT.wo(utra::main::REPORT, d);
     }
