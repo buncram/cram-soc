@@ -81,7 +81,7 @@ class Platform(GenericPlatform):
     def build(self, fragment, build_dir, build_name, **kwargs):
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
-        conv_output = self.get_verilog(fragment, name=build_name, asic=True)
+        conv_output = self.get_verilog(fragment, name=build_name, regs_init=False)
         conv_output.write(f"{build_name}.v")
 
 class CsrTest(Module, AutoCSR, AutoDoc):
