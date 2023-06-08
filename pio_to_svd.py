@@ -1087,6 +1087,16 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
         if count != 0:
             logging.warning(f"Registers were discovered that do not have a top-level address mapping: {module}, {count} total orphaned registers")
 
+def hex_int(value):
+    try:
+        return int(value)
+    except ValueError:
+        try:
+            return int(value, 16)
+        except ValueError:
+            raise ValueError("Invalid integer value: '{}'".format(value))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from PIO design")
     parser.add_argument(
@@ -1096,6 +1106,9 @@ def main():
     )
     parser.add_argument(
         "--outdir", required=False, help="Path to output files", type=str, default="include/"
+    )
+    parser.add_argument(
+        "--address", help="set custom base address", type=hex_int, default=0x5012_3000
     )
     args = parser.parse_args()
     numeric_level = getattr(logging, args.loglevel.upper(), None)
@@ -1180,8 +1193,8 @@ def main():
     print("done parsing")
     # Setup the memory region that the CSRs are destined for. This is currently a temporary value, just for testing.
     doc_soc.mem_regions['rp_pio'] = SoCRegion(
-        origin=0x4020_2000,
-        size=0x8000,
+        origin=args.address,
+        size=0x1000,
         mode='rw',
         cached=False
     )

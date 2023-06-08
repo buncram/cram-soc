@@ -36,7 +36,7 @@ class PioAdapter(Module):
         apb_rdata = Signal(32)
         apb_ready = Signal()
         apb_slverr = Signal()
-        sel_fullwidth = Signal(12, reset=(sel_addr >> 12))
+        sel_fullwidth = Signal(12, reset=((sel_addr & 0xFF_FFFF) >> 12))
 
         self.specials += Instance("cmsdk_ahb_to_apb",
             p_ADDRWIDTH            = address_width,
