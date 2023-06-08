@@ -42,7 +42,7 @@ const CSR_VA:      usize = 0x5800_0000;
 const PERI_VA:     usize = 0x4000_0000;
 const SRAM_VA:     usize = 0x6100_0000;
 const PIO_VA:      usize = 0x5000_0000;
-const XIP_VA:      usize = 0x7000_0000;
+pub const XIP_VA:  usize = 0x7000_0000;
 const RV_VA:       usize = 0xE000_0000;
 
 // PAs (when different from VAs)

@@ -9,31 +9,13 @@ utralib = {path = "../utralib"}
 riscv = { version = "0.5.6", package = "xous-riscv" }
 xous-pio = {path="../../../xous-cramium/libs/xous-pio", optional=true, default-features=false, features=["tests", "cramium-soc"]}
 
-[dependencies.com_rs]
-git="https://github.com/betrusted-io/com_rs"
-branch="main"
-
-[dependencies.curve25519-dalek]
-version = "3.1.0" # note this is patched to our fork in ./Cargo.toml
-default-features = false
-features = ["u32e_backend"]
-optional = true
-
-[dependencies.ed25519-dalek]
-version="1.0.1"
-#path = "../../../ed25519-dalek"
-default-features = false
-optional = true
-
 [features]
 debug-print = []
 small-soc = []
 daric = []
 pio-test = ["xous-pio"]
 # default = ["debug-print", "small-soc"]
-hw-sec = ["curve25519-dalek", "ed25519-dalek"]
 sim = []
-gfx = []
 default = ["sim", "daric"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]

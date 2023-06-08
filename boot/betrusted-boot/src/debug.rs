@@ -16,6 +16,7 @@ pub mod duart {
     pub const HW_DUART_BASE: usize = 0x4004_2000;
 }
 
+#[allow(dead_code)]
 impl Uart {
     fn put_digit(&mut self, d: u8) {
         let nyb = d & 0xF;

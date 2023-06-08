@@ -55,17 +55,22 @@ pub extern "C" fn abort() {
 }
 
 #[inline(never)]
-#[export_name = "start_loader"]
-pub extern "C" fn start_loader(
-    _arg_buffer: usize,
-    _signature: usize,
-    _loader_addr: usize,
-) -> ! {
+#[export_name = "jmp_remote"]
+pub extern "C" fn jmp_remote(
+    arg_buffer: usize,
+    jmp_target: usize,
+) -> usize {
+    let ret: usize;
     unsafe {
         asm! (
-            "jalr x0, a2, 0",
-            options(noreturn)
+            "move a0, {arg}",
+            "jalr x0, {jmp_target}, 0",
+            "move {ret}, a0",
+            arg = in(reg) arg_buffer,
+            jmp_target = in(reg) jmp_target,
+            ret = out(reg) ret
         );
     }
+    ret
 }
 
