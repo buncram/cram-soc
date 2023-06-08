@@ -18,13 +18,13 @@ Register Listing for RESETVALUE
 +--------------------------------------+-----------------------------------+
 | Register                             | Address                           |
 +======================================+===================================+
-| :ref:`RESETVALUE_PC <RESETVALUE_PC>` | :ref:`0x5801a000 <RESETVALUE_PC>` |
+| :ref:`RESETVALUE_PC <RESETVALUE_PC>` | :ref:`0xe001a000 <RESETVALUE_PC>` |
 +--------------------------------------+-----------------------------------+
 
 RESETVALUE_PC
 ^^^^^^^^^^^^^
 
-`Address: 0x5801a000 + 0x0 = 0x5801a000`
+`Address: 0xe001a000 + 0x0 = 0xe001a000`
 
     Latched value for PC on reset
 

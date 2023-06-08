@@ -3,7 +3,7 @@
 <device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
     <vendor>litex</vendor>
     <name>SOC</name>
-    <description><![CDATA[Litex SoC 2023-06-02 00:29:29]]></description>
+    <description><![CDATA[Litex SoC 2023-06-08 22:09:38]]></description>
 
     <addressUnitBits>8</addressUnitBits>
     <width>32</width>
@@ -15,7 +15,7 @@
     <peripherals>
         <peripheral>
             <name>D11CTIME</name>
-            <baseAddress>0x58000000</baseAddress>
+            <baseAddress>0xE0000000</baseAddress>
             <groupName>D11CTIME</groupName>
             <registers>
                 <register>
@@ -57,7 +57,7 @@
         </peripheral>
         <peripheral>
             <name>SUSRES</name>
-            <baseAddress>0x58001000</baseAddress>
+            <baseAddress>0xE0001000</baseAddress>
             <groupName>SUSRES</groupName>
             <registers>
                 <register>
@@ -267,7 +267,7 @@ register to disable individual events.]]></description>
         </peripheral>
         <peripheral>
             <name>COREUSER</name>
-            <baseAddress>0x58002000</baseAddress>
+            <baseAddress>0xE0002000</baseAddress>
             <groupName>COREUSER</groupName>
             <registers>
                 <register>
@@ -476,7 +476,7 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
         </peripheral>
         <peripheral>
             <name>CSRTEST</name>
-            <baseAddress>0x58003000</baseAddress>
+            <baseAddress>0xE0003000</baseAddress>
             <groupName>CSRTEST</groupName>
             <registers>
                 <register>
@@ -518,7 +518,7 @@ this value (so a value of 255 would match everything from 0 to 255; resulting in
         </peripheral>
         <peripheral>
             <name>IRQARRAY0</name>
-            <baseAddress>0x58004000</baseAddress>
+            <baseAddress>0xE0004000</baseAddress>
             <groupName>IRQARRAY0</groupName>
             <registers>
                 <register>
@@ -1028,7 +1028,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY1</name>
-            <baseAddress>0x58005000</baseAddress>
+            <baseAddress>0xE0005000</baseAddress>
             <groupName>IRQARRAY1</groupName>
             <registers>
                 <register>
@@ -1538,7 +1538,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY10</name>
-            <baseAddress>0x58006000</baseAddress>
+            <baseAddress>0xE0006000</baseAddress>
             <groupName>IRQARRAY10</groupName>
             <registers>
                 <register>
@@ -2048,7 +2048,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY11</name>
-            <baseAddress>0x58007000</baseAddress>
+            <baseAddress>0xE0007000</baseAddress>
             <groupName>IRQARRAY11</groupName>
             <registers>
                 <register>
@@ -2558,7 +2558,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY12</name>
-            <baseAddress>0x58008000</baseAddress>
+            <baseAddress>0xE0008000</baseAddress>
             <groupName>IRQARRAY12</groupName>
             <registers>
                 <register>
@@ -3068,7 +3068,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY13</name>
-            <baseAddress>0x58009000</baseAddress>
+            <baseAddress>0xE0009000</baseAddress>
             <groupName>IRQARRAY13</groupName>
             <registers>
                 <register>
@@ -3578,7 +3578,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY14</name>
-            <baseAddress>0x5800A000</baseAddress>
+            <baseAddress>0xE000A000</baseAddress>
             <groupName>IRQARRAY14</groupName>
             <registers>
                 <register>
@@ -4088,7 +4088,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY15</name>
-            <baseAddress>0x5800B000</baseAddress>
+            <baseAddress>0xE000B000</baseAddress>
             <groupName>IRQARRAY15</groupName>
             <registers>
                 <register>
@@ -4598,7 +4598,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY16</name>
-            <baseAddress>0x5800C000</baseAddress>
+            <baseAddress>0xE000C000</baseAddress>
             <groupName>IRQARRAY16</groupName>
             <registers>
                 <register>
@@ -5108,7 +5108,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY17</name>
-            <baseAddress>0x5800D000</baseAddress>
+            <baseAddress>0xE000D000</baseAddress>
             <groupName>IRQARRAY17</groupName>
             <registers>
                 <register>
@@ -5618,7 +5618,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY18</name>
-            <baseAddress>0x5800E000</baseAddress>
+            <baseAddress>0xE000E000</baseAddress>
             <groupName>IRQARRAY18</groupName>
             <registers>
                 <register>
@@ -6128,7 +6128,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY19</name>
-            <baseAddress>0x5800F000</baseAddress>
+            <baseAddress>0xE000F000</baseAddress>
             <groupName>IRQARRAY19</groupName>
             <registers>
                 <register>
@@ -6638,7 +6638,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY2</name>
-            <baseAddress>0x58010000</baseAddress>
+            <baseAddress>0xE0010000</baseAddress>
             <groupName>IRQARRAY2</groupName>
             <registers>
                 <register>
@@ -7148,7 +7148,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY3</name>
-            <baseAddress>0x58011000</baseAddress>
+            <baseAddress>0xE0011000</baseAddress>
             <groupName>IRQARRAY3</groupName>
             <registers>
                 <register>
@@ -7658,7 +7658,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY4</name>
-            <baseAddress>0x58012000</baseAddress>
+            <baseAddress>0xE0012000</baseAddress>
             <groupName>IRQARRAY4</groupName>
             <registers>
                 <register>
@@ -8168,7 +8168,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY5</name>
-            <baseAddress>0x58013000</baseAddress>
+            <baseAddress>0xE0013000</baseAddress>
             <groupName>IRQARRAY5</groupName>
             <registers>
                 <register>
@@ -8678,7 +8678,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY6</name>
-            <baseAddress>0x58014000</baseAddress>
+            <baseAddress>0xE0014000</baseAddress>
             <groupName>IRQARRAY6</groupName>
             <registers>
                 <register>
@@ -9188,7 +9188,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY7</name>
-            <baseAddress>0x58015000</baseAddress>
+            <baseAddress>0xE0015000</baseAddress>
             <groupName>IRQARRAY7</groupName>
             <registers>
                 <register>
@@ -9698,7 +9698,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY8</name>
-            <baseAddress>0x58016000</baseAddress>
+            <baseAddress>0xE0016000</baseAddress>
             <groupName>IRQARRAY8</groupName>
             <registers>
                 <register>
@@ -10208,7 +10208,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>IRQARRAY9</name>
-            <baseAddress>0x58017000</baseAddress>
+            <baseAddress>0xE0017000</baseAddress>
             <groupName>IRQARRAY9</groupName>
             <registers>
                 <register>
@@ -10718,7 +10718,7 @@ triggering]]></description>
         </peripheral>
         <peripheral>
             <name>MAILBOX</name>
-            <baseAddress>0x58018000</baseAddress>
+            <baseAddress>0xE0018000</baseAddress>
             <groupName>MAILBOX</groupName>
             <registers>
                 <register>
@@ -10966,7 +10966,7 @@ packet is done loading. There is no need to clear this register after writing.]]
         </peripheral>
         <peripheral>
             <name>MB_CLIENT</name>
-            <baseAddress>0x58019000</baseAddress>
+            <baseAddress>0xE0019000</baseAddress>
             <groupName>MB_CLIENT</groupName>
             <registers>
                 <register>
@@ -11212,7 +11212,7 @@ packet is done loading. There is no need to clear this register after writing.]]
         </peripheral>
         <peripheral>
             <name>RESETVALUE</name>
-            <baseAddress>0x5801A000</baseAddress>
+            <baseAddress>0xE001A000</baseAddress>
             <groupName>RESETVALUE</groupName>
             <registers>
                 <register>
@@ -11239,7 +11239,7 @@ packet is done loading. There is no need to clear this register after writing.]]
         </peripheral>
         <peripheral>
             <name>TICKTIMER</name>
-            <baseAddress>0x5801B000</baseAddress>
+            <baseAddress>0xE001B000</baseAddress>
             <groupName>TICKTIMER</groupName>
             <registers>
                 <register>
@@ -11386,7 +11386,7 @@ register to disable individual events.]]></description>
         <memoryRegions>
             <memoryRegion>
                 <name>CSR</name>
-                <baseAddress>0x58000000</baseAddress>
+                <baseAddress>0xE0000000</baseAddress>
                 <size>0x00040000</size>
             </memoryRegion>
         </memoryRegions>

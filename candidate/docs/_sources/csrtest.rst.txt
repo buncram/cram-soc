@@ -7,15 +7,15 @@ Register Listing for CSRTEST
 +--------------------------------------+-----------------------------------+
 | Register                             | Address                           |
 +======================================+===================================+
-| :ref:`CSRTEST_WTEST <CSRTEST_WTEST>` | :ref:`0x58003000 <CSRTEST_WTEST>` |
+| :ref:`CSRTEST_WTEST <CSRTEST_WTEST>` | :ref:`0xe0003000 <CSRTEST_WTEST>` |
 +--------------------------------------+-----------------------------------+
-| :ref:`CSRTEST_RTEST <CSRTEST_RTEST>` | :ref:`0x58003004 <CSRTEST_RTEST>` |
+| :ref:`CSRTEST_RTEST <CSRTEST_RTEST>` | :ref:`0xe0003004 <CSRTEST_RTEST>` |
 +--------------------------------------+-----------------------------------+
 
 CSRTEST_WTEST
 ^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x0 = 0x58003000`
+`Address: 0xe0003000 + 0x0 = 0xe0003000`
 
     Write test data here
 
@@ -32,7 +32,7 @@ CSRTEST_WTEST
 CSRTEST_RTEST
 ^^^^^^^^^^^^^
 
-`Address: 0x58003000 + 0x4 = 0x58003004`
+`Address: 0xe0003000 + 0x4 = 0xe0003004`
 
     Read test data here
 

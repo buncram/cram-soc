@@ -32,19 +32,19 @@ Register Listing for IRQARRAY10
 +------------------------------------------------------+-------------------------------------------+
 | Register                                             | Address                                   |
 +======================================================+===========================================+
-| :ref:`IRQARRAY10_EV_SOFT <IRQARRAY10_EV_SOFT>`       | :ref:`0x58006000 <IRQARRAY10_EV_SOFT>`    |
+| :ref:`IRQARRAY10_EV_SOFT <IRQARRAY10_EV_SOFT>`       | :ref:`0xe0006000 <IRQARRAY10_EV_SOFT>`    |
 +------------------------------------------------------+-------------------------------------------+
-| :ref:`IRQARRAY10_EV_STATUS <IRQARRAY10_EV_STATUS>`   | :ref:`0x58006004 <IRQARRAY10_EV_STATUS>`  |
+| :ref:`IRQARRAY10_EV_STATUS <IRQARRAY10_EV_STATUS>`   | :ref:`0xe0006004 <IRQARRAY10_EV_STATUS>`  |
 +------------------------------------------------------+-------------------------------------------+
-| :ref:`IRQARRAY10_EV_PENDING <IRQARRAY10_EV_PENDING>` | :ref:`0x58006008 <IRQARRAY10_EV_PENDING>` |
+| :ref:`IRQARRAY10_EV_PENDING <IRQARRAY10_EV_PENDING>` | :ref:`0xe0006008 <IRQARRAY10_EV_PENDING>` |
 +------------------------------------------------------+-------------------------------------------+
-| :ref:`IRQARRAY10_EV_ENABLE <IRQARRAY10_EV_ENABLE>`   | :ref:`0x5800600c <IRQARRAY10_EV_ENABLE>`  |
+| :ref:`IRQARRAY10_EV_ENABLE <IRQARRAY10_EV_ENABLE>`   | :ref:`0xe000600c <IRQARRAY10_EV_ENABLE>`  |
 +------------------------------------------------------+-------------------------------------------+
 
 IRQARRAY10_EV_SOFT
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58006000 + 0x0 = 0x58006000`
+`Address: 0xe0006000 + 0x0 = 0xe0006000`
 
     Software interrupt trigger register.
 
@@ -78,7 +78,7 @@ IRQARRAY10_EV_SOFT
 IRQARRAY10_EV_STATUS
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58006000 + 0x4 = 0x58006004`
+`Address: 0xe0006000 + 0x4 = 0xe0006004`
 
     `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
     triggering
@@ -160,7 +160,7 @@ IRQARRAY10_EV_STATUS
 IRQARRAY10_EV_PENDING
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58006000 + 0x8 = 0x58006008`
+`Address: 0xe0006000 + 0x8 = 0xe0006008`
 
     `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
     triggering
@@ -262,7 +262,7 @@ IRQARRAY10_EV_PENDING
 IRQARRAY10_EV_ENABLE
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58006000 + 0xc = 0x5800600c`
+`Address: 0xe0006000 + 0xc = 0xe000600c`
 
     `1` when a source19 event occurs. This event uses an `EventSourceFlex` form of
     triggering

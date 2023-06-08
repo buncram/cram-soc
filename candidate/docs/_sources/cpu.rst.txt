@@ -9,7 +9,7 @@ This `VexRiscv <https://github.com/SpinalHDL/VexRiscv#vexriscv-architecture>`_ c
 - Data bus crossbar
 
   - 0x60000000-7FFFFFFF: 32-bit AXI-4 data cache bus (r/w cached)
-  - 0x40000000-4FFFFFFF: 32-bit AXI-lite peripheral bus (r/w uncached)
+  - 0x40000000-5FFFFFFF: 32-bit AXI-lite peripheral bus (r/w uncached)
 - All busses run at ACLK speed
 - WFI signal is broken out to `wfi_active`
 - `satp` signals broken out for `coreuser` interpretation

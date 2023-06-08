@@ -18,33 +18,33 @@ Register Listing for SUSRES
 +--------------------------------------------------+-----------------------------------------+
 | Register                                         | Address                                 |
 +==================================================+=========================================+
-| :ref:`SUSRES_CONTROL <SUSRES_CONTROL>`           | :ref:`0x58001000 <SUSRES_CONTROL>`      |
+| :ref:`SUSRES_CONTROL <SUSRES_CONTROL>`           | :ref:`0xe0001000 <SUSRES_CONTROL>`      |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_RESUME_TIME1 <SUSRES_RESUME_TIME1>` | :ref:`0x58001004 <SUSRES_RESUME_TIME1>` |
+| :ref:`SUSRES_RESUME_TIME1 <SUSRES_RESUME_TIME1>` | :ref:`0xe0001004 <SUSRES_RESUME_TIME1>` |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_RESUME_TIME0 <SUSRES_RESUME_TIME0>` | :ref:`0x58001008 <SUSRES_RESUME_TIME0>` |
+| :ref:`SUSRES_RESUME_TIME0 <SUSRES_RESUME_TIME0>` | :ref:`0xe0001008 <SUSRES_RESUME_TIME0>` |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_TIME1 <SUSRES_TIME1>`               | :ref:`0x5800100c <SUSRES_TIME1>`        |
+| :ref:`SUSRES_TIME1 <SUSRES_TIME1>`               | :ref:`0xe000100c <SUSRES_TIME1>`        |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_TIME0 <SUSRES_TIME0>`               | :ref:`0x58001010 <SUSRES_TIME0>`        |
+| :ref:`SUSRES_TIME0 <SUSRES_TIME0>`               | :ref:`0xe0001010 <SUSRES_TIME0>`        |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_STATUS <SUSRES_STATUS>`             | :ref:`0x58001014 <SUSRES_STATUS>`       |
+| :ref:`SUSRES_STATUS <SUSRES_STATUS>`             | :ref:`0xe0001014 <SUSRES_STATUS>`       |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_STATE <SUSRES_STATE>`               | :ref:`0x58001018 <SUSRES_STATE>`        |
+| :ref:`SUSRES_STATE <SUSRES_STATE>`               | :ref:`0xe0001018 <SUSRES_STATE>`        |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_INTERRUPT <SUSRES_INTERRUPT>`       | :ref:`0x5800101c <SUSRES_INTERRUPT>`    |
+| :ref:`SUSRES_INTERRUPT <SUSRES_INTERRUPT>`       | :ref:`0xe000101c <SUSRES_INTERRUPT>`    |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_EV_STATUS <SUSRES_EV_STATUS>`       | :ref:`0x58001020 <SUSRES_EV_STATUS>`    |
+| :ref:`SUSRES_EV_STATUS <SUSRES_EV_STATUS>`       | :ref:`0xe0001020 <SUSRES_EV_STATUS>`    |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_EV_PENDING <SUSRES_EV_PENDING>`     | :ref:`0x58001024 <SUSRES_EV_PENDING>`   |
+| :ref:`SUSRES_EV_PENDING <SUSRES_EV_PENDING>`     | :ref:`0xe0001024 <SUSRES_EV_PENDING>`   |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`SUSRES_EV_ENABLE <SUSRES_EV_ENABLE>`       | :ref:`0x58001028 <SUSRES_EV_ENABLE>`    |
+| :ref:`SUSRES_EV_ENABLE <SUSRES_EV_ENABLE>`       | :ref:`0xe0001028 <SUSRES_EV_ENABLE>`    |
 +--------------------------------------------------+-----------------------------------------+
 
 SUSRES_CONTROL
 ^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x0 = 0x58001000`
+`Address: 0xe0001000 + 0x0 = 0xe0001000`
 
 
     .. wavedrom::
@@ -74,7 +74,7 @@ SUSRES_CONTROL
 SUSRES_RESUME_TIME1
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x4 = 0x58001004`
+`Address: 0xe0001000 + 0x4 = 0xe0001004`
 
     Bits 32-63 of `SUSRES_RESUME_TIME`. Elapsed time to load. Loaded upon writing
     `1` to the load bit in the control register. This will immediately affect the
@@ -93,7 +93,7 @@ SUSRES_RESUME_TIME1
 SUSRES_RESUME_TIME0
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x8 = 0x58001008`
+`Address: 0xe0001000 + 0x8 = 0xe0001008`
 
     Bits 0-31 of `SUSRES_RESUME_TIME`.
 
@@ -110,7 +110,7 @@ SUSRES_RESUME_TIME0
 SUSRES_TIME1
 ^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0xc = 0x5800100c`
+`Address: 0xe0001000 + 0xc = 0xe000100c`
 
     Bits 32-63 of `SUSRES_TIME`. Cycle-accurate mirror copy of time in systicks,
     from the TickTimer
@@ -128,7 +128,7 @@ SUSRES_TIME1
 SUSRES_TIME0
 ^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x10 = 0x58001010`
+`Address: 0xe0001000 + 0x10 = 0xe0001010`
 
     Bits 0-31 of `SUSRES_TIME`.
 
@@ -145,7 +145,7 @@ SUSRES_TIME0
 SUSRES_STATUS
 ^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x14 = 0x58001014`
+`Address: 0xe0001000 + 0x14 = 0xe0001014`
 
 
     .. wavedrom::
@@ -168,7 +168,7 @@ SUSRES_STATUS
 SUSRES_STATE
 ^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x18 = 0x58001018`
+`Address: 0xe0001000 + 0x18 = 0xe0001018`
 
 
     .. wavedrom::
@@ -196,7 +196,7 @@ SUSRES_STATE
 SUSRES_INTERRUPT
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x1c = 0x5800101c`
+`Address: 0xe0001000 + 0x1c = 0xe000101c`
 
 
     .. wavedrom::
@@ -222,7 +222,7 @@ SUSRES_INTERRUPT
 SUSRES_EV_STATUS
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x20 = 0x58001020`
+`Address: 0xe0001000 + 0x20 = 0xe0001020`
 
     This register contains the current raw level of the soft_int event trigger.
     Writes to this register have no effect.
@@ -247,7 +247,7 @@ SUSRES_EV_STATUS
 SUSRES_EV_PENDING
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x24 = 0x58001024`
+`Address: 0xe0001000 + 0x24 = 0xe0001024`
 
     When a  soft_int event occurs, the corresponding bit will be set in this
     register.  To clear the Event, set the corresponding bit in this register.
@@ -273,7 +273,7 @@ SUSRES_EV_PENDING
 SUSRES_EV_ENABLE
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58001000 + 0x28 = 0x58001028`
+`Address: 0xe0001000 + 0x28 = 0xe0001028`
 
     This register enables the corresponding soft_int events.  Write a ``0`` to this
     register to disable individual events.

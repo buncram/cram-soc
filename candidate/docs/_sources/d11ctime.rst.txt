@@ -26,15 +26,15 @@ Register Listing for D11CTIME
 +------------------------------------------------+----------------------------------------+
 | Register                                       | Address                                |
 +================================================+========================================+
-| :ref:`D11CTIME_CONTROL <D11CTIME_CONTROL>`     | :ref:`0x58000000 <D11CTIME_CONTROL>`   |
+| :ref:`D11CTIME_CONTROL <D11CTIME_CONTROL>`     | :ref:`0xe0000000 <D11CTIME_CONTROL>`   |
 +------------------------------------------------+----------------------------------------+
-| :ref:`D11CTIME_HEARTBEAT <D11CTIME_HEARTBEAT>` | :ref:`0x58000004 <D11CTIME_HEARTBEAT>` |
+| :ref:`D11CTIME_HEARTBEAT <D11CTIME_HEARTBEAT>` | :ref:`0xe0000004 <D11CTIME_HEARTBEAT>` |
 +------------------------------------------------+----------------------------------------+
 
 D11CTIME_CONTROL
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x0 = 0x58000000`
+`Address: 0xe0000000 + 0x0 = 0xe0000000`
 
 
     .. wavedrom::
@@ -56,7 +56,7 @@ D11CTIME_CONTROL
 D11CTIME_HEARTBEAT
 ^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58000000 + 0x4 = 0x58000004`
+`Address: 0xe0000000 + 0x4 = 0xe0000004`
 
 
     .. wavedrom::

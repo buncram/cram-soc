@@ -13,27 +13,27 @@ Register Listing for MB_CLIENT
 +----------------------------------------------------+------------------------------------------+
 | Register                                           | Address                                  |
 +====================================================+==========================================+
-| :ref:`MB_CLIENT_WDATA <MB_CLIENT_WDATA>`           | :ref:`0x58019000 <MB_CLIENT_WDATA>`      |
+| :ref:`MB_CLIENT_WDATA <MB_CLIENT_WDATA>`           | :ref:`0xe0019000 <MB_CLIENT_WDATA>`      |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_RDATA <MB_CLIENT_RDATA>`           | :ref:`0x58019004 <MB_CLIENT_RDATA>`      |
+| :ref:`MB_CLIENT_RDATA <MB_CLIENT_RDATA>`           | :ref:`0xe0019004 <MB_CLIENT_RDATA>`      |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_EV_STATUS <MB_CLIENT_EV_STATUS>`   | :ref:`0x58019008 <MB_CLIENT_EV_STATUS>`  |
+| :ref:`MB_CLIENT_EV_STATUS <MB_CLIENT_EV_STATUS>`   | :ref:`0xe0019008 <MB_CLIENT_EV_STATUS>`  |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_EV_PENDING <MB_CLIENT_EV_PENDING>` | :ref:`0x5801900c <MB_CLIENT_EV_PENDING>` |
+| :ref:`MB_CLIENT_EV_PENDING <MB_CLIENT_EV_PENDING>` | :ref:`0xe001900c <MB_CLIENT_EV_PENDING>` |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_EV_ENABLE <MB_CLIENT_EV_ENABLE>`   | :ref:`0x58019010 <MB_CLIENT_EV_ENABLE>`  |
+| :ref:`MB_CLIENT_EV_ENABLE <MB_CLIENT_EV_ENABLE>`   | :ref:`0xe0019010 <MB_CLIENT_EV_ENABLE>`  |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_STATUS <MB_CLIENT_STATUS>`         | :ref:`0x58019014 <MB_CLIENT_STATUS>`     |
+| :ref:`MB_CLIENT_STATUS <MB_CLIENT_STATUS>`         | :ref:`0xe0019014 <MB_CLIENT_STATUS>`     |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_CONTROL <MB_CLIENT_CONTROL>`       | :ref:`0x58019018 <MB_CLIENT_CONTROL>`    |
+| :ref:`MB_CLIENT_CONTROL <MB_CLIENT_CONTROL>`       | :ref:`0xe0019018 <MB_CLIENT_CONTROL>`    |
 +----------------------------------------------------+------------------------------------------+
-| :ref:`MB_CLIENT_DONE <MB_CLIENT_DONE>`             | :ref:`0x5801901c <MB_CLIENT_DONE>`       |
+| :ref:`MB_CLIENT_DONE <MB_CLIENT_DONE>`             | :ref:`0xe001901c <MB_CLIENT_DONE>`       |
 +----------------------------------------------------+------------------------------------------+
 
 MB_CLIENT_WDATA
 ^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x0 = 0x58019000`
+`Address: 0xe0019000 + 0x0 = 0xe0019000`
 
     Write data to outgoing FIFO.
 
@@ -50,7 +50,7 @@ MB_CLIENT_WDATA
 MB_CLIENT_RDATA
 ^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x4 = 0x58019004`
+`Address: 0xe0019000 + 0x4 = 0xe0019004`
 
     Read data from incoming FIFO.
 
@@ -67,7 +67,7 @@ MB_CLIENT_RDATA
 MB_CLIENT_EV_STATUS
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x8 = 0x58019008`
+`Address: 0xe0019000 + 0x8 = 0xe0019008`
 
     Triggers if either `tx_err` or `rx_err` are asserted
 
@@ -100,7 +100,7 @@ MB_CLIENT_EV_STATUS
 MB_CLIENT_EV_PENDING
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0xc = 0x5801900c`
+`Address: 0xe0019000 + 0xc = 0xe001900c`
 
     Triggers if either `tx_err` or `rx_err` are asserted
 
@@ -134,7 +134,7 @@ MB_CLIENT_EV_PENDING
 MB_CLIENT_EV_ENABLE
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x10 = 0x58019010`
+`Address: 0xe0019000 + 0x10 = 0xe0019010`
 
     Triggers if either `tx_err` or `rx_err` are asserted
 
@@ -167,7 +167,7 @@ MB_CLIENT_EV_ENABLE
 MB_CLIENT_STATUS
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x14 = 0x58019014`
+`Address: 0xe0019000 + 0x14 = 0xe0019014`
 
 
     .. wavedrom::
@@ -209,7 +209,7 @@ MB_CLIENT_STATUS
 MB_CLIENT_CONTROL
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x18 = 0x58019018`
+`Address: 0xe0019000 + 0x18 = 0xe0019018`
 
 
     .. wavedrom::
@@ -237,7 +237,7 @@ MB_CLIENT_CONTROL
 MB_CLIENT_DONE
 ^^^^^^^^^^^^^^
 
-`Address: 0x58019000 + 0x1c = 0x5801901c`
+`Address: 0xe0019000 + 0x1c = 0xe001901c`
 
 
     .. wavedrom::
