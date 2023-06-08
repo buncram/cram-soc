@@ -7,219 +7,219 @@ Register Listing for RP_PIO
 +------------------------------------------------------------+----------------------------------------------+
 | Register                                                   | Address                                      |
 +============================================================+==============================================+
-| :ref:`RP_PIO_SFR_CTRL <RP_PIO_SFR_CTRL>`                   | :ref:`0x40202000 <RP_PIO_SFR_CTRL>`          |
+| :ref:`RP_PIO_SFR_CTRL <RP_PIO_SFR_CTRL>`                   | :ref:`0x50123000 <RP_PIO_SFR_CTRL>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_FSTAT <RP_PIO_SFR_FSTAT>`                 | :ref:`0x40202004 <RP_PIO_SFR_FSTAT>`         |
+| :ref:`RP_PIO_SFR_FSTAT <RP_PIO_SFR_FSTAT>`                 | :ref:`0x50123004 <RP_PIO_SFR_FSTAT>`         |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_FDEBUG <RP_PIO_SFR_FDEBUG>`               | :ref:`0x40202008 <RP_PIO_SFR_FDEBUG>`        |
+| :ref:`RP_PIO_SFR_FDEBUG <RP_PIO_SFR_FDEBUG>`               | :ref:`0x50123008 <RP_PIO_SFR_FDEBUG>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_FLEVEL <RP_PIO_SFR_FLEVEL>`               | :ref:`0x4020200c <RP_PIO_SFR_FLEVEL>`        |
+| :ref:`RP_PIO_SFR_FLEVEL <RP_PIO_SFR_FLEVEL>`               | :ref:`0x5012300c <RP_PIO_SFR_FLEVEL>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_TXF0 <RP_PIO_SFR_TXF0>`                   | :ref:`0x40202010 <RP_PIO_SFR_TXF0>`          |
+| :ref:`RP_PIO_SFR_TXF0 <RP_PIO_SFR_TXF0>`                   | :ref:`0x50123010 <RP_PIO_SFR_TXF0>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_TXF1 <RP_PIO_SFR_TXF1>`                   | :ref:`0x40202014 <RP_PIO_SFR_TXF1>`          |
+| :ref:`RP_PIO_SFR_TXF1 <RP_PIO_SFR_TXF1>`                   | :ref:`0x50123014 <RP_PIO_SFR_TXF1>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_TXF2 <RP_PIO_SFR_TXF2>`                   | :ref:`0x40202018 <RP_PIO_SFR_TXF2>`          |
+| :ref:`RP_PIO_SFR_TXF2 <RP_PIO_SFR_TXF2>`                   | :ref:`0x50123018 <RP_PIO_SFR_TXF2>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_TXF3 <RP_PIO_SFR_TXF3>`                   | :ref:`0x4020201c <RP_PIO_SFR_TXF3>`          |
+| :ref:`RP_PIO_SFR_TXF3 <RP_PIO_SFR_TXF3>`                   | :ref:`0x5012301c <RP_PIO_SFR_TXF3>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_RXF0 <RP_PIO_SFR_RXF0>`                   | :ref:`0x40202020 <RP_PIO_SFR_RXF0>`          |
+| :ref:`RP_PIO_SFR_RXF0 <RP_PIO_SFR_RXF0>`                   | :ref:`0x50123020 <RP_PIO_SFR_RXF0>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_RXF1 <RP_PIO_SFR_RXF1>`                   | :ref:`0x40202024 <RP_PIO_SFR_RXF1>`          |
+| :ref:`RP_PIO_SFR_RXF1 <RP_PIO_SFR_RXF1>`                   | :ref:`0x50123024 <RP_PIO_SFR_RXF1>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_RXF2 <RP_PIO_SFR_RXF2>`                   | :ref:`0x40202028 <RP_PIO_SFR_RXF2>`          |
+| :ref:`RP_PIO_SFR_RXF2 <RP_PIO_SFR_RXF2>`                   | :ref:`0x50123028 <RP_PIO_SFR_RXF2>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_RXF3 <RP_PIO_SFR_RXF3>`                   | :ref:`0x4020202c <RP_PIO_SFR_RXF3>`          |
+| :ref:`RP_PIO_SFR_RXF3 <RP_PIO_SFR_RXF3>`                   | :ref:`0x5012302c <RP_PIO_SFR_RXF3>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ <RP_PIO_SFR_IRQ>`                     | :ref:`0x40202030 <RP_PIO_SFR_IRQ>`           |
+| :ref:`RP_PIO_SFR_IRQ <RP_PIO_SFR_IRQ>`                     | :ref:`0x50123030 <RP_PIO_SFR_IRQ>`           |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ_FORCE <RP_PIO_SFR_IRQ_FORCE>`         | :ref:`0x40202034 <RP_PIO_SFR_IRQ_FORCE>`     |
+| :ref:`RP_PIO_SFR_IRQ_FORCE <RP_PIO_SFR_IRQ_FORCE>`         | :ref:`0x50123034 <RP_PIO_SFR_IRQ_FORCE>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SYNC_BYPASS <RP_PIO_SFR_SYNC_BYPASS>`     | :ref:`0x40202038 <RP_PIO_SFR_SYNC_BYPASS>`   |
+| :ref:`RP_PIO_SFR_SYNC_BYPASS <RP_PIO_SFR_SYNC_BYPASS>`     | :ref:`0x50123038 <RP_PIO_SFR_SYNC_BYPASS>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_DBG_PADOUT <RP_PIO_SFR_DBG_PADOUT>`       | :ref:`0x4020203c <RP_PIO_SFR_DBG_PADOUT>`    |
+| :ref:`RP_PIO_SFR_DBG_PADOUT <RP_PIO_SFR_DBG_PADOUT>`       | :ref:`0x5012303c <RP_PIO_SFR_DBG_PADOUT>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_DBG_PADOE <RP_PIO_SFR_DBG_PADOE>`         | :ref:`0x40202040 <RP_PIO_SFR_DBG_PADOE>`     |
+| :ref:`RP_PIO_SFR_DBG_PADOE <RP_PIO_SFR_DBG_PADOE>`         | :ref:`0x50123040 <RP_PIO_SFR_DBG_PADOE>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_DBG_CFGINFO <RP_PIO_SFR_DBG_CFGINFO>`     | :ref:`0x40202044 <RP_PIO_SFR_DBG_CFGINFO>`   |
+| :ref:`RP_PIO_SFR_DBG_CFGINFO <RP_PIO_SFR_DBG_CFGINFO>`     | :ref:`0x50123044 <RP_PIO_SFR_DBG_CFGINFO>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM0 <RP_PIO_SFR_INSTR_MEM0>`       | :ref:`0x40202048 <RP_PIO_SFR_INSTR_MEM0>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM0 <RP_PIO_SFR_INSTR_MEM0>`       | :ref:`0x50123048 <RP_PIO_SFR_INSTR_MEM0>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM1 <RP_PIO_SFR_INSTR_MEM1>`       | :ref:`0x4020204c <RP_PIO_SFR_INSTR_MEM1>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM1 <RP_PIO_SFR_INSTR_MEM1>`       | :ref:`0x5012304c <RP_PIO_SFR_INSTR_MEM1>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM2 <RP_PIO_SFR_INSTR_MEM2>`       | :ref:`0x40202050 <RP_PIO_SFR_INSTR_MEM2>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM2 <RP_PIO_SFR_INSTR_MEM2>`       | :ref:`0x50123050 <RP_PIO_SFR_INSTR_MEM2>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM3 <RP_PIO_SFR_INSTR_MEM3>`       | :ref:`0x40202054 <RP_PIO_SFR_INSTR_MEM3>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM3 <RP_PIO_SFR_INSTR_MEM3>`       | :ref:`0x50123054 <RP_PIO_SFR_INSTR_MEM3>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM4 <RP_PIO_SFR_INSTR_MEM4>`       | :ref:`0x40202058 <RP_PIO_SFR_INSTR_MEM4>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM4 <RP_PIO_SFR_INSTR_MEM4>`       | :ref:`0x50123058 <RP_PIO_SFR_INSTR_MEM4>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM5 <RP_PIO_SFR_INSTR_MEM5>`       | :ref:`0x4020205c <RP_PIO_SFR_INSTR_MEM5>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM5 <RP_PIO_SFR_INSTR_MEM5>`       | :ref:`0x5012305c <RP_PIO_SFR_INSTR_MEM5>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM6 <RP_PIO_SFR_INSTR_MEM6>`       | :ref:`0x40202060 <RP_PIO_SFR_INSTR_MEM6>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM6 <RP_PIO_SFR_INSTR_MEM6>`       | :ref:`0x50123060 <RP_PIO_SFR_INSTR_MEM6>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM7 <RP_PIO_SFR_INSTR_MEM7>`       | :ref:`0x40202064 <RP_PIO_SFR_INSTR_MEM7>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM7 <RP_PIO_SFR_INSTR_MEM7>`       | :ref:`0x50123064 <RP_PIO_SFR_INSTR_MEM7>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM8 <RP_PIO_SFR_INSTR_MEM8>`       | :ref:`0x40202068 <RP_PIO_SFR_INSTR_MEM8>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM8 <RP_PIO_SFR_INSTR_MEM8>`       | :ref:`0x50123068 <RP_PIO_SFR_INSTR_MEM8>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM9 <RP_PIO_SFR_INSTR_MEM9>`       | :ref:`0x4020206c <RP_PIO_SFR_INSTR_MEM9>`    |
+| :ref:`RP_PIO_SFR_INSTR_MEM9 <RP_PIO_SFR_INSTR_MEM9>`       | :ref:`0x5012306c <RP_PIO_SFR_INSTR_MEM9>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM10 <RP_PIO_SFR_INSTR_MEM10>`     | :ref:`0x40202070 <RP_PIO_SFR_INSTR_MEM10>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM10 <RP_PIO_SFR_INSTR_MEM10>`     | :ref:`0x50123070 <RP_PIO_SFR_INSTR_MEM10>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM11 <RP_PIO_SFR_INSTR_MEM11>`     | :ref:`0x40202074 <RP_PIO_SFR_INSTR_MEM11>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM11 <RP_PIO_SFR_INSTR_MEM11>`     | :ref:`0x50123074 <RP_PIO_SFR_INSTR_MEM11>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM12 <RP_PIO_SFR_INSTR_MEM12>`     | :ref:`0x40202078 <RP_PIO_SFR_INSTR_MEM12>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM12 <RP_PIO_SFR_INSTR_MEM12>`     | :ref:`0x50123078 <RP_PIO_SFR_INSTR_MEM12>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM13 <RP_PIO_SFR_INSTR_MEM13>`     | :ref:`0x4020207c <RP_PIO_SFR_INSTR_MEM13>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM13 <RP_PIO_SFR_INSTR_MEM13>`     | :ref:`0x5012307c <RP_PIO_SFR_INSTR_MEM13>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM14 <RP_PIO_SFR_INSTR_MEM14>`     | :ref:`0x40202080 <RP_PIO_SFR_INSTR_MEM14>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM14 <RP_PIO_SFR_INSTR_MEM14>`     | :ref:`0x50123080 <RP_PIO_SFR_INSTR_MEM14>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM15 <RP_PIO_SFR_INSTR_MEM15>`     | :ref:`0x40202084 <RP_PIO_SFR_INSTR_MEM15>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM15 <RP_PIO_SFR_INSTR_MEM15>`     | :ref:`0x50123084 <RP_PIO_SFR_INSTR_MEM15>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM16 <RP_PIO_SFR_INSTR_MEM16>`     | :ref:`0x40202088 <RP_PIO_SFR_INSTR_MEM16>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM16 <RP_PIO_SFR_INSTR_MEM16>`     | :ref:`0x50123088 <RP_PIO_SFR_INSTR_MEM16>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM17 <RP_PIO_SFR_INSTR_MEM17>`     | :ref:`0x4020208c <RP_PIO_SFR_INSTR_MEM17>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM17 <RP_PIO_SFR_INSTR_MEM17>`     | :ref:`0x5012308c <RP_PIO_SFR_INSTR_MEM17>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM18 <RP_PIO_SFR_INSTR_MEM18>`     | :ref:`0x40202090 <RP_PIO_SFR_INSTR_MEM18>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM18 <RP_PIO_SFR_INSTR_MEM18>`     | :ref:`0x50123090 <RP_PIO_SFR_INSTR_MEM18>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM19 <RP_PIO_SFR_INSTR_MEM19>`     | :ref:`0x40202094 <RP_PIO_SFR_INSTR_MEM19>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM19 <RP_PIO_SFR_INSTR_MEM19>`     | :ref:`0x50123094 <RP_PIO_SFR_INSTR_MEM19>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM20 <RP_PIO_SFR_INSTR_MEM20>`     | :ref:`0x40202098 <RP_PIO_SFR_INSTR_MEM20>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM20 <RP_PIO_SFR_INSTR_MEM20>`     | :ref:`0x50123098 <RP_PIO_SFR_INSTR_MEM20>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM21 <RP_PIO_SFR_INSTR_MEM21>`     | :ref:`0x4020209c <RP_PIO_SFR_INSTR_MEM21>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM21 <RP_PIO_SFR_INSTR_MEM21>`     | :ref:`0x5012309c <RP_PIO_SFR_INSTR_MEM21>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM22 <RP_PIO_SFR_INSTR_MEM22>`     | :ref:`0x402020a0 <RP_PIO_SFR_INSTR_MEM22>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM22 <RP_PIO_SFR_INSTR_MEM22>`     | :ref:`0x501230a0 <RP_PIO_SFR_INSTR_MEM22>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM23 <RP_PIO_SFR_INSTR_MEM23>`     | :ref:`0x402020a4 <RP_PIO_SFR_INSTR_MEM23>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM23 <RP_PIO_SFR_INSTR_MEM23>`     | :ref:`0x501230a4 <RP_PIO_SFR_INSTR_MEM23>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM24 <RP_PIO_SFR_INSTR_MEM24>`     | :ref:`0x402020a8 <RP_PIO_SFR_INSTR_MEM24>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM24 <RP_PIO_SFR_INSTR_MEM24>`     | :ref:`0x501230a8 <RP_PIO_SFR_INSTR_MEM24>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM25 <RP_PIO_SFR_INSTR_MEM25>`     | :ref:`0x402020ac <RP_PIO_SFR_INSTR_MEM25>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM25 <RP_PIO_SFR_INSTR_MEM25>`     | :ref:`0x501230ac <RP_PIO_SFR_INSTR_MEM25>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM26 <RP_PIO_SFR_INSTR_MEM26>`     | :ref:`0x402020b0 <RP_PIO_SFR_INSTR_MEM26>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM26 <RP_PIO_SFR_INSTR_MEM26>`     | :ref:`0x501230b0 <RP_PIO_SFR_INSTR_MEM26>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM27 <RP_PIO_SFR_INSTR_MEM27>`     | :ref:`0x402020b4 <RP_PIO_SFR_INSTR_MEM27>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM27 <RP_PIO_SFR_INSTR_MEM27>`     | :ref:`0x501230b4 <RP_PIO_SFR_INSTR_MEM27>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM28 <RP_PIO_SFR_INSTR_MEM28>`     | :ref:`0x402020b8 <RP_PIO_SFR_INSTR_MEM28>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM28 <RP_PIO_SFR_INSTR_MEM28>`     | :ref:`0x501230b8 <RP_PIO_SFR_INSTR_MEM28>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM29 <RP_PIO_SFR_INSTR_MEM29>`     | :ref:`0x402020bc <RP_PIO_SFR_INSTR_MEM29>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM29 <RP_PIO_SFR_INSTR_MEM29>`     | :ref:`0x501230bc <RP_PIO_SFR_INSTR_MEM29>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM30 <RP_PIO_SFR_INSTR_MEM30>`     | :ref:`0x402020c0 <RP_PIO_SFR_INSTR_MEM30>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM30 <RP_PIO_SFR_INSTR_MEM30>`     | :ref:`0x501230c0 <RP_PIO_SFR_INSTR_MEM30>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INSTR_MEM31 <RP_PIO_SFR_INSTR_MEM31>`     | :ref:`0x402020c4 <RP_PIO_SFR_INSTR_MEM31>`   |
+| :ref:`RP_PIO_SFR_INSTR_MEM31 <RP_PIO_SFR_INSTR_MEM31>`     | :ref:`0x501230c4 <RP_PIO_SFR_INSTR_MEM31>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM0_CLKDIV <RP_PIO_SFR_SM0_CLKDIV>`       | :ref:`0x402020c8 <RP_PIO_SFR_SM0_CLKDIV>`    |
+| :ref:`RP_PIO_SFR_SM0_CLKDIV <RP_PIO_SFR_SM0_CLKDIV>`       | :ref:`0x501230c8 <RP_PIO_SFR_SM0_CLKDIV>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM0_EXECCTRL <RP_PIO_SFR_SM0_EXECCTRL>`   | :ref:`0x402020cc <RP_PIO_SFR_SM0_EXECCTRL>`  |
+| :ref:`RP_PIO_SFR_SM0_EXECCTRL <RP_PIO_SFR_SM0_EXECCTRL>`   | :ref:`0x501230cc <RP_PIO_SFR_SM0_EXECCTRL>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM0_SHIFTCTRL <RP_PIO_SFR_SM0_SHIFTCTRL>` | :ref:`0x402020d0 <RP_PIO_SFR_SM0_SHIFTCTRL>` |
+| :ref:`RP_PIO_SFR_SM0_SHIFTCTRL <RP_PIO_SFR_SM0_SHIFTCTRL>` | :ref:`0x501230d0 <RP_PIO_SFR_SM0_SHIFTCTRL>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM0_ADDR <RP_PIO_SFR_SM0_ADDR>`           | :ref:`0x402020d4 <RP_PIO_SFR_SM0_ADDR>`      |
+| :ref:`RP_PIO_SFR_SM0_ADDR <RP_PIO_SFR_SM0_ADDR>`           | :ref:`0x501230d4 <RP_PIO_SFR_SM0_ADDR>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM0_INSTR <RP_PIO_SFR_SM0_INSTR>`         | :ref:`0x402020d8 <RP_PIO_SFR_SM0_INSTR>`     |
+| :ref:`RP_PIO_SFR_SM0_INSTR <RP_PIO_SFR_SM0_INSTR>`         | :ref:`0x501230d8 <RP_PIO_SFR_SM0_INSTR>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM0_PINCTRL <RP_PIO_SFR_SM0_PINCTRL>`     | :ref:`0x402020dc <RP_PIO_SFR_SM0_PINCTRL>`   |
+| :ref:`RP_PIO_SFR_SM0_PINCTRL <RP_PIO_SFR_SM0_PINCTRL>`     | :ref:`0x501230dc <RP_PIO_SFR_SM0_PINCTRL>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM1_CLKDIV <RP_PIO_SFR_SM1_CLKDIV>`       | :ref:`0x402020e0 <RP_PIO_SFR_SM1_CLKDIV>`    |
+| :ref:`RP_PIO_SFR_SM1_CLKDIV <RP_PIO_SFR_SM1_CLKDIV>`       | :ref:`0x501230e0 <RP_PIO_SFR_SM1_CLKDIV>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM1_EXECCTRL <RP_PIO_SFR_SM1_EXECCTRL>`   | :ref:`0x402020e4 <RP_PIO_SFR_SM1_EXECCTRL>`  |
+| :ref:`RP_PIO_SFR_SM1_EXECCTRL <RP_PIO_SFR_SM1_EXECCTRL>`   | :ref:`0x501230e4 <RP_PIO_SFR_SM1_EXECCTRL>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM1_SHIFTCTRL <RP_PIO_SFR_SM1_SHIFTCTRL>` | :ref:`0x402020e8 <RP_PIO_SFR_SM1_SHIFTCTRL>` |
+| :ref:`RP_PIO_SFR_SM1_SHIFTCTRL <RP_PIO_SFR_SM1_SHIFTCTRL>` | :ref:`0x501230e8 <RP_PIO_SFR_SM1_SHIFTCTRL>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM1_ADDR <RP_PIO_SFR_SM1_ADDR>`           | :ref:`0x402020ec <RP_PIO_SFR_SM1_ADDR>`      |
+| :ref:`RP_PIO_SFR_SM1_ADDR <RP_PIO_SFR_SM1_ADDR>`           | :ref:`0x501230ec <RP_PIO_SFR_SM1_ADDR>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM1_INSTR <RP_PIO_SFR_SM1_INSTR>`         | :ref:`0x402020f0 <RP_PIO_SFR_SM1_INSTR>`     |
+| :ref:`RP_PIO_SFR_SM1_INSTR <RP_PIO_SFR_SM1_INSTR>`         | :ref:`0x501230f0 <RP_PIO_SFR_SM1_INSTR>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM1_PINCTRL <RP_PIO_SFR_SM1_PINCTRL>`     | :ref:`0x402020f4 <RP_PIO_SFR_SM1_PINCTRL>`   |
+| :ref:`RP_PIO_SFR_SM1_PINCTRL <RP_PIO_SFR_SM1_PINCTRL>`     | :ref:`0x501230f4 <RP_PIO_SFR_SM1_PINCTRL>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM2_CLKDIV <RP_PIO_SFR_SM2_CLKDIV>`       | :ref:`0x402020f8 <RP_PIO_SFR_SM2_CLKDIV>`    |
+| :ref:`RP_PIO_SFR_SM2_CLKDIV <RP_PIO_SFR_SM2_CLKDIV>`       | :ref:`0x501230f8 <RP_PIO_SFR_SM2_CLKDIV>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM2_EXECCTRL <RP_PIO_SFR_SM2_EXECCTRL>`   | :ref:`0x402020fc <RP_PIO_SFR_SM2_EXECCTRL>`  |
+| :ref:`RP_PIO_SFR_SM2_EXECCTRL <RP_PIO_SFR_SM2_EXECCTRL>`   | :ref:`0x501230fc <RP_PIO_SFR_SM2_EXECCTRL>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM2_SHIFTCTRL <RP_PIO_SFR_SM2_SHIFTCTRL>` | :ref:`0x40202100 <RP_PIO_SFR_SM2_SHIFTCTRL>` |
+| :ref:`RP_PIO_SFR_SM2_SHIFTCTRL <RP_PIO_SFR_SM2_SHIFTCTRL>` | :ref:`0x50123100 <RP_PIO_SFR_SM2_SHIFTCTRL>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM2_ADDR <RP_PIO_SFR_SM2_ADDR>`           | :ref:`0x40202104 <RP_PIO_SFR_SM2_ADDR>`      |
+| :ref:`RP_PIO_SFR_SM2_ADDR <RP_PIO_SFR_SM2_ADDR>`           | :ref:`0x50123104 <RP_PIO_SFR_SM2_ADDR>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM2_INSTR <RP_PIO_SFR_SM2_INSTR>`         | :ref:`0x40202108 <RP_PIO_SFR_SM2_INSTR>`     |
+| :ref:`RP_PIO_SFR_SM2_INSTR <RP_PIO_SFR_SM2_INSTR>`         | :ref:`0x50123108 <RP_PIO_SFR_SM2_INSTR>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM2_PINCTRL <RP_PIO_SFR_SM2_PINCTRL>`     | :ref:`0x4020210c <RP_PIO_SFR_SM2_PINCTRL>`   |
+| :ref:`RP_PIO_SFR_SM2_PINCTRL <RP_PIO_SFR_SM2_PINCTRL>`     | :ref:`0x5012310c <RP_PIO_SFR_SM2_PINCTRL>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM3_CLKDIV <RP_PIO_SFR_SM3_CLKDIV>`       | :ref:`0x40202110 <RP_PIO_SFR_SM3_CLKDIV>`    |
+| :ref:`RP_PIO_SFR_SM3_CLKDIV <RP_PIO_SFR_SM3_CLKDIV>`       | :ref:`0x50123110 <RP_PIO_SFR_SM3_CLKDIV>`    |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM3_EXECCTRL <RP_PIO_SFR_SM3_EXECCTRL>`   | :ref:`0x40202114 <RP_PIO_SFR_SM3_EXECCTRL>`  |
+| :ref:`RP_PIO_SFR_SM3_EXECCTRL <RP_PIO_SFR_SM3_EXECCTRL>`   | :ref:`0x50123114 <RP_PIO_SFR_SM3_EXECCTRL>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM3_SHIFTCTRL <RP_PIO_SFR_SM3_SHIFTCTRL>` | :ref:`0x40202118 <RP_PIO_SFR_SM3_SHIFTCTRL>` |
+| :ref:`RP_PIO_SFR_SM3_SHIFTCTRL <RP_PIO_SFR_SM3_SHIFTCTRL>` | :ref:`0x50123118 <RP_PIO_SFR_SM3_SHIFTCTRL>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM3_ADDR <RP_PIO_SFR_SM3_ADDR>`           | :ref:`0x4020211c <RP_PIO_SFR_SM3_ADDR>`      |
+| :ref:`RP_PIO_SFR_SM3_ADDR <RP_PIO_SFR_SM3_ADDR>`           | :ref:`0x5012311c <RP_PIO_SFR_SM3_ADDR>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM3_INSTR <RP_PIO_SFR_SM3_INSTR>`         | :ref:`0x40202120 <RP_PIO_SFR_SM3_INSTR>`     |
+| :ref:`RP_PIO_SFR_SM3_INSTR <RP_PIO_SFR_SM3_INSTR>`         | :ref:`0x50123120 <RP_PIO_SFR_SM3_INSTR>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_SM3_PINCTRL <RP_PIO_SFR_SM3_PINCTRL>`     | :ref:`0x40202124 <RP_PIO_SFR_SM3_PINCTRL>`   |
+| :ref:`RP_PIO_SFR_SM3_PINCTRL <RP_PIO_SFR_SM3_PINCTRL>`     | :ref:`0x50123124 <RP_PIO_SFR_SM3_PINCTRL>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_INTR <RP_PIO_SFR_INTR>`                   | :ref:`0x40202128 <RP_PIO_SFR_INTR>`          |
+| :ref:`RP_PIO_SFR_INTR <RP_PIO_SFR_INTR>`                   | :ref:`0x50123128 <RP_PIO_SFR_INTR>`          |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ0_INTE <RP_PIO_SFR_IRQ0_INTE>`         | :ref:`0x4020212c <RP_PIO_SFR_IRQ0_INTE>`     |
+| :ref:`RP_PIO_SFR_IRQ0_INTE <RP_PIO_SFR_IRQ0_INTE>`         | :ref:`0x5012312c <RP_PIO_SFR_IRQ0_INTE>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ0_INTF <RP_PIO_SFR_IRQ0_INTF>`         | :ref:`0x40202130 <RP_PIO_SFR_IRQ0_INTF>`     |
+| :ref:`RP_PIO_SFR_IRQ0_INTF <RP_PIO_SFR_IRQ0_INTF>`         | :ref:`0x50123130 <RP_PIO_SFR_IRQ0_INTF>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ0_INTS <RP_PIO_SFR_IRQ0_INTS>`         | :ref:`0x40202134 <RP_PIO_SFR_IRQ0_INTS>`     |
+| :ref:`RP_PIO_SFR_IRQ0_INTS <RP_PIO_SFR_IRQ0_INTS>`         | :ref:`0x50123134 <RP_PIO_SFR_IRQ0_INTS>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ1_INTE <RP_PIO_SFR_IRQ1_INTE>`         | :ref:`0x40202138 <RP_PIO_SFR_IRQ1_INTE>`     |
+| :ref:`RP_PIO_SFR_IRQ1_INTE <RP_PIO_SFR_IRQ1_INTE>`         | :ref:`0x50123138 <RP_PIO_SFR_IRQ1_INTE>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ1_INTF <RP_PIO_SFR_IRQ1_INTF>`         | :ref:`0x4020213c <RP_PIO_SFR_IRQ1_INTF>`     |
+| :ref:`RP_PIO_SFR_IRQ1_INTF <RP_PIO_SFR_IRQ1_INTF>`         | :ref:`0x5012313c <RP_PIO_SFR_IRQ1_INTF>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IRQ1_INTS <RP_PIO_SFR_IRQ1_INTS>`         | :ref:`0x40202140 <RP_PIO_SFR_IRQ1_INTS>`     |
+| :ref:`RP_PIO_SFR_IRQ1_INTS <RP_PIO_SFR_IRQ1_INTS>`         | :ref:`0x50123140 <RP_PIO_SFR_IRQ1_INTS>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED81 <RP_PIO_RESERVED81>`               | :ref:`0x40202144 <RP_PIO_RESERVED81>`        |
+| :ref:`RP_PIO_RESERVED81 <RP_PIO_RESERVED81>`               | :ref:`0x50123144 <RP_PIO_RESERVED81>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED82 <RP_PIO_RESERVED82>`               | :ref:`0x40202148 <RP_PIO_RESERVED82>`        |
+| :ref:`RP_PIO_RESERVED82 <RP_PIO_RESERVED82>`               | :ref:`0x50123148 <RP_PIO_RESERVED82>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED83 <RP_PIO_RESERVED83>`               | :ref:`0x4020214c <RP_PIO_RESERVED83>`        |
+| :ref:`RP_PIO_RESERVED83 <RP_PIO_RESERVED83>`               | :ref:`0x5012314c <RP_PIO_RESERVED83>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED84 <RP_PIO_RESERVED84>`               | :ref:`0x40202150 <RP_PIO_RESERVED84>`        |
+| :ref:`RP_PIO_RESERVED84 <RP_PIO_RESERVED84>`               | :ref:`0x50123150 <RP_PIO_RESERVED84>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED85 <RP_PIO_RESERVED85>`               | :ref:`0x40202154 <RP_PIO_RESERVED85>`        |
+| :ref:`RP_PIO_RESERVED85 <RP_PIO_RESERVED85>`               | :ref:`0x50123154 <RP_PIO_RESERVED85>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED86 <RP_PIO_RESERVED86>`               | :ref:`0x40202158 <RP_PIO_RESERVED86>`        |
+| :ref:`RP_PIO_RESERVED86 <RP_PIO_RESERVED86>`               | :ref:`0x50123158 <RP_PIO_RESERVED86>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED87 <RP_PIO_RESERVED87>`               | :ref:`0x4020215c <RP_PIO_RESERVED87>`        |
+| :ref:`RP_PIO_RESERVED87 <RP_PIO_RESERVED87>`               | :ref:`0x5012315c <RP_PIO_RESERVED87>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED88 <RP_PIO_RESERVED88>`               | :ref:`0x40202160 <RP_PIO_RESERVED88>`        |
+| :ref:`RP_PIO_RESERVED88 <RP_PIO_RESERVED88>`               | :ref:`0x50123160 <RP_PIO_RESERVED88>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED89 <RP_PIO_RESERVED89>`               | :ref:`0x40202164 <RP_PIO_RESERVED89>`        |
+| :ref:`RP_PIO_RESERVED89 <RP_PIO_RESERVED89>`               | :ref:`0x50123164 <RP_PIO_RESERVED89>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED90 <RP_PIO_RESERVED90>`               | :ref:`0x40202168 <RP_PIO_RESERVED90>`        |
+| :ref:`RP_PIO_RESERVED90 <RP_PIO_RESERVED90>`               | :ref:`0x50123168 <RP_PIO_RESERVED90>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED91 <RP_PIO_RESERVED91>`               | :ref:`0x4020216c <RP_PIO_RESERVED91>`        |
+| :ref:`RP_PIO_RESERVED91 <RP_PIO_RESERVED91>`               | :ref:`0x5012316c <RP_PIO_RESERVED91>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED92 <RP_PIO_RESERVED92>`               | :ref:`0x40202170 <RP_PIO_RESERVED92>`        |
+| :ref:`RP_PIO_RESERVED92 <RP_PIO_RESERVED92>`               | :ref:`0x50123170 <RP_PIO_RESERVED92>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED93 <RP_PIO_RESERVED93>`               | :ref:`0x40202174 <RP_PIO_RESERVED93>`        |
+| :ref:`RP_PIO_RESERVED93 <RP_PIO_RESERVED93>`               | :ref:`0x50123174 <RP_PIO_RESERVED93>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED94 <RP_PIO_RESERVED94>`               | :ref:`0x40202178 <RP_PIO_RESERVED94>`        |
+| :ref:`RP_PIO_RESERVED94 <RP_PIO_RESERVED94>`               | :ref:`0x50123178 <RP_PIO_RESERVED94>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_RESERVED95 <RP_PIO_RESERVED95>`               | :ref:`0x4020217c <RP_PIO_RESERVED95>`        |
+| :ref:`RP_PIO_RESERVED95 <RP_PIO_RESERVED95>`               | :ref:`0x5012317c <RP_PIO_RESERVED95>`        |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IO_OE_INV <RP_PIO_SFR_IO_OE_INV>`         | :ref:`0x40202180 <RP_PIO_SFR_IO_OE_INV>`     |
+| :ref:`RP_PIO_SFR_IO_OE_INV <RP_PIO_SFR_IO_OE_INV>`         | :ref:`0x50123180 <RP_PIO_SFR_IO_OE_INV>`     |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IO_O_INV <RP_PIO_SFR_IO_O_INV>`           | :ref:`0x40202184 <RP_PIO_SFR_IO_O_INV>`      |
+| :ref:`RP_PIO_SFR_IO_O_INV <RP_PIO_SFR_IO_O_INV>`           | :ref:`0x50123184 <RP_PIO_SFR_IO_O_INV>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_IO_I_INV <RP_PIO_SFR_IO_I_INV>`           | :ref:`0x40202188 <RP_PIO_SFR_IO_I_INV>`      |
+| :ref:`RP_PIO_SFR_IO_I_INV <RP_PIO_SFR_IO_I_INV>`           | :ref:`0x50123188 <RP_PIO_SFR_IO_I_INV>`      |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_FIFO_MARGIN <RP_PIO_SFR_FIFO_MARGIN>`     | :ref:`0x4020218c <RP_PIO_SFR_FIFO_MARGIN>`   |
+| :ref:`RP_PIO_SFR_FIFO_MARGIN <RP_PIO_SFR_FIFO_MARGIN>`     | :ref:`0x5012318c <RP_PIO_SFR_FIFO_MARGIN>`   |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_ZERO0 <RP_PIO_SFR_ZERO0>`                 | :ref:`0x40202190 <RP_PIO_SFR_ZERO0>`         |
+| :ref:`RP_PIO_SFR_ZERO0 <RP_PIO_SFR_ZERO0>`                 | :ref:`0x50123190 <RP_PIO_SFR_ZERO0>`         |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_ZERO1 <RP_PIO_SFR_ZERO1>`                 | :ref:`0x40202194 <RP_PIO_SFR_ZERO1>`         |
+| :ref:`RP_PIO_SFR_ZERO1 <RP_PIO_SFR_ZERO1>`                 | :ref:`0x50123194 <RP_PIO_SFR_ZERO1>`         |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_ZERO2 <RP_PIO_SFR_ZERO2>`                 | :ref:`0x40202198 <RP_PIO_SFR_ZERO2>`         |
+| :ref:`RP_PIO_SFR_ZERO2 <RP_PIO_SFR_ZERO2>`                 | :ref:`0x50123198 <RP_PIO_SFR_ZERO2>`         |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`RP_PIO_SFR_ZERO3 <RP_PIO_SFR_ZERO3>`                 | :ref:`0x4020219c <RP_PIO_SFR_ZERO3>`         |
+| :ref:`RP_PIO_SFR_ZERO3 <RP_PIO_SFR_ZERO3>`                 | :ref:`0x5012319c <RP_PIO_SFR_ZERO3>`         |
 +------------------------------------------------------------+----------------------------------------------+
 
 RP_PIO_SFR_CTRL
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x0 = 0x40202000`
+`Address: 0x50123000 + 0x0 = 0x50123000`
 
 
     .. wavedrom::
@@ -248,7 +248,7 @@ RP_PIO_SFR_CTRL
 RP_PIO_SFR_FSTAT
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x4 = 0x40202004`
+`Address: 0x50123000 + 0x4 = 0x50123004`
 
 
     .. wavedrom::
@@ -291,7 +291,7 @@ RP_PIO_SFR_FSTAT
 RP_PIO_SFR_FDEBUG
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x8 = 0x40202008`
+`Address: 0x50123000 + 0x8 = 0x50123008`
 
 
     .. wavedrom::
@@ -334,7 +334,7 @@ RP_PIO_SFR_FDEBUG
 RP_PIO_SFR_FLEVEL
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xc = 0x4020200c`
+`Address: 0x50123000 + 0xc = 0x5012300c`
 
 
     .. wavedrom::
@@ -401,7 +401,7 @@ RP_PIO_SFR_FLEVEL
 RP_PIO_SFR_TXF0
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x10 = 0x40202010`
+`Address: 0x50123000 + 0x10 = 0x50123010`
 
 
     .. wavedrom::
@@ -423,7 +423,7 @@ RP_PIO_SFR_TXF0
 RP_PIO_SFR_TXF1
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x14 = 0x40202014`
+`Address: 0x50123000 + 0x14 = 0x50123014`
 
 
     .. wavedrom::
@@ -445,7 +445,7 @@ RP_PIO_SFR_TXF1
 RP_PIO_SFR_TXF2
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x18 = 0x40202018`
+`Address: 0x50123000 + 0x18 = 0x50123018`
 
 
     .. wavedrom::
@@ -467,7 +467,7 @@ RP_PIO_SFR_TXF2
 RP_PIO_SFR_TXF3
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x1c = 0x4020201c`
+`Address: 0x50123000 + 0x1c = 0x5012301c`
 
 
     .. wavedrom::
@@ -489,7 +489,7 @@ RP_PIO_SFR_TXF3
 RP_PIO_SFR_RXF0
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x20 = 0x40202020`
+`Address: 0x50123000 + 0x20 = 0x50123020`
 
 
     .. wavedrom::
@@ -511,7 +511,7 @@ RP_PIO_SFR_RXF0
 RP_PIO_SFR_RXF1
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x24 = 0x40202024`
+`Address: 0x50123000 + 0x24 = 0x50123024`
 
 
     .. wavedrom::
@@ -533,7 +533,7 @@ RP_PIO_SFR_RXF1
 RP_PIO_SFR_RXF2
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x28 = 0x40202028`
+`Address: 0x50123000 + 0x28 = 0x50123028`
 
 
     .. wavedrom::
@@ -555,7 +555,7 @@ RP_PIO_SFR_RXF2
 RP_PIO_SFR_RXF3
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x2c = 0x4020202c`
+`Address: 0x50123000 + 0x2c = 0x5012302c`
 
 
     .. wavedrom::
@@ -577,7 +577,7 @@ RP_PIO_SFR_RXF3
 RP_PIO_SFR_IRQ
 ^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x30 = 0x40202030`
+`Address: 0x50123000 + 0x30 = 0x50123030`
 
 
     .. wavedrom::
@@ -600,7 +600,7 @@ RP_PIO_SFR_IRQ
 RP_PIO_SFR_IRQ_FORCE
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x34 = 0x40202034`
+`Address: 0x50123000 + 0x34 = 0x50123034`
 
 
     .. wavedrom::
@@ -623,7 +623,7 @@ RP_PIO_SFR_IRQ_FORCE
 RP_PIO_SFR_SYNC_BYPASS
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x38 = 0x40202038`
+`Address: 0x50123000 + 0x38 = 0x50123038`
 
 
     .. wavedrom::
@@ -645,7 +645,7 @@ RP_PIO_SFR_SYNC_BYPASS
 RP_PIO_SFR_DBG_PADOUT
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x3c = 0x4020203c`
+`Address: 0x50123000 + 0x3c = 0x5012303c`
 
 
     .. wavedrom::
@@ -667,7 +667,7 @@ RP_PIO_SFR_DBG_PADOUT
 RP_PIO_SFR_DBG_PADOE
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x40 = 0x40202040`
+`Address: 0x50123000 + 0x40 = 0x50123040`
 
 
     .. wavedrom::
@@ -689,7 +689,7 @@ RP_PIO_SFR_DBG_PADOE
 RP_PIO_SFR_DBG_CFGINFO
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x44 = 0x40202044`
+`Address: 0x50123000 + 0x44 = 0x50123044`
 
 
     .. wavedrom::
@@ -717,7 +717,7 @@ RP_PIO_SFR_DBG_CFGINFO
 RP_PIO_SFR_INSTR_MEM0
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x48 = 0x40202048`
+`Address: 0x50123000 + 0x48 = 0x50123048`
 
 
     .. wavedrom::
@@ -740,7 +740,7 @@ RP_PIO_SFR_INSTR_MEM0
 RP_PIO_SFR_INSTR_MEM1
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x4c = 0x4020204c`
+`Address: 0x50123000 + 0x4c = 0x5012304c`
 
 
     .. wavedrom::
@@ -763,7 +763,7 @@ RP_PIO_SFR_INSTR_MEM1
 RP_PIO_SFR_INSTR_MEM2
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x50 = 0x40202050`
+`Address: 0x50123000 + 0x50 = 0x50123050`
 
 
     .. wavedrom::
@@ -786,7 +786,7 @@ RP_PIO_SFR_INSTR_MEM2
 RP_PIO_SFR_INSTR_MEM3
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x54 = 0x40202054`
+`Address: 0x50123000 + 0x54 = 0x50123054`
 
 
     .. wavedrom::
@@ -809,7 +809,7 @@ RP_PIO_SFR_INSTR_MEM3
 RP_PIO_SFR_INSTR_MEM4
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x58 = 0x40202058`
+`Address: 0x50123000 + 0x58 = 0x50123058`
 
 
     .. wavedrom::
@@ -832,7 +832,7 @@ RP_PIO_SFR_INSTR_MEM4
 RP_PIO_SFR_INSTR_MEM5
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x5c = 0x4020205c`
+`Address: 0x50123000 + 0x5c = 0x5012305c`
 
 
     .. wavedrom::
@@ -855,7 +855,7 @@ RP_PIO_SFR_INSTR_MEM5
 RP_PIO_SFR_INSTR_MEM6
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x60 = 0x40202060`
+`Address: 0x50123000 + 0x60 = 0x50123060`
 
 
     .. wavedrom::
@@ -878,7 +878,7 @@ RP_PIO_SFR_INSTR_MEM6
 RP_PIO_SFR_INSTR_MEM7
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x64 = 0x40202064`
+`Address: 0x50123000 + 0x64 = 0x50123064`
 
 
     .. wavedrom::
@@ -901,7 +901,7 @@ RP_PIO_SFR_INSTR_MEM7
 RP_PIO_SFR_INSTR_MEM8
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x68 = 0x40202068`
+`Address: 0x50123000 + 0x68 = 0x50123068`
 
 
     .. wavedrom::
@@ -924,7 +924,7 @@ RP_PIO_SFR_INSTR_MEM8
 RP_PIO_SFR_INSTR_MEM9
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x6c = 0x4020206c`
+`Address: 0x50123000 + 0x6c = 0x5012306c`
 
 
     .. wavedrom::
@@ -947,7 +947,7 @@ RP_PIO_SFR_INSTR_MEM9
 RP_PIO_SFR_INSTR_MEM10
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x70 = 0x40202070`
+`Address: 0x50123000 + 0x70 = 0x50123070`
 
 
     .. wavedrom::
@@ -970,7 +970,7 @@ RP_PIO_SFR_INSTR_MEM10
 RP_PIO_SFR_INSTR_MEM11
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x74 = 0x40202074`
+`Address: 0x50123000 + 0x74 = 0x50123074`
 
 
     .. wavedrom::
@@ -993,7 +993,7 @@ RP_PIO_SFR_INSTR_MEM11
 RP_PIO_SFR_INSTR_MEM12
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x78 = 0x40202078`
+`Address: 0x50123000 + 0x78 = 0x50123078`
 
 
     .. wavedrom::
@@ -1016,7 +1016,7 @@ RP_PIO_SFR_INSTR_MEM12
 RP_PIO_SFR_INSTR_MEM13
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x7c = 0x4020207c`
+`Address: 0x50123000 + 0x7c = 0x5012307c`
 
 
     .. wavedrom::
@@ -1039,7 +1039,7 @@ RP_PIO_SFR_INSTR_MEM13
 RP_PIO_SFR_INSTR_MEM14
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x80 = 0x40202080`
+`Address: 0x50123000 + 0x80 = 0x50123080`
 
 
     .. wavedrom::
@@ -1062,7 +1062,7 @@ RP_PIO_SFR_INSTR_MEM14
 RP_PIO_SFR_INSTR_MEM15
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x84 = 0x40202084`
+`Address: 0x50123000 + 0x84 = 0x50123084`
 
 
     .. wavedrom::
@@ -1085,7 +1085,7 @@ RP_PIO_SFR_INSTR_MEM15
 RP_PIO_SFR_INSTR_MEM16
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x88 = 0x40202088`
+`Address: 0x50123000 + 0x88 = 0x50123088`
 
 
     .. wavedrom::
@@ -1108,7 +1108,7 @@ RP_PIO_SFR_INSTR_MEM16
 RP_PIO_SFR_INSTR_MEM17
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x8c = 0x4020208c`
+`Address: 0x50123000 + 0x8c = 0x5012308c`
 
 
     .. wavedrom::
@@ -1131,7 +1131,7 @@ RP_PIO_SFR_INSTR_MEM17
 RP_PIO_SFR_INSTR_MEM18
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x90 = 0x40202090`
+`Address: 0x50123000 + 0x90 = 0x50123090`
 
 
     .. wavedrom::
@@ -1154,7 +1154,7 @@ RP_PIO_SFR_INSTR_MEM18
 RP_PIO_SFR_INSTR_MEM19
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x94 = 0x40202094`
+`Address: 0x50123000 + 0x94 = 0x50123094`
 
 
     .. wavedrom::
@@ -1177,7 +1177,7 @@ RP_PIO_SFR_INSTR_MEM19
 RP_PIO_SFR_INSTR_MEM20
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x98 = 0x40202098`
+`Address: 0x50123000 + 0x98 = 0x50123098`
 
 
     .. wavedrom::
@@ -1200,7 +1200,7 @@ RP_PIO_SFR_INSTR_MEM20
 RP_PIO_SFR_INSTR_MEM21
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x9c = 0x4020209c`
+`Address: 0x50123000 + 0x9c = 0x5012309c`
 
 
     .. wavedrom::
@@ -1223,7 +1223,7 @@ RP_PIO_SFR_INSTR_MEM21
 RP_PIO_SFR_INSTR_MEM22
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xa0 = 0x402020a0`
+`Address: 0x50123000 + 0xa0 = 0x501230a0`
 
 
     .. wavedrom::
@@ -1246,7 +1246,7 @@ RP_PIO_SFR_INSTR_MEM22
 RP_PIO_SFR_INSTR_MEM23
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xa4 = 0x402020a4`
+`Address: 0x50123000 + 0xa4 = 0x501230a4`
 
 
     .. wavedrom::
@@ -1269,7 +1269,7 @@ RP_PIO_SFR_INSTR_MEM23
 RP_PIO_SFR_INSTR_MEM24
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xa8 = 0x402020a8`
+`Address: 0x50123000 + 0xa8 = 0x501230a8`
 
 
     .. wavedrom::
@@ -1292,7 +1292,7 @@ RP_PIO_SFR_INSTR_MEM24
 RP_PIO_SFR_INSTR_MEM25
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xac = 0x402020ac`
+`Address: 0x50123000 + 0xac = 0x501230ac`
 
 
     .. wavedrom::
@@ -1315,7 +1315,7 @@ RP_PIO_SFR_INSTR_MEM25
 RP_PIO_SFR_INSTR_MEM26
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xb0 = 0x402020b0`
+`Address: 0x50123000 + 0xb0 = 0x501230b0`
 
 
     .. wavedrom::
@@ -1338,7 +1338,7 @@ RP_PIO_SFR_INSTR_MEM26
 RP_PIO_SFR_INSTR_MEM27
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xb4 = 0x402020b4`
+`Address: 0x50123000 + 0xb4 = 0x501230b4`
 
 
     .. wavedrom::
@@ -1361,7 +1361,7 @@ RP_PIO_SFR_INSTR_MEM27
 RP_PIO_SFR_INSTR_MEM28
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xb8 = 0x402020b8`
+`Address: 0x50123000 + 0xb8 = 0x501230b8`
 
 
     .. wavedrom::
@@ -1384,7 +1384,7 @@ RP_PIO_SFR_INSTR_MEM28
 RP_PIO_SFR_INSTR_MEM29
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xbc = 0x402020bc`
+`Address: 0x50123000 + 0xbc = 0x501230bc`
 
 
     .. wavedrom::
@@ -1407,7 +1407,7 @@ RP_PIO_SFR_INSTR_MEM29
 RP_PIO_SFR_INSTR_MEM30
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xc0 = 0x402020c0`
+`Address: 0x50123000 + 0xc0 = 0x501230c0`
 
 
     .. wavedrom::
@@ -1430,7 +1430,7 @@ RP_PIO_SFR_INSTR_MEM30
 RP_PIO_SFR_INSTR_MEM31
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xc4 = 0x402020c4`
+`Address: 0x50123000 + 0xc4 = 0x501230c4`
 
 
     .. wavedrom::
@@ -1453,7 +1453,7 @@ RP_PIO_SFR_INSTR_MEM31
 RP_PIO_SFR_SM0_CLKDIV
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xc8 = 0x402020c8`
+`Address: 0x50123000 + 0xc8 = 0x501230c8`
 
 
     .. wavedrom::
@@ -1481,7 +1481,7 @@ RP_PIO_SFR_SM0_CLKDIV
 RP_PIO_SFR_SM0_EXECCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xcc = 0x402020cc`
+`Address: 0x50123000 + 0xcc = 0x501230cc`
 
 
     .. wavedrom::
@@ -1536,7 +1536,7 @@ RP_PIO_SFR_SM0_EXECCTRL
 RP_PIO_SFR_SM0_SHIFTCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xd0 = 0x402020d0`
+`Address: 0x50123000 + 0xd0 = 0x501230d0`
 
 
     .. wavedrom::
@@ -1582,7 +1582,7 @@ RP_PIO_SFR_SM0_SHIFTCTRL
 RP_PIO_SFR_SM0_ADDR
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xd4 = 0x402020d4`
+`Address: 0x50123000 + 0xd4 = 0x501230d4`
 
 
     .. wavedrom::
@@ -1605,7 +1605,7 @@ RP_PIO_SFR_SM0_ADDR
 RP_PIO_SFR_SM0_INSTR
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xd8 = 0x402020d8`
+`Address: 0x50123000 + 0xd8 = 0x501230d8`
 
 
     .. wavedrom::
@@ -1628,7 +1628,7 @@ RP_PIO_SFR_SM0_INSTR
 RP_PIO_SFR_SM0_PINCTRL
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xdc = 0x402020dc`
+`Address: 0x50123000 + 0xdc = 0x501230dc`
 
 
     .. wavedrom::
@@ -1668,7 +1668,7 @@ RP_PIO_SFR_SM0_PINCTRL
 RP_PIO_SFR_SM1_CLKDIV
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xe0 = 0x402020e0`
+`Address: 0x50123000 + 0xe0 = 0x501230e0`
 
 
     .. wavedrom::
@@ -1696,7 +1696,7 @@ RP_PIO_SFR_SM1_CLKDIV
 RP_PIO_SFR_SM1_EXECCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xe4 = 0x402020e4`
+`Address: 0x50123000 + 0xe4 = 0x501230e4`
 
 
     .. wavedrom::
@@ -1751,7 +1751,7 @@ RP_PIO_SFR_SM1_EXECCTRL
 RP_PIO_SFR_SM1_SHIFTCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xe8 = 0x402020e8`
+`Address: 0x50123000 + 0xe8 = 0x501230e8`
 
 
     .. wavedrom::
@@ -1797,7 +1797,7 @@ RP_PIO_SFR_SM1_SHIFTCTRL
 RP_PIO_SFR_SM1_ADDR
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xec = 0x402020ec`
+`Address: 0x50123000 + 0xec = 0x501230ec`
 
 
     .. wavedrom::
@@ -1820,7 +1820,7 @@ RP_PIO_SFR_SM1_ADDR
 RP_PIO_SFR_SM1_INSTR
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xf0 = 0x402020f0`
+`Address: 0x50123000 + 0xf0 = 0x501230f0`
 
 
     .. wavedrom::
@@ -1843,7 +1843,7 @@ RP_PIO_SFR_SM1_INSTR
 RP_PIO_SFR_SM1_PINCTRL
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xf4 = 0x402020f4`
+`Address: 0x50123000 + 0xf4 = 0x501230f4`
 
 
     .. wavedrom::
@@ -1883,7 +1883,7 @@ RP_PIO_SFR_SM1_PINCTRL
 RP_PIO_SFR_SM2_CLKDIV
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xf8 = 0x402020f8`
+`Address: 0x50123000 + 0xf8 = 0x501230f8`
 
 
     .. wavedrom::
@@ -1911,7 +1911,7 @@ RP_PIO_SFR_SM2_CLKDIV
 RP_PIO_SFR_SM2_EXECCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0xfc = 0x402020fc`
+`Address: 0x50123000 + 0xfc = 0x501230fc`
 
 
     .. wavedrom::
@@ -1966,7 +1966,7 @@ RP_PIO_SFR_SM2_EXECCTRL
 RP_PIO_SFR_SM2_SHIFTCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x100 = 0x40202100`
+`Address: 0x50123000 + 0x100 = 0x50123100`
 
 
     .. wavedrom::
@@ -2012,7 +2012,7 @@ RP_PIO_SFR_SM2_SHIFTCTRL
 RP_PIO_SFR_SM2_ADDR
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x104 = 0x40202104`
+`Address: 0x50123000 + 0x104 = 0x50123104`
 
 
     .. wavedrom::
@@ -2035,7 +2035,7 @@ RP_PIO_SFR_SM2_ADDR
 RP_PIO_SFR_SM2_INSTR
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x108 = 0x40202108`
+`Address: 0x50123000 + 0x108 = 0x50123108`
 
 
     .. wavedrom::
@@ -2058,7 +2058,7 @@ RP_PIO_SFR_SM2_INSTR
 RP_PIO_SFR_SM2_PINCTRL
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x10c = 0x4020210c`
+`Address: 0x50123000 + 0x10c = 0x5012310c`
 
 
     .. wavedrom::
@@ -2098,7 +2098,7 @@ RP_PIO_SFR_SM2_PINCTRL
 RP_PIO_SFR_SM3_CLKDIV
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x110 = 0x40202110`
+`Address: 0x50123000 + 0x110 = 0x50123110`
 
 
     .. wavedrom::
@@ -2126,7 +2126,7 @@ RP_PIO_SFR_SM3_CLKDIV
 RP_PIO_SFR_SM3_EXECCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x114 = 0x40202114`
+`Address: 0x50123000 + 0x114 = 0x50123114`
 
 
     .. wavedrom::
@@ -2181,7 +2181,7 @@ RP_PIO_SFR_SM3_EXECCTRL
 RP_PIO_SFR_SM3_SHIFTCTRL
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x118 = 0x40202118`
+`Address: 0x50123000 + 0x118 = 0x50123118`
 
 
     .. wavedrom::
@@ -2227,7 +2227,7 @@ RP_PIO_SFR_SM3_SHIFTCTRL
 RP_PIO_SFR_SM3_ADDR
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x11c = 0x4020211c`
+`Address: 0x50123000 + 0x11c = 0x5012311c`
 
 
     .. wavedrom::
@@ -2250,7 +2250,7 @@ RP_PIO_SFR_SM3_ADDR
 RP_PIO_SFR_SM3_INSTR
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x120 = 0x40202120`
+`Address: 0x50123000 + 0x120 = 0x50123120`
 
 
     .. wavedrom::
@@ -2273,7 +2273,7 @@ RP_PIO_SFR_SM3_INSTR
 RP_PIO_SFR_SM3_PINCTRL
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x124 = 0x40202124`
+`Address: 0x50123000 + 0x124 = 0x50123124`
 
 
     .. wavedrom::
@@ -2313,7 +2313,7 @@ RP_PIO_SFR_SM3_PINCTRL
 RP_PIO_SFR_INTR
 ^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x128 = 0x40202128`
+`Address: 0x50123000 + 0x128 = 0x50123128`
 
 
     .. wavedrom::
@@ -2342,7 +2342,7 @@ RP_PIO_SFR_INTR
 RP_PIO_SFR_IRQ0_INTE
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x12c = 0x4020212c`
+`Address: 0x50123000 + 0x12c = 0x5012312c`
 
 
     .. wavedrom::
@@ -2371,7 +2371,7 @@ RP_PIO_SFR_IRQ0_INTE
 RP_PIO_SFR_IRQ0_INTF
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x130 = 0x40202130`
+`Address: 0x50123000 + 0x130 = 0x50123130`
 
 
     .. wavedrom::
@@ -2400,7 +2400,7 @@ RP_PIO_SFR_IRQ0_INTF
 RP_PIO_SFR_IRQ0_INTS
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x134 = 0x40202134`
+`Address: 0x50123000 + 0x134 = 0x50123134`
 
 
     .. wavedrom::
@@ -2429,7 +2429,7 @@ RP_PIO_SFR_IRQ0_INTS
 RP_PIO_SFR_IRQ1_INTE
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x138 = 0x40202138`
+`Address: 0x50123000 + 0x138 = 0x50123138`
 
 
     .. wavedrom::
@@ -2458,7 +2458,7 @@ RP_PIO_SFR_IRQ1_INTE
 RP_PIO_SFR_IRQ1_INTF
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x13c = 0x4020213c`
+`Address: 0x50123000 + 0x13c = 0x5012313c`
 
 
     .. wavedrom::
@@ -2487,7 +2487,7 @@ RP_PIO_SFR_IRQ1_INTF
 RP_PIO_SFR_IRQ1_INTS
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x140 = 0x40202140`
+`Address: 0x50123000 + 0x140 = 0x50123140`
 
 
     .. wavedrom::
@@ -2516,7 +2516,7 @@ RP_PIO_SFR_IRQ1_INTS
 RP_PIO_RESERVED81
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x144 = 0x40202144`
+`Address: 0x50123000 + 0x144 = 0x50123144`
 
 
     .. wavedrom::
@@ -2533,7 +2533,7 @@ RP_PIO_RESERVED81
 RP_PIO_RESERVED82
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x148 = 0x40202148`
+`Address: 0x50123000 + 0x148 = 0x50123148`
 
 
     .. wavedrom::
@@ -2550,7 +2550,7 @@ RP_PIO_RESERVED82
 RP_PIO_RESERVED83
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x14c = 0x4020214c`
+`Address: 0x50123000 + 0x14c = 0x5012314c`
 
 
     .. wavedrom::
@@ -2567,7 +2567,7 @@ RP_PIO_RESERVED83
 RP_PIO_RESERVED84
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x150 = 0x40202150`
+`Address: 0x50123000 + 0x150 = 0x50123150`
 
 
     .. wavedrom::
@@ -2584,7 +2584,7 @@ RP_PIO_RESERVED84
 RP_PIO_RESERVED85
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x154 = 0x40202154`
+`Address: 0x50123000 + 0x154 = 0x50123154`
 
 
     .. wavedrom::
@@ -2601,7 +2601,7 @@ RP_PIO_RESERVED85
 RP_PIO_RESERVED86
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x158 = 0x40202158`
+`Address: 0x50123000 + 0x158 = 0x50123158`
 
 
     .. wavedrom::
@@ -2618,7 +2618,7 @@ RP_PIO_RESERVED86
 RP_PIO_RESERVED87
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x15c = 0x4020215c`
+`Address: 0x50123000 + 0x15c = 0x5012315c`
 
 
     .. wavedrom::
@@ -2635,7 +2635,7 @@ RP_PIO_RESERVED87
 RP_PIO_RESERVED88
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x160 = 0x40202160`
+`Address: 0x50123000 + 0x160 = 0x50123160`
 
 
     .. wavedrom::
@@ -2652,7 +2652,7 @@ RP_PIO_RESERVED88
 RP_PIO_RESERVED89
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x164 = 0x40202164`
+`Address: 0x50123000 + 0x164 = 0x50123164`
 
 
     .. wavedrom::
@@ -2669,7 +2669,7 @@ RP_PIO_RESERVED89
 RP_PIO_RESERVED90
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x168 = 0x40202168`
+`Address: 0x50123000 + 0x168 = 0x50123168`
 
 
     .. wavedrom::
@@ -2686,7 +2686,7 @@ RP_PIO_RESERVED90
 RP_PIO_RESERVED91
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x16c = 0x4020216c`
+`Address: 0x50123000 + 0x16c = 0x5012316c`
 
 
     .. wavedrom::
@@ -2703,7 +2703,7 @@ RP_PIO_RESERVED91
 RP_PIO_RESERVED92
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x170 = 0x40202170`
+`Address: 0x50123000 + 0x170 = 0x50123170`
 
 
     .. wavedrom::
@@ -2720,7 +2720,7 @@ RP_PIO_RESERVED92
 RP_PIO_RESERVED93
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x174 = 0x40202174`
+`Address: 0x50123000 + 0x174 = 0x50123174`
 
 
     .. wavedrom::
@@ -2737,7 +2737,7 @@ RP_PIO_RESERVED93
 RP_PIO_RESERVED94
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x178 = 0x40202178`
+`Address: 0x50123000 + 0x178 = 0x50123178`
 
 
     .. wavedrom::
@@ -2754,7 +2754,7 @@ RP_PIO_RESERVED94
 RP_PIO_RESERVED95
 ^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x17c = 0x4020217c`
+`Address: 0x50123000 + 0x17c = 0x5012317c`
 
 
     .. wavedrom::
@@ -2771,7 +2771,7 @@ RP_PIO_RESERVED95
 RP_PIO_SFR_IO_OE_INV
 ^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x180 = 0x40202180`
+`Address: 0x50123000 + 0x180 = 0x50123180`
 
 
     .. wavedrom::
@@ -2793,7 +2793,7 @@ RP_PIO_SFR_IO_OE_INV
 RP_PIO_SFR_IO_O_INV
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x184 = 0x40202184`
+`Address: 0x50123000 + 0x184 = 0x50123184`
 
 
     .. wavedrom::
@@ -2815,7 +2815,7 @@ RP_PIO_SFR_IO_O_INV
 RP_PIO_SFR_IO_I_INV
 ^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x188 = 0x40202188`
+`Address: 0x50123000 + 0x188 = 0x50123188`
 
 
     .. wavedrom::
@@ -2837,7 +2837,7 @@ RP_PIO_SFR_IO_I_INV
 RP_PIO_SFR_FIFO_MARGIN
 ^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x18c = 0x4020218c`
+`Address: 0x50123000 + 0x18c = 0x5012318c`
 
 
     .. wavedrom::
@@ -2881,7 +2881,7 @@ RP_PIO_SFR_FIFO_MARGIN
 RP_PIO_SFR_ZERO0
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x190 = 0x40202190`
+`Address: 0x50123000 + 0x190 = 0x50123190`
 
 
     .. wavedrom::
@@ -2903,7 +2903,7 @@ RP_PIO_SFR_ZERO0
 RP_PIO_SFR_ZERO1
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x194 = 0x40202194`
+`Address: 0x50123000 + 0x194 = 0x50123194`
 
 
     .. wavedrom::
@@ -2925,7 +2925,7 @@ RP_PIO_SFR_ZERO1
 RP_PIO_SFR_ZERO2
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x198 = 0x40202198`
+`Address: 0x50123000 + 0x198 = 0x50123198`
 
 
     .. wavedrom::
@@ -2947,7 +2947,7 @@ RP_PIO_SFR_ZERO2
 RP_PIO_SFR_ZERO3
 ^^^^^^^^^^^^^^^^
 
-`Address: 0x40202000 + 0x19c = 0x4020219c`
+`Address: 0x50123000 + 0x19c = 0x5012319c`
 
 
     .. wavedrom::

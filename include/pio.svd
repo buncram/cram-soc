@@ -15,7 +15,7 @@
     <peripherals>
         <peripheral>
             <name>RP_PIO</name>
-            <baseAddress>0x40202000</baseAddress>
+            <baseAddress>0x50123000</baseAddress>
             <groupName>RP_PIO</groupName>
             <registers>
                 <register>
@@ -2709,8 +2709,8 @@
         <memoryRegions>
             <memoryRegion>
                 <name>RP_PIO</name>
-                <baseAddress>0x40202000</baseAddress>
-                <size>0x00008000</size>
+                <baseAddress>0x50123000</baseAddress>
+                <size>0x00001000</size>
             </memoryRegion>
         </memoryRegions>
         <constants>

@@ -239,11 +239,11 @@ where
     }
 }
 // Physical base addresses of memory regions
-pub const HW_RP_PIO_MEM:     usize = 0x40202000;
-pub const HW_RP_PIO_MEM_LEN: usize = 32768;
+pub const HW_RP_PIO_MEM:     usize = 0x50123000;
+pub const HW_RP_PIO_MEM_LEN: usize = 4096;
 
 // Physical base addresses of registers
-pub const HW_RP_PIO_BASE :   usize = 0x40202000;
+pub const HW_RP_PIO_BASE :   usize = 0x50123000;
 
 
 pub mod utra {
@@ -725,7 +725,7 @@ pub mod utra {
         pub const SFR_ZERO3: crate::Register = crate::Register::new(103, 0xffffffff);
         pub const SFR_ZERO3_SFR_ZERO3: crate::Field = crate::Field::new(32, 0, SFR_ZERO3);
 
-        pub const HW_RP_PIO_BASE: usize = 0x40202000;
+        pub const HW_RP_PIO_BASE: usize = 0x50123000;
     }
 }
 
