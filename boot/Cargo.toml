@@ -1,13 +1,11 @@
 [workspace]
 default-members = [
   "betrusted-boot",
-  "sha2",
 ]
 members = [
   "svd2utra",
   "xtask",
   "betrusted-boot",
-  "sha2",
 ]
 resolver = "2"
 

@@ -28,7 +28,6 @@ optional = true
 [features]
 debug-print = []
 small-soc = []
-ahb-test = []
 daric = []
 pio-test = ["xous-pio"]
 # default = ["debug-print", "small-soc"]

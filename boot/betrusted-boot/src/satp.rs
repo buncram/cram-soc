@@ -29,11 +29,12 @@ const CSR_PT_PA: usize   = 0x6100_3000;
 const PERI_PT_PA: usize  = 0x6100_4000;
 const PIO_PT_PA: usize   = 0x6100_5000;
 const XIP_PT_PA: usize   = 0x6100_6000;
+const RV_PT_PA: usize    = 0x6100_7000;
 // exception handler pages. Mapped 1:1 PA:VA, so no explicit remapping needed as RAM area is already mapped.
-const _SCRATCH_PAGE: usize = 0x6100_7000;
-const _EXCEPTION_STACK_LIMIT: usize = 0x6100_8000; // the start of stack is this + 0x1000 & grows down
-const BSS_PAGE: usize = 0x6100_9000; // this is manually read out of the link file. Equal to "base of RAM"
-pub const PT_LIMIT: usize = 0x6100_A000; // this is carved out in link.x by setting RAM base at BSS_PAGE start
+pub const SCRATCH_PAGE: usize           = 0x6100_8000; // update this in irq.rs _start_trap() asm! as the scratch are
+pub const _EXCEPTION_STACK_LIMIT: usize = 0x6100_9000; // update this in irq.rs as default stack pointer. The start of stack is this + 0x1000 & grows down
+const BSS_PAGE: usize                   = 0x6100_A000; // this is manually read out of the link file. Equal to "base of RAM"
+pub const PT_LIMIT: usize               = 0x6100_B000; // this is carved out in link.x by setting RAM base at BSS_PAGE start
 
 // VAs
 const CODE_VA:     usize = 0x0000_0000;
@@ -42,6 +43,7 @@ const PERI_VA:     usize = 0x4000_0000;
 const SRAM_VA:     usize = 0x6100_0000;
 const PIO_VA:      usize = 0x5000_0000;
 const XIP_VA:      usize = 0x7000_0000;
+const RV_VA:       usize = 0xE000_0000;
 
 // PAs (when different from VAs)
 const RERAM_PA: usize = 0x6000_0000;
@@ -79,6 +81,7 @@ pub fn satp_setup() {
     let mut peri_pt = unsafe { &mut *(PERI_PT_PA as *mut PageTable) };
     let mut pio_pt = unsafe { &mut *(PIO_PT_PA as *mut PageTable) };
     let mut xip_pt = unsafe { &mut *(XIP_PT_PA as *mut PageTable) };
+    let mut rv_pt = unsafe { &mut *(RV_PT_PA as *mut PageTable) };
 
     set_l1_pte(CODE_VA, CODE_PT_PA, &mut root_pt);
     set_l1_pte(CSR_VA, CSR_PT_PA, &mut root_pt);
@@ -86,6 +89,7 @@ pub fn satp_setup() {
     set_l1_pte(SRAM_VA, SRAM_PT_PA, &mut root_pt); // L1 covers 16MiB, so SP_VA will cover all of SRAM
     set_l1_pte(PIO_VA, PIO_PT_PA, &mut root_pt);
     set_l1_pte(XIP_VA, XIP_PT_PA, &mut root_pt);
+    set_l1_pte(RV_VA, RV_PT_PA, &mut root_pt);
 
     // map code space. This is the only one that has a difference on VA->PA
     const CODE_LEN: usize = 0x30_0000; // 3 megs
@@ -96,11 +100,11 @@ pub fn satp_setup() {
     // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
     const SRAM_LEN: usize = 0x20_0000; // 2 megs
     // make the page tables not writeable
-    for offset in (0.._SCRATCH_PAGE - utralib::HW_SRAM_MEM).step_by(PAGE_SIZE) {
+    for offset in (0..SCRATCH_PAGE - utralib::HW_SRAM_MEM).step_by(PAGE_SIZE) {
         set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_R | FLG_U);
     }
     // rest of RAM is r/w
-    for offset in ((_SCRATCH_PAGE - utralib::HW_SRAM_MEM)..SRAM_LEN).step_by(PAGE_SIZE) {
+    for offset in ((SCRATCH_PAGE - utralib::HW_SRAM_MEM)..SRAM_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
     }
     // map SoC-local peripherals (ticktimer, etc.)
@@ -109,7 +113,7 @@ pub fn satp_setup() {
         set_l2_pte(CSR_VA + offset, CSR_VA + offset, &mut csr_pt, FLG_W | FLG_R | FLG_U);
     }
     // map APB peripherals (includes a window for the simulation bench)
-    const PERI_LEN: usize = 0x40_0000; // this will also map all the peripherals, including SCE, except PIO
+    const PERI_LEN: usize = 0x10_0000; // 1M window - this will also map all the peripherals, including SCE, except PIO
     for offset in (0..PERI_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(PERI_VA + offset, PERI_VA + offset, &mut peri_pt, FLG_W | FLG_R | FLG_U);
     }
@@ -118,6 +122,11 @@ pub fn satp_setup() {
     const PIO_LEN: usize = 0x11_0000; // this will map all the interfaces up to and including the UDC.
     for offset in (PIO_OFFSET..PIO_OFFSET + PIO_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(PIO_VA + offset, PIO_VA + offset, &mut pio_pt, FLG_W | FLG_R | FLG_U);
+    }
+    // map the RV peripherals
+    const RV_LEN: usize = 0x2_0000; // 128k window
+    for offset in (0..RV_LEN).step_by(PAGE_SIZE) {
+        set_l2_pte(RV_VA + offset, RV_VA + offset, &mut rv_pt, FLG_W | FLG_R | FLG_U);
     }
     // map the XIP memory, just for testing
     const XIP_LEN: usize = 0x1_0000; // just 64k of it for testing
@@ -200,12 +209,13 @@ pub fn satp_test() {
         );
     }
     // readback of table
+    /* // this is too slow with the Daric UART model, but uncomment it later when running on real hardware
     for asid in 0..512 {
         coreuser.wfo(utra::coreuser::GET_ASID_ADDR_ASID, asid);
         report_api(
             coreuser.rf(utra::coreuser::GET_ASID_VALUE_VALUE) << 16 | asid
         );
-    }
+    } */
 
     // setup window on our root page. Narrowly define it to *just* one page.
     coreuser.wfo(utra::coreuser::WINDOW_AH_PPN, (ROOT_PT_PA >> 12) as u32);

@@ -1,5 +1,5 @@
-#![cfg_attr(target_os = "none", no_std)]
-#![cfg_attr(target_os = "none", no_main)]
+#![no_std]
+#![no_main]
 
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
@@ -34,9 +34,6 @@ use core::convert::TryFrom;
 #[cfg(feature="sim")]
 use core::mem::size_of;
 
-#[cfg(any(feature="ahb-test"))]
-mod duart;
-
 mod debug;
 #[cfg(feature="sim")]
 mod satp;
@@ -59,6 +56,7 @@ struct SignatureInFlash {
     pub signature: [u8; 64],
 }
 
+#[cfg(target_os="none")]
 mod panic_handler {
     use core::panic::PanicInfo;
     use crate::debug;
@@ -75,6 +73,7 @@ mod panic_handler {
     }
 }
 
+#[cfg(not(feature="daric"))]
 static mut REPORT: CSR::<u32> = CSR::<u32>{base: utra::main::HW_MAIN_BASE as *mut u32};
 
 #[cfg(not(feature="daric"))]
@@ -87,6 +86,7 @@ pub fn report_api(d: u32) {
 pub fn report_api(d: u32) {
     let mut uart = debug::Uart {};
     uart.print_hex_word(d);
+    uart.putc(0xdu8); // add a CR character
 }
 
 #[cfg(feature="gfx")]
@@ -567,14 +567,6 @@ where
     }
 }
 
-#[cfg(feature="ahb-test")]
-fn ahb_tests() {
-    let mut duart = duart::Duart::new();
-    loop {
-        duart.puts("DUART up!\n");
-    }
-}
-
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     #[cfg(feature="sim")]
@@ -601,9 +593,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         //  - jump to it
         //  - return
 
-        // ---------- ahb test option -------------
-        #[cfg(feature="ahb-test")]
-        ahb_tests();
+        // ---------- pio test option -------------
         #[cfg(feature="pio-test")]
         xous_pio::pio_tests::setup_reporting((utra::main::REPORT.offset() + utra::main::HW_MAIN_BASE) as *mut u32);
         #[cfg(feature="pio-test")]

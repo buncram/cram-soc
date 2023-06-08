@@ -91,11 +91,7 @@ pub unsafe extern "C" fn _start_trap() -> ! {
         pub unsafe extern "C" fn _start_trap_aligned() {
             core::arch::asm!(
                 "csrw        sscratch, sp",
-                "li          sp, 0x61006000",
-                //"sw          x1, 0*4(sp)",  // Store x1 in the scratch field
-                //"lw          x1, 1*4(sp)",  // Load current context number
-                //"slli        x1, x1, 7",           // Multiply current context number by 32
-                //"add         sp, sp, x1",          // Set $sp to 0x61005000 + (current_context * 32)
+                "li          sp, 0x61008000", // crate::satp::SCRATCH_PAGE
 
                 "sw       x1, 0*4(sp)",
                 // Skip SP for now
@@ -141,13 +137,18 @@ pub unsafe extern "C" fn _start_trap() -> ! {
 
                 // Finally, save SP
                 "csrr        t0, sscratch",
-                "sw       t0, 1*4(sp)",
+                "sw          t0, 1*4(sp)",
 
                 // Restore a default stack pointer
-                "li          sp, 0x61008000", // SP goes from 6100_7000-6100_7FFF; place at top of range
+                "li          sp, 0x6100A000", // start from the page above the base: (crate::satp::EXCEPTION_STACK_LIMIT + 0x1000)
 
                 // Note that registers $a0-$a7 still contain the arguments
                 "j           _start_trap_rust",
+
+                // Note to self: trying to assign the scratch and default pages using in(reg) syntax
+                // clobbers the `a0` register and places the initialization outside of the handler loop
+                // and there seems to be no way to refer directly to a symbol? the `sym` directive wants
+                // to refer to an address, not a constant.
             );
         }
         _start_trap_aligned();
@@ -289,5 +290,5 @@ pub extern "C" fn trap_handler(
 
     // drop us back to user mode
     report_api(0x2dcd_600d);
-    unsafe {_resume_context(0x61006000)};
+    unsafe {_resume_context(crate::satp::SCRATCH_PAGE as u32)};
 }
