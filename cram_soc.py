@@ -50,7 +50,6 @@ import subprocess
 import shutil
 
 VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
-AHB_TEST = False
 PRODUCTION_MODELS = False
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -204,9 +203,6 @@ class SimCRG(Module):
 # CramSoC ------------------------------------------------------------------------------------------
 
 class CramSoC(SoCMini):
-    mem_map = {**SoCCore.mem_map, **{
-        "csr": 0x4010_0000, # save bottom 0x10_0000 for compatibility with Cramium native registers
-    }}
     def __init__(self,
         bios_path=None,
         sys_clk_freq=800e6,
@@ -248,14 +244,23 @@ class CramSoC(SoCMini):
         l2_size                  = None,
     ):
         platform = Platform()
-        axi_map = {
-            "reram"     : 0x6000_0000, # +3M
-            "sram"      : 0x6100_0000, # +2M
-            "p_bus"     : 0x4000_0000, # +256M
-            "memlcd"    : 0x42000000,
-            "vexriscv_debug": 0xefff_0000,
+        axi_mem_map = {
+            "reram"          : [0x6000_0000, 4 * 1024 * 1024], # +4M
+            "sram"           : [0x6100_0000, 2 * 1024 * 1024], # +2M
+            "xip"           :  [0x7000_0000, 128 * 1024 * 1024], # up to 128MiB of XIP
+            "vexriscv_debug" : [0xefff_0000, 0x1000],
         }
-        SRAM_SIZE = 2*1024*1024
+        # Firmware note:
+        #    - entire region from 0x4000_0000 through 0x4010_0000 is VM-mapped in test bench
+        #    - entire region from 0x5012_0000 through 0x5013_0000 is VM-mapped in test bench
+        axi_peri_map = {
+            "testbench" : [0x4008_0000, 0x1_0000], # 64k
+            "duart"     : [0x4004_2000, 0x0_1000],
+            "pio"       : [0x5012_3000, 0x0_1000],
+        }
+        self.mem_map = {**SoCCore.mem_map, **{
+            "csr": axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
+        }}
         self.platform = platform
 
         # Clockgen cluster -------------------------------------------------------------------------
@@ -308,10 +313,7 @@ class CramSoC(SoCMini):
                 0xa000_0000 : 0x6000_0000,
             },
         )
-        self.add_memory_region(name="sram", origin=axi_map["sram"], length=SRAM_SIZE)
-
         # Wire up peripheral SoC busses
-        p_axil = axi.AXILiteInterface(name="pbus")
         jtag_cpu = platform.request("jtag_cpu")
 
         # Add simulation "output pins" -----------------------------------------------------
@@ -369,11 +371,17 @@ class CramSoC(SoCMini):
         else:
             bios_data = []
 
+        # populate regions for SVD export
+        for (name, region) in axi_mem_map.items():
+            self.add_memory_region(name=name, origin=region[0], length=region[1])
+        # build the actual interfaces
         reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=0x30_0000, name="reram", init=bios_data)
-
+        self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=axi_mem_map["reram"][1], name="reram", init=bios_data)
         sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=SRAM_SIZE, name="sram")
+        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=axi_mem_map["sram"][1], name="sram")
+        xip_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+        self.submodules.xip_sram = AXIRAM(platform, xip_axi, size=65536, name="xip") # just a small amount of RAM for testing
+        # vex debug is internal to the core, no interface to build
 
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
         self.submodules.mbus = mbus = AXICrossbar(platform=platform)
@@ -391,97 +399,62 @@ class CramSoC(SoCMini):
             ar_reg = AXIRegister.BYPASS,
             r_reg  = AXIRegister.BYPASS,
         )
-        mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_map["reram"], size=0x0100_0000)
-        mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_map["sram"],  size=0x0100_0000)
+        mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_mem_map["reram"][0], size=axi_mem_map["reram"][1])
+        mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_mem_map["sram"][0],  size=axi_mem_map["sram"][1])
+        mbus.add_master(name = "xip",  m_axi=xip_axi,  origin=axi_mem_map["xip"][0],  size=axi_mem_map["sram"][1])
 
         # 4) Add peripherals
-        # setup p_axi as the local bus master
-        if AHB_TEST is False:
-            # This region is used for testbench elements (e.g., does not appear in the final SoC):
-            # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
-            testbench_region = SoCIORegion(0x4000_0000, 0x20_0000, mode="rw", cached=False)
-            testbench_axil = AXILiteInterface()
-            # This region is used for SoC elements (e.g. items in the final SoC that we want to verify,
-            # but are not necessarily in their final address offset or topological configuration)
-            soc_region = SoCIORegion(0x4020_0000, 0x20_0000, mode="rw", cached=False)
-            soc_axil = AXILiteInterface()
-
-            self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
-            pxbar.add_slave(
-                name = "p_axil", s_axil = p_axil,
-            )
+        # build the controller port for the peripheral crossbar
+        self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
+        p_axil = AXILiteInterface(name="pbus", bursting = False)
+        pxbar.add_slave(
+            name = "p_axil", s_axil = p_axil,
+        )
+        # This region is used for testbench elements (e.g., does not appear in the final SoC):
+        # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
+        for (name, region) in axi_peri_map.items():
+            setattr(self, name + "_region", SoCIORegion(region[0], region[1], mode="rw", cached=False))
+            setattr(self, name + "_axil", AXILiteInterface(name=name + "_axil"))
             pxbar.add_master(
-                name = "testbench",
-                m_axil = testbench_axil,
-                origin = testbench_region.origin,
-                size = testbench_region.size,
+                name = name,
+                m_axil = getattr(self, name + "_axil"),
+                origin = region[0],
+                size = region[1],
             )
-            pxbar.add_master(
-                name = "soc",
-                m_axil = soc_axil,
-                origin = soc_region.origin,
-                size = soc_region.size,
-            )
-            #    masters=[p_axil],
-            #    slaves =[(testbench_region.decoder(p_axil), testbench_axil), (soc_region.decoder(p_axil), soc_axil)],
-            #    register = False,
-            self.bus.add_master(name="pbus", master=testbench_axil)
-
-            soc_slower_axil = AXILiteInterface(clock_domain="p")
-            self.submodules.slower_axi = slower_axi = AXILiteCDC(platform, soc_axil, soc_slower_axil)
-
-            local_ahb = ahb.Interface()
-            # TODO: add CDC to reduce speed of AXIL here to the target AHB PCLK speed
-            # TODO: add separate clock for PIO block rate
-            self.submodules += ClockDomainsRenamer({"sys": "p"})(AXILite2AHBAdapter(platform, soc_slower_axil, local_ahb))
-            # from duart_adapter import DuartAdapter
-            # self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"), sel_addr=0x201000)
-            from pio_adapter import PioAdapter
-            pio_irq0 = Signal()
-            pio_irq1 = Signal()
-            self.submodules += ClockDomainsRenamer({"sys": "p"})(PioAdapter(platform,
-                local_ahb, platform.request("pio"), pio_irq0, pio_irq1, sel_addr=0x202000,
-                sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
-            ))
-        else:
-            # placeholders to not break things between builds
-            pio_irq0 = Signal()
-            pio_irq1 = Signal()
-            # This region is used for testbench elements (e.g., does not appear in the final SoC):
-            # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
-            testbench_region = SoCIORegion(0x4010_0000, 0x1_0000, mode="rw", cached=False)
-            testbench_axil = AXILiteInterface()
-            # This region is used for SoC elements (e.g. items in the final SoC that we want to verify,
-            # but are not necessarily in their final address offset or topological configuration)
-            soc_region = SoCIORegion(0x4004_0000, 0x1_0000, mode="rw", cached=False)
-            soc_axil = AXILiteInterface()
-
-            self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
-            pxbar.add_slave(
-                name = "p_axil", s_axil = p_axil,
-            )
-            pxbar.add_master(
-                name = "testbench",
-                m_axil = testbench_axil,
-                origin = testbench_region.origin,
-                size = testbench_region.size,
-            )
-            pxbar.add_master(
-                name = "soc",
-                m_axil = soc_axil,
-                origin = soc_region.origin,
-                size = soc_region.size,
-            )
-            self.bus.add_master(name="pbus", master=testbench_axil)
-
-            soc_slower_axil = AXILiteInterface(clock_domain="p")
-            self.submodules.slower_axi = slower_axi = AXILiteCDC(platform, soc_axil, soc_slower_axil)
-
-            from duart_adapter import DuartAdapter
-            local_ahb = ahb.Interface()
-            self.submodules += ClockDomainsRenamer({"sys": "p"})(AXILite2AHBAdapter(platform, soc_slower_axil, local_ahb))
-            self.submodules += DuartAdapter(platform, local_ahb, pads=platform.request("duart"),
-                                            sel_addr=0x04_2000)
+            if name == "testbench":
+                # connect the testbench master
+                self.bus.add_master(name="pbus", master=self.testbench_axil)
+            else:
+                # connect the SoC via AHB adapters
+                setattr(self, name + "_slower_axil", AXILiteInterface(clock_domain="p", name=name + "_slower_axil"))
+                setattr(self.submodules, name + "_slower_axi",
+                        AXILiteCDC(platform,
+                                   getattr(self, name + "_axil"),
+                                   getattr(self, name + "_slower_axil"),
+                        ))
+                setattr(self, name + "_ahb", ahb.Interface())
+                self.submodules += ClockDomainsRenamer({"sys" : "p"})(
+                    AXILite2AHBAdapter(platform,
+                                       getattr(self, name + "_slower_axil"),
+                                       getattr(self, name + "_ahb")
+                ))
+                # wire up the specific subsystems
+                if name == "pio":
+                    from pio_adapter import PioAdapter
+                    pio_irq0 = Signal()
+                    pio_irq1 = Signal()
+                    self.submodules += ClockDomainsRenamer({"sys" : "p"})(PioAdapter(platform,
+                        getattr(self, name +"_ahb"), platform.request("pio"), pio_irq0, pio_irq1, sel_addr=region[0],
+                        sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
+                    ))
+                elif name == "duart":
+                    from duart_adapter import DuartAdapter
+                    self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
+                        getattr(self, name + "_ahb"), pads=platform.request("duart"), sel_addr=region[0]
+                    ))
+                else:
+                    print("Missing binding for peripheral block {}".format(name))
+                    exit(1)
 
         # add interrupt handler
         interrupt = Signal(32)
@@ -600,11 +573,6 @@ class CramSoC(SoCMini):
             i_clk = ClockSignal(),
         )
         platform.add_source("sim_support/finisher.v")
-
-        # LCD interface ----------------------------------------------------------------------------
-        self.submodules.memlcd = ClockDomainsRenamer({"sys":"sys_always_on"})(memlcd.MemLCD(platform.request("lcd"), interface="axi-lite"))
-        self.add_csr("memlcd")
-        self.bus.add_slave("memlcd", self.memlcd.bus, SoCRegion(origin=axi_map["memlcd"], size=self.memlcd.fb_depth*4, mode="rw", cached=False))
 
         # Cramium platform -------------------------------------------------------------------------
         zero_irq = Signal(20)
@@ -876,6 +844,9 @@ def sim_args(parser):
     # specify BIOS path
     parser.add_argument("--bios", type=str, default='..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep), help="Override default BIOS location")
 
+    # compatibility with demo scripts
+    parser.add_argument("--build",                action="store_true",     help="compatibility flag, ignored by this script")
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
@@ -920,9 +891,7 @@ def main():
     else:
         shutil.copy('./build/gateware/reram_mem.init', './build/sim/gateware/')
         shutil.copy('./VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
-
-        if AHB_TEST:
-            shutil.copy('do_not_checkin/rtl/amba/template.sv', './build/sim/gateware/')
+        shutil.copy('do_not_checkin/rtl/amba/template.sv', './build/sim/gateware/')
 
         # this runs the sim
         builder.build(
