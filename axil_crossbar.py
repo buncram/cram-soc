@@ -203,8 +203,8 @@ class AXILiteCrossbar(Module):
         for s_name, s_axil in self.s_axils.items():
             self.logger.info(f"  - {s_name}.")
         self.logger.info(f"  Masters:")
-        for m_name, m_axi in self.m_axils.items():
-            self.logger.info(f"  - {m_name}, Origin: 0x{m_axi.origin:08x}, Size: 0x{m_axi.size:0x}.")
+        for m_name, m_axil in self.m_axils.items():
+            self.logger.info(f"  - {m_name}, Origin: 0x{m_axil.origin:08x}, Size: 0x{m_axil.size:0x}.")
 
 
         # Module instance.
@@ -289,33 +289,33 @@ class AXILiteCrossbar(Module):
             # AXI-Lite Master Interfaces.
             # ---------------------------
             # AW.
-            o_m_axil_awaddr   = Cat(*[m_axi.aw.addr  for m_axi in m_axils]),
-            o_m_axil_awprot   = Cat(*[Signal(3)      for m_axi in m_axils]),
-            o_m_axil_awvalid  = Cat(*[m_axi.aw.valid for m_axi in m_axils]),
-            i_m_axil_awready  = Cat(*[m_axi.aw.ready for m_axi in m_axils]),
+            o_m_axil_awaddr   = Cat(*[m_axil.aw.addr  for m_axil in m_axils]),
+            o_m_axil_awprot   = Cat(*[Signal(3)      for m_axil in m_axils]),
+            o_m_axil_awvalid  = Cat(*[m_axil.aw.valid for m_axil in m_axils]),
+            i_m_axil_awready  = Cat(*[m_axil.aw.ready for m_axil in m_axils]),
 
             # W.
-            o_m_axil_wdata    = Cat(*[m_axi.w.data   for m_axi in m_axils]),
-            o_m_axil_wstrb    = Cat(*[m_axi.w.strb   for m_axi in m_axils]),
-            o_m_axil_wvalid   = Cat(*[m_axi.w.valid  for m_axi in m_axils]),
-            i_m_axil_wready   = Cat(*[m_axi.w.ready  for m_axi in m_axils]),
+            o_m_axil_wdata    = Cat(*[m_axil.w.data   for m_axil in m_axils]),
+            o_m_axil_wstrb    = Cat(*[m_axil.w.strb   for m_axil in m_axils]),
+            o_m_axil_wvalid   = Cat(*[m_axil.w.valid  for m_axil in m_axils]),
+            i_m_axil_wready   = Cat(*[m_axil.w.ready  for m_axil in m_axils]),
 
             # B.
-            i_m_axil_bresp    = Cat(*[m_axi.b.resp   for m_axi in m_axils]),
-            i_m_axil_bvalid   = Cat(*[m_axi.b.valid  for m_axi in m_axils]),
-            o_m_axil_bready   = Cat(*[m_axi.b.ready  for m_axi in m_axils]),
+            i_m_axil_bresp    = Cat(*[m_axil.b.resp   for m_axil in m_axils]),
+            i_m_axil_bvalid   = Cat(*[m_axil.b.valid  for m_axil in m_axils]),
+            o_m_axil_bready   = Cat(*[m_axil.b.ready  for m_axil in m_axils]),
 
             # AR.
-            o_m_axil_araddr   = Cat(*[m_axi.ar.addr  for m_axi in m_axils]),
-            o_m_axil_arprot   = Cat(*[Signal(3)      for m_axi in m_axils]),
-            o_m_axil_arvalid  = Cat(*[m_axi.ar.valid for m_axi in m_axils]),
-            i_m_axil_arready  = Cat(*[m_axi.ar.ready for m_axi in m_axils]),
+            o_m_axil_araddr   = Cat(*[m_axil.ar.addr  for m_axil in m_axils]),
+            o_m_axil_arprot   = Cat(*[Signal(3)      for m_axil in m_axils]),
+            o_m_axil_arvalid  = Cat(*[m_axil.ar.valid for m_axil in m_axils]),
+            i_m_axil_arready  = Cat(*[m_axil.ar.ready for m_axil in m_axils]),
 
             # R.
-            i_m_axil_rdata    = Cat(*[m_axi.r.data   for m_axi in m_axils]),
-            i_m_axil_rresp    = Cat(*[m_axi.r.resp   for m_axi in m_axils]),
-            i_m_axil_rvalid   = Cat(*[m_axi.r.valid  for m_axi in m_axils]),
-            o_m_axil_rready   = Cat(*[m_axi.r.ready  for m_axi in m_axils]),
+            i_m_axil_rdata    = Cat(*[m_axil.r.data   for m_axil in m_axils]),
+            i_m_axil_rresp    = Cat(*[m_axil.r.resp   for m_axil in m_axils]),
+            i_m_axil_rvalid   = Cat(*[m_axil.r.valid  for m_axil in m_axils]),
+            o_m_axil_rready   = Cat(*[m_axil.r.ready  for m_axil in m_axils]),
         )
 
     @staticmethod
