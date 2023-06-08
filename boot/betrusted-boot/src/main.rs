@@ -77,11 +77,16 @@ mod panic_handler {
 
 static mut REPORT: CSR::<u32> = CSR::<u32>{base: utra::main::HW_MAIN_BASE as *mut u32};
 
+#[cfg(not(feature="daric"))]
 pub fn report_api(d: u32) {
-    #[cfg(not(feature="daric"))]
     unsafe {
         REPORT.wo(utra::main::REPORT, d);
     }
+}
+#[cfg(feature="daric")]
+pub fn report_api(d: u32) {
+    let mut uart = debug::Uart {};
+    uart.print_hex_word(d);
 }
 
 #[cfg(feature="gfx")]
@@ -590,6 +595,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             let mut uart = debug::Uart {};
             uart.tiny_write_str("hello world!\n\r");
         }
+
+        // TODO: make an XIP test
+        //  - copy code to that location
+        //  - jump to it
+        //  - return
 
         // ---------- ahb test option -------------
         #[cfg(feature="ahb-test")]
