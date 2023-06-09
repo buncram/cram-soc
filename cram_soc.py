@@ -46,6 +46,8 @@ from axi_common import *
 from axil_ahb_adapter import AXILite2AHBAdapter
 from litex.soc.interconnect import ahb
 
+from cram_common import CramSoC
+
 import subprocess
 import shutil
 
@@ -200,595 +202,176 @@ class SimCRG(Module):
             self.cd_sys_always_on.clk.eq(clk),
         ]
 
-# CramSoC ------------------------------------------------------------------------------------------
-
-class CramSoC(SoCMini):
-    def __init__(self,
-        bios_path=None,
-        sys_clk_freq=800e6,
-        sim_debug=False,
-        trace_reset_on=False,
-        # bogus arg handlers - we are doing SoCMini, but the simulator passes args for a full SoC
-        bus_standard=None,
-        bus_data_width=None,
-        bus_address_width=None,
-        bus_timeout=None,
-        bus_bursting=None,
-        bus_interconnect=None,
-        cpu_type                 = None,
-        cpu_reset_address        = None,
-        cpu_variant              = None,
-        cpu_cfu                  = None,
-        cfu_filename             = None,
-        csr_data_width           = None,
-        csr_address_width        = None,
-        csr_paging               = None,
-        csr_ordering             = None,
-        integrated_rom_size      = None,
-        integrated_rom_mode      = None,
-        integrated_rom_init      = None,
-        integrated_sram_size     = None,
-        integrated_sram_init     = None,
-        integrated_main_ram_size = None,
-        integrated_main_ram_init = None,
-        irq_n_irqs               = None,
-        ident                    = None,
-        ident_version            = None,
-        with_uart                = None,
-        uart_name                = None,
-        uart_baudrate            = None,
-        uart_fifo_depth          = None,
-        with_timer               = None,
-        timer_uptime             = None,
-        with_ctrl                = None,
-        l2_size                  = None,
-    ):
-        platform = Platform()
-        axi_mem_map = {
-            "reram"          : [0x6000_0000, 4 * 1024 * 1024], # +4M
-            "sram"           : [0x6100_0000, 2 * 1024 * 1024], # +2M
-            "xip"           :  [0x7000_0000, 128 * 1024 * 1024], # up to 128MiB of XIP
-            "vexriscv_debug" : [0xefff_0000, 0x1000],
-        }
-        # Firmware note:
-        #    - entire region from 0x4000_0000 through 0x4010_0000 is VM-mapped in test bench
-        #    - entire region from 0x5012_0000 through 0x5013_0000 is VM-mapped in test bench
-        axi_peri_map = {
-            "testbench" : [0x4008_0000, 0x1_0000], # 64k
-            "duart"     : [0x4004_2000, 0x0_1000],
-            "pio"       : [0x5012_3000, 0x0_1000],
-        }
-        self.mem_map = {**SoCCore.mem_map, **{
-            "csr": axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
-        }}
-        self.platform = platform
-
-        # Clockgen cluster -------------------------------------------------------------------------
-        sleep_req = Signal()
-
-        reset_cycles = 32
-        reset_counter = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
-        ic_reset      = Signal(reset=1)
-        self.sync.por += \
-            If(reset_counter != 0,
-                reset_counter.eq(reset_counter - 1)
-            ).Else(
-                ic_reset.eq(0)
-            )
-        self.crg = SimCRG(platform.request("sys_clk"), platform.request("p_clk"), platform.request("pio_clk"), ic_reset, sleep_req)
-
-        # Simulation debugging ----------------------------------------------------------------------
-        if sim_debug:
-            platform.add_debug(self, reset=1 if trace_reset_on else 0)
+# Tune the common platform for simulation ----------------------------------------------------------
+def sim_extensions(self, nosave=False):
+    if self.sim_debug:
+        self.platform.add_debug(self, reset=1 if self.trace_reset_on else 0)
+    else:
+        # Enable waveform dumping (slows down simulation a bit)
+        # Can set to zero for a much faster sim, but no waveforms are saved.
+        if nosave:
+            self.comb += self.platform.trace.eq(0)
         else:
-            self.comb += platform.trace.eq(1)
+            self.comb += self.platform.trace.eq(1)
 
-        # Add standalone SoC sources.
-        platform.add_source("build/gateware/cram_axi.v")
-        platform.add_source(VEX_VERILOG_PATH)
-        platform.add_source("sim_support/ram_1w_1ra.v")
-        if PRODUCTION_MODELS:
-            platform.add_source("do_not_checkin/ram/vexram_v0.1.sv")
-            platform.add_source("do_not_checkin/ram/icg_v0.2.v")
-        else:
-            platform.add_source("sim_support/ram_1w_1rs.v")
-        platform.add_source("sim_support/fdre_cosim.v")
-
-        # this must be pulled in manually because it's instantiated in the core design, but not in the SoC design
-        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
-        platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter.v"))
-        platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_wr.v"))
-        platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_rd.v"))
-
-        # SoCMini ----------------------------------------------------------------------------------
-        SoCMini.__init__(self, platform, clk_freq=int(sys_clk_freq),
-            csr_paging           = 4096,  # increase paging to 1 page size
-            csr_address_width    = 16,    # increase to accommodate larger page size
-            bus_standard         = "axi-lite",
-            # bus_timeout          = None,         # use this if regular_comb=True on the builder
-            with_ctrl            = False,
-            io_regions           = {
-                # Origin, Length.
-                0x4000_0000 : 0x2000_0000,
-                0xa000_0000 : 0x6000_0000,
-            },
+    # Clockgen cluster -------------------------------------------------------------------------
+    reset_cycles = 32
+    reset_counter = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
+    ic_reset      = Signal(reset=1)
+    self.sync.por += \
+        If(reset_counter != 0,
+            reset_counter.eq(reset_counter - 1)
+        ).Else(
+            ic_reset.eq(0)
         )
-        # Wire up peripheral SoC busses
-        jtag_cpu = platform.request("jtag_cpu")
+    self.crg = SimCRG(
+        self.platform.request("sys_clk"),
+        self.platform.request("p_clk"), self.platform.request("pio_clk"),
+        ic_reset, self.sleep_req)
 
-        # Add simulation "output pins" -----------------------------------------------------
-        self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
-        self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
-        self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
+    # Add SoC memory regions
+    for (name, region) in self.axi_mem_map.items():
+        self.add_memory_region(name=name, origin=region[0], length=region[1])
 
-        sim = platform.request("simio")
-        self.comb += [
-            sim.report.eq(self.sim_report.storage),
-            sim.success.eq(self.sim_success.storage),
-            sim.done.eq(self.sim_done.storage),
-        ]
+    # Add crossbar ports for memory
+    reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    self.submodules.axi_reram = AXIRAM(self.platform, reram_axi, size=self.axi_mem_map["reram"][1], name="reram", init=self.bios_data)
+    sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    self.submodules.axi_sram = AXIRAM(self.platform, sram_axi, size=self.axi_mem_map["sram"][1], name="sram")
+    xip_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    self.submodules.xip_sram = AXIRAM(self.platform, xip_axi, size=65536, name="xip") # just a small amount of RAM for testing
+    # vex debug is internal to the core, no interface to build
 
-        # test that caching is OFF for the I/O regions
-        self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
-        self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
-        self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
+    self.mbus.add_master(name = "reram", m_axi=reram_axi, origin=self.axi_mem_map["reram"][0], size=self.axi_mem_map["reram"][1])
+    self.mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=self.axi_mem_map["sram"][0],  size=self.axi_mem_map["sram"][1])
+    self.mbus.add_master(name = "xip",  m_axi=xip_axi,  origin=self.axi_mem_map["xip"][0],  size=self.axi_mem_map["sram"][1])
 
-        # work around AXIL->CSR bugs in Litex. The spec says that "we" should be a single pulse. But,
-        # it seems that the AXIL->CSR adapter will happily generate a longer pulse. Seems to have to do with
-        # some "clever hack" that was done to adapt AXIL to simple csrs, where axi_lite_to_simple() inside axi_lite.py
-        # is not your usual Module but some function that returns a tuple of FSMs and combs to glom into the parent
-        # object. But because of this everything in it has to be computed in just one cycle, but actually it seems
-        # that this causes the "do_read" to trigger a cycle earlier than the FSM's state, which later on gets
-        # OR'd together to create a 2-long cycle for WE, violating the CSR spec. Moving "do_read" back a cycle doesn't
-        # quite fix it because you also need to gate off the "adr" signal, and I can't seem to find that code.
-        # Anyways, this is a Litex-specific bug, so I'm not going to worry about it for SoC integration simulations.
-        sim_coherence_axil_bug = Signal()
-        self.sync += [
-            sim_coherence_axil_bug.eq(self.sim_coherence_inc.we),
-            If(self.sim_coherence_inc.we & ~sim_coherence_axil_bug,
-                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
-            ).Else(
-                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
-            )
-        ]
-        self.comb += [
-            self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
-        ]
+    # Muxed UARTS ---------------------------------------------------------------------------
+    # this is necessary for Xous to recognize the UARTs out of the box. We can simplify this later on.
 
-        # Add AXI RAM to SoC (Through AXI Crossbar).
-        # ------------------------------------------
+    self.submodules.gpio = BtGpio()
+    self.add_csr("gpio")
 
-        # 1) Create AXI interface and connect it to SoC.
-        dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=1, bursting=True)
-        dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1, bursting=True)
-        self.submodules += AXIAdapter(platform, s_axi = dbus_axi, m_axi = dbus64_axi, convert_burst=True, convert_narrow_burst=True)
-        ibus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1, bursting=True)
-
-        # 2) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
-        if bios_path is not None:
-            with open(bios_path, 'rb') as bios:
-                bios_data = bios.read()
-        else:
-            bios_data = []
-
-        # populate regions for SVD export
-        for (name, region) in axi_mem_map.items():
-            self.add_memory_region(name=name, origin=region[0], length=region[1])
-        # build the actual interfaces
-        reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_reram = AXIRAM(platform, reram_axi, size=axi_mem_map["reram"][1], name="reram", init=bios_data)
-        sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.axi_sram = AXIRAM(platform, sram_axi, size=axi_mem_map["sram"][1], name="sram")
-        xip_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-        self.submodules.xip_sram = AXIRAM(platform, xip_axi, size=65536, name="xip") # just a small amount of RAM for testing
-        # vex debug is internal to the core, no interface to build
-
-        # 3) Add AXICrossbar  (2 Slave / 2 Master).
-        self.submodules.mbus = mbus = AXICrossbar(platform=platform)
-        mbus.add_slave(name = "dbus", s_axi=dbus64_axi,
-            aw_reg = AXIRegister.BYPASS,
-            w_reg  = AXIRegister.BYPASS,
-            b_reg  = AXIRegister.BYPASS,
-            ar_reg = AXIRegister.BYPASS,
-            r_reg  = AXIRegister.BYPASS,
+    uart_pins = self.platform.request("serial")
+    serial_layout = [("tx", 1), ("rx", 1)]
+    kernel_pads = Record(serial_layout)
+    console_pads = Record(serial_layout)
+    app_uart_pads = Record(serial_layout)
+    self.comb += [
+        If(self.gpio.uartsel.storage == 0,
+            uart_pins.tx.eq(kernel_pads.tx),
+            kernel_pads.rx.eq(uart_pins.rx),
+        ).Elif(self.gpio.uartsel.storage == 1,
+            uart_pins.tx.eq(console_pads.tx),
+            console_pads.rx.eq(uart_pins.rx),
+        ).Else(
+            uart_pins.tx.eq(app_uart_pads.tx),
+            app_uart_pads.rx.eq(uart_pins.rx),
         )
-        mbus.add_slave(name = "ibus", s_axi=ibus64_axi,
-            aw_reg = AXIRegister.BYPASS,
-            w_reg  = AXIRegister.BYPASS,
-            b_reg  = AXIRegister.BYPASS,
-            ar_reg = AXIRegister.BYPASS,
-            r_reg  = AXIRegister.BYPASS,
-        )
-        mbus.add_master(name = "reram", m_axi=reram_axi, origin=axi_mem_map["reram"][0], size=axi_mem_map["reram"][1])
-        mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=axi_mem_map["sram"][0],  size=axi_mem_map["sram"][1])
-        mbus.add_master(name = "xip",  m_axi=xip_axi,  origin=axi_mem_map["xip"][0],  size=axi_mem_map["sram"][1])
-
-        # 4) Add peripherals
-        # build the controller port for the peripheral crossbar
-        self.submodules.pxbar = pxbar = AXILiteCrossbar(platform)
-        p_axil = AXILiteInterface(name="pbus", bursting = False)
-        pxbar.add_slave(
-            name = "p_axil", s_axil = p_axil,
-        )
-        # This region is used for testbench elements (e.g., does not appear in the final SoC):
-        # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
-        for (name, region) in axi_peri_map.items():
-            setattr(self, name + "_region", SoCIORegion(region[0], region[1], mode="rw", cached=False))
-            setattr(self, name + "_axil", AXILiteInterface(name=name + "_axil"))
-            pxbar.add_master(
-                name = name,
-                m_axil = getattr(self, name + "_axil"),
-                origin = region[0],
-                size = region[1],
-            )
-            if name == "testbench":
-                # connect the testbench master
-                self.bus.add_master(name="pbus", master=self.testbench_axil)
-            else:
-                # connect the SoC via AHB adapters
-                setattr(self, name + "_slower_axil", AXILiteInterface(clock_domain="p", name=name + "_slower_axil"))
-                setattr(self.submodules, name + "_slower_axi",
-                        AXILiteCDC(platform,
-                                   getattr(self, name + "_axil"),
-                                   getattr(self, name + "_slower_axil"),
-                        ))
-                setattr(self, name + "_ahb", ahb.Interface())
-                self.submodules += ClockDomainsRenamer({"sys" : "p"})(
-                    AXILite2AHBAdapter(platform,
-                                       getattr(self, name + "_slower_axil"),
-                                       getattr(self, name + "_ahb")
-                ))
-                # wire up the specific subsystems
-                if name == "pio":
-                    from pio_adapter import PioAdapter
-                    pio_irq0 = Signal()
-                    pio_irq1 = Signal()
-                    self.submodules += ClockDomainsRenamer({"sys" : "p"})(PioAdapter(platform,
-                        getattr(self, name +"_ahb"), platform.request("pio"), pio_irq0, pio_irq1, sel_addr=region[0],
-                        sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
-                    ))
-                elif name == "duart":
-                    from duart_adapter import DuartAdapter
-                    self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
-                        getattr(self, name + "_ahb"), pads=platform.request("duart"), sel_addr=region[0]
-                    ))
-                else:
-                    print("Missing binding for peripheral block {}".format(name))
-                    exit(1)
-
-        # add interrupt handler
-        interrupt = Signal(32)
-        self.cpu.interrupt = interrupt
-        self.irq.enable()
-
-        # GPIO module ------------------------------------------------------------------------------
-        self.submodules.gpio = BtGpio()
-        self.add_csr("gpio")
-
-        # Muxed UARTS ---------------------------------------------------------------------------
-        uart_pins = platform.request("serial")
-        serial_layout = [("tx", 1), ("rx", 1)]
-        kernel_pads = Record(serial_layout)
-        console_pads = Record(serial_layout)
-        app_uart_pads = Record(serial_layout)
-        self.comb += [
-            If(self.gpio.uartsel.storage == 0,
-                uart_pins.tx.eq(kernel_pads.tx),
-                kernel_pads.rx.eq(uart_pins.rx),
-            ).Elif(self.gpio.uartsel.storage == 1,
-                uart_pins.tx.eq(console_pads.tx),
-                console_pads.rx.eq(uart_pins.rx),
-            ).Else(
-                uart_pins.tx.eq(app_uart_pads.tx),
-                app_uart_pads.rx.eq(uart_pins.rx),
-            )
-        ]
-        sim_uart_pins = platform.request("sim_uart")
-        kernel_input = Signal(8)
-        kernel_input_valid = Signal()
-        kernel_input_ready = Signal()
-        self.submodules.uart_phy = SimUartPhy(
-            kernel_input,
-            kernel_input_valid,
-            kernel_input_ready,
-            sim_uart_pins.kernel,
-            sim_uart_pins.kernel_valid,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
-        self.submodules.uart = ResetInserter()(
-            uart.UART(self.uart_phy,
-                tx_fifo_depth=16, rx_fifo_depth=16)
-            )
-
-        self.add_csr("uart_phy")
-        self.add_csr("uart")
-        self.irq.add("uart")
-
-        console_data_in = Signal(8, reset=13) # 13=0xd
-        console_data_valid = Signal(reset = 0)
-        console_data_ready = Signal()
-        self.submodules.console_phy = SimUartPhy(
-            console_data_in,
-            console_data_valid,
-            console_data_ready,
-            sim_uart_pins.log,
-            sim_uart_pins.log_valid,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
-        self.submodules.console = ResetInserter()(
-            uart.UART(self.console_phy,
-                tx_fifo_depth=16, rx_fifo_depth=16)
-            )
-
-        self.add_csr("console_phy")
-        self.add_csr("console")
-        self.irq.add("console")
-
-        # extra PHY for "application" uses -- mainly things like the FCC testing agent
-        app_data_in = Signal(8, reset=13) # 13=0xd
-        app_data_valid = Signal(reset = 0)
-        app_data_ready = Signal()
-        self.submodules.app_uart_phy = SimUartPhy(
-            app_data_in,
-            app_data_valid,
-            app_data_ready,
-            sim_uart_pins.app,
-            sim_uart_pins.app_valid,
-            clk_freq=sys_clk_freq,
-            baudrate=115200)
-        self.submodules.app_uart = ResetInserter()(
-            uart.UART(self.app_uart_phy,
-                tx_fifo_depth=16, rx_fifo_depth=16)
-            )
-
-        self.add_csr("app_uart_phy")
-        self.add_csr("app_uart")
-        self.irq.add("app_uart")
-
-        self.specials += Instance("uart_print",
-            p_TYPE="log",
-            i_uart_data=sim_uart_pins.log,
-            i_uart_data_valid=sim_uart_pins.log_valid,
-            i_resetn=~ResetSignal(),
-            i_clk=ClockSignal(),
-        )
-        self.specials += Instance("uart_print",
-            p_TYPE="kernel",
-            i_uart_data=sim_uart_pins.kernel,
-            i_uart_data_valid=sim_uart_pins.kernel_valid,
-            i_resetn=~ResetSignal(),
-            i_clk=ClockSignal(),
-        )
-        platform.add_source("sim_support/uart_print.v")
-
-        self.specials += Instance("finisher",
-            i_kuart_from_cpu=sim_uart_pins.kernel,
-            i_kuart_from_cpu_valid=sim_uart_pins.kernel_valid,
-            o_kuart_to_cpu=kernel_input,
-            o_kuart_to_cpu_valid=kernel_input_valid,
-            i_kuart_to_cpu_ready=kernel_input_ready,
-            i_report=sim.report,
-            i_success=sim.success,
-            i_done=sim.done,
-            i_clk = ClockSignal(),
-        )
-        platform.add_source("sim_support/finisher.v")
-
-        # Cramium platform -------------------------------------------------------------------------
-        zero_irq = Signal(20)
-        irq0_wire_or = Signal(20)
-        self.comb += [
-            irq0_wire_or[0].eq(self.uart.ev.irq)
-        ]
-        self.irqtest0 = CSRStorage(fields=[
-            CSRField(
-                name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=False
-            )
-        ])
-        self.irqtest1 = CSRStorage(fields=[
-            CSRField(
-                name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=True
-            )
-        ])
-        # wfi breakout
-        wfi_loopback = Signal(20)
-        wfi_delay = Signal(10, reset=512) # coded as a one-shot
-        self.sync.sys_always_on += [
-            If(sleep_req & (wfi_delay > 0),
-                wfi_delay.eq(wfi_delay - 1),
-            ),
-            If(wfi_delay == 1,
-                wfi_loopback.eq(1), # creates an exactly one-cycle wide wfi wakeup trigger
-            ).Else(
-                wfi_loopback.eq(0),
-            )
-        ]
-
-        # Pull in DUT IP ---------------------------------------------------------------------------
-        self.specials += Instance("cram_axi",
-            i_aclk                = ClockSignal("sys"),
-            i_rst                 = ResetSignal("sys"),
-            i_always_on           = ClockSignal("sys_always_on"),
-            i_cmatpg             = 0,
-            i_cmbist             = 0,
-            i_trimming_reset      = 0x6000_0000,
-            i_trimming_reset_ena  = 1,
-            o_p_axi_awvalid       = p_axil.aw.valid,
-            i_p_axi_awready       = p_axil.aw.ready,
-            o_p_axi_awaddr        = p_axil.aw.addr ,
-            o_p_axi_awprot        = p_axil.aw.prot ,
-            o_p_axi_wvalid        = p_axil.w.valid ,
-            i_p_axi_wready        = p_axil.w.ready ,
-            o_p_axi_wdata         = p_axil.w.data  ,
-            o_p_axi_wstrb         = p_axil.w.strb  ,
-            i_p_axi_bvalid        = p_axil.b.valid ,
-            o_p_axi_bready        = p_axil.b.ready ,
-            i_p_axi_bresp         = p_axil.b.resp  ,
-            o_p_axi_arvalid       = p_axil.ar.valid,
-            i_p_axi_arready       = p_axil.ar.ready,
-            o_p_axi_araddr        = p_axil.ar.addr ,
-            o_p_axi_arprot        = p_axil.ar.prot ,
-            i_p_axi_rvalid        = p_axil.r.valid ,
-            o_p_axi_rready        = p_axil.r.ready ,
-            i_p_axi_rresp         = p_axil.r.resp  ,
-            i_p_axi_rdata         = p_axil.r.data  ,
-            o_ibus_axi_awvalid    = ibus64_axi.aw.valid ,
-            i_ibus_axi_awready    = ibus64_axi.aw.ready ,
-            o_ibus_axi_awaddr     = ibus64_axi.aw.addr  ,
-            o_ibus_axi_awburst    = ibus64_axi.aw.burst ,
-            o_ibus_axi_awlen      = ibus64_axi.aw.len   ,
-            o_ibus_axi_awsize     = ibus64_axi.aw.size  ,
-            o_ibus_axi_awlock     = ibus64_axi.aw.lock  ,
-            o_ibus_axi_awprot     = ibus64_axi.aw.prot  ,
-            o_ibus_axi_awcache    = ibus64_axi.aw.cache ,
-            o_ibus_axi_awqos      = ibus64_axi.aw.qos   ,
-            o_ibus_axi_awregion   = ibus64_axi.aw.region,
-            o_ibus_axi_awid       = ibus64_axi.aw.id    ,
-            #o_ibus_axi_awdest     = ibus64_axi.aw.dest  ,
-            o_ibus_axi_awuser     = ibus64_axi.aw.user  ,
-            o_ibus_axi_wvalid     = ibus64_axi.w.valid  ,
-            i_ibus_axi_wready     = ibus64_axi.w.ready  ,
-            o_ibus_axi_wlast      = ibus64_axi.w.last   ,
-            o_ibus_axi_wdata      = ibus64_axi.w.data   ,
-            o_ibus_axi_wstrb      = ibus64_axi.w.strb   ,
-            #o_ibus_axi_wid        = ibus64_axi.w.id     ,
-            #o_ibus_axi_wdest      = ibus64_axi.w.dest   ,
-            o_ibus_axi_wuser      = ibus64_axi.w.user   ,
-            i_ibus_axi_bvalid     = ibus64_axi.b.valid  ,
-            o_ibus_axi_bready     = ibus64_axi.b.ready  ,
-            i_ibus_axi_bresp      = ibus64_axi.b.resp   ,
-            i_ibus_axi_bid        = ibus64_axi.b.id     ,
-            #i_ibus_axi_bdest      = ibus64_axi.b.dest   ,
-            i_ibus_axi_buser      = ibus64_axi.b.user   ,
-            o_ibus_axi_arvalid    = ibus64_axi.ar.valid ,
-            i_ibus_axi_arready    = ibus64_axi.ar.ready ,
-            o_ibus_axi_araddr     = ibus64_axi.ar.addr  ,
-            o_ibus_axi_arburst    = ibus64_axi.ar.burst ,
-            o_ibus_axi_arlen      = ibus64_axi.ar.len   ,
-            o_ibus_axi_arsize     = ibus64_axi.ar.size  ,
-            o_ibus_axi_arlock     = ibus64_axi.ar.lock  ,
-            o_ibus_axi_arprot     = ibus64_axi.ar.prot  ,
-            o_ibus_axi_arcache    = ibus64_axi.ar.cache ,
-            o_ibus_axi_arqos      = ibus64_axi.ar.qos   ,
-            o_ibus_axi_arregion   = ibus64_axi.ar.region,
-            o_ibus_axi_arid       = ibus64_axi.ar.id    ,
-            #o_ibus_axi_ardest     = ibus64_axi.ar.dest  ,
-            o_ibus_axi_aruser     = ibus64_axi.ar.user  ,
-            i_ibus_axi_rvalid     = ibus64_axi.r.valid  ,
-            o_ibus_axi_rready     = ibus64_axi.r.ready  ,
-            i_ibus_axi_rlast      = ibus64_axi.r.last   ,
-            i_ibus_axi_rresp      = ibus64_axi.r.resp   ,
-            i_ibus_axi_rdata      = ibus64_axi.r.data   ,
-            i_ibus_axi_rid        = ibus64_axi.r.id     ,
-            #i_ibus_axi_rdest      = ibus64_axi.r.dest   ,
-            i_ibus_axi_ruser      = ibus64_axi.r.user   ,
-            o_dbus_axi_awvalid    = dbus_axi.aw.valid ,
-            i_dbus_axi_awready    = dbus_axi.aw.ready ,
-            o_dbus_axi_awaddr     = dbus_axi.aw.addr  ,
-            o_dbus_axi_awburst    = dbus_axi.aw.burst ,
-            o_dbus_axi_awlen      = dbus_axi.aw.len   ,
-            o_dbus_axi_awsize     = dbus_axi.aw.size  ,
-            o_dbus_axi_awlock     = dbus_axi.aw.lock  ,
-            o_dbus_axi_awprot     = dbus_axi.aw.prot  ,
-            o_dbus_axi_awcache    = dbus_axi.aw.cache ,
-            o_dbus_axi_awqos      = dbus_axi.aw.qos   ,
-            o_dbus_axi_awregion   = dbus_axi.aw.region,
-            o_dbus_axi_awid       = dbus_axi.aw.id    ,
-            #o_dbus_axi_awdest     = dbus_axi.aw.dest  ,
-            o_dbus_axi_awuser     = dbus_axi.aw.user  ,
-            o_dbus_axi_wvalid     = dbus_axi.w.valid  ,
-            i_dbus_axi_wready     = dbus_axi.w.ready  ,
-            o_dbus_axi_wlast      = dbus_axi.w.last   ,
-            o_dbus_axi_wdata      = dbus_axi.w.data   ,
-            o_dbus_axi_wstrb      = dbus_axi.w.strb   ,
-            #o_dbus_axi_wid        = dbus_axi.w.id     ,
-            #o_dbus_axi_wdest      = dbus_axi.w.dest  ,
-            o_dbus_axi_wuser      = dbus_axi.w.user  ,
-            i_dbus_axi_bvalid     = dbus_axi.b.valid  ,
-            o_dbus_axi_bready     = dbus_axi.b.ready  ,
-            i_dbus_axi_bresp      = dbus_axi.b.resp   ,
-            i_dbus_axi_bid        = dbus_axi.b.id     ,
-            #i_dbus_axi_bdest      = dbus_axi.b.dest  ,
-            i_dbus_axi_buser      = dbus_axi.b.user  ,
-            o_dbus_axi_arvalid    = dbus_axi.ar.valid ,
-            i_dbus_axi_arready    = dbus_axi.ar.ready ,
-            o_dbus_axi_araddr     = dbus_axi.ar.addr  ,
-            o_dbus_axi_arburst    = dbus_axi.ar.burst ,
-            o_dbus_axi_arlen      = dbus_axi.ar.len   ,
-            o_dbus_axi_arsize     = dbus_axi.ar.size  ,
-            o_dbus_axi_arlock     = dbus_axi.ar.lock  ,
-            o_dbus_axi_arprot     = dbus_axi.ar.prot  ,
-            o_dbus_axi_arcache    = dbus_axi.ar.cache ,
-            o_dbus_axi_arqos      = dbus_axi.ar.qos   ,
-            o_dbus_axi_arregion   = dbus_axi.ar.region,
-            o_dbus_axi_arid       = dbus_axi.ar.id    ,
-            #o_dbus_axi_ardest     = dbus_axi.ar.dest  ,
-            o_dbus_axi_aruser     = dbus_axi.ar.user  ,
-            i_dbus_axi_rvalid     = dbus_axi.r.valid  ,
-            o_dbus_axi_rready     = dbus_axi.r.ready  ,
-            i_dbus_axi_rlast      = dbus_axi.r.last   ,
-            i_dbus_axi_rresp      = dbus_axi.r.resp   ,
-            i_dbus_axi_rdata      = dbus_axi.r.data   ,
-            i_dbus_axi_rid        = dbus_axi.r.id     ,
-            #i_dbus_axi_rdest      = dbus_axi.r.dest  ,
-            i_dbus_axi_ruser      = dbus_axi.r.user  ,
-            i_jtag_tdi            = jtag_cpu.tdi      ,
-            o_jtag_tdo            = jtag_cpu.tdo      ,
-            i_jtag_tms            = jtag_cpu.tms      ,
-            i_jtag_tck            = jtag_cpu.tck      ,
-            i_jtag_trst           = jtag_cpu.trst  | ResetSignal("sys"), # integration note: this needs to be wired up
-
-            o_coreuser            = sim.coreuser      ,
-            i_irqarray_bank0      = self.irqtest0.fields.trigger | irq0_wire_or,
-            i_irqarray_bank1      = self.irqtest1.fields.trigger,
-            i_irqarray_bank2      = Cat(pio_irq0, pio_irq1, zero_irq[2:]),
-            i_irqarray_bank3      = zero_irq,
-            i_irqarray_bank4      = zero_irq,
-            i_irqarray_bank5      = zero_irq,
-            i_irqarray_bank6      = zero_irq,
-            i_irqarray_bank7      = zero_irq,
-            i_irqarray_bank8      = zero_irq,
-            i_irqarray_bank9      = zero_irq,
-            i_irqarray_bank10      = zero_irq,
-            i_irqarray_bank11      = zero_irq,
-            i_irqarray_bank12      = zero_irq,
-            i_irqarray_bank13      = zero_irq,
-            i_irqarray_bank14      = zero_irq,
-            i_irqarray_bank15      = zero_irq,
-            i_irqarray_bank16      = zero_irq,
-            i_irqarray_bank17      = zero_irq,
-            i_irqarray_bank18      = zero_irq,
-            i_irqarray_bank19      = wfi_loopback,
-
-            o_sleep_req            = sleep_req,
+    ]
+    sim_uart_pins = self.platform.request("sim_uart")
+    kernel_input = Signal(8)
+    kernel_input_valid = Signal()
+    kernel_input_ready = Signal()
+    self.submodules.uart_phy = SimUartPhy(
+        kernel_input,
+        kernel_input_valid,
+        kernel_input_ready,
+        sim_uart_pins.kernel,
+        sim_uart_pins.kernel_valid,
+        clk_freq=self.sys_clk_freq,
+        baudrate=115200)
+    self.submodules.uart = ResetInserter()(
+        uart.UART(self.uart_phy,
+            tx_fifo_depth=16, rx_fifo_depth=16)
         )
 
-    def add_custom_ram(self, custom_bus, name, origin, size, contents=[], mode="rwx"):
-        ram_cls = {
-            "wishbone": wishbone.SRAM,
-            "axi-lite": axi.AXILiteSRAM,
-            "axi"     : axi.AXILiteSRAM, # FIXME: Use AXI-Lite for now, create AXISRAM.
-        }[custom_bus.standard]
-        interface_cls = {
-            "wishbone": wishbone.Interface,
-            "axi-lite": axi.AXILiteInterface,
-            "axi"     : axi.AXILiteInterface, # FIXME: Use AXI-Lite for now, create AXISRAM.
-        }[custom_bus.standard]
-        ram_bus = interface_cls(
-            data_width    = custom_bus.data_width,
-            address_width = custom_bus.address_width,
-            bursting      = custom_bus.bursting
+    self.add_csr("uart_phy")
+    self.add_csr("uart")
+    self.irq.add("uart")
+
+    console_data_in = Signal(8, reset=13) # 13=0xd
+    console_data_valid = Signal(reset = 0)
+    console_data_ready = Signal()
+    self.submodules.console_phy = SimUartPhy(
+        console_data_in,
+        console_data_valid,
+        console_data_ready,
+        sim_uart_pins.log,
+        sim_uart_pins.log_valid,
+        clk_freq=self.sys_clk_freq,
+        baudrate=115200)
+    self.submodules.console = ResetInserter()(
+        uart.UART(self.console_phy,
+            tx_fifo_depth=16, rx_fifo_depth=16)
         )
-        ram     = ram_cls(size, bus=ram_bus, init=contents, read_only=("w" not in mode), name=name)
-        custom_bus.add_slave(name, ram.bus, SoCRegion(origin=origin, size=size, mode=mode))
-        self.check_if_exists(name)
-        self.logger.info("RAM {} {} {}.".format(
-            colorer(name),
-            colorer("added", color="green"),
-            custom_bus.regions[name]))
-        setattr(self, name, ram)
-        if contents != []:
-            self.add_config(f"{name}_INIT", 1)
+
+    self.add_csr("console_phy")
+    self.add_csr("console")
+    self.irq.add("console")
+
+    # extra PHY for "application" uses -- mainly things like the FCC testing agent
+    app_data_in = Signal(8, reset=13) # 13=0xd
+    app_data_valid = Signal(reset = 0)
+    app_data_ready = Signal()
+    self.submodules.app_uart_phy = SimUartPhy(
+        app_data_in,
+        app_data_valid,
+        app_data_ready,
+        sim_uart_pins.app,
+        sim_uart_pins.app_valid,
+        clk_freq=self.sys_clk_freq,
+        baudrate=115200)
+    self.submodules.app_uart = ResetInserter()(
+        uart.UART(self.app_uart_phy,
+            tx_fifo_depth=16, rx_fifo_depth=16)
+        )
+
+    self.add_csr("app_uart_phy")
+    self.add_csr("app_uart")
+    self.irq.add("app_uart")
+
+    self.specials += Instance("uart_print",
+        p_TYPE="log",
+        i_uart_data=sim_uart_pins.log,
+        i_uart_data_valid=sim_uart_pins.log_valid,
+        i_resetn=~ResetSignal(),
+        i_clk=ClockSignal(),
+    )
+    self.specials += Instance("uart_print",
+        p_TYPE="kernel",
+        i_uart_data=sim_uart_pins.kernel,
+        i_uart_data_valid=sim_uart_pins.kernel_valid,
+        i_resetn=~ResetSignal(),
+        i_clk=ClockSignal(),
+    )
+    self.platform.add_source("sim_support/uart_print.v")
+
+    # Simulation framework I/O ----------------------------------------------------------------------
+    self.sim = sim = self.platform.request("simio")
+    self.comb += [
+        sim.report.eq(self.sim_report.storage),
+        sim.success.eq(self.sim_success.storage),
+        sim.done.eq(self.sim_done.storage),
+        sim.coreuser.eq(self.coreuser),
+    ]
+
+    self.specials += Instance("finisher",
+        i_kuart_from_cpu=sim_uart_pins.kernel,
+        i_kuart_from_cpu_valid=sim_uart_pins.kernel_valid,
+        o_kuart_to_cpu=kernel_input,
+        o_kuart_to_cpu_valid=kernel_input_valid,
+        i_kuart_to_cpu_ready=kernel_input_ready,
+        i_report=self.sim.report,
+        i_success=self.sim.success,
+        i_done=self.sim.done,
+        i_clk = ClockSignal(),
+    )
+    self.platform.add_source("sim_support/finisher.v")
+
+    # pass the UART IRQ back to the common framework
+    self.comb += self.uart_irq.eq(self.uart.ev.irq)
+
 
 # Platform -----------------------------------------------------------------------------------------
 
@@ -830,6 +413,9 @@ def generate_gtkw_savefile(builder, vns, trace_fst=False):
 
 
 def sim_args(parser):
+    # Speed. In reality, just selects whether we save a waveform, or not.
+    parser.add_argument("--speed",                type=str, default="normal", help="Run at `normal` or `fast` speed. Fast runs do not save waveform data.")
+
     # Analyzer.
     parser.add_argument("--with-analyzer",        action="store_true",     help="Enable Analyzer support.")
 
@@ -862,16 +448,22 @@ def main():
     sim_config.add_clocker("p_clk", freq_hz=100e6) # simulated down to 50MHz, but left at 100MHz to speed up simulations
     sim_config.add_clocker("pio_clk", freq_hz=200e6)
 
-    ##### second pass to build the actual chip. Note any changes below need to be reflected into the first pass...might be a good idea to modularize that
-    ##### define the soc
     bios_path = args.bios
     soc = CramSoC(
+        Platform(),
+        variant="sim",
         bios_path=bios_path,
         sys_clk_freq=800e6,
         sim_debug          = args.sim_debug,
         trace_reset_on     = False,
         **soc_kwargs
     )
+    if args.speed == "fast":
+        nosave = True
+    else:
+        nosave = False
+    CramSoC.sim_extensions = sim_extensions
+    soc.sim_extensions(nosave)
 
     def pre_run_callback(vns):
         generate_gtkw_savefile(builder, vns)
