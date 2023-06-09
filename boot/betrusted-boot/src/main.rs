@@ -304,13 +304,6 @@ pub fn xip_test() {
     let xip_dest = unsafe{core::slice::from_raw_parts_mut(satp::XIP_VA as *mut u32, 2)};
     xip_dest.copy_from_slice(&code);
 
-    // prep a second region, a little bit further away to trigger a second access
-    // self-modifying code is *not* supported on Vex
-    const XIP_OFFSET: usize = 0x100;
-    let xip_dest2 = unsafe{core::slice::from_raw_parts_mut((satp::XIP_VA + XIP_OFFSET) as *mut u32, 2)};
-    let code2 = [0x0015_0513u32, 0x0000_8082u32];
-    xip_dest2.copy_from_slice(&code2);
-
     // run the code
     let mut test_val: usize = 0x5555_0000;
     let mut expected: usize = test_val;
@@ -320,6 +313,18 @@ pub fn xip_test() {
         expected += 0x0400;
         assert!(expected == test_val);
     }
+
+    // prep a second region, a little bit further away to trigger a second access
+    // self-modifying code is *not* supported on Vex
+    const XIP_OFFSET: usize = 0;
+    let xip_dest2 = unsafe{core::slice::from_raw_parts_mut((satp::XIP_VA + XIP_OFFSET) as *mut u32, 2)};
+    let code2 = [0x0015_0513u32, 0x0000_8082u32];
+    xip_dest2.copy_from_slice(&code2);
+    // this forces a reload of the i-cache
+    unsafe {
+    core::arch::asm!(
+        "fence.i",
+    );}
 
     // run the new code and see that it was updated?
     for _ in 0..8 {
