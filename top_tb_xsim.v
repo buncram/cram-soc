@@ -41,7 +41,7 @@ module uart_print #(
     end
 endmodule
 
-module top_tb_fpga();
+module top_tb_xsim();
 
 /////////// boilerplate in here
 `include "common.v"
@@ -82,28 +82,7 @@ reg serial_rx;
 initial serial_rx = 1;
 wire serial_tx;
 
-`ifdef GFX
-wire sclk;
-wire scs;
-wire si;
-`endif
-
 wire coreuser;
-
-wire spi_sclk;
-wire [7:0] sio;
-wire dqs;
-wire ecsb;
-wire csn;
-
-MX66UM1G45G rom(
-  .SCLK(spi_sclk),
-  .CS(csn),
-  .SIO(sio),
-  .DQS(dqs),
-  .ECSB(ecsb),
-  .RESET(~reset)
-);
 
 reg fpga_reset;
 initial begin
@@ -111,14 +90,6 @@ initial begin
   #40_000;
   fpga_reset = 1'b0;
 end
-
-wire [21:0] sram_adr;
-wire sram_ce_n;
-wire sram_oe_n;
-wire sram_we_n;
-wire sram_zz_n;
-wire [31:0] sram_d;
-wire [3:0] sram_dm_n;
 
 wire [7:0] uart_kernel;
 wire uart_kernel_valid;
@@ -128,7 +99,7 @@ wire [7:0] uart_app;
 wire uart_app_valid;
 wire clk;
 
-cram_fpga dut (
+cram_soc dut (
     .clk12(clk12),
     .lpclk(lpclk),
     .reset(fpga_reset),
@@ -139,27 +110,8 @@ cram_fpga dut (
     .jtag_cpu_tdo(tdo),
     .jtag_cpu_trst(trst),
 
-    .spiflash_8x_cs_n(csn),
-    .spiflash_8x_dq(sio),
-    .spiflash_8x_dqs(dqs),
-    .spiflash_8x_ecs_n(ecsb),
-    .spiflash_8x_sclk(spi_sclk),
-
-    .sram_adr(sram_adr),
-    .sram_ce_n(sram_ce_n),
-    .sram_oe_n(sram_oe_n),
-    .sram_we_n(sram_we_n),
-    .sram_zz_n(sram_zz_n),
-    .sram_d(sram_d),
-    .sram_dm_n(sram_dm_n),
-
     .serial_tx(serial_tx),
     .serial_rx(serial_rx),
-`ifdef GFX
-    .lcd_sclk(sclk),
-    .lcd_si(si),
-    .lcd_scs(scs),
-`endif
 
     .sim_uart_kernel(uart_kernel),
     .sim_uart_kernel_valid(uart_kernel_valid),
@@ -167,11 +119,11 @@ cram_fpga dut (
     .sim_uart_log_valid(uart_log_valid),
     .sim_uart_app(uart_app),
     .sim_uart_app_valid(uart_app_valid),
-    .sim_sysclk(clk),
-    .sim_coreuser(coreuser),
-    .sim_success(success),
-    .sim_done(done),
-    .sim_report(report)
+    .simio_sysclk(clk),
+    .simio_coreuser(coreuser),
+    .simio_success(success),
+    .simio_done(done),
+    .simio_report(report)
 );
 
 uart_print #(
@@ -193,11 +145,6 @@ uart_print #(
 
 // extra reporting for CI
 initial begin
-`ifdef GFX
-        $dumpvars(0, sclk);
-        $dumpvars(0, si);
-        $dumpvars(0, scs);
-`endif
         $dumpvars(0, uart_kernel);
         $dumpvars(0, uart_kernel_valid);
         $dumpvars(0, uart_log);
@@ -212,33 +159,4 @@ end
 
 // DUT-specific end condition to make sure it eventually stops running for CI mode
 initial #750_000_000 $finish;
-
-parameter RAM_DATA_WIDTH = 32;
-parameter RAM_ADDR_WIDTH = 22; // could reduce to accelerate the simulation
-
-reg [RAM_DATA_WIDTH-1:0] mem[(2**RAM_ADDR_WIDTH)-1:0];
-reg [31:0] rd_data;
-
-integer i, j;
-
-initial begin
-    for (i = 0; i < 2**RAM_ADDR_WIDTH; i = i + 2**(RAM_ADDR_WIDTH/2)) begin
-        for (j = i; j < i + 2**(RAM_ADDR_WIDTH/2); j = j + 1) begin
-            mem[j] = 0;
-        end
-    end
-end
-
-always @* begin
-    rd_data = mem[sram_adr];
-end
-assign sram_d = (sram_oe_n || sram_ce_n) ? 32'hzzzz_zzzz : rd_data;
-
-always @(posedge sram_we_n) begin
-    // dm_n is ignored in this implementation, because we always write full words
-    if (sram_ce_n == 1'b0) begin
-        mem[sram_adr] <= sram_d;
-    end
-end
-
 endmodule

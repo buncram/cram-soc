@@ -306,6 +306,7 @@ class CramSoC(SoCCore):
                 wfi_loopback.eq(0),
             )
         ]
+        trimming_reset = Signal(32, reset=0x6000_0000)
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",
@@ -314,7 +315,7 @@ class CramSoC(SoCCore):
             i_always_on           = ClockSignal("sys_always_on"),
             i_cmatpg             = 0,
             i_cmbist             = 0,
-            i_trimming_reset      = 0x6000_0000,
+            i_trimming_reset      = trimming_reset,
             i_trimming_reset_ena  = 1,
             o_p_axi_awvalid       = p_axil.aw.valid,
             i_p_axi_awready       = p_axil.aw.ready,

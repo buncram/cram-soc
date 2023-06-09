@@ -246,6 +246,7 @@ class SimRunner():
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/common.v") + " run" + os.path.sep) # "cp sim_support/common.v run/"
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/prims.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("sim_support/cdc_blinded.v") + " run" + os.path.sep)
+        os.system("{} ".format(cpname) + os.path.normpath("sim_support/finisher.v") + " run" + os.path.sep)
 
         # initialize with a default waveform that contains the most basic execution tracing
         if os.path.isfile('run/{}_sim.wcfg'.format(tb)) != True:
@@ -278,39 +279,7 @@ class SimRunner():
 
         os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/rtl/amba/cmsdk_ahb_to_apb.v") + " run" + os.path.sep)
         os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/rtl/amba/*.sv") + " run" + os.path.sep)
-
-        # generate a .init file for the SPINOR memory based on the BIOS we want to boot
-        if os.name == 'nt':
-            os.system('del /S /Q run\\simspi.init')
-        else:
-            os.system("rm -f run/simspi.init")  # the "w" argument is not replacing the file for some reason, it's appending. delete it.
-        if False:
-            bios_path = '..\\xous-cramium\\simspi.init' # if simulating Xous
-        else:
-            bios_path = "boot\\boot.bin"
-
-        with open(bios_path, "rb") as ifile:
-            with open("run/simspi.init", "w") as ofile:
-                binfile = ifile.read()
-
-                count = 0
-                if False: # controls padding
-                    while count < 0x50_0000:
-                        ofile.write("00\n")
-                        count += 1
-
-                for b in binfile:
-                    ofile.write("{:02x}\n".format(b))
-                    count += 1
-
-                while count < 64 *1024:
-                    ofile.write("00\n")
-                    count += 1
-
-                ofile.write("C3\n")
-                ofile.write("69\n")
-                ofile.write("DE\n")
-                ofile.write("C0\n")
+        os.system("{} ".format(cpname) + os.path.normpath("do_not_checkin/rtl/*.sv") + " run" + os.path.sep)
 
         deps = []
         if production_models:
@@ -332,7 +301,6 @@ class SimRunner():
             "cd run && {}xvlog {}".format(VIVADO_PATH, os.path.normpath("../sim_support/glbl.v")),
             "cd run && {}xvlog -sv -d ASIC_TARGET prims.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cram_soc.v".format(VIVADO_PATH),
-            "cd run && {}xvlog -sv cram_fpga.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cram_axi.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv {}.v".format(VIVADO_PATH, tb),
             "cd run && {}xvlog -sv axi_ram.v".format(VIVADO_PATH),
@@ -384,7 +352,12 @@ class SimRunner():
             "cd run && {}xvlog -sv axil_crossbar_addr.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axil_crossbar_wr.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv axil_crossbar_rd.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_cdc.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_cdc_wr.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv axil_cdc_rd.v".format(VIVADO_PATH),
             "cd run && {}xvlog -sv cmsdk_ahb_to_apb.v".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv -d XSIM duart_v0.1.sv".format(VIVADO_PATH),
+            "cd run && {}xvlog -sv finisher.v".format(VIVADO_PATH),
         ]
 
         pool = multiprocessing.Pool(12)

@@ -92,7 +92,9 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, variant="a7-100", toolchain="vivado", sys_clk_freq=100e6,
+    def __init__(self, platform,
+        variant = "fpga",
+        sys_clk_freq=100e6,
         bios_path       = None,
         with_led_chaser = True,
         with_jtagbone   = True,
@@ -120,8 +122,6 @@ class BaseSoC(SoCCore):
             "emu_ram": axi_mem_map["reram"][0],
             "csr": axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
         }}
-
-        platform = digilent_arty.Platform(variant=variant, toolchain=toolchain)
 
         # CRG --------------------------------------------------------------------------------------
         sleep_req = Signal()
@@ -256,13 +256,6 @@ class BaseSoC(SoCCore):
                 # wire up the specific subsystems
                 if name == "pio":
                     from pio_adapter import PioAdapter
-                    pio = [
-                        ("pio", 0,
-                            Subsignal("gpio", Pins(" ".join([f"ck_io:ck_io{i:d}" for i in range(32)]))),
-                            IOStandard("LVCMOS33"),
-                        )
-                    ]
-                    platform.add_extension(pio)
                     pio_irq0 = Signal()
                     pio_irq1 = Signal()
                     self.submodules += ClockDomainsRenamer({"sys" : "p", "pio": "sys"})(PioAdapter(platform,
@@ -271,14 +264,6 @@ class BaseSoC(SoCCore):
                     ))
                 elif name == "duart":
                     from duart_adapter import DuartAdapter
-                    duart = [
-                        ("duart", 0,
-                            Subsignal("tx", Pins("ck_io:ck_io40")),
-                            Subsignal("rx", Pins("ck_io:ck_io41")),
-                            IOStandard("LVCMOS33"),
-                        )
-                    ]
-                    platform.add_extension(duart)
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
                         getattr(self, name + "_ahb"), pads=platform.request("duart"), sel_addr=region[0]
                     ))
@@ -292,18 +277,6 @@ class BaseSoC(SoCCore):
         self.irq.enable()
 
         # add JTAG pins to header
-        jtag_pins = [
-            ("jtag_cpu", 0,
-                Subsignal("tck",  Pins("ck_io:ck_io33")),
-                Subsignal("tms",  Pins("ck_io:ck_io34")),
-                Subsignal("tdi",  Pins("ck_io:ck_io35")),
-                Subsignal("tdo",  Pins("ck_io:ck_io36")),
-                Subsignal("trst", Pins("ck_io:ck_io37")),
-                Misc("SLEW=SLOW"),
-                IOStandard("LVCMOS33"),
-            )
-        ]
-        platform.add_extension(jtag_pins)
         jtag_cpu = platform.request("jtag_cpu")
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
@@ -628,6 +601,34 @@ class BaseSoC(SoCCore):
             port         = port,
             base_address = self.bus.regions["emu_ram"].origin)
 
+def arty_extensions(self, **kwargs):
+    # Clockgen cluster -------------------------------------------------------------------------
+    self.crg  = _CRG(self.platform, self.sys_clk_freq, True, sleep_req=self.sleep_req)
+
+    # Memory regions ---------------------------------------------------------------------------
+    # All the memory regions are emulated with a single, large RAM port that is big enough to overlap
+    # both ReRAM and SRAM.
+    self.mem_map["emu_ram"] = self.axi_mem_map["reram"][0]
+
+    dram_axi = AXIInterface(data_width=32, address_width=32, id_width=2, bursting=True)
+        # maps both ReRAM and SRAM
+    self.mbus.add_master(name = "reram", m_axi=dram_axi, origin=self.axi_mem_map["reram"][0], size=0x0100_0000 * 2)
+
+    # DDR3 SDRAM -------------------------------------------------------------------------------
+    self.ddrphy = s7ddrphy.A7DDRPHY(self.platform.request("ddram"),
+        memtype        = "DDR3",
+        nphases        = 4,
+        sys_clk_freq   = self.sys_clk_freq)
+    self.add_sdram_emu("sdram",
+        mem_bus       = dram_axi,
+        phy           = self.ddrphy,
+        module        = MT41K128M16(self.sys_clk_freq, "1:4"),
+        l2_cache_size = kwargs.get("l2_size", 8192)
+    )
+
+    # Various other I/Os
+    self.comb += self.platform.request("rgb_led", number=0).g.eq(self.coreuser)
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -654,9 +655,39 @@ def main():
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
+    platform = digilent_arty.Platform(variant=args.variant, toolchain=args.toolchain)
+
+    # add various platform I/O extensions
+    pio = [
+        ("pio", 0,
+            Subsignal("gpio", Pins(" ".join([f"ck_io:ck_io{i:d}" for i in range(32)]))),
+            IOStandard("LVCMOS33"),
+        )
+    ]
+    platform.add_extension(pio)
+    duart = [
+        ("duart", 0,
+            Subsignal("tx", Pins("ck_io:ck_io40")),
+            Subsignal("rx", Pins("ck_io:ck_io41")),
+            IOStandard("LVCMOS33"),
+        )
+    ]
+    platform.add_extension(duart)
+    jtag_pins = [
+        ("jtag_cpu", 0,
+            Subsignal("tck",  Pins("ck_io:ck_io33")),
+            Subsignal("tms",  Pins("ck_io:ck_io34")),
+            Subsignal("tdi",  Pins("ck_io:ck_io35")),
+            Subsignal("tdo",  Pins("ck_io:ck_io36")),
+            Subsignal("trst", Pins("ck_io:ck_io37")),
+            Misc("SLEW=SLOW"),
+            IOStandard("LVCMOS33"),
+        )
+    ]
+    platform.add_extension(jtag_pins)
+
     soc = BaseSoC(
-        variant        = args.variant,
-        toolchain      = args.toolchain,
+        platform,
         sys_clk_freq   = args.sys_clk_freq,
         with_xadc      = args.with_xadc,
         with_dna       = args.with_dna,
