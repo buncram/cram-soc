@@ -2,7 +2,15 @@
 
 This is the open source RISC-V core on the Cramium SoC.
 
-Compiled documentation: https://ci.betrusted.io/cramium/index.html[RV core complex register set].
+Compiled documentation: [RV core complex register set](https://ci.betrusted.io/cramium/index.html).
+
+## Structure ##
+
+- The Vex CPU source is located in [./VexRiscv/GenCramSoC.scala](./VexRiscv/GenCramSoC.scala). This is compiled into a [verilog file](./VexRiscv/VexRiscv_CramSoC.v) and included into LiteX via a CPU wrapper.
+- The Vex core is wrapped in a custom LiteX CPU wrapper, at [./deps/litex/litex/soc/cores/cpu/vexriscv_axi/core.py](./deps/litex/litex/soc/cores/cpu/vexriscv_axi/core.py). For now, this project relies on a fork of LiteX.
+- The CPU is instantiated for SoC integration using [cram_core.py](./cram_core.py). This creates a "SoC"-less LiteX project which wraps the CPU core in an AXI crossbar from the `verilog-axi` project, allowing us to (a) have a private CSR space for RV-only peripherals, and (b) adapt the RV's bus widths to those specified by the Cramium SoC. `verilog-axi` is used because it seems more mature than the AXI primitives in LiteX as of 2023.
+- `cram_core.py` will output an artifact named [cram_axi.v](./candidate/cram_axi.v). This is the verilog file as integrated for tape-out. It is instantited with register initializations turned off, since on real silicon you can't pre-load registers with values on boot.
+- `cram_soc.py` and `cram_arty.py` are wrappers of `cram_core.py` that put the production SoC core into either a simulation framework, or something that can target the Arty FPGA board. The main reason we have two targets is for simulation we use abstract RAM models that are faster to simulate than the DRAM models used for the actual Arty.
 
 ## Building ##
 
@@ -12,9 +20,8 @@ Compiled documentation: https://ci.betrusted.io/cramium/index.html[RV core compl
 1. Ensure the `riscv32imac-unknown-none-elf` Rust target is installed via `rustup target add riscv32imac-unknown-none-elf`.
 1. Ensure you have `make` installed.
 1. Download the Risc-V toolchain from https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases and put it in your PATH. The bootloader is pure Rust, except for a few assembly instructions to set up the runtime environment (which are easily verified with a hexdump). However, the full toolchain is still required for LiteX to run correctly.
-1. Go to https://www.xilinx.com/support/download.html and download `All OS installer Single-File Download`. Our CI system uses version 2019.2, but it has also been tested against 2020.2. The hashes of the binaries used to build the release SoC can be found in https://github.com/betrusted-io/betrusted-soc/blob/main/manifest.txt[manifest.txt]. Note that this toolchain has been patched for log4j via https://support.xilinx.com/s/article/76957?language=en_US[Xilinx KB76957], patch log https://github.com/betrusted-io/betrusted-soc/blob/main/log4j_patch.log[log4j_patch.log].
+1. Go to https://www.xilinx.com/support/download.html and download Vivado. This was tested under 2022.2.
 1. Do a minimal Xilinx install to /opt/Xilinx/, and untick everything except `Design Tools / Vivado Design Suite / Vivado` and `Devices / Production Devices / 7 Series`
-1. Go to https://www.xilinx.com/member/forms/license-form.html, get a license, and place it in ~/.Xilinx/Xilinx.lic
 1. Run `./cram_core.py` (or `python3 ./cram_core.py`) to build the core complex
 1. Run `./cram_soc.py` (or `python3 ./cram-soc.py`) to build the SoC validation model. This is the core complex wrapped in additional peripherals so that we can do end-to-end testing in simulation.
 1. Run `./cram_fpga.py` (or `python3 ./cram-fpga.py`) to build the FPGA validation model. This is the core complex wrapped in an "approximation" of the SoC that allows us to run the core complex at real-time, albeit with some compromises in how accurately it reflects the SoC.
@@ -79,17 +86,15 @@ The analyzer will also need to know where your imports are. This would involve e
 
 ## Contribution Guidelines
 
-image::https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg[Contributor Covenant]
-
-Please see link:CONTRIBUTING.md/[CONTRIBUTING] for details on
+Please see [CONTRIBUTING](./CONTRIBUTING.md) for details on
 how to make a contribution.
 
 Please note that this project is released with a
-link:CODE_OF_CONDUCT.md/[Contributor Code of Conduct].
+[Contributor Code of Conduct](./CODE_OF_CONDUCT.md/).
 By participating in this project you agree to abide its terms.
 
 ## License
 
 Copyright © 2019 - 2023
 
-Licensed under the https://ohwr.org/cern_ohl_w_v2.txt[CERN OHL v2-W] link:LICENSE[LICENSE]
+Licensed under the [CERN OHL v2-W](https://ohwr.org/cern_ohl_w_v2.txt) license.
