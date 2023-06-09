@@ -1,4 +1,53 @@
 #!/bin/bash
+
+# Set default values for the options
+TARGET="iron"
+SPEED="normal"
+
+# Function to display the script usage
+function display_usage {
+    echo "Usage: $0 [-t xous] [-s fast]"
+    echo "-t: Select target [xous, iron]"
+    echo "-s: Run fast (but don't save waveforms) [normal, fast]"
+}
+
+# Parse command line options
+while getopts ":s:t:" opt; do
+    case $opt in
+        t)
+            TARGET=$OPTARG
+            ;;
+        s)
+            SPEED=$OPTARG
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG"
+            display_usage
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument."
+            display_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Shift the parsed options, so the remaining arguments are at the end of the argument list
+shift $((OPTIND - 1))
+
+# Check if any non-option arguments are passed (if required)
+if [ $# -ne 0 ]; then
+    echo "Invalid arguments: $@"
+    display_usage
+    exit 1
+fi
+
+# Use the parsed options in your script logic
+echo "Target: $TARGET"
+echo "Speed: $SPEED"
+
+
 set -e
 
 echo "--------------------- BUILD CORE --------------------"
@@ -9,10 +58,9 @@ python3 ./cram_soc.py --svd-only
 echo "Core+SoC build finished."
 
 echo "******************** BUILD KERNEL ***********************"
-#TARGET="XOUS"
-TARGET="IRON"
-if [ $TARGET == "XOUS" ]
+if [ $TARGET == "xous" ]
 then
+  echo "Simulating Xous target"
   cp build/software/soc.svd ../xous-cramium/precursors/
   cp build/software/core.svd ../xous-cramium/precursors/
   cd ../xous-cramium
@@ -27,6 +75,7 @@ then
   cd ../cram-soc
   BIOS="../xous-cramium/simspi.init"
 else
+  echo "Simulating raw iron target"
   # regenerate PIO include from source
   python3 ./pio_to_svd.py
   cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
@@ -61,7 +110,7 @@ THREADS=5
   echo "Don't forget: finisher.v needs to have the XOUS variable defined according to the target config."
   echo -e "\n\nRun with $THREADS threads" >> stats.txt
   date >> stats.txt
-  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --bios $BIOS --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200_000_000_000 --trace-fst # --sim-debug
+  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --speed $SPEED --bios $BIOS --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200_000_000_000 --trace-fst # --sim-debug
   echo "Core+SoC build finished."
 #done
 
