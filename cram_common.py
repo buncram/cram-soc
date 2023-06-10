@@ -34,8 +34,7 @@ from axi_common import *
 from axil_ahb_adapter import AXILite2AHBAdapter
 from litex.soc.interconnect import ahb
 
-import subprocess
-import shutil
+from math import ceil, log2
 
 VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
 # CramSoC testing wrapper -----------------------------------------------------------------------
@@ -133,6 +132,7 @@ class CramSoC(SoCCore):
             csr_address_width    = 16,    # increase to accommodate larger page size
             bus_standard         = "axi-lite",
             # bus_timeout          = None,         # use this if regular_comb=True on the builder
+            ident                = "Cramium SoC OSS version",
             with_ctrl            = False,
             io_regions           = {
                 # Origin, Length.
@@ -248,16 +248,20 @@ class CramSoC(SoCCore):
                 ))
                 # wire up the specific subsystems
                 if name == "pio":
+                    if variant == "sim":
+                        sim = True  # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
+                    else:
+                        sim = False
                     from pio_adapter import PioAdapter
                     pio_irq0 = Signal()
                     pio_irq1 = Signal()
                     if variant == "sim":
                         clock_remap = {"sys" : "p"}
-                    elif variant == "fpga":
+                    else: # arty variant
                         clock_remap = {"sys" : "p", "pio": "sys"}
                     self.submodules += ClockDomainsRenamer(clock_remap)(PioAdapter(platform,
                         getattr(self, name +"_ahb"), platform.request("pio"), pio_irq0, pio_irq1, sel_addr=region[0],
-                        sim=True # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
+                        sim=sim
                     ))
                 elif name == "duart":
                     from duart_adapter import DuartAdapter
@@ -466,3 +470,92 @@ class CramSoC(SoCCore):
 
             o_sleep_req            = self.sleep_req,
         )
+
+    def add_sdram_emu(self, name="sdram", mem_bus=None, phy=None, module=None, origin=None, size=None,
+        l2_cache_size           = 8192,
+        l2_cache_min_data_width = 128,
+        l2_cache_reverse        = False,
+        l2_cache_full_memory_we = True,
+        **kwargs):
+
+        # Imports.
+        from litedram.common import LiteDRAMNativePort
+        from litedram.core import LiteDRAMCore
+        from litedram.frontend.wishbone import LiteDRAMWishbone2Native
+        from litex.soc.interconnect import wishbone
+
+        # LiteDRAM core.
+        self.check_if_exists(name)
+        sdram = LiteDRAMCore(
+            phy             = phy,
+            geom_settings   = module.geom_settings,
+            timing_settings = module.timing_settings,
+            clk_freq        = self.sys_clk_freq,
+            **kwargs)
+        self.add_module(name=name, module=sdram)
+
+        # Save SPD data to be able to verify it at runtime.
+        if hasattr(module, "_spd_data"):
+            # Pack the data into words of bus width.
+            bytes_per_word = self.bus.data_width // 8
+            mem = [0] * ceil(len(module._spd_data) / bytes_per_word)
+            for i in range(len(mem)):
+                for offset in range(bytes_per_word):
+                    mem[i] <<= 8
+                    if self.cpu.endianness == "little":
+                        offset = bytes_per_word - 1 - offset
+                    spd_byte = i * bytes_per_word + offset
+                    if spd_byte < len(module._spd_data):
+                        mem[i] |= module._spd_data[spd_byte]
+            self.add_rom(
+                name     = f"{name}_spd",
+                origin   = self.mem_map.get(f"{name}_spd", None),
+                size     = len(module._spd_data),
+                contents = mem,
+            )
+
+        # Compute/Check SDRAM size.
+        sdram_size = 2**(module.geom_settings.bankbits +
+                         module.geom_settings.rowbits +
+                         module.geom_settings.colbits)*phy.settings.nranks*phy.settings.databits//8
+        if size is not None:
+            sdram_size = min(sdram_size, size)
+
+        # Add SDRAM region.
+        main_ram_region = SoCRegion(
+            origin = self.mem_map.get("emu_ram", origin),
+            size   = sdram_size,
+            mode   = "rwx")
+        self.bus.add_region("emu_ram", main_ram_region)
+
+        # Down-convert width by going through a wishbone interface. also gets us a cache maybe?
+        mem_wb  = wishbone.Interface(
+            data_width = mem_bus.data_width,
+            adr_width  = 32-log2_int(mem_bus.data_width//8))
+        mem_a2w = axi.AXI2Wishbone(
+            axi          = mem_bus,
+            wishbone     = mem_wb,
+            base_address = 0)
+        self.submodules += mem_a2w
+
+        # Insert L2 cache inbetween Wishbone bus and LiteDRAM
+        l2_cache_size = max(l2_cache_size, int(2*mem_bus.data_width/8)) # Use minimal size if lower
+        l2_cache_size = 2**int(log2(l2_cache_size))                  # Round to nearest power of 2
+        l2_cache_data_width = max(mem_bus.data_width, l2_cache_min_data_width)
+        l2_cache = wishbone.Cache(
+            cachesize = l2_cache_size//4,
+            master    = mem_wb,
+            slave     = wishbone.Interface(l2_cache_data_width),
+            reverse   = l2_cache_reverse)
+        if l2_cache_full_memory_we:
+            l2_cache = FullMemoryWE()(l2_cache)
+        self.l2_cache = l2_cache
+        litedram_wb = self.l2_cache.slave
+        self.add_config("L2_SIZE", l2_cache_size)
+
+        # Request a LiteDRAM native port.
+        port = sdram.crossbar.get_port()
+        self.submodules += LiteDRAMWishbone2Native(
+            wishbone     = litedram_wb,
+            port         = port,
+            base_address = self.bus.regions["emu_ram"].origin)

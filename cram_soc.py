@@ -7,8 +7,6 @@
 
 # sim dependencies:
 # verilator (from source), libevent-dev, libjson-c-dev
-import argparse
-from pathlib import Path
 
 from migen import *
 from migen.genlib.cdc import MultiReg
@@ -21,34 +19,23 @@ from litex.build.sim.config import SimConfig
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion, SoCIORegion
 from litex.soc.integration.builder import *
-from litex.soc.interconnect import wishbone
-from litex.soc.interconnect import axi
 
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 from litex.soc.cores.clock import S7MMCM, S7IDELAYCTRL
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.interconnect.csr import *
 
-from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
-from litex.soc.integration.soc import SoCBusHandler
 from litex.soc.cores import uart
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 from deps.gateware.gateware import memlcd
 
-from axi_crossbar import AXICrossbar
-from axi_adapter import AXIAdapter
+from litex.soc.interconnect.axi import AXIInterface
 from axi_ram import AXIRAM
-from axil_crossbar import AXILiteCrossbar
-from axil_cdc import AXILiteCDC
-from axi_common import *
 
-from axil_ahb_adapter import AXILite2AHBAdapter
-from litex.soc.interconnect import ahb
 
 from cram_common import CramSoC
 
-import subprocess
 import shutil
 
 VEX_VERILOG_PATH = "VexRiscv/VexRiscv_CramSoC.v"
