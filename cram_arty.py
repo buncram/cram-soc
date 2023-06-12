@@ -96,21 +96,44 @@ def arty_extensions(self,
     # Various other I/Os
     self.comb += self.platform.request("rgb_led", number=0).g.eq(self.coreuser)
 
-    # DDR3 SDRAM -------------------------------------------------------------------------------
-    dram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
-    self.mbus.add_master(name = "reram", m_axi=dram_axi,
-                            origin=self.axi_mem_map["reram"][0], size=0x0100_0000 * 2) # maps both ReRAM and SRAM
+    # Local RAM option for faster bringup (but less capacity)
+    from axi_ram import AXIRAM
+    # size overrides for the default region sizes because we can't fit the whole thing on an A100
+    RERAM_SIZE=64*1024
+    SRAM_SIZE=128*1024
 
-    self.ddrphy = s7ddrphy.A7DDRPHY(self.platform.request("ddram"),
-        memtype        = "DDR3",
-        nphases        = 4,
-        sys_clk_freq   = self.sys_clk_freq)
-    self.add_sdram_emu("sdram",
-        mem_bus       = dram_axi,
-        phy           = self.ddrphy,
-        module        = MT41K128M16(self.sys_clk_freq, "1:4"),
-        l2_cache_size = l2_cache_size,
-    )
+    reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    self.submodules.axi_sram = AXIRAM(
+        self.platform, sram_axi, size=SRAM_SIZE, name="sram")
+    self.submodules.axi_reram = AXIRAM(
+        self.platform, reram_axi, size=RERAM_SIZE, name="reram", init=self.bios_data)
+    # vex debug is internal to the core, no interface to build
+
+    self.mbus.add_master(name = "reram", m_axi=reram_axi, origin=self.axi_mem_map["reram"][0], size=RERAM_SIZE)
+    self.mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=self.axi_mem_map["sram"][0],  size=SRAM_SIZE)
+    # Add SoC memory regions
+    self.add_memory_region(name="reram", origin=self.axi_mem_map["reram"][0], length=RERAM_SIZE)
+    self.add_memory_region(name="sram", origin=self.axi_mem_map["sram"][0], length=SRAM_SIZE)
+
+    # DDR3 SDRAM -------------------------------------------------------------------------------
+    # dram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    # self.mbus.add_master(name = "reram", m_axi=dram_axi,
+    #                         origin=self.axi_mem_map["reram"][0], size=0x0100_0000 * 2) # maps both ReRAM and SRAM
+
+    # self.ddrphy = s7ddrphy.A7DDRPHY(self.platform.request("ddram"),
+    #     memtype        = "DDR3",
+    #     nphases        = 4,
+    #     sys_clk_freq   = self.sys_clk_freq)
+    # self.add_sdram_emu("sdram",
+    #     mem_bus       = dram_axi,
+    #     phy           = self.ddrphy,
+    #     module        = MT41K128M16(self.sys_clk_freq, "1:4"),
+    #     l2_cache_size = l2_cache_size,
+    # )
+
+    # Secondary serial -------------------------------------------------------------------------
+    self.add_uart(name="uart", uart_name="serial", baudrate=115200, fifo_depth=16)
 
     # Jtagbone ---------------------------------------------------------------------------------
     if with_jtagbone:
@@ -166,7 +189,13 @@ def main():
     parser.add_target_argument("--with-jtagbone",  action="store_true", help="Enable JTAGbone support.")
     parser.add_target_argument("--with-spi-flash", action="store_true", help="Enable SPI Flash (MMAPed).")
     parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
+    # specify test BIOS path
+    parser.add_argument("--bios", type=str, default='.{}boot{}boot.bin'.format(os.path.sep, os.path.sep), help="Override default BIOS location")
+    # Build just the SVDs
+    parser.add_argument("--svd-only",             action="store_true",     help="Just build the SVDs for the OS build")
     args = parser.parse_args()
+
+    bios_path = args.bios
 
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
@@ -190,21 +219,37 @@ def main():
     platform.add_extension(duart)
     jtag_pins = [
         ("jtag_cpu", 0,
-            Subsignal("tck",  Pins("ck_io:ck_io33")),
-            Subsignal("tms",  Pins("ck_io:ck_io34")),
-            Subsignal("tdi",  Pins("ck_io:ck_io35")),
-            Subsignal("tdo",  Pins("ck_io:ck_io36")),
-            Subsignal("trst", Pins("ck_io:ck_io37")),
+            # Subsignal("tck",  Pins("ck_io:ck_io33")),
+            # Subsignal("tms",  Pins("ck_io:ck_io34")),
+            # Subsignal("tdi",  Pins("ck_io:ck_io35")),
+            # Subsignal("tdo",  Pins("ck_io:ck_io36")),
+            # Subsignal("trst_n", Pins("ck_io:ck_io37")),
+
+            Subsignal("tck",  Pins("pmodd:4")),   # rpi 26
+            Subsignal("tms",  Pins("pmodd:5")),   # rpi 13
+            Subsignal("tdi",  Pins("pmodd:7")),   # rpi 20
+            Subsignal("tdo",  Pins("pmodd:6")),   # rpi 19
+            Subsignal("trst_n", Pins("pmodd:2")), # rpi 16
+
             Misc("SLEW=SLOW"),
             IOStandard("LVCMOS33"),
         )
     ]
     platform.add_extension(jtag_pins)
+    #         rp  pm(lx)(lx)pm  rp
+    # E2  tck  6  7(4)   (0)1   12
+    # D2  tms 13  8(5)   (1)2   G
+    # H2  tdo 19  9(6)   (2)3   16 trst_n F4
+    # G2  tdi 26 10(7)   (3)4   20
+    #          G 11         5   21
+    #            12 VCC VCC 6
+
 
     soc = CramSoC(
         platform,
         sys_clk_freq   = args.sys_clk_freq,
         variant        = args.variant,
+        bios_path      = bios_path,
         **parser.soc_argdict
     )
     if args.sdcard_adapter == "numato":
@@ -226,9 +271,26 @@ def main():
         with_pmod_gpio = args.with_pmod_gpio,
     )
 
-    builder = Builder(soc, **parser.builder_argdict)
+    builder = Builder(
+        soc,
+        csr_csv="build/csr.csv",
+        csr_svd="build/software/soc.svd",
+        # **parser.builder_argdict
+    )
+    builder.software_packages = []
+    # weird overrides because parser.builder_argdict somehow makes arguments...
+    # read-only and set only by command line?? wtf yo....
+    builder.output_dir = "build"
+    builder.gateware_dir = "build/gateware"
+    builder.software_dir = "build/software"
+    builder.generated_dir = "build/software"
+    builder.include_dir = "build/software"
+    builder.csr_svd = "build/software/soc.svd"
+    builder.csr_csv = "build/csr.csv"
     if args.build:
-        builder.build(**parser.toolchain_argdict)
+        builder.build(regular_comb=False, **parser.toolchain_argdict)
+    else:
+        builder.build(run=False, regular_comb=False, **parser.toolchain_argdict)
 
     if args.load:
         prog = soc.platform.create_programmer()
