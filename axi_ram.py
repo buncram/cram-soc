@@ -48,15 +48,26 @@ class AXIRAM(Module):
             if name is None:
                 print("Must specify `name` when specifying `init`")
                 exit(1)
-            content = ""
-            formatter = f"{{:0{int(data_width/4)}x}}\n"
-            lines = [init[i:i + data_width // 8] for i in range(0, len(init), data_width // 8)]
-            for d in lines:
-                content += formatter.format(int.from_bytes(d, 'little'))
-            memory_filename = f"{name}_mem.init"
-            with open(os.path.normpath("build/gateware/" + memory_filename), "w") as f:
-                f.write(content)
-                f.close()
+            if False:
+                content = ""
+                formatter = f"{{:0{int(data_width/4)}x}}\n"
+                lines = [init[i:i + data_width // 8] for i in range(0, len(init), data_width // 8)]
+                for d in lines:
+                    content += formatter.format(int.from_bytes(d, 'little'))
+                memory_filename = f"{name}_mem.init"
+                with open(os.path.normpath("build/gateware/" + memory_filename), "w") as f:
+                    f.write(content)
+                    f.close()
+            else:
+                content = ""
+                formatter = f"{{:0{int(data_width/4)}x}}\n"
+                lines = [init[i:i + data_width // 8] for i in range(0, len(init), data_width // 8)]
+                for d in lines:
+                    content += bin(int.from_bytes(d, 'little')).zfill(data_width).replace('0b', '') + '\n'
+                memory_filename = f"{name}_mem.init"
+                with open(os.path.normpath("build/gateware/" + memory_filename), "w") as f:
+                    f.write(content)
+                    f.close()
         else:
             memory_filename = ""
 
