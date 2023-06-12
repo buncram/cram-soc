@@ -42,14 +42,23 @@ impl Uart {
 
     #[cfg(not(feature="daric"))]
     pub fn putc(&self, c: u8) {
+        self.putc_litex(c);
+    }
+
+    pub fn putc_litex(&self, c: u8) {
         let base = utra::uart::HW_UART_BASE as *mut u32;
         let mut uart = CSR::new(base);
         // Wait until TXFULL is `0`
         while uart.r(utra::uart::TXFULL) != 0 {}
         uart.wo(utra::uart::RXTX, c as u32)
     }
+
     #[cfg(not(feature="daric"))]
     pub fn getc(&self) -> Option<u8> {
+        self.getc_litex()
+    }
+
+    pub fn getc_litex(&self) -> Option<u8> {
         let base = utra::uart::HW_UART_BASE as *mut u32;
         let mut uart = CSR::new(base);
         match uart.rf(utra::uart::EV_PENDING_RX) {
@@ -74,11 +83,17 @@ impl Uart {
             // spin wait
         }
         uart.wfo(duart::UART_DOUT_DOUT, c as u32);
+
+        #[cfg(feature="arty")]
+        self.putc_litex(c);
     }
 
     #[cfg(feature="daric")]
     pub fn getc(&self) -> Option<u8> {
-        unimplemented!()
+        #[cfg(not(feature="arty"))]
+        unimplemented!();
+        #[cfg(feature="arty")]
+        self.getc_litex()
     }
 
     pub fn tiny_write_str(&mut self, s: &str) {

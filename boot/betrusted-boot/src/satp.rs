@@ -37,6 +37,9 @@ const BSS_PAGE: usize                   = 0x6100_A000; // this is manually read 
 pub const PT_LIMIT: usize               = 0x6100_B000; // this is carved out in link.x by setting RAM base at BSS_PAGE start
 
 // VAs
+#[cfg(feature="gdb-load")]
+const CODE_VA:     usize = 0x6000_0000;
+#[cfg(not(feature="gdb-load"))]
 const CODE_VA:     usize = 0x0000_0000;
 const CSR_VA:      usize = 0x5800_0000;
 const PERI_VA:     usize = 0x4000_0000;
@@ -163,9 +166,19 @@ pub fn satp_setup() {
             // Enable the MMU (once we issue `mret`) and flush the cache
             "csrw        satp, {satp_val}",
             "sfence.vma",
-
+            satp_val = in(reg) satp,
+        );
+        #[cfg(not(feature="gdb-load"))]
+        core::arch::asm!(
             // Return to the address pointed to by $a4, which should be our return address minus remap offset
             "li          t0, 0x60000000",
+        );
+        #[cfg(feature="gdb-load")]
+        core::arch::asm!(
+            // When loading with GDB we don't use a VM offset so GDB is less confused
+            "li          t0, 0x0",
+        );
+        core::arch::asm!(
             "sub         a4, ra, t0",
             "csrw        mepc, a4",
 
@@ -173,7 +186,6 @@ pub fn satp_setup() {
 
             // Issue the return, which will jump to $mepc in Supervisor mode
             "mret",
-            satp_val = in(reg) satp,
         );
     }
 }

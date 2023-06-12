@@ -4,17 +4,12 @@
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
 use utralib::generated::*;
-#[cfg(feature="sim")]
 use core::convert::TryInto;
-#[cfg(feature="sim")]
 use core::convert::TryFrom;
-#[cfg(feature="sim")]
 use core::mem::size_of;
 
 mod debug;
-#[cfg(feature="sim")]
 mod satp;
-#[cfg(feature="sim")]
 mod irqs;
 
 mod asm;
@@ -58,7 +53,6 @@ pub fn report_api(d: u32) {
 }
 
 /// chunks through the entire bank of data
-#[cfg(feature="sim")]
 unsafe fn ramtest_all<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
@@ -97,7 +91,6 @@ where
 /// only touches two words on each cache line
 /// this one tries to write the same word twice to two consecutive addresses
 /// this causes the valid strobe to hit twice in a row. seems to pass.
-#[cfg(feature="sim")]
 unsafe fn ramtest_fast_specialcase1<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
@@ -145,7 +138,6 @@ where
 }
 
 /// only touches two words on each cache line
-#[cfg(feature="sim")]
 unsafe fn ramtest_fast<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
@@ -222,7 +214,6 @@ where
                (state >>  0)) & 1;
 
 */
-#[cfg(feature="sim")]
 /// our desired test length is 512 entries, so pick an LFSR with a period of 2^9-1...
 pub fn lfsr_next(state: u16) -> u16 {
     let bit = ((state >> 8) ^
@@ -231,7 +222,6 @@ pub fn lfsr_next(state: u16) -> u16 {
     ((state << 1) + bit) & 0x1_FF
 }
 
-#[cfg(feature="sim")]
 #[allow(dead_code)]
 /// shortened test length is 16 entries, so pick an LFSR with a period of 2^4-1...
 pub fn lfsr_next_16(state: u16) -> u16 {
@@ -244,7 +234,6 @@ pub fn lfsr_next_16(state: u16) -> u16 {
 /// uses an LFSR to cycle through "random" locations. The slice length
 /// should equal the (LFSR period+1), so that we guarantee that each entry
 /// is visited once.
-#[cfg(feature="sim")]
 unsafe fn ramtest_lfsr<T>(test_slice: &mut [T], test_index: u32)
 where
     T: TryFrom<usize> + TryInto<u32> + Default + Copy,
@@ -338,186 +327,193 @@ pub fn xip_test() {
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
-    #[cfg(feature="sim")]
+    let mut uart = debug::Uart {};
+    uart.tiny_write_str("booting...\n\r");
+
+    let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
+    report_api(0x600dc0de);
+
+    uart.tiny_write_str("past goodcode\n\r");
+
+    // report the measured reset value
+    let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
+    report_api(resetvalue.r(utra::resetvalue::PC));
+
+    // ---------- vm setup -------------------------
+    satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
+    report_api(0x5a1d_6060);
+
+    #[cfg(feature="daric")]
     {
-        let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
-        report_api(0x600dc0de);
+        let mut uart = debug::Uart {};
+        uart.tiny_write_str("hello world!\n");
+    }
 
-        // report the measured reset value
-        let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
-        report_api(resetvalue.r(utra::resetvalue::PC));
+    // ---------- pio test option -------------
+    #[cfg(feature="pio-test")]
+    xous_pio::pio_tests::setup_reporting((utra::main::REPORT.offset() + utra::main::HW_MAIN_BASE) as *mut u32);
+    #[cfg(feature="pio-test")]
+    xous_pio::pio_tests::pio_tests();
 
-        // ---------- vm setup -------------------------
-        satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
-        report_api(0x5a1d_6060);
+    // ---------- exception setup ------------------
+    irqs::irq_setup();
+    // ---------- coreuser test --------------------
+    satp::satp_test();
 
+    // ---------- exception test -------------------
+    irqs::irq_test();
+
+    // ---------- xip region test ------------------
+    xip_test();
+
+    // ---------- CPU CSR tests --------------
+    report_api(0xc520_0000);
+    let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
+    let mut passing = true;
+    for i in 0..4 {
+        csrtest.wfo(utra::csrtest::WTEST_WTEST, i);
+        let val = csrtest.rf(utra::csrtest::RTEST_RTEST);
+        report_api(
+            val
+        );
+        if val != i + 0x1000_0000 {
+            passing = false;
+        }
+    }
+    if passing {
+        report_api(0xc520_600d);
+    } else {
+        report_api(0xc520_dead);
+    }
+
+    // ---------- wfi test -------------------------
+    irqs::wfi_test();
+
+    // ----------- caching tests -------------
+    // test of the 0x500F cache flush instruction - this requires manual inspection of the report values
+    report_api(0x000c_ac7e);
+    const CACHE_WAYS: usize = 4;
+    const CACHE_SET_SIZE: usize = 4096 / size_of::<u32>();
+    let test_slice = core::slice::from_raw_parts_mut(satp::PT_LIMIT as *mut u32, CACHE_SET_SIZE * CACHE_WAYS);
+    // bottom of cache
+    for set in 0..4 {
+        report_api((&mut test_slice[set * CACHE_SET_SIZE] as *mut u32) as u32);
+        (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).write_volatile(0x0011_1111 * (1 + set as u32));
+    }
+    // top of cache
+    for set in 0..4 {
+        report_api((&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32) as u32);
+        (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).write_volatile(0x1100_2222 * (1 + set as u32));
+    }
+    // read cached values - first iteration populates the cache; second iteration should be cached
+    for iter in 0..2 {
+        report_api(0xb1d0_0000 + iter + 1);
+        for set in 0..4 {
+            let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
+            report_api(a);
+            let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
+            report_api(b);
+        }
+    }
+    // flush cache
+    report_api(0xff00_ff00);
+    core::arch::asm!(
+        ".word 0x500F",
+    );
+    report_api(0x0f0f_0f0f);
+    // read cached values - first iteration populates the cache; second iteration should be cached
+    for iter in 0..2 {
+        report_api(0xb2d0_0000 + iter + 1);
+        for set in 0..4 {
+            let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
+            report_api(a);
+            let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
+            report_api(b);
+        }
+    }
+    report_api(0x600c_ac7e);
+
+    // check that caching is disabled for I/O regions
+    let mut checkstate = 0x1234_0000;
+    report.wfo(utra::main::WDATA_WDATA, 0x1234_0000);
+    let mut checkdata = 0;
+    for _ in 0..100 {
+        checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
+        report.wfo(utra::main::WDATA_WDATA, checkdata);
+        // report_api(checkdata);
+        checkstate += 5;
+    }
+    if checkdata == checkstate {
+        report_api(checkstate);
+        report_api(0x600d_0001);
+    } else {
+        report_api(checkstate);
+        report_api(checkdata);
+        report_api(0x0bad_0001);
+    }
+
+    // check that repeated reads of a register fetch new contents
+    let mut checkdata = 0; // tracked value via simulation
+    let mut computed = 0; // computed value by reading the hardware block
+    let mut devstate = 0; // what the state should be
+    for _ in 0..20 {
+        let readout = report.rf(utra::main::RINC_RINC);
+        computed += readout;
+        // report_api(readout);
+        checkdata += devstate;
+        devstate += 3;
+    }
+    if checkdata == computed {
+        report_api(checkdata);
+        report_api(0x600d_0002);
+    } else {
+        report_api(checkdata);
+        report_api(computed);
+        report_api(0x0bad_0002);
+    }
+
+    // ----------- bus tests -------------
+    const BASE_ADDR: u32 = satp::PT_LIMIT as u32; // don't overwrite our PT data
+    // 'random' access test
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 512);
+    ramtest_lfsr(&mut test_slice, 3);
+
+    // now some basic memory read/write tests
+    // entirely within cache access test
+    // 256-entry by 32-bit slice at start of RAM
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 256);
+    ramtest_all(&mut test_slice, 4);
+    // byte access test
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 256);
+    ramtest_fast(&mut test_slice, 5);
+    // word access test
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u16, 512);
+    ramtest_fast(&mut test_slice, 6); // 1ff00
+
+    // outside cache test
+    // 6144-entry by 32-bit slice at start of RAM - should cross outside cache boundary
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 0x1800);
+    ramtest_fast(&mut test_slice, 7);  // c7f600
+
+    // this passed, now that the AXI state machine is fixed.
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 0x1800);
+    ramtest_fast_specialcase1(&mut test_slice, 8);  // c7f600
+
+    // u64 access test
+    let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u64, 0xC00);
+    ramtest_fast(&mut test_slice, 9);
+
+    // random size/access test
+    // let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 0x6000);
+
+    report.wfo(utra::main::DONE_DONE, 1);
+
+    loop {
         #[cfg(feature="daric")]
         {
             let mut uart = debug::Uart {};
-            uart.tiny_write_str("hello world!\n");
+            uart.tiny_write_str("test finished\n");
         }
-
-        // ---------- pio test option -------------
-        #[cfg(feature="pio-test")]
-        xous_pio::pio_tests::setup_reporting((utra::main::REPORT.offset() + utra::main::HW_MAIN_BASE) as *mut u32);
-        #[cfg(feature="pio-test")]
-        xous_pio::pio_tests::pio_tests();
-
-        // ---------- exception setup ------------------
-        irqs::irq_setup();
-        // ---------- coreuser test --------------------
-        satp::satp_test();
-
-        // ---------- exception test -------------------
-        irqs::irq_test();
-
-        // ---------- xip region test ------------------
-        xip_test();
-
-        // ---------- CPU CSR tests --------------
-        report_api(0xc520_0000);
-        let mut csrtest = CSR::new(utra::csrtest::HW_CSRTEST_BASE as *mut u32);
-        let mut passing = true;
-        for i in 0..4 {
-            csrtest.wfo(utra::csrtest::WTEST_WTEST, i);
-            let val = csrtest.rf(utra::csrtest::RTEST_RTEST);
-            report_api(
-                val
-            );
-            if val != i + 0x1000_0000 {
-                passing = false;
-            }
-        }
-        if passing {
-            report_api(0xc520_600d);
-        } else {
-            report_api(0xc520_dead);
-        }
-
-        // ---------- wfi test -------------------------
-        irqs::wfi_test();
-
-        // ----------- caching tests -------------
-        // test of the 0x500F cache flush instruction - this requires manual inspection of the report values
-        report_api(0x000c_ac7e);
-        const CACHE_WAYS: usize = 4;
-        const CACHE_SET_SIZE: usize = 4096 / size_of::<u32>();
-        let test_slice = core::slice::from_raw_parts_mut(satp::PT_LIMIT as *mut u32, CACHE_SET_SIZE * CACHE_WAYS);
-        // bottom of cache
-        for set in 0..4 {
-            report_api((&mut test_slice[set * CACHE_SET_SIZE] as *mut u32) as u32);
-            (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).write_volatile(0x0011_1111 * (1 + set as u32));
-        }
-        // top of cache
-        for set in 0..4 {
-            report_api((&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32) as u32);
-            (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).write_volatile(0x1100_2222 * (1 + set as u32));
-        }
-        // read cached values - first iteration populates the cache; second iteration should be cached
-        for iter in 0..2 {
-            report_api(0xb1d0_0000 + iter + 1);
-            for set in 0..4 {
-                let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
-                report_api(a);
-                let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
-                report_api(b);
-            }
-        }
-        // flush cache
-        report_api(0xff00_ff00);
-        core::arch::asm!(
-            ".word 0x500F",
-        );
-        report_api(0x0f0f_0f0f);
-        // read cached values - first iteration populates the cache; second iteration should be cached
-        for iter in 0..2 {
-            report_api(0xb2d0_0000 + iter + 1);
-            for set in 0..4 {
-                let a = (&mut test_slice[set * CACHE_SET_SIZE] as *mut u32).read_volatile();
-                report_api(a);
-                let b = (&mut test_slice[set * CACHE_SET_SIZE + CACHE_SET_SIZE - 1] as *mut u32).read_volatile();
-                report_api(b);
-            }
-        }
-        report_api(0x600c_ac7e);
-
-        // check that caching is disabled for I/O regions
-        let mut checkstate = 0x1234_0000;
-        report.wfo(utra::main::WDATA_WDATA, 0x1234_0000);
-        let mut checkdata = 0;
-        for _ in 0..100 {
-            checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
-            report.wfo(utra::main::WDATA_WDATA, checkdata);
-            // report_api(checkdata);
-            checkstate += 5;
-        }
-        if checkdata == checkstate {
-            report_api(checkstate);
-            report_api(0x600d_0001);
-        } else {
-            report_api(checkstate);
-            report_api(checkdata);
-            report_api(0x0bad_0001);
-        }
-
-        // check that repeated reads of a register fetch new contents
-        let mut checkdata = 0; // tracked value via simulation
-        let mut computed = 0; // computed value by reading the hardware block
-        let mut devstate = 0; // what the state should be
-        for _ in 0..20 {
-            let readout = report.rf(utra::main::RINC_RINC);
-            computed += readout;
-            // report_api(readout);
-            checkdata += devstate;
-            devstate += 3;
-        }
-        if checkdata == computed {
-            report_api(checkdata);
-            report_api(0x600d_0002);
-        } else {
-            report_api(checkdata);
-            report_api(computed);
-            report_api(0x0bad_0002);
-        }
-
-        // ----------- bus tests -------------
-        const BASE_ADDR: u32 = satp::PT_LIMIT as u32; // don't overwrite our PT data
-        // 'random' access test
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 512);
-        ramtest_lfsr(&mut test_slice, 3);
-
-        // now some basic memory read/write tests
-        // entirely within cache access test
-        // 256-entry by 32-bit slice at start of RAM
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 256);
-        ramtest_all(&mut test_slice, 4);
-        // byte access test
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 256);
-        ramtest_fast(&mut test_slice, 5);
-        // word access test
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u16, 512);
-        ramtest_fast(&mut test_slice, 6); // 1ff00
-
-        // outside cache test
-        // 6144-entry by 32-bit slice at start of RAM - should cross outside cache boundary
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 0x1800);
-        ramtest_fast(&mut test_slice, 7);  // c7f600
-
-        // this passed, now that the AXI state machine is fixed.
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u32, 0x1800);
-        ramtest_fast_specialcase1(&mut test_slice, 8);  // c7f600
-
-        // u64 access test
-        let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u64, 0xC00);
-        ramtest_fast(&mut test_slice, 9);
-
-        // random size/access test
-        // let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 0x6000);
-
-        report.wfo(utra::main::DONE_DONE, 1);
-    }
-
-    loop {
     }
 }
 
