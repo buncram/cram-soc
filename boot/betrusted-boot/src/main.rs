@@ -328,12 +328,10 @@ pub fn xip_test() {
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     let mut uart = debug::Uart {};
-    uart.tiny_write_str("booting...\n\r");
+    uart.tiny_write_str("booting... 005\n\r");
 
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report_api(0x600dc0de);
-
-    uart.tiny_write_str("past goodcode\n\r");
 
     // report the measured reset value
     let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);

@@ -1,7 +1,7 @@
 use core::arch::asm;
+use utralib::generated::HW_SRAM_MEM as RAM_BASE;
+use utralib::generated::HW_SRAM_MEM_LEN as RAM_SIZE;
 
-const RAM_BASE: usize = 0x6100_0000;
-const RAM_SIZE: usize = 0x0020_0000;
 // Assembly stubs for entering into the loader, and exiting it.
 
 // Note: inline constants are not yet stable in Rust: https://github.com/rust-lang/rust/pull/104087
