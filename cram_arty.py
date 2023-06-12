@@ -101,20 +101,28 @@ def arty_extensions(self,
     # size overrides for the default region sizes because we can't fit the whole thing on an A100
     RERAM_SIZE=64*1024
     SRAM_SIZE=128*1024
+    XIP_SIZE=4*1024
 
     reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
     sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    xip_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
     self.submodules.axi_sram = AXIRAM(
         self.platform, sram_axi, size=SRAM_SIZE, name="sram")
     self.submodules.axi_reram = AXIRAM(
         self.platform, reram_axi, size=RERAM_SIZE, name="reram", init=self.bios_data)
+    self.submodules.xip_sram = AXIRAM(
+        self.platform, xip_axi, size=4096, name="xip") # just a small amount of RAM for testing
+
     # vex debug is internal to the core, no interface to build
 
     self.mbus.add_master(name = "reram", m_axi=reram_axi, origin=self.axi_mem_map["reram"][0], size=RERAM_SIZE)
     self.mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=self.axi_mem_map["sram"][0],  size=SRAM_SIZE)
+    self.mbus.add_master(name = "xip",  m_axi=xip_axi,  origin=self.axi_mem_map["xip"][0],  size=XIP_SIZE)
+
     # Add SoC memory regions
     self.add_memory_region(name="reram", origin=self.axi_mem_map["reram"][0], length=RERAM_SIZE)
     self.add_memory_region(name="sram", origin=self.axi_mem_map["sram"][0], length=SRAM_SIZE)
+    self.add_memory_region(name="xip", origin=self.axi_mem_map["xip"][0], length=XIP_SIZE)
 
     # DDR3 SDRAM -------------------------------------------------------------------------------
     # dram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
@@ -133,7 +141,21 @@ def arty_extensions(self,
     # )
 
     # Secondary serial -------------------------------------------------------------------------
-    self.add_uart(name="uart", uart_name="serial", baudrate=115200, fifo_depth=16)
+    # Imports.
+    from litex.soc.cores.uart import UART, UARTCrossover
+    from litex.soc.cores.uart import UARTPHY
+    uart_pads      = self.platform.request("serial", loose=True)
+    uart_kwargs    = {
+        "tx_fifo_depth": 16,
+        "rx_fifo_depth": 16,
+    }
+    uart_phy  = ClockDomainsRenamer({"sys": "sys_always_on"})(UARTPHY(uart_pads, clk_freq=self.sys_clk_freq, baudrate=115200))
+    uart      = ClockDomainsRenamer({"sys": "sys_always_on"})(UART(uart_phy, **uart_kwargs))
+    # Add PHY/UART.
+    self.add_module(name="uart_phy", module=uart_phy)
+    self.add_module(name="uart", module=uart)
+    # IRQ.
+    self.irq.add("uart", use_loc_if_exists=True)
 
     # Jtagbone ---------------------------------------------------------------------------------
     if with_jtagbone:
@@ -243,6 +265,7 @@ def main():
     # G2  tdi 26 10(7)   (3)4   20
     #          G 11         5   21
     #            12 VCC VCC 6
+    platform.add_platform_command("create_clock -name jtag_cpu_tck -period {:0.3f} [get_nets jtag_cpu_tck]".format(1e9 / 2e6))
 
 
     soc = CramSoC(
