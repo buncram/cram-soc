@@ -1,29 +1,27 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>MB_CLIENT &#8212; Cramium SoC (RISC-V Core Complex)  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/default.js"></script>
-    <script src="_static/WaveDrom.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/default.js"></script>
+    <script type="text/javascript" src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="RESETVALUE" href="resetvalue.html" />
     <link rel="prev" title="MAILBOX" href="mailbox.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -33,300 +31,392 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <section id="mb-client">
-<h1>MB_CLIENT<a class="headerlink" href="#mb-client" title="Permalink to this heading">¶</a></h1>
-<section id="thin-mailbox-client">
-<h2>Thin Mailbox Client<a class="headerlink" href="#thin-mailbox-client" title="Permalink to this heading">¶</a></h2>
+  <div class="section" id="mb-client">
+<h1>MB_CLIENT<a class="headerlink" href="#mb-client" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="thin-mailbox-client">
+<h2>Thin Mailbox Client<a class="headerlink" href="#thin-mailbox-client" title="Permalink to this headline">¶</a></h2>
 <p>This is a “minimal” mailbox client which has no FIFO of its own. It relies
 entirely on the other side’s FIFO for the protocol to be efficient.</p>
-</section>
-<section id="register-listing-for-mb-client">
-<h2>Register Listing for MB_CLIENT<a class="headerlink" href="#register-listing-for-mb-client" title="Permalink to this heading">¶</a></h2>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Register</p></th>
-<th class="head"><p>Address</p></th>
+</div>
+<div class="section" id="register-listing-for-mb-client">
+<h2>Register Listing for MB_CLIENT<a class="headerlink" href="#register-listing-for-mb-client" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Register</th>
+<th class="head">Address</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="#mb-client-wdata"><span class="std std-ref">MB_CLIENT_WDATA</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-wdata"><span class="std std-ref">0xe0019000</span></a></p></td>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#mb-client-wdata"><span class="std std-ref">MB_CLIENT_WDATA</span></a></td>
+<td><a class="reference internal" href="#mb-client-wdata"><span class="std std-ref">0xe0019000</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mb-client-rdata"><span class="std std-ref">MB_CLIENT_RDATA</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-rdata"><span class="std std-ref">0xe0019004</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#mb-client-rdata"><span class="std std-ref">MB_CLIENT_RDATA</span></a></td>
+<td><a class="reference internal" href="#mb-client-rdata"><span class="std std-ref">0xe0019004</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mb-client-ev-status"><span class="std std-ref">MB_CLIENT_EV_STATUS</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-ev-status"><span class="std std-ref">0xe0019008</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#mb-client-ev-status"><span class="std std-ref">MB_CLIENT_EV_STATUS</span></a></td>
+<td><a class="reference internal" href="#mb-client-ev-status"><span class="std std-ref">0xe0019008</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mb-client-ev-pending"><span class="std std-ref">MB_CLIENT_EV_PENDING</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-ev-pending"><span class="std std-ref">0xe001900c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#mb-client-ev-pending"><span class="std std-ref">MB_CLIENT_EV_PENDING</span></a></td>
+<td><a class="reference internal" href="#mb-client-ev-pending"><span class="std std-ref">0xe001900c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mb-client-ev-enable"><span class="std std-ref">MB_CLIENT_EV_ENABLE</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-ev-enable"><span class="std std-ref">0xe0019010</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#mb-client-ev-enable"><span class="std std-ref">MB_CLIENT_EV_ENABLE</span></a></td>
+<td><a class="reference internal" href="#mb-client-ev-enable"><span class="std std-ref">0xe0019010</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mb-client-status"><span class="std std-ref">MB_CLIENT_STATUS</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-status"><span class="std std-ref">0xe0019014</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#mb-client-status"><span class="std std-ref">MB_CLIENT_STATUS</span></a></td>
+<td><a class="reference internal" href="#mb-client-status"><span class="std std-ref">0xe0019014</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#mb-client-control"><span class="std std-ref">MB_CLIENT_CONTROL</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-control"><span class="std std-ref">0xe0019018</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#mb-client-control"><span class="std std-ref">MB_CLIENT_CONTROL</span></a></td>
+<td><a class="reference internal" href="#mb-client-control"><span class="std std-ref">0xe0019018</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#mb-client-done"><span class="std std-ref">MB_CLIENT_DONE</span></a></p></td>
-<td><p><a class="reference internal" href="#mb-client-done"><span class="std std-ref">0xe001901c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#mb-client-done"><span class="std std-ref">MB_CLIENT_DONE</span></a></td>
+<td><a class="reference internal" href="#mb-client-done"><span class="std std-ref">0xe001901c</span></a></td>
 </tr>
 </tbody>
 </table>
-<section id="mb-client-wdata">
-<h3>MB_CLIENT_WDATA<a class="headerlink" href="#mb-client-wdata" title="Permalink to this heading">¶</a></h3>
+<div class="section" id="mb-client-wdata">
+<h3>MB_CLIENT_WDATA<a class="headerlink" href="#mb-client-wdata" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x0 = 0xe0019000</cite></p>
 <blockquote>
 <div><p>Write data to outgoing FIFO.</p>
-<figure class="align-default" id="id1">
-<img alt="_images/wavedrom-bd877480-1fff-471e-a2f2-b6055bef89e5.svg" src="_images/wavedrom-bd877480-1fff-471e-a2f2-b6055bef89e5.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_WDATA</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "wdata[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
 </div></blockquote>
-</section>
-<section id="mb-client-rdata">
-<h3>MB_CLIENT_RDATA<a class="headerlink" href="#mb-client-rdata" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-rdata">
+<h3>MB_CLIENT_RDATA<a class="headerlink" href="#mb-client-rdata" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x4 = 0xe0019004</cite></p>
 <blockquote>
 <div><p>Read data from incoming FIFO.</p>
-<figure class="align-default" id="id2">
-<img alt="_images/wavedrom-3e35cef4-70b8-499c-a865-563269c02683.svg" src="_images/wavedrom-3e35cef4-70b8-499c-a865-563269c02683.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_RDATA</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "rdata[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
 </div></blockquote>
-</section>
-<section id="mb-client-ev-status">
-<h3>MB_CLIENT_EV_STATUS<a class="headerlink" href="#mb-client-ev-status" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-ev-status">
+<h3>MB_CLIENT_EV_STATUS<a class="headerlink" href="#mb-client-ev-status" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x8 = 0xe0019008</cite></p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
-<figure class="align-default" id="id3">
-<img alt="_images/wavedrom-8a13a403-5954-4c80-93af-c11b786f152b.svg" src="_images/wavedrom-8a13a403-5954-4c80-93af-c11b786f152b.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_EV_STATUS</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>AVAILABLE</p></td>
-<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">available</span></code> event</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>AVAILABLE</td>
+<td>Level of the <code class="docutils literal notranslate"><span class="pre">available</span></code> event</td>
 </tr>
-<tr class="row-odd"><td><p>[1]</p></td>
-<td><p>ABORT_INIT</p></td>
-<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">abort_init</span></code> event</p></td>
+<tr class="row-odd"><td>[1]</td>
+<td>ABORT_INIT</td>
+<td>Level of the <code class="docutils literal notranslate"><span class="pre">abort_init</span></code> event</td>
 </tr>
-<tr class="row-even"><td><p>[2]</p></td>
-<td><p>ABORT_DONE</p></td>
-<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">abort_done</span></code> event</p></td>
+<tr class="row-even"><td>[2]</td>
+<td>ABORT_DONE</td>
+<td>Level of the <code class="docutils literal notranslate"><span class="pre">abort_done</span></code> event</td>
 </tr>
-<tr class="row-odd"><td><p>[3]</p></td>
-<td><p>ERROR</p></td>
-<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">error</span></code> event</p></td>
+<tr class="row-odd"><td>[3]</td>
+<td>ERROR</td>
+<td>Level of the <code class="docutils literal notranslate"><span class="pre">error</span></code> event</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="mb-client-ev-pending">
-<h3>MB_CLIENT_EV_PENDING<a class="headerlink" href="#mb-client-ev-pending" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-ev-pending">
+<h3>MB_CLIENT_EV_PENDING<a class="headerlink" href="#mb-client-ev-pending" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0xc = 0xe001900c</cite></p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
-<figure class="align-default" id="id4">
-<img alt="_images/wavedrom-2ed2522d-e981-4d68-b708-1e7e52b59cff.svg" src="_images/wavedrom-2ed2522d-e981-4d68-b708-1e7e52b59cff.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_EV_PENDING</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="12%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>AVAILABLE</p></td>
-<td><p>Triggers when the <cite>done</cite> signal was asserted by the corresponding peer</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>AVAILABLE</td>
+<td>Triggers when the <cite>done</cite> signal was asserted by the corresponding peer</td>
 </tr>
-<tr class="row-odd"><td><p>[1]</p></td>
-<td><p>ABORT_INIT</p></td>
-<td><p>Triggers when abort is asserted by the peer, and there is currently no abort in
-progress</p></td>
+<tr class="row-odd"><td>[1]</td>
+<td>ABORT_INIT</td>
+<td>Triggers when abort is asserted by the peer, and there is currently no abort in
+progress</td>
 </tr>
-<tr class="row-even"><td><p>[2]</p></td>
-<td><p>ABORT_DONE</p></td>
-<td><p>Triggers when a previously initiated abort is acknowledged by peer</p></td>
+<tr class="row-even"><td>[2]</td>
+<td>ABORT_DONE</td>
+<td>Triggers when a previously initiated abort is acknowledged by peer</td>
 </tr>
-<tr class="row-odd"><td><p>[3]</p></td>
-<td><p>ERROR</p></td>
-<td><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p></td>
+<tr class="row-odd"><td>[3]</td>
+<td>ERROR</td>
+<td>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="mb-client-ev-enable">
-<h3>MB_CLIENT_EV_ENABLE<a class="headerlink" href="#mb-client-ev-enable" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-ev-enable">
+<h3>MB_CLIENT_EV_ENABLE<a class="headerlink" href="#mb-client-ev-enable" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x10 = 0xe0019010</cite></p>
 <blockquote>
 <div><p>Triggers if either <cite>tx_err</cite> or <cite>rx_err</cite> are asserted</p>
-<figure class="align-default" id="id5">
-<img alt="_images/wavedrom-4b12574b-4afd-4b74-ad3a-3b063d6f9e27.svg" src="_images/wavedrom-4b12574b-4afd-4b74-ad3a-3b063d6f9e27.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_EV_ENABLE</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "available",  "bits": 1},
+        {"name": "abort_init",  "bits": 1},
+        {"name": "abort_done",  "bits": 1},
+        {"name": "error",  "bits": 1},
+        {"bits": 28}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="17%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>AVAILABLE</p></td>
-<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">available</span></code> Event</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>AVAILABLE</td>
+<td>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">available</span></code> Event</td>
 </tr>
-<tr class="row-odd"><td><p>[1]</p></td>
-<td><p>ABORT_INIT</p></td>
-<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">abort_init</span></code> Event</p></td>
+<tr class="row-odd"><td>[1]</td>
+<td>ABORT_INIT</td>
+<td>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">abort_init</span></code> Event</td>
 </tr>
-<tr class="row-even"><td><p>[2]</p></td>
-<td><p>ABORT_DONE</p></td>
-<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">abort_done</span></code> Event</p></td>
+<tr class="row-even"><td>[2]</td>
+<td>ABORT_DONE</td>
+<td>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">abort_done</span></code> Event</td>
 </tr>
-<tr class="row-odd"><td><p>[3]</p></td>
-<td><p>ERROR</p></td>
-<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">error</span></code> Event</p></td>
+<tr class="row-odd"><td>[3]</td>
+<td>ERROR</td>
+<td>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">error</span></code> Event</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="mb-client-status">
-<h3>MB_CLIENT_STATUS<a class="headerlink" href="#mb-client-status" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-status">
+<h3>MB_CLIENT_STATUS<a class="headerlink" href="#mb-client-status" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x14 = 0xe0019014</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id6">
-<img alt="_images/wavedrom-8f44060d-587a-49fa-a019-495573832f34.svg" src="_images/wavedrom-8f44060d-587a-49fa-a019-495573832f34.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_STATUS</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "rx_avail",  "bits": 1},
+        {"name": "tx_free",  "bits": 1},
+        {"name": "abort_in_progress",  "bits": 1},
+        {"name": "abort_ack",  "bits": 1},
+        {"name": "tx_err",  "bits": 1},
+        {"name": "rx_err",  "bits": 1},
+        {"bits": 26}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="18%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>RX_AVAIL</p></td>
-<td><p>Rx data is available</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>RX_AVAIL</td>
+<td>Rx data is available</td>
 </tr>
-<tr class="row-odd"><td><p>[1]</p></td>
-<td><p>TX_FREE</p></td>
-<td><p>Tx register can be written</p></td>
+<tr class="row-odd"><td>[1]</td>
+<td>TX_FREE</td>
+<td>Tx register can be written</td>
 </tr>
-<tr class="row-even"><td><p>[2]</p></td>
-<td><p>ABORT_IN_PROGRESS</p></td>
-<td><p>This bit is set if an <cite>aborting</cite> event was initiated and is still in progress.</p></td>
+<tr class="row-even"><td>[2]</td>
+<td>ABORT_IN_PROGRESS</td>
+<td>This bit is set if an <cite>aborting</cite> event was initiated and is still in progress.</td>
 </tr>
-<tr class="row-odd"><td><p>[3]</p></td>
-<td><p>ABORT_ACK</p></td>
-<td><p>This bit is set by the peer that acknowledged the incoming abort (the later of
+<tr class="row-odd"><td>[3]</td>
+<td>ABORT_ACK</td>
+<td>This bit is set by the peer that acknowledged the incoming abort (the later of
 the two, in case of an imperfect race condition). The abort response handler
 should check this bit; if it is set, no new acknowledgement shall be issued. The
 bit is cleared when an initiator initiates a new abort. The initiator shall also
-ignore the state of this bit if it is intending to initiate a new abort cycle.</p></td>
+ignore the state of this bit if it is intending to initiate a new abort cycle.</td>
 </tr>
-<tr class="row-even"><td><p>[4]</p></td>
-<td><p>TX_ERR</p></td>
-<td><p>Set if the recipient was not ready for the data. Cleared on read.</p></td>
+<tr class="row-even"><td>[4]</td>
+<td>TX_ERR</td>
+<td>Set if the recipient was not ready for the data. Cleared on read.</td>
 </tr>
-<tr class="row-odd"><td><p>[5]</p></td>
-<td><p>RX_ERR</p></td>
-<td><p>Set if the recipient didn’t have data available for a read. Cleared on read.</p></td>
+<tr class="row-odd"><td>[5]</td>
+<td>RX_ERR</td>
+<td>Set if the recipient didn’t have data available for a read. Cleared on read.</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="mb-client-control">
-<h3>MB_CLIENT_CONTROL<a class="headerlink" href="#mb-client-control" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-control">
+<h3>MB_CLIENT_CONTROL<a class="headerlink" href="#mb-client-control" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x18 = 0xe0019018</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id7">
-<img alt="_images/wavedrom-4e711315-f1e6-442a-b5cd-0f59cd985f06.svg" src="_images/wavedrom-4e711315-f1e6-442a-b5cd-0f59cd985f06.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_CONTROL</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "abort",  "type": 4, "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>ABORT</p></td>
-<td><p>Write <cite>1</cite> to this field to both initiate and acknowledge an abort. Empties both
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>ABORT</td>
+<td><p class="first">Write <cite>1</cite> to this field to both initiate and acknowledge an abort. Empties both
 FIFOs, asserts <cite>aborting</cite>, and prevents an interrupt from being generated by an
 incoming abort request. New reads &amp; writes are ignored until <cite>aborted</cite> is
 asserted from the peer.</p>
-<p>Writing a 1 to this bit triggers the function.</p>
+<p class="last">Writing a 1 to this bit triggers the function.</p>
 </td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="mb-client-done">
-<h3>MB_CLIENT_DONE<a class="headerlink" href="#mb-client-done" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="mb-client-done">
+<h3>MB_CLIENT_DONE<a class="headerlink" href="#mb-client-done" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe0019000 + 0x1c = 0xe001901c</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id8">
-<img alt="_images/wavedrom-f46d4486-cf5c-4b51-9652-5727bf983569.svg" src="_images/wavedrom-f46d4486-cf5c-4b51-9652-5727bf983569.svg" /><figcaption>
-<p><span class="caption-text">MB_CLIENT_DONE</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "done",  "type": 4, "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="8%" />
+<col width="6%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>DONE</p></td>
-<td><p>Writing a <cite>1</cite> to this field indicates to the corresponding peer that a full
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>DONE</td>
+<td><p class="first">Writing a <cite>1</cite> to this field indicates to the corresponding peer that a full
 packet is done loading. There is no need to clear this register after writing.</p>
-<p>Writing a 1 to this bit triggers the function.</p>
+<p class="last">Writing a 1 to this bit triggers the function.</p>
 </td>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
     <script type="text/javascript">
         function init() {
@@ -336,7 +426,6 @@ packet is done loading. There is no need to clear this register after writing.</
     </script>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -396,23 +485,17 @@ packet is done loading. There is no need to clear this register after writing.</
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -421,8 +504,8 @@ packet is done loading. There is no need to clear this register after writing.</
       &copy;2023, Cramium, Inc..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="_sources/mb_client.rst.txt"

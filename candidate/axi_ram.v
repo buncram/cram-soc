@@ -145,7 +145,7 @@ reg [DATA_WIDTH-1:0] s_axi_rdata_pipe_reg = {DATA_WIDTH{1'b0}};
 reg s_axi_rlast_pipe_reg = 1'b0;
 reg s_axi_rvalid_pipe_reg = 1'b0;
 
-// (* RAM_STYLE="BLOCK" *)
+(* RAM_STYLE="BLOCK" *)
 reg [DATA_WIDTH-1:0] mem[(2**VALID_ADDR_WIDTH)-1:0];
 
 wire [VALID_ADDR_WIDTH-1:0] s_axi_awaddr_valid = s_axi_awaddr >> (ADDR_WIDTH - VALID_ADDR_WIDTH);
@@ -177,7 +177,11 @@ initial begin
             end
         end
     end else begin
-	    $readmemh(MEM_INIT, mem);
+	    $readmemb(MEM_INIT, mem);
+        // sanity check
+        for (i = 0; i < 64; i = i + 1) begin
+            $display("[axi_ram] %h: %h", i, mem[i]);
+        end
     end
 end
 

@@ -1,28 +1,26 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>TICKTIMER &#8212; Cramium SoC (RISC-V Core Complex)  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/default.js"></script>
-    <script src="_static/WaveDrom.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/default.js"></script>
+    <script type="text/javascript" src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="RESETVALUE" href="resetvalue.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -32,14 +30,12 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <section id="ticktimer">
-<h1>TICKTIMER<a class="headerlink" href="#ticktimer" title="Permalink to this heading">¶</a></h1>
-<section id="ticktimer-a-practical-systick-timer">
-<h2>TickTimer: A practical systick timer.<a class="headerlink" href="#ticktimer-a-practical-systick-timer" title="Permalink to this heading">¶</a></h2>
+  <div class="section" id="ticktimer">
+<h1>TICKTIMER<a class="headerlink" href="#ticktimer" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="ticktimer-a-practical-systick-timer">
+<h2>TickTimer: A practical systick timer.<a class="headerlink" href="#ticktimer-a-practical-systick-timer" title="Permalink to this headline">¶</a></h2>
 <p>TIMER0 in the system gives a high-resolution, sysclk-speed timer which overflows
 very quickly and requires OS overhead to convert it into a practically usable time source
 which counts off in systicks, instead of sysclks.</p>
@@ -53,215 +49,283 @@ between the clock domains. Since the values move rarely, a slightly smarter meth
 would be to create a lock-out around a read pulse and then create some false_path
 rules around the datapaths to keep the place/route from getting distracted by the
 cross-domain clocks.</p>
-</section>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>This timer was configured with 64 bits, which rolls over in 584942417.36 years, with each bit giving 1.0ms resolution</p>
-</section>
-<section id="msleep-extension">
-<h2>msleep extension<a class="headerlink" href="#msleep-extension" title="Permalink to this heading">¶</a></h2>
+</div>
+<div class="section" id="msleep-extension">
+<h2>msleep extension<a class="headerlink" href="#msleep-extension" title="Permalink to this headline">¶</a></h2>
 <p>The msleep extension is a Xous-specific add-on to aid the implementation of the msleep server.</p>
 <p>msleep fires an interrupt when the requested time is less than or equal to the current elapsed time in
 systicks. The interrupt remains active until a new target is set, or masked.</p>
 <p>There is a slight slip in time (~200ns) from when the msleep timer is set before it can take effect.
 This is because it takes many CPU clock cycles to transfer this data into the always-on clock
 domain, which runs at a much slower rate than the CPU clock.</p>
-</section>
-<section id="register-listing-for-ticktimer">
-<h2>Register Listing for TICKTIMER<a class="headerlink" href="#register-listing-for-ticktimer" title="Permalink to this heading">¶</a></h2>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Register</p></th>
-<th class="head"><p>Address</p></th>
+</div>
+<div class="section" id="register-listing-for-ticktimer">
+<h2>Register Listing for TICKTIMER<a class="headerlink" href="#register-listing-for-ticktimer" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="57%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Register</th>
+<th class="head">Address</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">TICKTIMER_CONTROL</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">0xe001b000</span></a></p></td>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">TICKTIMER_CONTROL</span></a></td>
+<td><a class="reference internal" href="#ticktimer-control"><span class="std std-ref">0xe001b000</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">TICKTIMER_TIME1</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">0xe001b004</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">TICKTIMER_TIME1</span></a></td>
+<td><a class="reference internal" href="#ticktimer-time1"><span class="std std-ref">0xe001b004</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">TICKTIMER_TIME0</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">0xe001b008</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">TICKTIMER_TIME0</span></a></td>
+<td><a class="reference internal" href="#ticktimer-time0"><span class="std std-ref">0xe001b008</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET1</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">0xe001b00c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET1</span></a></td>
+<td><a class="reference internal" href="#ticktimer-msleep-target1"><span class="std std-ref">0xe001b00c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET0</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">0xe001b010</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">TICKTIMER_MSLEEP_TARGET0</span></a></td>
+<td><a class="reference internal" href="#ticktimer-msleep-target0"><span class="std std-ref">0xe001b010</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">TICKTIMER_EV_STATUS</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">0xe001b014</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">TICKTIMER_EV_STATUS</span></a></td>
+<td><a class="reference internal" href="#ticktimer-ev-status"><span class="std std-ref">0xe001b014</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">TICKTIMER_EV_PENDING</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">0xe001b018</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">TICKTIMER_EV_PENDING</span></a></td>
+<td><a class="reference internal" href="#ticktimer-ev-pending"><span class="std std-ref">0xe001b018</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">TICKTIMER_EV_ENABLE</span></a></p></td>
-<td><p><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">0xe001b01c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">TICKTIMER_EV_ENABLE</span></a></td>
+<td><a class="reference internal" href="#ticktimer-ev-enable"><span class="std std-ref">0xe001b01c</span></a></td>
 </tr>
 </tbody>
 </table>
-<section id="ticktimer-control">
-<h3>TICKTIMER_CONTROL<a class="headerlink" href="#ticktimer-control" title="Permalink to this heading">¶</a></h3>
+<div class="section" id="ticktimer-control">
+<h3>TICKTIMER_CONTROL<a class="headerlink" href="#ticktimer-control" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x0 = 0xe001b000</cite></p>
 <blockquote>
-<div><figure class="align-default" id="id1">
-<img alt="_images/wavedrom-baca7cf0-05b0-4562-b4ff-9013e7656798.svg" src="_images/wavedrom-baca7cf0-05b0-4562-b4ff-9013e7656798.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_CONTROL</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "reset",  "type": 4, "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>RESET</p></td>
-<td><p>Write a <cite>1</cite> to this bit to reset the count to 0. This bit has priority over all
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>RESET</td>
+<td><p class="first">Write a <cite>1</cite> to this bit to reset the count to 0. This bit has priority over all
 other requests.</p>
-<p>Writing a 1 to this bit triggers the function.</p>
+<p class="last">Writing a 1 to this bit triggers the function.</p>
 </td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="ticktimer-time1">
-<h3>TICKTIMER_TIME1<a class="headerlink" href="#ticktimer-time1" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-time1">
+<h3>TICKTIMER_TIME1<a class="headerlink" href="#ticktimer-time1" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x4 = 0xe001b004</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_TIME</cite>. Elapsed time in systicks</p>
-<figure class="align-default" id="id2">
-<img alt="_images/wavedrom-4b068e14-b30f-4700-a8e9-046bebb44b70.svg" src="_images/wavedrom-4b068e14-b30f-4700-a8e9-046bebb44b70.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_TIME1</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "time[63:32]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
 </div></blockquote>
-</section>
-<section id="ticktimer-time0">
-<h3>TICKTIMER_TIME0<a class="headerlink" href="#ticktimer-time0" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-time0">
+<h3>TICKTIMER_TIME0<a class="headerlink" href="#ticktimer-time0" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x8 = 0xe001b008</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_TIME</cite>.</p>
-<figure class="align-default" id="id3">
-<img alt="_images/wavedrom-f8730760-f8b3-4194-bdc3-3730f6ab2c61.svg" src="_images/wavedrom-f8730760-f8b3-4194-bdc3-3730f6ab2c61.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_TIME0</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "time[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
 </div></blockquote>
-</section>
-<section id="ticktimer-msleep-target1">
-<h3>TICKTIMER_MSLEEP_TARGET1<a class="headerlink" href="#ticktimer-msleep-target1" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-msleep-target1">
+<h3>TICKTIMER_MSLEEP_TARGET1<a class="headerlink" href="#ticktimer-msleep-target1" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0xc = 0xe001b00c</cite></p>
 <blockquote>
 <div><p>Bits 32-63 of <cite>TICKTIMER_MSLEEP_TARGET</cite>. Target time in 1.0ms ticks</p>
-<figure class="align-default" id="id4">
-<img alt="_images/wavedrom-c7e8780b-2c49-4d82-a649-54008e610f2e.svg" src="_images/wavedrom-c7e8780b-2c49-4d82-a649-54008e610f2e.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_MSLEEP_TARGET1</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "msleep_target[63:32]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
 </div></blockquote>
-</section>
-<section id="ticktimer-msleep-target0">
-<h3>TICKTIMER_MSLEEP_TARGET0<a class="headerlink" href="#ticktimer-msleep-target0" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-msleep-target0">
+<h3>TICKTIMER_MSLEEP_TARGET0<a class="headerlink" href="#ticktimer-msleep-target0" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x10 = 0xe001b010</cite></p>
 <blockquote>
 <div><p>Bits 0-31 of <cite>TICKTIMER_MSLEEP_TARGET</cite>.</p>
-<figure class="align-default" id="id5">
-<img alt="_images/wavedrom-a0c1c741-dbe9-4593-ab4f-905e493b773a.svg" src="_images/wavedrom-a0c1c741-dbe9-4593-ab4f-905e493b773a.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_MSLEEP_TARGET0</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "msleep_target[31:0]", "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
 </div></blockquote>
-</section>
-<section id="ticktimer-ev-status">
-<h3>TICKTIMER_EV_STATUS<a class="headerlink" href="#ticktimer-ev-status" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-ev-status">
+<h3>TICKTIMER_EV_STATUS<a class="headerlink" href="#ticktimer-ev-status" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x14 = 0xe001b014</cite></p>
 <blockquote>
 <div><p>This register contains the current raw level of the alarm event trigger.  Writes
 to this register have no effect.</p>
-<figure class="align-default" id="id6">
-<img alt="_images/wavedrom-3c011c78-084c-46f0-80c1-bb1a827ef66b.svg" src="_images/wavedrom-3c011c78-084c-46f0-80c1-bb1a827ef66b.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_EV_STATUS</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "alarm",  "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>ALARM</p></td>
-<td><p>Level of the <code class="docutils literal notranslate"><span class="pre">alarm</span></code> event</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>ALARM</td>
+<td>Level of the <code class="docutils literal notranslate"><span class="pre">alarm</span></code> event</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="ticktimer-ev-pending">
-<h3>TICKTIMER_EV_PENDING<a class="headerlink" href="#ticktimer-ev-pending" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-ev-pending">
+<h3>TICKTIMER_EV_PENDING<a class="headerlink" href="#ticktimer-ev-pending" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x18 = 0xe001b018</cite></p>
 <blockquote>
 <div><p>When a  alarm event occurs, the corresponding bit will be set in this register.
 To clear the Event, set the corresponding bit in this register.</p>
-<figure class="align-default" id="id7">
-<img alt="_images/wavedrom-2f031546-e200-46f8-907c-2de306312c1d.svg" src="_images/wavedrom-2f031546-e200-46f8-907c-2de306312c1d.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_EV_PENDING</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "alarm",  "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>ALARM</p></td>
-<td><p><cite>1</cite> if a <cite>alarm</cite> event occurred. This Event is <strong>level triggered</strong> when the
-signal is <strong>high</strong>.</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>ALARM</td>
+<td><cite>1</cite> if a <cite>alarm</cite> event occurred. This Event is <strong>level triggered</strong> when the
+signal is <strong>high</strong>.</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="ticktimer-ev-enable">
-<h3>TICKTIMER_EV_ENABLE<a class="headerlink" href="#ticktimer-ev-enable" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="ticktimer-ev-enable">
+<h3>TICKTIMER_EV_ENABLE<a class="headerlink" href="#ticktimer-ev-enable" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0xe001b000 + 0x1c = 0xe001b01c</cite></p>
 <blockquote>
 <div><p>This register enables the corresponding alarm events.  Write a <code class="docutils literal notranslate"><span class="pre">0</span></code> to this
 register to disable individual events.</p>
-<figure class="align-default" id="id8">
-<img alt="_images/wavedrom-b74ac9cc-194b-47a8-859b-bb7c460ada18.svg" src="_images/wavedrom-b74ac9cc-194b-47a8-859b-bb7c460ada18.svg" /><figcaption>
-<p><span class="caption-text">TICKTIMER_EV_ENABLE</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "alarm",  "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="12%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[0]</p></td>
-<td><p>ALARM</p></td>
-<td><p>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">alarm</span></code> Event</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[0]</td>
+<td>ALARM</td>
+<td>Write a <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the <code class="docutils literal notranslate"><span class="pre">alarm</span></code> Event</td>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
     <script type="text/javascript">
         function init() {
@@ -271,7 +335,6 @@ register to disable individual events.</p>
     </script>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -330,23 +393,17 @@ register to disable individual events.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -355,8 +412,8 @@ register to disable individual events.</p>
       &copy;2023, Cramium, Inc..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="_sources/ticktimer.rst.txt"
