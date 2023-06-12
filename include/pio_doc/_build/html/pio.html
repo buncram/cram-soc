@@ -1,28 +1,25 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>PIO &#8212; Cramium SCE module  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/default.js"></script>
-    <script src="_static/WaveDrom.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/default.js"></script>
+    <script type="text/javascript" src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Interrupt Controller" href="interrupts.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -32,268 +29,270 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <section id="pio">
-<h1>PIO<a class="headerlink" href="#pio" title="Permalink to this heading">¶</a></h1>
-<section id="register-listing-for-pio">
-<h2>Register Listing for PIO<a class="headerlink" href="#register-listing-for-pio" title="Permalink to this heading">¶</a></h2>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Register</p></th>
-<th class="head"><p>Address</p></th>
+  <div class="section" id="pio">
+<h1>PIO<a class="headerlink" href="#pio" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="register-listing-for-pio">
+<h2>Register Listing for PIO<a class="headerlink" href="#register-listing-for-pio" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="56%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Register</th>
+<th class="head">Address</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-ctrl"><span class="std std-ref">PIO_SFR_CTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-ctrl"><span class="std std-ref">0x40202000</span></a></p></td>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-ctrl"><span class="std std-ref">PIO_SFR_CTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-ctrl"><span class="std std-ref">0x40202000</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-fstat"><span class="std std-ref">PIO_SFR_FSTAT</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-fstat"><span class="std std-ref">0x40202004</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-fstat"><span class="std std-ref">PIO_SFR_FSTAT</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-fstat"><span class="std std-ref">0x40202004</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-fdebug"><span class="std std-ref">PIO_SFR_FDEBUG</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-fdebug"><span class="std std-ref">0x40202008</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-fdebug"><span class="std std-ref">PIO_SFR_FDEBUG</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-fdebug"><span class="std std-ref">0x40202008</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-flevel"><span class="std std-ref">PIO_SFR_FLEVEL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-flevel"><span class="std std-ref">0x4020200c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-flevel"><span class="std std-ref">PIO_SFR_FLEVEL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-flevel"><span class="std std-ref">0x4020200c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-txf0"><span class="std std-ref">PIO_SFR_TXF0</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-txf0"><span class="std std-ref">0x40202010</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-txf0"><span class="std std-ref">PIO_SFR_TXF0</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-txf0"><span class="std std-ref">0x40202010</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-txf1"><span class="std std-ref">PIO_SFR_TXF1</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-txf1"><span class="std std-ref">0x40202014</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-txf1"><span class="std std-ref">PIO_SFR_TXF1</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-txf1"><span class="std std-ref">0x40202014</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-txf2"><span class="std std-ref">PIO_SFR_TXF2</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-txf2"><span class="std std-ref">0x40202018</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-txf2"><span class="std std-ref">PIO_SFR_TXF2</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-txf2"><span class="std std-ref">0x40202018</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-reserved7"><span class="std std-ref">PIO_RESERVED7</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-reserved7"><span class="std std-ref">0x4020201c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-reserved7"><span class="std std-ref">PIO_RESERVED7</span></a></td>
+<td><a class="reference internal" href="#pio-reserved7"><span class="std std-ref">0x4020201c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-rxf0"><span class="std std-ref">PIO_SFR_RXF0</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-rxf0"><span class="std std-ref">0x40202020</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-rxf0"><span class="std std-ref">PIO_SFR_RXF0</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-rxf0"><span class="std std-ref">0x40202020</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-rxf1"><span class="std std-ref">PIO_SFR_RXF1</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-rxf1"><span class="std std-ref">0x40202024</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-rxf1"><span class="std std-ref">PIO_SFR_RXF1</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-rxf1"><span class="std std-ref">0x40202024</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-rxf2"><span class="std std-ref">PIO_SFR_RXF2</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-rxf2"><span class="std std-ref">0x40202028</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-rxf2"><span class="std std-ref">PIO_SFR_RXF2</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-rxf2"><span class="std std-ref">0x40202028</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-txf3"><span class="std std-ref">PIO_SFR_TXF3</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-txf3"><span class="std std-ref">0x4020202c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-txf3"><span class="std std-ref">PIO_SFR_TXF3</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-txf3"><span class="std std-ref">0x4020202c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-irq"><span class="std std-ref">PIO_SFR_IRQ</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq"><span class="std std-ref">0x40202030</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-irq"><span class="std std-ref">PIO_SFR_IRQ</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq"><span class="std std-ref">0x40202030</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-irq-force"><span class="std std-ref">PIO_SFR_IRQ_FORCE</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq-force"><span class="std std-ref">0x40202034</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-irq-force"><span class="std std-ref">PIO_SFR_IRQ_FORCE</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq-force"><span class="std std-ref">0x40202034</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sync-bypass"><span class="std std-ref">PIO_SFR_SYNC_BYPASS</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sync-bypass"><span class="std std-ref">0x40202038</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sync-bypass"><span class="std std-ref">PIO_SFR_SYNC_BYPASS</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sync-bypass"><span class="std std-ref">0x40202038</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-dbg-padout"><span class="std std-ref">PIO_SFR_DBG_PADOUT</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-dbg-padout"><span class="std std-ref">0x4020203c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-dbg-padout"><span class="std std-ref">PIO_SFR_DBG_PADOUT</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-dbg-padout"><span class="std std-ref">0x4020203c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-dbg-padoe"><span class="std std-ref">PIO_SFR_DBG_PADOE</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-dbg-padoe"><span class="std std-ref">0x40202040</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-dbg-padoe"><span class="std std-ref">PIO_SFR_DBG_PADOE</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-dbg-padoe"><span class="std std-ref">0x40202040</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-dbg-cfginfo"><span class="std std-ref">PIO_SFR_DBG_CFGINFO</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-dbg-cfginfo"><span class="std std-ref">0x40202044</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-dbg-cfginfo"><span class="std std-ref">PIO_SFR_DBG_CFGINFO</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-dbg-cfginfo"><span class="std std-ref">0x40202044</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem0"><span class="std std-ref">PIO_SFR_INSTR_MEM0</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem0"><span class="std std-ref">0x40202048</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem0"><span class="std std-ref">PIO_SFR_INSTR_MEM0</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem0"><span class="std std-ref">0x40202048</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem1"><span class="std std-ref">PIO_SFR_INSTR_MEM1</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem1"><span class="std std-ref">0x4020204c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem1"><span class="std std-ref">PIO_SFR_INSTR_MEM1</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem1"><span class="std std-ref">0x4020204c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem2"><span class="std std-ref">PIO_SFR_INSTR_MEM2</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem2"><span class="std std-ref">0x40202050</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem2"><span class="std std-ref">PIO_SFR_INSTR_MEM2</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem2"><span class="std std-ref">0x40202050</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem3"><span class="std std-ref">PIO_SFR_INSTR_MEM3</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem3"><span class="std std-ref">0x40202054</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem3"><span class="std std-ref">PIO_SFR_INSTR_MEM3</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem3"><span class="std std-ref">0x40202054</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem4"><span class="std std-ref">PIO_SFR_INSTR_MEM4</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem4"><span class="std std-ref">0x40202058</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem4"><span class="std std-ref">PIO_SFR_INSTR_MEM4</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem4"><span class="std std-ref">0x40202058</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem5"><span class="std std-ref">PIO_SFR_INSTR_MEM5</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem5"><span class="std std-ref">0x4020205c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem5"><span class="std std-ref">PIO_SFR_INSTR_MEM5</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem5"><span class="std std-ref">0x4020205c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem6"><span class="std std-ref">PIO_SFR_INSTR_MEM6</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem6"><span class="std std-ref">0x40202060</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem6"><span class="std std-ref">PIO_SFR_INSTR_MEM6</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem6"><span class="std std-ref">0x40202060</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem7"><span class="std std-ref">PIO_SFR_INSTR_MEM7</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem7"><span class="std std-ref">0x40202064</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem7"><span class="std std-ref">PIO_SFR_INSTR_MEM7</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem7"><span class="std std-ref">0x40202064</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem8"><span class="std std-ref">PIO_SFR_INSTR_MEM8</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem8"><span class="std std-ref">0x40202068</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem8"><span class="std std-ref">PIO_SFR_INSTR_MEM8</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem8"><span class="std std-ref">0x40202068</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem9"><span class="std std-ref">PIO_SFR_INSTR_MEM9</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem9"><span class="std std-ref">0x4020206c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem9"><span class="std std-ref">PIO_SFR_INSTR_MEM9</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem9"><span class="std std-ref">0x4020206c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem10"><span class="std std-ref">PIO_SFR_INSTR_MEM10</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem10"><span class="std std-ref">0x40202070</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem10"><span class="std std-ref">PIO_SFR_INSTR_MEM10</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem10"><span class="std std-ref">0x40202070</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem11"><span class="std std-ref">PIO_SFR_INSTR_MEM11</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem11"><span class="std std-ref">0x40202074</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem11"><span class="std std-ref">PIO_SFR_INSTR_MEM11</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem11"><span class="std std-ref">0x40202074</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem12"><span class="std std-ref">PIO_SFR_INSTR_MEM12</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem12"><span class="std std-ref">0x40202078</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem12"><span class="std std-ref">PIO_SFR_INSTR_MEM12</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem12"><span class="std std-ref">0x40202078</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem13"><span class="std std-ref">PIO_SFR_INSTR_MEM13</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem13"><span class="std std-ref">0x4020207c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem13"><span class="std std-ref">PIO_SFR_INSTR_MEM13</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem13"><span class="std std-ref">0x4020207c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem14"><span class="std std-ref">PIO_SFR_INSTR_MEM14</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem14"><span class="std std-ref">0x40202080</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem14"><span class="std std-ref">PIO_SFR_INSTR_MEM14</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem14"><span class="std std-ref">0x40202080</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem15"><span class="std std-ref">PIO_SFR_INSTR_MEM15</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem15"><span class="std std-ref">0x40202084</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem15"><span class="std std-ref">PIO_SFR_INSTR_MEM15</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem15"><span class="std std-ref">0x40202084</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem16"><span class="std std-ref">PIO_SFR_INSTR_MEM16</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem16"><span class="std std-ref">0x40202088</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem16"><span class="std std-ref">PIO_SFR_INSTR_MEM16</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem16"><span class="std std-ref">0x40202088</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem17"><span class="std std-ref">PIO_SFR_INSTR_MEM17</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem17"><span class="std std-ref">0x4020208c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem17"><span class="std std-ref">PIO_SFR_INSTR_MEM17</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem17"><span class="std std-ref">0x4020208c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem18"><span class="std std-ref">PIO_SFR_INSTR_MEM18</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem18"><span class="std std-ref">0x40202090</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem18"><span class="std std-ref">PIO_SFR_INSTR_MEM18</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem18"><span class="std std-ref">0x40202090</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem19"><span class="std std-ref">PIO_SFR_INSTR_MEM19</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem19"><span class="std std-ref">0x40202094</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem19"><span class="std std-ref">PIO_SFR_INSTR_MEM19</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem19"><span class="std std-ref">0x40202094</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem20"><span class="std std-ref">PIO_SFR_INSTR_MEM20</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem20"><span class="std std-ref">0x40202098</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem20"><span class="std std-ref">PIO_SFR_INSTR_MEM20</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem20"><span class="std std-ref">0x40202098</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem21"><span class="std std-ref">PIO_SFR_INSTR_MEM21</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem21"><span class="std std-ref">0x4020209c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem21"><span class="std std-ref">PIO_SFR_INSTR_MEM21</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem21"><span class="std std-ref">0x4020209c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem22"><span class="std std-ref">PIO_SFR_INSTR_MEM22</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem22"><span class="std std-ref">0x402020a0</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem22"><span class="std std-ref">PIO_SFR_INSTR_MEM22</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem22"><span class="std std-ref">0x402020a0</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem23"><span class="std std-ref">PIO_SFR_INSTR_MEM23</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem23"><span class="std std-ref">0x402020a4</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem23"><span class="std std-ref">PIO_SFR_INSTR_MEM23</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem23"><span class="std std-ref">0x402020a4</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem24"><span class="std std-ref">PIO_SFR_INSTR_MEM24</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem24"><span class="std std-ref">0x402020a8</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem24"><span class="std std-ref">PIO_SFR_INSTR_MEM24</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem24"><span class="std std-ref">0x402020a8</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem25"><span class="std std-ref">PIO_SFR_INSTR_MEM25</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem25"><span class="std std-ref">0x402020ac</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem25"><span class="std std-ref">PIO_SFR_INSTR_MEM25</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem25"><span class="std std-ref">0x402020ac</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem26"><span class="std std-ref">PIO_SFR_INSTR_MEM26</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem26"><span class="std std-ref">0x402020b0</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem26"><span class="std std-ref">PIO_SFR_INSTR_MEM26</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem26"><span class="std std-ref">0x402020b0</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem27"><span class="std std-ref">PIO_SFR_INSTR_MEM27</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem27"><span class="std std-ref">0x402020b4</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem27"><span class="std std-ref">PIO_SFR_INSTR_MEM27</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem27"><span class="std std-ref">0x402020b4</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem28"><span class="std std-ref">PIO_SFR_INSTR_MEM28</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem28"><span class="std std-ref">0x402020b8</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem28"><span class="std std-ref">PIO_SFR_INSTR_MEM28</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem28"><span class="std std-ref">0x402020b8</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem29"><span class="std std-ref">PIO_SFR_INSTR_MEM29</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem29"><span class="std std-ref">0x402020bc</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem29"><span class="std std-ref">PIO_SFR_INSTR_MEM29</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem29"><span class="std std-ref">0x402020bc</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-instr-mem30"><span class="std std-ref">PIO_SFR_INSTR_MEM30</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem30"><span class="std std-ref">0x402020c0</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-instr-mem30"><span class="std std-ref">PIO_SFR_INSTR_MEM30</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem30"><span class="std std-ref">0x402020c0</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-instr-mem31"><span class="std std-ref">PIO_SFR_INSTR_MEM31</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-instr-mem31"><span class="std std-ref">0x402020c4</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-instr-mem31"><span class="std std-ref">PIO_SFR_INSTR_MEM31</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-instr-mem31"><span class="std std-ref">0x402020c4</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm0-clkdiv"><span class="std std-ref">PIO_SFR_SM0_CLKDIV</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm0-clkdiv"><span class="std std-ref">0x402020c8</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm0-clkdiv"><span class="std std-ref">PIO_SFR_SM0_CLKDIV</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm0-clkdiv"><span class="std std-ref">0x402020c8</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm0-execctrl"><span class="std std-ref">PIO_SFR_SM0_EXECCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm0-execctrl"><span class="std std-ref">0x402020cc</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm0-execctrl"><span class="std std-ref">PIO_SFR_SM0_EXECCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm0-execctrl"><span class="std std-ref">0x402020cc</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm0-shiftctrl"><span class="std std-ref">PIO_SFR_SM0_SHIFTCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm0-shiftctrl"><span class="std std-ref">0x402020d0</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm0-shiftctrl"><span class="std std-ref">PIO_SFR_SM0_SHIFTCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm0-shiftctrl"><span class="std std-ref">0x402020d0</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm0-addr"><span class="std std-ref">PIO_SFR_SM0_ADDR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm0-addr"><span class="std std-ref">0x402020d4</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm0-addr"><span class="std std-ref">PIO_SFR_SM0_ADDR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm0-addr"><span class="std std-ref">0x402020d4</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm0-instr"><span class="std std-ref">PIO_SFR_SM0_INSTR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm0-instr"><span class="std std-ref">0x402020d8</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm0-instr"><span class="std std-ref">PIO_SFR_SM0_INSTR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm0-instr"><span class="std std-ref">0x402020d8</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm0-pinctrl"><span class="std std-ref">PIO_SFR_SM0_PINCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm0-pinctrl"><span class="std std-ref">0x402020dc</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm0-pinctrl"><span class="std std-ref">PIO_SFR_SM0_PINCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm0-pinctrl"><span class="std std-ref">0x402020dc</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm1-clkdiv"><span class="std std-ref">PIO_SFR_SM1_CLKDIV</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm1-clkdiv"><span class="std std-ref">0x402020e0</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm1-clkdiv"><span class="std std-ref">PIO_SFR_SM1_CLKDIV</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm1-clkdiv"><span class="std std-ref">0x402020e0</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm1-execctrl"><span class="std std-ref">PIO_SFR_SM1_EXECCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm1-execctrl"><span class="std std-ref">0x402020e4</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm1-execctrl"><span class="std std-ref">PIO_SFR_SM1_EXECCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm1-execctrl"><span class="std std-ref">0x402020e4</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm1-shiftctrl"><span class="std std-ref">PIO_SFR_SM1_SHIFTCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm1-shiftctrl"><span class="std std-ref">0x402020e8</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm1-shiftctrl"><span class="std std-ref">PIO_SFR_SM1_SHIFTCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm1-shiftctrl"><span class="std std-ref">0x402020e8</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm1-addr"><span class="std std-ref">PIO_SFR_SM1_ADDR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm1-addr"><span class="std std-ref">0x402020ec</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm1-addr"><span class="std std-ref">PIO_SFR_SM1_ADDR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm1-addr"><span class="std std-ref">0x402020ec</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm1-instr"><span class="std std-ref">PIO_SFR_SM1_INSTR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm1-instr"><span class="std std-ref">0x402020f0</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm1-instr"><span class="std std-ref">PIO_SFR_SM1_INSTR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm1-instr"><span class="std std-ref">0x402020f0</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm1-pinctrl"><span class="std std-ref">PIO_SFR_SM1_PINCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm1-pinctrl"><span class="std std-ref">0x402020f4</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm1-pinctrl"><span class="std std-ref">PIO_SFR_SM1_PINCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm1-pinctrl"><span class="std std-ref">0x402020f4</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm2-clkdiv"><span class="std std-ref">PIO_SFR_SM2_CLKDIV</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm2-clkdiv"><span class="std std-ref">0x402020f8</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm2-clkdiv"><span class="std std-ref">PIO_SFR_SM2_CLKDIV</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm2-clkdiv"><span class="std std-ref">0x402020f8</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm2-execctrl"><span class="std std-ref">PIO_SFR_SM2_EXECCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm2-execctrl"><span class="std std-ref">0x402020fc</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm2-execctrl"><span class="std std-ref">PIO_SFR_SM2_EXECCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm2-execctrl"><span class="std std-ref">0x402020fc</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm2-shiftctrl"><span class="std std-ref">PIO_SFR_SM2_SHIFTCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm2-shiftctrl"><span class="std std-ref">0x40202100</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm2-shiftctrl"><span class="std std-ref">PIO_SFR_SM2_SHIFTCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm2-shiftctrl"><span class="std std-ref">0x40202100</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm2-addr"><span class="std std-ref">PIO_SFR_SM2_ADDR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm2-addr"><span class="std std-ref">0x40202104</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm2-addr"><span class="std std-ref">PIO_SFR_SM2_ADDR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm2-addr"><span class="std std-ref">0x40202104</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm2-instr"><span class="std std-ref">PIO_SFR_SM2_INSTR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm2-instr"><span class="std std-ref">0x40202108</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm2-instr"><span class="std std-ref">PIO_SFR_SM2_INSTR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm2-instr"><span class="std std-ref">0x40202108</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm2-pinctrl"><span class="std std-ref">PIO_SFR_SM2_PINCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm2-pinctrl"><span class="std std-ref">0x4020210c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm2-pinctrl"><span class="std std-ref">PIO_SFR_SM2_PINCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm2-pinctrl"><span class="std std-ref">0x4020210c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm3-clkdiv"><span class="std std-ref">PIO_SFR_SM3_CLKDIV</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm3-clkdiv"><span class="std std-ref">0x40202110</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm3-clkdiv"><span class="std std-ref">PIO_SFR_SM3_CLKDIV</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm3-clkdiv"><span class="std std-ref">0x40202110</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm3-execctrl"><span class="std std-ref">PIO_SFR_SM3_EXECCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm3-execctrl"><span class="std std-ref">0x40202114</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm3-execctrl"><span class="std std-ref">PIO_SFR_SM3_EXECCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm3-execctrl"><span class="std std-ref">0x40202114</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm3-shiftctrl"><span class="std std-ref">PIO_SFR_SM3_SHIFTCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm3-shiftctrl"><span class="std std-ref">0x40202118</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm3-shiftctrl"><span class="std std-ref">PIO_SFR_SM3_SHIFTCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm3-shiftctrl"><span class="std std-ref">0x40202118</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm3-addr"><span class="std std-ref">PIO_SFR_SM3_ADDR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm3-addr"><span class="std std-ref">0x4020211c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm3-addr"><span class="std std-ref">PIO_SFR_SM3_ADDR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm3-addr"><span class="std std-ref">0x4020211c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-sm3-instr"><span class="std std-ref">PIO_SFR_SM3_INSTR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm3-instr"><span class="std std-ref">0x40202120</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-sm3-instr"><span class="std std-ref">PIO_SFR_SM3_INSTR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm3-instr"><span class="std std-ref">0x40202120</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-sm3-pinctrl"><span class="std std-ref">PIO_SFR_SM3_PINCTRL</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-sm3-pinctrl"><span class="std std-ref">0x40202124</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-sm3-pinctrl"><span class="std std-ref">PIO_SFR_SM3_PINCTRL</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-sm3-pinctrl"><span class="std std-ref">0x40202124</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-intr"><span class="std std-ref">PIO_SFR_INTR</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-intr"><span class="std std-ref">0x40202128</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-intr"><span class="std std-ref">PIO_SFR_INTR</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-intr"><span class="std std-ref">0x40202128</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-irq0-inte"><span class="std std-ref">PIO_SFR_IRQ0_INTE</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq0-inte"><span class="std std-ref">0x4020212c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-irq0-inte"><span class="std std-ref">PIO_SFR_IRQ0_INTE</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq0-inte"><span class="std std-ref">0x4020212c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-irq0-intf"><span class="std std-ref">PIO_SFR_IRQ0_INTF</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq0-intf"><span class="std std-ref">0x40202130</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-irq0-intf"><span class="std std-ref">PIO_SFR_IRQ0_INTF</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq0-intf"><span class="std std-ref">0x40202130</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-irq0-ints"><span class="std std-ref">PIO_SFR_IRQ0_INTS</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq0-ints"><span class="std std-ref">0x40202134</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-irq0-ints"><span class="std std-ref">PIO_SFR_IRQ0_INTS</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq0-ints"><span class="std std-ref">0x40202134</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-irq1-inte"><span class="std std-ref">PIO_SFR_IRQ1_INTE</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq1-inte"><span class="std std-ref">0x40202138</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-irq1-inte"><span class="std std-ref">PIO_SFR_IRQ1_INTE</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq1-inte"><span class="std std-ref">0x40202138</span></a></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pio-sfr-irq1-intf"><span class="std std-ref">PIO_SFR_IRQ1_INTF</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq1-intf"><span class="std std-ref">0x4020213c</span></a></p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pio-sfr-irq1-intf"><span class="std std-ref">PIO_SFR_IRQ1_INTF</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq1-intf"><span class="std std-ref">0x4020213c</span></a></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pio-sfr-irq1-ints"><span class="std std-ref">PIO_SFR_IRQ1_INTS</span></a></p></td>
-<td><p><a class="reference internal" href="#pio-sfr-irq1-ints"><span class="std std-ref">0x40202140</span></a></p></td>
+<tr class="row-even"><td><a class="reference internal" href="#pio-sfr-irq1-ints"><span class="std std-ref">PIO_SFR_IRQ1_INTS</span></a></td>
+<td><a class="reference internal" href="#pio-sfr-irq1-ints"><span class="std std-ref">0x40202140</span></a></td>
 </tr>
 </tbody>
 </table>
-<section id="pio-sfr-ctrl">
-<h3>PIO_SFR_CTRL<a class="headerlink" href="#pio-sfr-ctrl" title="Permalink to this heading">¶</a></h3>
+<div class="section" id="pio-sfr-ctrl">
+<h3>PIO_SFR_CTRL<a class="headerlink" href="#pio-sfr-ctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x0 = 0x40202000</cite></p>
 <blockquote>
 <div>
@@ -310,31 +309,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="24%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>EN</p></td>
-<td><p>en read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>EN</td>
+<td>en read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>RESTART</p></td>
-<td><p>restart read/write control register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>RESTART</td>
+<td>restart read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>CLKDIV_RESTART</p></td>
-<td><p>clkdiv_restart read/write control register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>CLKDIV_RESTART</td>
+<td>clkdiv_restart read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-fstat">
-<h3>PIO_SFR_FSTAT<a class="headerlink" href="#pio-sfr-fstat" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-fstat">
+<h3>PIO_SFR_FSTAT<a class="headerlink" href="#pio-sfr-fstat" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x4 = 0x40202004</cite></p>
 <blockquote>
 <div>
@@ -355,51 +359,56 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>RX_FULL</p></td>
-<td><p>rx_full read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>RX_FULL</td>
+<td>rx_full read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>CONSTANT0</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>CONSTANT0</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>RX_EMPTY</p></td>
-<td><p>rx_empty read only status register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>RX_EMPTY</td>
+<td>rx_empty read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[15:12]</p></td>
-<td><p>CONSTANT1</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[15:12]</td>
+<td>CONSTANT1</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[19:16]</p></td>
-<td><p>TX_FULL</p></td>
-<td><p>tx_full read only status register</p></td>
+<tr class="row-even"><td>[19:16]</td>
+<td>TX_FULL</td>
+<td>tx_full read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[23:20]</p></td>
-<td><p>CONSTANT2</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[23:20]</td>
+<td>CONSTANT2</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[27:24]</p></td>
-<td><p>TX_EMPTY</p></td>
-<td><p>tx_empty read only status register</p></td>
+<tr class="row-even"><td>[27:24]</td>
+<td>TX_EMPTY</td>
+<td>tx_empty read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[31:28]</p></td>
-<td><p>CONSTANT3</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[31:28]</td>
+<td>CONSTANT3</td>
+<td>constant value of 0</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-fdebug">
-<h3>PIO_SFR_FDEBUG<a class="headerlink" href="#pio-sfr-fdebug" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-fdebug">
+<h3>PIO_SFR_FDEBUG<a class="headerlink" href="#pio-sfr-fdebug" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x8 = 0x40202008</cite></p>
 <blockquote>
 <div>
@@ -421,51 +430,56 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>RXSTALL</p></td>
-<td><p>rxstall read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>RXSTALL</td>
+<td>rxstall read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[4]</p></td>
-<td><p>NC_DBG3</p></td>
-<td><p>nc_dbg3 read/write control register</p></td>
+<tr class="row-odd"><td>[4]</td>
+<td>NC_DBG3</td>
+<td>nc_dbg3 read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[8:5]</p></td>
-<td><p>RXUNDER</p></td>
-<td><p>rxunder read/write control register</p></td>
+<tr class="row-even"><td>[8:5]</td>
+<td>RXUNDER</td>
+<td>rxunder read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[12:9]</p></td>
-<td><p>NC_DBG2</p></td>
-<td><p>nc_dbg2 read/write control register</p></td>
+<tr class="row-odd"><td>[12:9]</td>
+<td>NC_DBG2</td>
+<td>nc_dbg2 read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[16:13]</p></td>
-<td><p>TXOVER</p></td>
-<td><p>txover read/write control register</p></td>
+<tr class="row-even"><td>[16:13]</td>
+<td>TXOVER</td>
+<td>txover read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[20:17]</p></td>
-<td><p>NC_DBG1</p></td>
-<td><p>nc_dbg1 read/write control register</p></td>
+<tr class="row-odd"><td>[20:17]</td>
+<td>NC_DBG1</td>
+<td>nc_dbg1 read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[24:21]</p></td>
-<td><p>TXSTALL</p></td>
-<td><p>txstall read/write control register</p></td>
+<tr class="row-even"><td>[24:21]</td>
+<td>TXSTALL</td>
+<td>txstall read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[28:25]</p></td>
-<td><p>NC_DBG0</p></td>
-<td><p>nc_dbg0 read/write control register</p></td>
+<tr class="row-odd"><td>[28:25]</td>
+<td>NC_DBG0</td>
+<td>nc_dbg0 read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-flevel">
-<h3>PIO_SFR_FLEVEL<a class="headerlink" href="#pio-sfr-flevel" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-flevel">
+<h3>PIO_SFR_FLEVEL<a class="headerlink" href="#pio-sfr-flevel" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xc = 0x4020200c</cite></p>
 <blockquote>
 <div>
@@ -494,83 +508,88 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="19%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[2:0]</p></td>
-<td><p>TX_LEVEL0</p></td>
-<td><p>tx_level[0] read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[2:0]</td>
+<td>TX_LEVEL0</td>
+<td>tx_level[0] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[3]</p></td>
-<td><p>CONSTANT0</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[3]</td>
+<td>CONSTANT0</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[6:4]</p></td>
-<td><p>RX_LEVEL0</p></td>
-<td><p>rx_level[0] read only status register</p></td>
+<tr class="row-even"><td>[6:4]</td>
+<td>RX_LEVEL0</td>
+<td>rx_level[0] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[7]</p></td>
-<td><p>CONSTANT1</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[7]</td>
+<td>CONSTANT1</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[10:8]</p></td>
-<td><p>TX_LEVEL1</p></td>
-<td><p>tx_level[1] read only status register</p></td>
+<tr class="row-even"><td>[10:8]</td>
+<td>TX_LEVEL1</td>
+<td>tx_level[1] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[11]</p></td>
-<td><p>CONSTANT2</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[11]</td>
+<td>CONSTANT2</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[14:12]</p></td>
-<td><p>RX_LEVEL1</p></td>
-<td><p>rx_level[1] read only status register</p></td>
+<tr class="row-even"><td>[14:12]</td>
+<td>RX_LEVEL1</td>
+<td>rx_level[1] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[15]</p></td>
-<td><p>CONSTANT3</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[15]</td>
+<td>CONSTANT3</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[18:16]</p></td>
-<td><p>TX_LEVEL2</p></td>
-<td><p>tx_level[2] read only status register</p></td>
+<tr class="row-even"><td>[18:16]</td>
+<td>TX_LEVEL2</td>
+<td>tx_level[2] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[19]</p></td>
-<td><p>CONSTANT4</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[19]</td>
+<td>CONSTANT4</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[22:20]</p></td>
-<td><p>RX_LEVEL2</p></td>
-<td><p>rx_level[2] read only status register</p></td>
+<tr class="row-even"><td>[22:20]</td>
+<td>RX_LEVEL2</td>
+<td>rx_level[2] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[23]</p></td>
-<td><p>CONSTANT5</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[23]</td>
+<td>CONSTANT5</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[26:24]</p></td>
-<td><p>TX_LEVEL3</p></td>
-<td><p>tx_level[3] read only status register</p></td>
+<tr class="row-even"><td>[26:24]</td>
+<td>TX_LEVEL3</td>
+<td>tx_level[3] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[27]</p></td>
-<td><p>CONSTANT6</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[27]</td>
+<td>CONSTANT6</td>
+<td>constant value of 0</td>
 </tr>
-<tr class="row-even"><td><p>[30:28]</p></td>
-<td><p>RX_LEVEL3</p></td>
-<td><p>rx_level[3] read only status register</p></td>
+<tr class="row-even"><td>[30:28]</td>
+<td>RX_LEVEL3</td>
+<td>rx_level[3] read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[31]</p></td>
-<td><p>CONSTANT7</p></td>
-<td><p>constant value of 0</p></td>
+<tr class="row-odd"><td>[31]</td>
+<td>CONSTANT7</td>
+<td>constant value of 0</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-txf0">
-<h3>PIO_SFR_TXF0<a class="headerlink" href="#pio-sfr-txf0" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-txf0">
+<h3>PIO_SFR_TXF0<a class="headerlink" href="#pio-sfr-txf0" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x10 = 0x40202010</cite></p>
 <blockquote>
 <div>
@@ -584,23 +603,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="13%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>FDIN</p></td>
-<td><p>fdin read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>FDIN</td>
+<td>fdin read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-txf1">
-<h3>PIO_SFR_TXF1<a class="headerlink" href="#pio-sfr-txf1" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-txf1">
+<h3>PIO_SFR_TXF1<a class="headerlink" href="#pio-sfr-txf1" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x14 = 0x40202014</cite></p>
 <blockquote>
 <div>
@@ -614,23 +638,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="13%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>FDIN</p></td>
-<td><p>fdin read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>FDIN</td>
+<td>fdin read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-txf2">
-<h3>PIO_SFR_TXF2<a class="headerlink" href="#pio-sfr-txf2" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-txf2">
+<h3>PIO_SFR_TXF2<a class="headerlink" href="#pio-sfr-txf2" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x18 = 0x40202018</cite></p>
 <blockquote>
 <div>
@@ -644,23 +673,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="13%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>FDIN</p></td>
-<td><p>fdin read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>FDIN</td>
+<td>fdin read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-reserved7">
-<h3>PIO_RESERVED7<a class="headerlink" href="#pio-reserved7" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-reserved7">
+<h3>PIO_RESERVED7<a class="headerlink" href="#pio-reserved7" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x1c = 0x4020201c</cite></p>
 <blockquote>
 <div>
@@ -675,9 +709,9 @@
 </script>
 </div>
 </div></blockquote>
-</section>
-<section id="pio-sfr-rxf0">
-<h3>PIO_SFR_RXF0<a class="headerlink" href="#pio-sfr-rxf0" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-rxf0">
+<h3>PIO_SFR_RXF0<a class="headerlink" href="#pio-sfr-rxf0" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x20 = 0x40202020</cite></p>
 <blockquote>
 <div>
@@ -691,23 +725,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="15%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>PDOUT</p></td>
-<td><p>pdout read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>PDOUT</td>
+<td>pdout read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-rxf1">
-<h3>PIO_SFR_RXF1<a class="headerlink" href="#pio-sfr-rxf1" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-rxf1">
+<h3>PIO_SFR_RXF1<a class="headerlink" href="#pio-sfr-rxf1" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x24 = 0x40202024</cite></p>
 <blockquote>
 <div>
@@ -721,23 +760,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="15%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>PDOUT</p></td>
-<td><p>pdout read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>PDOUT</td>
+<td>pdout read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-rxf2">
-<h3>PIO_SFR_RXF2<a class="headerlink" href="#pio-sfr-rxf2" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-rxf2">
+<h3>PIO_SFR_RXF2<a class="headerlink" href="#pio-sfr-rxf2" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x28 = 0x40202028</cite></p>
 <blockquote>
 <div>
@@ -751,23 +795,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="15%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>PDOUT</p></td>
-<td><p>pdout read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>PDOUT</td>
+<td>pdout read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-txf3">
-<h3>PIO_SFR_TXF3<a class="headerlink" href="#pio-sfr-txf3" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-txf3">
+<h3>PIO_SFR_TXF3<a class="headerlink" href="#pio-sfr-txf3" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x2c = 0x4020202c</cite></p>
 <blockquote>
 <div>
@@ -781,23 +830,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="13%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>FDIN</p></td>
-<td><p>fdin read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>FDIN</td>
+<td>fdin read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq">
-<h3>PIO_SFR_IRQ<a class="headerlink" href="#pio-sfr-irq" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq">
+<h3>PIO_SFR_IRQ<a class="headerlink" href="#pio-sfr-irq" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x30 = 0x40202030</cite></p>
 <blockquote>
 <div>
@@ -812,23 +866,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="18%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>SFR_IRQ</p></td>
-<td><p>sfr_irq read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>SFR_IRQ</td>
+<td>sfr_irq read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq-force">
-<h3>PIO_SFR_IRQ_FORCE<a class="headerlink" href="#pio-sfr-irq-force" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq-force">
+<h3>PIO_SFR_IRQ_FORCE<a class="headerlink" href="#pio-sfr-irq-force" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x34 = 0x40202034</cite></p>
 <blockquote>
 <div>
@@ -843,23 +902,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="23%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>SFR_IRQ_FORCE</p></td>
-<td><p>sfr_irq_force read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>SFR_IRQ_FORCE</td>
+<td>sfr_irq_force read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sync-bypass">
-<h3>PIO_SFR_SYNC_BYPASS<a class="headerlink" href="#pio-sfr-sync-bypass" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sync-bypass">
+<h3>PIO_SFR_SYNC_BYPASS<a class="headerlink" href="#pio-sfr-sync-bypass" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x38 = 0x40202038</cite></p>
 <blockquote>
 <div>
@@ -873,23 +937,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="24%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>SFR_SYNC_BYPASS</p></td>
-<td><p>sfr_sync_bypass read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>SFR_SYNC_BYPASS</td>
+<td>sfr_sync_bypass read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-dbg-padout">
-<h3>PIO_SFR_DBG_PADOUT<a class="headerlink" href="#pio-sfr-dbg-padout" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-dbg-padout">
+<h3>PIO_SFR_DBG_PADOUT<a class="headerlink" href="#pio-sfr-dbg-padout" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x3c = 0x4020203c</cite></p>
 <blockquote>
 <div>
@@ -903,23 +972,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="17%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>GPIO_IN</p></td>
-<td><p>gpio_in read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>GPIO_IN</td>
+<td>gpio_in read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-dbg-padoe">
-<h3>PIO_SFR_DBG_PADOE<a class="headerlink" href="#pio-sfr-dbg-padoe" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-dbg-padoe">
+<h3>PIO_SFR_DBG_PADOE<a class="headerlink" href="#pio-sfr-dbg-padoe" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x40 = 0x40202040</cite></p>
 <blockquote>
 <div>
@@ -933,23 +1007,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="19%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>GPIO_DIR</p></td>
-<td><p>gpio_dir read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>GPIO_DIR</td>
+<td>gpio_dir read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-dbg-cfginfo">
-<h3>PIO_SFR_DBG_CFGINFO<a class="headerlink" href="#pio-sfr-dbg-cfginfo" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-dbg-cfginfo">
+<h3>PIO_SFR_DBG_CFGINFO<a class="headerlink" href="#pio-sfr-dbg-cfginfo" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x44 = 0x40202044</cite></p>
 <blockquote>
 <div>
@@ -965,31 +1044,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="26%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>CONSTANT0</p></td>
-<td><p>constant value of 4</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>CONSTANT0</td>
+<td>constant value of 4</td>
 </tr>
-<tr class="row-odd"><td><p>[15:8]</p></td>
-<td><p>CONSTANT1</p></td>
-<td><p>constant value of 4</p></td>
+<tr class="row-odd"><td>[15:8]</td>
+<td>CONSTANT1</td>
+<td>constant value of 4</td>
 </tr>
-<tr class="row-even"><td><p>[31:16]</p></td>
-<td><p>CONSTANT2</p></td>
-<td><p>constant value of 32</p></td>
+<tr class="row-even"><td>[31:16]</td>
+<td>CONSTANT2</td>
+<td>constant value of 32</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem0">
-<h3>PIO_SFR_INSTR_MEM0<a class="headerlink" href="#pio-sfr-instr-mem0" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem0">
+<h3>PIO_SFR_INSTR_MEM0<a class="headerlink" href="#pio-sfr-instr-mem0" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x48 = 0x40202048</cite></p>
 <blockquote>
 <div>
@@ -1003,23 +1087,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem1">
-<h3>PIO_SFR_INSTR_MEM1<a class="headerlink" href="#pio-sfr-instr-mem1" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem1">
+<h3>PIO_SFR_INSTR_MEM1<a class="headerlink" href="#pio-sfr-instr-mem1" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x4c = 0x4020204c</cite></p>
 <blockquote>
 <div>
@@ -1033,23 +1122,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem2">
-<h3>PIO_SFR_INSTR_MEM2<a class="headerlink" href="#pio-sfr-instr-mem2" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem2">
+<h3>PIO_SFR_INSTR_MEM2<a class="headerlink" href="#pio-sfr-instr-mem2" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x50 = 0x40202050</cite></p>
 <blockquote>
 <div>
@@ -1063,23 +1157,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem3">
-<h3>PIO_SFR_INSTR_MEM3<a class="headerlink" href="#pio-sfr-instr-mem3" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem3">
+<h3>PIO_SFR_INSTR_MEM3<a class="headerlink" href="#pio-sfr-instr-mem3" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x54 = 0x40202054</cite></p>
 <blockquote>
 <div>
@@ -1093,23 +1192,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem4">
-<h3>PIO_SFR_INSTR_MEM4<a class="headerlink" href="#pio-sfr-instr-mem4" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem4">
+<h3>PIO_SFR_INSTR_MEM4<a class="headerlink" href="#pio-sfr-instr-mem4" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x58 = 0x40202058</cite></p>
 <blockquote>
 <div>
@@ -1123,23 +1227,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem5">
-<h3>PIO_SFR_INSTR_MEM5<a class="headerlink" href="#pio-sfr-instr-mem5" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem5">
+<h3>PIO_SFR_INSTR_MEM5<a class="headerlink" href="#pio-sfr-instr-mem5" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x5c = 0x4020205c</cite></p>
 <blockquote>
 <div>
@@ -1153,23 +1262,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem6">
-<h3>PIO_SFR_INSTR_MEM6<a class="headerlink" href="#pio-sfr-instr-mem6" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem6">
+<h3>PIO_SFR_INSTR_MEM6<a class="headerlink" href="#pio-sfr-instr-mem6" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x60 = 0x40202060</cite></p>
 <blockquote>
 <div>
@@ -1183,23 +1297,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem7">
-<h3>PIO_SFR_INSTR_MEM7<a class="headerlink" href="#pio-sfr-instr-mem7" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem7">
+<h3>PIO_SFR_INSTR_MEM7<a class="headerlink" href="#pio-sfr-instr-mem7" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x64 = 0x40202064</cite></p>
 <blockquote>
 <div>
@@ -1213,23 +1332,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem8">
-<h3>PIO_SFR_INSTR_MEM8<a class="headerlink" href="#pio-sfr-instr-mem8" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem8">
+<h3>PIO_SFR_INSTR_MEM8<a class="headerlink" href="#pio-sfr-instr-mem8" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x68 = 0x40202068</cite></p>
 <blockquote>
 <div>
@@ -1243,23 +1367,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem9">
-<h3>PIO_SFR_INSTR_MEM9<a class="headerlink" href="#pio-sfr-instr-mem9" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem9">
+<h3>PIO_SFR_INSTR_MEM9<a class="headerlink" href="#pio-sfr-instr-mem9" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x6c = 0x4020206c</cite></p>
 <blockquote>
 <div>
@@ -1273,23 +1402,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem10">
-<h3>PIO_SFR_INSTR_MEM10<a class="headerlink" href="#pio-sfr-instr-mem10" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem10">
+<h3>PIO_SFR_INSTR_MEM10<a class="headerlink" href="#pio-sfr-instr-mem10" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x70 = 0x40202070</cite></p>
 <blockquote>
 <div>
@@ -1303,23 +1437,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem11">
-<h3>PIO_SFR_INSTR_MEM11<a class="headerlink" href="#pio-sfr-instr-mem11" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem11">
+<h3>PIO_SFR_INSTR_MEM11<a class="headerlink" href="#pio-sfr-instr-mem11" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x74 = 0x40202074</cite></p>
 <blockquote>
 <div>
@@ -1333,23 +1472,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem12">
-<h3>PIO_SFR_INSTR_MEM12<a class="headerlink" href="#pio-sfr-instr-mem12" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem12">
+<h3>PIO_SFR_INSTR_MEM12<a class="headerlink" href="#pio-sfr-instr-mem12" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x78 = 0x40202078</cite></p>
 <blockquote>
 <div>
@@ -1363,23 +1507,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem13">
-<h3>PIO_SFR_INSTR_MEM13<a class="headerlink" href="#pio-sfr-instr-mem13" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem13">
+<h3>PIO_SFR_INSTR_MEM13<a class="headerlink" href="#pio-sfr-instr-mem13" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x7c = 0x4020207c</cite></p>
 <blockquote>
 <div>
@@ -1393,23 +1542,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem14">
-<h3>PIO_SFR_INSTR_MEM14<a class="headerlink" href="#pio-sfr-instr-mem14" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem14">
+<h3>PIO_SFR_INSTR_MEM14<a class="headerlink" href="#pio-sfr-instr-mem14" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x80 = 0x40202080</cite></p>
 <blockquote>
 <div>
@@ -1423,23 +1577,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem15">
-<h3>PIO_SFR_INSTR_MEM15<a class="headerlink" href="#pio-sfr-instr-mem15" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem15">
+<h3>PIO_SFR_INSTR_MEM15<a class="headerlink" href="#pio-sfr-instr-mem15" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x84 = 0x40202084</cite></p>
 <blockquote>
 <div>
@@ -1453,23 +1612,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem16">
-<h3>PIO_SFR_INSTR_MEM16<a class="headerlink" href="#pio-sfr-instr-mem16" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem16">
+<h3>PIO_SFR_INSTR_MEM16<a class="headerlink" href="#pio-sfr-instr-mem16" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x88 = 0x40202088</cite></p>
 <blockquote>
 <div>
@@ -1483,23 +1647,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem17">
-<h3>PIO_SFR_INSTR_MEM17<a class="headerlink" href="#pio-sfr-instr-mem17" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem17">
+<h3>PIO_SFR_INSTR_MEM17<a class="headerlink" href="#pio-sfr-instr-mem17" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x8c = 0x4020208c</cite></p>
 <blockquote>
 <div>
@@ -1513,23 +1682,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem18">
-<h3>PIO_SFR_INSTR_MEM18<a class="headerlink" href="#pio-sfr-instr-mem18" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem18">
+<h3>PIO_SFR_INSTR_MEM18<a class="headerlink" href="#pio-sfr-instr-mem18" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x90 = 0x40202090</cite></p>
 <blockquote>
 <div>
@@ -1543,23 +1717,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem19">
-<h3>PIO_SFR_INSTR_MEM19<a class="headerlink" href="#pio-sfr-instr-mem19" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem19">
+<h3>PIO_SFR_INSTR_MEM19<a class="headerlink" href="#pio-sfr-instr-mem19" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x94 = 0x40202094</cite></p>
 <blockquote>
 <div>
@@ -1573,23 +1752,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem20">
-<h3>PIO_SFR_INSTR_MEM20<a class="headerlink" href="#pio-sfr-instr-mem20" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem20">
+<h3>PIO_SFR_INSTR_MEM20<a class="headerlink" href="#pio-sfr-instr-mem20" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x98 = 0x40202098</cite></p>
 <blockquote>
 <div>
@@ -1603,23 +1787,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem21">
-<h3>PIO_SFR_INSTR_MEM21<a class="headerlink" href="#pio-sfr-instr-mem21" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem21">
+<h3>PIO_SFR_INSTR_MEM21<a class="headerlink" href="#pio-sfr-instr-mem21" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x9c = 0x4020209c</cite></p>
 <blockquote>
 <div>
@@ -1633,23 +1822,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem22">
-<h3>PIO_SFR_INSTR_MEM22<a class="headerlink" href="#pio-sfr-instr-mem22" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem22">
+<h3>PIO_SFR_INSTR_MEM22<a class="headerlink" href="#pio-sfr-instr-mem22" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xa0 = 0x402020a0</cite></p>
 <blockquote>
 <div>
@@ -1663,23 +1857,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem23">
-<h3>PIO_SFR_INSTR_MEM23<a class="headerlink" href="#pio-sfr-instr-mem23" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem23">
+<h3>PIO_SFR_INSTR_MEM23<a class="headerlink" href="#pio-sfr-instr-mem23" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xa4 = 0x402020a4</cite></p>
 <blockquote>
 <div>
@@ -1693,23 +1892,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem24">
-<h3>PIO_SFR_INSTR_MEM24<a class="headerlink" href="#pio-sfr-instr-mem24" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem24">
+<h3>PIO_SFR_INSTR_MEM24<a class="headerlink" href="#pio-sfr-instr-mem24" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xa8 = 0x402020a8</cite></p>
 <blockquote>
 <div>
@@ -1723,23 +1927,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem25">
-<h3>PIO_SFR_INSTR_MEM25<a class="headerlink" href="#pio-sfr-instr-mem25" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem25">
+<h3>PIO_SFR_INSTR_MEM25<a class="headerlink" href="#pio-sfr-instr-mem25" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xac = 0x402020ac</cite></p>
 <blockquote>
 <div>
@@ -1753,23 +1962,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem26">
-<h3>PIO_SFR_INSTR_MEM26<a class="headerlink" href="#pio-sfr-instr-mem26" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem26">
+<h3>PIO_SFR_INSTR_MEM26<a class="headerlink" href="#pio-sfr-instr-mem26" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xb0 = 0x402020b0</cite></p>
 <blockquote>
 <div>
@@ -1783,23 +1997,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem27">
-<h3>PIO_SFR_INSTR_MEM27<a class="headerlink" href="#pio-sfr-instr-mem27" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem27">
+<h3>PIO_SFR_INSTR_MEM27<a class="headerlink" href="#pio-sfr-instr-mem27" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xb4 = 0x402020b4</cite></p>
 <blockquote>
 <div>
@@ -1813,23 +2032,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem28">
-<h3>PIO_SFR_INSTR_MEM28<a class="headerlink" href="#pio-sfr-instr-mem28" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem28">
+<h3>PIO_SFR_INSTR_MEM28<a class="headerlink" href="#pio-sfr-instr-mem28" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xb8 = 0x402020b8</cite></p>
 <blockquote>
 <div>
@@ -1843,23 +2067,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem29">
-<h3>PIO_SFR_INSTR_MEM29<a class="headerlink" href="#pio-sfr-instr-mem29" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem29">
+<h3>PIO_SFR_INSTR_MEM29<a class="headerlink" href="#pio-sfr-instr-mem29" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xbc = 0x402020bc</cite></p>
 <blockquote>
 <div>
@@ -1873,23 +2102,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem30">
-<h3>PIO_SFR_INSTR_MEM30<a class="headerlink" href="#pio-sfr-instr-mem30" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem30">
+<h3>PIO_SFR_INSTR_MEM30<a class="headerlink" href="#pio-sfr-instr-mem30" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xc0 = 0x402020c0</cite></p>
 <blockquote>
 <div>
@@ -1903,23 +2137,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-instr-mem31">
-<h3>PIO_SFR_INSTR_MEM31<a class="headerlink" href="#pio-sfr-instr-mem31" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-instr-mem31">
+<h3>PIO_SFR_INSTR_MEM31<a class="headerlink" href="#pio-sfr-instr-mem31" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xc4 = 0x402020c4</cite></p>
 <blockquote>
 <div>
@@ -1933,23 +2172,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[31:0]</p></td>
-<td><p>INSTR</p></td>
-<td><p>instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[31:0]</td>
+<td>INSTR</td>
+<td>instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm0-clkdiv">
-<h3>PIO_SFR_SM0_CLKDIV<a class="headerlink" href="#pio-sfr-sm0-clkdiv" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm0-clkdiv">
+<h3>PIO_SFR_SM0_CLKDIV<a class="headerlink" href="#pio-sfr-sm0-clkdiv" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xc8 = 0x402020c8</cite></p>
 <blockquote>
 <div>
@@ -1965,31 +2209,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="20%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>UNUSED_DIV</p></td>
-<td><p>unused_div read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>UNUSED_DIV</td>
+<td>unused_div read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[15:8]</p></td>
-<td><p>DIV_FRAC</p></td>
-<td><p>div_frac read/write control register</p></td>
+<tr class="row-odd"><td>[15:8]</td>
+<td>DIV_FRAC</td>
+<td>div_frac read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:16]</p></td>
-<td><p>DIV_INT</p></td>
-<td><p>div_int read/write control register</p></td>
+<tr class="row-even"><td>[31:16]</td>
+<td>DIV_INT</td>
+<td>div_int read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm0-execctrl">
-<h3>PIO_SFR_SM0_EXECCTRL<a class="headerlink" href="#pio-sfr-sm0-execctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm0-execctrl">
+<h3>PIO_SFR_SM0_EXECCTRL<a class="headerlink" href="#pio-sfr-sm0-execctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xcc = 0x402020cc</cite></p>
 <blockquote>
 <div>
@@ -2014,67 +2263,72 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="26%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>STATUS_N</p></td>
-<td><p>status_n read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>STATUS_N</td>
+<td>status_n read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[4]</p></td>
-<td><p>STATUS_SEL</p></td>
-<td><p>status_sel read/write control register</p></td>
+<tr class="row-odd"><td>[4]</td>
+<td>STATUS_SEL</td>
+<td>status_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[6:5]</p></td>
-<td><p>RESVD_EXEC</p></td>
-<td><p>resvd_exec read/write control register</p></td>
+<tr class="row-even"><td>[6:5]</td>
+<td>RESVD_EXEC</td>
+<td>resvd_exec read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[11:7]</p></td>
-<td><p>WRAP_TARGET</p></td>
-<td><p>wrap_target read/write control register</p></td>
+<tr class="row-odd"><td>[11:7]</td>
+<td>WRAP_TARGET</td>
+<td>wrap_target read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[16:12]</p></td>
-<td><p>PEND</p></td>
-<td><p>pend read/write control register</p></td>
+<tr class="row-even"><td>[16:12]</td>
+<td>PEND</td>
+<td>pend read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[17]</p></td>
-<td><p>OUT_STICKY</p></td>
-<td><p>out_sticky read/write control register</p></td>
+<tr class="row-odd"><td>[17]</td>
+<td>OUT_STICKY</td>
+<td>out_sticky read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[18]</p></td>
-<td><p>INLINE_OUT_EN</p></td>
-<td><p>inline_out_en read/write control register</p></td>
+<tr class="row-even"><td>[18]</td>
+<td>INLINE_OUT_EN</td>
+<td>inline_out_en read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[23:19]</p></td>
-<td><p>OUT_EN_SEL</p></td>
-<td><p>out_en_sel read/write control register</p></td>
+<tr class="row-odd"><td>[23:19]</td>
+<td>OUT_EN_SEL</td>
+<td>out_en_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[28:24]</p></td>
-<td><p>JMP_PIN</p></td>
-<td><p>jmp_pin read/write control register</p></td>
+<tr class="row-even"><td>[28:24]</td>
+<td>JMP_PIN</td>
+<td>jmp_pin read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[29]</p></td>
-<td><p>SIDE_PINDIR</p></td>
-<td><p>side_pindir read/write control register</p></td>
+<tr class="row-odd"><td>[29]</td>
+<td>SIDE_PINDIR</td>
+<td>side_pindir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[30]</p></td>
-<td><p>SIDESET_ENABLE_BIT</p></td>
-<td><p>sideset_enable_bit read/write control register</p></td>
+<tr class="row-even"><td>[30]</td>
+<td>SIDESET_ENABLE_BIT</td>
+<td>sideset_enable_bit read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[31]</p></td>
-<td><p>EXEC_STALLED</p></td>
-<td><p>exec_stalled read/write control register</p></td>
+<tr class="row-odd"><td>[31]</td>
+<td>EXEC_STALLED</td>
+<td>exec_stalled read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm0-shiftctrl">
-<h3>PIO_SFR_SM0_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm0-shiftctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm0-shiftctrl">
+<h3>PIO_SFR_SM0_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm0-shiftctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xd0 = 0x402020d0</cite></p>
 <blockquote>
 <div>
@@ -2096,55 +2350,60 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>RESVD_SHIFT</p></td>
-<td><p>resvd_shift read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>RESVD_SHIFT</td>
+<td>resvd_shift read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[16]</p></td>
-<td><p>AUTO_PUSH</p></td>
-<td><p>auto_push read/write control register</p></td>
+<tr class="row-odd"><td>[16]</td>
+<td>AUTO_PUSH</td>
+<td>auto_push read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[17]</p></td>
-<td><p>AUTO_PULL</p></td>
-<td><p>auto_pull read/write control register</p></td>
+<tr class="row-even"><td>[17]</td>
+<td>AUTO_PULL</td>
+<td>auto_pull read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[18]</p></td>
-<td><p>IN_SHIFT_DIR</p></td>
-<td><p>in_shift_dir read/write control register</p></td>
+<tr class="row-odd"><td>[18]</td>
+<td>IN_SHIFT_DIR</td>
+<td>in_shift_dir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[19]</p></td>
-<td><p>OUT_SHIFT_DIR</p></td>
-<td><p>out_shift_dir read/write control register</p></td>
+<tr class="row-even"><td>[19]</td>
+<td>OUT_SHIFT_DIR</td>
+<td>out_shift_dir read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[24:20]</p></td>
-<td><p>ISR_THRESHOLD</p></td>
-<td><p>isr_threshold read/write control register</p></td>
+<tr class="row-odd"><td>[24:20]</td>
+<td>ISR_THRESHOLD</td>
+<td>isr_threshold read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[29:25]</p></td>
-<td><p>OSR_THRESHOLD</p></td>
-<td><p>osr_threshold read/write control register</p></td>
+<tr class="row-even"><td>[29:25]</td>
+<td>OSR_THRESHOLD</td>
+<td>osr_threshold read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[30]</p></td>
-<td><p>JOIN_TX</p></td>
-<td><p>join_tx read/write control register</p></td>
+<tr class="row-odd"><td>[30]</td>
+<td>JOIN_TX</td>
+<td>join_tx read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31]</p></td>
-<td><p>JOIN_RX</p></td>
-<td><p>join_rx read/write control register</p></td>
+<tr class="row-even"><td>[31]</td>
+<td>JOIN_RX</td>
+<td>join_rx read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm0-addr">
-<h3>PIO_SFR_SM0_ADDR<a class="headerlink" href="#pio-sfr-sm0-addr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm0-addr">
+<h3>PIO_SFR_SM0_ADDR<a class="headerlink" href="#pio-sfr-sm0-addr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xd4 = 0x402020d4</cite></p>
 <blockquote>
 <div>
@@ -2159,23 +2418,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PC</p></td>
-<td><p>pc read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PC</td>
+<td>pc read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm0-instr">
-<h3>PIO_SFR_SM0_INSTR<a class="headerlink" href="#pio-sfr-sm0-instr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm0-instr">
+<h3>PIO_SFR_SM0_INSTR<a class="headerlink" href="#pio-sfr-sm0-instr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xd8 = 0x402020d8</cite></p>
 <blockquote>
 <div>
@@ -2190,23 +2454,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="19%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>IMM_INSTR</p></td>
-<td><p>imm_instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>IMM_INSTR</td>
+<td>imm_instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm0-pinctrl">
-<h3>PIO_SFR_SM0_PINCTRL<a class="headerlink" href="#pio-sfr-sm0-pinctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm0-pinctrl">
+<h3>PIO_SFR_SM0_PINCTRL<a class="headerlink" href="#pio-sfr-sm0-pinctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xdc = 0x402020dc</cite></p>
 <blockquote>
 <div>
@@ -2226,47 +2495,52 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="24%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PINS_OUT_BASE</p></td>
-<td><p>pins_out_base read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PINS_OUT_BASE</td>
+<td>pins_out_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[9:5]</p></td>
-<td><p>PINS_SET_BASE</p></td>
-<td><p>pins_set_base read/write control register</p></td>
+<tr class="row-odd"><td>[9:5]</td>
+<td>PINS_SET_BASE</td>
+<td>pins_set_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[14:10]</p></td>
-<td><p>PINS_SIDE_BASE</p></td>
-<td><p>pins_side_base read/write control register</p></td>
+<tr class="row-even"><td>[14:10]</td>
+<td>PINS_SIDE_BASE</td>
+<td>pins_side_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[19:15]</p></td>
-<td><p>PINS_IN_BASE</p></td>
-<td><p>pins_in_base read/write control register</p></td>
+<tr class="row-odd"><td>[19:15]</td>
+<td>PINS_IN_BASE</td>
+<td>pins_in_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[25:20]</p></td>
-<td><p>PINS_OUT_COUNT</p></td>
-<td><p>pins_out_count read/write control register</p></td>
+<tr class="row-even"><td>[25:20]</td>
+<td>PINS_OUT_COUNT</td>
+<td>pins_out_count read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[28:26]</p></td>
-<td><p>PINS_SET_COUNT</p></td>
-<td><p>pins_set_count read/write control register</p></td>
+<tr class="row-odd"><td>[28:26]</td>
+<td>PINS_SET_COUNT</td>
+<td>pins_set_count read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:29]</p></td>
-<td><p>PINS_SIDE_COUNT</p></td>
-<td><p>pins_side_count read/write control register</p></td>
+<tr class="row-even"><td>[31:29]</td>
+<td>PINS_SIDE_COUNT</td>
+<td>pins_side_count read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm1-clkdiv">
-<h3>PIO_SFR_SM1_CLKDIV<a class="headerlink" href="#pio-sfr-sm1-clkdiv" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm1-clkdiv">
+<h3>PIO_SFR_SM1_CLKDIV<a class="headerlink" href="#pio-sfr-sm1-clkdiv" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xe0 = 0x402020e0</cite></p>
 <blockquote>
 <div>
@@ -2282,31 +2556,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="20%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>UNUSED_DIV</p></td>
-<td><p>unused_div read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>UNUSED_DIV</td>
+<td>unused_div read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[15:8]</p></td>
-<td><p>DIV_FRAC</p></td>
-<td><p>div_frac read/write control register</p></td>
+<tr class="row-odd"><td>[15:8]</td>
+<td>DIV_FRAC</td>
+<td>div_frac read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:16]</p></td>
-<td><p>DIV_INT</p></td>
-<td><p>div_int read/write control register</p></td>
+<tr class="row-even"><td>[31:16]</td>
+<td>DIV_INT</td>
+<td>div_int read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm1-execctrl">
-<h3>PIO_SFR_SM1_EXECCTRL<a class="headerlink" href="#pio-sfr-sm1-execctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm1-execctrl">
+<h3>PIO_SFR_SM1_EXECCTRL<a class="headerlink" href="#pio-sfr-sm1-execctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xe4 = 0x402020e4</cite></p>
 <blockquote>
 <div>
@@ -2331,67 +2610,72 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="26%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>STATUS_N</p></td>
-<td><p>status_n read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>STATUS_N</td>
+<td>status_n read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[4]</p></td>
-<td><p>STATUS_SEL</p></td>
-<td><p>status_sel read/write control register</p></td>
+<tr class="row-odd"><td>[4]</td>
+<td>STATUS_SEL</td>
+<td>status_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[6:5]</p></td>
-<td><p>RESVD_EXEC</p></td>
-<td><p>resvd_exec read/write control register</p></td>
+<tr class="row-even"><td>[6:5]</td>
+<td>RESVD_EXEC</td>
+<td>resvd_exec read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[11:7]</p></td>
-<td><p>WRAP_TARGET</p></td>
-<td><p>wrap_target read/write control register</p></td>
+<tr class="row-odd"><td>[11:7]</td>
+<td>WRAP_TARGET</td>
+<td>wrap_target read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[16:12]</p></td>
-<td><p>PEND</p></td>
-<td><p>pend read/write control register</p></td>
+<tr class="row-even"><td>[16:12]</td>
+<td>PEND</td>
+<td>pend read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[17]</p></td>
-<td><p>OUT_STICKY</p></td>
-<td><p>out_sticky read/write control register</p></td>
+<tr class="row-odd"><td>[17]</td>
+<td>OUT_STICKY</td>
+<td>out_sticky read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[18]</p></td>
-<td><p>INLINE_OUT_EN</p></td>
-<td><p>inline_out_en read/write control register</p></td>
+<tr class="row-even"><td>[18]</td>
+<td>INLINE_OUT_EN</td>
+<td>inline_out_en read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[23:19]</p></td>
-<td><p>OUT_EN_SEL</p></td>
-<td><p>out_en_sel read/write control register</p></td>
+<tr class="row-odd"><td>[23:19]</td>
+<td>OUT_EN_SEL</td>
+<td>out_en_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[28:24]</p></td>
-<td><p>JMP_PIN</p></td>
-<td><p>jmp_pin read/write control register</p></td>
+<tr class="row-even"><td>[28:24]</td>
+<td>JMP_PIN</td>
+<td>jmp_pin read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[29]</p></td>
-<td><p>SIDE_PINDIR</p></td>
-<td><p>side_pindir read/write control register</p></td>
+<tr class="row-odd"><td>[29]</td>
+<td>SIDE_PINDIR</td>
+<td>side_pindir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[30]</p></td>
-<td><p>SIDESET_ENABLE_BIT</p></td>
-<td><p>sideset_enable_bit read/write control register</p></td>
+<tr class="row-even"><td>[30]</td>
+<td>SIDESET_ENABLE_BIT</td>
+<td>sideset_enable_bit read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[31]</p></td>
-<td><p>EXEC_STALLED</p></td>
-<td><p>exec_stalled read/write control register</p></td>
+<tr class="row-odd"><td>[31]</td>
+<td>EXEC_STALLED</td>
+<td>exec_stalled read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm1-shiftctrl">
-<h3>PIO_SFR_SM1_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm1-shiftctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm1-shiftctrl">
+<h3>PIO_SFR_SM1_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm1-shiftctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xe8 = 0x402020e8</cite></p>
 <blockquote>
 <div>
@@ -2413,55 +2697,60 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>RESVD_SHIFT</p></td>
-<td><p>resvd_shift read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>RESVD_SHIFT</td>
+<td>resvd_shift read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[16]</p></td>
-<td><p>AUTO_PUSH</p></td>
-<td><p>auto_push read/write control register</p></td>
+<tr class="row-odd"><td>[16]</td>
+<td>AUTO_PUSH</td>
+<td>auto_push read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[17]</p></td>
-<td><p>AUTO_PULL</p></td>
-<td><p>auto_pull read/write control register</p></td>
+<tr class="row-even"><td>[17]</td>
+<td>AUTO_PULL</td>
+<td>auto_pull read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[18]</p></td>
-<td><p>IN_SHIFT_DIR</p></td>
-<td><p>in_shift_dir read/write control register</p></td>
+<tr class="row-odd"><td>[18]</td>
+<td>IN_SHIFT_DIR</td>
+<td>in_shift_dir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[19]</p></td>
-<td><p>OUT_SHIFT_DIR</p></td>
-<td><p>out_shift_dir read/write control register</p></td>
+<tr class="row-even"><td>[19]</td>
+<td>OUT_SHIFT_DIR</td>
+<td>out_shift_dir read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[24:20]</p></td>
-<td><p>ISR_THRESHOLD</p></td>
-<td><p>isr_threshold read/write control register</p></td>
+<tr class="row-odd"><td>[24:20]</td>
+<td>ISR_THRESHOLD</td>
+<td>isr_threshold read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[29:25]</p></td>
-<td><p>OSR_THRESHOLD</p></td>
-<td><p>osr_threshold read/write control register</p></td>
+<tr class="row-even"><td>[29:25]</td>
+<td>OSR_THRESHOLD</td>
+<td>osr_threshold read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[30]</p></td>
-<td><p>JOIN_TX</p></td>
-<td><p>join_tx read/write control register</p></td>
+<tr class="row-odd"><td>[30]</td>
+<td>JOIN_TX</td>
+<td>join_tx read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31]</p></td>
-<td><p>JOIN_RX</p></td>
-<td><p>join_rx read/write control register</p></td>
+<tr class="row-even"><td>[31]</td>
+<td>JOIN_RX</td>
+<td>join_rx read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm1-addr">
-<h3>PIO_SFR_SM1_ADDR<a class="headerlink" href="#pio-sfr-sm1-addr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm1-addr">
+<h3>PIO_SFR_SM1_ADDR<a class="headerlink" href="#pio-sfr-sm1-addr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xec = 0x402020ec</cite></p>
 <blockquote>
 <div>
@@ -2476,23 +2765,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PC</p></td>
-<td><p>pc read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PC</td>
+<td>pc read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm1-instr">
-<h3>PIO_SFR_SM1_INSTR<a class="headerlink" href="#pio-sfr-sm1-instr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm1-instr">
+<h3>PIO_SFR_SM1_INSTR<a class="headerlink" href="#pio-sfr-sm1-instr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xf0 = 0x402020f0</cite></p>
 <blockquote>
 <div>
@@ -2507,23 +2801,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="19%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>IMM_INSTR</p></td>
-<td><p>imm_instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>IMM_INSTR</td>
+<td>imm_instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm1-pinctrl">
-<h3>PIO_SFR_SM1_PINCTRL<a class="headerlink" href="#pio-sfr-sm1-pinctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm1-pinctrl">
+<h3>PIO_SFR_SM1_PINCTRL<a class="headerlink" href="#pio-sfr-sm1-pinctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xf4 = 0x402020f4</cite></p>
 <blockquote>
 <div>
@@ -2543,47 +2842,52 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="24%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PINS_OUT_BASE</p></td>
-<td><p>pins_out_base read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PINS_OUT_BASE</td>
+<td>pins_out_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[9:5]</p></td>
-<td><p>PINS_SET_BASE</p></td>
-<td><p>pins_set_base read/write control register</p></td>
+<tr class="row-odd"><td>[9:5]</td>
+<td>PINS_SET_BASE</td>
+<td>pins_set_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[14:10]</p></td>
-<td><p>PINS_SIDE_BASE</p></td>
-<td><p>pins_side_base read/write control register</p></td>
+<tr class="row-even"><td>[14:10]</td>
+<td>PINS_SIDE_BASE</td>
+<td>pins_side_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[19:15]</p></td>
-<td><p>PINS_IN_BASE</p></td>
-<td><p>pins_in_base read/write control register</p></td>
+<tr class="row-odd"><td>[19:15]</td>
+<td>PINS_IN_BASE</td>
+<td>pins_in_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[25:20]</p></td>
-<td><p>PINS_OUT_COUNT</p></td>
-<td><p>pins_out_count read/write control register</p></td>
+<tr class="row-even"><td>[25:20]</td>
+<td>PINS_OUT_COUNT</td>
+<td>pins_out_count read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[28:26]</p></td>
-<td><p>PINS_SET_COUNT</p></td>
-<td><p>pins_set_count read/write control register</p></td>
+<tr class="row-odd"><td>[28:26]</td>
+<td>PINS_SET_COUNT</td>
+<td>pins_set_count read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:29]</p></td>
-<td><p>PINS_SIDE_COUNT</p></td>
-<td><p>pins_side_count read/write control register</p></td>
+<tr class="row-even"><td>[31:29]</td>
+<td>PINS_SIDE_COUNT</td>
+<td>pins_side_count read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm2-clkdiv">
-<h3>PIO_SFR_SM2_CLKDIV<a class="headerlink" href="#pio-sfr-sm2-clkdiv" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm2-clkdiv">
+<h3>PIO_SFR_SM2_CLKDIV<a class="headerlink" href="#pio-sfr-sm2-clkdiv" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xf8 = 0x402020f8</cite></p>
 <blockquote>
 <div>
@@ -2599,31 +2903,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="20%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>UNUSED_DIV</p></td>
-<td><p>unused_div read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>UNUSED_DIV</td>
+<td>unused_div read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[15:8]</p></td>
-<td><p>DIV_FRAC</p></td>
-<td><p>div_frac read/write control register</p></td>
+<tr class="row-odd"><td>[15:8]</td>
+<td>DIV_FRAC</td>
+<td>div_frac read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:16]</p></td>
-<td><p>DIV_INT</p></td>
-<td><p>div_int read/write control register</p></td>
+<tr class="row-even"><td>[31:16]</td>
+<td>DIV_INT</td>
+<td>div_int read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm2-execctrl">
-<h3>PIO_SFR_SM2_EXECCTRL<a class="headerlink" href="#pio-sfr-sm2-execctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm2-execctrl">
+<h3>PIO_SFR_SM2_EXECCTRL<a class="headerlink" href="#pio-sfr-sm2-execctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0xfc = 0x402020fc</cite></p>
 <blockquote>
 <div>
@@ -2648,67 +2957,72 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="26%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>STATUS_N</p></td>
-<td><p>status_n read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>STATUS_N</td>
+<td>status_n read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[4]</p></td>
-<td><p>STATUS_SEL</p></td>
-<td><p>status_sel read/write control register</p></td>
+<tr class="row-odd"><td>[4]</td>
+<td>STATUS_SEL</td>
+<td>status_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[6:5]</p></td>
-<td><p>RESVD_EXEC</p></td>
-<td><p>resvd_exec read/write control register</p></td>
+<tr class="row-even"><td>[6:5]</td>
+<td>RESVD_EXEC</td>
+<td>resvd_exec read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[11:7]</p></td>
-<td><p>WRAP_TARGET</p></td>
-<td><p>wrap_target read/write control register</p></td>
+<tr class="row-odd"><td>[11:7]</td>
+<td>WRAP_TARGET</td>
+<td>wrap_target read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[16:12]</p></td>
-<td><p>PEND</p></td>
-<td><p>pend read/write control register</p></td>
+<tr class="row-even"><td>[16:12]</td>
+<td>PEND</td>
+<td>pend read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[17]</p></td>
-<td><p>OUT_STICKY</p></td>
-<td><p>out_sticky read/write control register</p></td>
+<tr class="row-odd"><td>[17]</td>
+<td>OUT_STICKY</td>
+<td>out_sticky read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[18]</p></td>
-<td><p>INLINE_OUT_EN</p></td>
-<td><p>inline_out_en read/write control register</p></td>
+<tr class="row-even"><td>[18]</td>
+<td>INLINE_OUT_EN</td>
+<td>inline_out_en read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[23:19]</p></td>
-<td><p>OUT_EN_SEL</p></td>
-<td><p>out_en_sel read/write control register</p></td>
+<tr class="row-odd"><td>[23:19]</td>
+<td>OUT_EN_SEL</td>
+<td>out_en_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[28:24]</p></td>
-<td><p>JMP_PIN</p></td>
-<td><p>jmp_pin read/write control register</p></td>
+<tr class="row-even"><td>[28:24]</td>
+<td>JMP_PIN</td>
+<td>jmp_pin read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[29]</p></td>
-<td><p>SIDE_PINDIR</p></td>
-<td><p>side_pindir read/write control register</p></td>
+<tr class="row-odd"><td>[29]</td>
+<td>SIDE_PINDIR</td>
+<td>side_pindir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[30]</p></td>
-<td><p>SIDESET_ENABLE_BIT</p></td>
-<td><p>sideset_enable_bit read/write control register</p></td>
+<tr class="row-even"><td>[30]</td>
+<td>SIDESET_ENABLE_BIT</td>
+<td>sideset_enable_bit read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[31]</p></td>
-<td><p>EXEC_STALLED</p></td>
-<td><p>exec_stalled read/write control register</p></td>
+<tr class="row-odd"><td>[31]</td>
+<td>EXEC_STALLED</td>
+<td>exec_stalled read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm2-shiftctrl">
-<h3>PIO_SFR_SM2_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm2-shiftctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm2-shiftctrl">
+<h3>PIO_SFR_SM2_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm2-shiftctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x100 = 0x40202100</cite></p>
 <blockquote>
 <div>
@@ -2730,55 +3044,60 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>RESVD_SHIFT</p></td>
-<td><p>resvd_shift read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>RESVD_SHIFT</td>
+<td>resvd_shift read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[16]</p></td>
-<td><p>AUTO_PUSH</p></td>
-<td><p>auto_push read/write control register</p></td>
+<tr class="row-odd"><td>[16]</td>
+<td>AUTO_PUSH</td>
+<td>auto_push read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[17]</p></td>
-<td><p>AUTO_PULL</p></td>
-<td><p>auto_pull read/write control register</p></td>
+<tr class="row-even"><td>[17]</td>
+<td>AUTO_PULL</td>
+<td>auto_pull read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[18]</p></td>
-<td><p>IN_SHIFT_DIR</p></td>
-<td><p>in_shift_dir read/write control register</p></td>
+<tr class="row-odd"><td>[18]</td>
+<td>IN_SHIFT_DIR</td>
+<td>in_shift_dir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[19]</p></td>
-<td><p>OUT_SHIFT_DIR</p></td>
-<td><p>out_shift_dir read/write control register</p></td>
+<tr class="row-even"><td>[19]</td>
+<td>OUT_SHIFT_DIR</td>
+<td>out_shift_dir read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[24:20]</p></td>
-<td><p>ISR_THRESHOLD</p></td>
-<td><p>isr_threshold read/write control register</p></td>
+<tr class="row-odd"><td>[24:20]</td>
+<td>ISR_THRESHOLD</td>
+<td>isr_threshold read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[29:25]</p></td>
-<td><p>OSR_THRESHOLD</p></td>
-<td><p>osr_threshold read/write control register</p></td>
+<tr class="row-even"><td>[29:25]</td>
+<td>OSR_THRESHOLD</td>
+<td>osr_threshold read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[30]</p></td>
-<td><p>JOIN_TX</p></td>
-<td><p>join_tx read/write control register</p></td>
+<tr class="row-odd"><td>[30]</td>
+<td>JOIN_TX</td>
+<td>join_tx read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31]</p></td>
-<td><p>JOIN_RX</p></td>
-<td><p>join_rx read/write control register</p></td>
+<tr class="row-even"><td>[31]</td>
+<td>JOIN_RX</td>
+<td>join_rx read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm2-addr">
-<h3>PIO_SFR_SM2_ADDR<a class="headerlink" href="#pio-sfr-sm2-addr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm2-addr">
+<h3>PIO_SFR_SM2_ADDR<a class="headerlink" href="#pio-sfr-sm2-addr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x104 = 0x40202104</cite></p>
 <blockquote>
 <div>
@@ -2793,23 +3112,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PC</p></td>
-<td><p>pc read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PC</td>
+<td>pc read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm2-instr">
-<h3>PIO_SFR_SM2_INSTR<a class="headerlink" href="#pio-sfr-sm2-instr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm2-instr">
+<h3>PIO_SFR_SM2_INSTR<a class="headerlink" href="#pio-sfr-sm2-instr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x108 = 0x40202108</cite></p>
 <blockquote>
 <div>
@@ -2824,23 +3148,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="19%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>IMM_INSTR</p></td>
-<td><p>imm_instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>IMM_INSTR</td>
+<td>imm_instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm2-pinctrl">
-<h3>PIO_SFR_SM2_PINCTRL<a class="headerlink" href="#pio-sfr-sm2-pinctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm2-pinctrl">
+<h3>PIO_SFR_SM2_PINCTRL<a class="headerlink" href="#pio-sfr-sm2-pinctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x10c = 0x4020210c</cite></p>
 <blockquote>
 <div>
@@ -2860,47 +3189,52 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="24%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PINS_OUT_BASE</p></td>
-<td><p>pins_out_base read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PINS_OUT_BASE</td>
+<td>pins_out_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[9:5]</p></td>
-<td><p>PINS_SET_BASE</p></td>
-<td><p>pins_set_base read/write control register</p></td>
+<tr class="row-odd"><td>[9:5]</td>
+<td>PINS_SET_BASE</td>
+<td>pins_set_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[14:10]</p></td>
-<td><p>PINS_SIDE_BASE</p></td>
-<td><p>pins_side_base read/write control register</p></td>
+<tr class="row-even"><td>[14:10]</td>
+<td>PINS_SIDE_BASE</td>
+<td>pins_side_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[19:15]</p></td>
-<td><p>PINS_IN_BASE</p></td>
-<td><p>pins_in_base read/write control register</p></td>
+<tr class="row-odd"><td>[19:15]</td>
+<td>PINS_IN_BASE</td>
+<td>pins_in_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[25:20]</p></td>
-<td><p>PINS_OUT_COUNT</p></td>
-<td><p>pins_out_count read/write control register</p></td>
+<tr class="row-even"><td>[25:20]</td>
+<td>PINS_OUT_COUNT</td>
+<td>pins_out_count read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[28:26]</p></td>
-<td><p>PINS_SET_COUNT</p></td>
-<td><p>pins_set_count read/write control register</p></td>
+<tr class="row-odd"><td>[28:26]</td>
+<td>PINS_SET_COUNT</td>
+<td>pins_set_count read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:29]</p></td>
-<td><p>PINS_SIDE_COUNT</p></td>
-<td><p>pins_side_count read/write control register</p></td>
+<tr class="row-even"><td>[31:29]</td>
+<td>PINS_SIDE_COUNT</td>
+<td>pins_side_count read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm3-clkdiv">
-<h3>PIO_SFR_SM3_CLKDIV<a class="headerlink" href="#pio-sfr-sm3-clkdiv" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm3-clkdiv">
+<h3>PIO_SFR_SM3_CLKDIV<a class="headerlink" href="#pio-sfr-sm3-clkdiv" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x110 = 0x40202110</cite></p>
 <blockquote>
 <div>
@@ -2916,31 +3250,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="20%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>UNUSED_DIV</p></td>
-<td><p>unused_div read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[7:0]</td>
+<td>UNUSED_DIV</td>
+<td>unused_div read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[15:8]</p></td>
-<td><p>DIV_FRAC</p></td>
-<td><p>div_frac read/write control register</p></td>
+<tr class="row-odd"><td>[15:8]</td>
+<td>DIV_FRAC</td>
+<td>div_frac read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:16]</p></td>
-<td><p>DIV_INT</p></td>
-<td><p>div_int read/write control register</p></td>
+<tr class="row-even"><td>[31:16]</td>
+<td>DIV_INT</td>
+<td>div_int read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm3-execctrl">
-<h3>PIO_SFR_SM3_EXECCTRL<a class="headerlink" href="#pio-sfr-sm3-execctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm3-execctrl">
+<h3>PIO_SFR_SM3_EXECCTRL<a class="headerlink" href="#pio-sfr-sm3-execctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x114 = 0x40202114</cite></p>
 <blockquote>
 <div>
@@ -2965,67 +3304,72 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="26%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>STATUS_N</p></td>
-<td><p>status_n read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>STATUS_N</td>
+<td>status_n read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[4]</p></td>
-<td><p>STATUS_SEL</p></td>
-<td><p>status_sel read/write control register</p></td>
+<tr class="row-odd"><td>[4]</td>
+<td>STATUS_SEL</td>
+<td>status_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[6:5]</p></td>
-<td><p>RESVD_EXEC</p></td>
-<td><p>resvd_exec read/write control register</p></td>
+<tr class="row-even"><td>[6:5]</td>
+<td>RESVD_EXEC</td>
+<td>resvd_exec read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[11:7]</p></td>
-<td><p>WRAP_TARGET</p></td>
-<td><p>wrap_target read/write control register</p></td>
+<tr class="row-odd"><td>[11:7]</td>
+<td>WRAP_TARGET</td>
+<td>wrap_target read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[16:12]</p></td>
-<td><p>PEND</p></td>
-<td><p>pend read/write control register</p></td>
+<tr class="row-even"><td>[16:12]</td>
+<td>PEND</td>
+<td>pend read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[17]</p></td>
-<td><p>OUT_STICKY</p></td>
-<td><p>out_sticky read/write control register</p></td>
+<tr class="row-odd"><td>[17]</td>
+<td>OUT_STICKY</td>
+<td>out_sticky read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[18]</p></td>
-<td><p>INLINE_OUT_EN</p></td>
-<td><p>inline_out_en read/write control register</p></td>
+<tr class="row-even"><td>[18]</td>
+<td>INLINE_OUT_EN</td>
+<td>inline_out_en read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[23:19]</p></td>
-<td><p>OUT_EN_SEL</p></td>
-<td><p>out_en_sel read/write control register</p></td>
+<tr class="row-odd"><td>[23:19]</td>
+<td>OUT_EN_SEL</td>
+<td>out_en_sel read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[28:24]</p></td>
-<td><p>JMP_PIN</p></td>
-<td><p>jmp_pin read/write control register</p></td>
+<tr class="row-even"><td>[28:24]</td>
+<td>JMP_PIN</td>
+<td>jmp_pin read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[29]</p></td>
-<td><p>SIDE_PINDIR</p></td>
-<td><p>side_pindir read/write control register</p></td>
+<tr class="row-odd"><td>[29]</td>
+<td>SIDE_PINDIR</td>
+<td>side_pindir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[30]</p></td>
-<td><p>SIDESET_ENABLE_BIT</p></td>
-<td><p>sideset_enable_bit read/write control register</p></td>
+<tr class="row-even"><td>[30]</td>
+<td>SIDESET_ENABLE_BIT</td>
+<td>sideset_enable_bit read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[31]</p></td>
-<td><p>EXEC_STALLED</p></td>
-<td><p>exec_stalled read/write control register</p></td>
+<tr class="row-odd"><td>[31]</td>
+<td>EXEC_STALLED</td>
+<td>exec_stalled read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm3-shiftctrl">
-<h3>PIO_SFR_SM3_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm3-shiftctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm3-shiftctrl">
+<h3>PIO_SFR_SM3_SHIFTCTRL<a class="headerlink" href="#pio-sfr-sm3-shiftctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x118 = 0x40202118</cite></p>
 <blockquote>
 <div>
@@ -3047,55 +3391,60 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>RESVD_SHIFT</p></td>
-<td><p>resvd_shift read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>RESVD_SHIFT</td>
+<td>resvd_shift read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[16]</p></td>
-<td><p>AUTO_PUSH</p></td>
-<td><p>auto_push read/write control register</p></td>
+<tr class="row-odd"><td>[16]</td>
+<td>AUTO_PUSH</td>
+<td>auto_push read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[17]</p></td>
-<td><p>AUTO_PULL</p></td>
-<td><p>auto_pull read/write control register</p></td>
+<tr class="row-even"><td>[17]</td>
+<td>AUTO_PULL</td>
+<td>auto_pull read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[18]</p></td>
-<td><p>IN_SHIFT_DIR</p></td>
-<td><p>in_shift_dir read/write control register</p></td>
+<tr class="row-odd"><td>[18]</td>
+<td>IN_SHIFT_DIR</td>
+<td>in_shift_dir read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[19]</p></td>
-<td><p>OUT_SHIFT_DIR</p></td>
-<td><p>out_shift_dir read/write control register</p></td>
+<tr class="row-even"><td>[19]</td>
+<td>OUT_SHIFT_DIR</td>
+<td>out_shift_dir read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[24:20]</p></td>
-<td><p>ISR_THRESHOLD</p></td>
-<td><p>isr_threshold read/write control register</p></td>
+<tr class="row-odd"><td>[24:20]</td>
+<td>ISR_THRESHOLD</td>
+<td>isr_threshold read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[29:25]</p></td>
-<td><p>OSR_THRESHOLD</p></td>
-<td><p>osr_threshold read/write control register</p></td>
+<tr class="row-even"><td>[29:25]</td>
+<td>OSR_THRESHOLD</td>
+<td>osr_threshold read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[30]</p></td>
-<td><p>JOIN_TX</p></td>
-<td><p>join_tx read/write control register</p></td>
+<tr class="row-odd"><td>[30]</td>
+<td>JOIN_TX</td>
+<td>join_tx read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31]</p></td>
-<td><p>JOIN_RX</p></td>
-<td><p>join_rx read/write control register</p></td>
+<tr class="row-even"><td>[31]</td>
+<td>JOIN_RX</td>
+<td>join_rx read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm3-addr">
-<h3>PIO_SFR_SM3_ADDR<a class="headerlink" href="#pio-sfr-sm3-addr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm3-addr">
+<h3>PIO_SFR_SM3_ADDR<a class="headerlink" href="#pio-sfr-sm3-addr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x11c = 0x4020211c</cite></p>
 <blockquote>
 <div>
@@ -3110,23 +3459,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="14%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PC</p></td>
-<td><p>pc read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PC</td>
+<td>pc read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm3-instr">
-<h3>PIO_SFR_SM3_INSTR<a class="headerlink" href="#pio-sfr-sm3-instr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm3-instr">
+<h3>PIO_SFR_SM3_INSTR<a class="headerlink" href="#pio-sfr-sm3-instr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x120 = 0x40202120</cite></p>
 <blockquote>
 <div>
@@ -3141,23 +3495,28 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="19%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[15:0]</p></td>
-<td><p>IMM_INSTR</p></td>
-<td><p>imm_instr read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>IMM_INSTR</td>
+<td>imm_instr read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-sm3-pinctrl">
-<h3>PIO_SFR_SM3_PINCTRL<a class="headerlink" href="#pio-sfr-sm3-pinctrl" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-sm3-pinctrl">
+<h3>PIO_SFR_SM3_PINCTRL<a class="headerlink" href="#pio-sfr-sm3-pinctrl" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x124 = 0x40202124</cite></p>
 <blockquote>
 <div>
@@ -3177,47 +3536,52 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="24%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[4:0]</p></td>
-<td><p>PINS_OUT_BASE</p></td>
-<td><p>pins_out_base read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[4:0]</td>
+<td>PINS_OUT_BASE</td>
+<td>pins_out_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[9:5]</p></td>
-<td><p>PINS_SET_BASE</p></td>
-<td><p>pins_set_base read/write control register</p></td>
+<tr class="row-odd"><td>[9:5]</td>
+<td>PINS_SET_BASE</td>
+<td>pins_set_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[14:10]</p></td>
-<td><p>PINS_SIDE_BASE</p></td>
-<td><p>pins_side_base read/write control register</p></td>
+<tr class="row-even"><td>[14:10]</td>
+<td>PINS_SIDE_BASE</td>
+<td>pins_side_base read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[19:15]</p></td>
-<td><p>PINS_IN_BASE</p></td>
-<td><p>pins_in_base read/write control register</p></td>
+<tr class="row-odd"><td>[19:15]</td>
+<td>PINS_IN_BASE</td>
+<td>pins_in_base read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[25:20]</p></td>
-<td><p>PINS_OUT_COUNT</p></td>
-<td><p>pins_out_count read/write control register</p></td>
+<tr class="row-even"><td>[25:20]</td>
+<td>PINS_OUT_COUNT</td>
+<td>pins_out_count read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[28:26]</p></td>
-<td><p>PINS_SET_COUNT</p></td>
-<td><p>pins_set_count read/write control register</p></td>
+<tr class="row-odd"><td>[28:26]</td>
+<td>PINS_SET_COUNT</td>
+<td>pins_set_count read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[31:29]</p></td>
-<td><p>PINS_SIDE_COUNT</p></td>
-<td><p>pins_side_count read/write control register</p></td>
+<tr class="row-even"><td>[31:29]</td>
+<td>PINS_SIDE_COUNT</td>
+<td>pins_side_count read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-intr">
-<h3>PIO_SFR_INTR<a class="headerlink" href="#pio-sfr-intr" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-intr">
+<h3>PIO_SFR_INTR<a class="headerlink" href="#pio-sfr-intr" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x128 = 0x40202128</cite></p>
 <blockquote>
 <div>
@@ -3234,31 +3598,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="23%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>INTR_RXNEMPTY</p></td>
-<td><p>intr_rxnempty read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>INTR_RXNEMPTY</td>
+<td>intr_rxnempty read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>INTR_TXNFULL</p></td>
-<td><p>intr_txnfull read only status register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>INTR_TXNFULL</td>
+<td>intr_txnfull read only status register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>INTR_SM</p></td>
-<td><p>intr_sm read only status register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>INTR_SM</td>
+<td>intr_sm read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq0-inte">
-<h3>PIO_SFR_IRQ0_INTE<a class="headerlink" href="#pio-sfr-irq0-inte" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq0-inte">
+<h3>PIO_SFR_IRQ0_INTE<a class="headerlink" href="#pio-sfr-irq0-inte" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x12c = 0x4020212c</cite></p>
 <blockquote>
 <div>
@@ -3275,31 +3644,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="26%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>IRQ0_INTE_RXNEMPTY</p></td>
-<td><p>irq0_inte_rxnempty read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>IRQ0_INTE_RXNEMPTY</td>
+<td>irq0_inte_rxnempty read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>IRQ0_INTE_TXNFULL</p></td>
-<td><p>irq0_inte_txnfull read/write control register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>IRQ0_INTE_TXNFULL</td>
+<td>irq0_inte_txnfull read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>IRQ0_INTE_SM</p></td>
-<td><p>irq0_inte_sm read/write control register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>IRQ0_INTE_SM</td>
+<td>irq0_inte_sm read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq0-intf">
-<h3>PIO_SFR_IRQ0_INTF<a class="headerlink" href="#pio-sfr-irq0-intf" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq0-intf">
+<h3>PIO_SFR_IRQ0_INTF<a class="headerlink" href="#pio-sfr-irq0-intf" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x130 = 0x40202130</cite></p>
 <blockquote>
 <div>
@@ -3316,31 +3690,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="26%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>IRQ0_INTF_RXNEMPTY</p></td>
-<td><p>irq0_intf_rxnempty read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>IRQ0_INTF_RXNEMPTY</td>
+<td>irq0_intf_rxnempty read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>IRQ0_INTF_TXNFULL</p></td>
-<td><p>irq0_intf_txnfull read/write control register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>IRQ0_INTF_TXNFULL</td>
+<td>irq0_intf_txnfull read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>IRQ0_INTF_SM</p></td>
-<td><p>irq0_intf_sm read/write control register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>IRQ0_INTF_SM</td>
+<td>irq0_intf_sm read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq0-ints">
-<h3>PIO_SFR_IRQ0_INTS<a class="headerlink" href="#pio-sfr-irq0-ints" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq0-ints">
+<h3>PIO_SFR_IRQ0_INTS<a class="headerlink" href="#pio-sfr-irq0-ints" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x134 = 0x40202134</cite></p>
 <blockquote>
 <div>
@@ -3357,31 +3736,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="27%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>IRQ0_INTS_RXNEMPTY</p></td>
-<td><p>irq0_ints_rxnempty read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>IRQ0_INTS_RXNEMPTY</td>
+<td>irq0_ints_rxnempty read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>IRQ0_INTS_TXNFULL</p></td>
-<td><p>irq0_ints_txnfull read only status register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>IRQ0_INTS_TXNFULL</td>
+<td>irq0_ints_txnfull read only status register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>IRQ0_INTS_SM</p></td>
-<td><p>irq0_ints_sm read only status register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>IRQ0_INTS_SM</td>
+<td>irq0_ints_sm read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq1-inte">
-<h3>PIO_SFR_IRQ1_INTE<a class="headerlink" href="#pio-sfr-irq1-inte" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq1-inte">
+<h3>PIO_SFR_IRQ1_INTE<a class="headerlink" href="#pio-sfr-irq1-inte" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x138 = 0x40202138</cite></p>
 <blockquote>
 <div>
@@ -3398,31 +3782,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="26%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>IRQ1_INTE_RXNEMPTY</p></td>
-<td><p>irq1_inte_rxnempty read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>IRQ1_INTE_RXNEMPTY</td>
+<td>irq1_inte_rxnempty read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>IRQ1_INTE_TXNFULL</p></td>
-<td><p>irq1_inte_txnfull read/write control register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>IRQ1_INTE_TXNFULL</td>
+<td>irq1_inte_txnfull read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>IRQ1_INTE_SM</p></td>
-<td><p>irq1_inte_sm read/write control register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>IRQ1_INTE_SM</td>
+<td>irq1_inte_sm read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq1-intf">
-<h3>PIO_SFR_IRQ1_INTF<a class="headerlink" href="#pio-sfr-irq1-intf" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq1-intf">
+<h3>PIO_SFR_IRQ1_INTF<a class="headerlink" href="#pio-sfr-irq1-intf" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x13c = 0x4020213c</cite></p>
 <blockquote>
 <div>
@@ -3439,31 +3828,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="26%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>IRQ1_INTF_RXNEMPTY</p></td>
-<td><p>irq1_intf_rxnempty read/write control register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>IRQ1_INTF_RXNEMPTY</td>
+<td>irq1_intf_rxnempty read/write control register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>IRQ1_INTF_TXNFULL</p></td>
-<td><p>irq1_intf_txnfull read/write control register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>IRQ1_INTF_TXNFULL</td>
+<td>irq1_intf_txnfull read/write control register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>IRQ1_INTF_SM</p></td>
-<td><p>irq1_intf_sm read/write control register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>IRQ1_INTF_SM</td>
+<td>irq1_intf_sm read/write control register</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pio-sfr-irq1-ints">
-<h3>PIO_SFR_IRQ1_INTS<a class="headerlink" href="#pio-sfr-irq1-ints" title="Permalink to this heading">¶</a></h3>
+</div>
+<div class="section" id="pio-sfr-irq1-ints">
+<h3>PIO_SFR_IRQ1_INTS<a class="headerlink" href="#pio-sfr-irq1-ints" title="Permalink to this headline">¶</a></h3>
 <p><cite>Address: 0x40202000 + 0x140 = 0x40202140</cite></p>
 <blockquote>
 <div>
@@ -3480,31 +3874,36 @@
 </script>
 </div>
 </div></blockquote>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="27%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>[3:0]</p></td>
-<td><p>IRQ1_INTS_RXNEMPTY</p></td>
-<td><p>irq1_ints_rxnempty read only status register</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>[3:0]</td>
+<td>IRQ1_INTS_RXNEMPTY</td>
+<td>irq1_ints_rxnempty read only status register</td>
 </tr>
-<tr class="row-odd"><td><p>[7:4]</p></td>
-<td><p>IRQ1_INTS_TXNFULL</p></td>
-<td><p>irq1_ints_txnfull read only status register</p></td>
+<tr class="row-odd"><td>[7:4]</td>
+<td>IRQ1_INTS_TXNFULL</td>
+<td>irq1_ints_txnfull read only status register</td>
 </tr>
-<tr class="row-even"><td><p>[11:8]</p></td>
-<td><p>IRQ1_INTS_SM</p></td>
-<td><p>irq1_ints_sm read only status register</p></td>
+<tr class="row-even"><td>[11:8]</td>
+<td>IRQ1_INTS_SM</td>
+<td>irq1_ints_sm read only status register</td>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
     <script type="text/javascript">
         function init() {
@@ -3514,7 +3913,6 @@
     </script>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -3532,36 +3930,29 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="interrupts.html">Interrupt Controller</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">PIO</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rp_pio.html">RP_PIO</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="interrupts.html" title="previous chapter">Interrupt Controller</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -3570,8 +3961,8 @@
       &copy;2023, Cramium, Inc..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="_sources/pio.rst.txt"

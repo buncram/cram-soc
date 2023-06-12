@@ -108,7 +108,7 @@ cram_soc dut (
     .jtag_cpu_tms(tms),
     .jtag_cpu_tdi(tdi),
     .jtag_cpu_tdo(tdo),
-    .jtag_cpu_trst(trst),
+    .jtag_cpu_trst_n(~trst),
 
     .serial_tx(serial_tx),
     .serial_rx(serial_rx),
