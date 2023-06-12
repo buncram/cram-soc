@@ -29,7 +29,6 @@ object CramSoCSpinalConfig extends spinal.core.SpinalConfig(
 
 
 case class CramSoCArgConfig(
-  debug : Boolean = true,
   externalInterruptArray : Boolean = true,
   prediction : BranchPrediction = STATIC,
   outputFile : String = "VexRiscv",
@@ -46,22 +45,12 @@ object blackboxSyncOnly extends MemBlackboxingPolicy {
 }
 
 object GenCramSoC{
-  val predictionMap = Map(
-    "none" -> NONE,
-    "static" -> STATIC,
-    "dynamic" -> DYNAMIC,
-    "dynamic_target" -> DYNAMIC_TARGET
-  )
-
   def main(args: Array[String]) {
 
     // Allow arguments to be passed ex:
     // sbt compile "run-main vexriscv.GenCoreDefault -d --iCacheSize=1024"
     val parser = new scopt.OptionParser[CramSoCArgConfig]("VexRiscvGen") {
       //  ex :-d    or   --debug
-      opt[Unit]('d', "debug")    action { (_, c) => c.copy(debug = true)   } text("Enable debug")
-      opt[Int]("hardwareBreakpointCount")     action { (v, c) => c.copy(hardwareBreakpointCount = v) } text("Specify number of hardware breakpoints")
-      opt[String]("prediction")    action { (v, c) => c.copy(prediction = predictionMap(v))   } text("switch between regular CSR and array like one")
       opt[String]("outputFile")    action { (v, c) => c.copy(outputFile = v) } text("output file name")
     }
     val argConfig = parser.parse(args, CramSoCArgConfig()).get
@@ -196,18 +185,18 @@ object GenCramSoC{
             supervisorMaskCsrId = 0x9C0,
             supervisorPendingsCsrId = 0xDC0
           ),
-          new YamlPlugin(argConfig.outputFile.concat(".yaml"))
+          new YamlPlugin(argConfig.outputFile.concat(".yaml")),
+          new DebugPlugin(
+            ClockDomain.current.clone(reset = Bool().setName("debugReset")),
+            hardwareBreakpointCount = 4
+          )
         )
       )
-      // Add in the Debug plugin, if requested
-      if (argConfig.debug) {
-        cpuConfig.plugins += new DebugPlugin(ClockDomain.current.clone(reset = Bool().setName("debugReset")), hardwareBreakpointCount = argConfig.hardwareBreakpointCount)
-      }
 
       // CPU instantiation
       val cpu = new VexRiscv(cpuConfig)
 
-      // CPU modifications to be an AXI4 one
+      // CPU modifications
       cpu.setDefinitionName("VexRiscvAxi4")
       cpu.rework {
         var iBus : Axi4ReadOnly = null
