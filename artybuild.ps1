@@ -10,7 +10,7 @@ riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-
 riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst
 riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/betrusted-boot -S -d | rustfilt >> boot.lst
 
-scp target/riscv32imac-unknown-none-elf/release/betrusted-boot bunnie@192.168.137.37:
+# scp target/riscv32imac-unknown-none-elf/release/betrusted-boot bunnie@192.168.137.37:
 
 cd ..\
 

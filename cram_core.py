@@ -72,6 +72,7 @@ def get_debug_ios():
             Subsignal("tms",Pins(1)),
             Subsignal("tck",Pins(1)),
             Subsignal("trst",Pins(1)),
+            Subsignal("disable", Pins(1)), # when set to 1, JTAG interface is turned off permanently
         )
     ]
 

@@ -68,6 +68,7 @@ _io = [
          Subsignal("tdi", Pins("E16"), IOStandard("LVCMOS33")),
          Subsignal("tdo", Pins("G15"), IOStandard("LVCMOS33")),
          Subsignal("trst_n", Pins("H15"), IOStandard("LVCMOS33")),
+         Subsignal("disable", Pins(1)),
          Misc("SLEW=SLOW"),
     ),
 

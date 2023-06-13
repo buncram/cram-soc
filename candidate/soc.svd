@@ -3,7 +3,7 @@
 <device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
     <vendor>litex</vendor>
     <name>SOC</name>
-    <description><![CDATA[Litex SoC 2023-06-13 01:11:28]]></description>
+    <description><![CDATA[Litex SoC 2023-06-13 20:55:14]]></description>
 
     <addressUnitBits>8</addressUnitBits>
     <width>32</width>
@@ -27,8 +27,8 @@
                     <fields>
                         <field>
                             <name>in</name>
-                            <msb>3</msb>
-                            <bitRange>[3:0]</bitRange>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
                         </field>
                     </fields>
@@ -42,8 +42,8 @@
                     <fields>
                         <field>
                             <name>mode</name>
-                            <msb>3</msb>
-                            <bitRange>[3:0]</bitRange>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
                         </field>
                     </fields>
@@ -57,15 +57,15 @@
                     <fields>
                         <field>
                             <name>edge</name>
-                            <msb>3</msb>
-                            <bitRange>[3:0]</bitRange>
+                            <msb>0</msb>
+                            <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
                 <register>
                     <name>EV_STATUS</name>
-                    <description><![CDATA[This register contains the current raw level of the i3 event trigger.  Writes to
+                    <description><![CDATA[This register contains the current raw level of the i0 event trigger.  Writes to
 this register have no effect.]]></description>
                     <addressOffset>0x000c</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -78,32 +78,11 @@ this register have no effect.]]></description>
                             <lsb>0</lsb>
                             <description><![CDATA[Level of the ``i0`` event]]></description>
                         </field>
-                        <field>
-                            <name>i1</name>
-                            <msb>1</msb>
-                            <bitRange>[1:1]</bitRange>
-                            <lsb>1</lsb>
-                            <description><![CDATA[Level of the ``i1`` event]]></description>
-                        </field>
-                        <field>
-                            <name>i2</name>
-                            <msb>2</msb>
-                            <bitRange>[2:2]</bitRange>
-                            <lsb>2</lsb>
-                            <description><![CDATA[Level of the ``i2`` event]]></description>
-                        </field>
-                        <field>
-                            <name>i3</name>
-                            <msb>3</msb>
-                            <bitRange>[3:3]</bitRange>
-                            <lsb>3</lsb>
-                            <description><![CDATA[Level of the ``i3`` event]]></description>
-                        </field>
                     </fields>
                 </register>
                 <register>
                     <name>EV_PENDING</name>
-                    <description><![CDATA[When a  i3 event occurs, the corresponding bit will be set in this register.  To
+                    <description><![CDATA[When a  i0 event occurs, the corresponding bit will be set in this register.  To
 clear the Event, set the corresponding bit in this register.]]></description>
                     <addressOffset>0x0010</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -116,32 +95,11 @@ clear the Event, set the corresponding bit in this register.]]></description>
                             <lsb>0</lsb>
                             <description><![CDATA[`1` if a `i0` event occurred. This Event is triggered on a **falling** edge.]]></description>
                         </field>
-                        <field>
-                            <name>i1</name>
-                            <msb>1</msb>
-                            <bitRange>[1:1]</bitRange>
-                            <lsb>1</lsb>
-                            <description><![CDATA[`1` if a `i1` event occurred. This Event is triggered on a **falling** edge.]]></description>
-                        </field>
-                        <field>
-                            <name>i2</name>
-                            <msb>2</msb>
-                            <bitRange>[2:2]</bitRange>
-                            <lsb>2</lsb>
-                            <description><![CDATA[`1` if a `i2` event occurred. This Event is triggered on a **falling** edge.]]></description>
-                        </field>
-                        <field>
-                            <name>i3</name>
-                            <msb>3</msb>
-                            <bitRange>[3:3]</bitRange>
-                            <lsb>3</lsb>
-                            <description><![CDATA[`1` if a `i3` event occurred. This Event is triggered on a **falling** edge.]]></description>
-                        </field>
                     </fields>
                 </register>
                 <register>
                     <name>EV_ENABLE</name>
-                    <description><![CDATA[This register enables the corresponding i3 events.  Write a ``0`` to this
+                    <description><![CDATA[This register enables the corresponding i0 events.  Write a ``0`` to this
 register to disable individual events.]]></description>
                     <addressOffset>0x0014</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -153,27 +111,6 @@ register to disable individual events.]]></description>
                             <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[Write a ``1`` to enable the ``i0`` Event]]></description>
-                        </field>
-                        <field>
-                            <name>i1</name>
-                            <msb>1</msb>
-                            <bitRange>[1:1]</bitRange>
-                            <lsb>1</lsb>
-                            <description><![CDATA[Write a ``1`` to enable the ``i1`` Event]]></description>
-                        </field>
-                        <field>
-                            <name>i2</name>
-                            <msb>2</msb>
-                            <bitRange>[2:2]</bitRange>
-                            <lsb>2</lsb>
-                            <description><![CDATA[Write a ``1`` to enable the ``i2`` Event]]></description>
-                        </field>
-                        <field>
-                            <name>i3</name>
-                            <msb>3</msb>
-                            <bitRange>[3:3]</bitRange>
-                            <lsb>3</lsb>
-                            <description><![CDATA[Write a ``1`` to enable the ``i3`` Event]]></description>
                         </field>
                     </fields>
                 </register>

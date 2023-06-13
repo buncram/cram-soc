@@ -328,7 +328,7 @@ pub fn xip_test() {
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     let mut uart = debug::Uart {};
-    uart.tiny_write_str("booting... 005\n\r");
+    uart.tiny_write_str("booting... 006\r");
 
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report_api(0x600dc0de);
@@ -344,7 +344,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     #[cfg(feature="daric")]
     {
         let mut uart = debug::Uart {};
-        uart.tiny_write_str("hello world!\n");
+        uart.tiny_write_str("hello world!\r");
     }
 
     // ---------- pio test option -------------
@@ -510,7 +510,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         #[cfg(feature="daric")]
         {
             let mut uart = debug::Uart {};
-            uart.tiny_write_str("test finished\n");
+            uart.tiny_write_str("test finished\r");
         }
     }
 }
