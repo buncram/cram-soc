@@ -77,9 +77,9 @@ then
 else
   echo "Simulating raw iron target"
   # regenerate PIO include from source
-  python3 ./pio_to_svd.py
-  cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
-  cp include/pio.svd ../xous-cramium/precursors/
+  #python3 ./pio_to_svd.py
+  #cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
+  #cp include/pio.svd ../xous-cramium/precursors/
 
   cd boot
   # cp betrusted-boot/link.x.remap betrusted-boot/link.x

@@ -444,8 +444,7 @@ class CramSoC(SoCCore):
             o_jtag_tdo            = jtag_cpu.tdo      ,
             i_jtag_tms            = jtag_cpu.tms      ,
             i_jtag_tck            = jtag_cpu.tck      ,
-            i_jtag_trst           = ~jtag_cpu.trst_n, # integration note: this needs to be wired up
-            i_jtag_disable        = jtag_cpu.disable  ,
+            i_jtag_trst_n         = jtag_cpu.trst_n   ,
 
             o_coreuser            = self.coreuser     ,
             i_irqarray_bank0      = self.irqtest0.fields.trigger | irq0_wire_or,

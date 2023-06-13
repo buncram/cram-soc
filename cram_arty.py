@@ -252,7 +252,6 @@ def main():
             Subsignal("tdi",  Pins("pmodd:7")),   # rpi 20
             Subsignal("tdo",  Pins("pmodd:6")),   # rpi 19
             Subsignal("trst_n", Pins("pmodd:2")), # rpi 16
-            Subsignal("disable", Pins("D9"), IOStandard("LVCMOS33")),
 
             Misc("SLEW=SLOW"),
             IOStandard("LVCMOS33"),
