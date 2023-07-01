@@ -84,7 +84,7 @@ else
   cd boot
   # cp betrusted-boot/link.x.remap betrusted-boot/link.x
   cp betrusted-boot/link.x.straight betrusted-boot/link.x # to be used in conjunction with --feature gdb-load
-  cargo xtask boot-image --feature daric --feature pio-test --feature gdb-load
+  cargo xtask boot-image --feature daric --feature pio-test --feature gdb-load --feature xip
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > boot.lst
   riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst
