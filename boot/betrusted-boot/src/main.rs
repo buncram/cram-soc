@@ -325,8 +325,33 @@ pub fn xip_test() {
     report_api(0x61D0_600D);
 }
 
+#[cfg(feature="full-chip")]
+pub fn early_init() {
+    unsafe {
+        (0x400400a0 as *mut u32).write_volatile(0x1F598); // F
+        let poke_array: [(u32, u16); 10] = [
+            (0x400400a4, 0x2812),   //  MN
+            (0x400400a8, 0x3301),   //  Q
+            (0x40040090, 0x0032),  // setpll
+            (0x40040014, 0x7f7f),  // fclk
+            (0x40040018, 0x7f7f),  // aclk
+            (0x4004001c, 0x3f3f),  // hclk
+            (0x40040020, 0x1f1f),  // iclk
+            (0x40040024, 0x0f0f),  // pclk
+            (0x40040010, 0x0001),  // sel0
+            (0x4004002c, 0x0032),  // setpll
+        ];
+        for (addr, dat) in poke_array.iter() {
+            (*addr as *mut u16).write_volatile(*dat);
+        }
+    }
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
+    #[cfg(feature="full-chip")]
+    early_init();
+
     let mut uart = debug::Uart {};
     uart.tiny_write_str("booting... 006\r");
 
@@ -362,6 +387,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     irqs::irq_test();
 
     // ---------- xip region test ------------------
+    #[cfg(feature="xip")]
     xip_test();
 
     // ---------- CPU CSR tests --------------

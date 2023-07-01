@@ -17,7 +17,9 @@ pio-test = ["xous-pio"]
 # default = ["debug-print", "small-soc"]
 gdb-load = []  # set VM mapping 1:1 for code space for JTAG loading so that GDB is not confused by the VM offset
 arty = []
-default = ["daric"]
+full-chip = []
+xip = []
+default = ["daric", "full-chip"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}
