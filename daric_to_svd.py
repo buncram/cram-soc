@@ -1253,6 +1253,9 @@ def main():
                 if 'params' in cr_defs:
                     if 'SFRCNT' in cr_defs['params']:
                         sfr_count = cr_defs['params']['SFRCNT'].eval(schema, module)
+                        if sfr_count is None:
+                            # it can take a second pass on eval to fully chase down some expressions :-/
+                            sfr_count = cr_defs['params']['SFRCNT'].eval(schema, module)
                         sfr_name = cr_defs['args'][sfr_shortname].eval(schema, module)
                         if type(sfr_name) is int:
                             sfr_name = cr_defs['args'][sfr_shortname].expression.strip()
@@ -1334,11 +1337,11 @@ def main():
                     # process the expression
                     multi_line_expr = multi_line_expr.strip()
                     if region == 'sce':
-                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9])\]")
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]")
                     elif region == 'soc_top':
-                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsys\[([0-9])\]")
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsys\[([0-9]+)\]")
                     elif region == 'soc_ifsub':
-                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbper\[([0-9])\]")
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbper\[([0-9]+)\]")
                     else:
                         print("unknown region!")
                         exit(0)
