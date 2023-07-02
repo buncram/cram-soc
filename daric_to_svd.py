@@ -933,6 +933,22 @@ def is_m_or_p_empty(m_or_p):
     else:
         return False
 
+def is_tree_used(tree):
+    for key in tree.keys():
+        if 'sfr' in key:
+            return True
+    if 'apb_cr' not in tree:
+        return False
+    if 'apb_sr' not in tree:
+        return False
+    if 'apb_fr' not in tree:
+        return False
+    if 'apb_ar' not in tree:
+        return False
+    if len(tree['apb_cr']) == 0 and len(tree['apb_sr']) == 0 and len(tree['apb_fr']) == 0 and len(tree['apb_ar']) == 0:
+        return False
+    return True
+
 def eval_tree(tree, schema, module, level=0, do_print=False):
     if type(tree) is dict:
         for (k, v) in tree.items():
@@ -1093,6 +1109,36 @@ def check_file(x):
     except:
         return False
 
+def consolidate_lines(file):
+    with open(file, "r") as sv_file:
+        if True:
+            condensed = ''
+            multi_line = ''
+            trigger = False
+            for line in sv_file.readlines():
+                line = remove_comments(line.strip()).lstrip()
+                if line.startswith("`"):
+                    continue
+
+                if 'apb_' in line:
+                    trigger = True
+
+                if trigger:
+                    if line.strip().endswith(';') or line.strip().endswith('module'): # consdense and add as a single line
+                        multi_line += ' ' + line
+                        condensed += multi_line
+                        condensed += '\n'
+                        multi_line = ''
+                        trigger = False
+                    else:
+                        multi_line += line
+                else:
+                    condensed += line
+                    condensed += '\n'
+            return condensed.split('\n')
+        else:
+            return sv_file.readlines()
+
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from Daric design")
     parser.add_argument(
@@ -1140,19 +1186,22 @@ def main():
     # ------- extract the general schema of the code ----------
     schema = {}
     for (_file_root, (file, _version)) in versioned_files.items():
-        with open(file, "r") as sv_file:
-            lines = sv_file.readlines()
+            lines = consolidate_lines(file)
             mod_or_pkg = ''
             multi_line_param = ''
             state = 'IDLE'
             for line in lines:
+                if mod_or_pkg == 'sysctrl':
+                    if 'apb_cr' in line:
+                        print(line)
                 if state == 'IDLE':
                     # TODO: handle 'typedef enum' case and extract as localparam
                     if line.lstrip().startswith('module') or line.lstrip().startswith('package'):
                         # names are "dirty" if there isn't a space following the mod or package decl
                         # but in practice the ones we care about are well-formed, so we leave this issue hanging.
                         try:
-                            mod_or_pkg = line.split()[1].strip().strip('();#')
+                            base = line.split()[1].strip()
+                            mod_or_pkg = re.split('[\(\)\;\#]', base)[0]
                         except:
                             continue
                         state = 'ACTIVE'
@@ -1198,29 +1247,38 @@ def main():
         sfr_count = 0
         sfr_name = ''
         sfr_module = ''
-        for (cr_name, cr_defs) in leaves['apb_cr'].items():
-            if 'params' in cr_defs:
-                if 'SFRCNT' in cr_defs['params']:
-                    sfr_count = cr_defs['params']['SFRCNT'].eval(schema, module)
-                    sfr_name = cr_defs['args']['cr'].eval(schema, module)
-                    if type(sfr_name) is int:
-                        sfr_name = cr_defs['args']['cr'].expression.strip()
-                    sfr_module = module
+        sfrcnt_types = [('apb_cr', 'cr'), ('apb_sr', 'sr')]
+        for (sfr_rootname, sfr_shortname) in sfrcnt_types:
+            for (cr_name, cr_defs) in leaves[sfr_rootname].items():
+                if 'params' in cr_defs:
+                    if 'SFRCNT' in cr_defs['params']:
+                        sfr_count = cr_defs['params']['SFRCNT'].eval(schema, module)
+                        sfr_name = cr_defs['args'][sfr_shortname].eval(schema, module)
+                        if type(sfr_name) is int:
+                            sfr_name = cr_defs['args'][sfr_shortname].expression.strip()
+                        sfr_module = module
 
-                    print(f"SFR found, {sfr_module}:{sfr_name}[{sfr_count}]")
-                    (sfr_file, _version) = versioned_files[sfr_module]
-                    re_pattern = sfr_name + '\[(.*)\]'
-                    sfr_re = re.compile(re_pattern)
-                    with open(sfr_file, 'r') as sfr_f:
+                        print(f"Banked SFR found, {sfr_module}:{sfr_name}[{sfr_count}]")
+                        (sfr_file, _version) = versioned_files[sfr_module]
+                        re_pattern = sfr_name + '\[(.*)\]'
+                        sfr_re = re.compile(re_pattern)
                         cr_defs['sfrs'] = {}
+                        sfr_f = consolidate_lines(sfr_file)
+                        defs_found = False
                         for line in sfr_f:
                             matches = sfr_re.search(line)
                             if matches is not None:
                                 sfr_item = matches.group(1)
                                 try:
                                     cr_defs['sfrs'][sfr_item] = leaves['localparam'][sfr_item]
+                                    defs_found = True
                                 except:
                                     pass
+                        if defs_found is False:
+                            if sfr_count:
+                                # include some dummy stand-in defs not based on signal names but just count
+                                for i in range(int(sfr_count)):
+                                    cr_defs['sfrs'][sfr_name.strip() + str(i)] = i
 
     # define the top-level regions. This is extracted from the spec directly.
     top_regions = {
@@ -1245,6 +1303,17 @@ def main():
                         ),
                 'banks' : {},
                 'display_name' : 'sysctrl',
+            },
+        'soc_ifsub' :
+            {
+                'socregion' : SoCRegion(
+                            origin=0x5012_0000,
+                            size=0x1_0000,
+                            mode='rw',
+                            cached=False
+                        ),
+                'banks' : {},
+                'display_name' : 'ifsub',
             }
     }
     # --------- extract bank numbers for each region, so we can fix the addresses of various registers ---------
@@ -1268,6 +1337,8 @@ def main():
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9])\]")
                     elif region == 'soc_top':
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsys\[([0-9])\]")
+                    elif region == 'soc_ifsub':
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbper\[([0-9])\]")
                     else:
                         print("unknown region!")
                         exit(0)
