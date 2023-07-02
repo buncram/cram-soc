@@ -39,6 +39,7 @@ import re
 import ast
 import operator as op
 import pprint
+from math import log2
 
 def colorer(s, color="bright"):
     header  = {
@@ -678,7 +679,8 @@ class Expr():
         self.expression = e
         self.evaluated = False
         self.eval_result = -1
-        self.tokens = re.findall(r"([\w:']*[\.]?[\w:']+\b|[\(\)\+\*\-\/])", self.expression)
+        self.tokens = re.findall(r"(\$?[\w:']*[\.]?[\w:']+\b|[\(\)\+\*\-\/])", self.expression.strip())
+        self.unhandled_case = False
 
     def is_fully_expanded(self):
         for t in self.tokens:
@@ -687,10 +689,11 @@ class Expr():
             else:
                 if t == '+' or t == '-' or t == '/' or t == '*' or t == '**':
                     continue
-                elif type(t) == str:
+                elif type(t) == str and 'clog2' not in t:
                     continue
                 else:
-                    return False
+                    # if an unhandled case is found, eval aborts by saying it is full expanded, when it may not actually be.
+                    return self.unhandled_case
         return True
 
     # this should take the schema, expand the string into tokens, and evaluate any expression to an integer value
@@ -711,6 +714,46 @@ class Expr():
                 if t == '+' or t == '-' or t == '/' or t == '*' or t == '**':
                     pass # these are handled later
                 else:
+                    if 'clog2' in t:
+                        # find paren locations. This code will fail if there are nested parens.
+                        eval_str = ''
+                        if '(' in self.tokens:
+                            # expanded version
+                            open_paren = self.tokens.index('(')
+                            close_paren = self.tokens.index(')')
+                            for c in self.tokens[open_paren+1:close_paren]:
+                                if type(c) is int:
+                                    eval_str += str(c)
+                                    eval_str += ' '
+                                else:
+                                    eval_str += c
+                                    eval_str += ' '
+                        else:
+                            # unexpanded version
+                            open_paren = t.index('(')
+                            close_paren = t.index(')')
+                            for c in t[open_paren+1:close_paren]:
+                                eval_str += c
+                            # this will cause the patching routine to "do nothing"
+                            open_paren = index+1
+                            close_paren = index
+                            print(eval_str)
+                        try:
+                            inner_e = Expr(eval_str)
+                            inner_e.eval(schema, module)
+                            clog2val = int(log2(inner_e.eval_result))
+                            # print(clog2val)
+                            # replace clog2 token with the value of the inner expression with clog2 applied
+                            self.tokens[index] = clog2val
+                            # patch out the original expression
+                            for i in range(open_paren,close_paren+1):
+                                self.tokens[i] = ''
+                            t = str(clog2val)
+                        except:
+                            # a lot of these expressions are used in areas not related to SFRs, let's just skip them.
+                            print("couldn't evaluate clog2 inner: {}".format(eval_str))
+                            self.unhandled_case = True
+
                     # must be an identifier. Resolve the identifier.
                     ident_path = t.split('::')
                     # could do this recursively, but in practice there's only two cases: it's local, or in one other package.
