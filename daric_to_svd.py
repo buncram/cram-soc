@@ -1317,7 +1317,18 @@ def main():
                         ),
                 'banks' : {},
                 'display_name' : 'ifsub',
-            }
+            },
+        'soc_coresub' :
+            {
+                'socregion' : SoCRegion(
+                            origin=0x4000_0000,
+                            size=0x1_0000,
+                            mode='rw',
+                            cached=False
+                        ),
+                'banks' : {},
+                'display_name' : 'coresub',
+            },
     }
     # --------- extract bank numbers for each region, so we can fix the addresses of various registers ---------
     for (region, attrs) in top_regions.items():
@@ -1342,6 +1353,8 @@ def main():
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsys\[([0-9]+)\]")
                     elif region == 'soc_ifsub':
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbper\[([0-9]+)\]")
+                    elif region == 'soc_coresub':
+                        apbs_re = re.compile(r"\.apbs(\s*?)\(.*?coresubapbs\[([0-9]+)\]")
                     else:
                         print("unknown region!")
                         exit(0)
@@ -1358,8 +1371,6 @@ def main():
                         multi_line_expr = split_at_semi[1]
                     else:
                         multi_line_expr = ''
-        print(f"{region} register banks discovered:")
-        pp.pprint(attrs['banks'])
 
         # --------- SPECIAL CASES - each module has quirks
         if region == 'sce':
@@ -1381,8 +1392,24 @@ def main():
             # TODO:
             #  - process segid from localparams
 
-        elif region == 'sysctrl':
+        elif region == 'soc_top':
             pass
+
+        elif region == 'soc_coresub':
+            # insert a placeholder entry for the PL230 registers
+            attrs['banks']['pl230'] = 1
+            schema['pl230'] = {}
+            schema['pl230']['apb_cr'] = {
+                'pl230' :
+                {
+                    'params' : {'A' : Expr('0'), 'DW': Expr('32')},
+                    'args' : {'cr': Expr('placeholder')},
+                }
+            }
+            schema['pl230']['localparam'] = {}
+
+        print(f"{region} register banks discovered:")
+        pp.pprint(attrs['banks'])
 
     print("done parsing")
     # ---------- evaluate all expressions in the schema tree
