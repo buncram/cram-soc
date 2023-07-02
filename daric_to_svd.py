@@ -1329,6 +1329,17 @@ def main():
                 'banks' : {},
                 'display_name' : 'coresub',
             },
+        'secsub' :
+            {
+                'socregion' : SoCRegion(
+                            origin=0x4005_0000,
+                            size=0x1_0000,
+                            mode='rw',
+                            cached=False
+                        ),
+                'banks' : {},
+                'display_name' : 'secsub',
+            },
     }
     # --------- extract bank numbers for each region, so we can fix the addresses of various registers ---------
     for (region, attrs) in top_regions.items():
@@ -1355,6 +1366,8 @@ def main():
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbper\[([0-9]+)\]")
                     elif region == 'soc_coresub':
                         apbs_re = re.compile(r"\.apbs(\s*?)\(.*?coresubapbs\[([0-9]+)\]")
+                    elif region == 'secsub':
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsec\[([0-9]+)\]")
                     else:
                         print("unknown region!")
                         exit(0)
@@ -1396,7 +1409,7 @@ def main():
             pass
 
         elif region == 'soc_coresub':
-            # insert a placeholder entry for the PL230 registers
+            # insert a placeholder entry for the PL230 registers, which use a different description format
             attrs['banks']['pl230'] = 1
             schema['pl230'] = {}
             schema['pl230']['apb_cr'] = {
