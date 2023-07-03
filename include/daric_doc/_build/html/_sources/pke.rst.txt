@@ -19,17 +19,7 @@ Register Listing for PKE
 +--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`PKE_SFR_OPTEW <PKE_SFR_OPTEW>`                         | :ref:`0x4002c014 <PKE_SFR_OPTEW>`             |
 +--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`PKE_RESERVED6 <PKE_RESERVED6>`                         | :ref:`0x4002c018 <PKE_RESERVED6>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`PKE_RESERVED7 <PKE_RESERVED7>`                         | :ref:`0x4002c01c <PKE_RESERVED7>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`PKE_SFR_OPTMASK <PKE_SFR_OPTMASK>`                     | :ref:`0x4002c020 <PKE_SFR_OPTMASK>`           |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`PKE_RESERVED9 <PKE_RESERVED9>`                         | :ref:`0x4002c024 <PKE_RESERVED9>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`PKE_RESERVED10 <PKE_RESERVED10>`                       | :ref:`0x4002c028 <PKE_RESERVED10>`            |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`PKE_RESERVED11 <PKE_RESERVED11>`                       | :ref:`0x4002c02c <PKE_RESERVED11>`            |
 +--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`PKE_SFR_SEGPTR_PTRID_PCON <PKE_SFR_SEGPTR_PTRID_PCON>` | :ref:`0x4002c030 <PKE_SFR_SEGPTR_PTRID_PCON>` |
 +--------------------------------------------------------------+-----------------------------------------------+
@@ -199,40 +189,6 @@ PKE_SFR_OPTEW
 | [12:0] | SFR_OPTEW | sfr_optew read/write control register |
 +--------+-----------+---------------------------------------+
 
-PKE_RESERVED6
-^^^^^^^^^^^^^
-
-`Address: 0x4002c000 + 0x18 = 0x4002c018`
-
-
-    .. wavedrom::
-        :caption: PKE_RESERVED6
-
-        {
-            "reg": [
-                {"name": "reserved6", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-PKE_RESERVED7
-^^^^^^^^^^^^^
-
-`Address: 0x4002c000 + 0x1c = 0x4002c01c`
-
-
-    .. wavedrom::
-        :caption: PKE_RESERVED7
-
-        {
-            "reg": [
-                {"name": "reserved7", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 PKE_SFR_OPTMASK
 ^^^^^^^^^^^^^^^
 
@@ -255,57 +211,6 @@ PKE_SFR_OPTMASK
 +========+=============+=========================================+
 | [15:0] | SFR_OPTMASK | sfr_optmask read/write control register |
 +--------+-------------+-----------------------------------------+
-
-PKE_RESERVED9
-^^^^^^^^^^^^^
-
-`Address: 0x4002c000 + 0x24 = 0x4002c024`
-
-
-    .. wavedrom::
-        :caption: PKE_RESERVED9
-
-        {
-            "reg": [
-                {"name": "reserved9", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-PKE_RESERVED10
-^^^^^^^^^^^^^^
-
-`Address: 0x4002c000 + 0x28 = 0x4002c028`
-
-
-    .. wavedrom::
-        :caption: PKE_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-PKE_RESERVED11
-^^^^^^^^^^^^^^
-
-`Address: 0x4002c000 + 0x2c = 0x4002c02c`
-
-
-    .. wavedrom::
-        :caption: PKE_RESERVED11
-
-        {
-            "reg": [
-                {"name": "reserved11", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 PKE_SFR_SEGPTR_PTRID_PCON
 ^^^^^^^^^^^^^^^^^^^^^^^^^

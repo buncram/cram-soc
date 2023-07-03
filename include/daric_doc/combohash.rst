@@ -19,15 +19,9 @@ Register Listing for COMBOHASH
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_OPT2 <COMBOHASH_SFR_OPT2>`                           | :ref:`0x4002b014 <COMBOHASH_SFR_OPT2>`              |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_RESERVED6 <COMBOHASH_RESERVED6>`                         | :ref:`0x4002b018 <COMBOHASH_RESERVED6>`             |
-+--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_RESERVED7 <COMBOHASH_RESERVED7>`                         | :ref:`0x4002b01c <COMBOHASH_RESERVED7>`             |
-+--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_SEGPTR_SEGID_LKEY <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` | :ref:`0x4002b020 <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_SEGPTR_SEGID_KEY <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`   | :ref:`0x4002b024 <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`  |
-+--------------------------------------------------------------------------+-----------------------------------------------------+
-| :ref:`COMBOHASH_RESERVED10 <COMBOHASH_RESERVED10>`                       | :ref:`0x4002b028 <COMBOHASH_RESERVED10>`            |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_SEGPTR_SEGID_SCRT <COMBOHASH_SFR_SEGPTR_SEGID_SCRT>` | :ref:`0x4002b02c <COMBOHASH_SFR_SEGPTR_SEGID_SCRT>` |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
@@ -194,40 +188,6 @@ COMBOHASH_SFR_OPT2
 | [2]   | CR_OPT_IFSTART | cr_opt_hashcnt read/write control register |
 +-------+----------------+--------------------------------------------+
 
-COMBOHASH_RESERVED6
-^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x18 = 0x4002b018`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_RESERVED6
-
-        {
-            "reg": [
-                {"name": "reserved6", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-COMBOHASH_RESERVED7
-^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x1c = 0x4002b01c`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_RESERVED7
-
-        {
-            "reg": [
-                {"name": "reserved7", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 COMBOHASH_SFR_SEGPTR_SEGID_LKEY
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -273,23 +233,6 @@ COMBOHASH_SFR_SEGPTR_SEGID_KEY
 +========+===========+============================================+
 | [11:0] | SEGID_KEY | cr_segptrstart read/write control register |
 +--------+-----------+--------------------------------------------+
-
-COMBOHASH_RESERVED10
-^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x4002b000 + 0x28 = 0x4002b028`
-
-
-    .. wavedrom::
-        :caption: COMBOHASH_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 COMBOHASH_SFR_SEGPTR_SEGID_SCRT
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

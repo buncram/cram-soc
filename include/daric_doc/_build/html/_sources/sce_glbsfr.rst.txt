@@ -13,8 +13,6 @@ Register Listing for SCE_GLBSFR
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_AHBS <SCE_GLBSFR_SFR_AHBS>`                 | :ref:`0x40028008 <SCE_GLBSFR_SFR_AHBS>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED3 <SCE_GLBSFR_RESERVED3>`               | :ref:`0x4002800c <SCE_GLBSFR_RESERVED3>`        |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_SRBUSY <SCE_GLBSFR_SFR_SRBUSY>`             | :ref:`0x40028010 <SCE_GLBSFR_SFR_SRBUSY>`       |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_FRDONE <SCE_GLBSFR_SFR_FRDONE>`             | :ref:`0x40028014 <SCE_GLBSFR_SFR_FRDONE>`       |
@@ -27,17 +25,9 @@ Register Listing for SCE_GLBSFR
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_TICKCNT <SCE_GLBSFR_SFR_TICKCNT>`           | :ref:`0x40028024 <SCE_GLBSFR_SFR_TICKCNT>`      |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED10 <SCE_GLBSFR_RESERVED10>`             | :ref:`0x40028028 <SCE_GLBSFR_RESERVED10>`       |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED11 <SCE_GLBSFR_RESERVED11>`             | :ref:`0x4002802c <SCE_GLBSFR_RESERVED11>`       |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_FFEN <SCE_GLBSFR_SFR_FFEN>`                 | :ref:`0x40028030 <SCE_GLBSFR_SFR_FFEN>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_FFCLR <SCE_GLBSFR_SFR_FFCLR>`               | :ref:`0x40028034 <SCE_GLBSFR_SFR_FFCLR>`        |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED14 <SCE_GLBSFR_RESERVED14>`             | :ref:`0x40028038 <SCE_GLBSFR_RESERVED14>`       |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_RESERVED15 <SCE_GLBSFR_RESERVED15>`             | :ref:`0x4002803c <SCE_GLBSFR_RESERVED15>`       |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF0 <SCE_GLBSFR_SFR_FFCNT_SR_FF0>` | :ref:`0x40028040 <SCE_GLBSFR_SFR_FFCNT_SR_FF0>` |
 +------------------------------------------------------------------+-------------------------------------------------+
@@ -120,23 +110,6 @@ SCE_GLBSFR_SFR_AHBS
 +=======+============+========================================+
 | [4:0] | CR_AHBSOPT | cr_ahbsopt read/write control register |
 +-------+------------+----------------------------------------+
-
-SCE_GLBSFR_RESERVED3
-^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40028000 + 0xc = 0x4002800c`
-
-
-    .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED3
-
-        {
-            "reg": [
-                {"name": "reserved3", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SCE_GLBSFR_SFR_SRBUSY
 ^^^^^^^^^^^^^^^^^^^^^
@@ -276,40 +249,6 @@ SCE_GLBSFR_SFR_TICKCNT
 | [31:0] | SFR_TICKCNT | sfr_tickcnt read only status register |
 +--------+-------------+---------------------------------------+
 
-SCE_GLBSFR_RESERVED10
-^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40028000 + 0x28 = 0x40028028`
-
-
-    .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SCE_GLBSFR_RESERVED11
-^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40028000 + 0x2c = 0x4002802c`
-
-
-    .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED11
-
-        {
-            "reg": [
-                {"name": "reserved11", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 SCE_GLBSFR_SFR_FFEN
 ^^^^^^^^^^^^^^^^^^^
 
@@ -354,40 +293,6 @@ SCE_GLBSFR_SFR_FFCLR
 +========+==========+==========================================================+
 | [31:0] | AR_FFCLR | ar_ffclr performs action on write of value: (32'hff00+i) |
 +--------+----------+----------------------------------------------------------+
-
-SCE_GLBSFR_RESERVED14
-^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40028000 + 0x38 = 0x40028038`
-
-
-    .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED14
-
-        {
-            "reg": [
-                {"name": "reserved14", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SCE_GLBSFR_RESERVED15
-^^^^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40028000 + 0x3c = 0x4002803c`
-
-
-    .. wavedrom::
-        :caption: SCE_GLBSFR_RESERVED15
-
-        {
-            "reg": [
-                {"name": "reserved15", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SCE_GLBSFR_SFR_FFCNT_SR_FF0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

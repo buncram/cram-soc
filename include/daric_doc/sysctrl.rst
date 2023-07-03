@@ -11,10 +11,6 @@ Register Listing for SYSCTRL
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGULP <SYSCTRL_SFR_CGULP>`                     | :ref:`0x40040004 <SYSCTRL_SFR_CGULP>`           |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED2 <SYSCTRL_RESERVED2>`                     | :ref:`0x40040008 <SYSCTRL_RESERVED2>`           |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED3 <SYSCTRL_RESERVED3>`                     | :ref:`0x4004000c <SYSCTRL_RESERVED3>`           |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUSEL0 <SYSCTRL_SFR_CGUSEL0>`                 | :ref:`0x40040010 <SYSCTRL_SFR_CGUSEL0>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR0 <SYSCTRL_SFR_CGUFD_CFGFDCR0>`   | :ref:`0x40040014 <SYSCTRL_SFR_CGUFD_CFGFDCR0>`  |
@@ -27,17 +23,9 @@ Register Listing for SYSCTRL
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR4 <SYSCTRL_SFR_CGUFD_CFGFDCR4>`   | :ref:`0x40040024 <SYSCTRL_SFR_CGUFD_CFGFDCR4>`  |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED10 <SYSCTRL_RESERVED10>`                   | :ref:`0x40040028 <SYSCTRL_RESERVED10>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUSET <SYSCTRL_SFR_CGUSET>`                   | :ref:`0x4004002c <SYSCTRL_SFR_CGUSET>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUSEL1 <SYSCTRL_SFR_CGUSEL1>`                 | :ref:`0x40040030 <SYSCTRL_SFR_CGUSEL1>`         |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED13 <SYSCTRL_RESERVED13>`                   | :ref:`0x40040034 <SYSCTRL_RESERVED13>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED14 <SYSCTRL_RESERVED14>`                   | :ref:`0x40040038 <SYSCTRL_RESERVED14>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED15 <SYSCTRL_RESERVED15>`                   | :ref:`0x4004003c <SYSCTRL_RESERVED15>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUFSSR_FSFREQ0 <SYSCTRL_SFR_CGUFSSR_FSFREQ0>` | :ref:`0x40040040 <SYSCTRL_SFR_CGUFSSR_FSFREQ0>` |
 +------------------------------------------------------------------+-------------------------------------------------+
@@ -51,10 +39,6 @@ Register Listing for SYSCTRL
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUFSCR <SYSCTRL_SFR_CGUFSCR>`                 | :ref:`0x40040054 <SYSCTRL_SFR_CGUFSCR>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED22 <SYSCTRL_RESERVED22>`                   | :ref:`0x40040058 <SYSCTRL_RESERVED22>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED23 <SYSCTRL_RESERVED23>`                   | :ref:`0x4004005c <SYSCTRL_RESERVED23>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_ACLKGR <SYSCTRL_SFR_ACLKGR>`                   | :ref:`0x40040060 <SYSCTRL_SFR_ACLKGR>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_HCLKGR <SYSCTRL_SFR_HCLKGR>`                   | :ref:`0x40040064 <SYSCTRL_SFR_HCLKGR>`          |
@@ -63,21 +47,11 @@ Register Listing for SYSCTRL
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_PCLKGR <SYSCTRL_SFR_PCLKGR>`                   | :ref:`0x4004006c <SYSCTRL_SFR_PCLKGR>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED28 <SYSCTRL_RESERVED28>`                   | :ref:`0x40040070 <SYSCTRL_RESERVED28>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED29 <SYSCTRL_RESERVED29>`                   | :ref:`0x40040074 <SYSCTRL_RESERVED29>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED30 <SYSCTRL_RESERVED30>`                   | :ref:`0x40040078 <SYSCTRL_RESERVED30>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED31 <SYSCTRL_RESERVED31>`                   | :ref:`0x4004007c <SYSCTRL_RESERVED31>`          |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_RCURST0 <SYSCTRL_SFR_RCURST0>`                 | :ref:`0x40040080 <SYSCTRL_SFR_RCURST0>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_RCURST1 <SYSCTRL_SFR_RCURST1>`                 | :ref:`0x40040084 <SYSCTRL_SFR_RCURST1>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_RCUSRCFR <SYSCTRL_SFR_RCUSRCFR>`               | :ref:`0x40040088 <SYSCTRL_SFR_RCUSRCFR>`        |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SYSCTRL_RESERVED35 <SYSCTRL_RESERVED35>`                   | :ref:`0x4004008c <SYSCTRL_RESERVED35>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SYSCTRL_SFR_IPCARIPFLOW <SYSCTRL_SFR_IPCARIPFLOW>`         | :ref:`0x40040090 <SYSCTRL_SFR_IPCARIPFLOW>`     |
 +------------------------------------------------------------------+-------------------------------------------------+
@@ -141,40 +115,6 @@ SYSCTRL_SFR_CGULP
 +========+===========+=======================================+
 | [15:0] | SFR_CGULP | sfr_cgulp read/write control register |
 +--------+-----------+---------------------------------------+
-
-SYSCTRL_RESERVED2
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x8 = 0x40040008`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED2
-
-        {
-            "reg": [
-                {"name": "reserved2", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED3
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0xc = 0x4004000c`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED3
-
-        {
-            "reg": [
-                {"name": "reserved3", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SYSCTRL_SFR_CGUSEL0
 ^^^^^^^^^^^^^^^^^^^
@@ -314,23 +254,6 @@ SYSCTRL_SFR_CGUFD_CFGFDCR4
 | [15:0] | CFGFDCR4 | cfgfdcr read/write control register |
 +--------+----------+-------------------------------------+
 
-SYSCTRL_RESERVED10
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x28 = 0x40040028`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 SYSCTRL_SFR_CGUSET
 ^^^^^^^^^^^^^^^^^^
 
@@ -375,57 +298,6 @@ SYSCTRL_SFR_CGUSEL1
 +=======+=============+=========================================+
 | [0]   | SFR_CGUSEL1 | sfr_cgusel1 read/write control register |
 +-------+-------------+-----------------------------------------+
-
-SYSCTRL_RESERVED13
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x34 = 0x40040034`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED13
-
-        {
-            "reg": [
-                {"name": "reserved13", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED14
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x38 = 0x40040038`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED14
-
-        {
-            "reg": [
-                {"name": "reserved14", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED15
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x3c = 0x4004003c`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED15
-
-        {
-            "reg": [
-                {"name": "reserved15", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SYSCTRL_SFR_CGUFSSR_FSFREQ0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -565,40 +437,6 @@ SYSCTRL_SFR_CGUFSCR
 | [15:0] | SFR_CGUFSCR | sfr_cgufscr read/write control register |
 +--------+-------------+-----------------------------------------+
 
-SYSCTRL_RESERVED22
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x58 = 0x40040058`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED22
-
-        {
-            "reg": [
-                {"name": "reserved22", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED23
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x5c = 0x4004005c`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED23
-
-        {
-            "reg": [
-                {"name": "reserved23", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 SYSCTRL_SFR_ACLKGR
 ^^^^^^^^^^^^^^^^^^
 
@@ -691,74 +529,6 @@ SYSCTRL_SFR_PCLKGR
 | [7:0] | SFR_PCLKGR | sfr_pclkgr read/write control register |
 +-------+------------+----------------------------------------+
 
-SYSCTRL_RESERVED28
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x70 = 0x40040070`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED28
-
-        {
-            "reg": [
-                {"name": "reserved28", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED29
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x74 = 0x40040074`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED29
-
-        {
-            "reg": [
-                {"name": "reserved29", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED30
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x78 = 0x40040078`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED30
-
-        {
-            "reg": [
-                {"name": "reserved30", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SYSCTRL_RESERVED31
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x7c = 0x4004007c`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED31
-
-        {
-            "reg": [
-                {"name": "reserved31", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 SYSCTRL_SFR_RCURST0
 ^^^^^^^^^^^^^^^^^^^
 
@@ -826,23 +596,6 @@ SYSCTRL_SFR_RCUSRCFR
 | [15:0] | SFR_RCUSRCFR | sfr_rcusrcfr flag register. `1` means event happened, write back `1` in |
 |        |              | respective bit position to clear the flag                               |
 +--------+--------------+-------------------------------------------------------------------------+
-
-SYSCTRL_RESERVED35
-^^^^^^^^^^^^^^^^^^
-
-`Address: 0x40040000 + 0x8c = 0x4004008c`
-
-
-    .. wavedrom::
-        :caption: SYSCTRL_RESERVED35
-
-        {
-            "reg": [
-                {"name": "reserved35", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SYSCTRL_SFR_IPCARIPFLOW
 ^^^^^^^^^^^^^^^^^^^^^^^

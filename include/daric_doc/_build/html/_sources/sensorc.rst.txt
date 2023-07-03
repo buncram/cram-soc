@@ -13,15 +13,11 @@ Register Listing for SENSORC
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_VDSR <SENSORC_SFR_VDSR>`                       | :ref:`0x40053008 <SENSORC_SFR_VDSR>`            |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SENSORC_RESERVED3 <SENSORC_RESERVED3>`                     | :ref:`0x4005300c <SENSORC_RESERVED3>`           |
-+------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_LDMASK <SENSORC_SFR_LDMASK>`                   | :ref:`0x40053010 <SENSORC_SFR_LDMASK>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_LDSR <SENSORC_SFR_LDSR>`                       | :ref:`0x40053014 <SENSORC_SFR_LDSR>`            |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_LDCFG <SENSORC_SFR_LDCFG>`                     | :ref:`0x40053018 <SENSORC_SFR_LDCFG>`           |
-+------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SENSORC_RESERVED7 <SENSORC_RESERVED7>`                     | :ref:`0x4005301c <SENSORC_RESERVED7>`           |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_VDCFG_CR_VDCFG0 <SENSORC_SFR_VDCFG_CR_VDCFG0>` | :ref:`0x40053020 <SENSORC_SFR_VDCFG_CR_VDCFG0>` |
 +------------------------------------------------------------------+-------------------------------------------------+
@@ -109,23 +105,6 @@ SENSORC_SFR_VDSR
 | [7:0] | SR_VDSR | sr_vdsr read only status register |
 +-------+---------+-----------------------------------+
 
-SENSORC_RESERVED3
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40053000 + 0xc = 0x4005300c`
-
-
-    .. wavedrom::
-        :caption: SENSORC_RESERVED3
-
-        {
-            "reg": [
-                {"name": "reserved3", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 SENSORC_SFR_LDMASK
 ^^^^^^^^^^^^^^^^^^
 
@@ -194,23 +173,6 @@ SENSORC_SFR_LDCFG
 +=======+===========+=======================================+
 | [3:0] | SFR_LDCFG | sfr_ldcfg read/write control register |
 +-------+-----------+---------------------------------------+
-
-SENSORC_RESERVED7
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40053000 + 0x1c = 0x4005301c`
-
-
-    .. wavedrom::
-        :caption: SENSORC_RESERVED7
-
-        {
-            "reg": [
-                {"name": "reserved7", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SENSORC_SFR_VDCFG_CR_VDCFG0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

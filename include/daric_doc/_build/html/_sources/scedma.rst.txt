@@ -9,12 +9,6 @@ Register Listing for SCEDMA
 +==========================================================+=============================================+
 | :ref:`SCEDMA_SFR_SCHSTART_AR <SCEDMA_SFR_SCHSTART_AR>`   | :ref:`0x40029000 <SCEDMA_SFR_SCHSTART_AR>`  |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED1 <SCEDMA_RESERVED1>`               | :ref:`0x40029004 <SCEDMA_RESERVED1>`        |
-+----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED2 <SCEDMA_RESERVED2>`               | :ref:`0x40029008 <SCEDMA_RESERVED2>`        |
-+----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED3 <SCEDMA_RESERVED3>`               | :ref:`0x4002900c <SCEDMA_RESERVED3>`        |
-+----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_XCH_FUNC <SCEDMA_SFR_XCH_FUNC>`         | :ref:`0x40029010 <SCEDMA_SFR_XCH_FUNC>`     |
 +----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_XCH_OPT <SCEDMA_SFR_XCH_OPT>`           | :ref:`0x40029014 <SCEDMA_SFR_XCH_OPT>`      |
@@ -27,10 +21,6 @@ Register Listing for SCEDMA
 +----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_XCH_TRANSIZE <SCEDMA_SFR_XCH_TRANSIZE>` | :ref:`0x40029024 <SCEDMA_SFR_XCH_TRANSIZE>` |
 +----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED10 <SCEDMA_RESERVED10>`             | :ref:`0x40029028 <SCEDMA_RESERVED10>`       |
-+----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED11 <SCEDMA_RESERVED11>`             | :ref:`0x4002902c <SCEDMA_RESERVED11>`       |
-+----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_SCH_FUNC <SCEDMA_SFR_SCH_FUNC>`         | :ref:`0x40029030 <SCEDMA_SFR_SCH_FUNC>`     |
 +----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_SCH_OPT <SCEDMA_SFR_SCH_OPT>`           | :ref:`0x40029034 <SCEDMA_SFR_SCH_OPT>`      |
@@ -42,10 +32,6 @@ Register Listing for SCEDMA
 | :ref:`SCEDMA_SFR_SCH_SEGSTART <SCEDMA_SFR_SCH_SEGSTART>` | :ref:`0x40029040 <SCEDMA_SFR_SCH_SEGSTART>` |
 +----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_SCH_TRANSIZE <SCEDMA_SFR_SCH_TRANSIZE>` | :ref:`0x40029044 <SCEDMA_SFR_SCH_TRANSIZE>` |
-+----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED18 <SCEDMA_RESERVED18>`             | :ref:`0x40029048 <SCEDMA_RESERVED18>`       |
-+----------------------------------------------------------+---------------------------------------------+
-| :ref:`SCEDMA_RESERVED19 <SCEDMA_RESERVED19>`             | :ref:`0x4002904c <SCEDMA_RESERVED19>`       |
 +----------------------------------------------------------+---------------------------------------------+
 | :ref:`SCEDMA_SFR_ICH_OPT <SCEDMA_SFR_ICH_OPT>`           | :ref:`0x40029050 <SCEDMA_SFR_ICH_OPT>`      |
 +----------------------------------------------------------+---------------------------------------------+
@@ -79,57 +65,6 @@ SCEDMA_SFR_SCHSTART_AR
 +========+=================+=========================================================+
 | [31:0] | SFR_SCHSTART_AR | sfr_schstart_ar performs action on write of value: 0xaa |
 +--------+-----------------+---------------------------------------------------------+
-
-SCEDMA_RESERVED1
-^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0x4 = 0x40029004`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED1
-
-        {
-            "reg": [
-                {"name": "reserved1", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SCEDMA_RESERVED2
-^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0x8 = 0x40029008`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED2
-
-        {
-            "reg": [
-                {"name": "reserved2", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SCEDMA_RESERVED3
-^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0xc = 0x4002900c`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED3
-
-        {
-            "reg": [
-                {"name": "reserved3", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SCEDMA_SFR_XCH_FUNC
 ^^^^^^^^^^^^^^^^^^^
@@ -268,40 +203,6 @@ SCEDMA_SFR_XCH_TRANSIZE
 | [29:0] | XCHCR_TRANSIZE | xchcr_transize read/write control register |
 +--------+----------------+--------------------------------------------+
 
-SCEDMA_RESERVED10
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0x28 = 0x40029028`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SCEDMA_RESERVED11
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0x2c = 0x4002902c`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED11
-
-        {
-            "reg": [
-                {"name": "reserved11", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 SCEDMA_SFR_SCH_FUNC
 ^^^^^^^^^^^^^^^^^^^
 
@@ -438,40 +339,6 @@ SCEDMA_SFR_SCH_TRANSIZE
 +========+================+============================================+
 | [29:0] | SCHCR_TRANSIZE | schcr_transize read/write control register |
 +--------+----------------+--------------------------------------------+
-
-SCEDMA_RESERVED18
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0x48 = 0x40029048`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED18
-
-        {
-            "reg": [
-                {"name": "reserved18", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-SCEDMA_RESERVED19
-^^^^^^^^^^^^^^^^^
-
-`Address: 0x40029000 + 0x4c = 0x4002904c`
-
-
-    .. wavedrom::
-        :caption: SCEDMA_RESERVED19
-
-        {
-            "reg": [
-                {"name": "reserved19", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 SCEDMA_SFR_ICH_OPT
 ^^^^^^^^^^^^^^^^^^

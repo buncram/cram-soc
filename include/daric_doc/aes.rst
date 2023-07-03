@@ -19,18 +19,6 @@ Register Listing for AES
 +--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`AES_SFR_OPT1 <AES_SFR_OPT1>`                           | :ref:`0x4002d014 <AES_SFR_OPT1>`              |
 +--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`AES_RESERVED6 <AES_RESERVED6>`                         | :ref:`0x4002d018 <AES_RESERVED6>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`AES_RESERVED7 <AES_RESERVED7>`                         | :ref:`0x4002d01c <AES_RESERVED7>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`AES_RESERVED8 <AES_RESERVED8>`                         | :ref:`0x4002d020 <AES_RESERVED8>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`AES_RESERVED9 <AES_RESERVED9>`                         | :ref:`0x4002d024 <AES_RESERVED9>`             |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`AES_RESERVED10 <AES_RESERVED10>`                       | :ref:`0x4002d028 <AES_RESERVED10>`            |
-+--------------------------------------------------------------+-----------------------------------------------+
-| :ref:`AES_RESERVED11 <AES_RESERVED11>`                       | :ref:`0x4002d02c <AES_RESERVED11>`            |
-+--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`AES_SFR_SEGPTR_PTRID_IV <AES_SFR_SEGPTR_PTRID_IV>`     | :ref:`0x4002d030 <AES_SFR_SEGPTR_PTRID_IV>`   |
 +--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`AES_SFR_SEGPTR_PTRID_AKEY <AES_SFR_SEGPTR_PTRID_AKEY>` | :ref:`0x4002d034 <AES_SFR_SEGPTR_PTRID_AKEY>` |
@@ -195,108 +183,6 @@ AES_SFR_OPT1
 +========+==========+======================================+
 | [15:0] | SFR_OPT1 | sfr_opt1 read/write control register |
 +--------+----------+--------------------------------------+
-
-AES_RESERVED6
-^^^^^^^^^^^^^
-
-`Address: 0x4002d000 + 0x18 = 0x4002d018`
-
-
-    .. wavedrom::
-        :caption: AES_RESERVED6
-
-        {
-            "reg": [
-                {"name": "reserved6", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-AES_RESERVED7
-^^^^^^^^^^^^^
-
-`Address: 0x4002d000 + 0x1c = 0x4002d01c`
-
-
-    .. wavedrom::
-        :caption: AES_RESERVED7
-
-        {
-            "reg": [
-                {"name": "reserved7", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-AES_RESERVED8
-^^^^^^^^^^^^^
-
-`Address: 0x4002d000 + 0x20 = 0x4002d020`
-
-
-    .. wavedrom::
-        :caption: AES_RESERVED8
-
-        {
-            "reg": [
-                {"name": "reserved8", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-AES_RESERVED9
-^^^^^^^^^^^^^
-
-`Address: 0x4002d000 + 0x24 = 0x4002d024`
-
-
-    .. wavedrom::
-        :caption: AES_RESERVED9
-
-        {
-            "reg": [
-                {"name": "reserved9", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-AES_RESERVED10
-^^^^^^^^^^^^^^
-
-`Address: 0x4002d000 + 0x28 = 0x4002d028`
-
-
-    .. wavedrom::
-        :caption: AES_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-AES_RESERVED11
-^^^^^^^^^^^^^^
-
-`Address: 0x4002d000 + 0x2c = 0x4002d02c`
-
-
-    .. wavedrom::
-        :caption: AES_RESERVED11
-
-        {
-            "reg": [
-                {"name": "reserved11", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 AES_SFR_SEGPTR_PTRID_IV
 ^^^^^^^^^^^^^^^^^^^^^^^

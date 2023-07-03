@@ -148,90 +148,6 @@ bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED6</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved6</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED7</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved7</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED8</name>
-                    <addressOffset>0x0020</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved8</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED9</name>
-                    <addressOffset>0x0024</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved9</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED11</name>
-                    <addressOffset>0x002c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved11</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_SEGPTR_PTRID_IV</name>
                     <addressOffset>0x0030</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -433,34 +349,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED6</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved6</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED7</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved7</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_SEGPTR_SEGID_LKEY</name>
                     <addressOffset>0x0020</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -487,20 +375,6 @@ position to clear the flag]]></description>
                             <bitRange>[11:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[cr_segptrstart read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -707,34 +581,6 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED6</name>
-                    <addressOffset>0x0018</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved6</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED7</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved7</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_OPTMASK</name>
                     <addressOffset>0x0020</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -746,48 +592,6 @@ respective bit position to clear the flag]]></description>
                             <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_optmask read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED9</name>
-                    <addressOffset>0x0024</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved9</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED11</name>
-                    <addressOffset>0x002c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved11</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -894,48 +698,6 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED1</name>
-                    <addressOffset>0x0004</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved1</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED2</name>
-                    <addressOffset>0x0008</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved2</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED3</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved3</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_XCH_FUNC</name>
                     <addressOffset>0x0010</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -1026,34 +788,6 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED11</name>
-                    <addressOffset>0x002c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved11</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_SCH_FUNC</name>
                     <addressOffset>0x0030</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -1140,34 +874,6 @@ respective bit position to clear the flag]]></description>
                             <bitRange>[29:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[schcr_transize read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED18</name>
-                    <addressOffset>0x0048</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved18</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED19</name>
-                    <addressOffset>0x004c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved19</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -1304,20 +1010,6 @@ respective bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED3</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved3</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_SRBUSY</name>
                     <addressOffset>0x0010</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -1410,34 +1102,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED11</name>
-                    <addressOffset>0x002c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved11</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_FFEN</name>
                     <addressOffset>0x0030</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -1464,34 +1128,6 @@ position to clear the flag]]></description>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[ar_ffclr performs action on write of value: (32'hff00+i)]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED14</name>
-                    <addressOffset>0x0038</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved14</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED15</name>
-                    <addressOffset>0x003c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved15</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -1597,20 +1233,6 @@ position to clear the flag]]></description>
             <baseAddress>0x4002E000</baseAddress>
             <groupName>TRNG</groupName>
             <registers>
-                <register>
-                    <name>RESERVED0</name>
-                    <addressOffset>0x0000</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
@@ -1623,20 +1245,6 @@ position to clear the flag]]></description>
             <baseAddress>0x4002F000</baseAddress>
             <groupName>ALU</groupName>
             <registers>
-                <register>
-                    <name>RESERVED0</name>
-                    <addressOffset>0x0000</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
@@ -1721,20 +1329,6 @@ position to clear the flag]]></description>
             <baseAddress>0x40041000</baseAddress>
             <groupName>WDG_INTF</groupName>
             <registers>
-                <register>
-                    <name>RESERVED0</name>
-                    <addressOffset>0x0000</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
@@ -1747,20 +1341,6 @@ position to clear the flag]]></description>
             <baseAddress>0x40043000</baseAddress>
             <groupName>TIMER_INTF</groupName>
             <registers>
-                <register>
-                    <name>RESERVED0</name>
-                    <addressOffset>0x0000</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
@@ -1925,34 +1505,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED11</name>
-                    <addressOffset>0x002c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved11</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_TMREVSEL</name>
                     <addressOffset>0x0030</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -1979,34 +1531,6 @@ position to clear the flag]]></description>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[pwm_evsel read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED14</name>
-                    <addressOffset>0x0038</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved14</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED15</name>
-                    <addressOffset>0x003c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved15</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -2147,104 +1671,6 @@ bit position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED25</name>
-                    <addressOffset>0x0064</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved25</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED26</name>
-                    <addressOffset>0x0068</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved26</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED27</name>
-                    <addressOffset>0x006c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved27</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED28</name>
-                    <addressOffset>0x0070</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved28</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED29</name>
-                    <addressOffset>0x0074</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved29</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED30</name>
-                    <addressOffset>0x0078</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved30</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED31</name>
-                    <addressOffset>0x007c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved31</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_CM7ERRFR</name>
                     <addressOffset>0x0080</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -2299,34 +1725,6 @@ position to clear the flag]]></description>
                             <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_cgulp read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED2</name>
-                    <addressOffset>0x0008</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved2</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED3</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved3</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -2421,20 +1819,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_CGUSET</name>
                     <addressOffset>0x002c</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -2461,48 +1845,6 @@ position to clear the flag]]></description>
                             <bitRange>[0:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_cgusel1 read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED13</name>
-                    <addressOffset>0x0034</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved13</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED14</name>
-                    <addressOffset>0x0038</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved14</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED15</name>
-                    <addressOffset>0x003c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved15</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -2597,34 +1939,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED22</name>
-                    <addressOffset>0x0058</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved22</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED23</name>
-                    <addressOffset>0x005c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved23</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_ACLKGR</name>
                     <addressOffset>0x0060</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -2685,62 +1999,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED28</name>
-                    <addressOffset>0x0070</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved28</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED29</name>
-                    <addressOffset>0x0074</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved29</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED30</name>
-                    <addressOffset>0x0078</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved30</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED31</name>
-                    <addressOffset>0x007c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved31</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_RCURST0</name>
                     <addressOffset>0x0080</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -2783,20 +2041,6 @@ position to clear the flag]]></description>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_rcusrcfr flag register. `1` means event happened, write back `1` in
 respective bit position to clear the flag]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED35</name>
-                    <addressOffset>0x008c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved35</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -2932,20 +2176,6 @@ respective bit position to clear the flag]]></description>
             <baseAddress>0x50122000</baseAddress>
             <groupName>APB_THRU</groupName>
             <registers>
-                <register>
-                    <name>RESERVED0</name>
-                    <addressOffset>0x0000</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
@@ -3075,790 +2305,6 @@ respective bit position to clear the flag]]></description>
                             <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[crafsel read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED8</name>
-                    <addressOffset>0x0020</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved8</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED9</name>
-                    <addressOffset>0x0024</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved9</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED10</name>
-                    <addressOffset>0x0028</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved10</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED11</name>
-                    <addressOffset>0x002c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved11</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED12</name>
-                    <addressOffset>0x0030</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved12</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED13</name>
-                    <addressOffset>0x0034</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved13</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED14</name>
-                    <addressOffset>0x0038</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved14</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED15</name>
-                    <addressOffset>0x003c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved15</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED16</name>
-                    <addressOffset>0x0040</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved16</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED17</name>
-                    <addressOffset>0x0044</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved17</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED18</name>
-                    <addressOffset>0x0048</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved18</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED19</name>
-                    <addressOffset>0x004c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved19</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED20</name>
-                    <addressOffset>0x0050</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved20</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED21</name>
-                    <addressOffset>0x0054</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved21</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED22</name>
-                    <addressOffset>0x0058</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved22</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED23</name>
-                    <addressOffset>0x005c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved23</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED24</name>
-                    <addressOffset>0x0060</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved24</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED25</name>
-                    <addressOffset>0x0064</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved25</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED26</name>
-                    <addressOffset>0x0068</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved26</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED27</name>
-                    <addressOffset>0x006c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved27</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED28</name>
-                    <addressOffset>0x0070</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved28</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED29</name>
-                    <addressOffset>0x0074</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved29</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED30</name>
-                    <addressOffset>0x0078</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved30</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED31</name>
-                    <addressOffset>0x007c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved31</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED32</name>
-                    <addressOffset>0x0080</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved32</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED33</name>
-                    <addressOffset>0x0084</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved33</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED34</name>
-                    <addressOffset>0x0088</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved34</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED35</name>
-                    <addressOffset>0x008c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved35</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED36</name>
-                    <addressOffset>0x0090</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved36</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED37</name>
-                    <addressOffset>0x0094</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved37</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED38</name>
-                    <addressOffset>0x0098</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved38</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED39</name>
-                    <addressOffset>0x009c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved39</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED40</name>
-                    <addressOffset>0x00a0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved40</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED41</name>
-                    <addressOffset>0x00a4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved41</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED42</name>
-                    <addressOffset>0x00a8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved42</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED43</name>
-                    <addressOffset>0x00ac</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved43</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED44</name>
-                    <addressOffset>0x00b0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved44</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED45</name>
-                    <addressOffset>0x00b4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved45</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED46</name>
-                    <addressOffset>0x00b8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved46</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED47</name>
-                    <addressOffset>0x00bc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved47</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED48</name>
-                    <addressOffset>0x00c0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved48</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED49</name>
-                    <addressOffset>0x00c4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved49</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED50</name>
-                    <addressOffset>0x00c8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved50</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED51</name>
-                    <addressOffset>0x00cc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved51</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED52</name>
-                    <addressOffset>0x00d0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved52</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED53</name>
-                    <addressOffset>0x00d4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved53</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED54</name>
-                    <addressOffset>0x00d8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved54</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED55</name>
-                    <addressOffset>0x00dc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved55</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED56</name>
-                    <addressOffset>0x00e0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved56</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED57</name>
-                    <addressOffset>0x00e4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved57</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED58</name>
-                    <addressOffset>0x00e8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved58</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED59</name>
-                    <addressOffset>0x00ec</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved59</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED60</name>
-                    <addressOffset>0x00f0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved60</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED61</name>
-                    <addressOffset>0x00f4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved61</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED62</name>
-                    <addressOffset>0x00f8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved62</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED63</name>
-                    <addressOffset>0x00fc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved63</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -3995,48 +2441,6 @@ respective bit position to clear the flag]]></description>
                             <lsb>0</lsb>
                             <description><![CDATA[frint flag register. `1` means event happened, write back `1` in respective bit
 position to clear the flag]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED73</name>
-                    <addressOffset>0x0124</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved73</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED74</name>
-                    <addressOffset>0x0128</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved74</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED75</name>
-                    <addressOffset>0x012c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved75</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -4281,510 +2685,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED92</name>
-                    <addressOffset>0x0170</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved92</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED93</name>
-                    <addressOffset>0x0174</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved93</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED94</name>
-                    <addressOffset>0x0178</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved94</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED95</name>
-                    <addressOffset>0x017c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved95</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED96</name>
-                    <addressOffset>0x0180</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved96</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED97</name>
-                    <addressOffset>0x0184</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved97</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED98</name>
-                    <addressOffset>0x0188</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved98</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED99</name>
-                    <addressOffset>0x018c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved99</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED100</name>
-                    <addressOffset>0x0190</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved100</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED101</name>
-                    <addressOffset>0x0194</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved101</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED102</name>
-                    <addressOffset>0x0198</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved102</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED103</name>
-                    <addressOffset>0x019c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved103</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED104</name>
-                    <addressOffset>0x01a0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved104</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED105</name>
-                    <addressOffset>0x01a4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved105</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED106</name>
-                    <addressOffset>0x01a8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved106</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED107</name>
-                    <addressOffset>0x01ac</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved107</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED108</name>
-                    <addressOffset>0x01b0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved108</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED109</name>
-                    <addressOffset>0x01b4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved109</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED110</name>
-                    <addressOffset>0x01b8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved110</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED111</name>
-                    <addressOffset>0x01bc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved111</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED112</name>
-                    <addressOffset>0x01c0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved112</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED113</name>
-                    <addressOffset>0x01c4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved113</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED114</name>
-                    <addressOffset>0x01c8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved114</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED115</name>
-                    <addressOffset>0x01cc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved115</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED116</name>
-                    <addressOffset>0x01d0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved116</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED117</name>
-                    <addressOffset>0x01d4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved117</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED118</name>
-                    <addressOffset>0x01d8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved118</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED119</name>
-                    <addressOffset>0x01dc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved119</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED120</name>
-                    <addressOffset>0x01e0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved120</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED121</name>
-                    <addressOffset>0x01e4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved121</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED122</name>
-                    <addressOffset>0x01e8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved122</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED123</name>
-                    <addressOffset>0x01ec</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved123</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED124</name>
-                    <addressOffset>0x01f0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved124</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED125</name>
-                    <addressOffset>0x01f4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved125</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED126</name>
-                    <addressOffset>0x01f8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved126</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED127</name>
-                    <addressOffset>0x01fc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved127</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_PIOSEL</name>
                     <addressOffset>0x0200</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -4796,160 +2696,6 @@ position to clear the flag]]></description>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[piosel read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED129</name>
-                    <addressOffset>0x0204</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved129</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED130</name>
-                    <addressOffset>0x0208</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved130</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED131</name>
-                    <addressOffset>0x020c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved131</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED132</name>
-                    <addressOffset>0x0210</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved132</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED133</name>
-                    <addressOffset>0x0214</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved133</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED134</name>
-                    <addressOffset>0x0218</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved134</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED135</name>
-                    <addressOffset>0x021c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved135</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED136</name>
-                    <addressOffset>0x0220</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved136</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED137</name>
-                    <addressOffset>0x0224</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved137</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED138</name>
-                    <addressOffset>0x0228</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved138</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED139</name>
-                    <addressOffset>0x022c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved139</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -5145,20 +2891,6 @@ position to clear the flag]]></description>
             <baseAddress>0x50120000</baseAddress>
             <groupName>PWM</groupName>
             <registers>
-                <register>
-                    <name>RESERVED0</name>
-                    <addressOffset>0x0000</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved0</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
@@ -5198,34 +2930,6 @@ position to clear the flag]]></description>
                             <bitRange>[31:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_ar performs action on write of value: 0x5a]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED2</name>
-                    <addressOffset>0x0008</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved2</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED3</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved3</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -6077,62 +3781,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED60</name>
-                    <addressOffset>0x00f0</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved60</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED61</name>
-                    <addressOffset>0x00f4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved61</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED62</name>
-                    <addressOffset>0x00f8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved62</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED63</name>
-                    <addressOffset>0x00fc</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved63</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>CR_BASE_ADDR_MEM_FUNC_CFG_BASE_ADDR_MEM_FUNC0</name>
                     <addressOffset>0x0100</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -6508,20 +4156,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED89</name>
-                    <addressOffset>0x0164</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved89</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>CR_REG_FUNC_MANUFACT_CODE_CFG_REG_FUNC_MANUFACT_CODE0</name>
                     <addressOffset>0x0168</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -6623,20 +4257,6 @@ position to clear the flag]]></description>
                             <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[cfg_reg_func_manufact_code read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED97</name>
-                    <addressOffset>0x0184</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved97</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -6746,20 +4366,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED105</name>
-                    <addressOffset>0x01a4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved105</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>CR_REG_FUNC_ISDIO_TYPE_SUP_CODE_CFG_REG_FUNC_ISDIO_TYPE_SUP_CODE0</name>
                     <addressOffset>0x01a8</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -6865,20 +4471,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED113</name>
-                    <addressOffset>0x01c4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved113</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>CR_REG_FUNC_INFO_CFG_REG_FUNC_INFO0</name>
                     <addressOffset>0x01c8</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -6980,48 +4572,6 @@ position to clear the flag]]></description>
                             <bitRange>[15:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[cfg_reg_func_info read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED121</name>
-                    <addressOffset>0x01e4</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved121</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED122</name>
-                    <addressOffset>0x01e8</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved122</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED123</name>
-                    <addressOffset>0x01ec</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved123</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -7484,20 +5034,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED3</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved3</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>CR_XIP_ADDRMODE</name>
                     <addressOffset>0x0010</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -7906,20 +5442,6 @@ position to clear the flag]]></description>
                     </fields>
                 </register>
                 <register>
-                    <name>RESERVED3</name>
-                    <addressOffset>0x000c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved3</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
-                        </field>
-                    </fields>
-                </register>
-                <register>
                     <name>SFR_LDMASK</name>
                     <addressOffset>0x0010</addressOffset>
                     <resetValue>0x00</resetValue>
@@ -7961,20 +5483,6 @@ position to clear the flag]]></description>
                             <bitRange>[3:0]</bitRange>
                             <lsb>0</lsb>
                             <description><![CDATA[sfr_ldcfg read/write control register]]></description>
-                        </field>
-                    </fields>
-                </register>
-                <register>
-                    <name>RESERVED7</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>reserved7</name>
-                            <msb>0</msb>
-                            <bitRange>[0:0]</bitRange>
-                            <lsb>0</lsb>
                         </field>
                     </fields>
                 </register>
@@ -8222,6 +5730,46 @@ position to clear the flag]]></description>
                 <name>SEG_RNGB</name>
                 <baseAddress>0x40022100</baseAddress>
                 <size>0x00000400</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>IFRAM0</name>
+                <baseAddress>0x50000000</baseAddress>
+                <size>0x00020000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>IFRAM1</name>
+                <baseAddress>0x50020000</baseAddress>
+                <size>0x00020000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>NULL</name>
+                <baseAddress>0x50040000</baseAddress>
+                <size>0x00010000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>UDMA</name>
+                <baseAddress>0x50100000</baseAddress>
+                <size>0x00020000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>UDP</name>
+                <baseAddress>0x50122000</baseAddress>
+                <size>0x00001000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>PIO</name>
+                <baseAddress>0x50123000</baseAddress>
+                <size>0x00001000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>SDDC_DAT</name>
+                <baseAddress>0x50140000</baseAddress>
+                <size>0x00010000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>UDC</name>
+                <baseAddress>0x50200000</baseAddress>
+                <size>0x00010000</size>
             </memoryRegion>
         </memoryRegions>
         <constants>

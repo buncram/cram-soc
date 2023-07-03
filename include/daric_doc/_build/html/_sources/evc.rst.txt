@@ -27,17 +27,9 @@ Register Listing for EVC
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`EVC_SFR_CM7EVFR <EVC_SFR_CM7EVFR>`                       | :ref:`0x40044024 <EVC_SFR_CM7EVFR>`            |
 +----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED10 <EVC_RESERVED10>`                         | :ref:`0x40044028 <EVC_RESERVED10>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED11 <EVC_RESERVED11>`                         | :ref:`0x4004402c <EVC_RESERVED11>`             |
-+----------------------------------------------------------------+------------------------------------------------+
 | :ref:`EVC_SFR_TMREVSEL <EVC_SFR_TMREVSEL>`                     | :ref:`0x40044030 <EVC_SFR_TMREVSEL>`           |
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`EVC_SFR_PWMEVSEL <EVC_SFR_PWMEVSEL>`                     | :ref:`0x40044034 <EVC_SFR_PWMEVSEL>`           |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED14 <EVC_RESERVED14>`                         | :ref:`0x40044038 <EVC_RESERVED14>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED15 <EVC_RESERVED15>`                         | :ref:`0x4004403c <EVC_RESERVED15>`             |
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`EVC_SFR_IFEVEN_IFEVEN0 <EVC_SFR_IFEVEN_IFEVEN0>`         | :ref:`0x40044040 <EVC_SFR_IFEVEN_IFEVEN0>`     |
 +----------------------------------------------------------------+------------------------------------------------+
@@ -56,20 +48,6 @@ Register Listing for EVC
 | :ref:`EVC_SFR_IFEVEN_IFEVEN7 <EVC_SFR_IFEVEN_IFEVEN7>`         | :ref:`0x4004405c <EVC_SFR_IFEVEN_IFEVEN7>`     |
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`EVC_SFR_IFEVERRFR <EVC_SFR_IFEVERRFR>`                   | :ref:`0x40044060 <EVC_SFR_IFEVERRFR>`          |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED25 <EVC_RESERVED25>`                         | :ref:`0x40044064 <EVC_RESERVED25>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED26 <EVC_RESERVED26>`                         | :ref:`0x40044068 <EVC_RESERVED26>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED27 <EVC_RESERVED27>`                         | :ref:`0x4004406c <EVC_RESERVED27>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED28 <EVC_RESERVED28>`                         | :ref:`0x40044070 <EVC_RESERVED28>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED29 <EVC_RESERVED29>`                         | :ref:`0x40044074 <EVC_RESERVED29>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED30 <EVC_RESERVED30>`                         | :ref:`0x40044078 <EVC_RESERVED30>`             |
-+----------------------------------------------------------------+------------------------------------------------+
-| :ref:`EVC_RESERVED31 <EVC_RESERVED31>`                         | :ref:`0x4004407c <EVC_RESERVED31>`             |
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`EVC_SFR_CM7ERRFR <EVC_SFR_CM7ERRFR>`                     | :ref:`0x40044080 <EVC_SFR_CM7ERRFR>`           |
 +----------------------------------------------------------------+------------------------------------------------+
@@ -305,40 +283,6 @@ EVC_SFR_CM7EVFR
 |       |        | position to clear the flag                                                       |
 +-------+--------+----------------------------------------------------------------------------------+
 
-EVC_RESERVED10
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x28 = 0x40044028`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED10
-
-        {
-            "reg": [
-                {"name": "reserved10", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED11
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x2c = 0x4004402c`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED11
-
-        {
-            "reg": [
-                {"name": "reserved11", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
 EVC_SFR_TMREVSEL
 ^^^^^^^^^^^^^^^^
 
@@ -383,40 +327,6 @@ EVC_SFR_PWMEVSEL
 +========+===========+=======================================+
 | [31:0] | PWM_EVSEL | pwm_evsel read/write control register |
 +--------+-----------+---------------------------------------+
-
-EVC_RESERVED14
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x38 = 0x40044038`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED14
-
-        {
-            "reg": [
-                {"name": "reserved14", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED15
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x3c = 0x4004403c`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED15
-
-        {
-            "reg": [
-                {"name": "reserved15", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 EVC_SFR_IFEVEN_IFEVEN0
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -616,125 +526,6 @@ EVC_SFR_IFEVERRFR
 | [31:0] | IFEV_ERRS | ifev_errs flag register. `1` means event happened, write back `1` in respective |
 |        |           | bit position to clear the flag                                                  |
 +--------+-----------+---------------------------------------------------------------------------------+
-
-EVC_RESERVED25
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x64 = 0x40044064`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED25
-
-        {
-            "reg": [
-                {"name": "reserved25", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED26
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x68 = 0x40044068`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED26
-
-        {
-            "reg": [
-                {"name": "reserved26", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED27
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x6c = 0x4004406c`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED27
-
-        {
-            "reg": [
-                {"name": "reserved27", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED28
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x70 = 0x40044070`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED28
-
-        {
-            "reg": [
-                {"name": "reserved28", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED29
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x74 = 0x40044074`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED29
-
-        {
-            "reg": [
-                {"name": "reserved29", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED30
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x78 = 0x40044078`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED30
-
-        {
-            "reg": [
-                {"name": "reserved30", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
-
-EVC_RESERVED31
-^^^^^^^^^^^^^^
-
-`Address: 0x40044000 + 0x7c = 0x4004407c`
-
-
-    .. wavedrom::
-        :caption: EVC_RESERVED31
-
-        {
-            "reg": [
-                {"name": "reserved31", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 EVC_SFR_CM7ERRFR
 ^^^^^^^^^^^^^^^^

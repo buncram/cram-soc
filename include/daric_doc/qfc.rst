@@ -13,8 +13,6 @@ Register Listing for QFC
 +--------------------------------------------------+-----------------------------------------+
 | :ref:`QFC_SFR_IODRV <QFC_SFR_IODRV>`             | :ref:`0x40000008 <QFC_SFR_IODRV>`       |
 +--------------------------------------------------+-----------------------------------------+
-| :ref:`QFC_RESERVED3 <QFC_RESERVED3>`             | :ref:`0x4000000c <QFC_RESERVED3>`       |
-+--------------------------------------------------+-----------------------------------------+
 | :ref:`QFC_CR_XIP_ADDRMODE <QFC_CR_XIP_ADDRMODE>` | :ref:`0x40000010 <QFC_CR_XIP_ADDRMODE>` |
 +--------------------------------------------------+-----------------------------------------+
 | :ref:`QFC_CR_XIP_OPCODE <QFC_CR_XIP_OPCODE>`     | :ref:`0x40000014 <QFC_CR_XIP_OPCODE>`   |
@@ -95,23 +93,6 @@ QFC_SFR_IODRV
 +========+===========+=======================================+
 | [11:0] | PADDRVSEL | paddrvsel read/write control register |
 +--------+-----------+---------------------------------------+
-
-QFC_RESERVED3
-^^^^^^^^^^^^^
-
-`Address: 0x40000000 + 0xc = 0x4000000c`
-
-
-    .. wavedrom::
-        :caption: QFC_RESERVED3
-
-        {
-            "reg": [
-                {"name": "reserved3", "bits": 1},
-                {"bits": 31},
-            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
-        }
-
 
 QFC_CR_XIP_ADDRMODE
 ^^^^^^^^^^^^^^^^^^^

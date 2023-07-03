@@ -31,9 +31,14 @@ from math import log2
 import sys
 import subprocess
 import os
+import pathlib
 
 from litex.soc.doc.csr import DocumentedCSRRegion
 from litex.soc.interconnect.csr import _CompoundCSR, CSRStorage, CSRStatus, CSRField
+
+from litex.soc.doc.module import gather_submodules, ModuleNotDocumented, DocumentedModule, DocumentedInterrupts
+from litex.soc.doc.rst import reflow
+from litex.soc.doc import default_sphinx_configuration
 
 import re
 import ast
@@ -41,6 +46,7 @@ import operator as op
 import pprint
 from math import log2
 
+# VENDORED CODE -- modifications off main branch exist specific to this application.
 def colorer(s, color="bright"):
     header  = {
         "bright": "\x1b[1m",
@@ -314,17 +320,18 @@ def get_csr_header(regions, constants, csr_base=None, with_csr_base_define=True,
         #if not isinstance(region.obj, Memory):
         for csr in region.obj:
             nr = (csr.size + region.busword - 1)//region.busword
-            r += _get_rw_functions_c(
-                reg_name              = name + "_" + csr.name,
-                reg_base              = origin,
-                nwords                = nr,
-                busword               = region.busword,
-                alignment             = alignment,
-                read_only             = getattr(csr, "read_only", False),
-                csr_base              = csr_base,
-                with_csr_base_define  = with_csr_base_define,
-                with_access_functions = with_access_functions,
-            )
+            if 'reserved' not in csr.name:
+                r += _get_rw_functions_c(
+                    reg_name              = name + "_" + csr.name,
+                    reg_base              = origin,
+                    nwords                = nr,
+                    busword               = region.busword,
+                    alignment             = alignment,
+                    read_only             = getattr(csr, "read_only", False),
+                    csr_base              = csr_base,
+                    with_csr_base_define  = with_csr_base_define,
+                    with_access_functions = with_access_functions,
+                )
             origin += alignment//8*nr
             if hasattr(csr, "fields"):
                 for field in csr.fields.fields:
@@ -366,7 +373,9 @@ def get_csr_svd(soc, vendor="litex", name="soc", description=None):
         origin = i*busword
         return (origin, nbits, name)
 
-    def print_svd_register(csr, csr_address, description, length, svd):
+    def print_svd_register(csr, csr_address, description, length, svd, suppress_reserved=True):
+        if suppress_reserved and ('reserved' in csr.short_numbered_name.lower()):
+            return
         svd.append('                <register>')
         svd.append('                    <name>{}</name>'.format(csr.short_numbered_name))
         if description is not None:
@@ -577,6 +586,155 @@ class DocSoc():
             # )
         }
         self._submodules = {}
+
+# Vendored in because we want to suppres the generation of RESERVED registers
+def generate_docs(soc, base_dir,
+    project_name          = "LiteX SoC Project",
+    author                = "Anonymous",
+    sphinx_extensions     = [],
+    quiet                 = False,
+    note_pulses           = False,
+    from_scratch          = True,
+    sphinx_extra_config   = ""):
+    """Possible extra extensions:
+        [
+            'm2r',
+            'recommonmark',
+            'sphinx_rtd_theme',
+            'sphinx_autodoc_typehints',
+        ]
+    """
+
+    # Ensure the target directory is a full path
+    if base_dir[-1] != '/':
+        base_dir = base_dir + '/'
+
+    # Ensure the output directory exists
+    pathlib.Path(base_dir + "/_static").mkdir(parents=True, exist_ok=True)
+
+    # Create the sphinx configuration file if the user has requested,
+    # or if it doesn't exist already.
+    if from_scratch or not os.path.isfile(base_dir + "conf.py"):
+        with open(base_dir + "conf.py", "w", encoding="utf-8") as conf:
+            year = datetime.datetime.now().year
+            sphinx_ext_str = ""
+            for ext in sphinx_extensions:
+                sphinx_ext_str += "\n    \"{}\",".format(ext)
+            print(default_sphinx_configuration.format(project_name, year,
+                                                      author, author, sphinx_ext_str), file=conf)
+            print(sphinx_extra_config, file=conf)
+
+    if not quiet:
+        print("Generate the documentation by running `sphinx-build -M html {} {}_build`".format(base_dir, base_dir))
+
+    # Gather all interrupts so we can easily map IRQ numbers to CSR sections
+    interrupts = {}
+    for csr, irq in sorted(soc.irq.locs.items()):
+        interrupts[csr] = irq
+
+    # Convert each CSR region into a DocumentedCSRRegion.
+    # This process will also expand each CSR into a DocumentedCSR,
+    # which means that CompoundCSRs (such as CSRStorage and CSRStatus)
+    # that are larger than the buswidth will be turned into multiple
+    # DocumentedCSRs.
+    documented_regions = []
+    seen_modules       = set()
+    for name, region in soc.csr.regions.items():
+        module = None
+        if hasattr(soc, name):
+            module = getattr(soc, name)
+            seen_modules.add(module)
+        submodules = gather_submodules(module)
+        documented_region = DocumentedCSRRegion(
+            name           = name,
+            region         = region,
+            module         = module,
+            submodules     = submodules,
+            csr_data_width = soc.csr.data_width)
+        compressed_csrs = [csr for csr in documented_region.csrs if 'RESERVED' not in csr.name]
+        if len(compressed_csrs) > 0:
+            documented_region.csrs = compressed_csrs
+        if documented_region.name in interrupts:
+            documented_region.document_interrupt(
+                soc, submodules, interrupts[documented_region.name])
+        documented_regions.append(documented_region)
+
+    # Document any modules that are not CSRs.
+    # TODO: Add memory maps here.
+    additional_modules = [
+        DocumentedInterrupts(interrupts),
+    ]
+    for (mod_name, mod) in soc._submodules:
+        if mod not in seen_modules:
+            try:
+                additional_modules.append(DocumentedModule(mod_name, mod))
+            except ModuleNotDocumented:
+                pass
+
+    # Create index.rst containing links to all of the generated files.
+    # If the user has set `from_scratch=False`, then skip this step.
+    if from_scratch or not os.path.isfile(base_dir + "index.rst"):
+        with open(base_dir + "index.rst", "w", encoding="utf-8") as index:
+            print("""
+Documentation for {}
+{}
+
+""".format(project_name, "="*len("Documentation for " + project_name)), file=index)
+
+            if len(additional_modules) > 0:
+                print("""
+Modules
+=======
+
+.. toctree::
+    :maxdepth: 1
+""", file=index)
+                for module in additional_modules:
+                    print("    {}".format(module.name), file=index)
+
+            if len(documented_regions) > 0:
+                print("""
+Register Groups
+===============
+
+.. toctree::
+    :maxdepth: 1
+""", file=index)
+                for region in documented_regions:
+                    print("    {}".format(region.name), file=index)
+
+            print("""
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+""", file=index)
+
+    # Create a Region file for each of the documented CSR regions.
+    for region in documented_regions:
+        with open(base_dir + region.name + ".rst", "w", encoding="utf-8") as outfile:
+            region.print_region(outfile, base_dir, note_pulses)
+
+    # Create a Region file for each additional non-CSR module
+    for region in additional_modules:
+        with open(base_dir + region.name + ".rst", "w", encoding="utf-8") as outfile:
+            region.print_region(outfile, base_dir, note_pulses)
+
+    # Copy over wavedrom javascript and configuration files
+    with open(os.path.dirname(__file__) + "/deps/litex/litex/soc/doc/static/WaveDrom.js", "r") as wd_in:
+        with open(base_dir + "/_static/WaveDrom.js", "w") as wd_out:
+            wd_out.write(wd_in.read())
+    with open(os.path.dirname(__file__) + "/deps/litex/litex/soc/doc/static/default.js", "r") as wd_in:
+        with open(base_dir + "/_static/default.js", "w") as wd_out:
+            wd_out.write(wd_in.read())
+
+
+# --------------------------------------------------------------------------------------------------
+# End vendored code - below is the application code unique to this script.
+# --------------------------------------------------------------------------------------------------
+
 
 # from https://stackoverflow.com/questions/2319019/using-regex-to-remove-comments-from-source-files
 def remove_comments(string):
@@ -1518,7 +1676,6 @@ def main():
         const_header = get_soc_header(doc_soc.constants)
         header_f.write(const_header)
 
-    from litex.soc.doc import generate_docs
     doc_dir = args.outdir + 'daric_doc/'
     generate_docs(doc_soc, doc_dir, project_name="Cramium SoC", author="Cramium, Inc.")
 
@@ -1530,6 +1687,8 @@ if __name__ == "__main__":
     main()
     exit(0)
 
+# just for documentation, no other purpose.
+# Note that all leaf arguments are now expected to be of type Expr(), unlike what is shown here.
 module_schema = {
     'aes' : {
         'localparam' : {
