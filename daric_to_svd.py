@@ -1441,6 +1441,47 @@ def main():
                 mode='rw',
                 cached=False
             )
+    # ---------- SPECIAL CASE - add ifsub placeholder regions
+    doc_soc.mem_regions['ifram0'] = SoCRegion(
+        origin=0x5000_0000,
+        size=0x2_0000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['ifram1'] = SoCRegion(
+        origin=0x5002_0000,
+        size=0x2_0000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['null'] = SoCRegion(
+        origin=0x5004_0000,
+        size=0x1_0000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['udma'] = SoCRegion(
+        origin=0x5010_0000,
+        size=0x2_0000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['udp'] = SoCRegion(
+        origin=0x5012_2000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['pio'] = SoCRegion(
+        origin=0x5012_3000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['sddc_dat'] = SoCRegion(
+        origin=0x5014_0000,
+        size=0x1_0000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['udc'] = SoCRegion(
+        origin=0x5020_0000,
+        size=0x1_0000,
+        mode='rw', cached=False
+    )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
