@@ -1035,7 +1035,10 @@ def expand_param_list(params):
         return expanded_params
 
 def extract_bitwidth(schema, module, code_line):
-    bw_re = re.compile('[\s]*(bit|logic)[\s]*(\[.*\])*(.*)')
+    if module == 'rp_pio':
+        code_line = code_line.replace('[0:NUM_MACHINES-1]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
+        code_line = code_line.replace('[NUM_MACHINES-1:0]', '')
+    bw_re = re.compile('[\s]*(bit|logic|reg|wire)[\s]*(\[.*\])*(.*)')
     matches = bw_re.search(code_line.strip(';'))
     if matches is not None:
         bw = matches.group(2)
@@ -1048,19 +1051,22 @@ def extract_bitwidth(schema, module, code_line):
             bracket_matches = bracket_re.search(bw)
             if bracket_matches is not None:
                 try:
-                    width = int(bracket_matches.group(1)) - int(bracket_matches.group(2)) + 1
+                    # FIXME: hack to deal with parameterized NUM_MACHINES-1 in bit widths.
+                    width = int(bracket_matches.group(1).replace('NUM_MACHINES-1', '3')) - int(bracket_matches.group(2)) + 1
                     for name in names:
                         schema[module]['localparam'][name.strip()] = width
                 except:
                     logging.debug(f"bit expression not handled: {bw}, not creating an entry")
 
+
 def add_reg(schema, module, code_line):
-    REGEX = '(apb_[c,f,a,s]r)\s#\((.+)\)\s(.+)\s\((.+)\);'
+    REGEX = '(apb_[c,f,a,s,2]+r)\s+#\((.+)\)\s(.+)\s\((.+)\);'
     line_matcher = re.match(REGEX, code_line)
     if line_matcher is None:
-        logging.error('Regex match error (this is a script bug, regex needs to be fixed)')
-        logging.error(f'Line:  {code_line}')
-        logging.error(f'regex: {REGEX}')
+        if 'apb_sfr2' not in code_line and 'apb_sfrop2' not in code_line: # exceptions for the SFR definitions at the end of the file
+            logging.error('Regex match error (this is a script bug, regex needs to be fixed)')
+            logging.error(f'Line:  {code_line}')
+            logging.error(f'regex: {REGEX}')
     else:
         apb_type = line_matcher.group(1).strip()
         # create a list by mapping 'str.strip' onto the result of splitting the line_matcher's respective group on the ',' character
@@ -1070,7 +1076,7 @@ def add_reg(schema, module, code_line):
         args = cleanup_braces(list(map(str.strip, line_matcher.group(4).split(','))))
         #if module == 'aes':
         #    print(f'type: {apb_type}, params: {params}, reg_name: {reg_name}, args: {args}')
-        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' and apb_type != 'apb_ar':
+        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' and apb_type != 'apb_ar' and apb_type != 'apb_asr' and apb_type != 'apb_acr' and apb_type != 'apb_ac2r' and apb_type != 'apb_ascr':
             logging.error(f"Parse error extracting APB register type: unrecognized register macro {apb_type}, ignoring!!!")
             return
 
@@ -1136,18 +1142,26 @@ def eval_tree(tree, schema, module, level=0, do_print=False):
                 print(' ' * level + f'{tree}')
 
 def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
-    regtypes = ['cr', 'sr', 'fr', 'ar']
+    regtypes = ['cr', 'sr', 'fr', 'ar', 'asr', 'acr', 'ascr', 'ac2r']
     regdescs = {
         'cr': ' read/write control register',
         'sr': ' read only status register',
         'ar': ' performs action on write of value: ',
         'fr': ' flag register. `1` means event happened, write back `1` in respective bit position to clear the flag',
+        'asr': 'status register which triggers an action on read',
+        'acr': 'control register which triggers an action on write',
+        'ac2r': 'control register which triggers an action on write, with a special case self-clearing bank of bits',
+        'ascr': 'combination control/status register which can also trigger an action',
     }
     regfuncs = {
         'cr': CSRStorage,
         'sr': CSRStatus,
         'ar': CSRStorage,
         'fr': CSRStatus,
+        'asr': CSRStatus,
+        'acr': CSRStorage,
+        'ac2r': CSRStorage,
+        'ascr': CSRStatus,
     }
     if module in banks:
         csrs = []
@@ -1184,26 +1198,67 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     fields=fields,
                                 )]
                         else:
+                            # fixup compound-action type registers
+                            if rtype == 'asr':
+                                rtype = 'sr'
+                            if rtype == 'acr':
+                                rtype = 'cr'
+                            if rtype == 'ac2r':
+                                rtype = 'cr'
+                            if rtype == 'ascr':
+                                rtype = 'cr'
                             the_arg = leaf_desc['args'][rtype]
                             fields = []
+                            constant_counter = 0
                             if '{' in the_arg.as_str():
                                 base_str = the_arg.as_str().replace('{', '').replace('}', '')
                                 bitfields = base_str.split(',')
                                 for bf in reversed(bitfields):
                                     bf = bf.strip()
-                                    if bf in schema[module]['localparam']:
-                                        bitwidth = schema[module]['localparam'][bf]
+                                    if module == 'rp_pio':
+                                        # FIXME: special case hack to remove index from all bitfields except for the [r,t]x_level series
+                                        if '_level' not in bf:
+                                            bf = bf.split('[')[0]
+                                        # FIXME: restore bit width to signals that are aggregate across all machines but
+                                        # consolidated into a single register
+                                        if 'clkdiv_restart' == bf or 'restart' == bf or 'en' == bf:
+                                            bitwidth = 4
+                                        elif bf in schema[module]['localparam']:
+                                            bitwidth = schema[module]['localparam'][bf]
+                                        else:
+                                            # FIXME: special case the rx/tx level entries
+                                            if 'rx_level' in bf or 'tx_level' in bf:
+                                                bitwidth = 3
+                                            else:
+                                                if "'d" not in bf: # we do handle 'd constant fields, just below...
+                                                    logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
+                                                    bitwidth = 1
                                     else:
-                                        logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
-                                        bitwidth = 1
+                                        if bf in schema[module]['localparam']:
+                                            bitwidth = schema[module]['localparam'][bf]
+                                        else:
+                                            logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
+                                            bitwidth = 1
                                     assert(rtype != 'ar') # we don't expect multi-bit ar defs
-                                    fields += [
-                                        CSRField(
-                                            name= bf.replace('.', '_').strip(),
-                                            size= bitwidth,
-                                            description= fname + regdescs[rtype],
-                                        )
-                                    ]
+                                    if "'d" in bf: # this is a constant field
+                                        bf_sub = bf.split("'d")
+                                        bitwidth = int(bf_sub[0])
+                                        fields += [
+                                            CSRField(
+                                                name=f"constant{constant_counter}",
+                                                size= bitwidth,
+                                                description= "constant value of {}".format(bf_sub[1]),
+                                            )
+                                        ]
+                                        constant_counter += 1
+                                    else:
+                                        fields += [
+                                            CSRField(
+                                                name= bf.replace('[', '').replace(']', '').replace('.', '_').strip(),
+                                                size= bitwidth,
+                                                description= bf + regdescs[rtype],
+                                            )
+                                        ]
                             else:
                                 if type(the_arg.eval_result) is int:
                                     fname = leaf_name
@@ -1335,10 +1390,12 @@ def main():
                     (_oldfile, old_version) = versioned_files[basename]
                     if version > old_version:
                         versioned_files[basename] = (file, version)
+    # SPECIAL CASE: PIO data is located in 'ips' directory
+    versioned_files['rp_pio'] = ('do_not_checkin/s32/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
 
-    logging.debug("Using the following sources based on version numbering:")
+    logging.info("Using the following sources based on version numbering:")
     for (k, v) in versioned_files.items():
-        logging.debug('  - {}:{}'.format(k, v))
+        logging.info('  - {}:{}'.format(k, v))
 
     # ------- extract the general schema of the code ----------
     schema = {}
@@ -1366,6 +1423,10 @@ def main():
                                 'apb_sr' : {},
                                 'apb_fr' : {},
                                 'apb_ar' : {},
+                                'apb_asr': {},
+                                'apb_acr': {},
+                                'apb_ac2r': {},
+                                'apb_ascr': {},
                             }
                 elif state == 'ACTIVE':
                     if line.lstrip().startswith('endmodule') or line.lstrip().startswith('endpackage'):
@@ -1373,7 +1434,7 @@ def main():
                         mod_or_pkg = ''
                     else:
                         code_line = remove_comments(line.strip()).lstrip()
-                        if re.match('^apb_[csfa]r', code_line):
+                        if re.match('^apb_[csfa2]+r', code_line):
                             add_reg(schema, mod_or_pkg, code_line)
                         elif code_line.startswith('localparam'):
                             # simple one line case
@@ -1384,7 +1445,7 @@ def main():
                                 multi_line_param += code_line
                         elif code_line.startswith('parameter'):
                             extract_parameter(schema, mod_or_pkg, code_line)
-                        elif code_line.startswith('logic') or code_line.startswith('bit'):
+                        elif code_line.startswith('logic') or code_line.startswith('bit') or code_line.startswith('reg') or code_line.startswith('wire'):
                             extract_bitwidth(schema, mod_or_pkg, code_line)
                 elif state == 'PARAM':
                     code_line = remove_comments(line.strip()).lstrip()
@@ -1494,6 +1555,17 @@ def main():
                 'banks' : {},
                 'display_name' : 'secsub',
             },
+        'rp_pio' :
+            {
+                'socregion' : SoCRegion(
+                            origin=0x5012_3000,
+                            size=0x1000,
+                            mode='rw',
+                            cached=False
+                        ),
+                'banks' : {},
+                'display_name' : 'pio',
+            },
     }
     # --------- extract bank numbers for each region, so we can fix the addresses of various registers ---------
     for (region, attrs) in top_regions.items():
@@ -1522,6 +1594,8 @@ def main():
                         apbs_re = re.compile(r"\.apbs(\s*?)\(.*?coresubapbs\[([0-9]+)\]")
                     elif region == 'secsub':
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsec\[([0-9]+)\]")
+                    elif region == 'rp_pio':
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]") # ignored, actually: rp_pio address is explicitly called out
                     else:
                         print("unknown region!")
                         exit(0)
@@ -1622,11 +1696,6 @@ def main():
     )
     doc_soc.mem_regions['udp'] = SoCRegion(
         origin=0x5012_2000,
-        size=0x1000,
-        mode='rw', cached=False
-    )
-    doc_soc.mem_regions['pio'] = SoCRegion(
-        origin=0x5012_3000,
         size=0x1000,
         mode='rw', cached=False
     )
