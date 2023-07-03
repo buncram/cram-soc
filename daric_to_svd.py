@@ -1402,9 +1402,6 @@ def main():
                         for i in range(sfr_count):
                             sr_defs['sfrs'][sfr_name + str(i)] = i
 
-            # TODO:
-            #  - process segid from localparams
-
         elif region == 'soc_top':
             pass
 
@@ -1435,8 +1432,19 @@ def main():
     for (region, attrs) in top_regions.items():
         doc_soc.mem_regions[attrs['display_name']] = attrs['socregion']
         for (module, leaves) in schema.items():
-            # ctrl_offset is the base of the SCE register set, as extracted from the core documentation
             create_csrs(doc_soc, schema, module, attrs['banks'], ctrl_offset=doc_soc.mem_regions[attrs['display_name']].origin)
+
+    # ---------- SPECIAL CASE - extract SCERAM offsets from source code
+    sceram_origin = 0x4002_0000
+    for k in schema['scedma_pkg']['localparam'].keys():
+        if k.startswith('SEG_'):
+            suffix = k.split('_')[1]
+            doc_soc.mem_regions[k] = SoCRegion(
+                origin=sceram_origin + int(schema['scedma_pkg']['localparam']['SEGADDR_' + suffix].eval_result) * 4,
+                size=int(schema['scedma_pkg']['localparam']['SEGSIZE_' + suffix].eval_result) * 4,
+                mode='rw',
+                cached=False
+            )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
