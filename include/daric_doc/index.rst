@@ -34,6 +34,7 @@ Register Groups
     iox
     pwm
     sddc
+    rp_pio
     mdma
     qfc
     pl230

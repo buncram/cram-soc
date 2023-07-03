@@ -120,21 +120,21 @@ COMBOHASH_SFR_FR
         }
 
 
-+-------+------------+--------------------------------------------------------------------------------+
-| Field | Name       | Description                                                                    |
-+=======+============+================================================================================+
-| [0]   | MFSM_DONE  | mfsm flag register. `1` means event happened, write back `1` in respective bit |
-|       |            | position to clear the flag                                                     |
-+-------+------------+--------------------------------------------------------------------------------+
-| [1]   | HASH_DONE  | mfsm flag register. `1` means event happened, write back `1` in respective bit |
-|       |            | position to clear the flag                                                     |
-+-------+------------+--------------------------------------------------------------------------------+
-| [2]   | CHNLO_DONE | mfsm flag register. `1` means event happened, write back `1` in respective bit |
-|       |            | position to clear the flag                                                     |
-+-------+------------+--------------------------------------------------------------------------------+
-| [3]   | CHNLI_DONE | mfsm flag register. `1` means event happened, write back `1` in respective bit |
-|       |            | position to clear the flag                                                     |
-+-------+------------+--------------------------------------------------------------------------------+
++-------+------------+----------------------------------------------------------------------------------+
+| Field | Name       | Description                                                                      |
++=======+============+==================================================================================+
+| [0]   | MFSM_DONE  | mfsm_done flag register. `1` means event happened, write back `1` in respective  |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [1]   | HASH_DONE  | hash_done flag register. `1` means event happened, write back `1` in respective  |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [2]   | CHNLO_DONE | chnlo_done flag register. `1` means event happened, write back `1` in respective |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [3]   | CHNLI_DONE | chnli_done flag register. `1` means event happened, write back `1` in respective |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
 
 COMBOHASH_SFR_OPT1
 ^^^^^^^^^^^^^^^^^^
@@ -181,11 +181,11 @@ COMBOHASH_SFR_OPT2
 +-------+----------------+--------------------------------------------+
 | Field | Name           | Description                                |
 +=======+================+============================================+
-| [0]   | CR_OPT_SCRTCHK | cr_opt_hashcnt read/write control register |
+| [0]   | CR_OPT_SCRTCHK | cr_opt.scrtchk read/write control register |
 +-------+----------------+--------------------------------------------+
-| [1]   | CR_OPT_IFSOB   | cr_opt_hashcnt read/write control register |
+| [1]   | CR_OPT_IFSOB   | cr_opt.ifsob read/write control register   |
 +-------+----------------+--------------------------------------------+
-| [2]   | CR_OPT_IFSTART | cr_opt_hashcnt read/write control register |
+| [2]   | CR_OPT_IFSTART | cr_opt.ifstart read/write control register |
 +-------+----------------+--------------------------------------------+
 
 COMBOHASH_SFR_SEGPTR_SEGID_LKEY

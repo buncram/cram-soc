@@ -95,13 +95,13 @@ PKE_SFR_SRMFSM
         }
 
 
-+-------+-------------+------------------------------------------+
-| Field | Name        | Description                              |
-+=======+=============+==========================================+
-| [7:0] | MFSM        | cr_segptrstart read only status register |
-+-------+-------------+------------------------------------------+
-| [8]   | MODINVREADY | cr_segptrstart read only status register |
-+-------+-------------+------------------------------------------+
++-------+-------------+---------------------------------------+
+| Field | Name        | Description                           |
++=======+=============+=======================================+
+| [7:0] | MFSM        | mfsm read only status register        |
++-------+-------------+---------------------------------------+
+| [8]   | MODINVREADY | modinvready read only status register |
++-------+-------------+---------------------------------------+
 
 PKE_SFR_FR
 ^^^^^^^^^^
@@ -124,24 +124,24 @@ PKE_SFR_FR
         }
 
 
-+-------+------------+---------------------------------------------------------------------------+
-| Field | Name       | Description                                                               |
-+=======+============+===========================================================================+
-| [0]   | MFSM_DONE  | cr_segptrstart flag register. `1` means event happened, write back `1` in |
-|       |            | respective bit position to clear the flag                                 |
-+-------+------------+---------------------------------------------------------------------------+
-| [1]   | PCORE_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
-|       |            | respective bit position to clear the flag                                 |
-+-------+------------+---------------------------------------------------------------------------+
-| [2]   | CHNLO_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
-|       |            | respective bit position to clear the flag                                 |
-+-------+------------+---------------------------------------------------------------------------+
-| [3]   | CHNLI_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
-|       |            | respective bit position to clear the flag                                 |
-+-------+------------+---------------------------------------------------------------------------+
-| [4]   | CHNLX_DONE | cr_segptrstart flag register. `1` means event happened, write back `1` in |
-|       |            | respective bit position to clear the flag                                 |
-+-------+------------+---------------------------------------------------------------------------+
++-------+------------+----------------------------------------------------------------------------------+
+| Field | Name       | Description                                                                      |
++=======+============+==================================================================================+
+| [0]   | MFSM_DONE  | mfsm_done flag register. `1` means event happened, write back `1` in respective  |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [1]   | PCORE_DONE | pcore_done flag register. `1` means event happened, write back `1` in respective |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [2]   | CHNLO_DONE | chnlo_done flag register. `1` means event happened, write back `1` in respective |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [3]   | CHNLI_DONE | chnli_done flag register. `1` means event happened, write back `1` in respective |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
+| [4]   | CHNLX_DONE | chnlx_done flag register. `1` means event happened, write back `1` in respective |
+|       |            | bit position to clear the flag                                                   |
++-------+------------+----------------------------------------------------------------------------------+
 
 PKE_SFR_OPTNW
 ^^^^^^^^^^^^^

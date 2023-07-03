@@ -119,16 +119,16 @@ AES_SFR_FR
 +-------+------------+----------------------------------------------------------------------------------+
 | Field | Name       | Description                                                                      |
 +=======+============+==================================================================================+
-| [0]   | MFSM_DONE  | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [0]   | MFSM_DONE  | mfsm_done flag register. `1` means event happened, write back `1` in respective  |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
-| [1]   | ACORE_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [1]   | ACORE_DONE | acore_done flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
-| [2]   | CHNLO_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [2]   | CHNLO_DONE | chnlo_done flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
-| [3]   | CHNLI_DONE | sfr_srmfsm flag register. `1` means event happened, write back `1` in respective |
+| [3]   | CHNLI_DONE | chnli_done flag register. `1` means event happened, write back `1` in respective |
 |       |            | bit position to clear the flag                                                   |
 +-------+------------+----------------------------------------------------------------------------------+
 
@@ -151,15 +151,15 @@ AES_SFR_OPT
         }
 
 
-+-------+--------------+----------------------------------------+
-| Field | Name         | Description                            |
-+=======+==============+========================================+
-| [3:0] | OPT_KLEN0    | sfr_crfunc read/write control register |
-+-------+--------------+----------------------------------------+
-| [7:4] | OPT_MODE0    | sfr_crfunc read/write control register |
-+-------+--------------+----------------------------------------+
-| [8]   | OPT_IFSTART0 | sfr_crfunc read/write control register |
-+-------+--------------+----------------------------------------+
++-------+--------------+------------------------------------------+
+| Field | Name         | Description                              |
++=======+==============+==========================================+
+| [3:0] | OPT_KLEN0    | opt_klen0 read/write control register    |
++-------+--------------+------------------------------------------+
+| [7:4] | OPT_MODE0    | opt_mode0 read/write control register    |
++-------+--------------+------------------------------------------+
+| [8]   | OPT_IFSTART0 | opt_ifstart0 read/write control register |
++-------+--------------+------------------------------------------+
 
 AES_SFR_OPT1
 ^^^^^^^^^^^^
