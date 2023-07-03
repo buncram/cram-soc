@@ -702,7 +702,7 @@ class Expr():
             return self.eval_result
 
         if '{' in self.expression:
-            logging.warning(f"Not expanding braced expression: {self.expression}")
+            logging.debug(f"Not expanding braced expression: {self.expression}")
             self.evaluated = True
             self.eval_result = self.expression
             return self.eval_result
@@ -737,7 +737,6 @@ class Expr():
                             # this will cause the patching routine to "do nothing"
                             open_paren = index+1
                             close_paren = index
-                            print(eval_str)
                         try:
                             inner_e = Expr(eval_str)
                             inner_e.eval(schema, module)
@@ -751,7 +750,7 @@ class Expr():
                             t = str(clog2val)
                         except:
                             # a lot of these expressions are used in areas not related to SFRs, let's just skip them.
-                            print("couldn't evaluate clog2 inner: {}".format(eval_str))
+                            logging.debug("couldn't evaluate clog2 inner: {}".format(eval_str))
                             self.unhandled_case = True
 
                     # must be an identifier. Resolve the identifier.
@@ -1098,7 +1097,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                 if bank == 'apb_' + rtype:
                     count += len(leaves)
         if count != 0:
-            logging.warning(f"Registers were discovered that do not have a top-level address mapping: {module}, {count} total orphaned registers")
+            logging.debug(f"Registers were discovered that do not have a top-level address mapping: {module}, {count} total orphaned registers")
 
 def check_file(x):
     try:
@@ -1191,9 +1190,6 @@ def main():
             multi_line_param = ''
             state = 'IDLE'
             for line in lines:
-                if mod_or_pkg == 'sysctrl':
-                    if 'apb_cr' in line:
-                        print(line)
                 if state == 'IDLE':
                     # TODO: handle 'typedef enum' case and extract as localparam
                     if line.lstrip().startswith('module') or line.lstrip().startswith('package'):
@@ -1469,11 +1465,11 @@ def main():
 
     # generate SVD
     with open(args.outdir + 'daric.svd', 'w') as svd_f:
-        svd = get_csr_svd(doc_soc, vendor="cramium", name="soc", description="Cramium SoC, product name TBD")
+        svd = get_csr_svd(doc_soc, vendor="cramium", name="soc", description="Cramium SoC")
         svd_f.write(svd)
 
     # generate C header
-    with open(args.outdir + 'sce.h', 'w') as header_f:
+    with open(args.outdir + 'daric.h', 'w') as header_f:
         reg_header = get_csr_header(doc_soc.csr.regions, doc_soc.constants)
         header_f.write(reg_header)
         mem_header = get_mem_header(doc_soc.mem_regions)
@@ -1483,11 +1479,11 @@ def main():
 
     from litex.soc.doc import generate_docs
     doc_dir = args.outdir + 'daric_doc/'
-    generate_docs(doc_soc, doc_dir, project_name="Cramium SCE module", author="Cramium, Inc.")
+    generate_docs(doc_soc, doc_dir, project_name="Cramium SoC", author="Cramium, Inc.")
 
     subprocess.run(['cargo', 'run', '../include/daric.svd' , '../include/daric_generated.rs'], cwd='./svd2utra')
     subprocess.run(['sphinx-build', '-M', 'html', 'include/daric_doc/', 'include/daric_doc/_build'])
-    # subprocess.run(['rsync', '-a', '--delete', 'include/doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
+    # subprocess.run(['rsync', '-a', '--delete', 'include/daric_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
 
 if __name__ == "__main__":
     main()

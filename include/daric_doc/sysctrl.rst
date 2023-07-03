@@ -1,0 +1,1029 @@
+SYSCTRL
+=======
+
+Register Listing for SYSCTRL
+----------------------------
+
++------------------------------------------------------------------+-------------------------------------------------+
+| Register                                                         | Address                                         |
++==================================================================+=================================================+
+| :ref:`SYSCTRL_SFR_CGUSEC <SYSCTRL_SFR_CGUSEC>`                   | :ref:`0x40040000 <SYSCTRL_SFR_CGUSEC>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGULP <SYSCTRL_SFR_CGULP>`                     | :ref:`0x40040004 <SYSCTRL_SFR_CGULP>`           |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED2 <SYSCTRL_RESERVED2>`                     | :ref:`0x40040008 <SYSCTRL_RESERVED2>`           |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED3 <SYSCTRL_RESERVED3>`                     | :ref:`0x4004000c <SYSCTRL_RESERVED3>`           |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUSEL0 <SYSCTRL_SFR_CGUSEL0>`                 | :ref:`0x40040010 <SYSCTRL_SFR_CGUSEL0>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR0 <SYSCTRL_SFR_CGUFD_CFGFDCR0>`   | :ref:`0x40040014 <SYSCTRL_SFR_CGUFD_CFGFDCR0>`  |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR1 <SYSCTRL_SFR_CGUFD_CFGFDCR1>`   | :ref:`0x40040018 <SYSCTRL_SFR_CGUFD_CFGFDCR1>`  |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR2 <SYSCTRL_SFR_CGUFD_CFGFDCR2>`   | :ref:`0x4004001c <SYSCTRL_SFR_CGUFD_CFGFDCR2>`  |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR3 <SYSCTRL_SFR_CGUFD_CFGFDCR3>`   | :ref:`0x40040020 <SYSCTRL_SFR_CGUFD_CFGFDCR3>`  |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR4 <SYSCTRL_SFR_CGUFD_CFGFDCR4>`   | :ref:`0x40040024 <SYSCTRL_SFR_CGUFD_CFGFDCR4>`  |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED10 <SYSCTRL_RESERVED10>`                   | :ref:`0x40040028 <SYSCTRL_RESERVED10>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUSET <SYSCTRL_SFR_CGUSET>`                   | :ref:`0x4004002c <SYSCTRL_SFR_CGUSET>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUSEL1 <SYSCTRL_SFR_CGUSEL1>`                 | :ref:`0x40040030 <SYSCTRL_SFR_CGUSEL1>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED13 <SYSCTRL_RESERVED13>`                   | :ref:`0x40040034 <SYSCTRL_RESERVED13>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED14 <SYSCTRL_RESERVED14>`                   | :ref:`0x40040038 <SYSCTRL_RESERVED14>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED15 <SYSCTRL_RESERVED15>`                   | :ref:`0x4004003c <SYSCTRL_RESERVED15>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFSSR_FSFREQ0 <SYSCTRL_SFR_CGUFSSR_FSFREQ0>` | :ref:`0x40040040 <SYSCTRL_SFR_CGUFSSR_FSFREQ0>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFSSR_FSFREQ1 <SYSCTRL_SFR_CGUFSSR_FSFREQ1>` | :ref:`0x40040044 <SYSCTRL_SFR_CGUFSSR_FSFREQ1>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFSSR_FSFREQ2 <SYSCTRL_SFR_CGUFSSR_FSFREQ2>` | :ref:`0x40040048 <SYSCTRL_SFR_CGUFSSR_FSFREQ2>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFSSR_FSFREQ3 <SYSCTRL_SFR_CGUFSSR_FSFREQ3>` | :ref:`0x4004004c <SYSCTRL_SFR_CGUFSSR_FSFREQ3>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFSVLD <SYSCTRL_SFR_CGUFSVLD>`               | :ref:`0x40040050 <SYSCTRL_SFR_CGUFSVLD>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_CGUFSCR <SYSCTRL_SFR_CGUFSCR>`                 | :ref:`0x40040054 <SYSCTRL_SFR_CGUFSCR>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED22 <SYSCTRL_RESERVED22>`                   | :ref:`0x40040058 <SYSCTRL_RESERVED22>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED23 <SYSCTRL_RESERVED23>`                   | :ref:`0x4004005c <SYSCTRL_RESERVED23>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_ACLKGR <SYSCTRL_SFR_ACLKGR>`                   | :ref:`0x40040060 <SYSCTRL_SFR_ACLKGR>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_HCLKGR <SYSCTRL_SFR_HCLKGR>`                   | :ref:`0x40040064 <SYSCTRL_SFR_HCLKGR>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_ICLKGR <SYSCTRL_SFR_ICLKGR>`                   | :ref:`0x40040068 <SYSCTRL_SFR_ICLKGR>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_PCLKGR <SYSCTRL_SFR_PCLKGR>`                   | :ref:`0x4004006c <SYSCTRL_SFR_PCLKGR>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED28 <SYSCTRL_RESERVED28>`                   | :ref:`0x40040070 <SYSCTRL_RESERVED28>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED29 <SYSCTRL_RESERVED29>`                   | :ref:`0x40040074 <SYSCTRL_RESERVED29>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED30 <SYSCTRL_RESERVED30>`                   | :ref:`0x40040078 <SYSCTRL_RESERVED30>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED31 <SYSCTRL_RESERVED31>`                   | :ref:`0x4004007c <SYSCTRL_RESERVED31>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_RCURST0 <SYSCTRL_SFR_RCURST0>`                 | :ref:`0x40040080 <SYSCTRL_SFR_RCURST0>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_RCURST1 <SYSCTRL_SFR_RCURST1>`                 | :ref:`0x40040084 <SYSCTRL_SFR_RCURST1>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_RCUSRCFR <SYSCTRL_SFR_RCUSRCFR>`               | :ref:`0x40040088 <SYSCTRL_SFR_RCUSRCFR>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_RESERVED35 <SYSCTRL_RESERVED35>`                   | :ref:`0x4004008c <SYSCTRL_RESERVED35>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCARIPFLOW <SYSCTRL_SFR_IPCARIPFLOW>`         | :ref:`0x40040090 <SYSCTRL_SFR_IPCARIPFLOW>`     |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCEN <SYSCTRL_SFR_IPCEN>`                     | :ref:`0x40040094 <SYSCTRL_SFR_IPCEN>`           |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCLPEN <SYSCTRL_SFR_IPCLPEN>`                 | :ref:`0x40040098 <SYSCTRL_SFR_IPCLPEN>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCOSC <SYSCTRL_SFR_IPCOSC>`                   | :ref:`0x4004009c <SYSCTRL_SFR_IPCOSC>`          |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCPLLMN <SYSCTRL_SFR_IPCPLLMN>`               | :ref:`0x400400a0 <SYSCTRL_SFR_IPCPLLMN>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCPLLF <SYSCTRL_SFR_IPCPLLF>`                 | :ref:`0x400400a4 <SYSCTRL_SFR_IPCPLLF>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCPLLQ <SYSCTRL_SFR_IPCPLLQ>`                 | :ref:`0x400400a8 <SYSCTRL_SFR_IPCPLLQ>`         |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SYSCTRL_SFR_IPCCR <SYSCTRL_SFR_IPCCR>`                     | :ref:`0x400400ac <SYSCTRL_SFR_IPCCR>`           |
++------------------------------------------------------------------+-------------------------------------------------+
+
+SYSCTRL_SFR_CGUSEC
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x0 = 0x40040000`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUSEC
+
+        {
+            "reg": [
+                {"name": "sfr_cgusec",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------------+----------------------------------------+
+| Field  | Name       | Description                            |
++========+============+========================================+
+| [15:0] | SFR_CGUSEC | sfr_cgusec read/write control register |
++--------+------------+----------------------------------------+
+
+SYSCTRL_SFR_CGULP
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x4 = 0x40040004`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGULP
+
+        {
+            "reg": [
+                {"name": "sfr_cgulp",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+---------------------------------------+
+| Field  | Name      | Description                           |
++========+===========+=======================================+
+| [15:0] | SFR_CGULP | sfr_cgulp read/write control register |
++--------+-----------+---------------------------------------+
+
+SYSCTRL_RESERVED2
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x8 = 0x40040008`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED2
+
+        {
+            "reg": [
+                {"name": "reserved2", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED3
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0xc = 0x4004000c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED3
+
+        {
+            "reg": [
+                {"name": "reserved3", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_SFR_CGUSEL0
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x10 = 0x40040010`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUSEL0
+
+        {
+            "reg": [
+                {"name": "sfr_cgusel0",  "bits": 2},
+                {"bits": 30}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------------+-----------------------------------------+
+| Field | Name        | Description                             |
++=======+=============+=========================================+
+| [1:0] | SFR_CGUSEL0 | sfr_cgusel0 read/write control register |
++-------+-------------+-----------------------------------------+
+
+SYSCTRL_SFR_CGUFD_CFGFDCR0
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x14 = 0x40040014`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFD_CFGFDCR0
+
+        {
+            "reg": [
+                {"name": "cfgfdcr0",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+-------------------------------------+
+| Field  | Name     | Description                         |
++========+==========+=====================================+
+| [15:0] | CFGFDCR0 | cfgfdcr read/write control register |
++--------+----------+-------------------------------------+
+
+SYSCTRL_SFR_CGUFD_CFGFDCR1
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x18 = 0x40040018`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFD_CFGFDCR1
+
+        {
+            "reg": [
+                {"name": "cfgfdcr1",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+-------------------------------------+
+| Field  | Name     | Description                         |
++========+==========+=====================================+
+| [15:0] | CFGFDCR1 | cfgfdcr read/write control register |
++--------+----------+-------------------------------------+
+
+SYSCTRL_SFR_CGUFD_CFGFDCR2
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x1c = 0x4004001c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFD_CFGFDCR2
+
+        {
+            "reg": [
+                {"name": "cfgfdcr2",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+-------------------------------------+
+| Field  | Name     | Description                         |
++========+==========+=====================================+
+| [15:0] | CFGFDCR2 | cfgfdcr read/write control register |
++--------+----------+-------------------------------------+
+
+SYSCTRL_SFR_CGUFD_CFGFDCR3
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x20 = 0x40040020`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFD_CFGFDCR3
+
+        {
+            "reg": [
+                {"name": "cfgfdcr3",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+-------------------------------------+
+| Field  | Name     | Description                         |
++========+==========+=====================================+
+| [15:0] | CFGFDCR3 | cfgfdcr read/write control register |
++--------+----------+-------------------------------------+
+
+SYSCTRL_SFR_CGUFD_CFGFDCR4
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x24 = 0x40040024`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFD_CFGFDCR4
+
+        {
+            "reg": [
+                {"name": "cfgfdcr4",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+-------------------------------------+
+| Field  | Name     | Description                         |
++========+==========+=====================================+
+| [15:0] | CFGFDCR4 | cfgfdcr read/write control register |
++--------+----------+-------------------------------------+
+
+SYSCTRL_RESERVED10
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x28 = 0x40040028`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED10
+
+        {
+            "reg": [
+                {"name": "reserved10", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_SFR_CGUSET
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x2c = 0x4004002c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUSET
+
+        {
+            "reg": [
+                {"name": "sfr_cguset",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------------+----------------------------------------------------+
+| Field  | Name       | Description                                        |
++========+============+====================================================+
+| [31:0] | SFR_CGUSET | sfr_cguset performs action on write of value: 0x32 |
++--------+------------+----------------------------------------------------+
+
+SYSCTRL_SFR_CGUSEL1
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x30 = 0x40040030`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUSEL1
+
+        {
+            "reg": [
+                {"name": "sfr_cgusel1",  "bits": 1},
+                {"bits": 31}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------------+-----------------------------------------+
+| Field | Name        | Description                             |
++=======+=============+=========================================+
+| [0]   | SFR_CGUSEL1 | sfr_cgusel1 read/write control register |
++-------+-------------+-----------------------------------------+
+
+SYSCTRL_RESERVED13
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x34 = 0x40040034`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED13
+
+        {
+            "reg": [
+                {"name": "reserved13", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED14
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x38 = 0x40040038`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED14
+
+        {
+            "reg": [
+                {"name": "reserved14", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED15
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x3c = 0x4004003c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED15
+
+        {
+            "reg": [
+                {"name": "reserved15", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_SFR_CGUFSSR_FSFREQ0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x40 = 0x40040040`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ0
+
+        {
+            "reg": [
+                {"name": "fsfreq0",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+----------------------------------+
+| Field  | Name    | Description                      |
++========+=========+==================================+
+| [15:0] | FSFREQ0 | fsfreq read only status register |
++--------+---------+----------------------------------+
+
+SYSCTRL_SFR_CGUFSSR_FSFREQ1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x44 = 0x40040044`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ1
+
+        {
+            "reg": [
+                {"name": "fsfreq1",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+----------------------------------+
+| Field  | Name    | Description                      |
++========+=========+==================================+
+| [15:0] | FSFREQ1 | fsfreq read only status register |
++--------+---------+----------------------------------+
+
+SYSCTRL_SFR_CGUFSSR_FSFREQ2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x48 = 0x40040048`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ2
+
+        {
+            "reg": [
+                {"name": "fsfreq2",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+----------------------------------+
+| Field  | Name    | Description                      |
++========+=========+==================================+
+| [15:0] | FSFREQ2 | fsfreq read only status register |
++--------+---------+----------------------------------+
+
+SYSCTRL_SFR_CGUFSSR_FSFREQ3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x4c = 0x4004004c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ3
+
+        {
+            "reg": [
+                {"name": "fsfreq3",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+----------------------------------+
+| Field  | Name    | Description                      |
++========+=========+==================================+
+| [15:0] | FSFREQ3 | fsfreq read only status register |
++--------+---------+----------------------------------+
+
+SYSCTRL_SFR_CGUFSVLD
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x50 = 0x40040050`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFSVLD
+
+        {
+            "reg": [
+                {"name": "sfr_cgufsvld",  "bits": 4},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+--------------+----------------------------------------+
+| Field | Name         | Description                            |
++=======+==============+========================================+
+| [3:0] | SFR_CGUFSVLD | sfr_cgufsvld read only status register |
++-------+--------------+----------------------------------------+
+
+SYSCTRL_SFR_CGUFSCR
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x54 = 0x40040054`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_CGUFSCR
+
+        {
+            "reg": [
+                {"name": "sfr_cgufscr",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-----------------------------------------+
+| Field  | Name        | Description                             |
++========+=============+=========================================+
+| [15:0] | SFR_CGUFSCR | sfr_cgufscr read/write control register |
++--------+-------------+-----------------------------------------+
+
+SYSCTRL_RESERVED22
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x58 = 0x40040058`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED22
+
+        {
+            "reg": [
+                {"name": "reserved22", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED23
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x5c = 0x4004005c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED23
+
+        {
+            "reg": [
+                {"name": "reserved23", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_SFR_ACLKGR
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x60 = 0x40040060`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_ACLKGR
+
+        {
+            "reg": [
+                {"name": "sfr_aclkgr",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [7:0] | SFR_ACLKGR | sfr_aclkgr read/write control register |
++-------+------------+----------------------------------------+
+
+SYSCTRL_SFR_HCLKGR
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x64 = 0x40040064`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_HCLKGR
+
+        {
+            "reg": [
+                {"name": "sfr_hclkgr",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [7:0] | SFR_HCLKGR | sfr_hclkgr read/write control register |
++-------+------------+----------------------------------------+
+
+SYSCTRL_SFR_ICLKGR
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x68 = 0x40040068`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_ICLKGR
+
+        {
+            "reg": [
+                {"name": "sfr_iclkgr",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [7:0] | SFR_ICLKGR | sfr_iclkgr read/write control register |
++-------+------------+----------------------------------------+
+
+SYSCTRL_SFR_PCLKGR
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x6c = 0x4004006c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_PCLKGR
+
+        {
+            "reg": [
+                {"name": "sfr_pclkgr",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [7:0] | SFR_PCLKGR | sfr_pclkgr read/write control register |
++-------+------------+----------------------------------------+
+
+SYSCTRL_RESERVED28
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x70 = 0x40040070`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED28
+
+        {
+            "reg": [
+                {"name": "reserved28", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED29
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x74 = 0x40040074`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED29
+
+        {
+            "reg": [
+                {"name": "reserved29", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED30
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x78 = 0x40040078`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED30
+
+        {
+            "reg": [
+                {"name": "reserved30", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_RESERVED31
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x7c = 0x4004007c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED31
+
+        {
+            "reg": [
+                {"name": "reserved31", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_SFR_RCURST0
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x80 = 0x40040080`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_RCURST0
+
+        {
+            "reg": [
+                {"name": "sfr_rcurst0",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-------------------------------------------------------+
+| Field  | Name        | Description                                           |
++========+=============+=======================================================+
+| [31:0] | SFR_RCURST0 | sfr_rcurst0 performs action on write of value: 0x55aa |
++--------+-------------+-------------------------------------------------------+
+
+SYSCTRL_SFR_RCURST1
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x84 = 0x40040084`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_RCURST1
+
+        {
+            "reg": [
+                {"name": "sfr_rcurst1",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-------------------------------------------------------+
+| Field  | Name        | Description                                           |
++========+=============+=======================================================+
+| [31:0] | SFR_RCURST1 | sfr_rcurst1 performs action on write of value: 0x55aa |
++--------+-------------+-------------------------------------------------------+
+
+SYSCTRL_SFR_RCUSRCFR
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x88 = 0x40040088`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_RCUSRCFR
+
+        {
+            "reg": [
+                {"name": "sfr_rcusrcfr",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------------+-------------------------------------------------------------------------+
+| Field  | Name         | Description                                                             |
++========+==============+=========================================================================+
+| [15:0] | SFR_RCUSRCFR | sfr_rcusrcfr flag register. `1` means event happened, write back `1` in |
+|        |              | respective bit position to clear the flag                               |
++--------+--------------+-------------------------------------------------------------------------+
+
+SYSCTRL_RESERVED35
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x8c = 0x4004008c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_RESERVED35
+
+        {
+            "reg": [
+                {"name": "reserved35", "bits": 1},
+                {"bits": 31},
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
+SYSCTRL_SFR_IPCARIPFLOW
+^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x90 = 0x40040090`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCARIPFLOW
+
+        {
+            "reg": [
+                {"name": "sfr_ipcaripflow",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------------+---------------------------------------------------------+
+| Field  | Name            | Description                                             |
++========+=================+=========================================================+
+| [31:0] | SFR_IPCARIPFLOW | sfr_ipcaripflow performs action on write of value: 0x57 |
++--------+-----------------+---------------------------------------------------------+
+
+SYSCTRL_SFR_IPCEN
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x94 = 0x40040094`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCEN
+
+        {
+            "reg": [
+                {"name": "sfr_ipcen",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+---------------------------------------+
+| Field  | Name      | Description                           |
++========+===========+=======================================+
+| [15:0] | SFR_IPCEN | sfr_ipcen read/write control register |
++--------+-----------+---------------------------------------+
+
+SYSCTRL_SFR_IPCLPEN
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x98 = 0x40040098`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCLPEN
+
+        {
+            "reg": [
+                {"name": "sfr_ipclpen",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-----------------------------------------+
+| Field  | Name        | Description                             |
++========+=============+=========================================+
+| [15:0] | SFR_IPCLPEN | sfr_ipclpen read/write control register |
++--------+-------------+-----------------------------------------+
+
+SYSCTRL_SFR_IPCOSC
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x9c = 0x4004009c`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCOSC
+
+        {
+            "reg": [
+                {"name": "sfr_ipcosc",  "bits": 7},
+                {"bits": 25}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [6:0] | SFR_IPCOSC | sfr_ipcosc read/write control register |
++-------+------------+----------------------------------------+
+
+SYSCTRL_SFR_IPCPLLMN
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0xa0 = 0x400400a0`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCPLLMN
+
+        {
+            "reg": [
+                {"name": "sfr_ipcpllmn",  "bits": 17},
+                {"bits": 15}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------------+------------------------------------------+
+| Field  | Name         | Description                              |
++========+==============+==========================================+
+| [16:0] | SFR_IPCPLLMN | sfr_ipcpllmn read/write control register |
++--------+--------------+------------------------------------------+
+
+SYSCTRL_SFR_IPCPLLF
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0xa4 = 0x400400a4`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCPLLF
+
+        {
+            "reg": [
+                {"name": "sfr_ipcpllf",  "bits": 25},
+                {"bits": 7}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-----------------------------------------+
+| Field  | Name        | Description                             |
++========+=============+=========================================+
+| [24:0] | SFR_IPCPLLF | sfr_ipcpllf read/write control register |
++--------+-------------+-----------------------------------------+
+
+SYSCTRL_SFR_IPCPLLQ
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0xa8 = 0x400400a8`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCPLLQ
+
+        {
+            "reg": [
+                {"name": "sfr_ipcpllq",  "bits": 15},
+                {"bits": 17}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-----------------------------------------+
+| Field  | Name        | Description                             |
++========+=============+=========================================+
+| [14:0] | SFR_IPCPLLQ | sfr_ipcpllq read/write control register |
++--------+-------------+-----------------------------------------+
+
+SYSCTRL_SFR_IPCCR
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0xac = 0x400400ac`
+
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_IPCCR
+
+        {
+            "reg": [
+                {"name": "sfr_ipccr",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+---------------------------------------+
+| Field  | Name      | Description                           |
++========+===========+=======================================+
+| [15:0] | SFR_IPCCR | sfr_ipccr read/write control register |
++--------+-----------+---------------------------------------+
+
