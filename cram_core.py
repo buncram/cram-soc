@@ -1330,7 +1330,7 @@ class cramSoC(SoCCore):
                 p_bus = mem_bus[1]
                 platform.add_extension(p_bus.get_ios("p_axi"))
                 p_pads = platform.request("p_axi")
-                self.sync += p_bus.connect_to_pads(p_pads, mode="master") # was comb
+                self.comb += p_bus.connect_to_pads(p_pads, mode="master") # was comb
             else:
                 print("Unhandled AXI bus from CPU core: {}".format(mem_bus))
 
