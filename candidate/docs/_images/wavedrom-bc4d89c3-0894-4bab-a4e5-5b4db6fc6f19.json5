@@ -1,0 +1,5 @@
+{
+    "reg": [
+        {"name": "clocks_per_tick[31:0]", "attr": 'reset: 800000', "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}

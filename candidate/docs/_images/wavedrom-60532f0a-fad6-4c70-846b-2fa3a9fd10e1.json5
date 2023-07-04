@@ -1,0 +1,7 @@
+{
+    "reg": [
+        {"name": "resume",  "bits": 1},
+        {"name": "was_forced",  "bits": 1},
+        {"bits": 30}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
