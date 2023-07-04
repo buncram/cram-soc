@@ -1369,7 +1369,10 @@ pub fn apb_test() {
             csr_data_width = doc_soc.csr.data_width)
         )
     skip_list = [
-        'aes', 'combohash', 'pke', 'scedma', 'sce_glbsfr', 'trng', 'alu', 'evc', 'sysctrl',
+        # 'aes', 'combohash', 'pke', 'scedma', 'sce_glbsfr',
+        'trng', 'alu',
+        # 'evc',
+        'sysctrl',
     ]
     for region in documented_regions:
         if region.name in skip_list:
