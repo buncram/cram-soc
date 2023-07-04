@@ -13,6 +13,16 @@ mod satp;
 mod irqs;
 
 mod asm;
+
+#[cfg(feature="full-chip")]
+mod daric_generated;
+// you know what's irritating? if this file is named apb_test, clippy complains because
+// it's not a #test. wtf yo. not all tests are just for you, clippy!
+#[cfg(feature="apb-test")]
+mod apb_check;
+#[cfg(feature="apb-test")]
+use apb_check::apb_test;
+
 /*
     Notes about printing:
       - the println! and write! macros are actually quite expensive in the context of a 32kiB ROM (~4k overhead??)
@@ -326,6 +336,23 @@ pub fn xip_test() {
 }
 
 #[cfg(feature="full-chip")]
+pub fn reset_ticktimer() {
+    let mut  tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+    tt.wfo(utra::ticktimer::CONTROL_RESET, 1);
+    tt.wo(utra::ticktimer::CONTROL, 0);
+}
+#[cfg(feature="full-chip")]
+pub fn snap_ticks(title: &str) {
+    let tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+    let elapsed = tt.r(utra::ticktimer::TIME0);
+    let mut uart = debug::Uart {};
+    uart.tiny_write_str(title);
+    uart.tiny_write_str(" time: 0x");
+    uart.print_hex_word(elapsed);
+    uart.tiny_write_str(" ticks\n");
+}
+
+#[cfg(feature="full-chip")]
 pub fn early_init() {
     unsafe {
         (0x400400a0 as *mut u32).write_volatile(0x1F598); // F
@@ -350,7 +377,25 @@ pub fn early_init() {
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     #[cfg(feature="full-chip")]
-    early_init();
+    {
+        let u8_test =  crate::debug::duart::HW_DUART_BASE as *mut u8;
+        let u16_test = crate::debug::duart::HW_DUART_BASE as *mut u16;
+
+        // quick test to check byte and word write strobes on the
+        unsafe {
+            u8_test.write_volatile(0x31);
+            u8_test.add(1).write_volatile(32);
+            u8_test.add(2).write_volatile(33);
+            u8_test.add(3).write_volatile(34);
+
+            u16_test.write_volatile(0x44);
+            u16_test.add(1).write_volatile(0x55);
+        }
+        reset_ticktimer();
+        snap_ticks("sysctrl: ipen\n");
+
+        early_init();
+    }
 
     let mut uart = debug::Uart {};
     uart.tiny_write_str("booting... 006\r");
@@ -361,6 +406,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     // report the measured reset value
     let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
     report_api(resetvalue.r(utra::resetvalue::PC));
+
+    // ---------- if activated, run the APB test. This is based off of Philip's "touch all the registers" test.
+    #[cfg(feature="apb-test")]
+    apb_test();
 
     // ---------- vm setup -------------------------
     satp::satp_setup(); // at the conclusion of this, we are running in "supervisor" (kernel) mode, with Sv32 semantics
@@ -458,42 +507,45 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     report_api(0x600c_ac7e);
 
     // check that caching is disabled for I/O regions
-    let mut checkstate = 0x1234_0000;
-    report.wfo(utra::main::WDATA_WDATA, 0x1234_0000);
-    let mut checkdata = 0;
-    for _ in 0..100 {
-        checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
-        report.wfo(utra::main::WDATA_WDATA, checkdata);
-        // report_api(checkdata);
-        checkstate += 5;
-    }
-    if checkdata == checkstate {
-        report_api(checkstate);
-        report_api(0x600d_0001);
-    } else {
-        report_api(checkstate);
-        report_api(checkdata);
-        report_api(0x0bad_0001);
-    }
+    #[cfg(not(feature="full-chip"))] // these register do not exist on the full chip, it's only in the local validation framework
+    {
+        let mut checkstate = 0x1234_0000;
+        report.wfo(utra::main::WDATA_WDATA, 0x1234_0000);
+        let mut checkdata = 0;
+        for _ in 0..100 {
+            checkdata = report.rf(utra::main::RDATA_RDATA); // RDATA = WDATA + 5, computed in hardware
+            report.wfo(utra::main::WDATA_WDATA, checkdata);
+            // report_api(checkdata);
+            checkstate += 5;
+        }
+        if checkdata == checkstate {
+            report_api(checkstate);
+            report_api(0x600d_0001);
+        } else {
+            report_api(checkstate);
+            report_api(checkdata);
+            report_api(0x0bad_0001);
+        }
 
-    // check that repeated reads of a register fetch new contents
-    let mut checkdata = 0; // tracked value via simulation
-    let mut computed = 0; // computed value by reading the hardware block
-    let mut devstate = 0; // what the state should be
-    for _ in 0..20 {
-        let readout = report.rf(utra::main::RINC_RINC);
-        computed += readout;
-        // report_api(readout);
-        checkdata += devstate;
-        devstate += 3;
-    }
-    if checkdata == computed {
-        report_api(checkdata);
-        report_api(0x600d_0002);
-    } else {
-        report_api(checkdata);
-        report_api(computed);
-        report_api(0x0bad_0002);
+        // check that repeated reads of a register fetch new contents
+        let mut checkdata = 0; // tracked value via simulation
+        let mut computed = 0; // computed value by reading the hardware block
+        let mut devstate = 0; // what the state should be
+        for _ in 0..20 {
+            let readout = report.rf(utra::main::RINC_RINC);
+            computed += readout;
+            // report_api(readout);
+            checkdata += devstate;
+            devstate += 3;
+        }
+        if checkdata == computed {
+            report_api(checkdata);
+            report_api(0x600d_0002);
+        } else {
+            report_api(checkdata);
+            report_api(computed);
+            report_api(0x0bad_0002);
+        }
     }
 
     // ----------- bus tests -------------

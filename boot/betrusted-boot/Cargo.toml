@@ -12,13 +12,14 @@ xous-pio = {path="../../../xous-cramium/libs/xous-pio", optional=true, default-f
 [features]
 debug-print = []
 small-soc = []
-daric = []
+daric = [] # use daric-style reporting. Probably need to deprecate this, as it will become the standard feature.
 pio-test = ["xous-pio"]
 # default = ["debug-print", "small-soc"]
 gdb-load = []  # set VM mapping 1:1 for code space for JTAG loading so that GDB is not confused by the VM offset
 arty = []
-full-chip = []
+full-chip = [] # create a file suitable for simulating on the full chip (does not target an "local" validation features)
 xip = []
+apb-test = []
 default = ["daric", "full-chip"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
