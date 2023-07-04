@@ -22,7 +22,7 @@ from axi_common import *
 
 PRODUCTION_MODULE="CM7AAB"
 SIMULATION_MODULE="axi2ahb"
-SELECTED_MODULE=SIMULATION_MODULE
+SELECTED_MODULE=PRODUCTION_MODULE
 class AXILite2AHBAdapter(Module):
     def __init__(self, platform, s_axil, m_ahb):
         self.logger = logging.getLogger("AXILite2AHBAdapter")
@@ -62,7 +62,7 @@ class AXILite2AHBAdapter(Module):
                 i_AWBURST    = BURST_FIXED,
                 i_AWID       = 0,
                 i_AWLEN      = 0,
-                i_AWSIZE     = log2_int(s_data_width),
+                i_AWSIZE     = 0, #log2_int(s_data_width),
                 i_AWLOCK     = 0,
                 i_AWPROT     = 0,
                 i_AWCACHE    = 0, # or maybe 1, would indicate that the transaction is "bufferable"
@@ -89,7 +89,7 @@ class AXILite2AHBAdapter(Module):
                 i_ARBURST    = BURST_FIXED,
                 i_ARID       = 0,
                 i_ARLEN      = 0,
-                i_ARSIZE     = log2_int(s_data_width),
+                i_ARSIZE     = 0, #log2_int(s_data_width),
                 i_ARLOCK     = 0,
                 i_ARPROT     = 0,
                 i_ARCACHE    = 0, # or maybe 1
