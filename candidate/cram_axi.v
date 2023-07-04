@@ -9,7 +9,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : e08384a2
-// Date       : 2023-06-20 11:01:24
+// Date       : 2023-07-04 18:32:57
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -112,23 +112,23 @@ module cram_axi (
     input  wire   [31:0] dbus_axi_rdata,
     input  wire          dbus_axi_rid,
     input  wire          dbus_axi_ruser,
-    output reg           p_axi_awvalid,
+    output wire          p_axi_awvalid,
     input  wire          p_axi_awready,
-    output reg    [31:0] p_axi_awaddr,
-    output reg     [2:0] p_axi_awprot,
-    output reg           p_axi_wvalid,
+    output wire   [31:0] p_axi_awaddr,
+    output wire    [2:0] p_axi_awprot,
+    output wire          p_axi_wvalid,
     input  wire          p_axi_wready,
-    output reg    [31:0] p_axi_wdata,
-    output reg     [3:0] p_axi_wstrb,
+    output wire   [31:0] p_axi_wdata,
+    output wire    [3:0] p_axi_wstrb,
     input  wire          p_axi_bvalid,
-    output reg           p_axi_bready,
+    output wire          p_axi_bready,
     input  wire    [1:0] p_axi_bresp,
-    output reg           p_axi_arvalid,
+    output wire          p_axi_arvalid,
     input  wire          p_axi_arready,
-    output reg    [31:0] p_axi_araddr,
-    output reg     [2:0] p_axi_arprot,
+    output wire   [31:0] p_axi_araddr,
+    output wire    [2:0] p_axi_arprot,
     input  wire          p_axi_rvalid,
-    output reg           p_axi_rready,
+    output wire          p_axi_rready,
     input  wire    [1:0] p_axi_rresp,
     input  wire   [31:0] p_axi_rdata,
     input  wire          jtag_tdi,
@@ -314,24 +314,24 @@ wire   [31:0] cramsoc_dbus_peri_r_payload_data;
 wire          cramsoc_dbus_peri_r_param_id;
 reg           cramsoc_dbus_peri_r_param_user;
 wire          cramsoc_peripherals_aw_valid;
-reg           cramsoc_peripherals_aw_ready;
+wire          cramsoc_peripherals_aw_ready;
 wire   [31:0] cramsoc_peripherals_aw_payload_addr;
 wire    [2:0] cramsoc_peripherals_aw_payload_prot;
 wire          cramsoc_peripherals_w_valid;
-reg           cramsoc_peripherals_w_ready;
+wire          cramsoc_peripherals_w_ready;
 wire   [31:0] cramsoc_peripherals_w_payload_data;
 wire    [3:0] cramsoc_peripherals_w_payload_strb;
-reg           cramsoc_peripherals_b_valid;
+wire          cramsoc_peripherals_b_valid;
 wire          cramsoc_peripherals_b_ready;
-reg     [1:0] cramsoc_peripherals_b_payload_resp;
+wire    [1:0] cramsoc_peripherals_b_payload_resp;
 wire          cramsoc_peripherals_ar_valid;
-reg           cramsoc_peripherals_ar_ready;
+wire          cramsoc_peripherals_ar_ready;
 wire   [31:0] cramsoc_peripherals_ar_payload_addr;
 wire    [2:0] cramsoc_peripherals_ar_payload_prot;
-reg           cramsoc_peripherals_r_valid;
+wire          cramsoc_peripherals_r_valid;
 wire          cramsoc_peripherals_r_ready;
-reg     [1:0] cramsoc_peripherals_r_payload_resp;
-reg    [31:0] cramsoc_peripherals_r_payload_data;
+wire    [1:0] cramsoc_peripherals_r_payload_resp;
+wire   [31:0] cramsoc_peripherals_r_payload_data;
 wire          cramsoc_axi_csr_aw_valid;
 wire          cramsoc_axi_csr_aw_ready;
 wire   [31:0] cramsoc_axi_csr_aw_payload_addr;
@@ -4618,6 +4618,25 @@ assign cramsoc_dbus_r_param_id = dbus_axi_rid;
 assign cramsoc_dbus_r_param_user = dbus_axi_ruser;
 assign cramsoc_dbus_r_last = dbus_axi_rlast;
 assign dbus_axi_rready = cramsoc_dbus_r_ready;
+assign p_axi_awvalid = cramsoc_peripherals_aw_valid;
+assign p_axi_awaddr = cramsoc_peripherals_aw_payload_addr;
+assign p_axi_awprot = cramsoc_peripherals_aw_payload_prot;
+assign cramsoc_peripherals_aw_ready = p_axi_awready;
+assign p_axi_wvalid = cramsoc_peripherals_w_valid;
+assign p_axi_wdata = cramsoc_peripherals_w_payload_data;
+assign p_axi_wstrb = cramsoc_peripherals_w_payload_strb;
+assign cramsoc_peripherals_w_ready = p_axi_wready;
+assign cramsoc_peripherals_b_valid = p_axi_bvalid;
+assign cramsoc_peripherals_b_payload_resp = p_axi_bresp;
+assign p_axi_bready = cramsoc_peripherals_b_ready;
+assign p_axi_arvalid = cramsoc_peripherals_ar_valid;
+assign p_axi_araddr = cramsoc_peripherals_ar_payload_addr;
+assign p_axi_arprot = cramsoc_peripherals_ar_payload_prot;
+assign cramsoc_peripherals_ar_ready = p_axi_arready;
+assign cramsoc_peripherals_r_valid = p_axi_rvalid;
+assign cramsoc_peripherals_r_payload_resp = p_axi_rresp;
+assign cramsoc_peripherals_r_payload_data = p_axi_rdata;
+assign p_axi_rready = cramsoc_peripherals_r_ready;
 assign cramsoc_cmbist = cmbist;
 assign cramsoc_cmatpg = cmatpg;
 assign coreuser_cmbist = cmbist;
@@ -16510,25 +16529,6 @@ always @(posedge always_on_clk) begin
 end
 
 always @(posedge sys_clk) begin
-    p_axi_awvalid <= cramsoc_peripherals_aw_valid;
-    p_axi_awaddr <= cramsoc_peripherals_aw_payload_addr;
-    p_axi_awprot <= cramsoc_peripherals_aw_payload_prot;
-    cramsoc_peripherals_aw_ready <= p_axi_awready;
-    p_axi_wvalid <= cramsoc_peripherals_w_valid;
-    p_axi_wdata <= cramsoc_peripherals_w_payload_data;
-    p_axi_wstrb <= cramsoc_peripherals_w_payload_strb;
-    cramsoc_peripherals_w_ready <= p_axi_wready;
-    cramsoc_peripherals_b_valid <= p_axi_bvalid;
-    cramsoc_peripherals_b_payload_resp <= p_axi_bresp;
-    p_axi_bready <= cramsoc_peripherals_b_ready;
-    p_axi_arvalid <= cramsoc_peripherals_ar_valid;
-    p_axi_araddr <= cramsoc_peripherals_ar_payload_addr;
-    p_axi_arprot <= cramsoc_peripherals_ar_payload_prot;
-    cramsoc_peripherals_ar_ready <= p_axi_arready;
-    cramsoc_peripherals_r_valid <= p_axi_rvalid;
-    cramsoc_peripherals_r_payload_resp <= p_axi_rresp;
-    cramsoc_peripherals_r_payload_data <= p_axi_rdata;
-    p_axi_rready <= cramsoc_peripherals_r_ready;
     if (cramsoc_ibus_axi_ar_valid) begin
         ibus_r_active <= 1'd1;
     end else begin
@@ -17763,28 +17763,9 @@ always @(posedge sys_clk) begin
     end
     ticktimer_enable_re <= csrbank27_ev_enable0_re;
     if (sys_rst) begin
-        cramsoc_peripherals_aw_ready <= 1'd0;
-        cramsoc_peripherals_w_ready <= 1'd0;
-        cramsoc_peripherals_b_valid <= 1'd0;
-        cramsoc_peripherals_b_payload_resp <= 2'd0;
-        cramsoc_peripherals_ar_ready <= 1'd0;
-        cramsoc_peripherals_r_valid <= 1'd0;
-        cramsoc_peripherals_r_payload_resp <= 2'd0;
-        cramsoc_peripherals_r_payload_data <= 32'd0;
         reset_debug_logic <= 1'd0;
         debug_reset <= 1'd0;
         resetvalue_re <= 1'd0;
-        p_axi_awvalid <= 1'd0;
-        p_axi_awaddr <= 32'd0;
-        p_axi_awprot <= 3'd0;
-        p_axi_wvalid <= 1'd0;
-        p_axi_wdata <= 32'd0;
-        p_axi_wstrb <= 4'd0;
-        p_axi_bready <= 1'd0;
-        p_axi_arvalid <= 1'd0;
-        p_axi_araddr <= 32'd0;
-        p_axi_arprot <= 3'd0;
-        p_axi_rready <= 1'd0;
         coreuser <= 1'd0;
         coreuser_set_asid_storage <= 10'd0;
         coreuser_set_asid_re <= 1'd0;
@@ -18508,5 +18489,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-06-20 11:01:25.
+//  Auto-Generated by LiteX on 2023-07-04 18:32:57.
 //------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 <device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
     <vendor>litex</vendor>
     <name>SOC</name>
-    <description><![CDATA[Litex SoC 2023-06-20 11:01:23]]></description>
+    <description><![CDATA[Litex SoC 2023-07-04 18:32:56]]></description>
 
     <addressUnitBits>8</addressUnitBits>
     <width>32</width>
