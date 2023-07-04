@@ -1318,7 +1318,7 @@ def generate_rust_test(doc_soc, file):
 
     file.write(
 """
-use crate::daric_generated::*;
+// use crate::daric_generated::*;
 
 pub fn singlecheck(title: &str, addr: *mut u32, data: u32) {
     let mut uart = crate::debug::Uart {};
@@ -1357,7 +1357,7 @@ pub fn singlecheckread(title: &str, addr: *const u32) {
 
 pub fn apb_test() {
     let mut uart = crate::debug::Uart {};
-    crate::snap_ticks("scan bus::\\n");
+    crate::snap_ticks("scan bus:: ");
 
 """
     )
@@ -1374,7 +1374,7 @@ pub fn apb_test() {
         # 'evc',
         'sysctrl',
     ]
-    for region in documented_regions:
+    for region in reversed(documented_regions):
         if region.name in skip_list:
             continue
         # extract pretty-printing data
@@ -1384,6 +1384,7 @@ pub fn apb_test() {
                 max_width = len(csr.name)
 
         # now do the code gen
+        file.write("    crate::snap_ticks(\"{}:: \");\n".format(region.name))
         for csr in region.csrs:
             if not 'reserved' in csr.name.lower():
                 # print(csr.short_numbered_name)

@@ -338,17 +338,19 @@ pub fn xip_test() {
 #[cfg(feature="full-chip")]
 pub fn reset_ticktimer() {
     let mut  tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+    tt.wo(utra::ticktimer::CLOCKS_PER_TICK, 160);
     tt.wfo(utra::ticktimer::CONTROL_RESET, 1);
     tt.wo(utra::ticktimer::CONTROL, 0);
 }
 #[cfg(feature="full-chip")]
 pub fn snap_ticks(title: &str) {
     let tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
-    let elapsed = tt.r(utra::ticktimer::TIME0);
     let mut uart = debug::Uart {};
     uart.tiny_write_str(title);
     uart.tiny_write_str(" time: 0x");
+    let elapsed = tt.r(utra::ticktimer::TIME0);
     uart.print_hex_word(elapsed);
+    // write!(uart, "{} time: {} ticks\n", title, elapsed).ok();
     uart.tiny_write_str(" ticks\n");
 }
 
@@ -392,7 +394,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             u16_test.add(1).write_volatile(0x55);
         }
         reset_ticktimer();
-        snap_ticks("sysctrl: ipen\n");
+        snap_ticks("sysctrl: ipen ");
 
         early_init();
     }
