@@ -3,7 +3,7 @@
 <device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
     <vendor>litex</vendor>
     <name>SOC</name>
-    <description><![CDATA[Litex SoC 2023-07-04 18:32:56]]></description>
+    <description><![CDATA[Litex SoC 2023-07-04 22:14:20]]></description>
 
     <addressUnitBits>8</addressUnitBits>
     <width>32</width>
@@ -11370,10 +11370,25 @@ register to disable individual events.]]></description>
                         </field>
                     </fields>
                 </register>
+                <register>
+                    <name>CLOCKS_PER_TICK</name>
+                    <description><![CDATA[Clocks per tick, defaults to 800000]]></description>
+                    <addressOffset>0x0020</addressOffset>
+                    <resetValue>0xc3500</resetValue>
+                    <size>32</size>
+                    <fields>
+                        <field>
+                            <name>clocks_per_tick</name>
+                            <msb>31</msb>
+                            <bitRange>[31:0]</bitRange>
+                            <lsb>0</lsb>
+                        </field>
+                    </fields>
+                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x20</size>
+                <size>0x24</size>
                 <usage>registers</usage>
             </addressBlock>
             <interrupt>

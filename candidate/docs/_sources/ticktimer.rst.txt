@@ -23,7 +23,7 @@ cross-domain clocks.
 
 Configuration
 -------------
-This timer was configured with 64 bits, which rolls over in 584942417.36 years, with each bit giving 1.0ms resolution
+This timer was configured with defaults of 64 bits, which rolls over in 584942417.36 years, with each bit giving 1.0ms resolution
 
 msleep extension
 ----------------
@@ -41,25 +41,27 @@ domain, which runs at a much slower rate than the CPU clock.
 Register Listing for TICKTIMER
 ------------------------------
 
-+------------------------------------------------------------+----------------------------------------------+
-| Register                                                   | Address                                      |
-+============================================================+==============================================+
-| :ref:`TICKTIMER_CONTROL <TICKTIMER_CONTROL>`               | :ref:`0xe001b000 <TICKTIMER_CONTROL>`        |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_TIME1 <TICKTIMER_TIME1>`                   | :ref:`0xe001b004 <TICKTIMER_TIME1>`          |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_TIME0 <TICKTIMER_TIME0>`                   | :ref:`0xe001b008 <TICKTIMER_TIME0>`          |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_MSLEEP_TARGET1 <TICKTIMER_MSLEEP_TARGET1>` | :ref:`0xe001b00c <TICKTIMER_MSLEEP_TARGET1>` |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_MSLEEP_TARGET0 <TICKTIMER_MSLEEP_TARGET0>` | :ref:`0xe001b010 <TICKTIMER_MSLEEP_TARGET0>` |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_EV_STATUS <TICKTIMER_EV_STATUS>`           | :ref:`0xe001b014 <TICKTIMER_EV_STATUS>`      |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_EV_PENDING <TICKTIMER_EV_PENDING>`         | :ref:`0xe001b018 <TICKTIMER_EV_PENDING>`     |
-+------------------------------------------------------------+----------------------------------------------+
-| :ref:`TICKTIMER_EV_ENABLE <TICKTIMER_EV_ENABLE>`           | :ref:`0xe001b01c <TICKTIMER_EV_ENABLE>`      |
-+------------------------------------------------------------+----------------------------------------------+
++--------------------------------------------------------------+-----------------------------------------------+
+| Register                                                     | Address                                       |
++==============================================================+===============================================+
+| :ref:`TICKTIMER_CONTROL <TICKTIMER_CONTROL>`                 | :ref:`0xe001b000 <TICKTIMER_CONTROL>`         |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_TIME1 <TICKTIMER_TIME1>`                     | :ref:`0xe001b004 <TICKTIMER_TIME1>`           |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_TIME0 <TICKTIMER_TIME0>`                     | :ref:`0xe001b008 <TICKTIMER_TIME0>`           |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_MSLEEP_TARGET1 <TICKTIMER_MSLEEP_TARGET1>`   | :ref:`0xe001b00c <TICKTIMER_MSLEEP_TARGET1>`  |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_MSLEEP_TARGET0 <TICKTIMER_MSLEEP_TARGET0>`   | :ref:`0xe001b010 <TICKTIMER_MSLEEP_TARGET0>`  |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_EV_STATUS <TICKTIMER_EV_STATUS>`             | :ref:`0xe001b014 <TICKTIMER_EV_STATUS>`       |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_EV_PENDING <TICKTIMER_EV_PENDING>`           | :ref:`0xe001b018 <TICKTIMER_EV_PENDING>`      |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_EV_ENABLE <TICKTIMER_EV_ENABLE>`             | :ref:`0xe001b01c <TICKTIMER_EV_ENABLE>`       |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`TICKTIMER_CLOCKS_PER_TICK <TICKTIMER_CLOCKS_PER_TICK>` | :ref:`0xe001b020 <TICKTIMER_CLOCKS_PER_TICK>` |
++--------------------------------------------------------------+-----------------------------------------------+
 
 TICKTIMER_CONTROL
 ^^^^^^^^^^^^^^^^^
@@ -230,4 +232,21 @@ TICKTIMER_EV_ENABLE
 +=======+=======+=============================================+
 | [0]   | ALARM | Write a ``1`` to enable the ``alarm`` Event |
 +-------+-------+---------------------------------------------+
+
+TICKTIMER_CLOCKS_PER_TICK
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0xe001b000 + 0x20 = 0xe001b020`
+
+    Clocks per tick, defaults to 800000
+
+    .. wavedrom::
+        :caption: TICKTIMER_CLOCKS_PER_TICK
+
+        {
+            "reg": [
+                {"name": "clocks_per_tick[31:0]", "attr": 'reset: 800000', "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
 
