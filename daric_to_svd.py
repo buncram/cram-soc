@@ -32,6 +32,7 @@ import sys
 import subprocess
 import os
 import pathlib
+import random
 
 from litex.soc.doc.csr import DocumentedCSRRegion
 from litex.soc.interconnect.csr import _CompoundCSR, CSRStorage, CSRStatus, CSRField
@@ -1312,6 +1313,112 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
         if count != 0:
             logging.debug(f"Registers were discovered that do not have a top-level address mapping: {module}, {count} total orphaned registers")
 
+def generate_rust_test(doc_soc, file):
+    random.seed(10)
+
+    file.write(
+"""
+use crate::daric_generated::*;
+
+pub fn singlecheck(title: &str, addr: *mut u32, data: u32) {
+    let mut uart = crate::debug::Uart {};
+
+    uart.tiny_write_str(title);
+    uart.tiny_write_str("::  [");
+    uart.print_hex_word(addr as u32);
+    uart.tiny_write_str("] wr:");
+    uart.print_hex_word(data as u32);
+    uart.tiny_write_str(" | rd:");
+
+    unsafe{addr.write_volatile(data)};
+    let r = unsafe{addr.read_volatile()};
+
+    uart.print_hex_word(r);
+    uart.tiny_write_str(" ");
+    if r != data {
+        uart.tiny_write_str("----[x!]");
+        if r == 0 {
+            uart.tiny_write_str("[0!]");
+        }
+    }
+    uart.tiny_write_str("\\n")
+}
+
+pub fn singlecheckread(title: &str, addr: *const u32) {
+    let mut uart = crate::debug::Uart {};
+    uart.tiny_write_str(title);
+    uart.tiny_write_str("::  [");
+    uart.print_hex_word(addr as u32);
+    uart.tiny_write_str("] wr:-------- | rd:");
+    let r = unsafe{addr.read_volatile()};
+    uart.print_hex_word(r);
+    uart.tiny_write_str(" \\n");
+}
+
+pub fn apb_test() {
+    let mut uart = crate::debug::Uart {};
+    crate::snap_ticks("scan bus::\\n");
+
+"""
+    )
+    documented_regions = []
+    for region_name, region in doc_soc.csr.regions.items():
+        documented_regions.append(DocumentedCSRRegion(
+            name           = region_name,
+            region         = region,
+            csr_data_width = doc_soc.csr.data_width)
+        )
+    skip_list = [
+        'aes', 'combohash', 'pke', 'scedma', 'sce_glbsfr', 'trng', 'alu', 'evc', 'sysctrl',
+    ]
+    for region in documented_regions:
+        if region.name in skip_list:
+            continue
+        # extract pretty-printing data
+        max_width = 0
+        for csr in region.csrs:
+            if len(csr.name) > max_width:
+                max_width = len(csr.name)
+
+        # now do the code gen
+        for csr in region.csrs:
+            if not 'reserved' in csr.name.lower():
+                # print(csr.short_numbered_name)
+                file.write(
+                    "    singlecheck({}, 0x{:08x} as *mut u32, 0x{:08x});\n".format(
+                        '"' + csr.name.ljust(max_width) + '"',
+                        csr.address,
+                        random.randint(0, 0xFFFF_FFFF)
+                    )
+                )
+
+    udc_addrs = [
+        0x50202000,
+        0x50202004,
+        0x502020fc,
+        0x50202084,
+        0x50202400,
+        0x50202410,
+        0x50202414,
+        0x502024fc,
+        0x50202484,
+    ]
+    for addr in udc_addrs:
+        file.write(
+            "    singlecheckread({}, 0x{:08x} as *const u32);\n".format(
+                '"udc            "',
+                addr,
+            )
+        )
+
+    file.write(
+"""
+    loop {
+        uart.tiny_write_str("scan done\\n");
+    }
+}
+""")
+
 def check_file(x):
     try:
         if x.is_file():
@@ -1745,10 +1852,15 @@ def main():
         const_header = get_soc_header(doc_soc.constants)
         header_f.write(const_header)
 
+    # generate Rust test file
+    with open('boot/betrusted-boot/src/apb_check.rs', 'w') as rust_f:
+        generate_rust_test(doc_soc, rust_f)
+
     doc_dir = args.outdir + 'daric_doc/'
     generate_docs(doc_soc, doc_dir, project_name="Cramium SoC", author="Cramium, Inc.")
 
     subprocess.run(['cargo', 'run', '../include/daric.svd' , '../include/daric_generated.rs'], cwd='./svd2utra')
+    subprocess.run(['cp', 'include/daric_generated.rs', 'boot/betrusted-boot/src/'])
     subprocess.run(['sphinx-build', '-M', 'html', 'include/daric_doc/', 'include/daric_doc/_build'])
     # subprocess.run(['rsync', '-a', '--delete', 'include/daric_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
 
