@@ -345,10 +345,10 @@ pub fn reset_ticktimer() {
 #[cfg(feature="full-chip")]
 pub fn snap_ticks(title: &str) {
     let tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+    let elapsed = tt.rf(utra::ticktimer::TIME0_TIME);
     let mut uart = debug::Uart {};
     uart.tiny_write_str(title);
-    uart.tiny_write_str(" time: 0x");
-    let elapsed = tt.r(utra::ticktimer::TIME0);
+    uart.tiny_write_str(" time: ");
     uart.print_hex_word(elapsed);
     // write!(uart, "{} time: {} ticks\n", title, elapsed).ok();
     uart.tiny_write_str(" ticks\n");
@@ -356,22 +356,39 @@ pub fn snap_ticks(title: &str) {
 
 #[cfg(feature="full-chip")]
 pub fn early_init() {
+    let mut uart = debug::Uart {};
+
     unsafe {
         (0x400400a0 as *mut u32).write_volatile(0x1F598); // F
-        let poke_array: [(u32, u16); 10] = [
-            (0x400400a4, 0x2812),   //  MN
-            (0x400400a8, 0x3301),   //  Q
-            (0x40040090, 0x0032),  // setpll
-            (0x40040014, 0x7f7f),  // fclk
-            (0x40040018, 0x7f7f),  // aclk
-            (0x4004001c, 0x3f3f),  // hclk
-            (0x40040020, 0x1f1f),  // iclk
-            (0x40040024, 0x0f0f),  // pclk
-            (0x40040010, 0x0001),  // sel0
-            (0x4004002c, 0x0032),  // setpll
+        uart.print_hex_word((0x400400a0 as *const u32).read_volatile());
+        uart.putc('\n' as u32 as u8);
+        let poke_array: [(u32, u32, bool); 12] = [
+            (0x400400a4, 0x2812, false),   //  MN
+            (0x400400a8, 0x3301, false),   //  Q
+            (0x40040090, 0x0032, true),  // setpll
+            (0x40040014, 0x7f7f, false),  // fclk
+            (0x40040018, 0x7f7f, false),  // aclk
+            (0x4004001c, 0x3f3f, false),  // hclk
+            (0x40040020, 0x1f1f, false),  // iclk
+            (0x40040024, 0x0f0f, false),  // pclk
+            (0x40040010, 0x0001, false),  // sel0
+            (0x4004002c, 0x0032, true),  // setcgu
+            (0x40040060, 0x0003, false),  // aclk gates
+            (0x40040064, 0x0003, false),  // hclk gates
         ];
-        for (addr, dat) in poke_array.iter() {
-            (*addr as *mut u16).write_volatile(*dat);
+        for &(addr, dat, is_u32) in poke_array.iter() {
+            let rbk = if is_u32 {
+                (addr as *mut u32).write_volatile(dat);
+                (addr as *const u32).read_volatile()
+            } else {
+                (addr as *mut u16).write_volatile(dat as u16);
+                (addr as *const u16).read_volatile() as u32
+            };
+            uart.print_hex_word(rbk);
+            if dat != rbk {
+                uart.putc('*' as u32 as u8);
+            }
+            uart.putc('\n' as u32 as u8);
         }
     }
 }
