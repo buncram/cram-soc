@@ -338,18 +338,18 @@ pub fn xip_test() {
 #[cfg(feature="full-chip")]
 pub fn reset_ticktimer() {
     let mut  tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
-    tt.wo(utra::ticktimer::CLOCKS_PER_TICK, 160);
+    // tt.wo(utra::ticktimer::CLOCKS_PER_TICK, 160);
+    tt.wo(utra::ticktimer::CLOCKS_PER_TICK, 369560); // based on 369.56MHz default clock
     tt.wfo(utra::ticktimer::CONTROL_RESET, 1);
     tt.wo(utra::ticktimer::CONTROL, 0);
 }
 #[cfg(feature="full-chip")]
 pub fn snap_ticks(title: &str) {
     let tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
-    let elapsed = tt.rf(utra::ticktimer::TIME0_TIME);
     let mut uart = debug::Uart {};
     uart.tiny_write_str(title);
     uart.tiny_write_str(" time: ");
-    uart.print_hex_word(elapsed);
+    uart.print_hex_word(tt.rf(utra::ticktimer::TIME0_TIME));
     // write!(uart, "{} time: {} ticks\n", title, elapsed).ok();
     uart.tiny_write_str(" ticks\n");
 }

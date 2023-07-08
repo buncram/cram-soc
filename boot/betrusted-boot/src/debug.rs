@@ -20,11 +20,13 @@ pub mod duart {
 impl Uart {
     fn put_digit(&mut self, d: u8) {
         let nyb = d & 0xF;
-        if nyb < 10 {
-            self.putc(nyb + 0x30);
+        let c = if nyb < 10 {
+            nyb + 0x30
         } else {
-            self.putc(nyb + 0x61 - 10);
-        }
+            nyb + 0x61 - 10
+        };
+        assert!(c >= 0x30, "conversion failed!");
+        self.putc(c);
     }
     pub fn put_hex(&mut self, c: u8) {
         self.put_digit(c >> 4);
