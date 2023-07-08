@@ -1398,7 +1398,10 @@ class cramSoC(SoCCore):
             self.cd_sys.rst.eq(platform.request("rst")),
         ]
         self.clock_domains.cd_always_on = ClockDomain()
-        self.comb += self.cd_always_on.clk.eq(platform.request("always_on"))
+        self.comb += [
+            self.cd_always_on.clk.eq(platform.request("always_on")),
+            self.cd_always_on.rst.eq(ResetSignal()),
+        ]
 
         # SoCMini ----------------------------------------------------------------------------------
         reset_address = self.mem_map["reram"]
