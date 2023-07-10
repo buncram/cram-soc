@@ -1820,6 +1820,22 @@ def main():
         size=0x1_0000,
         mode='rw', cached=False
     )
+    # ---------- SPECIAL CASE - add core memory regions
+    doc_soc.mem_regions['sram'] = SoCRegion(
+        origin=0x6100_0000,
+        size=1024*1024 * 2,
+        mode='rw', cached=True
+    )
+    doc_soc.mem_regions['reram'] = SoCRegion(
+        origin=0x6000_0000,
+        size=1024*1024 * 4,
+        mode='rw', cached=True
+    )
+    doc_soc.mem_regions['xip'] = SoCRegion(
+        origin=0x7000_0000,
+        size=1024*1024 * 128,
+        mode='rw', cached=True
+    )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
@@ -1865,6 +1881,7 @@ def main():
 
     subprocess.run(['cargo', 'run', '../include/daric.svd' , '../include/daric_generated.rs'], cwd='./svd2utra')
     subprocess.run(['cp', 'include/daric_generated.rs', 'boot/betrusted-boot/src/'])
+    subprocess.run(['cp', 'include/daric.svd', '../xous-cramium/precursors/daric.svd'])
     subprocess.run(['sphinx-build', '-M', 'html', 'include/daric_doc/', 'include/daric_doc/_build'])
     # subprocess.run(['rsync', '-a', '--delete', 'include/daric_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
 
