@@ -69,7 +69,7 @@ then
   cp link-soc.x link.x
   cd ../
   # hw-image, mbox-image
-  cargo xtask hw-image --kernel-feature hwsim --feature hwsim
+  cargo xtask hw-image --kernel-feature fake-rng --feature cramium-fpga
   python3 ./mkimage.py
   ./disasm_load.sh
   cd ../cram-soc
