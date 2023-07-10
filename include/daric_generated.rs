@@ -301,6 +301,12 @@ pub const HW_SDDC_DAT_MEM:     usize = 0x50140000;
 pub const HW_SDDC_DAT_MEM_LEN: usize = 65536;
 pub const HW_UDC_MEM:     usize = 0x50200000;
 pub const HW_UDC_MEM_LEN: usize = 65536;
+pub const HW_SRAM_MEM:     usize = 0x61000000;
+pub const HW_SRAM_MEM_LEN: usize = 2097152;
+pub const HW_RERAM_MEM:     usize = 0x60000000;
+pub const HW_RERAM_MEM_LEN: usize = 4194304;
+pub const HW_XIP_MEM:     usize = 0x70000000;
+pub const HW_XIP_MEM_LEN: usize = 134217728;
 
 // Physical base addresses of registers
 pub const HW_AES_BASE :   usize = 0x4002d000;

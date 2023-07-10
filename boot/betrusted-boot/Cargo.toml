@@ -20,7 +20,7 @@ arty = []
 full-chip = [] # create a file suitable for simulating on the full chip (does not target an "local" validation features)
 xip = []
 apb-test = []
-default = ["daric", "full-chip"]
+default = ["daric"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

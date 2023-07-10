@@ -8252,6 +8252,21 @@ position to clear the flag]]></description>
                 <baseAddress>0x50200000</baseAddress>
                 <size>0x00010000</size>
             </memoryRegion>
+            <memoryRegion>
+                <name>SRAM</name>
+                <baseAddress>0x61000000</baseAddress>
+                <size>0x00200000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>RERAM</name>
+                <baseAddress>0x60000000</baseAddress>
+                <size>0x00400000</size>
+            </memoryRegion>
+            <memoryRegion>
+                <name>XIP</name>
+                <baseAddress>0x70000000</baseAddress>
+                <size>0x08000000</size>
+            </memoryRegion>
         </memoryRegions>
         <constants>
         </constants>
