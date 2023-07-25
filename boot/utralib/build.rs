@@ -3,6 +3,7 @@ fn main() {
     let svd_files = vec![
         "../../build/software/soc.svd".to_string(),
         "../../build/software/core.svd".to_string(),
+        "../../include/daric.svd".to_string(),
     ];
     let mut svd_filehandles = vec![];
     for svd_filename in svd_files {

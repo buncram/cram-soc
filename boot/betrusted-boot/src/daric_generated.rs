@@ -309,6 +309,7 @@ pub const HW_XIP_MEM:     usize = 0x70000000;
 pub const HW_XIP_MEM_LEN: usize = 134217728;
 
 // Physical base addresses of registers
+pub const HW_PL230_BASE :   usize = 0x40011000;
 pub const HW_AES_BASE :   usize = 0x4002d000;
 pub const HW_COMBOHASH_BASE :   usize = 0x4002b000;
 pub const HW_PKE_BASE :   usize = 0x4002c000;
@@ -328,13 +329,86 @@ pub const HW_SDDC_BASE :   usize = 0x50121000;
 pub const HW_RP_PIO_BASE :   usize = 0x50123000;
 pub const HW_MDMA_BASE :   usize = 0x40002000;
 pub const HW_QFC_BASE :   usize = 0x40000000;
-pub const HW_PL230_BASE :   usize = 0x40001000;
+pub const HW_PL230_PLACEHOLDER_BASE :   usize = 0x40011000;
 pub const HW_GLUECHAIN_BASE :   usize = 0x40054000;
 pub const HW_MESH_BASE :   usize = 0x40052000;
 pub const HW_SENSORC_BASE :   usize = 0x40053000;
 
 
 pub mod utra {
+
+    pub mod pl230 {
+        pub const PL230_NUMREGS: usize = 20;
+
+        pub const STATUS: crate::Register = crate::Register::new(0, 0xf01f00f1);
+        pub const STATUS_TEST_STATUS: crate::Field = crate::Field::new(4, 28, STATUS);
+        pub const STATUS_CHNLS_MINUS1: crate::Field = crate::Field::new(5, 16, STATUS);
+        pub const STATUS_STATE: crate::Field = crate::Field::new(4, 4, STATUS);
+        pub const STATUS_MASTER_ENABLE: crate::Field = crate::Field::new(1, 0, STATUS);
+
+        pub const CFG: crate::Register = crate::Register::new(1, 0xe1);
+        pub const CFG_CHNL_PROT_CTRL: crate::Field = crate::Field::new(3, 5, CFG);
+        pub const CFG_MASTER_ENABLE: crate::Field = crate::Field::new(1, 0, CFG);
+
+        pub const CTRLBASEPTR: crate::Register = crate::Register::new(2, 0xffffff00);
+        pub const CTRLBASEPTR_CTRL_BASE_PTR: crate::Field = crate::Field::new(24, 8, CTRLBASEPTR);
+
+        pub const ALTCTRLBASEPTR: crate::Register = crate::Register::new(3, 0xffffffff);
+        pub const ALTCTRLBASEPTR_ALT_CTRL_BASE_PTR: crate::Field = crate::Field::new(32, 0, ALTCTRLBASEPTR);
+
+        pub const DMA_WAITONREQ_STATUS: crate::Register = crate::Register::new(4, 0xff);
+        pub const DMA_WAITONREQ_STATUS_DMA_WAITONREQ_STATUS: crate::Field = crate::Field::new(8, 0, DMA_WAITONREQ_STATUS);
+
+        pub const CHNLSWREQUEST: crate::Register = crate::Register::new(5, 0xff);
+        pub const CHNLSWREQUEST_CHNL_SW_REQUEST: crate::Field = crate::Field::new(8, 0, CHNLSWREQUEST);
+
+        pub const CHNLUSEBURSTSET: crate::Register = crate::Register::new(6, 0xff);
+        pub const CHNLUSEBURSTSET_CHNL_USEBURST_SET: crate::Field = crate::Field::new(8, 0, CHNLUSEBURSTSET);
+
+        pub const CHNLUSEBURSTCLR: crate::Register = crate::Register::new(7, 0xff);
+        pub const CHNLUSEBURSTCLR_CHNL_USEBURST_CLR: crate::Field = crate::Field::new(8, 0, CHNLUSEBURSTCLR);
+
+        pub const CHNLREQMASKSET: crate::Register = crate::Register::new(8, 0xff);
+        pub const CHNLREQMASKSET_CHNL_REQ_MASK_SET: crate::Field = crate::Field::new(8, 0, CHNLREQMASKSET);
+
+        pub const CHNLREQMASKCLR: crate::Register = crate::Register::new(9, 0xff);
+        pub const CHNLREQMASKCLR_CHNL_REQ_MASK_CLR: crate::Field = crate::Field::new(8, 0, CHNLREQMASKCLR);
+
+        pub const CHNLENABLESET: crate::Register = crate::Register::new(10, 0xff);
+        pub const CHNLENABLESET_CHNL_ENABLE_SET: crate::Field = crate::Field::new(8, 0, CHNLENABLESET);
+
+        pub const CHNLENABLECLR: crate::Register = crate::Register::new(11, 0xff);
+        pub const CHNLENABLECLR_CHNL_ENABLE_CLR: crate::Field = crate::Field::new(8, 0, CHNLENABLECLR);
+
+        pub const CHNLPRIALTSET: crate::Register = crate::Register::new(12, 0xff);
+        pub const CHNLPRIALTSET_CHNL_PRI_ALT_SET: crate::Field = crate::Field::new(8, 0, CHNLPRIALTSET);
+
+        pub const CHNLPRIALTCLR: crate::Register = crate::Register::new(13, 0xff);
+        pub const CHNLPRIALTCLR_CHNL_PRI_ALT_CLR: crate::Field = crate::Field::new(8, 0, CHNLPRIALTCLR);
+
+        pub const CHNLPRIORITYSET: crate::Register = crate::Register::new(14, 0xff);
+        pub const CHNLPRIORITYSET_CHNL_PRIORITY_SET: crate::Field = crate::Field::new(8, 0, CHNLPRIORITYSET);
+
+        pub const CHNLPRIORITYCLR: crate::Register = crate::Register::new(15, 0xff);
+        pub const CHNLPRIORITYCLR_CHNL_PRIORITY_CLR: crate::Field = crate::Field::new(8, 0, CHNLPRIORITYCLR);
+
+        pub const ERRCLR: crate::Register = crate::Register::new(19, 0x1);
+        pub const ERRCLR_ERR_CLR: crate::Field = crate::Field::new(1, 0, ERRCLR);
+
+        pub const PERIPH_ID_0: crate::Register = crate::Register::new(1016, 0xff);
+        pub const PERIPH_ID_0_PART_NUMBER_LSB: crate::Field = crate::Field::new(8, 0, PERIPH_ID_0);
+
+        pub const PERIPH_ID_1: crate::Register = crate::Register::new(1017, 0x7f);
+        pub const PERIPH_ID_1_PART_NUMBER_MSB: crate::Field = crate::Field::new(4, 0, PERIPH_ID_1);
+        pub const PERIPH_ID_1_JEP106_LSB: crate::Field = crate::Field::new(3, 4, PERIPH_ID_1);
+
+        pub const PERIPH_ID_2: crate::Register = crate::Register::new(1018, 0xff);
+        pub const PERIPH_ID_2_JEP106_MSB: crate::Field = crate::Field::new(3, 0, PERIPH_ID_2);
+        pub const PERIPH_ID_2_JEDEC_USED: crate::Field = crate::Field::new(1, 3, PERIPH_ID_2);
+        pub const PERIPH_ID_2_REVISION: crate::Field = crate::Field::new(4, 4, PERIPH_ID_2);
+
+        pub const HW_PL230_BASE: usize = 0x40011000;
+    }
 
     pub mod aes {
         pub const AES_NUMREGS: usize = 10;
@@ -589,7 +663,48 @@ pub mod utra {
     }
 
     pub mod trng {
-        pub const TRNG_NUMREGS: usize = 0;
+        pub const TRNG_NUMREGS: usize = 12;
+
+        pub const SFR_CRFUNC: crate::Register = crate::Register::new(0, 0xff);
+        pub const SFR_CRFUNC_CR_FUNC: crate::Field = crate::Field::new(8, 0, SFR_CRFUNC);
+
+        pub const SFR_AR: crate::Register = crate::Register::new(1, 0xffffffff);
+        pub const SFR_AR_START: crate::Field = crate::Field::new(32, 0, SFR_AR);
+
+        pub const SFR_SRMFSM: crate::Register = crate::Register::new(2, 0x3);
+        pub const SFR_SRMFSM_MFSM: crate::Field = crate::Field::new(1, 0, SFR_SRMFSM);
+        pub const SFR_SRMFSM_MODINVREADY: crate::Field = crate::Field::new(1, 1, SFR_SRMFSM);
+
+        pub const SFR_FR: crate::Register = crate::Register::new(3, 0x1f);
+        pub const SFR_FR_MFSM_DONE: crate::Field = crate::Field::new(1, 0, SFR_FR);
+        pub const SFR_FR_PCORE_DONE: crate::Field = crate::Field::new(1, 1, SFR_FR);
+        pub const SFR_FR_CHNLO_DONE: crate::Field = crate::Field::new(1, 2, SFR_FR);
+        pub const SFR_FR_CHNLI_DONE: crate::Field = crate::Field::new(1, 3, SFR_FR);
+        pub const SFR_FR_CHNLX_DONE: crate::Field = crate::Field::new(1, 4, SFR_FR);
+
+        pub const SFR_OPTNW: crate::Register = crate::Register::new(4, 0x1fff);
+        pub const SFR_OPTNW_OPT_NW: crate::Field = crate::Field::new(13, 0, SFR_OPTNW);
+
+        pub const SFR_OPTEW: crate::Register = crate::Register::new(5, 0x1fff);
+        pub const SFR_OPTEW_OPT_EW: crate::Field = crate::Field::new(13, 0, SFR_OPTEW);
+
+        pub const SFR_OPTMASK: crate::Register = crate::Register::new(8, 0xffff);
+        pub const SFR_OPTMASK_OPT_MASK: crate::Field = crate::Field::new(16, 0, SFR_OPTMASK);
+
+        pub const SFR_SEGPTR_CR_SEGPTRSTART0: crate::Register = crate::Register::new(12, 0xfff);
+        pub const SFR_SEGPTR_CR_SEGPTRSTART0_CR_SEGPTRSTART0: crate::Field = crate::Field::new(12, 0, SFR_SEGPTR_CR_SEGPTRSTART0);
+
+        pub const SFR_SEGPTR_CR_SEGPTRSTART1: crate::Register = crate::Register::new(13, 0xfff);
+        pub const SFR_SEGPTR_CR_SEGPTRSTART1_CR_SEGPTRSTART1: crate::Field = crate::Field::new(12, 0, SFR_SEGPTR_CR_SEGPTRSTART1);
+
+        pub const SFR_SEGPTR_CR_SEGPTRSTART2: crate::Register = crate::Register::new(14, 0xfff);
+        pub const SFR_SEGPTR_CR_SEGPTRSTART2_CR_SEGPTRSTART2: crate::Field = crate::Field::new(12, 0, SFR_SEGPTR_CR_SEGPTRSTART2);
+
+        pub const SFR_SEGPTR_CR_SEGPTRSTART3: crate::Register = crate::Register::new(15, 0xfff);
+        pub const SFR_SEGPTR_CR_SEGPTRSTART3_CR_SEGPTRSTART3: crate::Field = crate::Field::new(12, 0, SFR_SEGPTR_CR_SEGPTRSTART3);
+
+        pub const SFR_SEGPTR_CR_SEGPTRSTART4: crate::Register = crate::Register::new(16, 0xfff);
+        pub const SFR_SEGPTR_CR_SEGPTRSTART4_CR_SEGPTRSTART4: crate::Field = crate::Field::new(12, 0, SFR_SEGPTR_CR_SEGPTRSTART4);
 
         pub const HW_TRNG_BASE: usize = 0x4002e000;
     }
@@ -1816,7 +1931,7 @@ pub mod utra {
     }
 
     pub mod qfc {
-        pub const QFC_NUMREGS: usize = 9;
+        pub const QFC_NUMREGS: usize = 14;
 
         pub const SFR_IO: crate::Register = crate::Register::new(0, 0xff);
         pub const SFR_IO_SFR_IO: crate::Field = crate::Field::new(8, 0, SFR_IO);
@@ -1845,16 +1960,28 @@ pub mod utra {
         pub const CR_XIP_CFG: crate::Register = crate::Register::new(9, 0x3fff);
         pub const CR_XIP_CFG_CR_XIP_CFG: crate::Field = crate::Field::new(14, 0, CR_XIP_CFG);
 
+        pub const CR_AESKEY_AESKEYIN0: crate::Register = crate::Register::new(16, 0xffffffff);
+        pub const CR_AESKEY_AESKEYIN0_AESKEYIN0: crate::Field = crate::Field::new(32, 0, CR_AESKEY_AESKEYIN0);
+
+        pub const CR_AESKEY_AESKEYIN1: crate::Register = crate::Register::new(17, 0xffffffff);
+        pub const CR_AESKEY_AESKEYIN1_AESKEYIN1: crate::Field = crate::Field::new(32, 0, CR_AESKEY_AESKEYIN1);
+
+        pub const CR_AESKEY_AESKEYIN2: crate::Register = crate::Register::new(18, 0xffffffff);
+        pub const CR_AESKEY_AESKEYIN2_AESKEYIN2: crate::Field = crate::Field::new(32, 0, CR_AESKEY_AESKEYIN2);
+
+        pub const CR_AESKEY_AESKEYIN3: crate::Register = crate::Register::new(19, 0xffffffff);
+        pub const CR_AESKEY_AESKEYIN3_AESKEYIN3: crate::Field = crate::Field::new(32, 0, CR_AESKEY_AESKEYIN3);
+
+        pub const CR_AESENA: crate::Register = crate::Register::new(20, 0x1);
+        pub const CR_AESENA_CR_AESENA: crate::Field = crate::Field::new(1, 0, CR_AESENA);
+
         pub const HW_QFC_BASE: usize = 0x40000000;
     }
 
-    pub mod pl230 {
-        pub const PL230_NUMREGS: usize = 1;
+    pub mod pl230_placeholder {
+        pub const PL230_PLACEHOLDER_NUMREGS: usize = 0;
 
-        pub const PL230: crate::Register = crate::Register::new(0, 0xffffffff);
-        pub const PL230_PLACEHOLDER: crate::Field = crate::Field::new(32, 0, PL230);
-
-        pub const HW_PL230_BASE: usize = 0x40001000;
+        pub const HW_PL230_PLACEHOLDER_BASE: usize = 0x40011000;
     }
 
     pub mod gluechain {
@@ -1965,6 +2092,208 @@ pub mod utra {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    #[ignore]
+    fn compile_check_pl230_csr() {
+        use super::*;
+        let mut pl230_csr = CSR::new(HW_PL230_BASE as *mut u32);
+
+        let foo = pl230_csr.r(utra::pl230::STATUS);
+        pl230_csr.wo(utra::pl230::STATUS, foo);
+        let bar = pl230_csr.rf(utra::pl230::STATUS_TEST_STATUS);
+        pl230_csr.rmwf(utra::pl230::STATUS_TEST_STATUS, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::STATUS_TEST_STATUS, bar);
+        baz |= pl230_csr.ms(utra::pl230::STATUS_TEST_STATUS, 1);
+        pl230_csr.wfo(utra::pl230::STATUS_TEST_STATUS, baz);
+        let bar = pl230_csr.rf(utra::pl230::STATUS_CHNLS_MINUS1);
+        pl230_csr.rmwf(utra::pl230::STATUS_CHNLS_MINUS1, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::STATUS_CHNLS_MINUS1, bar);
+        baz |= pl230_csr.ms(utra::pl230::STATUS_CHNLS_MINUS1, 1);
+        pl230_csr.wfo(utra::pl230::STATUS_CHNLS_MINUS1, baz);
+        let bar = pl230_csr.rf(utra::pl230::STATUS_STATE);
+        pl230_csr.rmwf(utra::pl230::STATUS_STATE, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::STATUS_STATE, bar);
+        baz |= pl230_csr.ms(utra::pl230::STATUS_STATE, 1);
+        pl230_csr.wfo(utra::pl230::STATUS_STATE, baz);
+        let bar = pl230_csr.rf(utra::pl230::STATUS_MASTER_ENABLE);
+        pl230_csr.rmwf(utra::pl230::STATUS_MASTER_ENABLE, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::STATUS_MASTER_ENABLE, bar);
+        baz |= pl230_csr.ms(utra::pl230::STATUS_MASTER_ENABLE, 1);
+        pl230_csr.wfo(utra::pl230::STATUS_MASTER_ENABLE, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CFG);
+        pl230_csr.wo(utra::pl230::CFG, foo);
+        let bar = pl230_csr.rf(utra::pl230::CFG_CHNL_PROT_CTRL);
+        pl230_csr.rmwf(utra::pl230::CFG_CHNL_PROT_CTRL, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CFG_CHNL_PROT_CTRL, bar);
+        baz |= pl230_csr.ms(utra::pl230::CFG_CHNL_PROT_CTRL, 1);
+        pl230_csr.wfo(utra::pl230::CFG_CHNL_PROT_CTRL, baz);
+        let bar = pl230_csr.rf(utra::pl230::CFG_MASTER_ENABLE);
+        pl230_csr.rmwf(utra::pl230::CFG_MASTER_ENABLE, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CFG_MASTER_ENABLE, bar);
+        baz |= pl230_csr.ms(utra::pl230::CFG_MASTER_ENABLE, 1);
+        pl230_csr.wfo(utra::pl230::CFG_MASTER_ENABLE, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CTRLBASEPTR);
+        pl230_csr.wo(utra::pl230::CTRLBASEPTR, foo);
+        let bar = pl230_csr.rf(utra::pl230::CTRLBASEPTR_CTRL_BASE_PTR);
+        pl230_csr.rmwf(utra::pl230::CTRLBASEPTR_CTRL_BASE_PTR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CTRLBASEPTR_CTRL_BASE_PTR, bar);
+        baz |= pl230_csr.ms(utra::pl230::CTRLBASEPTR_CTRL_BASE_PTR, 1);
+        pl230_csr.wfo(utra::pl230::CTRLBASEPTR_CTRL_BASE_PTR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::ALTCTRLBASEPTR);
+        pl230_csr.wo(utra::pl230::ALTCTRLBASEPTR, foo);
+        let bar = pl230_csr.rf(utra::pl230::ALTCTRLBASEPTR_ALT_CTRL_BASE_PTR);
+        pl230_csr.rmwf(utra::pl230::ALTCTRLBASEPTR_ALT_CTRL_BASE_PTR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::ALTCTRLBASEPTR_ALT_CTRL_BASE_PTR, bar);
+        baz |= pl230_csr.ms(utra::pl230::ALTCTRLBASEPTR_ALT_CTRL_BASE_PTR, 1);
+        pl230_csr.wfo(utra::pl230::ALTCTRLBASEPTR_ALT_CTRL_BASE_PTR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::DMA_WAITONREQ_STATUS);
+        pl230_csr.wo(utra::pl230::DMA_WAITONREQ_STATUS, foo);
+        let bar = pl230_csr.rf(utra::pl230::DMA_WAITONREQ_STATUS_DMA_WAITONREQ_STATUS);
+        pl230_csr.rmwf(utra::pl230::DMA_WAITONREQ_STATUS_DMA_WAITONREQ_STATUS, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::DMA_WAITONREQ_STATUS_DMA_WAITONREQ_STATUS, bar);
+        baz |= pl230_csr.ms(utra::pl230::DMA_WAITONREQ_STATUS_DMA_WAITONREQ_STATUS, 1);
+        pl230_csr.wfo(utra::pl230::DMA_WAITONREQ_STATUS_DMA_WAITONREQ_STATUS, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLSWREQUEST);
+        pl230_csr.wo(utra::pl230::CHNLSWREQUEST, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLSWREQUEST_CHNL_SW_REQUEST);
+        pl230_csr.rmwf(utra::pl230::CHNLSWREQUEST_CHNL_SW_REQUEST, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLSWREQUEST_CHNL_SW_REQUEST, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLSWREQUEST_CHNL_SW_REQUEST, 1);
+        pl230_csr.wfo(utra::pl230::CHNLSWREQUEST_CHNL_SW_REQUEST, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLUSEBURSTSET);
+        pl230_csr.wo(utra::pl230::CHNLUSEBURSTSET, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLUSEBURSTSET_CHNL_USEBURST_SET);
+        pl230_csr.rmwf(utra::pl230::CHNLUSEBURSTSET_CHNL_USEBURST_SET, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLUSEBURSTSET_CHNL_USEBURST_SET, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLUSEBURSTSET_CHNL_USEBURST_SET, 1);
+        pl230_csr.wfo(utra::pl230::CHNLUSEBURSTSET_CHNL_USEBURST_SET, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLUSEBURSTCLR);
+        pl230_csr.wo(utra::pl230::CHNLUSEBURSTCLR, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLUSEBURSTCLR_CHNL_USEBURST_CLR);
+        pl230_csr.rmwf(utra::pl230::CHNLUSEBURSTCLR_CHNL_USEBURST_CLR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLUSEBURSTCLR_CHNL_USEBURST_CLR, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLUSEBURSTCLR_CHNL_USEBURST_CLR, 1);
+        pl230_csr.wfo(utra::pl230::CHNLUSEBURSTCLR_CHNL_USEBURST_CLR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLREQMASKSET);
+        pl230_csr.wo(utra::pl230::CHNLREQMASKSET, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLREQMASKSET_CHNL_REQ_MASK_SET);
+        pl230_csr.rmwf(utra::pl230::CHNLREQMASKSET_CHNL_REQ_MASK_SET, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLREQMASKSET_CHNL_REQ_MASK_SET, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLREQMASKSET_CHNL_REQ_MASK_SET, 1);
+        pl230_csr.wfo(utra::pl230::CHNLREQMASKSET_CHNL_REQ_MASK_SET, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLREQMASKCLR);
+        pl230_csr.wo(utra::pl230::CHNLREQMASKCLR, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLREQMASKCLR_CHNL_REQ_MASK_CLR);
+        pl230_csr.rmwf(utra::pl230::CHNLREQMASKCLR_CHNL_REQ_MASK_CLR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLREQMASKCLR_CHNL_REQ_MASK_CLR, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLREQMASKCLR_CHNL_REQ_MASK_CLR, 1);
+        pl230_csr.wfo(utra::pl230::CHNLREQMASKCLR_CHNL_REQ_MASK_CLR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLENABLESET);
+        pl230_csr.wo(utra::pl230::CHNLENABLESET, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLENABLESET_CHNL_ENABLE_SET);
+        pl230_csr.rmwf(utra::pl230::CHNLENABLESET_CHNL_ENABLE_SET, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLENABLESET_CHNL_ENABLE_SET, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLENABLESET_CHNL_ENABLE_SET, 1);
+        pl230_csr.wfo(utra::pl230::CHNLENABLESET_CHNL_ENABLE_SET, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLENABLECLR);
+        pl230_csr.wo(utra::pl230::CHNLENABLECLR, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLENABLECLR_CHNL_ENABLE_CLR);
+        pl230_csr.rmwf(utra::pl230::CHNLENABLECLR_CHNL_ENABLE_CLR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLENABLECLR_CHNL_ENABLE_CLR, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLENABLECLR_CHNL_ENABLE_CLR, 1);
+        pl230_csr.wfo(utra::pl230::CHNLENABLECLR_CHNL_ENABLE_CLR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLPRIALTSET);
+        pl230_csr.wo(utra::pl230::CHNLPRIALTSET, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLPRIALTSET_CHNL_PRI_ALT_SET);
+        pl230_csr.rmwf(utra::pl230::CHNLPRIALTSET_CHNL_PRI_ALT_SET, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLPRIALTSET_CHNL_PRI_ALT_SET, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLPRIALTSET_CHNL_PRI_ALT_SET, 1);
+        pl230_csr.wfo(utra::pl230::CHNLPRIALTSET_CHNL_PRI_ALT_SET, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLPRIALTCLR);
+        pl230_csr.wo(utra::pl230::CHNLPRIALTCLR, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLPRIALTCLR_CHNL_PRI_ALT_CLR);
+        pl230_csr.rmwf(utra::pl230::CHNLPRIALTCLR_CHNL_PRI_ALT_CLR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLPRIALTCLR_CHNL_PRI_ALT_CLR, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLPRIALTCLR_CHNL_PRI_ALT_CLR, 1);
+        pl230_csr.wfo(utra::pl230::CHNLPRIALTCLR_CHNL_PRI_ALT_CLR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLPRIORITYSET);
+        pl230_csr.wo(utra::pl230::CHNLPRIORITYSET, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLPRIORITYSET_CHNL_PRIORITY_SET);
+        pl230_csr.rmwf(utra::pl230::CHNLPRIORITYSET_CHNL_PRIORITY_SET, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLPRIORITYSET_CHNL_PRIORITY_SET, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLPRIORITYSET_CHNL_PRIORITY_SET, 1);
+        pl230_csr.wfo(utra::pl230::CHNLPRIORITYSET_CHNL_PRIORITY_SET, baz);
+
+        let foo = pl230_csr.r(utra::pl230::CHNLPRIORITYCLR);
+        pl230_csr.wo(utra::pl230::CHNLPRIORITYCLR, foo);
+        let bar = pl230_csr.rf(utra::pl230::CHNLPRIORITYCLR_CHNL_PRIORITY_CLR);
+        pl230_csr.rmwf(utra::pl230::CHNLPRIORITYCLR_CHNL_PRIORITY_CLR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::CHNLPRIORITYCLR_CHNL_PRIORITY_CLR, bar);
+        baz |= pl230_csr.ms(utra::pl230::CHNLPRIORITYCLR_CHNL_PRIORITY_CLR, 1);
+        pl230_csr.wfo(utra::pl230::CHNLPRIORITYCLR_CHNL_PRIORITY_CLR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::ERRCLR);
+        pl230_csr.wo(utra::pl230::ERRCLR, foo);
+        let bar = pl230_csr.rf(utra::pl230::ERRCLR_ERR_CLR);
+        pl230_csr.rmwf(utra::pl230::ERRCLR_ERR_CLR, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::ERRCLR_ERR_CLR, bar);
+        baz |= pl230_csr.ms(utra::pl230::ERRCLR_ERR_CLR, 1);
+        pl230_csr.wfo(utra::pl230::ERRCLR_ERR_CLR, baz);
+
+        let foo = pl230_csr.r(utra::pl230::PERIPH_ID_0);
+        pl230_csr.wo(utra::pl230::PERIPH_ID_0, foo);
+        let bar = pl230_csr.rf(utra::pl230::PERIPH_ID_0_PART_NUMBER_LSB);
+        pl230_csr.rmwf(utra::pl230::PERIPH_ID_0_PART_NUMBER_LSB, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::PERIPH_ID_0_PART_NUMBER_LSB, bar);
+        baz |= pl230_csr.ms(utra::pl230::PERIPH_ID_0_PART_NUMBER_LSB, 1);
+        pl230_csr.wfo(utra::pl230::PERIPH_ID_0_PART_NUMBER_LSB, baz);
+
+        let foo = pl230_csr.r(utra::pl230::PERIPH_ID_1);
+        pl230_csr.wo(utra::pl230::PERIPH_ID_1, foo);
+        let bar = pl230_csr.rf(utra::pl230::PERIPH_ID_1_PART_NUMBER_MSB);
+        pl230_csr.rmwf(utra::pl230::PERIPH_ID_1_PART_NUMBER_MSB, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::PERIPH_ID_1_PART_NUMBER_MSB, bar);
+        baz |= pl230_csr.ms(utra::pl230::PERIPH_ID_1_PART_NUMBER_MSB, 1);
+        pl230_csr.wfo(utra::pl230::PERIPH_ID_1_PART_NUMBER_MSB, baz);
+        let bar = pl230_csr.rf(utra::pl230::PERIPH_ID_1_JEP106_LSB);
+        pl230_csr.rmwf(utra::pl230::PERIPH_ID_1_JEP106_LSB, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::PERIPH_ID_1_JEP106_LSB, bar);
+        baz |= pl230_csr.ms(utra::pl230::PERIPH_ID_1_JEP106_LSB, 1);
+        pl230_csr.wfo(utra::pl230::PERIPH_ID_1_JEP106_LSB, baz);
+
+        let foo = pl230_csr.r(utra::pl230::PERIPH_ID_2);
+        pl230_csr.wo(utra::pl230::PERIPH_ID_2, foo);
+        let bar = pl230_csr.rf(utra::pl230::PERIPH_ID_2_JEP106_MSB);
+        pl230_csr.rmwf(utra::pl230::PERIPH_ID_2_JEP106_MSB, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::PERIPH_ID_2_JEP106_MSB, bar);
+        baz |= pl230_csr.ms(utra::pl230::PERIPH_ID_2_JEP106_MSB, 1);
+        pl230_csr.wfo(utra::pl230::PERIPH_ID_2_JEP106_MSB, baz);
+        let bar = pl230_csr.rf(utra::pl230::PERIPH_ID_2_JEDEC_USED);
+        pl230_csr.rmwf(utra::pl230::PERIPH_ID_2_JEDEC_USED, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::PERIPH_ID_2_JEDEC_USED, bar);
+        baz |= pl230_csr.ms(utra::pl230::PERIPH_ID_2_JEDEC_USED, 1);
+        pl230_csr.wfo(utra::pl230::PERIPH_ID_2_JEDEC_USED, baz);
+        let bar = pl230_csr.rf(utra::pl230::PERIPH_ID_2_REVISION);
+        pl230_csr.rmwf(utra::pl230::PERIPH_ID_2_REVISION, bar);
+        let mut baz = pl230_csr.zf(utra::pl230::PERIPH_ID_2_REVISION, bar);
+        baz |= pl230_csr.ms(utra::pl230::PERIPH_ID_2_REVISION, 1);
+        pl230_csr.wfo(utra::pl230::PERIPH_ID_2_REVISION, baz);
+  }
 
     #[test]
     #[ignore]
@@ -2633,6 +2962,127 @@ mod tests {
     fn compile_check_trng_csr() {
         use super::*;
         let mut trng_csr = CSR::new(HW_TRNG_BASE as *mut u32);
+
+        let foo = trng_csr.r(utra::trng::SFR_CRFUNC);
+        trng_csr.wo(utra::trng::SFR_CRFUNC, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_CRFUNC_CR_FUNC);
+        trng_csr.rmwf(utra::trng::SFR_CRFUNC_CR_FUNC, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_CRFUNC_CR_FUNC, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_CRFUNC_CR_FUNC, 1);
+        trng_csr.wfo(utra::trng::SFR_CRFUNC_CR_FUNC, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_AR);
+        trng_csr.wo(utra::trng::SFR_AR, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_AR_START);
+        trng_csr.rmwf(utra::trng::SFR_AR_START, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_AR_START, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_AR_START, 1);
+        trng_csr.wfo(utra::trng::SFR_AR_START, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_SRMFSM);
+        trng_csr.wo(utra::trng::SFR_SRMFSM, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_SRMFSM_MFSM);
+        trng_csr.rmwf(utra::trng::SFR_SRMFSM_MFSM, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SRMFSM_MFSM, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SRMFSM_MFSM, 1);
+        trng_csr.wfo(utra::trng::SFR_SRMFSM_MFSM, baz);
+        let bar = trng_csr.rf(utra::trng::SFR_SRMFSM_MODINVREADY);
+        trng_csr.rmwf(utra::trng::SFR_SRMFSM_MODINVREADY, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SRMFSM_MODINVREADY, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SRMFSM_MODINVREADY, 1);
+        trng_csr.wfo(utra::trng::SFR_SRMFSM_MODINVREADY, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_FR);
+        trng_csr.wo(utra::trng::SFR_FR, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_FR_MFSM_DONE);
+        trng_csr.rmwf(utra::trng::SFR_FR_MFSM_DONE, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_FR_MFSM_DONE, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_FR_MFSM_DONE, 1);
+        trng_csr.wfo(utra::trng::SFR_FR_MFSM_DONE, baz);
+        let bar = trng_csr.rf(utra::trng::SFR_FR_PCORE_DONE);
+        trng_csr.rmwf(utra::trng::SFR_FR_PCORE_DONE, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_FR_PCORE_DONE, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_FR_PCORE_DONE, 1);
+        trng_csr.wfo(utra::trng::SFR_FR_PCORE_DONE, baz);
+        let bar = trng_csr.rf(utra::trng::SFR_FR_CHNLO_DONE);
+        trng_csr.rmwf(utra::trng::SFR_FR_CHNLO_DONE, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_FR_CHNLO_DONE, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_FR_CHNLO_DONE, 1);
+        trng_csr.wfo(utra::trng::SFR_FR_CHNLO_DONE, baz);
+        let bar = trng_csr.rf(utra::trng::SFR_FR_CHNLI_DONE);
+        trng_csr.rmwf(utra::trng::SFR_FR_CHNLI_DONE, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_FR_CHNLI_DONE, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_FR_CHNLI_DONE, 1);
+        trng_csr.wfo(utra::trng::SFR_FR_CHNLI_DONE, baz);
+        let bar = trng_csr.rf(utra::trng::SFR_FR_CHNLX_DONE);
+        trng_csr.rmwf(utra::trng::SFR_FR_CHNLX_DONE, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_FR_CHNLX_DONE, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_FR_CHNLX_DONE, 1);
+        trng_csr.wfo(utra::trng::SFR_FR_CHNLX_DONE, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_OPTNW);
+        trng_csr.wo(utra::trng::SFR_OPTNW, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_OPTNW_OPT_NW);
+        trng_csr.rmwf(utra::trng::SFR_OPTNW_OPT_NW, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_OPTNW_OPT_NW, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_OPTNW_OPT_NW, 1);
+        trng_csr.wfo(utra::trng::SFR_OPTNW_OPT_NW, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_OPTEW);
+        trng_csr.wo(utra::trng::SFR_OPTEW, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_OPTEW_OPT_EW);
+        trng_csr.rmwf(utra::trng::SFR_OPTEW_OPT_EW, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_OPTEW_OPT_EW, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_OPTEW_OPT_EW, 1);
+        trng_csr.wfo(utra::trng::SFR_OPTEW_OPT_EW, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_OPTMASK);
+        trng_csr.wo(utra::trng::SFR_OPTMASK, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_OPTMASK_OPT_MASK);
+        trng_csr.rmwf(utra::trng::SFR_OPTMASK_OPT_MASK, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_OPTMASK_OPT_MASK, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_OPTMASK_OPT_MASK, 1);
+        trng_csr.wfo(utra::trng::SFR_OPTMASK_OPT_MASK, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0);
+        trng_csr.wo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0_CR_SEGPTRSTART0);
+        trng_csr.rmwf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0_CR_SEGPTRSTART0, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0_CR_SEGPTRSTART0, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0_CR_SEGPTRSTART0, 1);
+        trng_csr.wfo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART0_CR_SEGPTRSTART0, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1);
+        trng_csr.wo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1_CR_SEGPTRSTART1);
+        trng_csr.rmwf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1_CR_SEGPTRSTART1, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1_CR_SEGPTRSTART1, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1_CR_SEGPTRSTART1, 1);
+        trng_csr.wfo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART1_CR_SEGPTRSTART1, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2);
+        trng_csr.wo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2_CR_SEGPTRSTART2);
+        trng_csr.rmwf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2_CR_SEGPTRSTART2, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2_CR_SEGPTRSTART2, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2_CR_SEGPTRSTART2, 1);
+        trng_csr.wfo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART2_CR_SEGPTRSTART2, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3);
+        trng_csr.wo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3_CR_SEGPTRSTART3);
+        trng_csr.rmwf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3_CR_SEGPTRSTART3, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3_CR_SEGPTRSTART3, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3_CR_SEGPTRSTART3, 1);
+        trng_csr.wfo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART3_CR_SEGPTRSTART3, baz);
+
+        let foo = trng_csr.r(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4);
+        trng_csr.wo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4, foo);
+        let bar = trng_csr.rf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4_CR_SEGPTRSTART4);
+        trng_csr.rmwf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4_CR_SEGPTRSTART4, bar);
+        let mut baz = trng_csr.zf(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4_CR_SEGPTRSTART4, bar);
+        baz |= trng_csr.ms(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4_CR_SEGPTRSTART4, 1);
+        trng_csr.wfo(utra::trng::SFR_SEGPTR_CR_SEGPTRSTART4_CR_SEGPTRSTART4, baz);
   }
 
     #[test]
@@ -6245,21 +6695,53 @@ mod tests {
         let mut baz = qfc_csr.zf(utra::qfc::CR_XIP_CFG_CR_XIP_CFG, bar);
         baz |= qfc_csr.ms(utra::qfc::CR_XIP_CFG_CR_XIP_CFG, 1);
         qfc_csr.wfo(utra::qfc::CR_XIP_CFG_CR_XIP_CFG, baz);
+
+        let foo = qfc_csr.r(utra::qfc::CR_AESKEY_AESKEYIN0);
+        qfc_csr.wo(utra::qfc::CR_AESKEY_AESKEYIN0, foo);
+        let bar = qfc_csr.rf(utra::qfc::CR_AESKEY_AESKEYIN0_AESKEYIN0);
+        qfc_csr.rmwf(utra::qfc::CR_AESKEY_AESKEYIN0_AESKEYIN0, bar);
+        let mut baz = qfc_csr.zf(utra::qfc::CR_AESKEY_AESKEYIN0_AESKEYIN0, bar);
+        baz |= qfc_csr.ms(utra::qfc::CR_AESKEY_AESKEYIN0_AESKEYIN0, 1);
+        qfc_csr.wfo(utra::qfc::CR_AESKEY_AESKEYIN0_AESKEYIN0, baz);
+
+        let foo = qfc_csr.r(utra::qfc::CR_AESKEY_AESKEYIN1);
+        qfc_csr.wo(utra::qfc::CR_AESKEY_AESKEYIN1, foo);
+        let bar = qfc_csr.rf(utra::qfc::CR_AESKEY_AESKEYIN1_AESKEYIN1);
+        qfc_csr.rmwf(utra::qfc::CR_AESKEY_AESKEYIN1_AESKEYIN1, bar);
+        let mut baz = qfc_csr.zf(utra::qfc::CR_AESKEY_AESKEYIN1_AESKEYIN1, bar);
+        baz |= qfc_csr.ms(utra::qfc::CR_AESKEY_AESKEYIN1_AESKEYIN1, 1);
+        qfc_csr.wfo(utra::qfc::CR_AESKEY_AESKEYIN1_AESKEYIN1, baz);
+
+        let foo = qfc_csr.r(utra::qfc::CR_AESKEY_AESKEYIN2);
+        qfc_csr.wo(utra::qfc::CR_AESKEY_AESKEYIN2, foo);
+        let bar = qfc_csr.rf(utra::qfc::CR_AESKEY_AESKEYIN2_AESKEYIN2);
+        qfc_csr.rmwf(utra::qfc::CR_AESKEY_AESKEYIN2_AESKEYIN2, bar);
+        let mut baz = qfc_csr.zf(utra::qfc::CR_AESKEY_AESKEYIN2_AESKEYIN2, bar);
+        baz |= qfc_csr.ms(utra::qfc::CR_AESKEY_AESKEYIN2_AESKEYIN2, 1);
+        qfc_csr.wfo(utra::qfc::CR_AESKEY_AESKEYIN2_AESKEYIN2, baz);
+
+        let foo = qfc_csr.r(utra::qfc::CR_AESKEY_AESKEYIN3);
+        qfc_csr.wo(utra::qfc::CR_AESKEY_AESKEYIN3, foo);
+        let bar = qfc_csr.rf(utra::qfc::CR_AESKEY_AESKEYIN3_AESKEYIN3);
+        qfc_csr.rmwf(utra::qfc::CR_AESKEY_AESKEYIN3_AESKEYIN3, bar);
+        let mut baz = qfc_csr.zf(utra::qfc::CR_AESKEY_AESKEYIN3_AESKEYIN3, bar);
+        baz |= qfc_csr.ms(utra::qfc::CR_AESKEY_AESKEYIN3_AESKEYIN3, 1);
+        qfc_csr.wfo(utra::qfc::CR_AESKEY_AESKEYIN3_AESKEYIN3, baz);
+
+        let foo = qfc_csr.r(utra::qfc::CR_AESENA);
+        qfc_csr.wo(utra::qfc::CR_AESENA, foo);
+        let bar = qfc_csr.rf(utra::qfc::CR_AESENA_CR_AESENA);
+        qfc_csr.rmwf(utra::qfc::CR_AESENA_CR_AESENA, bar);
+        let mut baz = qfc_csr.zf(utra::qfc::CR_AESENA_CR_AESENA, bar);
+        baz |= qfc_csr.ms(utra::qfc::CR_AESENA_CR_AESENA, 1);
+        qfc_csr.wfo(utra::qfc::CR_AESENA_CR_AESENA, baz);
   }
 
     #[test]
     #[ignore]
-    fn compile_check_pl230_csr() {
+    fn compile_check_pl230_placeholder_csr() {
         use super::*;
-        let mut pl230_csr = CSR::new(HW_PL230_BASE as *mut u32);
-
-        let foo = pl230_csr.r(utra::pl230::PL230);
-        pl230_csr.wo(utra::pl230::PL230, foo);
-        let bar = pl230_csr.rf(utra::pl230::PL230_PLACEHOLDER);
-        pl230_csr.rmwf(utra::pl230::PL230_PLACEHOLDER, bar);
-        let mut baz = pl230_csr.zf(utra::pl230::PL230_PLACEHOLDER, bar);
-        baz |= pl230_csr.ms(utra::pl230::PL230_PLACEHOLDER, 1);
-        pl230_csr.wfo(utra::pl230::PL230_PLACEHOLDER, baz);
+        let mut pl230_placeholder_csr = CSR::new(HW_PL230_PLACEHOLDER_BASE as *mut u32);
   }
 
     #[test]

@@ -7,7 +7,8 @@ edition = "2018"
 [dependencies]
 utralib = {path = "../utralib"}
 riscv = { version = "0.5.6", package = "xous-riscv" }
-xous-pio = {path="../../../xous-cramium/libs/xous-pio", optional=true, default-features=false, features=["tests", "cramium-soc"]}
+xous-pio = {path="../../../xous-core/libs/xous-pio", optional=true, default-features=false, features=["tests", "cramium-soc"]}
+xous-pl230 = {path="../../../xous-core/libs/xous-pl230", optional=true, default-features=false, features=["tests", "cramium-soc"]}
 
 [features]
 debug-print = []
@@ -20,7 +21,8 @@ arty = []
 full-chip = [] # create a file suitable for simulating on the full chip (does not target an "local" validation features)
 xip = []
 apb-test = []
-default = ["daric"]
+pl230-test = ["xous-pl230"]
+default = ["daric", "pl230-test"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

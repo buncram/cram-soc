@@ -1,13 +1,13 @@
 [package]
 name = "svd2utra"
-version = "0.1.0"
-authors = ["Sean Cross <sean@xobs.io>"]
+version = "0.1.19"
+authors = ["Sean Cross <sean@xobs.io>", "bunnie <bunnie@kosagi.com>"]
+description = "SVD to UTRA library generator"
 edition = "2018"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/betrusted-io/xous-core/"
+homepage = "https://betrusted.io/xous-book/"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+# Dependency versions enforced by Cargo.lock.
 [dependencies]
-quick-xml = "0.19"
-clap = "2"
-anyhow = "1.0"
-convert_case = "0.4"
+quick-xml = "0.28.1"

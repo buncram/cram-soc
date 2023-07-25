@@ -448,6 +448,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     // ---------- exception setup ------------------
     irqs::irq_setup();
+
+    // ---------- PL230 test option ----------------
+    #[cfg(feature="pl230-test")]
+    xous_pl230::pl230_tests::pl230_tests();
+
     // ---------- coreuser test --------------------
     satp::satp_test();
 

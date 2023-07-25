@@ -70,12 +70,6 @@ fn set_l2_pte(from_va: usize, to_pa: usize, l2_pt: &mut PageTable, flags: usize)
 /// mappings being 1:1 between VA->PA, except for code which is remapped to address 0x0 in VA space.
 #[inline(never)] // correct behavior depends on RA being set.
 pub fn satp_setup() {
-    // re-layout memory in virtual space
-    // map ReRAM to v0x0000_0000
-    // map SRAM  to v0x6100_0000 (1:1 map)
-    // map CSR   to v0x5800_0000 (1:1 map)
-    // map peri  to v0x4010_0000 (1:1 map)
-    //
     // root page table is at p0x6100_0000 == v0x6100_0000
     let mut root_pt = unsafe { &mut *(ROOT_PT_PA as *mut PageTable) };
     let mut sram_pt = unsafe { &mut *(SRAM_PT_PA as *mut PageTable) };
@@ -120,9 +114,9 @@ pub fn satp_setup() {
     for offset in (0..PERI_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(PERI_VA + offset, PERI_VA + offset, &mut peri_pt, FLG_W | FLG_R | FLG_U);
     }
-    // map the IF AMBA matrix (includes PIO)
-    const PIO_OFFSET: usize = 0x10_0000;
-    const PIO_LEN: usize = 0x11_0000; // this will map all the interfaces up to and including the UDC.
+    // map the IF AMBA matrix (includes PIO + UDMA IFRAM)
+    const PIO_OFFSET: usize = 0x00_0000;
+    const PIO_LEN: usize = 0x21_0000; // this will map all the interfaces up to and including the UDC.
     for offset in (PIO_OFFSET..PIO_OFFSET + PIO_LEN).step_by(PAGE_SIZE) {
         set_l2_pte(PIO_VA + offset, PIO_VA + offset, &mut pio_pt, FLG_W | FLG_R | FLG_U);
     }
