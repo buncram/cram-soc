@@ -47,6 +47,451 @@ import operator as op
 import pprint
 from math import log2
 
+# SVD patch for PL230 DMA
+
+def patch_pl230(svd_string, pl230_base_address):
+    pl230_dma_svd = f"""
+    <peripheral>
+      <name>PL230</name>
+      <description>PL230 DMA Controller Core</description>
+      <baseAddress>{pl230_base_address}</baseAddress>
+      <addressBlock>
+        <offset>0x0</offset>
+        <size>0x40</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <addressBlock>
+        <offset>0x40</offset>
+        <size>0xc</size>
+        <usage>reserved</usage>
+      </addressBlock>
+      <addressBlock>
+        <offset>0x4c</offset>
+        <size>0x4</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <registers>
+        <register>
+          <name>STATUS</name>
+          <description>DMA Status Register</description>
+          <addressOffset>0x00</addressOffset>
+          <size>32</size>
+          <access>read-only</access>
+          <resetValue>0x101f0000</resetValue>
+          <resetMask>0xffffff0f</resetMask>
+          <fields>
+            <field>
+                <name>TEST_STATUS</name>
+                <description>Test status configuration</description>
+                <bitOffset>28</bitOffset>
+                <bitWidth>4</bitWidth>
+                <access>read-only</access>
+            </field>
+            <field>
+                <name>CHNLS_MINUS1</name>
+                <description>Number of available DMA channels minus 1</description>
+                <bitOffset>16</bitOffset>
+                <bitWidth>5</bitWidth>
+                <access>read-only</access>
+            </field>
+            <field>
+                <name>STATE</name>
+                <description>Current state of the control machine</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>4</bitWidth>
+                <access>read-only</access>
+            </field>
+            <field>
+              <name>MASTER_ENABLE</name>
+              <description>Master enable status</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CFG</name>
+          <description>DMA Configuration Register</description>
+          <addressOffset>0x04</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+                <name>CHNL_PROT_CTRL</name>
+                <description>Set AHB-Lite configuration</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>3</bitWidth>
+                <access>read-only</access>
+            </field>
+            <field>
+              <name>MASTER_ENABLE</name>
+              <description>MASTER_ENABLE</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CTRLBASEPTR</name>
+          <description>DMA Control Data Base Pointer Register</description>
+          <addressOffset>0x08</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>CTRL_BASE_PTR</name>
+              <description>CTRL_BASE_PTR</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>24</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ALTCTRLBASEPTR</name>
+          <description>DMA Channel Alternate Control Data Base Pointer Register</description>
+          <addressOffset>0x0C</addressOffset>
+          <size>32</size>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>ALT_CTRL_BASE_PTR</name>
+              <description>ALT_CTRL_BASE_PTR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DMA_WAITONREQ_STATUS</name>
+          <description>Channel wait on request status</description>
+          <addressOffset>0x10</addressOffset>
+          <size>32</size>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>DMA_WAITONREQ_STATUS</name>
+              <description>Wait on request status, one bit per channel</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLSWREQUEST</name>
+          <description>DMA Channel Software Request Register</description>
+          <addressOffset>0x14</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_SW_REQUEST</name>
+              <description>CHNL_SW_REQUEST</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLUSEBURSTSET</name>
+          <description>DMA Channel Useburst Set Register</description>
+          <addressOffset>0x18</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_USEBURST_SET</name>
+              <description>CHNL_USEBURST_SET</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLUSEBURSTCLR</name>
+          <description>DMA Channel Useburst Clear Register</description>
+          <addressOffset>0x1C</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_USEBURST_CLR</name>
+              <description>CHNL_USEBURST_CLR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLREQMASKSET</name>
+          <description>DMA Channel Request Mask Set Register</description>
+          <addressOffset>0x20</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_REQ_MASK_SET</name>
+              <description>CHNL_REQ_MASK_SET</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLREQMASKCLR</name>
+          <description>DMA Channel Request Mask Clear Register</description>
+          <addressOffset>0x24</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_REQ_MASK_CLR</name>
+              <description>CHNL_REQ_MASK_CLR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLENABLESET</name>
+          <description>DMA Channel Enable Set Register</description>
+          <addressOffset>0x28</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_ENABLE_SET</name>
+              <description>CHNL_ENABLE_SET</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLENABLECLR</name>
+          <description>DMA Channel Enable Clear Register</description>
+          <addressOffset>0x2C</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_ENABLE_CLR</name>
+              <description>CHNL_ENABLE_CLR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLPRIALTSET</name>
+          <description>DMA Channel Primary-Alternate Set Register</description>
+          <addressOffset>0x30</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_PRI_ALT_SET</name>
+              <description>CHNL_PRI_ALT_SET</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLPRIALTCLR</name>
+          <description>DMA Channel Primary-Alternate Clear Register</description>
+          <addressOffset>0x34</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_PRI_ALT_CLR</name>
+              <description>CHNL_PRI_ALT_CLR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLPRIORITYSET</name>
+          <description>DMA Channel Priority Set Register</description>
+          <addressOffset>0x38</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_PRIORITY_SET</name>
+              <description>CHNL_PRIORITY_SET</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CHNLPRIORITYCLR</name>
+          <description>DMA Channel Priority Clear Register</description>
+          <addressOffset>0x3C</addressOffset>
+          <size>32</size>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0x00000000</resetMask>
+          <fields>
+            <field>
+              <name>CHNL_PRIORITY_CLR</name>
+              <description>CHNL_PRIORITY_CLR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>write-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>ERRCLR</name>
+          <description>DMA Bus Error Clear Register</description>
+          <addressOffset>0x4C</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>ERR_CLR</name>
+              <description>ERR_CLR</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>PERIPH_ID_0</name>
+          <description>Peripheral ID byte 0</description>
+          <addressOffset>0xFE0</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>PART_NUMBER_LSB</name>
+              <description>Identifies the part number</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>PERIPH_ID_1</name>
+          <description>Peripheral ID byte 1</description>
+          <addressOffset>0xFE4</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>PART_NUMBER_MSB</name>
+              <description>Identifies the part number</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>JEP106_LSB</name>
+              <description>Designer ID LSB</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>PERIPH_ID_2</name>
+          <description>Peripheral ID byte 2</description>
+          <addressOffset>0xFE8</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <resetMask>0xffffffff</resetMask>
+          <fields>
+            <field>
+              <name>JEP106_MSB</name>
+              <description>Designer ID MSB</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>JEDEC_USED</name>
+              <description>Identifies if JP106 ID code is used</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-only</access>
+            </field>
+            <field>
+              <name>REVISION</name>
+              <description>Identifies revision number of peripheral</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+"""
+    retfile = ""
+    for line in svd_string.splitlines(keepends=True):
+        if "peripherals" in line:
+            retfile += line
+            retfile += pl230_dma_svd
+        else:
+            retfile += line
+    return retfile
+
 # VENDORED CODE -- modifications off main branch exist specific to this application.
 def colorer(s, color="bright"):
     header  = {
@@ -1746,16 +2191,16 @@ def main():
 
         elif region == 'soc_coresub':
             # insert a placeholder entry for the PL230 registers, which use a different description format
-            attrs['banks']['pl230'] = 1
-            schema['pl230'] = {}
-            schema['pl230']['apb_cr'] = {
-                'pl230' :
-                {
-                    'params' : {'A' : Expr('0'), 'DW': Expr('32')},
-                    'args' : {'cr': Expr('placeholder')},
-                }
-            }
-            schema['pl230']['localparam'] = {}
+            attrs['banks']['pl230_placeholder'] = 17
+            schema['pl230_placeholder'] = {}
+            # schema['pl230']['apb_cr'] = {
+            #     'pl230' :
+            #     {
+            #         'params' : {'A' : Expr('0'), 'DW': Expr('32')},
+            #         'args' : {'cr': Expr('placeholder')},
+            #     }
+            # }
+            # schema['pl230']['localparam'] = {}
 
         print(f"{region} register banks discovered:")
         pp.pprint(attrs['banks'])
@@ -1861,6 +2306,7 @@ def main():
     # generate SVD
     with open(args.outdir + 'daric.svd', 'w') as svd_f:
         svd = get_csr_svd(doc_soc, vendor="cramium", name="soc", description="Cramium SoC")
+        svd = patch_pl230(svd, doc_soc.csr.regions['pl230_placeholder'].origin)
         svd_f.write(svd)
 
     # generate C header
@@ -1882,6 +2328,7 @@ def main():
     subprocess.run(['cargo', 'run', '../include/daric.svd' , '../include/daric_generated.rs'], cwd='./svd2utra')
     subprocess.run(['cp', 'include/daric_generated.rs', 'boot/betrusted-boot/src/'])
     subprocess.run(['cp', 'include/daric.svd', '../xous-cramium/precursors/daric.svd'])
+    subprocess.run(['cp', 'include/daric.svd', '../xous-core/utralib/cramium/daric.svd'])
     subprocess.run(['sphinx-build', '-M', 'html', 'include/daric_doc/', 'include/daric_doc/_build'])
     # subprocess.run(['rsync', '-a', '--delete', 'include/daric_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
 
