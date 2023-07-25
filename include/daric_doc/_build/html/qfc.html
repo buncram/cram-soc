@@ -19,7 +19,7 @@
     <script src="_static/WaveDrom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="PL230" href="pl230.html" />
+    <link rel="next" title="PL230_PLACEHOLDER" href="pl230_placeholder.html" />
     <link rel="prev" title="MDMA" href="mdma.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -74,6 +74,21 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#qfc-cr-xip-cfg"><span class="std std-ref">QFC_CR_XIP_CFG</span></a></p></td>
 <td><p><a class="reference internal" href="#qfc-cr-xip-cfg"><span class="std std-ref">0x40000024</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin0"><span class="std std-ref">QFC_CR_AESKEY_AESKEYIN0</span></a></p></td>
+<td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin0"><span class="std std-ref">0x40000040</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin1"><span class="std std-ref">QFC_CR_AESKEY_AESKEYIN1</span></a></p></td>
+<td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin1"><span class="std std-ref">0x40000044</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin2"><span class="std std-ref">QFC_CR_AESKEY_AESKEYIN2</span></a></p></td>
+<td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin2"><span class="std std-ref">0x40000048</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin3"><span class="std std-ref">QFC_CR_AESKEY_AESKEYIN3</span></a></p></td>
+<td><p><a class="reference internal" href="#qfc-cr-aeskey-aeskeyin3"><span class="std std-ref">0x4000004c</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#qfc-cr-aesena"><span class="std std-ref">QFC_CR_AESENA</span></a></p></td>
+<td><p><a class="reference internal" href="#qfc-cr-aesena"><span class="std std-ref">0x40000050</span></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -354,6 +369,157 @@
 </tbody>
 </table>
 </section>
+<section id="qfc-cr-aeskey-aeskeyin0">
+<h3>QFC_CR_AESKEY_AESKEYIN0<a class="headerlink" href="#qfc-cr-aeskey-aeskeyin0" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40000000 + 0x40 = 0x40000040</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "aeskeyin0",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>AESKEYIN0</p></td>
+<td><p>cr_aeskey read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="qfc-cr-aeskey-aeskeyin1">
+<h3>QFC_CR_AESKEY_AESKEYIN1<a class="headerlink" href="#qfc-cr-aeskey-aeskeyin1" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40000000 + 0x44 = 0x40000044</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "aeskeyin1",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>AESKEYIN1</p></td>
+<td><p>cr_aeskey read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="qfc-cr-aeskey-aeskeyin2">
+<h3>QFC_CR_AESKEY_AESKEYIN2<a class="headerlink" href="#qfc-cr-aeskey-aeskeyin2" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40000000 + 0x48 = 0x40000048</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "aeskeyin2",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>AESKEYIN2</p></td>
+<td><p>cr_aeskey read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="qfc-cr-aeskey-aeskeyin3">
+<h3>QFC_CR_AESKEY_AESKEYIN3<a class="headerlink" href="#qfc-cr-aeskey-aeskeyin3" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40000000 + 0x4c = 0x4000004c</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "aeskeyin3",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>AESKEYIN3</p></td>
+<td><p>cr_aeskey read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="qfc-cr-aesena">
+<h3>QFC_CR_AESENA<a class="headerlink" href="#qfc-cr-aesena" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40000000 + 0x50 = 0x40000050</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "cr_aesena",  "bits": 1},
+        {"bits": 31}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[0]</p></td>
+<td><p>CR_AESENA</p></td>
+<td><p>cr_aesena read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 
@@ -403,7 +569,7 @@
 <li class="toctree-l1"><a class="reference internal" href="rp_pio.html">RP_PIO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mdma.html">MDMA</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">QFC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pl230.html">PL230</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pl230_placeholder.html">PL230_PLACEHOLDER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gluechain.html">GLUECHAIN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh.html">MESH</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sensorc.html">SENSORC</a></li>
@@ -414,7 +580,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="mdma.html" title="previous chapter">MDMA</a></li>
-      <li>Next: <a href="pl230.html" title="next chapter">PL230</a></li>
+      <li>Next: <a href="pl230_placeholder.html" title="next chapter">PL230_PLACEHOLDER</a></li>
   </ul></li>
 </ul>
 </div>
