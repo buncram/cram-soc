@@ -1868,6 +1868,311 @@ pub fn apb_test() {
 }
 """)
 
+def convert_verilog_integer(expression):
+    expression = expression.strip()  # Remove leading/trailing whitespaces
+    base = 10  # Default base is decimal
+
+    if "'b" in expression:
+        base = 2
+        expression = expression.split("'b")[1]
+    elif "'o" in expression:
+        base = 8
+        expression = expression.split("'o")[1]
+    elif "'h" in expression:
+        base = 16
+        expression = expression.split("'h")[1]
+
+    try:
+        return int(expression, base)
+    except ValueError:
+        raise ValueError("Invalid Verilog-style integer expression")
+
+def process_pulp(doc_soc, pulp_reg_files, schema):
+    reg_addrs = {}
+    reg_rd_fields = {} # dictionary of fields storing a tuple of (msb,lsb)
+    reg_wr_fields = {}
+    for basename in pulp_reg_files:
+        (file, vers) = pulp_reg_files[basename]
+
+        # SPECIAL CASE: fixup inconsistencies in code forked from the pulpino source
+        if 'udma_scif_reg' == basename:
+            basename = 'udma_scif_reg_if'
+        if 'udma_spis_reg' == basename:
+            basename = 'udma_spis_reg_if'
+
+        if 'rtl2' in str(file):
+            file = Path(str(file).replace('rtl2', 'rtl')) # patch out a backup directory
+
+        with open(file, "r", encoding='utf-8') as pulp_file:
+            # set up the records for a given file
+            fname = Path(pulp_file.name).name
+            if fname.startswith('udma_'):
+                prefix = fname.split('_')[1].split('.')[0]
+            else:
+                prefix = fname.split('.')[0].split('_')[0] # drops a .sv suffix if it's there
+            if prefix not in reg_addrs:
+                reg_addrs[prefix] = {}
+                reg_rd_fields[prefix] = {}
+                reg_wr_fields[prefix] = {}
+
+            # extract the register address offsets, and setup fields placeholders
+            includes = []
+            for line in pulp_file:
+                if 'define'in line and 'REG' in line: # pulp code is very good about keeping with this format.
+                    tokens = line.split()
+                    reg_addrs[prefix][tokens[1]] = convert_verilog_integer(tokens[2]) * 4
+                    reg_rd_fields[prefix][tokens[1]] = {}
+                    reg_wr_fields[prefix][tokens[1]] = {}
+                if '`include' in line:
+                    includes += [re.search(r'"([^"]+)"', line).group(1)]
+            # now add any includes we found along the way
+            for inc in includes:
+                fname = Path(file).parent / inc
+                with open(fname, "r", encoding='utf-8') as def_file:
+                    for line in def_file:
+                        if 'define'in line and 'REG' in line: # pulp code is very good about keeping with this format.
+                            tokens = line.split()
+                            reg_addrs[prefix][tokens[1]] = convert_verilog_integer(tokens[2]) * 4
+                            reg_rd_fields[prefix][tokens[1]] = {}
+                            reg_wr_fields[prefix][tokens[1]] = {}
+
+            # extract register fields
+            read_or_write = None
+            in_reg = None
+            extract = False
+            pulp_file.seek(0)
+            if 'i2s' in str(file):
+                print("b")
+            lines = consolidate_lines(file, skip_directives=False)
+            for line in lines:
+                if 'case' in line and 's_wr_addr' in line:
+                    extract = True
+                    read_or_write = 'write'
+                elif 'case' in line and 's_rd_addr' in line:
+                    extract = True
+                    read_or_write = 'read'
+                elif 'endcase' in line or 'default:' in line:
+                    extract = False
+                if extract:
+                    if line.strip().startswith('`'):
+                        in_reg = line.strip().strip('`').strip(':')
+                    if in_reg is not None:
+                        if read_or_write == 'write':
+                            delimiter = '<='
+                        elif read_or_write == 'read':
+                            delimiter = '='
+                        else:
+                            logging.error(f"invalid value for delimiter: {delimiter}, should be one of read or write")
+                            exit(1)
+                        if delimiter in line:
+                            lhs = line.split(delimiter)[0].strip()
+                            rhs = line.split(delimiter)[1].strip().strip(';')
+                            if read_or_write == 'write':
+                                # lhs is the register field name
+                                # the rhs going to be cfg_data_i[expr], where expr may be an integer or range
+                                rhs_bracket = r"\[([^\]]+)\]"
+                                matches = re.findall(rhs_bracket, rhs)
+                                if prefix == 'ctrl' and in_reg == 'REG_CFG_EVT' and 'r_cmp_evt' in lhs:
+                                    # handle special case of 2-D array in udma_ctrl
+                                    ss_index = re.findall(r"\[([^\]]+)\]", lhs)
+                                    lhs = 'r_cmp_evt_' + str(ss_index[0])
+                                    msb = int(ss_index[0]) * 8 + 7
+                                    lsb = int(ss_index[0]) * 8
+                                    reg_wr_fields[prefix][in_reg][lhs] = (msb, lsb)
+                                else:
+                                    # swap out any bit targets on lhs to underscores so they are documented
+                                    lhs = lhs.replace('[', '_')
+                                    lhs = lhs.replace(']', '')
+                                    lhs = lhs.replace(':', '_')
+                                    if len(matches) == 1:
+                                        maybe_range = matches[0].split(':')
+                                        if len(maybe_range) == 1: # it's not a range, it's an index
+                                            reg_wr_fields[prefix][in_reg][lhs] = (int(maybe_range[0]), int(maybe_range[0]))
+                                        else:
+                                            msb = Expr(maybe_range[0]).eval(schema, basename)
+                                            lsb = Expr(maybe_range[1]).eval(schema, basename)
+                                            reg_wr_fields[prefix][in_reg][lhs] = (msb, lsb)
+                                    else: # no bracketed expression, assume whole field length
+                                        assert(len(matches) == 0) # if not, we had *multiple* bracketed expressions, and we don't handle that
+                                        # SPECIAL CASE: if statement in sdio to do single-bit clears on writes.
+                                        if prefix == 'sdio' and in_reg == 'REG_STATUS':
+                                            if 'r_eot' in lhs:
+                                                reg_wr_fields[prefix][in_reg][lhs] = (0, 0)
+                                            elif 'r_err' in lhs:
+                                                reg_wr_fields[prefix][in_reg][lhs] = (1, 1)
+                            elif read_or_write == 'read':
+                                rhs = rhs.replace(" | '0", "") # SPECIAL CASE: swap out PX's different style from PULP for ensuring extra bits are 0 :P
+                                if 'cfg_data_o' not in line:
+                                    continue # skip assertions for clearing bits-on-read
+                                # lhs is the width of data to read back (either name or name[range
+                                # rhs is the data itself; it can either be a simple variable, or a braced expression
+                                lhs_bracket = r"\[([^\]]+)\]"
+                                matches = re.findall(lhs_bracket, lhs)
+                                msb = None
+                                lsb = None
+                                if len(matches) == 1:
+                                    maybe_range = matches[0].split(':')
+                                    if len(maybe_range) == 1: # it's not a range, it's an index
+                                        msb = int(maybe_range[0])
+                                        lsb = int(maybe_range[0])
+                                    else:
+                                        msb = Expr(maybe_range[0]).eval(schema, basename)
+                                        lsb = Expr(maybe_range[1]).eval(schema, basename)
+                                else:
+                                    assert(len(matches) == 0)
+                                    msb = 31
+                                    lsb = 0
+
+                                rhs_braced = r"\{(.*)\}"
+                                matches = re.findall(rhs_braced, rhs)
+                                if len(matches) == 0:
+                                    # replace any range notations with underscores directly so the range shows up in the docs
+                                    rhs = rhs.replace('[', '_')
+                                    rhs = rhs.replace(']', '')
+                                    rhs = rhs.replace(':', '_')
+                                    reg_rd_fields[prefix][in_reg][rhs] = (msb, lsb)
+                                else:
+                                    assert(len(matches) == 1)
+                                    bitfields = matches[0].split(',')
+                                    # iterate in reverse order on bitfields, from lsb to msb
+                                    bitpos = 0
+                                    fieldlen = 1
+                                    # bitfield can be a simple expression, a bit-width 0, or a range
+                                    for bf in reversed(bitfields):
+                                        if "'" in bf: # bit-width 0
+                                            skip = int(bf.split("'")[0])
+                                            bitpos += skip
+                                            # don't add a register
+                                        else:
+                                            if bf.strip() == 'r_err':
+                                                print("b")
+                                            rhs_bracket = r"\[([^\]]+)\]"
+                                            expr_matches = re.findall(rhs_bracket, bf)
+                                            if len(expr_matches) == 1:
+                                                maybe_range = expr_matches[0].split(':')
+                                                if len(maybe_range) == 1: # it's not a range, it's an index
+                                                    fieldlen = 1
+                                                    name = bf.split('[')[0]
+                                                    if prefix == 'ctrl' and in_reg == 'REG_CFG_EVT' and name == 'r_cmp_evt':
+                                                        fieldlen = 8 # special case of 2-D array in this one block
+                                                    if name in reg_rd_fields[prefix][in_reg]:
+                                                        name = name + '_' + str(bitpos)
+                                                else:
+                                                    fieldlen = \
+                                                        Expr(maybe_range[0]).eval(schema, basename) \
+                                                      - Expr(maybe_range[1]).eval(schema, basename)
+                                                    name = bf.split('[')[0]
+                                            else:
+                                                # it's just a single register name
+                                                try:
+                                                    fieldlen = schema[basename]['localparam'][bf.strip()]
+                                                except:
+                                                    logging.warn(f"Signal {bf} in {basename} not extracted, guessing bit length of 1")
+                                                    fieldlen = 1
+                                                name = bf
+
+                                            reg_rd_fields[prefix][in_reg][name] = (bitpos + fieldlen - 1, bitpos)
+                                            bitpos += fieldlen
+                                    # sanity-check that we filled out the whole length
+                                    if bitpos < msb:
+                                        logging.warn(f"Register underflow in UDMA: {prefix} {in_reg} {name} has {bitpos + 1} bits")
+                                    if bitpos > msb:
+                                        logging.warn(f"Register overflow in UDMA: {prefix} {in_reg} {name} has {bitpos + 1} bits")
+
+    only_peripherals = {}
+    for param in schema['udma_sub']['localparam']:
+        if 'PER_ID' in param:
+            only_peripherals[param.replace('PER_ID_', '')] = schema['udma_sub']['localparam'][param].eval(schema, 'udma_sub')
+
+    # extract the full range of PER_IDs and iterate through the list generating register entries
+    # for the given pulp-ID peripheral
+    only_peripherals = sorted(only_peripherals.items(), key=lambda item: item[1]) # ensure it is sorted
+    # now insert the base control on the list
+    peripherals = [('CTRL', 0)]
+    for p in only_peripherals:
+        (n, o) = p # extract name, offset
+        if n == 'CAM':
+            n = 'CAMERA'
+        if n == 'EXT_PER':
+            continue # remove this, it's not an actual configured peripheral
+        peripherals += [(n, o + 1)] # add one to offset because we inserted the 'ctrl' at 0
+
+    UDMA_BASE = 0x5010_0000
+    udma_index = 0
+    for index, p in enumerate(peripherals):
+        (base_name, base_offset) = p
+        # prefer to use next index as a marker for count of peripheral, as it is a more
+        # reliable extraction
+        if len(peripherals) > index + 1:
+            (_unused_name, end_index) = peripherals[index + 1]
+        else:
+            try:
+                end_index = schema['udma_sub']['localparam']['N_' + base_name].eval(schema, 'udma_sub') + udma_index
+            except:
+                print("couldn't determine # of peripherals in last peripheral edge case, aborting!")
+                exit(1)
+        if end_index - udma_index > 1:
+            use_suffix = True
+        else:
+            use_suffix = False
+
+        base_name = base_name.lower()
+        for sub_i in range(end_index - udma_index):
+            csrs = []
+            for rf_name in reg_rd_fields[base_name]:
+                rf_fields = reg_rd_fields[base_name][rf_name]
+                if len(rf_fields) == 0:
+                    continue
+                fields = []
+                sorted_fields = sorted(rf_fields, key= lambda item: reg_rd_fields[base_name][rf_name][item][1])
+                for field in sorted_fields:
+                    (msb, lsb) = reg_rd_fields[base_name][rf_name][field]
+                    fields += [CSRField(
+                        name = field.strip(),
+                        offset = lsb,
+                        size = msb - lsb + 1,
+                        description = field,
+                    )]
+                csrs += [
+                    CSRStatus(
+                        name= rf_name,
+                        n = reg_addrs[base_name][rf_name] / 4,
+                        fields = fields,
+                    )
+                ]
+            for rf_name in reg_wr_fields[base_name]:
+                rf_fields = reg_wr_fields[base_name][rf_name]
+                if len(rf_fields) == 0:
+                    continue
+                fields = []
+                sorted_fields = sorted(rf_fields, key= lambda item: reg_wr_fields[base_name][rf_name][item][1])
+                for field in sorted_fields:
+                    (msb, lsb) = reg_wr_fields[base_name][rf_name][field]
+                    fields += [CSRField(
+                        name = field.strip(),
+                        offset = lsb,
+                        size = msb - lsb + 1,
+                        description = field,
+                    )]
+                csrs += [
+                    CSRStorage(
+                        name= rf_name.strip(),
+                        n = reg_addrs[base_name][rf_name] / 4,
+                        fields = fields,
+                    )
+                ]
+            # add a suffix if we have a bank of identical peripheral
+            if use_suffix:
+                suffix = '_' + str(sub_i)
+            else:
+                suffix = ''
+            doc_soc.csr.regions['udma_' + base_name + suffix] = SoCCSRRegion(
+                UDMA_BASE + 0x1000 * udma_index,
+                32,
+                csrs
+            )
+            udma_index += 1
+
 def check_file(x):
     try:
         if x.is_file():
@@ -1877,22 +2182,28 @@ def check_file(x):
     except:
         return False
 
-def consolidate_lines(file):
-    with open(file, "r") as sv_file:
+def consolidate_lines(file, skip_directives = True):
+    with open(file, "r", encoding='utf-8') as sv_file:
         if True:
             condensed = ''
             multi_line = ''
             trigger = False
             for line in sv_file.readlines():
                 line = remove_comments(line.strip()).lstrip()
-                if line.startswith("`"):
+                if line.startswith("`") and skip_directives:
                     continue
 
-                if 'apb_' in line:
+                # handle a case where there is a typo in PX's code and he doesn't start a `define'd keyword on a newline after an end in udma subsystem
+                if skip_directives is False:
+                    if "`" in line and not line.startswith("`"):
+                        line = line.replace("`", "\n`")
+
+                if 'apb_' in line or 'cfg_data_o' in line:
                     trigger = True
 
                 if trigger:
-                    if line.strip().endswith(';') or line.strip().endswith('module'): # consdense and add as a single line
+                    if line.strip().endswith(';') or line.strip().endswith('module') or line.strip().endswith(':') or 'case' in line:
+                        # condense and add as a single line
                         multi_line += ' ' + line
                         condensed += multi_line
                         condensed += '\n'
@@ -1910,7 +2221,7 @@ def consolidate_lines(file):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from Daric design")
     parser.add_argument(
-        "--path", required=False, help="Path to Daric data", type=str, default="do_not_checkin/s32/rtl")
+        "--path", required=False, help="Path to Daric data", type=str, default="do_not_checkin/s32")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
@@ -1927,7 +2238,7 @@ def main():
 
     doc_soc = DocSoc()
 
-    sce_path = Path(args.path).glob('**/*')
+    sce_path = Path(args.path + '/rtl').glob('**/*')
     sce_files = [x for x in sce_path if check_file(x)]
 
     ### use only the latest version, as extracted by numerical order
@@ -1948,6 +2259,19 @@ def main():
                         versioned_files[basename] = (file, version)
     # SPECIAL CASE: PIO data is located in 'ips' directory
     versioned_files['rp_pio'] = ('do_not_checkin/s32/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
+
+    # extract the Pulpino files
+    pulp_path = Path(args.path + '/ips/udma').glob('**/*')
+    pulp_files = [x for x in pulp_path if check_file(x)]
+    pulp_reg_files = [x for x in pulp_files if 'reg' in str(x) or 'udma_ctrl' in str(x)]
+    pulp_versioned_files = {}
+    # add versioned files from the main repo
+    for name in versioned_files:
+        if 'reg' in name and 'udma' in name:
+            pulp_versioned_files[name] = versioned_files[name]
+    for p in pulp_reg_files:
+        pulp_versioned_files[p.stem] = (str(p), 0)
+        versioned_files[p.stem] = (str(p), 0)
 
     logging.info("Using the following sources based on version numbering:")
     for (k, v) in versioned_files.items():
@@ -2012,6 +2336,11 @@ def main():
                         state = 'ACTIVE'
                     else:
                         multi_line_param += code_line
+
+    # --------- SPECIAL CASE: propgate overrides for UDMA that come all the way from top-level
+    # these overrides come from rtl/ifsub/soc_ifsub_v0.2.sv lines 44-51
+    schema['udma_sub']['localparam']['N_I2C'] = Expr('4')
+    schema['udma_sub']['localparam']['N_SPIS'] = Expr('2')
 
     # --------- extract SFRCNT from files that contain SFRCNT record ---------
     for (module, leaves) in schema.items():
@@ -2212,6 +2541,10 @@ def main():
             continue # HACK: skip evaluating this module because it breaks recursion limit. However, no SFRs seem to be in here.
         eval_tree(leaves, schema, module, level=2, do_print=False)
 
+    # --------- process the subsystems derived from PULP code
+    schema['udma_sub']['localparam']['PER_ID_UART'] # lookup path for data on IDs for mapping regions
+    process_pulp(doc_soc, pulp_versioned_files, schema)
+
     # ---------- Go through each region and extract the CSRs
     for (region, attrs) in top_regions.items():
         doc_soc.mem_regions[attrs['display_name']] = attrs['socregion']
@@ -2293,13 +2626,13 @@ def main():
         n = 0
         for item in unsorted_csrs:
             if item.n > n:
-                n = item.n
+                n = int(item.n)
         # build a list of "reserved" CSRs
         for i in range(n+1):
             csr_list += [CSR(name=f"reserved{i}")]
         # displace the reserved items with allocated items
         for item in unsorted_csrs:
-            csr_list[item.n] = item
+            csr_list[int(item.n)] = item
         # convert to dictionary
         region.obj = csr_list
 
