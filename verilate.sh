@@ -61,19 +61,19 @@ echo "******************** BUILD KERNEL ***********************"
 if [ $TARGET == "xous" ]
 then
   echo "Simulating Xous target"
-  cp build/software/soc.svd ../xous-cramium/precursors/
-  cp build/software/core.svd ../xous-cramium/precursors/
-  cd ../xous-cramium
-  cd ./loader
+  cp build/software/soc.svd ../xous-core/utralib/cramium/
+  cp build/software/core.svd ../xous-core/utralib/cramium/
+  cd ../xous-core
+  # cd ./loader
   # set up the linker for our target
-  cp link-soc.x link.x
-  cd ../
+  # cp link-soc.x link.x
+  # cd ../
   # hw-image, mbox-image
-  cargo xtask hw-image --kernel-feature fake-rng --feature cramium-fpga
+  cargo xtask cramium-fpga --kernel-feature fake-rng
+  cd ../cram-soc
   python3 ./mkimage.py
   ./disasm_load.sh
-  cd ../cram-soc
-  BIOS="../xous-cramium/simspi.init"
+  BIOS="./simspi.init"
 else
   echo "Simulating raw iron target"
   # regenerate PIO include from source
