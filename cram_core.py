@@ -57,6 +57,19 @@ def get_common_ios():
         # BIST signals
         ("cmbist", 0, Pins(1)),
         ("cmatpg", 0, Pins(1)),
+        # Mbox signals
+        ("mbox", 0,
+            Subsignal("w_dat", Pins(32)),
+            Subsignal("w_valid", Pins(1)),
+            Subsignal("w_ready", Pins(1)),
+            Subsignal("w_done", Pins(1)),
+            Subsignal("r_dat", Pins(32)),
+            Subsignal("r_valid", Pins(1)),
+            Subsignal("r_ready", Pins(1)),
+            Subsignal("r_done", Pins(1)),
+            Subsignal("w_abort", Pins(1)),
+            Subsignal("r_abort", Pins(1)),
+        )
     ]
     irqs = ["irqarray", 0]
     for bank in range(IRQ_BANKS):
@@ -524,6 +537,12 @@ from the peer.""", pulse=True)
                 size=1, name="done", pulse=True,
                 description="Writing a `1` to this field indicates to the corresponding peer that a full packet is done loading. There is no need to clear this register after writing.")
         ])
+        self.loopback = CSRStorage(fields=[
+            CSRField(
+                size=1, name="loopback",
+                description="Writing a `1` to this field indicates that the mailbox should loopback to the local client. `0` connects it to the external core."
+            )
+        ])
         abort_in_progress = Signal()
         abort_ack = Signal()
         self.comb += self.ev.error.trigger.eq(self.status.fields.tx_err | self.status.fields.rx_err)
@@ -646,12 +665,6 @@ entirely on the other side's FIFO for the protocol to be efficient.
 
         self.wdata = CSRStorage(32, name="wdata", description="Write data to outgoing FIFO.")
         self.rdata = CSRStatus(32, name="rdata", description="Read data from incoming FIFO.")
-        self.submodules.ev = ev = EventManager()
-        self.ev.available = EventSourcePulse(name="available", description="Triggers when the `done` signal was asserted by the corresponding peer")
-        self.ev.abort_init = EventSourceProcess(name="abort_init", description="Triggers when abort is asserted by the peer, and there is currently no abort in progress", edge="rising")
-        self.ev.abort_done = EventSourceProcess(name="abort_done", description="Triggers when a previously initiated abort is acknowledged by peer", edge="rising")
-        self.ev.error = EventSourceProcess(name="error", description="Triggers if either `tx_err` or `rx_err` are asserted", edge="rising")
-        self.ev.finalize()
         self.status = CSRStatus(fields=[
             CSRField(name="rx_avail", size = 1, description="Rx data is available"),
             CSRField(name="tx_free", size = 1, description="Tx register can be written"),
@@ -665,6 +678,15 @@ bit if it is intending to initiate a new abort cycle."""),
             CSRField(name="tx_err", size=1, description="Set if the recipient was not ready for the data. Cleared on read."),
             CSRField(name="rx_err", size=1, description="Set if the recipient didn't have data available for a read. Cleared on read.")
         ])
+
+        # Place these so they overlap with the event manager register layout
+        self.submodules.ev = ev = EventManager()
+        self.ev.available = EventSourcePulse(name="available", description="Triggers when the `done` signal was asserted by the corresponding peer")
+        self.ev.abort_init = EventSourceProcess(name="abort_init", description="Triggers when abort is asserted by the peer, and there is currently no abort in progress", edge="rising")
+        self.ev.abort_done = EventSourceProcess(name="abort_done", description="Triggers when a previously initiated abort is acknowledged by peer", edge="rising")
+        self.ev.error = EventSourceProcess(name="error", description="Triggers if either `tx_err` or `rx_err` are asserted", edge="rising")
+        self.ev.finalize()
+
         self.control = CSRStorage(fields=[
             CSRField(name="abort", size=1, description=
             """Write `1` to this field to both initiate and acknowledge an abort.
@@ -868,15 +890,32 @@ class SusRes(Module, AutoDoc, AutoCSR):
 
 # Interrupts ------------------------------------------------------------------------------------
 class EventSourceFlex(Module, _EventSource):
-    def __init__(self, trigger, soft_trigger, name=None, description=None):
+    def __init__(self, trigger, soft_trigger, edge_triggered, polarity, name=None, description=None):
         _EventSource.__init__(self, name, description)
         self.trigger = trigger
+        trigger_d = Signal()
+        self.sync += trigger_d.eq(trigger)
+        trigger_filtered = Signal()
+        self.comb += [
+            If(edge_triggered,
+               If(polarity,
+                  trigger_filtered.eq(self.trigger & ~trigger_d) # rising
+               ).Else(
+                  trigger_filtered.eq(~self.trigger & trigger_d) # falling
+               )
+            ).Else(
+                trigger_filtered.eq(self.trigger)
+            )
+        ]
         self.soft_trigger = soft_trigger
         self.comb += [
+            # status reports the raw, unfiltered hardware trigger status
             self.status.eq(self.trigger | self.soft_trigger),
         ]
         self.sync += [
-            If(self.trigger | self.soft_trigger,
+            # to clear a soft trigger, first de-assert the soft_trigger bit, and then write the pending bit.
+            # otherwise, the trigger will persist.
+            If(trigger_filtered | self.soft_trigger,
                 self.pending.eq(1)
             ).Elif(self.clear,
                 self.pending.eq(0)
@@ -884,6 +923,8 @@ class EventSourceFlex(Module, _EventSource):
                 self.pending.eq(self.pending)
             ),
         ]
+        self.edge_triggered = edge_triggered
+        self.polarity = polarity
 
 class IrqArray(Module, AutoCSR, AutoDoc):
     """Interrupt Array Handler"""
@@ -919,6 +960,7 @@ writing to a soft-trigger bit.
         soft = CSRStorage(
             size=ints_per_bank,
             description="""Software interrupt trigger register.
+        )
 
 Bits set to `1` will trigger an interrupt. Interrupts trigger on write, but the
 value will persist in the register, allowing software to determine if a software
@@ -930,9 +972,25 @@ Repeated `1` writes without clearing will still trigger an interrupt.""",
             fields=[
                 CSRField("trigger", size=ints_per_bank, pulse=True)
             ])
+        edge_triggered = CSRStorage(
+           size=ints_per_bank,
+           description="If a bit is set to 1, then the hardware trigger is edge-triggered",
+           fields=[
+               CSRField("use_edge", size=ints_per_bank)
+           ]
+        )
+        polarity = CSRStorage(
+            size=ints_per_bank,
+            description="If a bit is set to 1, then the polarity is rising edge triggered; 0 is falling edge triggered. Bit is ignored if `edge_triggered` is 0.",
+            fields=[
+                CSRField("rising", size=ints_per_bank)
+            ]
+        )
         for i in range(ints_per_bank):
             bit_int = EventSourceFlex(
                 trigger=interrupts[i],
+                edge_triggered=edge_triggered.fields.use_edge[i],
+                polarity=polarity.fields.rising[i],
                 soft_trigger=soft.fields.trigger[i],
                 name='source{}'.format(i),
                 description='`1` when a source{} event occurs. This event uses an `EventSourceFlex` form of triggering'.format(i)
@@ -940,6 +998,8 @@ Repeated `1` writes without clearing will still trigger an interrupt.""",
             setattr(ev, 'source{}'.format(i), bit_int)
 
         ev.soft = soft
+        ev.edge_triggered = edge_triggered
+        ev.polarity = polarity
         ev.finalize()
         # setattr(self, 'evm{}'.format(bank), ev)
 
@@ -1620,6 +1680,9 @@ class cramSoC(SoCCore):
         self.irq.add("mb_client")
 
         # Cross-wire the mailbox and its client
+        loopback = Signal()
+        self.comb += loopback.eq(self.mailbox.loopback.fields.loopback)
+
         w_dat = Signal(32)
         w_valid = Signal()
         w_ready = Signal()
@@ -1632,6 +1695,8 @@ class cramSoC(SoCCore):
 
         w_abort = Signal()
         r_abort = Signal()
+
+        mbox_ext = platform.request("mbox")
 
         self.comb += [
             self.mailbox.reset_n.eq(~ResetSignal()),
@@ -1648,19 +1713,31 @@ class cramSoC(SoCCore):
             self.mailbox.r_abort.eq(r_abort),
             w_abort.eq(self.mailbox.w_abort),
 
-            self.mb_client.reset_n.eq(~ResetSignal()),
-            r_dat.eq(self.mb_client.w_dat),
-            r_valid.eq(self.mb_client.w_valid),
-            r_done.eq(self.mb_client.w_done),
+            If(loopback,
+                self.mb_client.reset_n.eq(~ResetSignal()),
+                r_dat.eq(self.mb_client.w_dat),
+                r_valid.eq(self.mb_client.w_valid),
+                r_done.eq(self.mb_client.w_done),
+                w_ready.eq(self.mb_client.r_ready),
+                r_abort.eq(self.mb_client.w_abort),
+            ).Else(
+                r_dat.eq(mbox_ext.w_dat),
+                r_valid.eq(mbox_ext.w_valid),
+                r_done.eq(mbox_ext.w_done),
+                w_ready.eq(mbox_ext.r_ready),
+                r_abort.eq(mbox_ext.w_abort),
+            ),
             self.mb_client.w_ready.eq(r_ready),
-
             self.mb_client.r_dat.eq(w_dat),
             self.mb_client.r_valid.eq(w_valid),
             self.mb_client.r_done.eq(w_done),
-            w_ready.eq(self.mb_client.r_ready),
-
             self.mb_client.r_abort.eq(w_abort),
-            r_abort.eq(self.mb_client.w_abort),
+
+            mbox_ext.w_ready.eq(r_ready),
+            mbox_ext.r_dat.eq(w_dat),
+            mbox_ext.r_valid.eq(w_valid),
+            mbox_ext.r_done.eq(w_done),
+            mbox_ext.r_abort.eq(w_abort),
         ]
 
         # CSR bus test loopback register -----------------------------------------------------------
