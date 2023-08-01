@@ -2614,6 +2614,25 @@ def main():
         size=1024*1024 * 128,
         mode='rw', cached=True
     )
+    # ---------- SPECIAL CASE - add PL230 memory region
+    doc_soc.mem_regions['mdma'] = SoCRegion(
+        origin=0x4001_1000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['mdmareq'] = SoCRegion(
+        origin=0x4001_2000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
+
+    # ----------- temporary case: mbox_ext mapping -- until the description is main-lined!
+    if False:
+        doc_soc.mem_regions['mbox_ext'] = SoCRegion(
+            origin=0x5012_4000,
+            size=0x1000,
+            mode='rw', cached=False
+        )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
