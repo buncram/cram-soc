@@ -103,6 +103,7 @@ class CramSoC(SoCCore):
             "testbench" : [0x4008_0000, 0x1_0000], # 64k
             "duart"     : [0x4004_2000, 0x0_1000],
             "pio"       : [0x5012_3000, 0x0_1000],
+            "mbox_ext"  : [0x5012_4000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
             "csr": self.axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
@@ -218,6 +219,28 @@ class CramSoC(SoCCore):
         pxbar.add_slave(
             name = "p_axil", s_axil = p_axil,
         )
+        # Define the interrupt signals; if they aren't used, they will just stay at 0 and be harmless
+        # But we need to define them so we don't have an explosion of SoC wiring options down below
+        pio_irq0 = Signal()
+        pio_irq1 = Signal()
+        irq_available = Signal()
+        irq_abort_init = Signal()
+        irq_abort_done = Signal()
+        irq_error = Signal()
+        mbox_layout = [
+            ("w_dat",  32, DIR_M_TO_S),
+            ("w_valid", 1, DIR_M_TO_S),
+            ("w_ready", 1, DIR_S_TO_M),
+            ("w_done",  1, DIR_M_TO_S),
+            ("r_dat",  32, DIR_S_TO_M),
+            ("r_valid", 1, DIR_S_TO_M),
+            ("r_ready", 1, DIR_M_TO_S),
+            ("r_done",  1, DIR_S_TO_M),
+            ("w_abort", 1, DIR_M_TO_S),
+            ("r_abort", 1, DIR_S_TO_M),
+        ]
+        mbox = Record(mbox_layout)
+
         # This region is used for testbench elements (e.g., does not appear in the final SoC):
         # these are peripherals that are inferred by LiteX in this module such as the UART to facilitate debug
         for (name, region) in self.axi_peri_map.items():
@@ -253,8 +276,6 @@ class CramSoC(SoCCore):
                     else:
                         sim = False
                     from pio_adapter import PioAdapter
-                    pio_irq0 = Signal()
-                    pio_irq1 = Signal()
                     if variant == "sim":
                         clock_remap = {"sys" : "p"}
                     else: # arty variant
@@ -268,6 +289,14 @@ class CramSoC(SoCCore):
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
                         getattr(self, name + "_ahb"), pads=platform.request("duart"), sel_addr=region[0]
                     ))
+                elif name == "mbox_ext":
+                    from mbox_adapter import MboxAdapter
+                    clock_remap = {"pclk" : "p"}
+                    self.submodules += ClockDomainsRenamer(clock_remap)(MboxAdapter(platform,
+                        getattr(self, name +"_ahb"), mbox, irq_available, irq_abort_init, irq_abort_done, irq_error, sel_addr=region[0],
+                        sim=sim
+                    ))
+
                 else:
                     print("Missing binding for peripheral block {}".format(name))
                     exit(1)
@@ -450,7 +479,7 @@ class CramSoC(SoCCore):
             i_irqarray_bank0      = self.irqtest0.fields.trigger | irq0_wire_or,
             i_irqarray_bank1      = self.irqtest1.fields.trigger,
             i_irqarray_bank2      = Cat(pio_irq0, pio_irq1, zero_irq[2:]),
-            i_irqarray_bank3      = zero_irq,
+            i_irqarray_bank3      = Cat(irq_available, irq_abort_init, irq_abort_done, irq_error, zero_irq[4:]),
             i_irqarray_bank4      = zero_irq,
             i_irqarray_bank5      = zero_irq,
             i_irqarray_bank6      = zero_irq,
@@ -467,6 +496,17 @@ class CramSoC(SoCCore):
             i_irqarray_bank17      = zero_irq,
             i_irqarray_bank18      = zero_irq,
             i_irqarray_bank19      = wfi_loopback,
+
+            i_mbox_w_dat           = mbox.w_dat,
+            i_mbox_w_valid         = mbox.w_valid,
+            o_mbox_w_ready         = mbox.w_ready,
+            i_mbox_w_done          = mbox.w_done,
+            o_mbox_r_dat           = mbox.r_dat,
+            o_mbox_r_valid         = mbox.r_valid,
+            i_mbox_r_ready         = mbox.r_ready,
+            o_mbox_r_done          = mbox.r_done,
+            i_mbox_w_abort         = mbox.w_abort,
+            o_mbox_r_abort         = mbox.r_abort,
 
             o_sleep_req            = self.sleep_req,
         )
