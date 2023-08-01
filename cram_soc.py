@@ -17,7 +17,6 @@ from litex.build.sim import SimPlatform
 from litex.build.sim.config import SimConfig
 
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc import SoCRegion, SoCIORegion
 from litex.soc.integration.builder import *
 
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
@@ -28,11 +27,8 @@ from litex.soc.interconnect.csr import *
 from litex.soc.cores import uart
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
-from deps.gateware.gateware import memlcd
-
 from litex.soc.interconnect.axi import AXIInterface
 from axi_ram import AXIRAM
-
 
 from cram_common import CramSoC
 
