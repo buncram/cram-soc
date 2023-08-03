@@ -37,9 +37,7 @@ pub fn irq_setup() {
     enable_irq(utra::irqarray1::IRQARRAY1_IRQ);
     enable_irq(utra::irqarray2::IRQARRAY2_IRQ);
     // for wfi testing
-    let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
-    irqarray19.wo(utra::irqarray19::EV_ENABLE, 0xFFFF_FFFF);
-    enable_irq(utra::irqarray19::IRQARRAY19_IRQ);
+    enable_irq(utra::ticktimer::TICKTIMER_IRQ);
 
     // must enable external interrupts on the CPU for any of the above to matter
     unsafe{sie::set_sext()};
@@ -67,9 +65,16 @@ pub fn irq_test() {
 
 pub fn wfi_test() {
     report_api(0x03f1_0000);
+    let mut tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+    tt.wo(utra::ticktimer::CLOCKS_PER_TICK, 10000); // short-ish time to wake up
+    tt.wfo(utra::ticktimer::CONTROL_RESET, 1);
+    tt.wo(utra::ticktimer::MSLEEP_TARGET1, 0);
+    tt.wo(utra::ticktimer::MSLEEP_TARGET0, 2);
+    tt.wfo(utra::ticktimer::EV_ENABLE_ALARM, 1);
     unsafe { core::arch::asm!(
         "wfi",
     ); }
+    tt.wo(utra::ticktimer::MSLEEP_TARGET0, 0xffff_ffff); // sometime way out there so we don't see it again during this test.
     report_api(0x03f1_600d);
 }
 
@@ -266,6 +271,12 @@ pub extern "C" fn trap_handler(
             let pending = irqarray19.r(utra::irqarray19::EV_PENDING);
             report_api(pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
             irqarray19.wo(utra::irqarray19::EV_PENDING, pending);
+        }
+        if (irqs_pending & (1 << utra::ticktimer::TICKTIMER_IRQ)) != 0 {
+            let mut tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);
+            report_api(utra::ticktimer::TICKTIMER_IRQ as u32); // encode the irq bank number and bit number as [bit | bank]
+            tt.wfo(utra::ticktimer::EV_PENDING_ALARM, 1); // clear the interrupt
+            tt.wfo(utra::ticktimer::EV_ENABLE_ALARM, 0); // mask out the wakeup alarm
         }
     }
 
