@@ -1,6 +1,6 @@
 [package]
 name = "utralib"
-version = "0.1.0"
+version = "0.1.22"
 authors = ["Sean Cross <sean@xobs.io>"]
 edition = "2018"
 
@@ -10,3 +10,8 @@ edition = "2018"
 
 [build-dependencies]
 svd2utra = { path = "../svd2utra" }
+
+[features]
+cramium-soc = []
+cramium-fpga = []
+default = []

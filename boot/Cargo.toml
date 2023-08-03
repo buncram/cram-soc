@@ -40,6 +40,6 @@ features = ["u32e_backend"]
 codegen-units = 1 # 1 better optimizations
 debug = true
 lto = "fat"
-opt-level = 's'  # 's' = Optimize for size instead of performance
+opt-level = 1   # 's' = Optimize for size instead of performance
 panic = "abort" # Remove panic output, which can reduce file size
 strip = false
