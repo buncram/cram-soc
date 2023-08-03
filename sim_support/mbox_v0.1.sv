@@ -97,7 +97,7 @@ module mbox_apb #(
 
     apb_acr #(.A('h0), .DW(32))      sfr_wdata             (.cr(wdata), .ar(wdata_written), .prdata32(),.*);
     apb_asr #(.A('h4), .DW(32))      sfr_rdata             (.sr(rdata), .ar(rdata_read), .prdata32(),.*);
-    apb_asr #(.A('h8), .DW(32))      sfr_status            (.sr({rx_err, tx_err, abort_ack, abort_in_progress, tx_free, rx_avail}), .ar(status_read), .prdata32(),.*);
+    apb_asr #(.A('h8), .DW(6) )      sfr_status            (.sr({rx_err, tx_err, abort_ack, abort_in_progress, tx_free, rx_avail}), .ar(status_read), .prdata32(),.*);
     apb_ar  #(.A('h18), .AR(32'h1))  sfr_abort             (.ar(abort),.*);
     apb_ar  #(.A('h1C), .AR(32'h1))  sfr_done              (.ar(done),.*);
 endmodule
