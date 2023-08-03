@@ -2421,7 +2421,7 @@ def main():
         'soc_coresub' :
             {
                 'socregion' : SoCRegion(
-                            origin=0x4000_0000,
+                            origin=0x4001_0000,
                             size=0x1_0000,
                             mode='rw',
                             cached=False
@@ -2520,8 +2520,8 @@ def main():
 
         elif region == 'soc_coresub':
             # insert a placeholder entry for the PL230 registers, which use a different description format
-            attrs['banks']['pl230_placeholder'] = 17
-            schema['pl230_placeholder'] = {}
+            #attrs['banks']['pl230'] = 17
+            #schema['pl230'] = {}
             # schema['pl230']['apb_cr'] = {
             #     'pl230' :
             #     {
@@ -2530,6 +2530,7 @@ def main():
             #     }
             # }
             # schema['pl230']['localparam'] = {}
+            pass
 
         print(f"{region} register banks discovered:")
         pp.pprint(attrs['banks'])
@@ -2615,12 +2616,12 @@ def main():
         mode='rw', cached=True
     )
     # ---------- SPECIAL CASE - add PL230 memory region
-    doc_soc.mem_regions['mdma'] = SoCRegion(
+    doc_soc.mem_regions['pl230'] = SoCRegion(
         origin=0x4001_1000,
         size=0x1000,
         mode='rw', cached=False
     )
-    doc_soc.mem_regions['mdmareq'] = SoCRegion(
+    doc_soc.mem_regions['mdma'] = SoCRegion(
         origin=0x4001_2000,
         size=0x1000,
         mode='rw', cached=False
@@ -2658,7 +2659,7 @@ def main():
     # generate SVD
     with open(args.outdir + 'daric.svd', 'w') as svd_f:
         svd = get_csr_svd(doc_soc, vendor="cramium", name="soc", description="Cramium SoC")
-        svd = patch_pl230(svd, doc_soc.csr.regions['pl230_placeholder'].origin)
+        svd = patch_pl230(svd, doc_soc.mem_regions['pl230'].origin)
         svd_f.write(svd)
 
     # generate C header
