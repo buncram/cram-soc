@@ -7,59 +7,59 @@ Register Listing for MDMA
 +------------------------------------------------------------+----------------------------------------------+
 | Register                                                   | Address                                      |
 +============================================================+==============================================+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL0 <MDMA_SFR_EVSEL_CR_EVSEL0>` | :ref:`0x40002000 <MDMA_SFR_EVSEL_CR_EVSEL0>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL0 <MDMA_SFR_EVSEL_CR_EVSEL0>` | :ref:`0x40012000 <MDMA_SFR_EVSEL_CR_EVSEL0>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL1 <MDMA_SFR_EVSEL_CR_EVSEL1>` | :ref:`0x40002004 <MDMA_SFR_EVSEL_CR_EVSEL1>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL1 <MDMA_SFR_EVSEL_CR_EVSEL1>` | :ref:`0x40012004 <MDMA_SFR_EVSEL_CR_EVSEL1>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL2 <MDMA_SFR_EVSEL_CR_EVSEL2>` | :ref:`0x40002008 <MDMA_SFR_EVSEL_CR_EVSEL2>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL2 <MDMA_SFR_EVSEL_CR_EVSEL2>` | :ref:`0x40012008 <MDMA_SFR_EVSEL_CR_EVSEL2>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL3 <MDMA_SFR_EVSEL_CR_EVSEL3>` | :ref:`0x4000200c <MDMA_SFR_EVSEL_CR_EVSEL3>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL3 <MDMA_SFR_EVSEL_CR_EVSEL3>` | :ref:`0x4001200c <MDMA_SFR_EVSEL_CR_EVSEL3>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL4 <MDMA_SFR_EVSEL_CR_EVSEL4>` | :ref:`0x40002010 <MDMA_SFR_EVSEL_CR_EVSEL4>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL4 <MDMA_SFR_EVSEL_CR_EVSEL4>` | :ref:`0x40012010 <MDMA_SFR_EVSEL_CR_EVSEL4>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL5 <MDMA_SFR_EVSEL_CR_EVSEL5>` | :ref:`0x40002014 <MDMA_SFR_EVSEL_CR_EVSEL5>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL5 <MDMA_SFR_EVSEL_CR_EVSEL5>` | :ref:`0x40012014 <MDMA_SFR_EVSEL_CR_EVSEL5>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL6 <MDMA_SFR_EVSEL_CR_EVSEL6>` | :ref:`0x40002018 <MDMA_SFR_EVSEL_CR_EVSEL6>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL6 <MDMA_SFR_EVSEL_CR_EVSEL6>` | :ref:`0x40012018 <MDMA_SFR_EVSEL_CR_EVSEL6>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_EVSEL_CR_EVSEL7 <MDMA_SFR_EVSEL_CR_EVSEL7>` | :ref:`0x4000201c <MDMA_SFR_EVSEL_CR_EVSEL7>` |
+| :ref:`MDMA_SFR_EVSEL_CR_EVSEL7 <MDMA_SFR_EVSEL_CR_EVSEL7>` | :ref:`0x4001201c <MDMA_SFR_EVSEL_CR_EVSEL7>` |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ0 <MDMA_SFR_CR_CR_MDMAREQ0>`   | :ref:`0x40002020 <MDMA_SFR_CR_CR_MDMAREQ0>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ0 <MDMA_SFR_CR_CR_MDMAREQ0>`   | :ref:`0x40012020 <MDMA_SFR_CR_CR_MDMAREQ0>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ1 <MDMA_SFR_CR_CR_MDMAREQ1>`   | :ref:`0x40002024 <MDMA_SFR_CR_CR_MDMAREQ1>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ1 <MDMA_SFR_CR_CR_MDMAREQ1>`   | :ref:`0x40012024 <MDMA_SFR_CR_CR_MDMAREQ1>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ2 <MDMA_SFR_CR_CR_MDMAREQ2>`   | :ref:`0x40002028 <MDMA_SFR_CR_CR_MDMAREQ2>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ2 <MDMA_SFR_CR_CR_MDMAREQ2>`   | :ref:`0x40012028 <MDMA_SFR_CR_CR_MDMAREQ2>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ3 <MDMA_SFR_CR_CR_MDMAREQ3>`   | :ref:`0x4000202c <MDMA_SFR_CR_CR_MDMAREQ3>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ3 <MDMA_SFR_CR_CR_MDMAREQ3>`   | :ref:`0x4001202c <MDMA_SFR_CR_CR_MDMAREQ3>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ4 <MDMA_SFR_CR_CR_MDMAREQ4>`   | :ref:`0x40002030 <MDMA_SFR_CR_CR_MDMAREQ4>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ4 <MDMA_SFR_CR_CR_MDMAREQ4>`   | :ref:`0x40012030 <MDMA_SFR_CR_CR_MDMAREQ4>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ5 <MDMA_SFR_CR_CR_MDMAREQ5>`   | :ref:`0x40002034 <MDMA_SFR_CR_CR_MDMAREQ5>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ5 <MDMA_SFR_CR_CR_MDMAREQ5>`   | :ref:`0x40012034 <MDMA_SFR_CR_CR_MDMAREQ5>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ6 <MDMA_SFR_CR_CR_MDMAREQ6>`   | :ref:`0x40002038 <MDMA_SFR_CR_CR_MDMAREQ6>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ6 <MDMA_SFR_CR_CR_MDMAREQ6>`   | :ref:`0x40012038 <MDMA_SFR_CR_CR_MDMAREQ6>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_CR_CR_MDMAREQ7 <MDMA_SFR_CR_CR_MDMAREQ7>`   | :ref:`0x4000203c <MDMA_SFR_CR_CR_MDMAREQ7>`  |
+| :ref:`MDMA_SFR_CR_CR_MDMAREQ7 <MDMA_SFR_CR_CR_MDMAREQ7>`   | :ref:`0x4001203c <MDMA_SFR_CR_CR_MDMAREQ7>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ0 <MDMA_SFR_SR_SR_MDMAREQ0>`   | :ref:`0x40002040 <MDMA_SFR_SR_SR_MDMAREQ0>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ0 <MDMA_SFR_SR_SR_MDMAREQ0>`   | :ref:`0x40012040 <MDMA_SFR_SR_SR_MDMAREQ0>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ1 <MDMA_SFR_SR_SR_MDMAREQ1>`   | :ref:`0x40002044 <MDMA_SFR_SR_SR_MDMAREQ1>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ1 <MDMA_SFR_SR_SR_MDMAREQ1>`   | :ref:`0x40012044 <MDMA_SFR_SR_SR_MDMAREQ1>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ2 <MDMA_SFR_SR_SR_MDMAREQ2>`   | :ref:`0x40002048 <MDMA_SFR_SR_SR_MDMAREQ2>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ2 <MDMA_SFR_SR_SR_MDMAREQ2>`   | :ref:`0x40012048 <MDMA_SFR_SR_SR_MDMAREQ2>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ3 <MDMA_SFR_SR_SR_MDMAREQ3>`   | :ref:`0x4000204c <MDMA_SFR_SR_SR_MDMAREQ3>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ3 <MDMA_SFR_SR_SR_MDMAREQ3>`   | :ref:`0x4001204c <MDMA_SFR_SR_SR_MDMAREQ3>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ4 <MDMA_SFR_SR_SR_MDMAREQ4>`   | :ref:`0x40002050 <MDMA_SFR_SR_SR_MDMAREQ4>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ4 <MDMA_SFR_SR_SR_MDMAREQ4>`   | :ref:`0x40012050 <MDMA_SFR_SR_SR_MDMAREQ4>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ5 <MDMA_SFR_SR_SR_MDMAREQ5>`   | :ref:`0x40002054 <MDMA_SFR_SR_SR_MDMAREQ5>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ5 <MDMA_SFR_SR_SR_MDMAREQ5>`   | :ref:`0x40012054 <MDMA_SFR_SR_SR_MDMAREQ5>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ6 <MDMA_SFR_SR_SR_MDMAREQ6>`   | :ref:`0x40002058 <MDMA_SFR_SR_SR_MDMAREQ6>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ6 <MDMA_SFR_SR_SR_MDMAREQ6>`   | :ref:`0x40012058 <MDMA_SFR_SR_SR_MDMAREQ6>`  |
 +------------------------------------------------------------+----------------------------------------------+
-| :ref:`MDMA_SFR_SR_SR_MDMAREQ7 <MDMA_SFR_SR_SR_MDMAREQ7>`   | :ref:`0x4000205c <MDMA_SFR_SR_SR_MDMAREQ7>`  |
+| :ref:`MDMA_SFR_SR_SR_MDMAREQ7 <MDMA_SFR_SR_SR_MDMAREQ7>`   | :ref:`0x4001205c <MDMA_SFR_SR_SR_MDMAREQ7>`  |
 +------------------------------------------------------------+----------------------------------------------+
 
 MDMA_SFR_EVSEL_CR_EVSEL0
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x0 = 0x40002000`
+`Address: 0x40012000 + 0x0 = 0x40012000`
 
 
     .. wavedrom::
@@ -82,7 +82,7 @@ MDMA_SFR_EVSEL_CR_EVSEL0
 MDMA_SFR_EVSEL_CR_EVSEL1
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x4 = 0x40002004`
+`Address: 0x40012000 + 0x4 = 0x40012004`
 
 
     .. wavedrom::
@@ -105,7 +105,7 @@ MDMA_SFR_EVSEL_CR_EVSEL1
 MDMA_SFR_EVSEL_CR_EVSEL2
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x8 = 0x40002008`
+`Address: 0x40012000 + 0x8 = 0x40012008`
 
 
     .. wavedrom::
@@ -128,7 +128,7 @@ MDMA_SFR_EVSEL_CR_EVSEL2
 MDMA_SFR_EVSEL_CR_EVSEL3
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0xc = 0x4000200c`
+`Address: 0x40012000 + 0xc = 0x4001200c`
 
 
     .. wavedrom::
@@ -151,7 +151,7 @@ MDMA_SFR_EVSEL_CR_EVSEL3
 MDMA_SFR_EVSEL_CR_EVSEL4
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x10 = 0x40002010`
+`Address: 0x40012000 + 0x10 = 0x40012010`
 
 
     .. wavedrom::
@@ -174,7 +174,7 @@ MDMA_SFR_EVSEL_CR_EVSEL4
 MDMA_SFR_EVSEL_CR_EVSEL5
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x14 = 0x40002014`
+`Address: 0x40012000 + 0x14 = 0x40012014`
 
 
     .. wavedrom::
@@ -197,7 +197,7 @@ MDMA_SFR_EVSEL_CR_EVSEL5
 MDMA_SFR_EVSEL_CR_EVSEL6
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x18 = 0x40002018`
+`Address: 0x40012000 + 0x18 = 0x40012018`
 
 
     .. wavedrom::
@@ -220,7 +220,7 @@ MDMA_SFR_EVSEL_CR_EVSEL6
 MDMA_SFR_EVSEL_CR_EVSEL7
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x1c = 0x4000201c`
+`Address: 0x40012000 + 0x1c = 0x4001201c`
 
 
     .. wavedrom::
@@ -243,7 +243,7 @@ MDMA_SFR_EVSEL_CR_EVSEL7
 MDMA_SFR_CR_CR_MDMAREQ0
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x20 = 0x40002020`
+`Address: 0x40012000 + 0x20 = 0x40012020`
 
 
     .. wavedrom::
@@ -266,7 +266,7 @@ MDMA_SFR_CR_CR_MDMAREQ0
 MDMA_SFR_CR_CR_MDMAREQ1
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x24 = 0x40002024`
+`Address: 0x40012000 + 0x24 = 0x40012024`
 
 
     .. wavedrom::
@@ -289,7 +289,7 @@ MDMA_SFR_CR_CR_MDMAREQ1
 MDMA_SFR_CR_CR_MDMAREQ2
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x28 = 0x40002028`
+`Address: 0x40012000 + 0x28 = 0x40012028`
 
 
     .. wavedrom::
@@ -312,7 +312,7 @@ MDMA_SFR_CR_CR_MDMAREQ2
 MDMA_SFR_CR_CR_MDMAREQ3
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x2c = 0x4000202c`
+`Address: 0x40012000 + 0x2c = 0x4001202c`
 
 
     .. wavedrom::
@@ -335,7 +335,7 @@ MDMA_SFR_CR_CR_MDMAREQ3
 MDMA_SFR_CR_CR_MDMAREQ4
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x30 = 0x40002030`
+`Address: 0x40012000 + 0x30 = 0x40012030`
 
 
     .. wavedrom::
@@ -358,7 +358,7 @@ MDMA_SFR_CR_CR_MDMAREQ4
 MDMA_SFR_CR_CR_MDMAREQ5
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x34 = 0x40002034`
+`Address: 0x40012000 + 0x34 = 0x40012034`
 
 
     .. wavedrom::
@@ -381,7 +381,7 @@ MDMA_SFR_CR_CR_MDMAREQ5
 MDMA_SFR_CR_CR_MDMAREQ6
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x38 = 0x40002038`
+`Address: 0x40012000 + 0x38 = 0x40012038`
 
 
     .. wavedrom::
@@ -404,7 +404,7 @@ MDMA_SFR_CR_CR_MDMAREQ6
 MDMA_SFR_CR_CR_MDMAREQ7
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x3c = 0x4000203c`
+`Address: 0x40012000 + 0x3c = 0x4001203c`
 
 
     .. wavedrom::
@@ -427,7 +427,7 @@ MDMA_SFR_CR_CR_MDMAREQ7
 MDMA_SFR_SR_SR_MDMAREQ0
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x40 = 0x40002040`
+`Address: 0x40012000 + 0x40 = 0x40012040`
 
 
     .. wavedrom::
@@ -450,7 +450,7 @@ MDMA_SFR_SR_SR_MDMAREQ0
 MDMA_SFR_SR_SR_MDMAREQ1
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x44 = 0x40002044`
+`Address: 0x40012000 + 0x44 = 0x40012044`
 
 
     .. wavedrom::
@@ -473,7 +473,7 @@ MDMA_SFR_SR_SR_MDMAREQ1
 MDMA_SFR_SR_SR_MDMAREQ2
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x48 = 0x40002048`
+`Address: 0x40012000 + 0x48 = 0x40012048`
 
 
     .. wavedrom::
@@ -496,7 +496,7 @@ MDMA_SFR_SR_SR_MDMAREQ2
 MDMA_SFR_SR_SR_MDMAREQ3
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x4c = 0x4000204c`
+`Address: 0x40012000 + 0x4c = 0x4001204c`
 
 
     .. wavedrom::
@@ -519,7 +519,7 @@ MDMA_SFR_SR_SR_MDMAREQ3
 MDMA_SFR_SR_SR_MDMAREQ4
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x50 = 0x40002050`
+`Address: 0x40012000 + 0x50 = 0x40012050`
 
 
     .. wavedrom::
@@ -542,7 +542,7 @@ MDMA_SFR_SR_SR_MDMAREQ4
 MDMA_SFR_SR_SR_MDMAREQ5
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x54 = 0x40002054`
+`Address: 0x40012000 + 0x54 = 0x40012054`
 
 
     .. wavedrom::
@@ -565,7 +565,7 @@ MDMA_SFR_SR_SR_MDMAREQ5
 MDMA_SFR_SR_SR_MDMAREQ6
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x58 = 0x40002058`
+`Address: 0x40012000 + 0x58 = 0x40012058`
 
 
     .. wavedrom::
@@ -588,7 +588,7 @@ MDMA_SFR_SR_SR_MDMAREQ6
 MDMA_SFR_SR_SR_MDMAREQ7
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-`Address: 0x40002000 + 0x5c = 0x4000205c`
+`Address: 0x40012000 + 0x5c = 0x4001205c`
 
 
     .. wavedrom::

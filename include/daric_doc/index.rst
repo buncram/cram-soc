@@ -57,7 +57,6 @@ Register Groups
     rp_pio
     mdma
     qfc
-    pl230_placeholder
     gluechain
     mesh
     sensorc
