@@ -61,3 +61,6 @@ VexRiscv/.vscode/
 
 # cross-validation target directory
 deps/pio/cross-validation/target
+
+# scripts with sensitive target information
+boot/daric.sh
