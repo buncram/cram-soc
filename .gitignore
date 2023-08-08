@@ -64,3 +64,5 @@ deps/pio/cross-validation/target
 
 # scripts with sensitive target information
 boot/daric.sh
+candidate/sync_s32.sh
+xous-s32.sh
