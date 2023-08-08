@@ -38,6 +38,7 @@ Register Groups
     udma_scif
     udma_spis_0
     udma_spis_1
+    udma_adc
     aes
     combohash
     pke

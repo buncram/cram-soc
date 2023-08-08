@@ -66,22 +66,25 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-opt2"><span class="std std-ref">COMBOHASH_SFR_OPT2</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-opt2"><span class="std std-ref">0x4002b014</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-lkey"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_LKEY</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-opt3"><span class="std std-ref">COMBOHASH_SFR_OPT3</span></a></p></td>
+<td><p><a class="reference internal" href="#combohash-sfr-opt3"><span class="std std-ref">0x4002b018</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-lkey"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_LKEY</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-lkey"><span class="std std-ref">0x4002b020</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-key"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_KEY</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-key"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_KEY</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-key"><span class="std std-ref">0x4002b024</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-scrt"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_SCRT</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-scrt"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_SCRT</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-scrt"><span class="std std-ref">0x4002b02c</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-msg"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_MSG</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-msg"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_MSG</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-msg"><span class="std std-ref">0x4002b030</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-hout"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_HOUT</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-hout"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_HOUT</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-hout"><span class="std std-ref">0x4002b034</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-sob"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_SOB</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-sob"><span class="std std-ref">COMBOHASH_SFR_SEGPTR_SEGID_SOB</span></a></p></td>
 <td><p><a class="reference internal" href="#combohash-sfr-segptr-segid-sob"><span class="std std-ref">0x4002b038</span></a></p></td>
 </tr>
 </tbody>
@@ -296,6 +299,37 @@ bit position to clear the flag</p></td>
 <tr class="row-even"><td><p>[2]</p></td>
 <td><p>CR_OPT_IFSTART</p></td>
 <td><p>cr_opt.ifstart read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="combohash-sfr-opt3">
+<h3>COMBOHASH_SFR_OPT3<a class="headerlink" href="#combohash-sfr-opt3" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x4002b000 + 0x18 = 0x4002b018</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_opt3",  "bits": 8},
+        {"bits": 24}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[7:0]</p></td>
+<td><p>SFR_OPT3</p></td>
+<td><p>sfr_opt3 read/write control register</p></td>
 </tr>
 </tbody>
 </table>
@@ -536,6 +570,7 @@ bit position to clear the flag</p></td>
 <li class="toctree-l1"><a class="reference internal" href="udma_scif.html">UDMA_SCIF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="udma_spis_0.html">UDMA_SPIS_0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="udma_spis_1.html">UDMA_SPIS_1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="udma_adc.html">UDMA_ADC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="aes.html">AES</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">COMBOHASH</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pke.html">PKE</a></li>

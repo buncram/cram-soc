@@ -19,6 +19,8 @@ Register Listing for COMBOHASH
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_OPT2 <COMBOHASH_SFR_OPT2>`                           | :ref:`0x4002b014 <COMBOHASH_SFR_OPT2>`              |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
+| :ref:`COMBOHASH_SFR_OPT3 <COMBOHASH_SFR_OPT3>`                           | :ref:`0x4002b018 <COMBOHASH_SFR_OPT3>`              |
++--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_SEGPTR_SEGID_LKEY <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` | :ref:`0x4002b020 <COMBOHASH_SFR_SEGPTR_SEGID_LKEY>` |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`COMBOHASH_SFR_SEGPTR_SEGID_KEY <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`   | :ref:`0x4002b024 <COMBOHASH_SFR_SEGPTR_SEGID_KEY>`  |
@@ -187,6 +189,29 @@ COMBOHASH_SFR_OPT2
 +-------+----------------+--------------------------------------------+
 | [2]   | CR_OPT_IFSTART | cr_opt.ifstart read/write control register |
 +-------+----------------+--------------------------------------------+
+
+COMBOHASH_SFR_OPT3
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002b000 + 0x18 = 0x4002b018`
+
+
+    .. wavedrom::
+        :caption: COMBOHASH_SFR_OPT3
+
+        {
+            "reg": [
+                {"name": "sfr_opt3",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+----------+--------------------------------------+
+| Field | Name     | Description                          |
++=======+==========+======================================+
+| [7:0] | SFR_OPT3 | sfr_opt3 read/write control register |
++-------+----------+--------------------------------------+
 
 COMBOHASH_SFR_SEGPTR_SEGID_LKEY
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
