@@ -9,7 +9,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : e08384a2
-// Date       : 2023-08-08 23:02:53
+// Date       : 2023-08-09 01:54:15
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -538,6 +538,26 @@ reg           dbus_w_active;
 reg           pbus_r_active;
 reg           pbus_w_active;
 reg     [6:0] active_timeout;
+reg    [15:0] irq_remap0;
+reg    [15:0] irq_remap1;
+reg    [15:0] irq_remap2;
+reg    [15:0] irq_remap3;
+reg    [15:0] irq_remap4;
+reg    [15:0] irq_remap5;
+reg    [15:0] irq_remap6;
+reg    [15:0] irq_remap7;
+reg    [15:0] irq_remap8;
+reg    [15:0] irq_remap9;
+reg    [15:0] irq_remap10;
+reg    [15:0] irq_remap11;
+reg    [15:0] irq_remap12;
+reg    [15:0] irq_remap13;
+reg    [15:0] irq_remap14;
+reg    [15:0] irq_remap15;
+reg    [15:0] irq_remap16;
+reg    [15:0] irq_remap17;
+reg    [15:0] irq_remap18;
+reg    [15:0] irq_remap19;
 wire          irqarray0_irq;
 wire   [15:0] irqarray0_interrupts;
 reg    [15:0] irqarray0_trigger;
@@ -5110,6 +5130,386 @@ assign coreuser_cmbist = cmbist;
 assign coreuser_cmatpg = cmatpg;
 assign axi_active = ((((((((((((((((cramsoc_ibus_axi_ar_valid | cramsoc_ibus_axi_r_valid) | cramsoc_dbus_aw_valid) | cramsoc_dbus_w_valid) | cramsoc_dbus_b_valid) | cramsoc_dbus_ar_valid) | cramsoc_dbus_r_valid) | cramsoc_peripherals_aw_valid) | cramsoc_peripherals_w_valid) | cramsoc_peripherals_b_valid) | cramsoc_peripherals_ar_valid) | cramsoc_peripherals_r_valid) | ibus_r_active) | dbus_r_active) | dbus_w_active) | pbus_r_active) | pbus_w_active);
 assign sleep_req = (((cramsoc_wfi_active & cpu_int_active) & (~axi_active)) & (active_timeout == 1'd0));
+always @(*) begin
+    irq_remap0 <= 16'd0;
+    irq_remap0[0] <= irqarray_bank1[1];
+    irq_remap0[1] <= irqarray_bank0[1];
+    irq_remap0[2] <= irqarray_bank0[2];
+    irq_remap0[3] <= irqarray_bank0[3];
+    irq_remap0[4] <= irqarray_bank0[4];
+    irq_remap0[5] <= irqarray_bank0[5];
+    irq_remap0[6] <= irqarray_bank0[6];
+    irq_remap0[7] <= irqarray_bank0[7];
+    irq_remap0[8] <= irqarray_bank0[8];
+    irq_remap0[9] <= irqarray_bank0[9];
+    irq_remap0[10] <= irqarray_bank0[10];
+    irq_remap0[11] <= irqarray_bank0[11];
+    irq_remap0[12] <= irqarray_bank0[12];
+    irq_remap0[13] <= irqarray_bank0[13];
+    irq_remap0[14] <= irqarray_bank0[14];
+    irq_remap0[15] <= irqarray_bank0[15];
+end
+always @(*) begin
+    irq_remap1 <= 16'd0;
+    irq_remap1[0] <= irqarray_bank8[1];
+    irq_remap1[1] <= irqarray_bank1[1];
+    irq_remap1[2] <= irqarray_bank1[2];
+    irq_remap1[3] <= irqarray_bank1[3];
+    irq_remap1[4] <= irqarray_bank1[4];
+    irq_remap1[5] <= irqarray_bank1[5];
+    irq_remap1[6] <= irqarray_bank1[6];
+    irq_remap1[7] <= irqarray_bank1[7];
+    irq_remap1[8] <= irqarray_bank1[8];
+    irq_remap1[9] <= irqarray_bank1[9];
+    irq_remap1[10] <= irqarray_bank1[10];
+    irq_remap1[11] <= irqarray_bank1[11];
+    irq_remap1[12] <= irqarray_bank1[12];
+    irq_remap1[13] <= irqarray_bank1[13];
+    irq_remap1[14] <= irqarray_bank1[14];
+    irq_remap1[15] <= irqarray_bank1[15];
+end
+always @(*) begin
+    irq_remap2 <= 16'd0;
+    irq_remap2[0] <= irqarray_bank2[0];
+    irq_remap2[1] <= irqarray_bank2[1];
+    irq_remap2[2] <= irqarray_bank2[2];
+    irq_remap2[3] <= irqarray_bank2[3];
+    irq_remap2[4] <= irqarray_bank2[4];
+    irq_remap2[5] <= irqarray_bank2[5];
+    irq_remap2[6] <= irqarray_bank2[6];
+    irq_remap2[7] <= irqarray_bank2[7];
+    irq_remap2[8] <= irqarray_bank2[8];
+    irq_remap2[9] <= irqarray_bank2[9];
+    irq_remap2[10] <= irqarray_bank2[10];
+    irq_remap2[11] <= irqarray_bank2[11];
+    irq_remap2[12] <= irqarray_bank2[12];
+    irq_remap2[13] <= irqarray_bank2[13];
+    irq_remap2[14] <= irqarray_bank2[14];
+    irq_remap2[15] <= irqarray_bank2[15];
+end
+always @(*) begin
+    irq_remap3 <= 16'd0;
+    irq_remap3[0] <= irqarray_bank3[0];
+    irq_remap3[1] <= irqarray_bank3[1];
+    irq_remap3[2] <= irqarray_bank3[2];
+    irq_remap3[3] <= irqarray_bank3[3];
+    irq_remap3[4] <= irqarray_bank3[4];
+    irq_remap3[5] <= irqarray_bank3[5];
+    irq_remap3[6] <= irqarray_bank3[6];
+    irq_remap3[7] <= irqarray_bank3[7];
+    irq_remap3[8] <= irqarray_bank3[8];
+    irq_remap3[9] <= irqarray_bank3[9];
+    irq_remap3[10] <= irqarray_bank3[10];
+    irq_remap3[11] <= irqarray_bank3[11];
+    irq_remap3[12] <= irqarray_bank3[12];
+    irq_remap3[13] <= irqarray_bank3[13];
+    irq_remap3[14] <= irqarray_bank3[14];
+    irq_remap3[15] <= irqarray_bank3[15];
+end
+always @(*) begin
+    irq_remap4 <= 16'd0;
+    irq_remap4[0] <= irqarray_bank4[0];
+    irq_remap4[1] <= irqarray_bank4[1];
+    irq_remap4[2] <= irqarray_bank4[2];
+    irq_remap4[3] <= irqarray_bank4[3];
+    irq_remap4[4] <= irqarray_bank4[4];
+    irq_remap4[5] <= irqarray_bank4[5];
+    irq_remap4[6] <= irqarray_bank4[6];
+    irq_remap4[7] <= irqarray_bank4[7];
+    irq_remap4[8] <= irqarray_bank4[8];
+    irq_remap4[9] <= irqarray_bank4[9];
+    irq_remap4[10] <= irqarray_bank4[10];
+    irq_remap4[11] <= irqarray_bank4[11];
+    irq_remap4[12] <= irqarray_bank4[12];
+    irq_remap4[13] <= irqarray_bank4[13];
+    irq_remap4[14] <= irqarray_bank4[14];
+    irq_remap4[15] <= irqarray_bank4[15];
+end
+always @(*) begin
+    irq_remap5 <= 16'd0;
+    irq_remap5[0] <= irqarray_bank5[0];
+    irq_remap5[1] <= irqarray_bank5[1];
+    irq_remap5[2] <= irqarray_bank5[2];
+    irq_remap5[3] <= irqarray_bank5[3];
+    irq_remap5[4] <= irqarray_bank5[4];
+    irq_remap5[5] <= irqarray_bank5[5];
+    irq_remap5[6] <= irqarray_bank5[6];
+    irq_remap5[7] <= irqarray_bank5[7];
+    irq_remap5[8] <= irqarray_bank5[8];
+    irq_remap5[9] <= irqarray_bank5[9];
+    irq_remap5[10] <= irqarray_bank5[10];
+    irq_remap5[11] <= irqarray_bank5[11];
+    irq_remap5[12] <= irqarray_bank5[12];
+    irq_remap5[13] <= irqarray_bank5[13];
+    irq_remap5[14] <= irqarray_bank5[14];
+    irq_remap5[15] <= irqarray_bank5[15];
+end
+always @(*) begin
+    irq_remap6 <= 16'd0;
+    irq_remap6[0] <= irqarray_bank6[0];
+    irq_remap6[1] <= irqarray_bank6[1];
+    irq_remap6[2] <= irqarray_bank6[2];
+    irq_remap6[3] <= irqarray_bank6[3];
+    irq_remap6[4] <= irqarray_bank6[4];
+    irq_remap6[5] <= irqarray_bank6[5];
+    irq_remap6[6] <= irqarray_bank6[6];
+    irq_remap6[7] <= irqarray_bank6[7];
+    irq_remap6[8] <= irqarray_bank6[8];
+    irq_remap6[9] <= irqarray_bank6[9];
+    irq_remap6[10] <= irqarray_bank6[10];
+    irq_remap6[11] <= irqarray_bank6[11];
+    irq_remap6[12] <= irqarray_bank6[12];
+    irq_remap6[13] <= irqarray_bank6[13];
+    irq_remap6[14] <= irqarray_bank6[14];
+    irq_remap6[15] <= irqarray_bank6[15];
+end
+always @(*) begin
+    irq_remap7 <= 16'd0;
+    irq_remap7[0] <= irqarray_bank7[0];
+    irq_remap7[1] <= irqarray_bank7[1];
+    irq_remap7[2] <= irqarray_bank7[2];
+    irq_remap7[3] <= irqarray_bank7[3];
+    irq_remap7[4] <= irqarray_bank7[4];
+    irq_remap7[5] <= irqarray_bank7[5];
+    irq_remap7[6] <= irqarray_bank7[6];
+    irq_remap7[7] <= irqarray_bank7[7];
+    irq_remap7[8] <= irqarray_bank7[8];
+    irq_remap7[9] <= irqarray_bank7[9];
+    irq_remap7[10] <= irqarray_bank7[10];
+    irq_remap7[11] <= irqarray_bank7[11];
+    irq_remap7[12] <= irqarray_bank7[12];
+    irq_remap7[13] <= irqarray_bank7[13];
+    irq_remap7[14] <= irqarray_bank7[14];
+    irq_remap7[15] <= irqarray_bank7[15];
+end
+always @(*) begin
+    irq_remap8 <= 16'd0;
+    irq_remap8[0] <= irqarray_bank8[0];
+    irq_remap8[1] <= irqarray_bank8[1];
+    irq_remap8[2] <= irqarray_bank8[2];
+    irq_remap8[3] <= irqarray_bank8[3];
+    irq_remap8[4] <= irqarray_bank8[4];
+    irq_remap8[5] <= irqarray_bank8[5];
+    irq_remap8[6] <= irqarray_bank8[6];
+    irq_remap8[7] <= irqarray_bank8[7];
+    irq_remap8[8] <= irqarray_bank8[8];
+    irq_remap8[9] <= irqarray_bank8[9];
+    irq_remap8[10] <= irqarray_bank8[10];
+    irq_remap8[11] <= irqarray_bank8[11];
+    irq_remap8[12] <= irqarray_bank8[12];
+    irq_remap8[13] <= irqarray_bank8[13];
+    irq_remap8[14] <= irqarray_bank8[14];
+    irq_remap8[15] <= irqarray_bank8[15];
+end
+always @(*) begin
+    irq_remap9 <= 16'd0;
+    irq_remap9[0] <= irqarray_bank9[0];
+    irq_remap9[1] <= irqarray_bank9[1];
+    irq_remap9[2] <= irqarray_bank9[2];
+    irq_remap9[3] <= irqarray_bank9[3];
+    irq_remap9[4] <= irqarray_bank9[4];
+    irq_remap9[5] <= irqarray_bank9[5];
+    irq_remap9[6] <= irqarray_bank9[6];
+    irq_remap9[7] <= irqarray_bank9[7];
+    irq_remap9[8] <= irqarray_bank9[8];
+    irq_remap9[9] <= irqarray_bank9[9];
+    irq_remap9[10] <= irqarray_bank9[10];
+    irq_remap9[11] <= irqarray_bank9[11];
+    irq_remap9[12] <= irqarray_bank9[12];
+    irq_remap9[13] <= irqarray_bank9[13];
+    irq_remap9[14] <= irqarray_bank9[14];
+    irq_remap9[15] <= irqarray_bank9[15];
+end
+always @(*) begin
+    irq_remap10 <= 16'd0;
+    irq_remap10[0] <= irqarray_bank10[0];
+    irq_remap10[1] <= irqarray_bank10[1];
+    irq_remap10[2] <= irqarray_bank10[2];
+    irq_remap10[3] <= irqarray_bank10[3];
+    irq_remap10[4] <= irqarray_bank10[4];
+    irq_remap10[5] <= irqarray_bank10[5];
+    irq_remap10[6] <= irqarray_bank10[6];
+    irq_remap10[7] <= irqarray_bank10[7];
+    irq_remap10[8] <= irqarray_bank10[8];
+    irq_remap10[9] <= irqarray_bank10[9];
+    irq_remap10[10] <= irqarray_bank10[10];
+    irq_remap10[11] <= irqarray_bank10[11];
+    irq_remap10[12] <= irqarray_bank10[12];
+    irq_remap10[13] <= irqarray_bank10[13];
+    irq_remap10[14] <= irqarray_bank10[14];
+    irq_remap10[15] <= irqarray_bank10[15];
+end
+always @(*) begin
+    irq_remap11 <= 16'd0;
+    irq_remap11[0] <= irqarray_bank6[4];
+    irq_remap11[1] <= irqarray_bank6[5];
+    irq_remap11[2] <= irqarray_bank11[2];
+    irq_remap11[3] <= irqarray_bank11[3];
+    irq_remap11[4] <= irqarray_bank11[4];
+    irq_remap11[5] <= irqarray_bank11[5];
+    irq_remap11[6] <= irqarray_bank11[6];
+    irq_remap11[7] <= irqarray_bank11[7];
+    irq_remap11[8] <= irqarray_bank11[8];
+    irq_remap11[9] <= irqarray_bank11[9];
+    irq_remap11[10] <= irqarray_bank11[10];
+    irq_remap11[11] <= irqarray_bank11[11];
+    irq_remap11[12] <= irqarray_bank11[12];
+    irq_remap11[13] <= irqarray_bank11[13];
+    irq_remap11[14] <= irqarray_bank11[14];
+    irq_remap11[15] <= irqarray_bank11[15];
+end
+always @(*) begin
+    irq_remap12 <= 16'd0;
+    irq_remap12[0] <= irqarray_bank12[0];
+    irq_remap12[1] <= irqarray_bank12[1];
+    irq_remap12[2] <= irqarray_bank12[2];
+    irq_remap12[3] <= irqarray_bank12[3];
+    irq_remap12[4] <= irqarray_bank12[4];
+    irq_remap12[5] <= irqarray_bank12[5];
+    irq_remap12[6] <= irqarray_bank12[6];
+    irq_remap12[7] <= irqarray_bank12[7];
+    irq_remap12[8] <= irqarray_bank12[8];
+    irq_remap12[9] <= irqarray_bank12[9];
+    irq_remap12[10] <= irqarray_bank12[10];
+    irq_remap12[11] <= irqarray_bank12[11];
+    irq_remap12[12] <= irqarray_bank12[12];
+    irq_remap12[13] <= irqarray_bank12[13];
+    irq_remap12[14] <= irqarray_bank12[14];
+    irq_remap12[15] <= irqarray_bank12[15];
+end
+always @(*) begin
+    irq_remap13 <= 16'd0;
+    irq_remap13[0] <= irqarray_bank13[0];
+    irq_remap13[1] <= irqarray_bank13[1];
+    irq_remap13[2] <= irqarray_bank13[2];
+    irq_remap13[3] <= irqarray_bank13[3];
+    irq_remap13[4] <= irqarray_bank13[4];
+    irq_remap13[5] <= irqarray_bank13[5];
+    irq_remap13[6] <= irqarray_bank13[6];
+    irq_remap13[7] <= irqarray_bank13[7];
+    irq_remap13[8] <= irqarray_bank13[8];
+    irq_remap13[9] <= irqarray_bank13[9];
+    irq_remap13[10] <= irqarray_bank13[10];
+    irq_remap13[11] <= irqarray_bank13[11];
+    irq_remap13[12] <= irqarray_bank13[12];
+    irq_remap13[13] <= irqarray_bank13[13];
+    irq_remap13[14] <= irqarray_bank13[14];
+    irq_remap13[15] <= irqarray_bank13[15];
+end
+always @(*) begin
+    irq_remap14 <= 16'd0;
+    irq_remap14[0] <= irqarray_bank4[8];
+    irq_remap14[1] <= irqarray_bank4[9];
+    irq_remap14[2] <= irqarray_bank4[10];
+    irq_remap14[3] <= irqarray_bank4[11];
+    irq_remap14[4] <= irqarray_bank4[12];
+    irq_remap14[5] <= irqarray_bank4[13];
+    irq_remap14[6] <= irqarray_bank4[14];
+    irq_remap14[7] <= irqarray_bank4[15];
+    irq_remap14[8] <= irqarray_bank14[8];
+    irq_remap14[9] <= irqarray_bank14[9];
+    irq_remap14[10] <= irqarray_bank14[10];
+    irq_remap14[11] <= irqarray_bank14[11];
+    irq_remap14[12] <= irqarray_bank14[12];
+    irq_remap14[13] <= irqarray_bank14[13];
+    irq_remap14[14] <= irqarray_bank14[14];
+    irq_remap14[15] <= irqarray_bank14[15];
+end
+always @(*) begin
+    irq_remap15 <= 16'd0;
+    irq_remap15[0] <= irqarray_bank15[0];
+    irq_remap15[1] <= irqarray_bank15[1];
+    irq_remap15[2] <= irqarray_bank15[2];
+    irq_remap15[3] <= irqarray_bank15[3];
+    irq_remap15[4] <= irqarray_bank15[4];
+    irq_remap15[5] <= irqarray_bank15[5];
+    irq_remap15[6] <= irqarray_bank15[6];
+    irq_remap15[7] <= irqarray_bank15[7];
+    irq_remap15[8] <= irqarray_bank15[8];
+    irq_remap15[9] <= irqarray_bank15[9];
+    irq_remap15[10] <= irqarray_bank15[10];
+    irq_remap15[11] <= irqarray_bank15[11];
+    irq_remap15[12] <= irqarray_bank15[12];
+    irq_remap15[13] <= irqarray_bank15[13];
+    irq_remap15[14] <= irqarray_bank15[14];
+    irq_remap15[15] <= irqarray_bank15[15];
+end
+always @(*) begin
+    irq_remap16 <= 16'd0;
+    irq_remap16[0] <= irqarray_bank16[0];
+    irq_remap16[1] <= irqarray_bank16[1];
+    irq_remap16[2] <= irqarray_bank16[2];
+    irq_remap16[3] <= irqarray_bank16[3];
+    irq_remap16[4] <= irqarray_bank16[4];
+    irq_remap16[5] <= irqarray_bank16[5];
+    irq_remap16[6] <= irqarray_bank16[6];
+    irq_remap16[7] <= irqarray_bank16[7];
+    irq_remap16[8] <= irqarray_bank16[8];
+    irq_remap16[9] <= irqarray_bank16[9];
+    irq_remap16[10] <= irqarray_bank16[10];
+    irq_remap16[11] <= irqarray_bank16[11];
+    irq_remap16[12] <= irqarray_bank16[12];
+    irq_remap16[13] <= irqarray_bank16[13];
+    irq_remap16[14] <= irqarray_bank16[14];
+    irq_remap16[15] <= irqarray_bank16[15];
+end
+always @(*) begin
+    irq_remap17 <= 16'd0;
+    irq_remap17[0] <= irqarray_bank17[0];
+    irq_remap17[1] <= irqarray_bank17[1];
+    irq_remap17[2] <= irqarray_bank17[2];
+    irq_remap17[3] <= irqarray_bank17[3];
+    irq_remap17[4] <= irqarray_bank17[4];
+    irq_remap17[5] <= irqarray_bank17[5];
+    irq_remap17[6] <= irqarray_bank17[6];
+    irq_remap17[7] <= irqarray_bank17[7];
+    irq_remap17[8] <= irqarray_bank17[8];
+    irq_remap17[9] <= irqarray_bank17[9];
+    irq_remap17[10] <= irqarray_bank17[10];
+    irq_remap17[11] <= irqarray_bank17[11];
+    irq_remap17[12] <= irqarray_bank17[12];
+    irq_remap17[13] <= irqarray_bank17[13];
+    irq_remap17[14] <= irqarray_bank17[14];
+    irq_remap17[15] <= irqarray_bank17[15];
+end
+always @(*) begin
+    irq_remap18 <= 16'd0;
+    irq_remap18[0] <= irqarray_bank8[3];
+    irq_remap18[1] <= irqarray_bank8[4];
+    irq_remap18[2] <= irqarray_bank18[2];
+    irq_remap18[3] <= irqarray_bank18[3];
+    irq_remap18[4] <= irqarray_bank18[4];
+    irq_remap18[5] <= irqarray_bank18[5];
+    irq_remap18[6] <= irqarray_bank18[6];
+    irq_remap18[7] <= irqarray_bank18[7];
+    irq_remap18[8] <= irqarray_bank18[8];
+    irq_remap18[9] <= irqarray_bank18[9];
+    irq_remap18[10] <= irqarray_bank18[10];
+    irq_remap18[11] <= irqarray_bank18[11];
+    irq_remap18[12] <= irqarray_bank18[12];
+    irq_remap18[13] <= irqarray_bank18[13];
+    irq_remap18[14] <= irqarray_bank18[14];
+    irq_remap18[15] <= irqarray_bank18[15];
+end
+always @(*) begin
+    irq_remap19 <= 16'd0;
+    irq_remap19[0] <= irqarray_bank1[2];
+    irq_remap19[1] <= irqarray_bank1[3];
+    irq_remap19[2] <= irqarray_bank1[4];
+    irq_remap19[3] <= irqarray_bank1[5];
+    irq_remap19[4] <= irqarray_bank19[4];
+    irq_remap19[5] <= irqarray_bank19[5];
+    irq_remap19[6] <= irqarray_bank19[6];
+    irq_remap19[7] <= irqarray_bank19[7];
+    irq_remap19[8] <= irqarray_bank19[8];
+    irq_remap19[9] <= irqarray_bank19[9];
+    irq_remap19[10] <= irqarray_bank19[10];
+    irq_remap19[11] <= irqarray_bank19[11];
+    irq_remap19[12] <= irqarray_bank19[12];
+    irq_remap19[13] <= irqarray_bank19[13];
+    irq_remap19[14] <= irqarray_bank19[14];
+    irq_remap19[15] <= irqarray_bank19[15];
+end
 assign susres_time_status = ticktimer_timer1;
 assign susres_paused = ticktimer_paused0;
 assign ticktimer_resume_time = susres_resume_time_storage;
@@ -5130,12 +5530,12 @@ assign r_ready = mailbox_r_ready;
 assign mailbox_r_abort = r_abort;
 assign w_abort = mailbox_w_abort;
 always @(*) begin
-    r_valid <= 1'd0;
-    mb_client_reset_n <= 1'd0;
-    r_done <= 1'd0;
     r_abort <= 1'd0;
     w_ready <= 1'd0;
     r_dat <= 32'd0;
+    r_valid <= 1'd0;
+    mb_client_reset_n <= 1'd0;
+    r_done <= 1'd0;
     if (loopback) begin
         mb_client_reset_n <= (~sys_rst);
         r_dat <= mb_client_w_dat;
@@ -5429,7 +5829,7 @@ assign coreuser_coreuser_asid = coreuser_asid_rd_dat;
 assign coreuser_asid_wr_adr = coreuser_asid0;
 assign coreuser_asid_wr_dat = coreuser_trusted;
 assign coreuser_asid_wr_we = ((~coreuser_protect) & coreuser_set_asid_re);
-assign irqarray0_interrupts = irqarray_bank0;
+assign irqarray0_interrupts = irq_remap0;
 assign irqarray0_source00 = irqarray0_eventsourceflex0_status;
 assign irqarray0_source01 = irqarray0_eventsourceflex0_pending;
 always @(*) begin
@@ -5767,7 +6167,7 @@ always @(*) begin
     end
 end
 assign irqarray0_eventsourceflex15_status = (irqarray0_interrupts[15] | irqarray0_trigger[15]);
-assign irqarray1_interrupts = irqarray_bank1;
+assign irqarray1_interrupts = irq_remap1;
 assign irqarray1_source00 = irqarray1_eventsourceflex16_status;
 assign irqarray1_source01 = irqarray1_eventsourceflex16_pending;
 always @(*) begin
@@ -6105,7 +6505,7 @@ always @(*) begin
     end
 end
 assign irqarray1_eventsourceflex31_status = (irqarray1_interrupts[15] | irqarray1_trigger[15]);
-assign irqarray2_interrupts = irqarray_bank2;
+assign irqarray2_interrupts = irq_remap2;
 assign irqarray2_source00 = irqarray2_eventsourceflex32_status;
 assign irqarray2_source01 = irqarray2_eventsourceflex32_pending;
 always @(*) begin
@@ -6443,7 +6843,7 @@ always @(*) begin
     end
 end
 assign irqarray2_eventsourceflex47_status = (irqarray2_interrupts[15] | irqarray2_trigger[15]);
-assign irqarray3_interrupts = irqarray_bank3;
+assign irqarray3_interrupts = irq_remap3;
 assign irqarray3_source00 = irqarray3_eventsourceflex48_status;
 assign irqarray3_source01 = irqarray3_eventsourceflex48_pending;
 always @(*) begin
@@ -6781,7 +7181,7 @@ always @(*) begin
     end
 end
 assign irqarray3_eventsourceflex63_status = (irqarray3_interrupts[15] | irqarray3_trigger[15]);
-assign irqarray4_interrupts = irqarray_bank4;
+assign irqarray4_interrupts = irq_remap4;
 assign irqarray4_source00 = irqarray4_eventsourceflex64_status;
 assign irqarray4_source01 = irqarray4_eventsourceflex64_pending;
 always @(*) begin
@@ -7119,7 +7519,7 @@ always @(*) begin
     end
 end
 assign irqarray4_eventsourceflex79_status = (irqarray4_interrupts[15] | irqarray4_trigger[15]);
-assign irqarray5_interrupts = irqarray_bank5;
+assign irqarray5_interrupts = irq_remap5;
 assign irqarray5_source00 = irqarray5_eventsourceflex80_status;
 assign irqarray5_source01 = irqarray5_eventsourceflex80_pending;
 always @(*) begin
@@ -7457,7 +7857,7 @@ always @(*) begin
     end
 end
 assign irqarray5_eventsourceflex95_status = (irqarray5_interrupts[15] | irqarray5_trigger[15]);
-assign irqarray6_interrupts = irqarray_bank6;
+assign irqarray6_interrupts = irq_remap6;
 assign irqarray6_source00 = irqarray6_eventsourceflex96_status;
 assign irqarray6_source01 = irqarray6_eventsourceflex96_pending;
 always @(*) begin
@@ -7795,7 +8195,7 @@ always @(*) begin
     end
 end
 assign irqarray6_eventsourceflex111_status = (irqarray6_interrupts[15] | irqarray6_trigger[15]);
-assign irqarray7_interrupts = irqarray_bank7;
+assign irqarray7_interrupts = irq_remap7;
 assign irqarray7_source00 = irqarray7_eventsourceflex112_status;
 assign irqarray7_source01 = irqarray7_eventsourceflex112_pending;
 always @(*) begin
@@ -8133,7 +8533,7 @@ always @(*) begin
     end
 end
 assign irqarray7_eventsourceflex127_status = (irqarray7_interrupts[15] | irqarray7_trigger[15]);
-assign irqarray8_interrupts = irqarray_bank8;
+assign irqarray8_interrupts = irq_remap8;
 assign irqarray8_source00 = irqarray8_eventsourceflex128_status;
 assign irqarray8_source01 = irqarray8_eventsourceflex128_pending;
 always @(*) begin
@@ -8471,7 +8871,7 @@ always @(*) begin
     end
 end
 assign irqarray8_eventsourceflex143_status = (irqarray8_interrupts[15] | irqarray8_trigger[15]);
-assign irqarray9_interrupts = irqarray_bank9;
+assign irqarray9_interrupts = irq_remap9;
 assign irqarray9_source00 = irqarray9_eventsourceflex144_status;
 assign irqarray9_source01 = irqarray9_eventsourceflex144_pending;
 always @(*) begin
@@ -8809,7 +9209,7 @@ always @(*) begin
     end
 end
 assign irqarray9_eventsourceflex159_status = (irqarray9_interrupts[15] | irqarray9_trigger[15]);
-assign irqarray10_interrupts = irqarray_bank10;
+assign irqarray10_interrupts = irq_remap10;
 assign irqarray10_source00 = irqarray10_eventsourceflex160_status;
 assign irqarray10_source01 = irqarray10_eventsourceflex160_pending;
 always @(*) begin
@@ -9147,7 +9547,7 @@ always @(*) begin
     end
 end
 assign irqarray10_eventsourceflex175_status = (irqarray10_interrupts[15] | irqarray10_trigger[15]);
-assign irqarray11_interrupts = irqarray_bank11;
+assign irqarray11_interrupts = irq_remap11;
 assign irqarray11_source00 = irqarray11_eventsourceflex176_status;
 assign irqarray11_source01 = irqarray11_eventsourceflex176_pending;
 always @(*) begin
@@ -9485,7 +9885,7 @@ always @(*) begin
     end
 end
 assign irqarray11_eventsourceflex191_status = (irqarray11_interrupts[15] | irqarray11_trigger[15]);
-assign irqarray12_interrupts = irqarray_bank12;
+assign irqarray12_interrupts = irq_remap12;
 assign irqarray12_source00 = irqarray12_eventsourceflex192_status;
 assign irqarray12_source01 = irqarray12_eventsourceflex192_pending;
 always @(*) begin
@@ -9823,7 +10223,7 @@ always @(*) begin
     end
 end
 assign irqarray12_eventsourceflex207_status = (irqarray12_interrupts[15] | irqarray12_trigger[15]);
-assign irqarray13_interrupts = irqarray_bank13;
+assign irqarray13_interrupts = irq_remap13;
 assign irqarray13_source00 = irqarray13_eventsourceflex208_status;
 assign irqarray13_source01 = irqarray13_eventsourceflex208_pending;
 always @(*) begin
@@ -10161,7 +10561,7 @@ always @(*) begin
     end
 end
 assign irqarray13_eventsourceflex223_status = (irqarray13_interrupts[15] | irqarray13_trigger[15]);
-assign irqarray14_interrupts = irqarray_bank14;
+assign irqarray14_interrupts = irq_remap14;
 assign irqarray14_source00 = irqarray14_eventsourceflex224_status;
 assign irqarray14_source01 = irqarray14_eventsourceflex224_pending;
 always @(*) begin
@@ -10499,7 +10899,7 @@ always @(*) begin
     end
 end
 assign irqarray14_eventsourceflex239_status = (irqarray14_interrupts[15] | irqarray14_trigger[15]);
-assign irqarray15_interrupts = irqarray_bank15;
+assign irqarray15_interrupts = irq_remap15;
 assign irqarray15_source00 = irqarray15_eventsourceflex240_status;
 assign irqarray15_source01 = irqarray15_eventsourceflex240_pending;
 always @(*) begin
@@ -10837,7 +11237,7 @@ always @(*) begin
     end
 end
 assign irqarray15_eventsourceflex255_status = (irqarray15_interrupts[15] | irqarray15_trigger[15]);
-assign irqarray16_interrupts = irqarray_bank16;
+assign irqarray16_interrupts = irq_remap16;
 assign irqarray16_source00 = irqarray16_eventsourceflex256_status;
 assign irqarray16_source01 = irqarray16_eventsourceflex256_pending;
 always @(*) begin
@@ -11175,7 +11575,7 @@ always @(*) begin
     end
 end
 assign irqarray16_eventsourceflex271_status = (irqarray16_interrupts[15] | irqarray16_trigger[15]);
-assign irqarray17_interrupts = irqarray_bank17;
+assign irqarray17_interrupts = irq_remap17;
 assign irqarray17_source00 = irqarray17_eventsourceflex272_status;
 assign irqarray17_source01 = irqarray17_eventsourceflex272_pending;
 always @(*) begin
@@ -11513,7 +11913,7 @@ always @(*) begin
     end
 end
 assign irqarray17_eventsourceflex287_status = (irqarray17_interrupts[15] | irqarray17_trigger[15]);
-assign irqarray18_interrupts = irqarray_bank18;
+assign irqarray18_interrupts = irq_remap18;
 assign irqarray18_source00 = irqarray18_eventsourceflex288_status;
 assign irqarray18_source01 = irqarray18_eventsourceflex288_pending;
 always @(*) begin
@@ -11851,7 +12251,7 @@ always @(*) begin
     end
 end
 assign irqarray18_eventsourceflex303_status = (irqarray18_interrupts[15] | irqarray18_trigger[15]);
-assign irqarray19_interrupts = irqarray_bank19;
+assign irqarray19_interrupts = irq_remap19;
 assign irqarray19_source00 = irqarray19_eventsourceflex304_status;
 assign irqarray19_source01 = irqarray19_eventsourceflex304_pending;
 always @(*) begin
@@ -12510,14 +12910,14 @@ assign mb_client_abort_init_status = mb_client_abort_init_trigger;
 assign mb_client_abort_done_status = mb_client_abort_done_trigger;
 assign mb_client_error_status = mb_client_error_trigger;
 always @(*) begin
-    mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd0;
-    mb_client_abort_init_trigger <= 1'd0;
-    mb_client_w_abort <= 1'd0;
-    cramsoc_mailboxclient_next_state <= 2'd0;
     mb_client_abort_ack1_mailboxclient_next_value0 <= 1'd0;
     mb_client_abort_ack1_mailboxclient_next_value_ce0 <= 1'd0;
     mb_client_abort_done_trigger <= 1'd0;
     mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd0;
+    mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd0;
+    mb_client_abort_init_trigger <= 1'd0;
+    mb_client_w_abort <= 1'd0;
+    cramsoc_mailboxclient_next_state <= 2'd0;
     cramsoc_mailboxclient_next_state <= cramsoc_mailboxclient_state;
     case (cramsoc_mailboxclient_state)
         1'd1: begin
@@ -12591,6 +12991,7 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
+    cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_adr <= 16'd0;
     cramsoc_r_payload_resp <= 2'd0;
     cramsoc_r_payload_data <= 32'd0;
@@ -12602,7 +13003,6 @@ always @(*) begin
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
     cramsoc_nocomb_axl_ar_ready <= 1'd0;
     cramsoc_nocomb_axl_b_valid <= 1'd0;
-    cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_axilite2csr_next_state <= cramsoc_axilite2csr_state;
     case (cramsoc_axilite2csr_state)
         1'd1: begin
@@ -22562,5 +22962,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-08-08 23:02:54.
+//  Auto-Generated by LiteX on 2023-08-09 01:54:16.
 //------------------------------------------------------------------------------

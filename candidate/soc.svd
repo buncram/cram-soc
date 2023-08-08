@@ -3,7 +3,7 @@
 <device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
     <vendor>litex</vendor>
     <name>SOC</name>
-    <description><![CDATA[Litex SoC 2023-08-08 22:50:06]]></description>
+    <description><![CDATA[Litex SoC 2023-08-08 23:40:15]]></description>
 
     <addressUnitBits>8</addressUnitBits>
     <width>32</width>
@@ -664,25 +664,10 @@ register to disable individual events.]]></description>
                         </field>
                     </fields>
                 </register>
-                <register>
-                    <name>IRQTEST1</name>
-                    <addressOffset>0x001c</addressOffset>
-                    <resetValue>0x00</resetValue>
-                    <size>32</size>
-                    <fields>
-                        <field>
-                            <name>trigger</name>
-                            <msb>15</msb>
-                            <bitRange>[15:0]</bitRange>
-                            <lsb>0</lsb>
-                            <description><![CDATA[Triggers for interrupt testing bank 0]]></description>
-                        </field>
-                    </fields>
-                </register>
             </registers>
             <addressBlock>
                 <offset>0</offset>
-                <size>0x20</size>
+                <size>0x1c</size>
                 <usage>registers</usage>
             </addressBlock>
         </peripheral>
