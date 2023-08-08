@@ -1013,6 +1013,176 @@ Repeated `1` writes without clearing will still trigger an interrupt.""",
         ev.finalize()
         # setattr(self, 'evm{}'.format(bank), ev)
 
+# Handle duplicating IRQs from the system set to unused/free banks to accelerate OS functions.
+# Independent banks that can be mapped into a driver's process space will run much faster than
+# an IRQ that has to bounce off of a generic handler in a different process space
+#
+# Args:
+#   - pins is a list of pin signal vectors, each signal vector is 16 signals wide
+#   - the 'comb' object so we can do assignments
+#
+# TODO: export this to a file so that daric_to_svd.py can generate IRQ field accessors for us automatically
+def dupe_irqs(pins, comb):
+    # check that we have 20 signal vectors
+    assert(len(pins) == IRQ_BANKS)
+    # check that each signal vector is 16 long
+    for pin in pins:
+        assert(pin.nbits == IRQS_PER_BANK)
+
+    # define constants that map IRQS, extracted manually from source files :-P
+    irq_padding = 16 # offset applied to IRQ banks due to vex_irq wiring quirk in soc_coresub_v0.2sv
+    # ev_map[0] is MSB
+    # ev_map[1] is LSB
+    # ev_map[2] is a list of IRQ names
+    ev_map = {
+         # banks 1-2
+        'coresubev': [31, 0, [
+            '', '', '', '',   '', '', '', '', # unmapped
+            '', '', '', '',   '', '', '', '', # unmapped
+            'qfcirq', 'mdmairq', 'mbox_irq_available', 'mbox_irq_abort_init', 'mbox_irq_done', 'mbox_irq_error', '', '',
+            '', '', '', '',   '', '', '', '',
+        ]],
+        # banks 3-4
+        'sceev' : [63, 32, [
+            'sceintr0', 'sceintr1', 'sceintr2', 'sceintr3', 'sceintr4', 'sceintr5', 'sceintr6', 'sceintr7',
+            '', '', '', '',   '', '', '', '',
+            '', '', '', '',   '', '', '', '',
+            '', '', '', '',   '', '', '', '',
+        ]],
+        # banks 5-12
+        'ifsubev' : [191, 64, [
+            # bank
+            'uart0_rx', 'uart0_tx', 'uart0_rx_char', 'uart0_err',
+            'uart1_rx', 'uart1_tx', 'uart1_rx_char', 'uart1_err',
+            'uart2_rx', 'uart2_tx', 'uart2_rx_char', 'uart2_err',
+            'uart3_rx', 'uart3_tx', 'uart3_rx_char', 'uart3_err',
+            # bank
+            'spim0_rx', 'spim0_tx', 'spim0_cmd',     'spim0_eot',
+            'spim1_rx', 'spim1_tx', 'spim1_cmd',     'spim1_eot',
+            'spim2_rx', 'spim2_tx', 'spim2_cmd',     'spim2_eot',
+            'spim3_rx', 'spim3_tx', 'spim3_cmd',     'spim3_eot',
+            # bank
+            'i2c0_rx',  'i2c0_tx',  'i2c0_cmd',      'i2c0_eot',
+            'i2c1_rx',  'i2c1_tx',  'i2c1_cmd',      'i2c1_eot',
+            'i2c2_rx',  'i2c2_tx',  'i2c2_cmd',      'i2c2_eot',
+            'i2c3_rx',  'i2c3_tx',  'i2c3_cmd',      'i2c3_eot',
+            # bank
+            'sdio_rx',  'sdio_tx',  'sdio_eot',      'sdio_err',
+            'i2s_rx',   'i2s_tx',   '',              '',
+            'cam_rx',   'adc_rx',   '',              '',
+            'filter_eot','filter_act', '',           '',
+            # bank
+            'scif_rx',  'scif_tx',  'scif_rx_char',  'scif_err',
+            'spis0_rx', 'spis0_tx', 'spis0_eot',     '',
+            'spis1_rx', 'spis1_tx', 'spis1_eot',     '',
+            # 76-79
+            'pwm0_ev',  'pwm1_ev',  'pwm2_ev',       'pwm3_ev',
+            # bank
+            # 80
+            'ioxirq',   'usbc',     'sddcirq',       'pioirq[0]',
+            'pioirq[1]','',         '',              '',
+            # 88
+            '', '', '', '', '', '', '', '',
+            # bank
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            # 120
+            'i2c0_nack', 'i2c1_nack', 'i2c2_nack', 'i2c3_nack',
+            'i2c0_err',  'i2c1_err',  'i2c2_err',  'i2c3_err',
+        ]],
+        # banks 13-14
+        'errirq' : [223, 192, [
+            'coresuberr', 'sceerr', 'ifsuberr', 'secirq', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+        ]],
+        # bank 15
+        'secirq' : [239, 224, [
+            'sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'sec7',
+            '', '', '', '', '', '', '', '',
+        ]],
+    }
+    # spot checks on manual extraction
+    assert(len(ev_map['ifsubev'][2]) == 128)
+    assert(ev_map['ifsubev'][2][64] == 'scif_rx')
+    assert(ev_map['ifsubev'][2][80] == 'ioxirq')
+    # check that all the records have the correct length
+    for item in ev_map.values():
+        assert(len(item[2]) % 16 == 0)
+
+    # list of interrupts that are copied, and where to
+    dupes = {
+        # 'signal_name' : (target irq bank, target bit)
+        'mbox_irq_available':      (19, 0), # mapped here fo soc/fpga "local" variants as well
+        'mbox_irq_abort_init':     (19, 1),
+        'mbox_irq_done':           (19, 2),
+        'mbox_irq_error':          (19, 3),
+        'pioirq[0]'  :             (18, 0), # mapped here for soc/fpga "local" variants as well
+        'pioirq[1]'  :             (18, 1),
+        'mdmairq'    :             (0, 0),  # unused 0-bank
+        'usbc' :                   (1, 0),   # unused bottom half of coresub
+        'i2s_rx' :                 (11, 0),   # unused bank in ifsubev
+        'i2s_tx' :                 (11, 1),   # unused bank in ifsubev
+        'uart2_rx':                (14, 0),  # replicas so the kernel can have its own secure UART routine
+        'uart2_tx':                (14, 1),
+        'uart2_rx_char' :          (14, 2),
+        'uart2_err':               (14, 3),
+        'uart3_rx':                (14, 4),
+        'uart3_tx':                (14, 5),
+        'uart3_rx_char' :          (14, 6),
+        'uart3_err':               (14, 7),
+        # banks 16 and 17 are still available
+    }
+    dupes_mapped = 0
+
+    dupe_pins = []
+    for bank in range(IRQ_BANKS):
+        irq_remap = Signal(IRQS_PER_BANK)
+        dupe_pins += [irq_remap]
+
+    for bank in range(IRQ_BANKS):
+        for pin in range(IRQS_PER_BANK):
+            abs_offset = bank * IRQS_PER_BANK + pin
+            # check to see if the current pin has a mapping
+            cur_pin_name = None
+            evmap_offset = abs_offset - irq_padding # this is the "native" index system of ev_map
+            if evmap_offset >= 0 and evmap_offset <= ev_map['secirq'][1]: # the MSB of the highest mapped grouping
+                for group in ev_map.values():
+                    if evmap_offset <= group[0] and evmap_offset >= group[1]:
+                        cur_pin_name = group[2][evmap_offset - group[1]]
+                        break
+                assert(cur_pin_name is not None) # all mapped pins must have a value, even if it is '' (the empty string)
+
+            found = False
+            # search and see if the current pin has a match to a dupe mapping; if so, wire it to the dupe mapping
+            for (name, (d_bank, d_pin)) in dupes.items():
+                if d_bank == bank and d_pin == pin:
+                    # check that the pin isn't actually used
+                    assert(cur_pin_name == '' or cur_pin_name == None)
+                    # resolve the name to a bank and pin number
+                    for group in ev_map.values():
+                        if name in group[2]:
+                            assert(found == False)
+                            found = True # we iterate through everything to make sure we don't have duplicate names
+                            index = group[2].index(name)
+                            source_abs_offset = index + group[1] + irq_padding
+                            comb += [
+                                dupe_pins[bank][pin].eq(
+                                    pins[int(source_abs_offset / IRQ_BANKS)][source_abs_offset % IRQS_PER_BANK]
+                                )
+                            ]
+                            dupes_mapped += 1
+            if found is False:
+                # just pass the wiring through
+                comb += [
+                    dupe_pins[bank][pin].eq(pins[bank][pin])
+                ]
+    # check that all dupes got mapped
+    assert(dupes_mapped == len(dupes))
+    return dupe_pins
+
 # ResetValue ----------------------------------------------------------------------------------
 
 class ResetValue(Module, AutoCSR, AutoDoc):
@@ -1650,9 +1820,13 @@ class cramSoC(SoCCore):
 
         # Interrupt Array --------------------------------------------------------------------------
         irqpins = platform.request("irqarray")
+        pins = []
         for bank in range(IRQ_BANKS):
-            pins = getattr(irqpins, 'bank{}'.format(bank))
-            setattr(self.submodules, 'irqarray{}'.format(bank), ClockDomainsRenamer({"sys":"always_on"})(IrqArray(bank, pins)))
+            pins += [getattr(irqpins, 'bank{}'.format(bank))]
+
+        duped_pins = dupe_irqs(pins, self.comb)
+        for bank in range(IRQ_BANKS):
+            setattr(self.submodules, 'irqarray{}'.format(bank), ClockDomainsRenamer({"sys":"always_on"})(IrqArray(bank, duped_pins[bank])))
             self.irq.add("irqarray{}".format(bank))
 
         # Ticktimer --------------------------------------------------------------------------------
