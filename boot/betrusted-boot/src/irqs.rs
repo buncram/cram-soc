@@ -30,7 +30,7 @@ pub fn irq_setup() {
     // unmask interrupt sources
     irqarray0.wo(utra::irqarray0::EV_ENABLE, 0x7);
     irqarray1.wo(utra::irqarray1::EV_ENABLE, 0xF);
-    irqarray2.wo(utra::irqarray2::EV_ENABLE, 0xFFFF_FFFF);
+    irqarray2.wo(utra::irqarray2::EV_ENABLE, 0x80); // narrow this down because mdma currently maps to this and causes troubles if we don't handle it
     // enable IRQ handling
     sim::write(0x0); // first make sure everything is disabled, so we aren't OR'ing in garbage
     enable_irq(utra::irqarray0::IRQARRAY0_IRQ);
