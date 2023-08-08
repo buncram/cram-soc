@@ -1170,7 +1170,7 @@ def dupe_irqs(pins, comb):
                             source_abs_offset = index + group[1] + irq_padding
                             comb += [
                                 dupe_pins[bank][pin].eq(
-                                    pins[int(source_abs_offset / IRQ_BANKS)][source_abs_offset % IRQS_PER_BANK]
+                                    pins[int(source_abs_offset / IRQS_PER_BANK)][source_abs_offset % IRQS_PER_BANK]
                                 )
                             ]
                             dupes_mapped += 1
