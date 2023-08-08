@@ -2260,6 +2260,8 @@ def main():
                         versioned_files[basename] = (file, version)
     # SPECIAL CASE: PIO data is located in 'ips' directory
     versioned_files['rp_pio'] = ('do_not_checkin/s32/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
+    # SPECIAL CASE: mbox is located in the 'ips' directory
+    versioned_files['mbox'] = ('do_not_checkin/s32/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
 
     # extract the Pulpino files
     pulp_path = Path(args.path + '/ips/udma').glob('**/*')
@@ -2624,6 +2626,11 @@ def main():
     )
     doc_soc.mem_regions['mdma'] = SoCRegion(
         origin=0x4001_2000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['mbox_apb'] = SoCRegion(
+        origin=0x4001_3000,
         size=0x1000,
         mode='rw', cached=False
     )

@@ -103,7 +103,7 @@ class CramSoC(SoCCore):
             "testbench" : [0x4008_0000, 0x1_0000], # 64k
             "duart"     : [0x4004_2000, 0x0_1000],
             "pio"       : [0x5012_3000, 0x0_1000],
-            "mbox_ext"  : [0x5012_4000, 0x0_1000],
+            "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
             "csr": self.axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
@@ -289,7 +289,7 @@ class CramSoC(SoCCore):
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
                         getattr(self, name + "_ahb"), pads=platform.request("duart"), sel_addr=region[0]
                     ))
-                elif name == "mbox_ext":
+                elif name == "mbox_apb":
                     from mbox_adapter import MboxAdapter
                     clock_remap = {"pclk" : "p"}
                     self.submodules += ClockDomainsRenamer(clock_remap)(MboxAdapter(platform,

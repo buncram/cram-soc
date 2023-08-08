@@ -311,8 +311,8 @@ pub const HW_PL230_MEM:     usize = 0x40011000;
 pub const HW_PL230_MEM_LEN: usize = 4096;
 pub const HW_MDMA_MEM:     usize = 0x40012000;
 pub const HW_MDMA_MEM_LEN: usize = 4096;
-pub const HW_MBOX_EXT_MEM:     usize = 0x50124000;
-pub const HW_MBOX_EXT_MEM_LEN: usize = 4096;
+pub const HW_MBOX_APB_MEM:     usize = 0x40013000;
+pub const HW_MBOX_APB_MEM_LEN: usize = 4096;
 
 // Physical base addresses of registers
 pub const HW_PL230_BASE :   usize = 0x40011000;
@@ -356,6 +356,7 @@ pub const HW_SDDC_BASE :   usize = 0x50121000;
 pub const HW_RP_PIO_BASE :   usize = 0x50123000;
 pub const HW_MDMA_BASE :   usize = 0x40012000;
 pub const HW_QFC_BASE :   usize = 0x40010000;
+pub const HW_MBOX_APB_BASE :   usize = 0x40013000;
 pub const HW_GLUECHAIN_BASE :   usize = 0x40054000;
 pub const HW_MESH_BASE :   usize = 0x40052000;
 pub const HW_SENSORC_BASE :   usize = 0x40053000;
@@ -2991,6 +2992,32 @@ pub mod utra {
         pub const CR_AESENA_CR_AESENA: crate::Field = crate::Field::new(1, 0, CR_AESENA);
 
         pub const HW_QFC_BASE: usize = 0x40010000;
+    }
+
+    pub mod mbox_apb {
+        pub const MBOX_APB_NUMREGS: usize = 5;
+
+        pub const SFR_WDATA: crate::Register = crate::Register::new(0, 0xffffffff);
+        pub const SFR_WDATA_SFR_WDATA: crate::Field = crate::Field::new(32, 0, SFR_WDATA);
+
+        pub const SFR_RDATA: crate::Register = crate::Register::new(1, 0xffffffff);
+        pub const SFR_RDATA_SFR_RDATA: crate::Field = crate::Field::new(32, 0, SFR_RDATA);
+
+        pub const SFR_STATUS: crate::Register = crate::Register::new(2, 0x3f);
+        pub const SFR_STATUS_RX_AVAIL: crate::Field = crate::Field::new(1, 0, SFR_STATUS);
+        pub const SFR_STATUS_TX_FREE: crate::Field = crate::Field::new(1, 1, SFR_STATUS);
+        pub const SFR_STATUS_ABORT_IN_PROGRESS: crate::Field = crate::Field::new(1, 2, SFR_STATUS);
+        pub const SFR_STATUS_ABORT_ACK: crate::Field = crate::Field::new(1, 3, SFR_STATUS);
+        pub const SFR_STATUS_TX_ERR: crate::Field = crate::Field::new(1, 4, SFR_STATUS);
+        pub const SFR_STATUS_RX_ERR: crate::Field = crate::Field::new(1, 5, SFR_STATUS);
+
+        pub const SFR_ABORT: crate::Register = crate::Register::new(6, 0xffffffff);
+        pub const SFR_ABORT_SFR_ABORT: crate::Field = crate::Field::new(32, 0, SFR_ABORT);
+
+        pub const SFR_DONE: crate::Register = crate::Register::new(7, 0xffffffff);
+        pub const SFR_DONE_SFR_DONE: crate::Field = crate::Field::new(32, 0, SFR_DONE);
+
+        pub const HW_MBOX_APB_BASE: usize = 0x40013000;
     }
 
     pub mod gluechain {
@@ -10610,6 +10637,78 @@ mod tests {
         let mut baz = qfc_csr.zf(utra::qfc::CR_AESENA_CR_AESENA, bar);
         baz |= qfc_csr.ms(utra::qfc::CR_AESENA_CR_AESENA, 1);
         qfc_csr.wfo(utra::qfc::CR_AESENA_CR_AESENA, baz);
+  }
+
+    #[test]
+    #[ignore]
+    fn compile_check_mbox_apb_csr() {
+        use super::*;
+        let mut mbox_apb_csr = CSR::new(HW_MBOX_APB_BASE as *mut u32);
+
+        let foo = mbox_apb_csr.r(utra::mbox_apb::SFR_WDATA);
+        mbox_apb_csr.wo(utra::mbox_apb::SFR_WDATA, foo);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_WDATA_SFR_WDATA);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_WDATA_SFR_WDATA, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_WDATA_SFR_WDATA, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_WDATA_SFR_WDATA, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_WDATA_SFR_WDATA, baz);
+
+        let foo = mbox_apb_csr.r(utra::mbox_apb::SFR_RDATA);
+        mbox_apb_csr.wo(utra::mbox_apb::SFR_RDATA, foo);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_RDATA_SFR_RDATA);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_RDATA_SFR_RDATA, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_RDATA_SFR_RDATA, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_RDATA_SFR_RDATA, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_RDATA_SFR_RDATA, baz);
+
+        let foo = mbox_apb_csr.r(utra::mbox_apb::SFR_STATUS);
+        mbox_apb_csr.wo(utra::mbox_apb::SFR_STATUS, foo);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_STATUS_RX_AVAIL);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_STATUS_RX_AVAIL, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_STATUS_RX_AVAIL, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_STATUS_RX_AVAIL, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_STATUS_RX_AVAIL, baz);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_STATUS_TX_FREE);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_STATUS_TX_FREE, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_STATUS_TX_FREE, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_STATUS_TX_FREE, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_STATUS_TX_FREE, baz);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_STATUS_ABORT_IN_PROGRESS);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_STATUS_ABORT_IN_PROGRESS, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_STATUS_ABORT_IN_PROGRESS, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_STATUS_ABORT_IN_PROGRESS, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_STATUS_ABORT_IN_PROGRESS, baz);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_STATUS_ABORT_ACK);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_STATUS_ABORT_ACK, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_STATUS_ABORT_ACK, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_STATUS_ABORT_ACK, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_STATUS_ABORT_ACK, baz);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_STATUS_TX_ERR);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_STATUS_TX_ERR, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_STATUS_TX_ERR, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_STATUS_TX_ERR, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_STATUS_TX_ERR, baz);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_STATUS_RX_ERR);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_STATUS_RX_ERR, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_STATUS_RX_ERR, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_STATUS_RX_ERR, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_STATUS_RX_ERR, baz);
+
+        let foo = mbox_apb_csr.r(utra::mbox_apb::SFR_ABORT);
+        mbox_apb_csr.wo(utra::mbox_apb::SFR_ABORT, foo);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_ABORT_SFR_ABORT);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_ABORT_SFR_ABORT, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_ABORT_SFR_ABORT, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_ABORT_SFR_ABORT, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_ABORT_SFR_ABORT, baz);
+
+        let foo = mbox_apb_csr.r(utra::mbox_apb::SFR_DONE);
+        mbox_apb_csr.wo(utra::mbox_apb::SFR_DONE, foo);
+        let bar = mbox_apb_csr.rf(utra::mbox_apb::SFR_DONE_SFR_DONE);
+        mbox_apb_csr.rmwf(utra::mbox_apb::SFR_DONE_SFR_DONE, bar);
+        let mut baz = mbox_apb_csr.zf(utra::mbox_apb::SFR_DONE_SFR_DONE, bar);
+        baz |= mbox_apb_csr.ms(utra::mbox_apb::SFR_DONE_SFR_DONE, 1);
+        mbox_apb_csr.wfo(utra::mbox_apb::SFR_DONE_SFR_DONE, baz);
   }
 
     #[test]

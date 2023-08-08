@@ -58,6 +58,7 @@ Register Groups
     rp_pio
     mdma
     qfc
+    mbox_apb
     gluechain
     mesh
     sensorc
