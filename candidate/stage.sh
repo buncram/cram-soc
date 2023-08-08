@@ -1,6 +1,8 @@
 #!/bin/bash
 cd ..
 
+python3 ./mbox_client.py
+
 python3 ./cram_core.py
 
 #rm -rf build/gateware/build/documentation/_build
