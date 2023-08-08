@@ -1732,6 +1732,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                         )
                                     ]
                                 else:
+                                    fname = fname.replace("| 32'h0", "").strip() # remove bit-extenders
                                     fields += [
                                         CSRField(
                                             name= fname,
