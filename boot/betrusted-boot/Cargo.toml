@@ -22,7 +22,7 @@ full-chip = [] # create a file suitable for simulating on the full chip (does no
 xip = []
 apb-test = []
 pl230-test = ["xous-pl230"]
-default = ["daric", "pl230-test"]
+default = ["daric"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

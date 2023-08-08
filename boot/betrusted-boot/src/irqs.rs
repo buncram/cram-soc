@@ -225,7 +225,7 @@ pub extern "C" fn trap_handler(
     let mut main = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report_api(0x2dcd_0000);
 
-    let sc = scause::read();
+    let sc: scause::Scause = scause::read();
     report_api(sc.bits() as u32);
     // 2 is illegal instruction
     if sc.bits() == 2 {

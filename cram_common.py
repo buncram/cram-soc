@@ -311,19 +311,19 @@ class CramSoC(SoCCore):
         self.uart_irq = Signal()
         self.coreuser = Signal()
 
-        zero_irq = Signal(20)
-        irq0_wire_or = Signal(20)
+        zero_irq = Signal(16)
+        irq0_wire_or = Signal(16)
         self.comb += [
             irq0_wire_or[0].eq(self.uart_irq)
         ]
         self.irqtest0 = CSRStorage(fields=[
             CSRField(
-                name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=False
+                name = "trigger", size=16, description="Triggers for interrupt testing bank 0", pulse=False
             )
         ])
         self.irqtest1 = CSRStorage(fields=[
             CSRField(
-                name = "trigger", size=20, description="Triggers for interrupt testing bank 0", pulse=True
+                name = "trigger", size=16, description="Triggers for interrupt testing bank 0", pulse=True
             )
         ])
         # wfi breakout

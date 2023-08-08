@@ -36,7 +36,7 @@ class InterruptBank(Module, AutoCSR):
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 IRQ_BANKS=20
-IRQS_PER_BANK=20
+IRQS_PER_BANK=16
 
 def get_common_ios():
     ios = [
