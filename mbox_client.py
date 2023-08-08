@@ -247,6 +247,7 @@ class MboxClient(Module):
         abort_in_progress = Signal()
         abort_ack = Signal()
         self.comb += sfr.int_error.eq(sfr.sr_tx_err | sfr.sr_rx_err) # goes through an edge-trigger filter on the interrupt processing side
+        w_pending = Signal()
 
         # build the outgoing datapath
         w_valid_r = Signal()
@@ -260,9 +261,9 @@ class MboxClient(Module):
         ]
         self.comb += [
             mbox_ext.w_dat.eq(sfr.cr_wdata),
-            mbox_ext.w_valid.eq(cr_wdata_written_aclk & ~w_valid_r), # edge detect in our fast clock domain
+            mbox_ext.w_valid.eq(cr_wdata_written_aclk & ~w_valid_r | w_pending), # edge detect in our fast clock domain + hold-high in case mbox is full
             mbox_ext.w_done.eq(ar_done_aclk & ~ar_done_r), # edge
-            If(mbox_ext.w_valid & ~mbox_ext.w_ready,
+            If(mbox_ext.w_valid | w_pending,
                 sfr.sr_tx_free.eq(0)
             ).Else(
                 sfr.sr_tx_free.eq(1)
@@ -270,11 +271,20 @@ class MboxClient(Module):
         ]
         sr_read_r = Signal()
         self.sync += [
+            If(cr_wdata_written_aclk & ~w_valid_r & ~mbox_ext.w_ready,
+                w_pending.eq(1)
+            ).Elif(
+                    mbox_ext.w_ready  # if the other side acks
+                    | (sfr.sr_tx_err & sr_read_aclk & ~sr_read_r), # or if we're in an error state, and the error bit has been read, discard the write
+                w_pending.eq(0)
+            ).Else(
+                w_pending.eq(w_pending)
+            ),
             sr_read_r.eq(sr_read_aclk),
             If(sr_read_aclk & ~sr_read_r,
-                sfr.sr_tx_free.eq(0),
+                sfr.sr_tx_err.eq(0),
             ).Else(
-                If(mbox_ext.w_valid & ~mbox_ext.w_ready,
+                If(mbox_ext.w_valid & ~mbox_ext.w_ready & w_pending,
                     sfr.sr_tx_err.eq(1),
                 ).Else(
                     sfr.sr_tx_err.eq(sfr.sr_tx_err),

@@ -353,7 +353,7 @@ both FIFOs are empty and their protocol state machines are idle.
             {"name": "w_state",      "wave": "=.=...|...=...", "data" : ["XXX", "REQ    ", "IDLE"]},
             {"name": "w_fifo",       "wave": "x..=..|.......", "node": "...b.....", "data" : ["EMPTY        "]},
             {},
-            {"name": "r_cpu_op",     "wave": "=.....|.==....", "node": "...........", "data" : ["XXX", "ack", "XXX"]},          
+            {"name": "r_cpu_op",     "wave": "=.....|.==....", "node": "...........", "data" : ["XXX", "ack", "XXX"]},
             {"name": "r_state",      "wave": "=...=.|...=...", "data" : ["XXX", "ACK", "IDLE"], "node": "....d..."},
             {"name": "r_fifo",       "wave": "x.....|...=...", "data" : ["EMPTY"], "node": "..........f.."},
             {"name": "r_abort_int",  "wave": "0..10.|.......", "node": "...c......"},
@@ -702,23 +702,33 @@ from the peer.""", pulse=True)
         abort_in_progress = Signal()
         abort_ack = Signal()
         self.comb += self.ev.error.trigger.eq(self.status.fields.tx_err | self.status.fields.rx_err)
+        w_pending = Signal()
 
         # build the outgoing datapath
         self.comb += [
             self.w_dat.eq(self.wdata.storage),
-            self.w_valid.eq(self.wdata.re),
+            self.w_valid.eq(self.wdata.re | w_pending),
             self.w_done.eq(self.done.fields.done),
-            If(self.w_valid & ~self.w_ready,
+            If(self.w_valid | w_pending,
                 self.status.fields.tx_free.eq(0)
             ).Else(
                 self.status.fields.tx_free.eq(1)
             )
         ]
         self.sync += [
+            If(self.wdata.re & ~self.w_ready,
+                w_pending.eq(1)
+            ).Elif(
+                    self.w_ready # if the other side acks
+                    | (self.status.fields.tx_err & self.status.we) , # we're in an error state and the error bit has been read, discard the write
+                w_pending.eq(0)
+            ).Else(
+                w_pending.eq(w_pending)
+            ),
             If(self.status.we,
                 self.status.fields.tx_err.eq(0),
             ).Else(
-                If(self.wdata.re & ~self.w_ready,
+                If(self.wdata.re & ~self.w_ready & w_pending,
                     self.status.fields.tx_err.eq(1),
                 ).Else(
                     self.status.fields.tx_err.eq(self.status.fields.tx_err),
