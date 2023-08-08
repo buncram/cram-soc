@@ -24,18 +24,15 @@ pub fn irq_setup() {
 
     report_api(0x1dcd_0000);
 
-    let mut irqarray0 = CSR::new(utra::irqarray0::HW_IRQARRAY0_BASE as *mut u32);
-    let mut irqarray1 = CSR::new(utra::irqarray1::HW_IRQARRAY1_BASE as *mut u32);
-    let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
+    let mut irqarray18 = CSR::new(utra::irqarray18::HW_IRQARRAY18_BASE as *mut u32);
+    let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
     // unmask interrupt sources
-    irqarray0.wo(utra::irqarray0::EV_ENABLE, 0x7);
-    irqarray1.wo(utra::irqarray1::EV_ENABLE, 0xF);
-    irqarray2.wo(utra::irqarray2::EV_ENABLE, 0x80); // narrow this down because mdma currently maps to this and causes troubles if we don't handle it
+    irqarray18.wo(utra::irqarray18::EV_ENABLE, 0x7);
+    irqarray19.wo(utra::irqarray19::EV_ENABLE, 0x80); // narrow this down because mdma currently maps to this and causes troubles if we don't handle it
     // enable IRQ handling
     sim::write(0x0); // first make sure everything is disabled, so we aren't OR'ing in garbage
-    enable_irq(utra::irqarray0::IRQARRAY0_IRQ);
-    enable_irq(utra::irqarray1::IRQARRAY1_IRQ);
-    enable_irq(utra::irqarray2::IRQARRAY2_IRQ);
+    enable_irq(utra::irqarray18::IRQARRAY18_IRQ);
+    enable_irq(utra::irqarray19::IRQARRAY19_IRQ);
     // for wfi testing
     enable_irq(utra::ticktimer::TICKTIMER_IRQ);
 
@@ -53,13 +50,10 @@ pub fn irq_test() {
     // simulate hw trigger from IRQ0
     report_api(0x3dcd_0001);
     main.wfo(utra::main::IRQTEST0_TRIGGER, 4);
-    // simulate hw trigger from IRQ1
-    report_api(0x3dcd_0002);
-    main.wfo(utra::main::IRQTEST1_TRIGGER, 1);
     // software-only trigger from IRQ2
     report_api(0x3dcd_0003);
-    let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
-    irqarray2.wfo(utra::irqarray2::EV_SOFT_TRIGGER, 0x80);
+    let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
+    irqarray19.wfo(utra::irqarray19::EV_SOFT_TRIGGER, 0x80);
     report_api(0x3dcd_600d);
 }
 
@@ -241,36 +235,21 @@ pub extern "C" fn trap_handler(
         // external interrupt. find out which ones triggered it, and clear the source.
         let irqs_pending = sip::read();
         report_api(irqs_pending as u32);
-        if (irqs_pending & 0x1) != 0 {
-            // handle irq0 hw test
+        if (irqs_pending & (1 << 18)) != 0 {
+            // handle irq18 hw test
             main.wfo(utra::main::IRQTEST0_TRIGGER, 0);
-            let mut irqarray0 = CSR::new(utra::irqarray0::HW_IRQARRAY0_BASE as *mut u32);
-            let pending = irqarray0.r(utra::irqarray0::EV_PENDING);
+            let mut irqarray18 = CSR::new(utra::irqarray18::HW_IRQARRAY18_BASE as *mut u32);
+            let pending = irqarray18.r(utra::irqarray18::EV_PENDING);
             report_api(pending << 16 | 0); // encode the irq bank number and bit number as [bit | bank]
-            irqarray0.wo(utra::irqarray0::EV_PENDING, pending);
-        }
-        if (irqs_pending & 0x2) != 0 {
-            // handle irq1 hw test
-            main.wfo(utra::main::IRQTEST1_TRIGGER, 0);
-            let mut irqarray1 = CSR::new(utra::irqarray1::HW_IRQARRAY1_BASE as *mut u32);
-            let pending = irqarray1.r(utra::irqarray1::EV_PENDING);
-            report_api(pending << 16 | 1); // encode the irq bank number and bit number as [bit | bank]
-            irqarray1.wo(utra::irqarray1::EV_PENDING, pending);
-        }
-        if (irqs_pending & 4) != 0 {
-            // handle irq2 sw trigger test
-            let mut irqarray2 = CSR::new(utra::irqarray2::HW_IRQARRAY2_BASE as *mut u32);
-            let pending = irqarray2.r(utra::irqarray2::EV_PENDING);
-            report_api(pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
-            irqarray2.wo(utra::irqarray2::EV_PENDING, pending);
-            // software interrupt should not require a 0-write to reset it
+            irqarray18.wo(utra::irqarray18::EV_PENDING, pending);
         }
         if (irqs_pending & (1 << 19)) != 0 {
-            // handle wfi wakeup signal
+            // handle irq19 sw trigger test
             let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
             let pending = irqarray19.r(utra::irqarray19::EV_PENDING);
-            report_api(pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
             irqarray19.wo(utra::irqarray19::EV_PENDING, pending);
+            // software interrupt should not require a 0-write to reset it
         }
         if (irqs_pending & (1 << utra::ticktimer::TICKTIMER_IRQ)) != 0 {
             let mut tt = CSR::new(utra::ticktimer::HW_TICKTIMER_BASE as *mut u32);

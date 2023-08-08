@@ -321,24 +321,6 @@ class CramSoC(SoCCore):
                 name = "trigger", size=16, description="Triggers for interrupt testing bank 0", pulse=False
             )
         ])
-        self.irqtest1 = CSRStorage(fields=[
-            CSRField(
-                name = "trigger", size=16, description="Triggers for interrupt testing bank 0", pulse=True
-            )
-        ])
-        # wfi breakout
-        wfi_loopback = Signal(20)
-        wfi_delay = Signal(10, reset=512) # coded as a one-shot
-        self.sync.sys_always_on += [
-            If(self.sleep_req & (wfi_delay > 0),
-                wfi_delay.eq(wfi_delay - 1),
-            ),
-            If(wfi_delay == 1,
-                wfi_loopback.eq(1), # creates an exactly one-cycle wide wfi wakeup trigger
-            ).Else(
-                wfi_loopback.eq(0),
-            )
-        ]
         trimming_reset = Signal(32, reset=0x6000_0000)
 
         # Pull in DUT IP ---------------------------------------------------------------------------
@@ -476,10 +458,10 @@ class CramSoC(SoCCore):
             i_jtag_trst_n         = jtag_cpu.trst_n   ,
 
             o_coreuser            = self.coreuser     ,
-            i_irqarray_bank0      = self.irqtest0.fields.trigger | irq0_wire_or,
-            i_irqarray_bank1      = self.irqtest1.fields.trigger,
-            i_irqarray_bank2      = Cat(pio_irq0, pio_irq1, zero_irq[2:]),
-            i_irqarray_bank3      = Cat(irq_available, irq_abort_init, irq_abort_done, irq_error, zero_irq[4:]),
+            i_irqarray_bank0      = zero_irq,
+            i_irqarray_bank1      = zero_irq,
+            i_irqarray_bank2      = zero_irq,
+            i_irqarray_bank3      = zero_irq,
             i_irqarray_bank4      = zero_irq,
             i_irqarray_bank5      = zero_irq,
             i_irqarray_bank6      = zero_irq,
@@ -494,8 +476,8 @@ class CramSoC(SoCCore):
             i_irqarray_bank15      = zero_irq,
             i_irqarray_bank16      = zero_irq,
             i_irqarray_bank17      = zero_irq,
-            i_irqarray_bank18      = zero_irq,
-            i_irqarray_bank19      = wfi_loopback,
+            i_irqarray_bank18      = Cat(pio_irq0, pio_irq1, self.irqtest0.fields.trigger, zero_irq[2:]),
+            i_irqarray_bank19      = Cat(irq_available, irq_abort_init, irq_abort_done, irq_error, zero_irq[4:]),
 
             i_mbox_w_dat           = mbox.w_dat,
             i_mbox_w_valid         = mbox.w_valid,
