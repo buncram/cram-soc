@@ -128,7 +128,7 @@ class SyncFIFOMacro(Module, _FIFOInterface):
         self.cmbist = Signal()
         self.cmatpg = Signal()
         self.level = Signal(max=depth+1)
-        self.replace = Signal()
+        self.replace = 0
 
         ###
 

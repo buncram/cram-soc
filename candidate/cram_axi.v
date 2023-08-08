@@ -9,7 +9,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : e08384a2
-// Date       : 2023-08-09 02:28:59
+// Date       : 2023-08-09 04:30:08
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -3812,7 +3812,6 @@ wire   [31:0] mailbox_syncfifobufferedmacro0_fifo_dout;
 wire          mailbox_syncfifobufferedmacro0_fifo_cmbist;
 wire          mailbox_syncfifobufferedmacro0_fifo_cmatpg;
 reg    [10:0] mailbox_syncfifobufferedmacro0_fifo_level;
-reg           mailbox_syncfifobufferedmacro0_fifo_replace;
 reg     [9:0] mailbox_syncfifobufferedmacro0_fifo_produce;
 reg     [9:0] mailbox_syncfifobufferedmacro0_fifo_consume;
 reg     [9:0] mailbox_syncfifobufferedmacro0_fifo_wrport_adr;
@@ -3840,7 +3839,6 @@ wire   [31:0] mailbox_syncfifobufferedmacro1_fifo_dout;
 wire          mailbox_syncfifobufferedmacro1_fifo_cmbist;
 wire          mailbox_syncfifobufferedmacro1_fifo_cmatpg;
 reg    [10:0] mailbox_syncfifobufferedmacro1_fifo_level;
-reg           mailbox_syncfifobufferedmacro1_fifo_replace;
 reg     [9:0] mailbox_syncfifobufferedmacro1_fifo_produce;
 reg     [9:0] mailbox_syncfifobufferedmacro1_fifo_consume;
 reg     [9:0] mailbox_syncfifobufferedmacro1_fifo_wrport_adr;
@@ -12759,14 +12757,14 @@ assign mailbox_syncfifobufferedmacro0_fifo_re = (mailbox_syncfifobufferedmacro0_
 assign mailbox_syncfifobufferedmacro0_level = (mailbox_syncfifobufferedmacro0_fifo_level + mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_readable);
 always @(*) begin
     mailbox_syncfifobufferedmacro0_fifo_wrport_adr <= 10'd0;
-    if (mailbox_syncfifobufferedmacro0_fifo_replace) begin
+    if (1'd0) begin
         mailbox_syncfifobufferedmacro0_fifo_wrport_adr <= (mailbox_syncfifobufferedmacro0_fifo_produce - 1'd1);
     end else begin
         mailbox_syncfifobufferedmacro0_fifo_wrport_adr <= mailbox_syncfifobufferedmacro0_fifo_produce;
     end
 end
 assign mailbox_syncfifobufferedmacro0_fifo_wrport_dat_w = mailbox_syncfifobufferedmacro0_fifo_din;
-assign mailbox_syncfifobufferedmacro0_fifo_wrport_we = (mailbox_syncfifobufferedmacro0_fifo_we & (mailbox_syncfifobufferedmacro0_fifo_writable | mailbox_syncfifobufferedmacro0_fifo_replace));
+assign mailbox_syncfifobufferedmacro0_fifo_wrport_we = (mailbox_syncfifobufferedmacro0_fifo_we & (mailbox_syncfifobufferedmacro0_fifo_writable | 1'd0));
 assign mailbox_syncfifobufferedmacro0_fifo_do_read = (mailbox_syncfifobufferedmacro0_fifo_readable & mailbox_syncfifobufferedmacro0_fifo_re);
 assign mailbox_syncfifobufferedmacro0_fifo_rdport_adr = mailbox_syncfifobufferedmacro0_fifo_consume;
 assign mailbox_syncfifobufferedmacro0_fifo_dout = mailbox_syncfifobufferedmacro0_fifo_rdport_dat_r;
@@ -12779,14 +12777,14 @@ assign mailbox_syncfifobufferedmacro1_fifo_re = (mailbox_syncfifobufferedmacro1_
 assign mailbox_syncfifobufferedmacro1_level = (mailbox_syncfifobufferedmacro1_fifo_level + mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_readable);
 always @(*) begin
     mailbox_syncfifobufferedmacro1_fifo_wrport_adr <= 10'd0;
-    if (mailbox_syncfifobufferedmacro1_fifo_replace) begin
+    if (1'd0) begin
         mailbox_syncfifobufferedmacro1_fifo_wrport_adr <= (mailbox_syncfifobufferedmacro1_fifo_produce - 1'd1);
     end else begin
         mailbox_syncfifobufferedmacro1_fifo_wrport_adr <= mailbox_syncfifobufferedmacro1_fifo_produce;
     end
 end
 assign mailbox_syncfifobufferedmacro1_fifo_wrport_dat_w = mailbox_syncfifobufferedmacro1_fifo_din;
-assign mailbox_syncfifobufferedmacro1_fifo_wrport_we = (mailbox_syncfifobufferedmacro1_fifo_we & (mailbox_syncfifobufferedmacro1_fifo_writable | mailbox_syncfifobufferedmacro1_fifo_replace));
+assign mailbox_syncfifobufferedmacro1_fifo_wrport_we = (mailbox_syncfifobufferedmacro1_fifo_we & (mailbox_syncfifobufferedmacro1_fifo_writable | 1'd0));
 assign mailbox_syncfifobufferedmacro1_fifo_do_read = (mailbox_syncfifobufferedmacro1_fifo_readable & mailbox_syncfifobufferedmacro1_fifo_re);
 assign mailbox_syncfifobufferedmacro1_fifo_rdport_adr = mailbox_syncfifobufferedmacro1_fifo_consume;
 assign mailbox_syncfifobufferedmacro1_fifo_dout = mailbox_syncfifobufferedmacro1_fifo_rdport_dat_r;
@@ -20791,13 +20789,13 @@ always @(posedge sys_clk) begin
             mailbox_syncfifobufferedmacro0_syncfifobufferedmacro0_readable <= 1'd0;
         end
     end
-    if (((mailbox_syncfifobufferedmacro0_fifo_we & mailbox_syncfifobufferedmacro0_fifo_writable) & (~mailbox_syncfifobufferedmacro0_fifo_replace))) begin
+    if (($signed({1'd0, (mailbox_syncfifobufferedmacro0_fifo_we & mailbox_syncfifobufferedmacro0_fifo_writable)}) & -1'd1)) begin
         mailbox_syncfifobufferedmacro0_fifo_produce <= (mailbox_syncfifobufferedmacro0_fifo_produce + 1'd1);
     end
     if (mailbox_syncfifobufferedmacro0_fifo_do_read) begin
         mailbox_syncfifobufferedmacro0_fifo_consume <= (mailbox_syncfifobufferedmacro0_fifo_consume + 1'd1);
     end
-    if (((mailbox_syncfifobufferedmacro0_fifo_we & mailbox_syncfifobufferedmacro0_fifo_writable) & (~mailbox_syncfifobufferedmacro0_fifo_replace))) begin
+    if (($signed({1'd0, (mailbox_syncfifobufferedmacro0_fifo_we & mailbox_syncfifobufferedmacro0_fifo_writable)}) & -1'd1)) begin
         if ((~mailbox_syncfifobufferedmacro0_fifo_do_read)) begin
             mailbox_syncfifobufferedmacro0_fifo_level <= (mailbox_syncfifobufferedmacro0_fifo_level + 1'd1);
         end
@@ -20828,13 +20826,13 @@ always @(posedge sys_clk) begin
             mailbox_syncfifobufferedmacro1_syncfifobufferedmacro1_readable <= 1'd0;
         end
     end
-    if (((mailbox_syncfifobufferedmacro1_fifo_we & mailbox_syncfifobufferedmacro1_fifo_writable) & (~mailbox_syncfifobufferedmacro1_fifo_replace))) begin
+    if (($signed({1'd0, (mailbox_syncfifobufferedmacro1_fifo_we & mailbox_syncfifobufferedmacro1_fifo_writable)}) & -1'd1)) begin
         mailbox_syncfifobufferedmacro1_fifo_produce <= (mailbox_syncfifobufferedmacro1_fifo_produce + 1'd1);
     end
     if (mailbox_syncfifobufferedmacro1_fifo_do_read) begin
         mailbox_syncfifobufferedmacro1_fifo_consume <= (mailbox_syncfifobufferedmacro1_fifo_consume + 1'd1);
     end
-    if (((mailbox_syncfifobufferedmacro1_fifo_we & mailbox_syncfifobufferedmacro1_fifo_writable) & (~mailbox_syncfifobufferedmacro1_fifo_replace))) begin
+    if (($signed({1'd0, (mailbox_syncfifobufferedmacro1_fifo_we & mailbox_syncfifobufferedmacro1_fifo_writable)}) & -1'd1)) begin
         if ((~mailbox_syncfifobufferedmacro1_fifo_do_read)) begin
             mailbox_syncfifobufferedmacro1_fifo_level <= (mailbox_syncfifobufferedmacro1_fifo_level + 1'd1);
         end
@@ -22962,5 +22960,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-08-09 02:29:00.
+//  Auto-Generated by LiteX on 2023-08-09 04:30:09.
 //------------------------------------------------------------------------------
