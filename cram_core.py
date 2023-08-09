@@ -380,8 +380,9 @@ FIFO interaction code should probably be written as follows:
 #. Resume main loop code, which should now check & handle any residual clean-up from an abort
 
 At this point, both sides drop their `abort` signals, both state machines return to an `IDLE` state, and
-all FIFOs are empty. An `abort_done` interrupt is triggered, but it may be masked and polled if the
-initiating CPU prefers to monitor the abort by polling.
+all FIFOs are empty. An `abort_done` interrupt is triggered for the initiator (one is not necessary for
+the responder, because it already has to acknowledge to the abort by asserting abort in response),
+but it may be masked and polled if the initiating CPU prefers to monitor the abort by polling.
 
 In order to make the case work where both peers attempt to initiate an abort at the same time, the
 initiator guarantees that on asserting `w_abort` it is immediately ready to act on an `r_abort` pulse.
