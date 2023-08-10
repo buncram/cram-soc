@@ -678,7 +678,7 @@ def main():
         soc.xsim_extensions()
 
     # turn off regular_comb for simulation
-    rc=False
+    rc=True
 
     if simulator == 'verilator':
         # Setup the builder and run it --------------------------------------------------------------

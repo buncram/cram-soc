@@ -710,11 +710,9 @@ from the peer.""", pulse=True)
             self.w_dat.eq(self.wdata.storage),
             self.w_valid.eq(self.wdata.re | w_pending),
             self.w_done.eq(self.done.fields.done),
-            If(self.w_valid | w_pending,
-                self.status.fields.tx_free.eq(0)
-            ).Else(
-                self.status.fields.tx_free.eq(1)
-            )
+            self.status.fields.tx_free.eq(
+                ~(self.w_valid | w_pending)
+            ),
         ]
         self.sync += [
             If(self.wdata.re & ~self.w_ready,

@@ -263,11 +263,9 @@ class MboxClient(Module):
             mbox_ext.w_dat.eq(sfr.cr_wdata),
             mbox_ext.w_valid.eq(cr_wdata_written_aclk & ~w_valid_r | w_pending), # edge detect in our fast clock domain + hold-high in case mbox is full
             mbox_ext.w_done.eq(ar_done_aclk & ~ar_done_r), # edge
-            If(mbox_ext.w_valid | w_pending,
-                sfr.sr_tx_free.eq(0)
-            ).Else(
-                sfr.sr_tx_free.eq(1)
-            )
+            sfr.sr_tx_free.eq(
+                ~(mbox_ext.w_valid | w_pending)
+            ),
         ]
         sr_read_r = Signal()
         self.sync += [
@@ -365,4 +363,4 @@ mbc = MboxClient(platform)
 
 # Build --------------------------------------------------------------------------------------------
 
-platform.build(mbc, build_dir="sim_support", build_name="mbox_client")
+platform.build(mbc, regular_comb=True, build_dir="sim_support", build_name="mbox_client")
