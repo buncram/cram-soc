@@ -583,6 +583,8 @@ def generate_gtkw_savefile(builder, vns, trace_fst=False):
         #save.add(soc.mbus.s_axis["dbus"].axi.r, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
         #save.add(soc.mbus.s_axis["dbus"].axi.w, mappers=[gtkw.axi_sorter(), gtkw.axi_colorer()])
 
+def auto_int(x):
+    return int(x, 0)
 
 def sim_args(parser):
     # Speed. In reality, just selects whether we save a waveform, or not.
@@ -613,6 +615,7 @@ def sim_args(parser):
 
     # specify BIOS path
     parser.add_argument("--bios", type=str, default='..{}xous-cramium{}simspi.init'.format(os.path.sep, os.path.sep), help="Override default BIOS location")
+    parser.add_argument("--boot-offset", type=auto_int, default=0)
 
     # compatibility with demo scripts
     parser.add_argument("--build",                action="store_true",     help="compatibility flag, ignored by this script")
@@ -652,6 +655,7 @@ def main():
         platform,
         variant="sim",
         bios_path=bios_path,
+        boot_offset=args.boot_offset,
         sys_clk_freq=sys_clk_freq,
         sim_debug          = args.sim_debug,
         trace_reset_on     = False,

@@ -45,6 +45,7 @@ class CramSoC(SoCCore):
         crg=None,
         variant = "sim",
         bios_path=None,
+        boot_offset=0,
         sys_clk_freq=800e6,
         production_models=False,
         sim_debug=False,
@@ -188,7 +189,8 @@ class CramSoC(SoCCore):
         # 2) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
         if bios_path is not None:
             with open(bios_path, 'rb') as bios:
-                self.bios_data = bios.read()
+                self.bios_data = bytearray(boot_offset)
+                self.bios_data += bytearray(bios.read())
         else:
             self.bios_data = []
 
@@ -321,7 +323,7 @@ class CramSoC(SoCCore):
                 name = "trigger", size=16, description="Triggers for interrupt testing bank 0", pulse=False
             )
         ])
-        trimming_reset = Signal(32, reset=0x6000_0000)
+        trimming_reset = Signal(32, reset=(0x6000_0000 + boot_offset))
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         self.specials += Instance("cram_axi",

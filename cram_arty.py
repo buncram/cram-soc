@@ -190,6 +190,8 @@ def arty_extensions(self,
         )
 
 # Build --------------------------------------------------------------------------------------------
+def auto_int(x):
+    return int(x, 0)
 
 def main():
     from litex.build.parser import LiteXArgumentParser
@@ -213,6 +215,8 @@ def main():
     parser.add_target_argument("--with-pmod-gpio", action="store_true", help="Enable GPIOs through PMOD.") # FIXME: Temporary test.
     # specify test BIOS path
     parser.add_argument("--bios", type=str, default='.{}boot{}boot.bin'.format(os.path.sep, os.path.sep), help="Override default BIOS location")
+    parser.add_argument("--boot-offset", type=auto_int, default=0)
+
     # Build just the SVDs
     parser.add_argument("--svd-only",             action="store_true",     help="Just build the SVDs for the OS build")
     args = parser.parse_args()
@@ -273,6 +277,7 @@ def main():
         sys_clk_freq   = args.sys_clk_freq,
         variant        = args.variant,
         bios_path      = bios_path,
+        boot_offset    = args.boot_offset,
         **parser.soc_argdict
     )
     if args.sdcard_adapter == "numato":

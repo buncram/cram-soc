@@ -395,6 +395,9 @@ pub fn early_init() {
 
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
+    let mut uart = debug::Uart {};
+    uart.tiny_write_str("hello world!\r");
+
     #[cfg(feature="full-chip")]
     {
         let u8_test =  crate::debug::duart::HW_DUART_BASE as *mut u8;
@@ -416,7 +419,6 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
         early_init();
     }
 
-    let mut uart = debug::Uart {};
     uart.tiny_write_str("booting... 006\r");
 
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
