@@ -27,7 +27,7 @@ pub fn irq_setup() {
     let mut irqarray18 = CSR::new(utra::irqarray18::HW_IRQARRAY18_BASE as *mut u32);
     let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
     // unmask interrupt sources
-    irqarray18.wo(utra::irqarray18::EV_ENABLE, 0x7);
+    irqarray18.wo(utra::irqarray18::EV_ENABLE, 0x4); // don't allow PIO IROQs to trigger us
     irqarray19.wo(utra::irqarray19::EV_ENABLE, 0x80); // narrow this down because mdma currently maps to this and causes troubles if we don't handle it
     // enable IRQ handling
     sim::write(0x0); // first make sure everything is disabled, so we aren't OR'ing in garbage
@@ -240,14 +240,14 @@ pub extern "C" fn trap_handler(
             main.wfo(utra::main::IRQTEST0_TRIGGER, 0);
             let mut irqarray18 = CSR::new(utra::irqarray18::HW_IRQARRAY18_BASE as *mut u32);
             let pending = irqarray18.r(utra::irqarray18::EV_PENDING);
-            report_api(pending << 16 | 0); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 18); // encode the irq bank number and bit number as [bit | bank]
             irqarray18.wo(utra::irqarray18::EV_PENDING, pending);
         }
         if (irqs_pending & (1 << 19)) != 0 {
             // handle irq19 sw trigger test
             let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
             let pending = irqarray19.r(utra::irqarray19::EV_PENDING);
-            report_api(pending << 16 | 2); // encode the irq bank number and bit number as [bit | bank]
+            report_api(pending << 16 | 19); // encode the irq bank number and bit number as [bit | bank]
             irqarray19.wo(utra::irqarray19::EV_PENDING, pending);
             // software interrupt should not require a 0-write to reset it
         }
