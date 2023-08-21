@@ -85,7 +85,7 @@ else
   # cp betrusted-boot/link.x.remap betrusted-boot/link.x
   cp betrusted-boot/link.x.straight betrusted-boot/link.x # to be used in conjunction with --feature gdb-load
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
-  cargo xtask boot-image --feature daric --feature gdb-load --feature xip # --feature pio-test
+  cargo xtask boot-image --feature daric --feature gdb-load --feature pl230-test # --feature xip # --feature pio-test
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > boot.lst
   riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst
@@ -116,7 +116,7 @@ THREADS=5
   echo "Don't forget: finisher.v needs to have the XOUS variable defined according to the target config."
   echo -e "\n\nRun with $THREADS threads" >> stats.txt
   date >> stats.txt
-  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --speed $SPEED --bios $BIOS  --boot-offset 0x100000 --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 7000000 --trace-end 200000000000 --trace-fst # --sim-debug
+  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --speed $SPEED --bios $BIOS  --boot-offset 0x000000 --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 7000000 --trace-end 200000000000 --trace-fst # --sim-debug
   echo "Core+SoC build finished."
 #done
 
