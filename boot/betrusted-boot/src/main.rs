@@ -393,6 +393,65 @@ pub fn early_init() {
     }
 }
 
+// these register do not exist in our local simulation model
+//#[cfg(feature="full-chip")]
+pub fn setup_uart1() {
+    let mut uart = debug::Uart {};
+    let sysctrl = CSR::new(utra::sysctrl::HW_SYSCTRL_BASE as *mut u32);
+    uart.tiny_write_str("FREQ0: ");
+    uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ0_FSFREQ0));
+    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("FREQ1: ");
+    uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ1_FSFREQ1));
+    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("FREQ2: ");
+    uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ2_FSFREQ2));
+    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("FREQ3: ");
+    uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ3_FSFREQ3));
+    uart.tiny_write_str("\n\r");
+
+    let mut udma_ctrl = CSR::new(utra::udma_ctrl::HW_UDMA_CTRL_BASE as *mut u32);
+    // peripheral ID 1 is UART0
+    // setup iomux
+    // TODO: fix parameter resolution to trace back to the top level file. there's actually 6*16 IO banks, not the 4 specified in the leaf design file :P
+    let iox_csr = utra::iox::HW_IOX_BASE as *mut u32;
+    unsafe {
+        iox_csr.add(0).write_volatile(0x0140);  // PAL
+        iox_csr.add(0x1c / core::mem::size_of::<u32>()).write_volatile(0x1400); // PDH
+        iox_csr.add(0x148 / core::mem::size_of::<u32>()).write_volatile(0xff); // PA
+        iox_csr.add(0x148 / core::mem::size_of::<u32>() + 3).write_volatile(0xffff); // PD
+        iox_csr.add(0x160 / core::mem::size_of::<u32>()).write_volatile(0xffff); // pullups for port A
+    }
+
+    // TODO: fix register generator, input is incorrect and pins peripheral count at 6
+    uart.tiny_write_str("udma\r");
+    udma_ctrl.wo(utra::udma_ctrl::REG_CG, 1);
+
+    //let baudrate: u32 = 115200;
+    //let freq: u32 = 230_000_000;
+    //let clk_counter: u32 = (freq + baudrate / 2) / baudrate;
+    let clk_counter = 2174;
+    let mut udma_uart = CSR::new(utra::udma_uart_0::HW_UDMA_UART_0_BASE as *mut u32);
+    udma_uart.wo(utra::udma_uart_0::REG_UART_SETUP,
+        0x0306 | (clk_counter << 16));
+
+    //for i in 0..16 {
+        let tx_buf = utralib::HW_IFRAM0_MEM as *mut u8;
+        // let mut tx_buf = [0u8; 256];
+        unsafe { tx_buf.write_volatile('0' as u32 as u8 /* + i */) };
+        udma_uart.wo(utra::udma_uart_0::REG_TX_SADDR, tx_buf as u32);
+        udma_uart.wo(utra::udma_uart_0::REG_TX_SIZE, 1);
+        // send it
+        udma_uart.wo(utra::udma_uart_0::REG_TX_CFG, 0x10); // EN
+        // wait for it all to be done
+        while udma_uart.rf(utra::udma_uart_0::REG_TX_CFG_R_TX_EN) != 0 {   }
+        while (udma_uart.r(utra::udma_uart_0::REG_STATUS) & 1) != 0 {  }
+    //}
+    uart.tiny_write_str("udma done\r");
+
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     let mut uart = debug::Uart {};
@@ -428,6 +487,9 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
     report_api(resetvalue.r(utra::resetvalue::PC));
 
+    #[cfg(feature="full-chip")]
+    setup_uart1();
+
     // ---------- if activated, run the APB test. This is based off of Philip's "touch all the registers" test.
     #[cfg(feature="apb-test")]
     apb_test();
@@ -454,6 +516,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     // ---------- PL230 test option ----------------
     #[cfg(feature="pl230-test")]
     xous_pl230::pl230_tests::pl230_tests();
+
+    uart.tiny_write_str("done\r");
+    loop {
+    }
 
     // ---------- coreuser test --------------------
     satp::satp_test();
@@ -610,11 +676,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     report.wfo(utra::main::DONE_DONE, 1);
 
+    uart.tiny_write_str("test finished\r");
     loop {
         #[cfg(feature="daric")]
         {
-            let mut uart = debug::Uart {};
-            uart.tiny_write_str("test finished\r");
+            // uart.tiny_write_str("test finished\r");
         }
     }
 }
