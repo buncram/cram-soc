@@ -1627,6 +1627,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     if '[' in fname:
                                         fname = fname.split('[')[0]
                                 assert(rtype != 'ar') # we don't handle 'ar' type with SFRCNT idiom
+                                sfr_name = sfr_name.replace('[', '_').replace(']', '_').replace(':', '_').strip() # remove invalid identifies from bracketed expressions
                                 fields = [
                                     CSRField(
                                         name= sfr_name,
@@ -1736,7 +1737,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     fields += [
                                         CSRField(
                                             name= fname,
-                                            size= leaf_desc['params']['DW'].eval_result,
+                                            size= int(leaf_desc['params']['DW'].eval_result),
                                             description= fname + regdescs[rtype],
                                         )
                                     ]

@@ -66,6 +66,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pke-sfr-optew"><span class="std std-ref">PKE_SFR_OPTEW</span></a></p></td>
 <td><p><a class="reference internal" href="#pke-sfr-optew"><span class="std std-ref">0x4002c014</span></a></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pke-sfr-optrw"><span class="std std-ref">PKE_SFR_OPTRW</span></a></p></td>
+<td><p><a class="reference internal" href="#pke-sfr-optrw"><span class="std std-ref">0x4002c018</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pke-sfr-optltx"><span class="std std-ref">PKE_SFR_OPTLTX</span></a></p></td>
+<td><p><a class="reference internal" href="#pke-sfr-optltx"><span class="std std-ref">0x4002c01c</span></a></p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pke-sfr-optmask"><span class="std std-ref">PKE_SFR_OPTMASK</span></a></p></td>
 <td><p><a class="reference internal" href="#pke-sfr-optmask"><span class="std std-ref">0x4002c020</span></a></p></td>
 </tr>
@@ -95,8 +101,9 @@
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "sfr_crfunc",  "bits": 8},
-        {"bits": 24}
+        {"name": "cr_func",  "bits": 8},
+        {"name": "cr_pcoreir",  "bits": 8},
+        {"bits": 16}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
 }
 </script>
@@ -111,8 +118,12 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>SFR_CRFUNC</p></td>
-<td><p>sfr_crfunc read/write control register</p></td>
+<td><p>CR_FUNC</p></td>
+<td><p>cr_func read/write control register</p></td>
+</tr>
+<tr class="row-odd"><td><p>[15:8]</p></td>
+<td><p>CR_PCOREIR</p></td>
+<td><p>cr_pcoreir read/write control register</p></td>
 </tr>
 </tbody>
 </table>
@@ -297,6 +308,68 @@ bit position to clear the flag</p></td>
 <tr class="row-even"><td><p>[12:0]</p></td>
 <td><p>SFR_OPTEW</p></td>
 <td><p>sfr_optew read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="pke-sfr-optrw">
+<h3>PKE_SFR_OPTRW<a class="headerlink" href="#pke-sfr-optrw" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x4002c000 + 0x18 = 0x4002c018</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_optrw",  "bits": 10},
+        {"bits": 22}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[9:0]</p></td>
+<td><p>SFR_OPTRW</p></td>
+<td><p>sfr_optrw read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="pke-sfr-optltx">
+<h3>PKE_SFR_OPTLTX<a class="headerlink" href="#pke-sfr-optltx" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x4002c000 + 0x1c = 0x4002c01c</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_optltx",  "bits": 5},
+        {"bits": 27}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[4:0]</p></td>
+<td><p>SFR_OPTLTX</p></td>
+<td><p>sfr_optltx read/write control register</p></td>
 </tr>
 </tbody>
 </table>
@@ -555,6 +628,7 @@ bit position to clear the flag</p></td>
 <li class="toctree-l1"><a class="reference internal" href="pwm.html">PWM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sddc.html">SDDC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_pio.html">RP_PIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coresub_sramtrm.html">CORESUB_SRAMTRM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mdma.html">MDMA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="qfc.html">QFC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mbox_apb.html">MBOX_APB</a></li>

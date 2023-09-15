@@ -85,7 +85,7 @@ else
   # cp betrusted-boot/link.x.remap betrusted-boot/link.x
   cp betrusted-boot/link.x.straight betrusted-boot/link.x # to be used in conjunction with --feature gdb-load
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
-  cargo xtask boot-image --feature daric --feature gdb-load --feature pl230-test # --feature xip # --feature pio-test
+  cargo xtask boot-image --no-default-features --feature daric --feature gdb-load --feature pio-test # --feature pl230-test # --feature xip
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > boot.lst
   riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> boot.lst

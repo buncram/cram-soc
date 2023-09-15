@@ -19,6 +19,10 @@ Register Listing for PKE
 +--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`PKE_SFR_OPTEW <PKE_SFR_OPTEW>`                         | :ref:`0x4002c014 <PKE_SFR_OPTEW>`             |
 +--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`PKE_SFR_OPTRW <PKE_SFR_OPTRW>`                         | :ref:`0x4002c018 <PKE_SFR_OPTRW>`             |
++--------------------------------------------------------------+-----------------------------------------------+
+| :ref:`PKE_SFR_OPTLTX <PKE_SFR_OPTLTX>`                       | :ref:`0x4002c01c <PKE_SFR_OPTLTX>`            |
++--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`PKE_SFR_OPTMASK <PKE_SFR_OPTMASK>`                     | :ref:`0x4002c020 <PKE_SFR_OPTMASK>`           |
 +--------------------------------------------------------------+-----------------------------------------------+
 | :ref:`PKE_SFR_SEGPTR_PTRID_PCON <PKE_SFR_SEGPTR_PTRID_PCON>` | :ref:`0x4002c030 <PKE_SFR_SEGPTR_PTRID_PCON>` |
@@ -43,17 +47,20 @@ PKE_SFR_CRFUNC
 
         {
             "reg": [
-                {"name": "sfr_crfunc",  "bits": 8},
-                {"bits": 24}
+                {"name": "cr_func",  "bits": 8},
+                {"name": "cr_pcoreir",  "bits": 8},
+                {"bits": 16}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-+-------+------------+----------------------------------------+
-| Field | Name       | Description                            |
-+=======+============+========================================+
-| [7:0] | SFR_CRFUNC | sfr_crfunc read/write control register |
-+-------+------------+----------------------------------------+
++--------+------------+----------------------------------------+
+| Field  | Name       | Description                            |
++========+============+========================================+
+| [7:0]  | CR_FUNC    | cr_func read/write control register    |
++--------+------------+----------------------------------------+
+| [15:8] | CR_PCOREIR | cr_pcoreir read/write control register |
++--------+------------+----------------------------------------+
 
 PKE_SFR_AR
 ^^^^^^^^^^
@@ -188,6 +195,52 @@ PKE_SFR_OPTEW
 +========+===========+=======================================+
 | [12:0] | SFR_OPTEW | sfr_optew read/write control register |
 +--------+-----------+---------------------------------------+
+
+PKE_SFR_OPTRW
+^^^^^^^^^^^^^
+
+`Address: 0x4002c000 + 0x18 = 0x4002c018`
+
+
+    .. wavedrom::
+        :caption: PKE_SFR_OPTRW
+
+        {
+            "reg": [
+                {"name": "sfr_optrw",  "bits": 10},
+                {"bits": 22}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+-----------+---------------------------------------+
+| Field | Name      | Description                           |
++=======+===========+=======================================+
+| [9:0] | SFR_OPTRW | sfr_optrw read/write control register |
++-------+-----------+---------------------------------------+
+
+PKE_SFR_OPTLTX
+^^^^^^^^^^^^^^
+
+`Address: 0x4002c000 + 0x1c = 0x4002c01c`
+
+
+    .. wavedrom::
+        :caption: PKE_SFR_OPTLTX
+
+        {
+            "reg": [
+                {"name": "sfr_optltx",  "bits": 5},
+                {"bits": 27}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+------------+----------------------------------------+
+| Field | Name       | Description                            |
++=======+============+========================================+
+| [4:0] | SFR_OPTLTX | sfr_optltx read/write control register |
++-------+------------+----------------------------------------+
 
 PKE_SFR_OPTMASK
 ^^^^^^^^^^^^^^^

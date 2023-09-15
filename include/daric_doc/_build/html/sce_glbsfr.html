@@ -69,8 +69,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#sce-glbsfr-sfr-arclr"><span class="std std-ref">SCE_GLBSFR_SFR_ARCLR</span></a></p></td>
 <td><p><a class="reference internal" href="#sce-glbsfr-sfr-arclr"><span class="std std-ref">0x4002801c</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sce-glbsfr-sfr-tickcyc"><span class="std std-ref">SCE_GLBSFR_SFR_TICKCYC</span></a></p></td>
-<td><p><a class="reference internal" href="#sce-glbsfr-sfr-tickcyc"><span class="std std-ref">0x40028020</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sce-glbsfr-sfr-fracerr"><span class="std std-ref">SCE_GLBSFR_SFR_FRACERR</span></a></p></td>
+<td><p><a class="reference internal" href="#sce-glbsfr-sfr-fracerr"><span class="std std-ref">0x40028020</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sce-glbsfr-sfr-tickcnt"><span class="std std-ref">SCE_GLBSFR_SFR_TICKCNT</span></a></p></td>
 <td><p><a class="reference internal" href="#sce-glbsfr-sfr-tickcnt"><span class="std std-ref">0x40028024</span></a></p></td>
@@ -98,6 +98,9 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sce-glbsfr-sfr-ffcnt-sr-ff5"><span class="std std-ref">SCE_GLBSFR_SFR_FFCNT_SR_FF5</span></a></p></td>
 <td><p><a class="reference internal" href="#sce-glbsfr-sfr-ffcnt-sr-ff5"><span class="std std-ref">0x40028054</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sce-glbsfr-sfr-ts"><span class="std std-ref">SCE_GLBSFR_SFR_TS</span></a></p></td>
+<td><p><a class="reference internal" href="#sce-glbsfr-sfr-ts"><span class="std std-ref">0x400280fc</span></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -319,8 +322,8 @@ position to clear the flag</p></td>
 </tbody>
 </table>
 </section>
-<section id="sce-glbsfr-sfr-tickcyc">
-<h3>SCE_GLBSFR_SFR_TICKCYC<a class="headerlink" href="#sce-glbsfr-sfr-tickcyc" title="Permalink to this heading">¶</a></h3>
+<section id="sce-glbsfr-sfr-fracerr">
+<h3>SCE_GLBSFR_SFR_FRACERR<a class="headerlink" href="#sce-glbsfr-sfr-fracerr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40028000 + 0x20 = 0x40028020</cite></p>
 <blockquote>
 <div>
@@ -328,7 +331,7 @@ position to clear the flag</p></td>
 <script type="WaveDrom">
 {
     "reg": [
-        {"name": "sfr_tickcyc",  "bits": 8},
+        {"name": "fr_acerr",  "bits": 8},
         {"bits": 24}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
 }
@@ -344,8 +347,9 @@ position to clear the flag</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>[7:0]</p></td>
-<td><p>SFR_TICKCYC</p></td>
-<td><p>sfr_tickcyc read/write control register</p></td>
+<td><p>FR_ACERR</p></td>
+<td><p>fr_acerr flag register. <cite>1</cite> means event happened, write back <cite>1</cite> in respective
+bit position to clear the flag</p></td>
 </tr>
 </tbody>
 </table>
@@ -627,6 +631,37 @@ position to clear the flag</p></td>
 </tbody>
 </table>
 </section>
+<section id="sce-glbsfr-sfr-ts">
+<h3>SCE_GLBSFR_SFR_TS<a class="headerlink" href="#sce-glbsfr-sfr-ts" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40028000 + 0xfc = 0x400280fc</cite></p>
+<blockquote>
+<div>
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "cr_ts",  "bits": 16},
+        {"bits": 16}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[15:0]</p></td>
+<td><p>CR_TS</p></td>
+<td><p>cr_ts read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 
@@ -695,6 +730,7 @@ position to clear the flag</p></td>
 <li class="toctree-l1"><a class="reference internal" href="pwm.html">PWM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sddc.html">SDDC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_pio.html">RP_PIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coresub_sramtrm.html">CORESUB_SRAMTRM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mdma.html">MDMA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="qfc.html">QFC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mbox_apb.html">MBOX_APB</a></li>

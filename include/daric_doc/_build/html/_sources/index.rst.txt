@@ -56,6 +56,7 @@ Register Groups
     pwm
     sddc
     rp_pio
+    coresub_sramtrm
     mdma
     qfc
     mbox_apb

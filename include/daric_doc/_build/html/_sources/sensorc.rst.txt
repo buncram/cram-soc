@@ -13,6 +13,8 @@ Register Listing for SENSORC
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_VDSR <SENSORC_SFR_VDSR>`                       | :ref:`0x40053008 <SENSORC_SFR_VDSR>`            |
 +------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SENSORC_SFR_VDFR <SENSORC_SFR_VDFR>`                       | :ref:`0x4005300c <SENSORC_SFR_VDFR>`            |
++------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_LDMASK <SENSORC_SFR_LDMASK>`                   | :ref:`0x40053010 <SENSORC_SFR_LDMASK>`          |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_LDSR <SENSORC_SFR_LDSR>`                       | :ref:`0x40053014 <SENSORC_SFR_LDSR>`            |
@@ -34,6 +36,14 @@ Register Listing for SENSORC
 | :ref:`SENSORC_SFR_VDCFG_CR_VDCFG6 <SENSORC_SFR_VDCFG_CR_VDCFG6>` | :ref:`0x40053038 <SENSORC_SFR_VDCFG_CR_VDCFG6>` |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SENSORC_SFR_VDCFG_CR_VDCFG7 <SENSORC_SFR_VDCFG_CR_VDCFG7>` | :ref:`0x4005303c <SENSORC_SFR_VDCFG_CR_VDCFG7>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SENSORC_SFR_VDIP_ENA <SENSORC_SFR_VDIP_ENA>`               | :ref:`0x40053040 <SENSORC_SFR_VDIP_ENA>`        |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SENSORC_SFR_VDIP_TEST <SENSORC_SFR_VDIP_TEST>`             | :ref:`0x40053044 <SENSORC_SFR_VDIP_TEST>`       |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SENSORC_SFR_LDIP_TEST <SENSORC_SFR_LDIP_TEST>`             | :ref:`0x40053048 <SENSORC_SFR_LDIP_TEST>`       |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SENSORC_SFR_LDIP_FD <SENSORC_SFR_LDIP_FD>`                 | :ref:`0x4005304c <SENSORC_SFR_LDIP_FD>`         |
 +------------------------------------------------------------------+-------------------------------------------------+
 
 SENSORC_SFR_VDMASK0
@@ -93,17 +103,41 @@ SENSORC_SFR_VDSR
 
         {
             "reg": [
-                {"name": "sr_vdsr",  "bits": 8},
+                {"name": "vdflag",  "bits": 8},
                 {"bits": 24}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-+-------+---------+-----------------------------------+
-| Field | Name    | Description                       |
-+=======+=========+===================================+
-| [7:0] | SR_VDSR | sr_vdsr read only status register |
-+-------+---------+-----------------------------------+
++-------+--------+----------------------------------+
+| Field | Name   | Description                      |
++=======+========+==================================+
+| [7:0] | VDFLAG | vdflag read only status register |
++-------+--------+----------------------------------+
+
+SENSORC_SFR_VDFR
+^^^^^^^^^^^^^^^^
+
+`Address: 0x40053000 + 0xc = 0x4005300c`
+
+
+    .. wavedrom::
+        :caption: SENSORC_SFR_VDFR
+
+        {
+            "reg": [
+                {"name": "vdflag",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+--------+----------------------------------------------------------------------------------+
+| Field | Name   | Description                                                                      |
++=======+========+==================================================================================+
+| [7:0] | VDFLAG | vdflag flag register. `1` means event happened, write back `1` in respective bit |
+|       |        | position to clear the flag                                                       |
++-------+--------+----------------------------------------------------------------------------------+
 
 SENSORC_SFR_LDMASK
 ^^^^^^^^^^^^^^^^^^
@@ -357,4 +391,96 @@ SENSORC_SFR_VDCFG_CR_VDCFG7
 +=======+===========+======================================+
 | [3:0] | CR_VDCFG7 | cr_vdcfg read/write control register |
 +-------+-----------+--------------------------------------+
+
+SENSORC_SFR_VDIP_ENA
+^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40053000 + 0x40 = 0x40053040`
+
+
+    .. wavedrom::
+        :caption: SENSORC_SFR_VDIP_ENA
+
+        {
+            "reg": [
+                {"name": "vdena",  "bits": 4},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+-----------------------------------+
+| Field | Name  | Description                       |
++=======+=======+===================================+
+| [3:0] | VDENA | vdena read/write control register |
++-------+-------+-----------------------------------+
+
+SENSORC_SFR_VDIP_TEST
+^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40053000 + 0x44 = 0x40053044`
+
+
+    .. wavedrom::
+        :caption: SENSORC_SFR_VDIP_TEST
+
+        {
+            "reg": [
+                {"name": "vdtst",  "bits": 8},
+                {"bits": 24}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++-------+-------+-----------------------------------+
+| Field | Name  | Description                       |
++=======+=======+===================================+
+| [7:0] | VDTST | vdtst read/write control register |
++-------+-------+-----------------------------------+
+
+SENSORC_SFR_LDIP_TEST
+^^^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40053000 + 0x48 = 0x40053048`
+
+
+    .. wavedrom::
+        :caption: SENSORC_SFR_LDIP_TEST
+
+        {
+            "reg": [
+                {"name": "ldtst",  "bits": 4},
+                {"bits": 28}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
+        }
+
+
++-------+-------+-----------------------------------+
+| Field | Name  | Description                       |
++=======+=======+===================================+
+| [3:0] | LDTST | ldtst read/write control register |
++-------+-------+-----------------------------------+
+
+SENSORC_SFR_LDIP_FD
+^^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40053000 + 0x4c = 0x4005304c`
+
+
+    .. wavedrom::
+        :caption: SENSORC_SFR_LDIP_FD
+
+        {
+            "reg": [
+                {"name": "sfr_ldip_fd",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------------+-----------------------------------------+
+| Field  | Name        | Description                             |
++========+=============+=========================================+
+| [15:0] | SFR_LDIP_FD | sfr_ldip_fd read/write control register |
++--------+-------------+-----------------------------------------+
 

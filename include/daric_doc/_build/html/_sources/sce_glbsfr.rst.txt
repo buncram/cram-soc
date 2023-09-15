@@ -21,7 +21,7 @@ Register Listing for SCE_GLBSFR
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_ARCLR <SCE_GLBSFR_SFR_ARCLR>`               | :ref:`0x4002801c <SCE_GLBSFR_SFR_ARCLR>`        |
 +------------------------------------------------------------------+-------------------------------------------------+
-| :ref:`SCE_GLBSFR_SFR_TICKCYC <SCE_GLBSFR_SFR_TICKCYC>`           | :ref:`0x40028020 <SCE_GLBSFR_SFR_TICKCYC>`      |
+| :ref:`SCE_GLBSFR_SFR_FRACERR <SCE_GLBSFR_SFR_FRACERR>`           | :ref:`0x40028020 <SCE_GLBSFR_SFR_FRACERR>`      |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_TICKCNT <SCE_GLBSFR_SFR_TICKCNT>`           | :ref:`0x40028024 <SCE_GLBSFR_SFR_TICKCNT>`      |
 +------------------------------------------------------------------+-------------------------------------------------+
@@ -40,6 +40,8 @@ Register Listing for SCE_GLBSFR
 | :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF4 <SCE_GLBSFR_SFR_FFCNT_SR_FF4>` | :ref:`0x40028050 <SCE_GLBSFR_SFR_FFCNT_SR_FF4>` |
 +------------------------------------------------------------------+-------------------------------------------------+
 | :ref:`SCE_GLBSFR_SFR_FFCNT_SR_FF5 <SCE_GLBSFR_SFR_FFCNT_SR_FF5>` | :ref:`0x40028054 <SCE_GLBSFR_SFR_FFCNT_SR_FF5>` |
++------------------------------------------------------------------+-------------------------------------------------+
+| :ref:`SCE_GLBSFR_SFR_TS <SCE_GLBSFR_SFR_TS>`                     | :ref:`0x400280fc <SCE_GLBSFR_SFR_TS>`           |
 +------------------------------------------------------------------+-------------------------------------------------+
 
 SCE_GLBSFR_SFR_SCEMODE
@@ -204,28 +206,29 @@ SCE_GLBSFR_SFR_ARCLR
 | [31:0] | AR_CLRRAM | ar_clrram performs action on write of value: 0xa5 |
 +--------+-----------+---------------------------------------------------+
 
-SCE_GLBSFR_SFR_TICKCYC
+SCE_GLBSFR_SFR_FRACERR
 ^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x40028000 + 0x20 = 0x40028020`
 
 
     .. wavedrom::
-        :caption: SCE_GLBSFR_SFR_TICKCYC
+        :caption: SCE_GLBSFR_SFR_FRACERR
 
         {
             "reg": [
-                {"name": "sfr_tickcyc",  "bits": 8},
+                {"name": "fr_acerr",  "bits": 8},
                 {"bits": 24}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
         }
 
 
-+-------+-------------+-----------------------------------------+
-| Field | Name        | Description                             |
-+=======+=============+=========================================+
-| [7:0] | SFR_TICKCYC | sfr_tickcyc read/write control register |
-+-------+-------------+-----------------------------------------+
++-------+----------+--------------------------------------------------------------------------------+
+| Field | Name     | Description                                                                    |
++=======+==========+================================================================================+
+| [7:0] | FR_ACERR | fr_acerr flag register. `1` means event happened, write back `1` in respective |
+|       |          | bit position to clear the flag                                                 |
++-------+----------+--------------------------------------------------------------------------------+
 
 SCE_GLBSFR_SFR_TICKCNT
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -431,4 +434,27 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF5
 +========+========+=================================+
 | [15:0] | SR_FF5 | sr_ff read only status register |
 +--------+--------+---------------------------------+
+
+SCE_GLBSFR_SFR_TS
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x40028000 + 0xfc = 0x400280fc`
+
+
+    .. wavedrom::
+        :caption: SCE_GLBSFR_SFR_TS
+
+        {
+            "reg": [
+                {"name": "cr_ts",  "bits": 16},
+                {"bits": 16}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-------+-----------------------------------+
+| Field  | Name  | Description                       |
++========+=======+===================================+
+| [15:0] | CR_TS | cr_ts read/write control register |
++--------+-------+-----------------------------------+
 
