@@ -502,8 +502,7 @@ pub fn sce_dma_tests() -> bool {
     sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_SUBEN_CR_SUBEN, 0x1F);
     let mut sdma_csr = CSR::new(utra::scedma::HW_SCEDMA_BASE as *mut u32);
     const DMA_LEN: usize = 4;
-    // setup the PL230 to do a simple transfer between two memory regions
-    // dma_mainram feature will cause us to DMA between main memory regions. This works under RTL sims.
+    // setup the SCEDMA to do a simple transfer between two memory regions
     let mut region_a = [0u32; DMA_LEN];
     let region_b = [0u32; DMA_LEN];
     let mut state = 0xF0F0_A0A0;
