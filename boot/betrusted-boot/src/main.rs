@@ -460,21 +460,23 @@ pub fn setup_uart1() {
     uart.tiny_write_str("udma\r");
     udma_ctrl.wo(utra::udma_ctrl::REG_CG, 1);
 
-    //let baudrate: u32 = 115200;
-    //let freq: u32 = 230_000_000;
-    //let clk_counter: u32 = (freq + baudrate / 2) / baudrate;
-    let clk_counter = 2174;
+    let baudrate: u32 = 115200;
+    let freq: u32 = 100_000_000;
+    let clk_counter: u32 = (freq + baudrate / 2) / baudrate;
     let mut udma_uart = CSR::new(utra::udma_uart_0::HW_UDMA_UART_0_BASE as *mut u32);
     udma_uart.wo(utra::udma_uart_0::REG_UART_SETUP,
         0x0306 | (clk_counter << 16));
 
     let tx_buf = utralib::HW_IFRAM0_MEM as *mut u8;
+    uart.print_hex_word(
+        udma_uart.r(utra::udma_uart_0::REG_UART_SETUP)
+    );
     // let mut tx_buf = [0u8; 256];
     for i in 0..16 {
         unsafe { tx_buf.add(i).write_volatile('0' as u32 as u8 + i as u8) };
     }
     udma_uart.wo(utra::udma_uart_0::REG_TX_SADDR, tx_buf as u32);
-    udma_uart.wo(utra::udma_uart_0::REG_TX_SIZE, 2);
+    udma_uart.wo(utra::udma_uart_0::REG_TX_SIZE, 4); // abridged so simulation run faster
     // send it
     udma_uart.wo(utra::udma_uart_0::REG_TX_CFG, 0x10); // EN
     // wait for it all to be done
