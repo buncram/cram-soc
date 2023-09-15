@@ -486,6 +486,99 @@ pub fn setup_uart1() {
 
 }
 
+/// used to generate some test vectors
+pub fn lfsr_next_u32(state: u32) -> u32 {
+    let bit = ((state >> 31) ^
+               (state >> 21) ^
+               (state >>  1) ^
+               (state >>  0)) & 1;
+
+    (state << 1) + bit
+}
+
+pub fn sce_dma_tests() -> bool {
+    let mut uart = debug::Uart {};
+    let mut sce_ctl_csr = CSR::new(utra::sce_glbsfr::HW_SCE_GLBSFR_BASE as *mut u32);
+    sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_SUBEN_CR_SUBEN, 0x1F);
+    let mut sdma_csr = CSR::new(utra::scedma::HW_SCEDMA_BASE as *mut u32);
+    const DMA_LEN: usize = 4;
+    // setup the PL230 to do a simple transfer between two memory regions
+    // dma_mainram feature will cause us to DMA between main memory regions. This works under RTL sims.
+    let mut region_a = [0u32; DMA_LEN];
+    let region_b = [0u32; DMA_LEN];
+    let mut state = 0xF0F0_A0A0;
+    for d in region_a.iter_mut() {
+        *d = state;
+        state = lfsr_next_u32(state);
+    }
+
+    // make sure that the destination is empty
+    let mut errs = 0;
+    for (src, dst) in region_a.iter().zip(region_b.iter()) {
+        if *src != *dst {
+            errs += 1;
+        }
+    }
+    uart.tiny_write_str("dest mismatch count (should not be 0): ");
+    uart.print_hex_word(errs);
+    uart.tiny_write_str("\r");
+
+    // dma the data in region_a to the segment
+    sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_a.as_ptr() as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 11); // 11 = aes key, 12 = aes in, 13 = aes out
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
+    sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+
+    uart.tiny_write_str("scdma op 1 in progress\r"); // waste some time while the DMA runs...
+    while sce_ctl_csr.rf(utra::sce_glbsfr::SFR_SRBUSY_SR_BUSY) != 0 {
+        uart.print_hex_word(sce_ctl_csr.rf(utra::sce_glbsfr::SFR_SRBUSY_SR_BUSY));
+        uart.tiny_write_str(" ");
+        uart.print_hex_word(sce_ctl_csr.rf(utra::sce_glbsfr::SFR_FRDONE_FR_DONE));
+        uart.tiny_write_str(" waiting\r");
+    }
+
+    // dma the data in region_b from the segment
+    sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_b.as_ptr() as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 11);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 1); // 0 == AXI read, 1 == AXI write
+    sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+    uart.tiny_write_str("scdma op 2 in progress\r"); // waste some time while the DMA runs...
+
+    // flush the cache, otherwise we won't see the updated values in region_b
+    unsafe {core::arch::asm!(
+        ".word 0x500F",
+        "nop",
+        "nop",
+        "nop",
+        "nop",
+        "nop",
+    ); }
+
+    let mut passing = true;
+    errs = 0;
+    for (i, (src, dst)) in region_a.iter().zip(region_b.iter()).enumerate() {
+        if *src != *dst {
+            uart.tiny_write_str("error in iter ");
+            uart.print_hex_word(i as u32);
+            uart.tiny_write_str(": ");
+            uart.print_hex_word(*src);
+            uart.tiny_write_str(" s<->d ");
+            uart.print_hex_word(*dst);
+            uart.tiny_write_str("\r");
+            passing = false;
+            errs += 1;
+        }
+    }
+    uart.tiny_write_str("errs: ");
+    uart.print_hex_word(errs);
+    uart.tiny_write_str("\r");
+    passing
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     let mut uart = debug::Uart {};
@@ -520,6 +613,9 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     // report the measured reset value
     let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
     report_api(resetvalue.r(utra::resetvalue::PC));
+
+    #[cfg(feature="full-chip")]
+    sce_dma_tests();
 
     #[cfg(feature="full-chip")]
     setup_uart1();
