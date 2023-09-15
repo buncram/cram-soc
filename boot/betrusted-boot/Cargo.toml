@@ -7,18 +7,21 @@ edition = "2018"
 [dependencies]
 utralib = {path = "../utralib"}
 riscv = { version = "0.5.6", package = "xous-riscv" }
-xous-pio = {path="../../../xous-core/libs/xous-pio", optional=true, default-features=false, features=["tests", "cramium-soc"]}
+xous-pio = {path="../../../xous-core/libs/xous-pio", default-features=false, features=["tests", "cramium-soc"]}
 xous-pl230 = {path="../../../xous-core/libs/xous-pl230", optional=true, default-features=false, features=["tests", "cramium-soc"]}
+pio-proc = "0.2.2"
+pio = "0.2.1"
 
 [features]
 debug-print = []
 small-soc = []
 daric = [] # use daric-style reporting. Probably need to deprecate this, as it will become the standard feature.
-pio-test = ["xous-pio"]
+pio-test = []
 # default = ["debug-print", "small-soc"]
 gdb-load = []  # set VM mapping 1:1 for code space for JTAG loading so that GDB is not confused by the VM offset
 arty = []
 full-chip = [] # create a file suitable for simulating on the full chip (does not target an "local" validation features)
+cram-fpga = [] # target the cramium FPGA dev board instead of the SoC
 xip = []
 apb-test = []
 pl230-test = ["xous-pl230"]
