@@ -501,10 +501,11 @@ pub fn sce_dma_tests() -> bool {
     let mut sce_ctl_csr = CSR::new(utra::sce_glbsfr::HW_SCE_GLBSFR_BASE as *mut u32);
     sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_SUBEN_CR_SUBEN, 0x1F);
     let mut sdma_csr = CSR::new(utra::scedma::HW_SCEDMA_BASE as *mut u32);
-    const DMA_LEN: usize = 4;
+    const DMA_LEN: usize = 256 / core::mem::size_of::<u32>(); // 256-byte FIFO buffer
     // setup the SCEDMA to do a simple transfer between two memory regions
     let mut region_a = [0u32; DMA_LEN];
     let region_b = [0u32; DMA_LEN];
+    let region_c = [0u32; DMA_LEN];
     let mut state = 0xF0F0_A0A0;
     for d in region_a.iter_mut() {
         *d = state;
@@ -522,25 +523,53 @@ pub fn sce_dma_tests() -> bool {
     uart.print_hex_word(errs);
     uart.tiny_write_str("\r");
 
-    // dma the data in region_a to the segment
+    let mut aes_csr = CSR::new(utra::aes::HW_AES_BASE as *mut u32);
+    // schedule the 0-key
+    aes_csr.wo(utra::aes::SFR_SEGPTR_PTRID_AKEY, 0);
+    aes_csr.rmwf(utra::aes::SFR_OPT_OPT_KLEN0, 0b10); // 256 bit key
+    aes_csr.rmwf(utra::aes::SFR_OPT_OPT_MODE0, 0b000); // ECB
+    aes_csr.wfo(utra::aes::SFR_CRFUNC_SFR_CRFUNC, 0x0); // AES-KS
+    aes_csr.wo(utra::aes::SFR_AR, 0x5a);
+    uart.tiny_write_str("AES KS\r");
+
+    aes_csr.wo(utra::aes::SFR_SEGPTR_PTRID_AIB, 0);
+    aes_csr.wo(utra::aes::SFR_SEGPTR_PTRID_AOB, 0);
+    aes_csr.rmwf(utra::aes::SFR_OPT_OPT_KLEN0, 0b10); // 256 bit key
+    aes_csr.rmwf(utra::aes::SFR_OPT_OPT_MODE0, 0b000); // ECB
+    aes_csr.wfo(utra::aes::SFR_CRFUNC_SFR_CRFUNC, 0x1); // AES-ENC
+
+    // fifo 2 = AES in, fifo 3 = AES out
+    sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_FFEN_CR_FFEN, 0b00100);
+    // dma the data in region_a to the AES engine
     sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_a.as_ptr() as u32);
-    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 11); // 11 = aes key, 12 = aes in, 13 = aes out
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 14); // 13 AKEY, 14 AIB, 15, AOB
     sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
     sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
     sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
     sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
 
+    // start the AES op
+    uart.tiny_write_str("start AES op\r");
+    aes_csr.wfo(utra::aes::SFR_OPT1_SFR_OPT1, DMA_LEN as u32 / (128 / 32));
+    aes_csr.wo(utra::aes::SFR_AR, 0x5a);
+
     uart.tiny_write_str("scdma op 1 in progress\r"); // waste some time while the DMA runs...
-    while sce_ctl_csr.rf(utra::sce_glbsfr::SFR_SRBUSY_SR_BUSY) != 0 {
+    // while sce_ctl_csr.rf(utra::sce_glbsfr::SFR_SRBUSY_SR_BUSY) != 0 {
         uart.print_hex_word(sce_ctl_csr.rf(utra::sce_glbsfr::SFR_SRBUSY_SR_BUSY));
         uart.tiny_write_str(" ");
         uart.print_hex_word(sce_ctl_csr.rf(utra::sce_glbsfr::SFR_FRDONE_FR_DONE));
         uart.tiny_write_str(" waiting\r");
-    }
+    // }
+
+    // wait for aes op to be done
+    // while aes_csr.rf(utra::sce_glbsfr::SFR_FRDONE_FR_DONE) != 0 {
+        uart.print_hex_word(aes_csr.rf(utra::aes::SFR_SEGPTR_PTRID_AOB_PTRID_AOB));
+        uart.tiny_write_str(" aes waiting\r");
+    // }
 
     // dma the data in region_b from the segment
     sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_b.as_ptr() as u32);
-    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 11);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 15);
     sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
     sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
     sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 1); // 0 == AXI read, 1 == AXI write
@@ -557,9 +586,59 @@ pub fn sce_dma_tests() -> bool {
         "nop",
     ); }
 
+    for (i, (src, dst)) in region_a.iter().zip(region_b.iter()).enumerate() {
+        if *src != *dst {
+            uart.tiny_write_str("error in iter ");
+            uart.print_hex_word(i as u32);
+            uart.tiny_write_str(": ");
+            uart.print_hex_word(*src);
+            uart.tiny_write_str(" s<->d ");
+            uart.print_hex_word(*dst);
+            uart.tiny_write_str("\r");
+            break; // just print something so we can know the intermediate is "ok"
+        }
+    }
+
+    // decode the data to see if it's at least symmetric
+    aes_csr.wfo(utra::aes::SFR_CRFUNC_SFR_CRFUNC, 0x2); // AES-DEC
+
+    // dma the data in region_a to the AES engine
+    sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_b.as_ptr() as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 14); // 13 AKEY, 14 AIB, 15, AOB
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
+    sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+
+    // start the AES op
+    uart.tiny_write_str("start AES op\r");
+    aes_csr.wfo(utra::aes::SFR_OPT1_SFR_OPT1, DMA_LEN as u32 / (128 / 32));
+    aes_csr.wo(utra::aes::SFR_AR, 0x5a);
+    uart.tiny_write_str("scdma op 3 in progress\r"); // waste some time while the DMA runs...
+
+    // dma the data in region_b from the segment
+    sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_c.as_ptr() as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 15);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 1); // 0 == AXI read, 1 == AXI write
+    sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+    uart.tiny_write_str("scdma op 4 in progress\r"); // waste some time while the DMA runs...
+
+    // flush the cache, otherwise we won't see the updated values in region_b
+    unsafe {core::arch::asm!(
+        ".word 0x500F",
+        "nop",
+        "nop",
+        "nop",
+        "nop",
+        "nop",
+    ); }
+
     let mut passing = true;
     errs = 0;
-    for (i, (src, dst)) in region_a.iter().zip(region_b.iter()).enumerate() {
+    // compare a to c: these should now be identical, with enc->dec
+    for (i, (src, dst)) in region_a.iter().zip(region_c.iter()).enumerate() {
         if *src != *dst {
             uart.tiny_write_str("error in iter ");
             uart.print_hex_word(i as u32);
@@ -575,6 +654,7 @@ pub fn sce_dma_tests() -> bool {
     uart.tiny_write_str("errs: ");
     uart.print_hex_word(errs);
     uart.tiny_write_str("\r");
+
     passing
 }
 
