@@ -501,7 +501,7 @@ pub fn sce_dma_tests() -> bool {
     let mut sce_ctl_csr = CSR::new(utra::sce_glbsfr::HW_SCE_GLBSFR_BASE as *mut u32);
     sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_SUBEN_CR_SUBEN, 0x1F);
     let mut sdma_csr = CSR::new(utra::scedma::HW_SCEDMA_BASE as *mut u32);
-    const DMA_LEN: usize = 64 / core::mem::size_of::<u32>(); // FIFO buffers
+    const DMA_LEN: usize = 128 / core::mem::size_of::<u32>(); // FIFO buffers
     // setup the SCEDMA to do a simple transfer between two memory regions
     let mut region_a = [0u32; DMA_LEN];
     let region_b = [0u32; DMA_LEN];
@@ -515,7 +515,9 @@ pub fn sce_dma_tests() -> bool {
     // -------- combohash tests --------
     let mut hash_csr = CSR::new(utra::combohash::HW_COMBOHASH_BASE as *mut u32);
     hash_csr.wfo(utra::combohash::SFR_CRFUNC_CR_FUNC, 0); // HF_SHA256
-    hash_csr.wfo(utra::combohash::SFR_OPT1_CR_OPT_HASHCNT, DMA_LEN as u32 - 1); // hash DMA_LEN words
+    hash_csr.wfo(utra::combohash::SFR_OPT1_CR_OPT_HASHCNT, 1); // run the hash on two DMA blocks
+    hash_csr.wfo(utra::combohash::SFR_OPT2_CR_OPT_IFSTART, 1); // start from 1st block
+    hash_csr.rmwf(utra::combohash::SFR_OPT2_CR_OPT_IFSOB, 1); // write data to seg-sob when done
     hash_csr.wfo(utra::combohash::SFR_SEGPTR_SEGID_MSG_SEGID_MSG, 0); // message goes from location 0
     hash_csr.wfo(utra::combohash::SFR_SEGPTR_SEGID_HOUT_SEGID_HOUT, 0); // message goes to location in HOUT area
     // trigger start hash, but it should wait until the DMA runs
@@ -523,13 +525,28 @@ pub fn sce_dma_tests() -> bool {
 
     // enable the hash FIFO (bit 1)
     sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_FFEN_CR_FFEN, 0b00010);
-    // dma the data in region_a to the hash engine
-    sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_a.as_ptr() as u32);
-    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 4); // HASH_MSG region
-    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
-    sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
-    sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
-    sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+    // dma the data in region_a to the hash engine in two sets of transfers
+    for i in 0..2 {
+        // compute the block start address
+        sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART,
+            unsafe {region_a.as_ptr().add((DMA_LEN / 2) * i) as u32});
+        sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 4); // HASH_MSG region
+        sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
+        sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32 / 2);
+        sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
+        sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+
+        // there is no way to determine if this is done, currently.
+        for j in 0..2 {
+            let fr = sce_ctl_csr.rf(utra::sce_glbsfr::SFR_FRDONE_FR_DONE);
+            if (fr & 0b1000_0000) != 0 {
+                sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_FRDONE_FR_DONE, 0b1000_0000);
+            } else if j == 1 {
+                uart.print_hex_word(fr);
+                uart.tiny_write_str(": FR miss\r");
+            }
+        }
+    }
 
     // observe the hash done output
     for _ in 0..2 {
