@@ -501,7 +501,7 @@ pub fn sce_dma_tests() -> bool {
     let mut sce_ctl_csr = CSR::new(utra::sce_glbsfr::HW_SCE_GLBSFR_BASE as *mut u32);
     sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_SUBEN_CR_SUBEN, 0x1F);
     let mut sdma_csr = CSR::new(utra::scedma::HW_SCEDMA_BASE as *mut u32);
-    const DMA_LEN: usize = 256 / core::mem::size_of::<u32>(); // 256-byte FIFO buffer
+    const DMA_LEN: usize = 64 / core::mem::size_of::<u32>(); // FIFO buffers
     // setup the SCEDMA to do a simple transfer between two memory regions
     let mut region_a = [0u32; DMA_LEN];
     let region_b = [0u32; DMA_LEN];
@@ -512,6 +512,52 @@ pub fn sce_dma_tests() -> bool {
         state = lfsr_next_u32(state);
     }
 
+    // -------- combohash tests --------
+    let mut hash_csr = CSR::new(utra::combohash::HW_COMBOHASH_BASE as *mut u32);
+    hash_csr.wfo(utra::combohash::SFR_CRFUNC_CR_FUNC, 0); // HF_SHA256
+    hash_csr.wfo(utra::combohash::SFR_OPT1_CR_OPT_HASHCNT, DMA_LEN as u32 - 1); // hash DMA_LEN words
+    hash_csr.wfo(utra::combohash::SFR_SEGPTR_SEGID_MSG_SEGID_MSG, 0); // message goes from location 0
+    hash_csr.wfo(utra::combohash::SFR_SEGPTR_SEGID_HOUT_SEGID_HOUT, 0); // message goes to location in HOUT area
+    // trigger start hash, but it should wait until the DMA runs
+    hash_csr.wfo(utra::combohash::SFR_AR_SFR_AR, 0x5A);
+
+    // enable the hash FIFO (bit 1)
+    sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_FFEN_CR_FFEN, 0b00010);
+    // dma the data in region_a to the hash engine
+    sdma_csr.wfo(utra::scedma::SFR_XCH_AXSTART_SFR_XCH_AXSTART, region_a.as_ptr() as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGID_SFR_XCH_SEGID, 4); // HASH_MSG region
+    sdma_csr.wfo(utra::scedma::SFR_XCH_SEGSTART_XCHCR_SEGSTART, 0);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
+    sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
+    sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
+
+    // observe the hash done output
+    for _ in 0..2 {
+        uart.print_hex_word(sce_ctl_csr.r(utra::combohash::SFR_FR));
+        uart.tiny_write_str(" <- hash FR\r")
+    }
+
+    // print the hash output
+    let hout_mem = unsafe{
+        core::slice::from_raw_parts(
+            utralib::HW_SEG_HOUT_MEM as *mut u32,
+            utralib::HW_SEG_HOUT_MEM_LEN / core::mem::size_of::<u32>())
+    };
+    uart.tiny_write_str("HOUT: ");
+    for i in 0..8 {
+        // should be big-endian
+        uart.print_hex_word(hout_mem[i]);
+    }
+    uart.tiny_write_str("\r");
+
+    uart.tiny_write_str("HIN ");
+    for d in region_a {
+        // big-endian, so make it one big string
+        uart.print_hex_word(d);
+    }
+    uart.tiny_write_str("\r");
+
+    // -------- AES tests ---------
     // make sure that the destination is empty
     let mut errs = 0;
     for (src, dst) in region_a.iter().zip(region_b.iter()) {
@@ -532,11 +578,17 @@ pub fn sce_dma_tests() -> bool {
     aes_csr.wo(utra::aes::SFR_AR, 0x5a);
     uart.tiny_write_str("AES KS\r");
 
+    // setup the encryption
     aes_csr.wo(utra::aes::SFR_SEGPTR_PTRID_AIB, 0);
     aes_csr.wo(utra::aes::SFR_SEGPTR_PTRID_AOB, 0);
     aes_csr.rmwf(utra::aes::SFR_OPT_OPT_KLEN0, 0b10); // 256 bit key
     aes_csr.rmwf(utra::aes::SFR_OPT_OPT_MODE0, 0b000); // ECB
     aes_csr.wfo(utra::aes::SFR_CRFUNC_SFR_CRFUNC, 0x1); // AES-ENC
+
+    // start the AES op, should not run until FIFO fills data...
+    uart.tiny_write_str("start AES op\r");
+    aes_csr.wfo(utra::aes::SFR_OPT1_SFR_OPT1, DMA_LEN as u32 / (128 / 32));
+    aes_csr.wo(utra::aes::SFR_AR, 0x5a);
 
     // fifo 2 = AES in, fifo 3 = AES out
     sce_ctl_csr.wfo(utra::sce_glbsfr::SFR_FFEN_CR_FFEN, 0b00100);
@@ -547,11 +599,6 @@ pub fn sce_dma_tests() -> bool {
     sdma_csr.wfo(utra::scedma::SFR_XCH_TRANSIZE_XCHCR_TRANSIZE, DMA_LEN as u32);
     sdma_csr.wfo(utra::scedma::SFR_XCH_FUNC_SFR_XCH_FUNC, 0); // 0 == AXI read, 1 == AXI write
     sdma_csr.wfo(utra::scedma::SFR_SCHSTART_AR_SFR_SCHSTART_AR, 0xA5); // 0x5a ich start, 0xa5 xch start, 0xaa sch start
-
-    // start the AES op
-    uart.tiny_write_str("start AES op\r");
-    aes_csr.wfo(utra::aes::SFR_OPT1_SFR_OPT1, DMA_LEN as u32 / (128 / 32));
-    aes_csr.wo(utra::aes::SFR_AR, 0x5a);
 
     uart.tiny_write_str("scdma op 1 in progress\r"); // waste some time while the DMA runs...
     // while sce_ctl_csr.rf(utra::sce_glbsfr::SFR_SRBUSY_SR_BUSY) != 0 {
