@@ -13,9 +13,6 @@
 [submodule "deps/litedram"]
 	path = deps/litedram
 	url = https://github.com/enjoy-digital/litedram.git
-[submodule "deps/encrypt-bitstream-python"]
-	path = deps/encrypt-bitstream-python
-	url = https://github.com/betrusted-io/encrypt-bitstream-python.git
 [submodule "deps/gateware"]
 	path = deps/gateware
 	url = https://github.com/betrusted-io/gateware.git
