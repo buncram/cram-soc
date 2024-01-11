@@ -794,7 +794,7 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     report_api(resetvalue.r(utra::resetvalue::PC));
 
     #[cfg(feature="full-chip")]
-    sce_dma_tests();
+    // sce_dma_tests();
 
     #[cfg(feature="full-chip")]
     setup_uart1();
@@ -816,16 +816,16 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     xous_pio::pio_tests::setup_reporting((utra::main::REPORT.offset() + utra::main::HW_MAIN_BASE) as *mut u32);
 
     // ---------- PIO hack-test ----------------
-    #[cfg(feature="pio-test")]
-    {
-        uart.tiny_write_str("spi test\r");
-        pio_hack_test();
-        uart.tiny_write_str("spi test done\r");
-    }
+    //#[cfg(feature="pio-test")]
+    //{
+    //    uart.tiny_write_str("spi test\r");
+    //    pio_hack_test();
+    //    uart.tiny_write_str("spi test done\r");
+    //}
 
     // ---------- pio test option -------------
-    //#[cfg(feature="pio-test")]
-    //xous_pio::pio_tests::pio_tests();
+    #[cfg(feature="pio-test")]
+    xous_pio::pio_tests::pio_tests();
 
     // ---------- exception setup ------------------
     irqs::irq_setup();

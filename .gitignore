@@ -41,3 +41,5 @@ xous-s32.sh
 
 # files that shouldn't be checked into github
 do_not_checkin/
+soc-mpw/
+
