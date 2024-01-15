@@ -985,7 +985,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                         CSRField(
                                             name= bf.replace('.', '_').strip(),
                                             size= bitwidth,
-                                            description= fname + regdescs[rtype],
+                                            description= bf + regdescs[rtype],
                                         )
                                     ]
                             else:
@@ -1044,7 +1044,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from SCE design")
     parser.add_argument(
-        "--path", required=False, help="Path to SCE data", type=str, default="do_not_checkin/crypto/")
+        "--path", required=False, help="Path to SCE data", type=str, default="./soc-mpw/rtl/crypto")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
@@ -1057,6 +1057,10 @@ def main():
         raise ValueError('Invalid log level: %s' % args.loglevel)
     logging.basicConfig(level=numeric_level)
 
+    if not Path(args.path).exists():
+        logging.error("Design directory not found. Script should be invoked from project root as python3 ./codegen/sce_to_svd.py!")
+        exit(0)
+
     pp = pprint.PrettyPrinter(indent=2, sort_dicts=False)
 
     doc_soc = DocSoc()
@@ -1067,19 +1071,22 @@ def main():
     ### use only the latest version, as extracted by numerical order
     versioned_files = {}
     for file in sce_files:
-        version_matcher = re.match('(.*)_v([0-9].[0-9]).sv', file.name)
+        version_matcher = re.match('(.*)_v([0-9].[0-9]).sv$', file.name)
         if version_matcher is None:
-            versioned_files[file.stem] = (file, 0.0)  # file path, version. 0 means no version
+            if (file.stem.endswith('.v') or file.stem.endswith('.sv')) and not file.stem.startswith('.'):
+                versioned_files[file.stem] = (file, 0.0)  # file path, version. 0 means no version
         else:
-            basename = version_matcher.group(1)
-            version = float(version_matcher.group(2))
-            if file.stem not in versioned_files:
-                versioned_files[basename] = (file, version)
-            else:
-                (_oldfile, old_version) = versioned_files[basename]
-                if version > old_version:
+            if not file.stem.startswith('.'):
+                basename = version_matcher.group(1)
+                version = float(version_matcher.group(2))
+                if basename not in versioned_files:
                     versioned_files[basename] = (file, version)
+                else:
+                    (_oldfile, old_version) = versioned_files[basename]
+                    if version > old_version:
+                        versioned_files[basename] = (file, version)
 
+    versioned_files = dict(sorted(versioned_files.items(), key=lambda x: x[0]))
     logging.debug("Using the following sources based on version numbering:")
     for (k, v) in versioned_files.items():
         logging.debug('  - {}:{}'.format(k, v))
@@ -1179,19 +1186,29 @@ def main():
                 if 'SFRCNT' in cr_defs['params']:
                     sfr_count = cr_defs['params']['SFRCNT'].eval(schema, module)
                     sfr_name = cr_defs['args']['cr'].eval(schema, module)
+                    if type(sfr_name) != str: # if a name maps to an expression that is fully evaluated to a number, prefer the expression
+                        sfr_name = cr_defs['args']['cr'].expression
                     sfr_module = module
 
                     print(f"SFR found, {sfr_module}:{sfr_name}[{sfr_count}]")
                     (sfr_file, _version) = versioned_files[sfr_module]
                     re_pattern = sfr_name + '\[(.*)\]'
                     sfr_re = re.compile(re_pattern)
+
+                    # Try to infer the names of the sub-SFRs by searching for the SFR's bracketed references in the code
                     with open(sfr_file, 'r') as sfr_f:
                         cr_defs['sfrs'] = {}
                         for line in sfr_f:
                             matches = sfr_re.search(line)
                             if matches is not None:
                                 sfr_item = matches.group(1)
-                                cr_defs['sfrs'][sfr_item] = leaves['localparam'][sfr_item]
+                                if ':' in sfr_item: # bit range in SFR
+                                    # might need more parsing if the bit range contains exprsessions, but let's
+                                    # see if we can get away for now with just stating the offset is 0
+                                    # sfr_item = 'bits' + sfr_item.replace(':', '_')
+                                    cr_defs['sfrs']['bits'] = 0
+                                else: # symbolic name for SFR
+                                    cr_defs['sfrs'][sfr_item] = leaves['localparam'][sfr_item]
 
     # --------- SPECIAL CASE: check `generate` for SFR ar inside sce_glbsfr ---------
     module = 'sce_glbsfr'
