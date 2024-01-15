@@ -1506,7 +1506,7 @@ def extract_bitwidth(schema, module, code_line):
                     logging.debug(f"bit expression not handled: {bw}, not creating an entry")
 
 
-def add_reg(schema, module, code_line):
+def add_reg(schema, module, code_line, source_file=None):
     REGEX = '(apb_[cfas2hfinbur]+[rnf])\s+#\((.+)\)\s(.+)\s\((.+)\);'
     line_matcher = re.match(REGEX, code_line)
     if line_matcher is None:
@@ -1533,6 +1533,8 @@ def add_reg(schema, module, code_line):
             'params' : expand_param_list(params),
             'args': expand_param_list(args),
         }
+        if source_file is not None:
+            schema[module][apb_type][reg_name]['src'] = source_file
 
 def is_m_or_p_empty(m_or_p):
     # we don't evaluate 'sfr_bank' because that's dependent on the apb_* not being empty
@@ -1648,11 +1650,19 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     offset = sfr_offset.eval_result
                                 else:
                                     offset = sfr_offset
-                                csrs += [regfuncs[rtype](
-                                    name=leaf_name + '_' + sfr_name,
-                                    n=int((leaf_desc['params']['A'].eval_result / 4) + offset),
-                                    fields=fields,
-                                )]
+                                if 'src' in leaf_desc:
+                                    csrs += [regfuncs[rtype](
+                                        name=leaf_name + '_' + sfr_name,
+                                        n=int((leaf_desc['params']['A'].eval_result / 4) + offset),
+                                        fields=fields,
+                                        description = f'See {leaf_desc["src"]}'
+                                    )]
+                                else:
+                                    csrs += [regfuncs[rtype](
+                                        name=leaf_name + '_' + sfr_name,
+                                        n=int((leaf_desc['params']['A'].eval_result / 4) + offset),
+                                        fields=fields,
+                                    )]
                         else:
                             # fixup compound-action type registers
                             if rtype == 'asr':
@@ -1765,11 +1775,19 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                             description= fname + regdescs[rtype_fixup],
                                         )
                                     ]
-                            csrs += [regfuncs[rtype_fixup](
-                                name=leaf_name,
-                                n=int(leaf_desc['params']['A'].eval_result / 4),
-                                fields=fields,
-                            )]
+                            if 'src' in leaf_desc:
+                                csrs += [regfuncs[rtype_fixup](
+                                    name=leaf_name,
+                                    n=int(leaf_desc['params']['A'].eval_result / 4),
+                                    fields=fields,
+                                    description=f'See {leaf_desc["src"]}'
+                                )]
+                            else:
+                                csrs += [regfuncs[rtype_fixup](
+                                    name=leaf_name,
+                                    n=int(leaf_desc['params']['A'].eval_result / 4),
+                                    fields=fields,
+                                )]
         doc_soc.csr.regions[module] = SoCCSRRegion(
             ctrl_offset + banks[module] * 0x1000,
             32,
@@ -2350,7 +2368,7 @@ def main():
                     else:
                         code_line = remove_comments(line.strip()).lstrip()
                         if re.match('^apb_[csfa2hfinbur]+[rnf]', code_line):
-                            add_reg(schema, mod_or_pkg, code_line)
+                            add_reg(schema, mod_or_pkg, code_line, str(file))
                         elif code_line.startswith('localparam'):
                             # simple one line case
                             if code_line.strip().endswith(';'):
