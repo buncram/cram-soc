@@ -1935,6 +1935,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
     reg_addrs = {}
     reg_rd_fields = {} # dictionary of fields storing a tuple of (msb,lsb)
     reg_wr_fields = {}
+    reg_srcs = {}
     for basename in pulp_reg_files:
         (file, vers) = pulp_reg_files[basename]
 
@@ -1958,6 +1959,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                 reg_addrs[prefix] = {}
                 reg_rd_fields[prefix] = {}
                 reg_wr_fields[prefix] = {}
+                reg_srcs[prefix] = str(file)
 
             # extract the register address offsets, and setup fields placeholders
             includes = []
@@ -2182,6 +2184,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                         name= rf_name,
                         n = reg_addrs[base_name][rf_name] / 4,
                         fields = fields,
+                        description=f'See {reg_srcs[base_name]}'
                     )
                 ]
             for rf_name in reg_wr_fields[base_name]:
@@ -2203,6 +2206,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                         name= rf_name.strip(),
                         n = reg_addrs[base_name][rf_name] / 4,
                         fields = fields,
+                        description=f'See {reg_srcs[base_name]}'
                     )
                 ]
             # add a suffix if we have a bank of identical peripheral
