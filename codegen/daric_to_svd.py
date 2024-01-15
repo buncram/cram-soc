@@ -47,7 +47,7 @@ import operator as op
 import pprint
 from math import log2
 
-URL_PREFIX='file:///F:/code/cram-soc/soc-oss/'
+URL_PREFIX='file:///F:/code/cram-soc/soc_oss/'
 # SVD patch for PL230 DMA
 
 def patch_pl230(svd_string, pl230_base_address):
@@ -1960,7 +1960,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                 reg_addrs[prefix] = {}
                 reg_rd_fields[prefix] = {}
                 reg_wr_fields[prefix] = {}
-                reg_srcs[prefix] = str(file).split('soc-mpw/')[1]
+                reg_srcs[prefix] = str(file).split('soc_mpw/')[1]
 
             # extract the register address offsets, and setup fields placeholders
             includes = []
@@ -2270,7 +2270,7 @@ def consolidate_lines(file, skip_directives = True):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from Daric design")
     parser.add_argument(
-        "--path", required=False, help="Path to Daric data", type=str, default="./soc-mpw")
+        "--path", required=False, help="Path to Daric data", type=str, default="./soc_mpw")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
@@ -2311,9 +2311,9 @@ def main():
                     if version > old_version:
                         versioned_files[basename] = (file, version)
     # SPECIAL CASE: PIO data is located in 'ips' directory
-    versioned_files['rp_pio'] = ('soc-mpw/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
+    versioned_files['rp_pio'] = ('soc_mpw/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
     # SPECIAL CASE: mbox is located in the 'ips' directory
-    versioned_files['mbox'] = ('soc-mpw/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
+    versioned_files['mbox'] = ('soc_mpw/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
 
     # extract the Pulpino files
     pulp_path = Path(args.path + '/ips/udma').glob('**/*')
@@ -2373,7 +2373,7 @@ def main():
                     else:
                         code_line = remove_comments(line.strip()).lstrip()
                         if re.match('^apb_[csfa2hfinbur]+[rnf]', code_line):
-                            add_reg(schema, mod_or_pkg, code_line, str(file).split('soc-mpw/')[1])
+                            add_reg(schema, mod_or_pkg, code_line, str(file).split('soc_mpw/')[1])
                         elif code_line.startswith('localparam'):
                             # simple one line case
                             if code_line.strip().endswith(';'):

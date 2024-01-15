@@ -1044,7 +1044,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from SCE design")
     parser.add_argument(
-        "--path", required=False, help="Path to SCE data", type=str, default="./soc-mpw/rtl/crypto")
+        "--path", required=False, help="Path to SCE data", type=str, default="./soc_mpw/rtl/crypto")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
