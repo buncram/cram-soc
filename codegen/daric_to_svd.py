@@ -47,6 +47,7 @@ import operator as op
 import pprint
 from math import log2
 
+URL_PREFIX='file:///F:/code/cram-soc/soc-oss/'
 # SVD patch for PL230 DMA
 
 def patch_pl230(svd_string, pl230_base_address):
@@ -1655,7 +1656,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                         name=leaf_name + '_' + sfr_name,
                                         n=int((leaf_desc['params']['A'].eval_result / 4) + offset),
                                         fields=fields,
-                                        description = f'See {leaf_desc["src"]}'
+                                        description = f'See {URL_PREFIX + leaf_desc["src"]}'
                                     )]
                                 else:
                                     csrs += [regfuncs[rtype](
@@ -1780,7 +1781,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     name=leaf_name,
                                     n=int(leaf_desc['params']['A'].eval_result / 4),
                                     fields=fields,
-                                    description=f'See {leaf_desc["src"]}'
+                                    description=f'See {URL_PREFIX + leaf_desc["src"]}'
                                 )]
                             else:
                                 csrs += [regfuncs[rtype_fixup](
@@ -1959,7 +1960,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                 reg_addrs[prefix] = {}
                 reg_rd_fields[prefix] = {}
                 reg_wr_fields[prefix] = {}
-                reg_srcs[prefix] = str(file)
+                reg_srcs[prefix] = str(file).split('soc-mpw/')[1]
 
             # extract the register address offsets, and setup fields placeholders
             includes = []
@@ -2184,7 +2185,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                         name= rf_name,
                         n = reg_addrs[base_name][rf_name] / 4,
                         fields = fields,
-                        description=f'See {reg_srcs[base_name]}'
+                        description=f'See {URL_PREFIX + reg_srcs[base_name]}'
                     )
                 ]
             for rf_name in reg_wr_fields[base_name]:
@@ -2206,7 +2207,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                         name= rf_name.strip(),
                         n = reg_addrs[base_name][rf_name] / 4,
                         fields = fields,
-                        description=f'See {reg_srcs[base_name]}'
+                        description=f'See {URL_PREFIX + reg_srcs[base_name]}'
                     )
                 ]
             # add a suffix if we have a bank of identical peripheral
@@ -2372,7 +2373,7 @@ def main():
                     else:
                         code_line = remove_comments(line.strip()).lstrip()
                         if re.match('^apb_[csfa2hfinbur]+[rnf]', code_line):
-                            add_reg(schema, mod_or_pkg, code_line, str(file))
+                            add_reg(schema, mod_or_pkg, code_line, str(file).split('soc-mpw/')[1])
                         elif code_line.startswith('localparam'):
                             # simple one line case
                             if code_line.strip().endswith(';'):
