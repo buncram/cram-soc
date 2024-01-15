@@ -1100,7 +1100,7 @@ def hex_int(value):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from PIO design")
     parser.add_argument(
-        "--path", required=False, help="Path to PIO data", type=str, default="deps/pio/rp_pio.sv")
+        "--path", required=False, help="Path to PIO data", type=str, default="./deps/pio/rp_pio.sv")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
