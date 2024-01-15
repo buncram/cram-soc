@@ -1169,10 +1169,10 @@ Indices and tables
             region.print_region(outfile, base_dir, note_pulses)
 
     # Copy over wavedrom javascript and configuration files
-    with open(os.path.dirname(__file__) + "/deps/litex/litex/soc/doc/static/WaveDrom.js", "r") as wd_in:
+    with open(os.path.dirname(__file__) + "/../deps/litex/litex/soc/doc/static/WaveDrom.js", "r") as wd_in:
         with open(base_dir + "/_static/WaveDrom.js", "w") as wd_out:
             wd_out.write(wd_in.read())
-    with open(os.path.dirname(__file__) + "/deps/litex/litex/soc/doc/static/default.js", "r") as wd_in:
+    with open(os.path.dirname(__file__) + "/../deps/litex/litex/soc/doc/static/default.js", "r") as wd_in:
         with open(base_dir + "/_static/default.js", "w") as wd_out:
             wd_out.write(wd_in.read())
 
@@ -1230,6 +1230,7 @@ def try_convert_numeric(element: str):
     if type(element) is not str:
         return None
     if "'" in element:
+        element = element.replace('_', '') # remove _ separators
         s = element.split("'")
         # hex check first, so that the hex digit 'd' can be disambiguated from the decimal specifier 'd'
         if 'h'in s[1]:
@@ -2223,7 +2224,7 @@ def consolidate_lines(file, skip_directives = True):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from Daric design")
     parser.add_argument(
-        "--path", required=False, help="Path to Daric data", type=str, default="do_not_checkin/s32")
+        "--path", required=False, help="Path to Daric data", type=str, default="./soc-mpw")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
@@ -2235,6 +2236,10 @@ def main():
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % args.loglevel)
     logging.basicConfig(level=numeric_level)
+
+    if not Path(args.path).exists():
+        logging.error("Design directory not found. Script should be invoked from project root as python3 ./codegen/daric_to_svd.py!")
+        exit(0)
 
     pp = pprint.PrettyPrinter(indent=2, sort_dicts=False)
 
@@ -2260,9 +2265,9 @@ def main():
                     if version > old_version:
                         versioned_files[basename] = (file, version)
     # SPECIAL CASE: PIO data is located in 'ips' directory
-    versioned_files['rp_pio'] = ('do_not_checkin/s32/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
+    versioned_files['rp_pio'] = ('soc-mpw/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
     # SPECIAL CASE: mbox is located in the 'ips' directory
-    versioned_files['mbox'] = ('do_not_checkin/s32/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
+    versioned_files['mbox'] = ('soc-mpw/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
 
     # extract the Pulpino files
     pulp_path = Path(args.path + '/ips/udma').glob('**/*')
