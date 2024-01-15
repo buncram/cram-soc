@@ -1507,7 +1507,7 @@ def extract_bitwidth(schema, module, code_line):
 
 
 def add_reg(schema, module, code_line):
-    REGEX = '(apb_[c,f,a,s,2]+r)\s+#\((.+)\)\s(.+)\s\((.+)\);'
+    REGEX = '(apb_[cfas2hfinbur]+[rnf])\s+#\((.+)\)\s(.+)\s\((.+)\);'
     line_matcher = re.match(REGEX, code_line)
     if line_matcher is None:
         if 'apb_sfr2' not in code_line and 'apb_sfrop2' not in code_line: # exceptions for the SFR definitions at the end of the file
@@ -1523,10 +1523,12 @@ def add_reg(schema, module, code_line):
         args = cleanup_braces(list(map(str.strip, line_matcher.group(4).split(','))))
         #if module == 'aes':
         #    print(f'type: {apb_type}, params: {params}, reg_name: {reg_name}, args: {args}')
-        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' and apb_type != 'apb_ar' and apb_type != 'apb_asr' and apb_type != 'apb_acr' and apb_type != 'apb_ac2r' and apb_type != 'apb_ascr':
+        if apb_type != 'apb_cr' and apb_type != 'apb_fr' and apb_type != 'apb_sr' \
+            and apb_type != 'apb_ar' and apb_type != 'apb_asr' and apb_type != 'apb_acr' \
+                and apb_type != 'apb_ac2r' and apb_type != 'apb_ascr' and apb_type != 'apb_shfin' \
+                    and apb_type != 'apb_buf' and apb_type != 'apb_sfr':
             logging.error(f"Parse error extracting APB register type: unrecognized register macro {apb_type}, ignoring!!!")
             return
-
         schema[module][apb_type][reg_name] = {
             'params' : expand_param_list(params),
             'args': expand_param_list(args),
@@ -1589,7 +1591,7 @@ def eval_tree(tree, schema, module, level=0, do_print=False):
                 print(' ' * level + f'{tree}')
 
 def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
-    regtypes = ['cr', 'sr', 'fr', 'ar', 'asr', 'acr', 'ascr', 'ac2r']
+    regtypes = ['cr', 'sr', 'fr', 'ar', 'asr', 'acr', 'ascr', 'ac2r', 'shfin', 'buf', 'sfr']
     regdescs = {
         'cr': ' read/write control register',
         'sr': ' read only status register',
@@ -1599,6 +1601,9 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
         'acr': 'control register which triggers an action on write',
         'ac2r': 'control register which triggers an action on write, with a special case self-clearing bank of bits',
         'ascr': 'combination control/status register which can also trigger an action',
+        'shfin' : 'write-only shift-in register; 8 deep',
+        'buf' : 'write/read shift register; 8-deep',
+        'sfr' : 'read/write control register',
     }
     regfuncs = {
         'cr': CSRStorage,
@@ -1609,6 +1614,9 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
         'acr': CSRStorage,
         'ac2r': CSRStorage,
         'ascr': CSRStatus,
+        'shfin': CSRStorage,
+        'buf': CSRStatus,
+        'sfr': CSRStorage,
     }
     if module in banks:
         csrs = []
@@ -1648,14 +1656,29 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                         else:
                             # fixup compound-action type registers
                             if rtype == 'asr':
-                                rtype = 'sr'
-                            if rtype == 'acr':
-                                rtype = 'cr'
-                            if rtype == 'ac2r':
-                                rtype = 'cr'
-                            if rtype == 'ascr':
-                                rtype = 'cr'
-                            the_arg = leaf_desc['args'][rtype]
+                                rtype_fixup = 'sr'
+                            elif rtype == 'acr':
+                                rtype_fixup = 'cr'
+                            elif rtype == 'ac2r':
+                                rtype_fixup = 'cr'
+                            elif rtype == 'ascr':
+                                rtype_fixup = 'cr'
+                            elif rtype == 'sfr':
+                                rtype_fixup = 'cr'
+                            # special case for TRNG shift-in registers
+                            # link the 'dr' field to the relevant standard template field for codegen
+                            elif rtype == 'shfin' or rtype == 'buf':
+                                if rtype == 'shfin':
+                                    rtype_fixup = 'cr'
+                                    leaf_desc['args']['cr'] = leaf_desc['args']['dr']
+                                if rtype == 'buf':
+                                    rtype_fixup = 'sr'
+                                    if 'sr' not in leaf_desc['args']:
+                                        leaf_desc['args']['sr'] = Expr('32') # default to 32 bits if no argument given
+                            else:
+                                rtype_fixup = rtype
+
+                            the_arg = leaf_desc['args'][rtype_fixup]
                             fields = []
                             constant_counter = 0
                             if '{' in the_arg.as_str():
@@ -1687,7 +1710,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                         else:
                                             logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
                                             bitwidth = 1
-                                    assert(rtype != 'ar') # we don't expect multi-bit ar defs
+                                    assert(rtype_fixup != 'ar') # we don't expect multi-bit ar defs
                                     if "'d" in bf: # this is a constant field
                                         bf_sub = bf.split("'d")
                                         bitwidth = int(bf_sub[0])
@@ -1704,7 +1727,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                             CSRField(
                                                 name= bf.replace('[', '').replace(']', '').replace('.', '_').strip(),
                                                 size= bitwidth,
-                                                description= bf + regdescs[rtype],
+                                                description= bf + regdescs[rtype_fixup],
                                             )
                                         ]
                             else:
@@ -1715,7 +1738,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                     fname = the_arg.as_str().replace('.', '_').strip() # . is not valid in identifiers, nor are trailing spaces
                                     if '[' in fname:
                                         fname = fname.split('[')[0]
-                                if rtype == 'ar':
+                                if rtype_fixup == 'ar':
                                     if 'DW' in leaf_desc['params']:
                                         ar_size = leaf_desc['params']['DW'].eval_result
                                     else:
@@ -1729,7 +1752,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                         CSRField(
                                             name= fname,
                                             size= ar_size,
-                                            description= fname + regdescs[rtype] + action,
+                                            description= fname + regdescs[rtype_fixup] + action,
                                             pulse=True
                                         )
                                     ]
@@ -1739,10 +1762,10 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                         CSRField(
                                             name= fname,
                                             size= int(leaf_desc['params']['DW'].eval_result),
-                                            description= fname + regdescs[rtype],
+                                            description= fname + regdescs[rtype_fixup],
                                         )
                                     ]
-                            csrs += [regfuncs[rtype](
+                            csrs += [regfuncs[rtype_fixup](
                                 name=leaf_name,
                                 n=int(leaf_desc['params']['A'].eval_result / 4),
                                 fields=fields,
@@ -2258,7 +2281,7 @@ def main():
             else:
                 basename = version_matcher.group(1)
                 version = float(version_matcher.group(2))
-                if file.stem not in versioned_files:
+                if basename not in versioned_files:
                     versioned_files[basename] = (file, version)
                 else:
                     (_oldfile, old_version) = versioned_files[basename]
@@ -2316,6 +2339,9 @@ def main():
                                 'apb_acr': {},
                                 'apb_ac2r': {},
                                 'apb_ascr': {},
+                                'apb_shfin': {},
+                                'apb_buf': {},
+                                'apb_sfr': {},
                             }
                 elif state == 'ACTIVE':
                     if line.lstrip().startswith('endmodule') or line.lstrip().startswith('endpackage'):
@@ -2323,7 +2349,7 @@ def main():
                         mod_or_pkg = ''
                     else:
                         code_line = remove_comments(line.strip()).lstrip()
-                        if re.match('^apb_[csfa2]+r', code_line):
+                        if re.match('^apb_[csfa2hfinbur]+[rnf]', code_line):
                             add_reg(schema, mod_or_pkg, code_line)
                         elif code_line.startswith('localparam'):
                             # simple one line case
