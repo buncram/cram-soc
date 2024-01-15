@@ -1116,6 +1116,10 @@ def main():
         raise ValueError('Invalid log level: %s' % args.loglevel)
     logging.basicConfig(level=numeric_level)
 
+    if not Path(args.path).exists():
+        logging.error("Design directory not found. Script should be invoked from project root as python3 ./codegen/pio_to_svd.py!")
+        exit(0)
+
     pp = pprint.PrettyPrinter(indent=2, sort_dicts=False)
 
     doc_soc = DocSoc()
