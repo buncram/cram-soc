@@ -28,7 +28,7 @@ from litex.soc.cores import uart
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 from litex.soc.interconnect.axi import AXIInterface
-from axi_ram import AXIRAM
+from soc_oss.axi_ram import AXIRAM
 
 from cram_common import CramSoC
 

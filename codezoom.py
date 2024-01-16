@@ -8,12 +8,13 @@ import select
 import time
 
 def main(stdscr):
-    parser = argparse.ArgumentParser(description="Build a Cramium FPGA dev image")
+    # The GTKwave branch is at https://github.com/buncram/gtkwave/commits/udp-send
+    parser = argparse.ArgumentParser(description="Daemon that listens to a patched GTKWave to display code disassembly listings")
     parser.add_argument(
-        "--file", required=False, help="The file to zoom around", type=str, default="../xous-cramium/load.lst"
+        "--file", required=False, help="The file to zoom around", type=str, default="./listings/load.lst"
     )
     parser.add_argument(
-        "--kernel", required=False, help="The kernel to zoom around", type=str, default="../xous-cramium/kernel.lst"
+        "--kernel", required=False, help="The kernel to zoom around", type=str, default="./listings/kernel.lst"
     )
     parser.add_argument(
         "--port", required=False, help="The port to listen on", type=int, default=6502

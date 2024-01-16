@@ -24,14 +24,14 @@ from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 from deps.gateware.gateware import memlcd
 
-from axi_crossbar import AXICrossbar
-from axi_adapter import AXIAdapter
-from axi_ram import AXIRAM
-from axil_crossbar import AXILiteCrossbar
-from axil_cdc import AXILiteCDC
-from axi_common import *
+from soc_oss.axi_crossbar import AXICrossbar
+from soc_oss.axi_adapter import AXIAdapter
+from soc_oss.axi_ram import AXIRAM
+from soc_oss.axil_crossbar import AXILiteCrossbar
+from soc_oss.axil_cdc import AXILiteCDC
+from soc_oss.axi_common import *
 
-from axil_ahb_adapter import AXILite2AHBAdapter
+from soc_oss.axil_ahb_adapter import AXILite2AHBAdapter
 from litex.soc.interconnect import ahb
 
 from math import ceil, log2
@@ -277,7 +277,7 @@ class CramSoC(SoCCore):
                         sim = True  # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
                     else:
                         sim = False
-                    from pio_adapter import PioAdapter
+                    from soc_oss.pio_adapter import PioAdapter
                     if variant == "sim":
                         clock_remap = {"sys" : "p"}
                     else: # arty variant
@@ -287,12 +287,12 @@ class CramSoC(SoCCore):
                         sim=sim
                     ))
                 elif name == "duart":
-                    from duart_adapter import DuartAdapter
+                    from soc_oss.duart_adapter import DuartAdapter
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
                         getattr(self, name + "_ahb"), pads=platform.request("duart"), sel_addr=region[0]
                     ))
                 elif name == "mbox_apb":
-                    from mbox_adapter import MboxAdapter
+                    from soc_oss.mbox_adapter import MboxAdapter
                     clock_remap = {"pclk" : "p"}
                     self.submodules += ClockDomainsRenamer(clock_remap)(MboxAdapter(platform,
                         getattr(self, name +"_ahb"), mbox, irq_available, irq_abort_init, irq_abort_done, irq_error, sel_addr=region[0],
