@@ -40,8 +40,8 @@ There is a "shadow" repository called `soc-mpw` that contains the entire chip so
 This section is WIP, as there are a *lot* of dependencies for this project. Expect to spend some time tooling up, and if something is missing please open an issue so we can add it here.
 
 - [Rust](https://www.rust-lang.org/tools/install) and [rustfilt](https://crates.io/crates/rustfilt)
-- [riscv toolchain](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases)
-- Litex is included in the repo at `deps/litex` if checked out recursively. You will need to add the checked out version to your PYTHONPATH. Litex refers to a whole family of submodules, including `litex`, `compiler_rt`, `litescope`, `litedram`, `pythondata-software-picolibc`. Many of these are not strictly needed to build the source views here but are required because Litex does some "sanity checking" of its build environment for these tools even if they are not used.
+- [RISCV toolchain](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases) - one that installs to `riscv-none-elf-*`
+- Litex is included in the repo at `deps/litex` if checked out recursively. You will need to add the checked out version to your PYTHONPATH. Litex refers to a whole family of submodules, including `litex`, `compiler_rt`, `litescope`, `litedram`, `pythondata-software-picolibc`. Many of these are not strictly needed to build the source views here but are required because Litex does some "sanity checking" of its build environment for these tools even if they are not used. You may give `deps/litex/litex_setup.py` a try with the arguments `minimal --user`; it sometimes works. You might have to try `standard --user`, because `minimal` might miss some dependencies, but then you'll get a whole bunch of extra code you'll never use.
 - SpinalHDL to build the Vex CPU needs [Scala](https://spinalhdl.github.io/SpinalDoc-RTD/v1.3.8/SpinalHDL/Simulation/install.html)
 - Migen is similarly included at `deps/migen`, and PYTHONPATH should point to this version.
 - [`Xous`](https://github.com/betrusted-io/xous-core/), cloned into a parallel repository at the path `../xous-core`, for building bootable OS images
@@ -52,6 +52,7 @@ This section is WIP, as there are a *lot* of dependencies for this project. Expe
 Highly Recommended:
 
 - An IDE that is capable of clicking through method definitions to their source, for each of the relevant languages (Rust, Python, Scala). This repo was developed using a combination of `vscode` (Rust, Python, Verilog) and `IntelliJ` (for Scala).
+- If you're using `vscode`, you can create a `.env` file with a `PYTHONPATH=` pointing to the various entities in `deps` to allow `vscode` to resolve the litex & migen dependencies correctly.
 
 Optional:
 
