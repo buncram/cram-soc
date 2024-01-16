@@ -5,7 +5,7 @@ This repo contains is the open source components of the Cramium SoC: the RISC-V 
 Compiled documentation:
 
 - [RV core complex register set](https://ci.betrusted.io/cramium-cpu/index.html).
-- [SoC registers][https://ci.betrusted.io/cramium/index.html]
+- [SoC registers](https://ci.betrusted.io/cramium/index.html)
 
 ## Overview
 
