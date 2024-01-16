@@ -61,8 +61,6 @@ Register Groups
     qfc
     mbox_apb
     gluechain
-    mesh
-    sensorc
 
 Indices and tables
 ==================

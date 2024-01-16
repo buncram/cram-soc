@@ -23,6 +23,8 @@ MBOX_APB_SFR_WDATA
 
 `Address: 0x40013000 + 0x0 = 0x40013000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/mbox_v0.1.sv
 
     .. wavedrom::
         :caption: MBOX_APB_SFR_WDATA
@@ -45,6 +47,8 @@ MBOX_APB_SFR_RDATA
 
 `Address: 0x40013000 + 0x4 = 0x40013004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/mbox_v0.1.sv
 
     .. wavedrom::
         :caption: MBOX_APB_SFR_RDATA
@@ -67,6 +71,8 @@ MBOX_APB_SFR_STATUS
 
 `Address: 0x40013000 + 0x8 = 0x40013008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/mbox_v0.1.sv
 
     .. wavedrom::
         :caption: MBOX_APB_SFR_STATUS
@@ -105,6 +111,8 @@ MBOX_APB_SFR_ABORT
 
 `Address: 0x40013000 + 0x18 = 0x40013018`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/mbox_v0.1.sv
 
     .. wavedrom::
         :caption: MBOX_APB_SFR_ABORT
@@ -127,6 +135,8 @@ MBOX_APB_SFR_DONE
 
 `Address: 0x40013000 + 0x1c = 0x4001301c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/mbox_v0.1.sv
 
     .. wavedrom::
         :caption: MBOX_APB_SFR_DONE

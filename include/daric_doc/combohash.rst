@@ -41,6 +41,7 @@ COMBOHASH_SFR_CRFUNC
 
 `Address: 0x4002b000 + 0x0 = 0x4002b000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_CRFUNC
@@ -64,6 +65,7 @@ COMBOHASH_SFR_AR
 
 `Address: 0x4002b000 + 0x4 = 0x4002b004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_AR
@@ -86,6 +88,7 @@ COMBOHASH_SFR_SRMFSM
 
 `Address: 0x4002b000 + 0x8 = 0x4002b008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SRMFSM
@@ -109,6 +112,7 @@ COMBOHASH_SFR_FR
 
 `Address: 0x4002b000 + 0xc = 0x4002b00c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_FR
@@ -153,6 +157,7 @@ COMBOHASH_SFR_OPT1
 
 `Address: 0x4002b000 + 0x10 = 0x4002b010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_OPT1
@@ -176,6 +181,7 @@ COMBOHASH_SFR_OPT2
 
 `Address: 0x4002b000 + 0x14 = 0x4002b014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_OPT2
@@ -205,6 +211,7 @@ COMBOHASH_SFR_OPT3
 
 `Address: 0x4002b000 + 0x18 = 0x4002b018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_OPT3
@@ -228,6 +235,7 @@ COMBOHASH_SFR_BLKT0
 
 `Address: 0x4002b000 + 0x1c = 0x4002b01c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_BLKT0
@@ -251,6 +259,7 @@ COMBOHASH_SFR_SEGPTR_SEGID_LKEY
 
 `Address: 0x4002b000 + 0x20 = 0x4002b020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SEGPTR_SEGID_LKEY
@@ -274,6 +283,7 @@ COMBOHASH_SFR_SEGPTR_SEGID_KEY
 
 `Address: 0x4002b000 + 0x24 = 0x4002b024`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SEGPTR_SEGID_KEY
@@ -297,6 +307,7 @@ COMBOHASH_SFR_SEGPTR_SEGID_SCRT
 
 `Address: 0x4002b000 + 0x2c = 0x4002b02c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SEGPTR_SEGID_SCRT
@@ -320,6 +331,7 @@ COMBOHASH_SFR_SEGPTR_SEGID_MSG
 
 `Address: 0x4002b000 + 0x30 = 0x4002b030`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SEGPTR_SEGID_MSG
@@ -343,6 +355,7 @@ COMBOHASH_SFR_SEGPTR_SEGID_HOUT
 
 `Address: 0x4002b000 + 0x34 = 0x4002b034`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SEGPTR_SEGID_HOUT
@@ -366,6 +379,7 @@ COMBOHASH_SFR_SEGPTR_SEGID_HOUT2
 
 `Address: 0x4002b000 + 0x3c = 0x4002b03c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/combohash_v0.3.sv
 
     .. wavedrom::
         :caption: COMBOHASH_SFR_SEGPTR_SEGID_HOUT2

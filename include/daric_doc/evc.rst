@@ -57,6 +57,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL0
 
 `Address: 0x40044000 + 0x0 = 0x40044000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL0
@@ -80,6 +81,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL1
 
 `Address: 0x40044000 + 0x4 = 0x40044004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL1
@@ -103,6 +105,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL2
 
 `Address: 0x40044000 + 0x8 = 0x40044008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL2
@@ -126,6 +129,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL3
 
 `Address: 0x40044000 + 0xc = 0x4004400c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL3
@@ -149,6 +153,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL4
 
 `Address: 0x40044000 + 0x10 = 0x40044010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL4
@@ -172,6 +177,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL5
 
 `Address: 0x40044000 + 0x14 = 0x40044014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL5
@@ -195,6 +201,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL6
 
 `Address: 0x40044000 + 0x18 = 0x40044018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL6
@@ -218,6 +225,7 @@ EVC_SFR_CM7EVSEL_CM7EVSEL7
 
 `Address: 0x40044000 + 0x1c = 0x4004401c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVSEL_CM7EVSEL7
@@ -241,6 +249,7 @@ EVC_SFR_CM7EVEN
 
 `Address: 0x40044000 + 0x20 = 0x40044020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVEN
@@ -264,6 +273,7 @@ EVC_SFR_CM7EVFR
 
 `Address: 0x40044000 + 0x24 = 0x40044024`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7EVFR
@@ -288,6 +298,7 @@ EVC_SFR_TMREVSEL
 
 `Address: 0x40044000 + 0x30 = 0x40044030`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_TMREVSEL
@@ -311,6 +322,7 @@ EVC_SFR_PWMEVSEL
 
 `Address: 0x40044000 + 0x34 = 0x40044034`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_PWMEVSEL
@@ -333,6 +345,7 @@ EVC_SFR_IFEVEN_IFEVEN0
 
 `Address: 0x40044000 + 0x40 = 0x40044040`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN0
@@ -355,6 +368,7 @@ EVC_SFR_IFEVEN_IFEVEN1
 
 `Address: 0x40044000 + 0x44 = 0x40044044`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN1
@@ -377,6 +391,7 @@ EVC_SFR_IFEVEN_IFEVEN2
 
 `Address: 0x40044000 + 0x48 = 0x40044048`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN2
@@ -399,6 +414,7 @@ EVC_SFR_IFEVEN_IFEVEN3
 
 `Address: 0x40044000 + 0x4c = 0x4004404c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN3
@@ -421,6 +437,7 @@ EVC_SFR_IFEVEN_IFEVEN4
 
 `Address: 0x40044000 + 0x50 = 0x40044050`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN4
@@ -443,6 +460,7 @@ EVC_SFR_IFEVEN_IFEVEN5
 
 `Address: 0x40044000 + 0x54 = 0x40044054`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN5
@@ -465,6 +483,7 @@ EVC_SFR_IFEVEN_IFEVEN6
 
 `Address: 0x40044000 + 0x58 = 0x40044058`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN6
@@ -487,6 +506,7 @@ EVC_SFR_IFEVEN_IFEVEN7
 
 `Address: 0x40044000 + 0x5c = 0x4004405c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVEN_IFEVEN7
@@ -509,6 +529,7 @@ EVC_SFR_IFEVERRFR
 
 `Address: 0x40044000 + 0x60 = 0x40044060`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_IFEVERRFR
@@ -532,6 +553,7 @@ EVC_SFR_CM7ERRFR
 
 `Address: 0x40044000 + 0x80 = 0x40044080`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/evc_v0.1.sv
 
     .. wavedrom::
         :caption: EVC_SFR_CM7ERRFR

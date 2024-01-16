@@ -41,6 +41,7 @@ QFC_SFR_IO
 
 `Address: 0x40010000 + 0x0 = 0x40010000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_SFR_IO
@@ -64,6 +65,7 @@ QFC_SFR_AR
 
 `Address: 0x40010000 + 0x4 = 0x40010004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_SFR_AR
@@ -86,6 +88,7 @@ QFC_SFR_IODRV
 
 `Address: 0x40010000 + 0x8 = 0x40010008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_SFR_IODRV
@@ -109,6 +112,7 @@ QFC_CR_XIP_ADDRMODE
 
 `Address: 0x40010000 + 0x10 = 0x40010010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_XIP_ADDRMODE
@@ -132,6 +136,7 @@ QFC_CR_XIP_OPCODE
 
 `Address: 0x40010000 + 0x14 = 0x40010014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_XIP_OPCODE
@@ -154,6 +159,7 @@ QFC_CR_XIP_WIDTH
 
 `Address: 0x40010000 + 0x18 = 0x40010018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_XIP_WIDTH
@@ -177,6 +183,7 @@ QFC_CR_XIP_SSEL
 
 `Address: 0x40010000 + 0x1c = 0x4001001c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_XIP_SSEL
@@ -200,6 +207,7 @@ QFC_CR_XIP_DUMCYC
 
 `Address: 0x40010000 + 0x20 = 0x40010020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_XIP_DUMCYC
@@ -223,6 +231,7 @@ QFC_CR_XIP_CFG
 
 `Address: 0x40010000 + 0x24 = 0x40010024`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_XIP_CFG
@@ -246,6 +255,7 @@ QFC_CR_AESKEY_AESKEYIN0
 
 `Address: 0x40010000 + 0x40 = 0x40010040`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_AESKEY_AESKEYIN0
@@ -268,6 +278,7 @@ QFC_CR_AESKEY_AESKEYIN1
 
 `Address: 0x40010000 + 0x44 = 0x40010044`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_AESKEY_AESKEYIN1
@@ -290,6 +301,7 @@ QFC_CR_AESKEY_AESKEYIN2
 
 `Address: 0x40010000 + 0x48 = 0x40010048`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_AESKEY_AESKEYIN2
@@ -312,6 +324,7 @@ QFC_CR_AESKEY_AESKEYIN3
 
 `Address: 0x40010000 + 0x4c = 0x4001004c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_AESKEY_AESKEYIN3
@@ -334,6 +347,7 @@ QFC_CR_AESENA
 
 `Address: 0x40010000 + 0x50 = 0x40010050`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/qfc_v0.2.sv
 
     .. wavedrom::
         :caption: QFC_CR_AESENA

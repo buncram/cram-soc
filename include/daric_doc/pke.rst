@@ -41,6 +41,7 @@ PKE_SFR_CRFUNC
 
 `Address: 0x4002c000 + 0x0 = 0x4002c000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_CRFUNC
@@ -67,6 +68,7 @@ PKE_SFR_AR
 
 `Address: 0x4002c000 + 0x4 = 0x4002c004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_AR
@@ -89,6 +91,7 @@ PKE_SFR_SRMFSM
 
 `Address: 0x4002c000 + 0x8 = 0x4002c008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_SRMFSM
@@ -115,6 +118,7 @@ PKE_SFR_FR
 
 `Address: 0x4002c000 + 0xc = 0x4002c00c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_FR
@@ -155,6 +159,7 @@ PKE_SFR_OPTNW
 
 `Address: 0x4002c000 + 0x10 = 0x4002c010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_OPTNW
@@ -178,6 +183,7 @@ PKE_SFR_OPTEW
 
 `Address: 0x4002c000 + 0x14 = 0x4002c014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_OPTEW
@@ -201,6 +207,7 @@ PKE_SFR_OPTRW
 
 `Address: 0x4002c000 + 0x18 = 0x4002c018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_OPTRW
@@ -224,6 +231,7 @@ PKE_SFR_OPTLTX
 
 `Address: 0x4002c000 + 0x1c = 0x4002c01c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_OPTLTX
@@ -247,6 +255,7 @@ PKE_SFR_OPTMASK
 
 `Address: 0x4002c000 + 0x20 = 0x4002c020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_OPTMASK
@@ -270,6 +279,7 @@ PKE_SFR_SEGPTR_PTRID_PCON
 
 `Address: 0x4002c000 + 0x30 = 0x4002c030`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_SEGPTR_PTRID_PCON
@@ -293,6 +303,7 @@ PKE_SFR_SEGPTR_PTRID_PIB0
 
 `Address: 0x4002c000 + 0x34 = 0x4002c034`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_SEGPTR_PTRID_PIB0
@@ -316,6 +327,7 @@ PKE_SFR_SEGPTR_PTRID_PIB1
 
 `Address: 0x4002c000 + 0x38 = 0x4002c038`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_SEGPTR_PTRID_PIB1
@@ -339,6 +351,7 @@ PKE_SFR_SEGPTR_PTRID_PKB
 
 `Address: 0x4002c000 + 0x3c = 0x4002c03c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_SEGPTR_PTRID_PKB
@@ -362,6 +375,7 @@ PKE_SFR_SEGPTR_PTRID_POB
 
 `Address: 0x4002c000 + 0x40 = 0x4002c040`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/pke_v0.3tmp.sv
 
     .. wavedrom::
         :caption: PKE_SFR_SEGPTR_PTRID_POB

@@ -21,6 +21,7 @@ GLUECHAIN_SFR_GCMASK
 
 `Address: 0x40054000 + 0x0 = 0x40054000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sec/gluechain_v0.1.sv
 
     .. wavedrom::
         :caption: GLUECHAIN_SFR_GCMASK
@@ -43,6 +44,7 @@ GLUECHAIN_SFR_GCSR
 
 `Address: 0x40054000 + 0x4 = 0x40054004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sec/gluechain_v0.1.sv
 
     .. wavedrom::
         :caption: GLUECHAIN_SFR_GCSR
@@ -65,6 +67,7 @@ GLUECHAIN_SFR_GCRST
 
 `Address: 0x40054000 + 0x8 = 0x40054008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sec/gluechain_v0.1.sv
 
     .. wavedrom::
         :caption: GLUECHAIN_SFR_GCRST
@@ -87,6 +90,7 @@ GLUECHAIN_SFR_GCTEST
 
 `Address: 0x40054000 + 0xc = 0x4005400c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sec/gluechain_v0.1.sv
 
     .. wavedrom::
         :caption: GLUECHAIN_SFR_GCTEST

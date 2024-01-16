@@ -1,6 +1,6 @@
 
 project = 'Cramium SoC'
-copyright = '2023, Cramium, Inc.'
+copyright = '2024, Cramium, Inc.'
 author = 'Cramium, Inc.'
 extensions = [
     'sphinx.ext.autosectionlabel',

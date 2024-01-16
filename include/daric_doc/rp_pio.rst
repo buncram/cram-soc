@@ -191,6 +191,8 @@ RP_PIO_SFR_CTRL
 
 `Address: 0x50123000 + 0x0 = 0x50123000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_CTRL
@@ -220,6 +222,8 @@ RP_PIO_SFR_FSTAT
 
 `Address: 0x50123000 + 0x4 = 0x50123004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_FSTAT
@@ -263,6 +267,8 @@ RP_PIO_SFR_FDEBUG
 
 `Address: 0x50123000 + 0x8 = 0x50123008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_FDEBUG
@@ -306,6 +312,8 @@ RP_PIO_SFR_FLEVEL
 
 `Address: 0x50123000 + 0xc = 0x5012300c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_FLEVEL
@@ -373,6 +381,8 @@ RP_PIO_SFR_TXF0
 
 `Address: 0x50123000 + 0x10 = 0x50123010`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_TXF0
@@ -395,6 +405,8 @@ RP_PIO_SFR_TXF1
 
 `Address: 0x50123000 + 0x14 = 0x50123014`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_TXF1
@@ -417,6 +429,8 @@ RP_PIO_SFR_TXF2
 
 `Address: 0x50123000 + 0x18 = 0x50123018`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_TXF2
@@ -439,6 +453,8 @@ RP_PIO_SFR_TXF3
 
 `Address: 0x50123000 + 0x1c = 0x5012301c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_TXF3
@@ -461,6 +477,8 @@ RP_PIO_SFR_RXF0
 
 `Address: 0x50123000 + 0x20 = 0x50123020`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_RXF0
@@ -483,6 +501,8 @@ RP_PIO_SFR_RXF1
 
 `Address: 0x50123000 + 0x24 = 0x50123024`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_RXF1
@@ -505,6 +525,8 @@ RP_PIO_SFR_RXF2
 
 `Address: 0x50123000 + 0x28 = 0x50123028`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_RXF2
@@ -527,6 +549,8 @@ RP_PIO_SFR_RXF3
 
 `Address: 0x50123000 + 0x2c = 0x5012302c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_RXF3
@@ -549,6 +573,8 @@ RP_PIO_SFR_IRQ
 
 `Address: 0x50123000 + 0x30 = 0x50123030`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ
@@ -572,6 +598,8 @@ RP_PIO_SFR_IRQ_FORCE
 
 `Address: 0x50123000 + 0x34 = 0x50123034`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ_FORCE
@@ -595,6 +623,8 @@ RP_PIO_SFR_SYNC_BYPASS
 
 `Address: 0x50123000 + 0x38 = 0x50123038`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SYNC_BYPASS
@@ -617,6 +647,8 @@ RP_PIO_SFR_DBG_PADOUT
 
 `Address: 0x50123000 + 0x3c = 0x5012303c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_DBG_PADOUT
@@ -639,6 +671,8 @@ RP_PIO_SFR_DBG_PADOE
 
 `Address: 0x50123000 + 0x40 = 0x50123040`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_DBG_PADOE
@@ -661,6 +695,8 @@ RP_PIO_SFR_DBG_CFGINFO
 
 `Address: 0x50123000 + 0x44 = 0x50123044`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_DBG_CFGINFO
@@ -689,6 +725,8 @@ RP_PIO_SFR_INSTR_MEM0
 
 `Address: 0x50123000 + 0x48 = 0x50123048`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM0
@@ -712,6 +750,8 @@ RP_PIO_SFR_INSTR_MEM1
 
 `Address: 0x50123000 + 0x4c = 0x5012304c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM1
@@ -735,6 +775,8 @@ RP_PIO_SFR_INSTR_MEM2
 
 `Address: 0x50123000 + 0x50 = 0x50123050`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM2
@@ -758,6 +800,8 @@ RP_PIO_SFR_INSTR_MEM3
 
 `Address: 0x50123000 + 0x54 = 0x50123054`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM3
@@ -781,6 +825,8 @@ RP_PIO_SFR_INSTR_MEM4
 
 `Address: 0x50123000 + 0x58 = 0x50123058`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM4
@@ -804,6 +850,8 @@ RP_PIO_SFR_INSTR_MEM5
 
 `Address: 0x50123000 + 0x5c = 0x5012305c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM5
@@ -827,6 +875,8 @@ RP_PIO_SFR_INSTR_MEM6
 
 `Address: 0x50123000 + 0x60 = 0x50123060`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM6
@@ -850,6 +900,8 @@ RP_PIO_SFR_INSTR_MEM7
 
 `Address: 0x50123000 + 0x64 = 0x50123064`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM7
@@ -873,6 +925,8 @@ RP_PIO_SFR_INSTR_MEM8
 
 `Address: 0x50123000 + 0x68 = 0x50123068`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM8
@@ -896,6 +950,8 @@ RP_PIO_SFR_INSTR_MEM9
 
 `Address: 0x50123000 + 0x6c = 0x5012306c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM9
@@ -919,6 +975,8 @@ RP_PIO_SFR_INSTR_MEM10
 
 `Address: 0x50123000 + 0x70 = 0x50123070`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM10
@@ -942,6 +1000,8 @@ RP_PIO_SFR_INSTR_MEM11
 
 `Address: 0x50123000 + 0x74 = 0x50123074`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM11
@@ -965,6 +1025,8 @@ RP_PIO_SFR_INSTR_MEM12
 
 `Address: 0x50123000 + 0x78 = 0x50123078`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM12
@@ -988,6 +1050,8 @@ RP_PIO_SFR_INSTR_MEM13
 
 `Address: 0x50123000 + 0x7c = 0x5012307c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM13
@@ -1011,6 +1075,8 @@ RP_PIO_SFR_INSTR_MEM14
 
 `Address: 0x50123000 + 0x80 = 0x50123080`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM14
@@ -1034,6 +1100,8 @@ RP_PIO_SFR_INSTR_MEM15
 
 `Address: 0x50123000 + 0x84 = 0x50123084`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM15
@@ -1057,6 +1125,8 @@ RP_PIO_SFR_INSTR_MEM16
 
 `Address: 0x50123000 + 0x88 = 0x50123088`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM16
@@ -1080,6 +1150,8 @@ RP_PIO_SFR_INSTR_MEM17
 
 `Address: 0x50123000 + 0x8c = 0x5012308c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM17
@@ -1103,6 +1175,8 @@ RP_PIO_SFR_INSTR_MEM18
 
 `Address: 0x50123000 + 0x90 = 0x50123090`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM18
@@ -1126,6 +1200,8 @@ RP_PIO_SFR_INSTR_MEM19
 
 `Address: 0x50123000 + 0x94 = 0x50123094`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM19
@@ -1149,6 +1225,8 @@ RP_PIO_SFR_INSTR_MEM20
 
 `Address: 0x50123000 + 0x98 = 0x50123098`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM20
@@ -1172,6 +1250,8 @@ RP_PIO_SFR_INSTR_MEM21
 
 `Address: 0x50123000 + 0x9c = 0x5012309c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM21
@@ -1195,6 +1275,8 @@ RP_PIO_SFR_INSTR_MEM22
 
 `Address: 0x50123000 + 0xa0 = 0x501230a0`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM22
@@ -1218,6 +1300,8 @@ RP_PIO_SFR_INSTR_MEM23
 
 `Address: 0x50123000 + 0xa4 = 0x501230a4`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM23
@@ -1241,6 +1325,8 @@ RP_PIO_SFR_INSTR_MEM24
 
 `Address: 0x50123000 + 0xa8 = 0x501230a8`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM24
@@ -1264,6 +1350,8 @@ RP_PIO_SFR_INSTR_MEM25
 
 `Address: 0x50123000 + 0xac = 0x501230ac`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM25
@@ -1287,6 +1375,8 @@ RP_PIO_SFR_INSTR_MEM26
 
 `Address: 0x50123000 + 0xb0 = 0x501230b0`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM26
@@ -1310,6 +1400,8 @@ RP_PIO_SFR_INSTR_MEM27
 
 `Address: 0x50123000 + 0xb4 = 0x501230b4`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM27
@@ -1333,6 +1425,8 @@ RP_PIO_SFR_INSTR_MEM28
 
 `Address: 0x50123000 + 0xb8 = 0x501230b8`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM28
@@ -1356,6 +1450,8 @@ RP_PIO_SFR_INSTR_MEM29
 
 `Address: 0x50123000 + 0xbc = 0x501230bc`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM29
@@ -1379,6 +1475,8 @@ RP_PIO_SFR_INSTR_MEM30
 
 `Address: 0x50123000 + 0xc0 = 0x501230c0`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM30
@@ -1402,6 +1500,8 @@ RP_PIO_SFR_INSTR_MEM31
 
 `Address: 0x50123000 + 0xc4 = 0x501230c4`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INSTR_MEM31
@@ -1425,6 +1525,8 @@ RP_PIO_SFR_SM0_CLKDIV
 
 `Address: 0x50123000 + 0xc8 = 0x501230c8`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM0_CLKDIV
@@ -1453,6 +1555,8 @@ RP_PIO_SFR_SM0_EXECCTRL
 
 `Address: 0x50123000 + 0xcc = 0x501230cc`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM0_EXECCTRL
@@ -1508,6 +1612,8 @@ RP_PIO_SFR_SM0_SHIFTCTRL
 
 `Address: 0x50123000 + 0xd0 = 0x501230d0`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM0_SHIFTCTRL
@@ -1554,6 +1660,8 @@ RP_PIO_SFR_SM0_ADDR
 
 `Address: 0x50123000 + 0xd4 = 0x501230d4`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM0_ADDR
@@ -1577,6 +1685,8 @@ RP_PIO_SFR_SM0_INSTR
 
 `Address: 0x50123000 + 0xd8 = 0x501230d8`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM0_INSTR
@@ -1600,6 +1710,8 @@ RP_PIO_SFR_SM0_PINCTRL
 
 `Address: 0x50123000 + 0xdc = 0x501230dc`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM0_PINCTRL
@@ -1640,6 +1752,8 @@ RP_PIO_SFR_SM1_CLKDIV
 
 `Address: 0x50123000 + 0xe0 = 0x501230e0`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM1_CLKDIV
@@ -1668,6 +1782,8 @@ RP_PIO_SFR_SM1_EXECCTRL
 
 `Address: 0x50123000 + 0xe4 = 0x501230e4`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM1_EXECCTRL
@@ -1723,6 +1839,8 @@ RP_PIO_SFR_SM1_SHIFTCTRL
 
 `Address: 0x50123000 + 0xe8 = 0x501230e8`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM1_SHIFTCTRL
@@ -1769,6 +1887,8 @@ RP_PIO_SFR_SM1_ADDR
 
 `Address: 0x50123000 + 0xec = 0x501230ec`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM1_ADDR
@@ -1792,6 +1912,8 @@ RP_PIO_SFR_SM1_INSTR
 
 `Address: 0x50123000 + 0xf0 = 0x501230f0`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM1_INSTR
@@ -1815,6 +1937,8 @@ RP_PIO_SFR_SM1_PINCTRL
 
 `Address: 0x50123000 + 0xf4 = 0x501230f4`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM1_PINCTRL
@@ -1855,6 +1979,8 @@ RP_PIO_SFR_SM2_CLKDIV
 
 `Address: 0x50123000 + 0xf8 = 0x501230f8`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM2_CLKDIV
@@ -1883,6 +2009,8 @@ RP_PIO_SFR_SM2_EXECCTRL
 
 `Address: 0x50123000 + 0xfc = 0x501230fc`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM2_EXECCTRL
@@ -1938,6 +2066,8 @@ RP_PIO_SFR_SM2_SHIFTCTRL
 
 `Address: 0x50123000 + 0x100 = 0x50123100`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM2_SHIFTCTRL
@@ -1984,6 +2114,8 @@ RP_PIO_SFR_SM2_ADDR
 
 `Address: 0x50123000 + 0x104 = 0x50123104`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM2_ADDR
@@ -2007,6 +2139,8 @@ RP_PIO_SFR_SM2_INSTR
 
 `Address: 0x50123000 + 0x108 = 0x50123108`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM2_INSTR
@@ -2030,6 +2164,8 @@ RP_PIO_SFR_SM2_PINCTRL
 
 `Address: 0x50123000 + 0x10c = 0x5012310c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM2_PINCTRL
@@ -2070,6 +2206,8 @@ RP_PIO_SFR_SM3_CLKDIV
 
 `Address: 0x50123000 + 0x110 = 0x50123110`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM3_CLKDIV
@@ -2098,6 +2236,8 @@ RP_PIO_SFR_SM3_EXECCTRL
 
 `Address: 0x50123000 + 0x114 = 0x50123114`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM3_EXECCTRL
@@ -2153,6 +2293,8 @@ RP_PIO_SFR_SM3_SHIFTCTRL
 
 `Address: 0x50123000 + 0x118 = 0x50123118`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM3_SHIFTCTRL
@@ -2199,6 +2341,8 @@ RP_PIO_SFR_SM3_ADDR
 
 `Address: 0x50123000 + 0x11c = 0x5012311c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM3_ADDR
@@ -2222,6 +2366,8 @@ RP_PIO_SFR_SM3_INSTR
 
 `Address: 0x50123000 + 0x120 = 0x50123120`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM3_INSTR
@@ -2245,6 +2391,8 @@ RP_PIO_SFR_SM3_PINCTRL
 
 `Address: 0x50123000 + 0x124 = 0x50123124`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_SM3_PINCTRL
@@ -2285,6 +2433,8 @@ RP_PIO_SFR_INTR
 
 `Address: 0x50123000 + 0x128 = 0x50123128`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_INTR
@@ -2314,6 +2464,8 @@ RP_PIO_SFR_IRQ0_INTE
 
 `Address: 0x50123000 + 0x12c = 0x5012312c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ0_INTE
@@ -2343,6 +2495,8 @@ RP_PIO_SFR_IRQ0_INTF
 
 `Address: 0x50123000 + 0x130 = 0x50123130`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ0_INTF
@@ -2372,6 +2526,8 @@ RP_PIO_SFR_IRQ0_INTS
 
 `Address: 0x50123000 + 0x134 = 0x50123134`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ0_INTS
@@ -2401,6 +2557,8 @@ RP_PIO_SFR_IRQ1_INTE
 
 `Address: 0x50123000 + 0x138 = 0x50123138`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ1_INTE
@@ -2430,6 +2588,8 @@ RP_PIO_SFR_IRQ1_INTF
 
 `Address: 0x50123000 + 0x13c = 0x5012313c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ1_INTF
@@ -2459,6 +2619,8 @@ RP_PIO_SFR_IRQ1_INTS
 
 `Address: 0x50123000 + 0x140 = 0x50123140`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IRQ1_INTS
@@ -2488,6 +2650,8 @@ RP_PIO_SFR_IO_OE_INV
 
 `Address: 0x50123000 + 0x180 = 0x50123180`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IO_OE_INV
@@ -2510,6 +2674,8 @@ RP_PIO_SFR_IO_O_INV
 
 `Address: 0x50123000 + 0x184 = 0x50123184`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IO_O_INV
@@ -2532,6 +2698,8 @@ RP_PIO_SFR_IO_I_INV
 
 `Address: 0x50123000 + 0x188 = 0x50123188`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_IO_I_INV
@@ -2554,6 +2722,8 @@ RP_PIO_SFR_FIFO_MARGIN
 
 `Address: 0x50123000 + 0x18c = 0x5012318c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_FIFO_MARGIN
@@ -2598,6 +2768,8 @@ RP_PIO_SFR_ZERO0
 
 `Address: 0x50123000 + 0x190 = 0x50123190`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_ZERO0
@@ -2620,6 +2792,8 @@ RP_PIO_SFR_ZERO1
 
 `Address: 0x50123000 + 0x194 = 0x50123194`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_ZERO1
@@ -2642,6 +2816,8 @@ RP_PIO_SFR_ZERO2
 
 `Address: 0x50123000 + 0x198 = 0x50123198`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_ZERO2
@@ -2664,6 +2840,8 @@ RP_PIO_SFR_ZERO3
 
 `Address: 0x50123000 + 0x19c = 0x5012319c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/vexriscv/cram-
+    soc/candidate/pio/rp_pio.sv
 
     .. wavedrom::
         :caption: RP_PIO_SFR_ZERO3

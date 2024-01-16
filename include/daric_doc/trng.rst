@@ -21,6 +21,14 @@ Register Listing for TRNG
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`TRNG_SFR_FR <TRNG_SFR_FR>`                               | :ref:`0x4002e018 <TRNG_SFR_FR>`                |
 +----------------------------------------------------------------+------------------------------------------------+
+| :ref:`TRNG_SFR_DRPSZ <TRNG_SFR_DRPSZ>`                         | :ref:`0x4002e020 <TRNG_SFR_DRPSZ>`             |
++----------------------------------------------------------------+------------------------------------------------+
+| :ref:`TRNG_SFR_DRGEN <TRNG_SFR_DRGEN>`                         | :ref:`0x4002e024 <TRNG_SFR_DRGEN>`             |
++----------------------------------------------------------------+------------------------------------------------+
+| :ref:`TRNG_SFR_DRRESEED <TRNG_SFR_DRRESEED>`                   | :ref:`0x4002e028 <TRNG_SFR_DRRESEED>`          |
++----------------------------------------------------------------+------------------------------------------------+
+| :ref:`TRNG_SFR_BUF <TRNG_SFR_BUF>`                             | :ref:`0x4002e030 <TRNG_SFR_BUF>`               |
++----------------------------------------------------------------+------------------------------------------------+
 | :ref:`TRNG_SFR_CHAIN_RNGCHAINEN0 <TRNG_SFR_CHAIN_RNGCHAINEN0>` | :ref:`0x4002e040 <TRNG_SFR_CHAIN_RNGCHAINEN0>` |
 +----------------------------------------------------------------+------------------------------------------------+
 | :ref:`TRNG_SFR_CHAIN_RNGCHAINEN1 <TRNG_SFR_CHAIN_RNGCHAINEN1>` | :ref:`0x4002e044 <TRNG_SFR_CHAIN_RNGCHAINEN1>` |
@@ -31,6 +39,7 @@ TRNG_SFR_CRSRC
 
 `Address: 0x4002e000 + 0x0 = 0x4002e000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_CRSRC
@@ -54,6 +63,7 @@ TRNG_SFR_CRANA
 
 `Address: 0x4002e000 + 0x4 = 0x4002e004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_CRANA
@@ -77,6 +87,7 @@ TRNG_SFR_PP
 
 `Address: 0x4002e000 + 0x8 = 0x4002e008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_PP
@@ -100,6 +111,7 @@ TRNG_SFR_OPT
 
 `Address: 0x4002e000 + 0xc = 0x4002e00c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_OPT
@@ -123,6 +135,7 @@ TRNG_SFR_SR
 
 `Address: 0x4002e000 + 0x10 = 0x4002e010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_SR
@@ -145,6 +158,7 @@ TRNG_SFR_AR_GEN
 
 `Address: 0x4002e000 + 0x14 = 0x4002e014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_AR_GEN
@@ -167,6 +181,7 @@ TRNG_SFR_FR
 
 `Address: 0x4002e000 + 0x18 = 0x4002e018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_FR
@@ -186,11 +201,104 @@ TRNG_SFR_FR
 |       |        | position to clear the flag                                                       |
 +-------+--------+----------------------------------------------------------------------------------+
 
+TRNG_SFR_DRPSZ
+^^^^^^^^^^^^^^
+
+`Address: 0x4002e000 + 0x20 = 0x4002e020`
+
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
+
+    .. wavedrom::
+        :caption: TRNG_SFR_DRPSZ
+
+        {
+            "reg": [
+                {"name": "sfr_drpsz",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+---------------------------------------+
+| Field  | Name      | Description                           |
++========+===========+=======================================+
+| [31:0] | SFR_DRPSZ | sfr_drpsz read/write control register |
++--------+-----------+---------------------------------------+
+
+TRNG_SFR_DRGEN
+^^^^^^^^^^^^^^
+
+`Address: 0x4002e000 + 0x24 = 0x4002e024`
+
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
+
+    .. wavedrom::
+        :caption: TRNG_SFR_DRGEN
+
+        {
+            "reg": [
+                {"name": "sfr_drgen",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+-----------+---------------------------------------+
+| Field  | Name      | Description                           |
++========+===========+=======================================+
+| [31:0] | SFR_DRGEN | sfr_drgen read/write control register |
++--------+-----------+---------------------------------------+
+
+TRNG_SFR_DRRESEED
+^^^^^^^^^^^^^^^^^
+
+`Address: 0x4002e000 + 0x28 = 0x4002e028`
+
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
+
+    .. wavedrom::
+        :caption: TRNG_SFR_DRRESEED
+
+        {
+            "reg": [
+                {"name": "sfr_drreseed",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+--------------+------------------------------------------+
+| Field  | Name         | Description                              |
++========+==============+==========================================+
+| [31:0] | SFR_DRRESEED | sfr_drreseed read/write control register |
++--------+--------------+------------------------------------------+
+
+TRNG_SFR_BUF
+^^^^^^^^^^^^
+
+`Address: 0x4002e000 + 0x30 = 0x4002e030`
+
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
+
+    .. wavedrom::
+        :caption: TRNG_SFR_BUF
+
+        {
+            "reg": [
+                {"name": "sfr_buf",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+---------+-----------------------------------+
+| Field  | Name    | Description                       |
++========+=========+===================================+
+| [31:0] | SFR_BUF | sfr_buf read only status register |
++--------+---------+-----------------------------------+
+
 TRNG_SFR_CHAIN_RNGCHAINEN0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x4002e000 + 0x40 = 0x4002e040`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_CHAIN_RNGCHAINEN0
@@ -213,6 +321,7 @@ TRNG_SFR_CHAIN_RNGCHAINEN1
 
 `Address: 0x4002e000 + 0x44 = 0x4002e044`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/trng_v0.2.sv
 
     .. wavedrom::
         :caption: TRNG_SFR_CHAIN_RNGCHAINEN1

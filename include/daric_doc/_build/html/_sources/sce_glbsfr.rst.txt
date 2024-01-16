@@ -49,6 +49,7 @@ SCE_GLBSFR_SFR_SCEMODE
 
 `Address: 0x40028000 + 0x0 = 0x40028000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_SCEMODE
@@ -72,6 +73,7 @@ SCE_GLBSFR_SFR_SUBEN
 
 `Address: 0x40028000 + 0x4 = 0x40028004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_SUBEN
@@ -95,6 +97,7 @@ SCE_GLBSFR_SFR_AHBS
 
 `Address: 0x40028000 + 0x8 = 0x40028008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_AHBS
@@ -118,6 +121,7 @@ SCE_GLBSFR_SFR_SRBUSY
 
 `Address: 0x40028000 + 0x10 = 0x40028010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_SRBUSY
@@ -141,6 +145,7 @@ SCE_GLBSFR_SFR_FRDONE
 
 `Address: 0x40028000 + 0x14 = 0x40028014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FRDONE
@@ -165,6 +170,7 @@ SCE_GLBSFR_SFR_FRERR
 
 `Address: 0x40028000 + 0x18 = 0x40028018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FRERR
@@ -189,6 +195,7 @@ SCE_GLBSFR_SFR_ARCLR
 
 `Address: 0x40028000 + 0x1c = 0x4002801c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_ARCLR
@@ -211,6 +218,7 @@ SCE_GLBSFR_SFR_FRACERR
 
 `Address: 0x40028000 + 0x20 = 0x40028020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FRACERR
@@ -235,6 +243,7 @@ SCE_GLBSFR_SFR_TICKCNT
 
 `Address: 0x40028000 + 0x24 = 0x40028024`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_TICKCNT
@@ -257,6 +266,7 @@ SCE_GLBSFR_SFR_FFEN
 
 `Address: 0x40028000 + 0x30 = 0x40028030`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFEN
@@ -280,6 +290,7 @@ SCE_GLBSFR_SFR_FFCLR
 
 `Address: 0x40028000 + 0x34 = 0x40028034`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCLR
@@ -302,6 +313,7 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF0
 
 `Address: 0x40028000 + 0x40 = 0x40028040`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF0
@@ -325,6 +337,7 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF1
 
 `Address: 0x40028000 + 0x44 = 0x40028044`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF1
@@ -348,6 +361,7 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF2
 
 `Address: 0x40028000 + 0x48 = 0x40028048`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF2
@@ -371,6 +385,7 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF3
 
 `Address: 0x40028000 + 0x4c = 0x4002804c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF3
@@ -394,6 +409,7 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF4
 
 `Address: 0x40028000 + 0x50 = 0x40028050`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF4
@@ -417,6 +433,7 @@ SCE_GLBSFR_SFR_FFCNT_SR_FF5
 
 `Address: 0x40028000 + 0x54 = 0x40028054`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_FFCNT_SR_FF5
@@ -440,6 +457,7 @@ SCE_GLBSFR_SFR_TS
 
 `Address: 0x40028000 + 0xfc = 0x400280fc`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/crypto/sce_glbsfr_v0.1.sv
 
     .. wavedrom::
         :caption: SCE_GLBSFR_SFR_TS

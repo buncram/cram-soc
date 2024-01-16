@@ -11,6 +11,10 @@ Register Listing for SYSCTRL
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGULP <SYSCTRL_SFR_CGULP>`                             | :ref:`0x40040004 <SYSCTRL_SFR_CGULP>`               |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
+| :ref:`SYSCTRL_SFR_SEED <SYSCTRL_SFR_SEED>`                               | :ref:`0x40040008 <SYSCTRL_SFR_SEED>`                |
++--------------------------------------------------------------------------+-----------------------------------------------------+
+| :ref:`SYSCTRL_SFR_SEEDAR <SYSCTRL_SFR_SEEDAR>`                           | :ref:`0x4004000c <SYSCTRL_SFR_SEEDAR>`              |
++--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUSEL0 <SYSCTRL_SFR_CGUSEL0>`                         | :ref:`0x40040010 <SYSCTRL_SFR_CGUSEL0>`             |
 +--------------------------------------------------------------------------+-----------------------------------------------------+
 | :ref:`SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_0 <SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_0>` | :ref:`0x40040014 <SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_0>` |
@@ -79,6 +83,7 @@ SYSCTRL_SFR_CGUSEC
 
 `Address: 0x40040000 + 0x0 = 0x40040000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUSEC
@@ -102,6 +107,7 @@ SYSCTRL_SFR_CGULP
 
 `Address: 0x40040000 + 0x4 = 0x40040004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGULP
@@ -120,11 +126,58 @@ SYSCTRL_SFR_CGULP
 | [15:0] | SFR_CGULP | sfr_cgulp read/write control register |
 +--------+-----------+---------------------------------------+
 
+SYSCTRL_SFR_SEED
+^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0x8 = 0x40040008`
+
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_SEED
+
+        {
+            "reg": [
+                {"name": "sfr_seed",  "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+----------+--------------------------------------+
+| Field  | Name     | Description                          |
++========+==========+======================================+
+| [31:0] | SFR_SEED | sfr_seed read/write control register |
++--------+----------+--------------------------------------+
+
+SYSCTRL_SFR_SEEDAR
+^^^^^^^^^^^^^^^^^^
+
+`Address: 0x40040000 + 0xc = 0x4004000c`
+
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
+
+    .. wavedrom::
+        :caption: SYSCTRL_SFR_SEEDAR
+
+        {
+            "reg": [
+                {"name": "sfr_seedar",  "type": 4, "bits": 32}
+            ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+        }
+
+
++--------+------------+----------------------------------------------------+
+| Field  | Name       | Description                                        |
++========+============+====================================================+
+| [31:0] | SFR_SEEDAR | sfr_seedar performs action on write of value: 0x5a |
++--------+------------+----------------------------------------------------+
+
 SYSCTRL_SFR_CGUSEL0
 ^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x40040000 + 0x10 = 0x40040010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUSEL0
@@ -148,6 +201,7 @@ SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_0
 
 `Address: 0x40040000 + 0x14 = 0x40040014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_0
@@ -171,6 +225,7 @@ SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_1
 
 `Address: 0x40040000 + 0x18 = 0x40040018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_1
@@ -194,6 +249,7 @@ SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_2
 
 `Address: 0x40040000 + 0x1c = 0x4004001c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_2
@@ -217,6 +273,7 @@ SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_3
 
 `Address: 0x40040000 + 0x20 = 0x40040020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_3
@@ -240,6 +297,7 @@ SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_4
 
 `Address: 0x40040000 + 0x24 = 0x40040024`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_4
@@ -263,6 +321,7 @@ SYSCTRL_SFR_CGUFDAO
 
 `Address: 0x40040000 + 0x28 = 0x40040028`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFDAO
@@ -286,6 +345,7 @@ SYSCTRL_SFR_CGUSET
 
 `Address: 0x40040000 + 0x2c = 0x4004002c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUSET
@@ -308,6 +368,7 @@ SYSCTRL_SFR_CGUSEL1
 
 `Address: 0x40040000 + 0x30 = 0x40040030`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUSEL1
@@ -331,6 +392,7 @@ SYSCTRL_SFR_CGUFDPKE
 
 `Address: 0x40040000 + 0x34 = 0x40040034`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFDPKE
@@ -354,6 +416,7 @@ SYSCTRL_SFR_CGUFSSR_FSFREQ0
 
 `Address: 0x40040000 + 0x40 = 0x40040040`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ0
@@ -377,6 +440,7 @@ SYSCTRL_SFR_CGUFSSR_FSFREQ1
 
 `Address: 0x40040000 + 0x44 = 0x40040044`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ1
@@ -400,6 +464,7 @@ SYSCTRL_SFR_CGUFSSR_FSFREQ2
 
 `Address: 0x40040000 + 0x48 = 0x40040048`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ2
@@ -423,6 +488,7 @@ SYSCTRL_SFR_CGUFSSR_FSFREQ3
 
 `Address: 0x40040000 + 0x4c = 0x4004004c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFSSR_FSFREQ3
@@ -446,6 +512,7 @@ SYSCTRL_SFR_CGUFSVLD
 
 `Address: 0x40040000 + 0x50 = 0x40040050`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFSVLD
@@ -469,6 +536,7 @@ SYSCTRL_SFR_CGUFSCR
 
 `Address: 0x40040000 + 0x54 = 0x40040054`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_CGUFSCR
@@ -492,6 +560,7 @@ SYSCTRL_SFR_ACLKGR
 
 `Address: 0x40040000 + 0x60 = 0x40040060`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_ACLKGR
@@ -515,6 +584,7 @@ SYSCTRL_SFR_HCLKGR
 
 `Address: 0x40040000 + 0x64 = 0x40040064`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_HCLKGR
@@ -538,6 +608,7 @@ SYSCTRL_SFR_ICLKGR
 
 `Address: 0x40040000 + 0x68 = 0x40040068`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_ICLKGR
@@ -561,6 +632,7 @@ SYSCTRL_SFR_PCLKGR
 
 `Address: 0x40040000 + 0x6c = 0x4004006c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_PCLKGR
@@ -584,6 +656,7 @@ SYSCTRL_SFR_RCURST0
 
 `Address: 0x40040000 + 0x80 = 0x40040080`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_RCURST0
@@ -606,6 +679,7 @@ SYSCTRL_SFR_RCURST1
 
 `Address: 0x40040000 + 0x84 = 0x40040084`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_RCURST1
@@ -628,6 +702,7 @@ SYSCTRL_SFR_RCUSRCFR
 
 `Address: 0x40040000 + 0x88 = 0x40040088`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_RCUSRCFR
@@ -652,6 +727,7 @@ SYSCTRL_SFR_IPCARIPFLOW
 
 `Address: 0x40040000 + 0x90 = 0x40040090`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCARIPFLOW
@@ -674,6 +750,7 @@ SYSCTRL_SFR_IPCEN
 
 `Address: 0x40040000 + 0x94 = 0x40040094`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCEN
@@ -697,6 +774,7 @@ SYSCTRL_SFR_IPCLPEN
 
 `Address: 0x40040000 + 0x98 = 0x40040098`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCLPEN
@@ -720,6 +798,7 @@ SYSCTRL_SFR_IPCOSC
 
 `Address: 0x40040000 + 0x9c = 0x4004009c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCOSC
@@ -732,17 +811,18 @@ SYSCTRL_SFR_IPCOSC
         }
 
 
-+-------+------------+----------------------------------------+
-| Field | Name       | Description                            |
-+=======+============+========================================+
-| [6:0] | SFR_IPCOSC | sfr_ipcosc read/write control register |
-+-------+------------+----------------------------------------+
++-------+------------+--------------------------------------+
+| Field | Name       | Description                          |
++=======+============+======================================+
+| [6:0] | SFR_IPCOSC | sfr_ipcosc read only status register |
++-------+------------+--------------------------------------+
 
 SYSCTRL_SFR_IPCPLLMN
 ^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x40040000 + 0xa0 = 0x400400a0`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCPLLMN
@@ -766,6 +846,7 @@ SYSCTRL_SFR_IPCPLLF
 
 `Address: 0x40040000 + 0xa4 = 0x400400a4`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCPLLF
@@ -789,6 +870,7 @@ SYSCTRL_SFR_IPCPLLQ
 
 `Address: 0x40040000 + 0xa8 = 0x400400a8`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCPLLQ
@@ -812,6 +894,7 @@ SYSCTRL_SFR_IPCCR
 
 `Address: 0x40040000 + 0xac = 0x400400ac`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv
 
     .. wavedrom::
         :caption: SYSCTRL_SFR_IPCCR

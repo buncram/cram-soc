@@ -33,6 +33,7 @@ UDMA_SPIM_3_REG_RX_SADDR
 
 `Address: 0x50108000 + 0x0 = 0x50108000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_RX_SADDR
@@ -56,6 +57,7 @@ UDMA_SPIM_3_REG_RX_SIZE
 
 `Address: 0x50108000 + 0x4 = 0x50108004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_RX_SIZE
@@ -79,6 +81,7 @@ UDMA_SPIM_3_REG_RX_CFG
 
 `Address: 0x50108000 + 0x8 = 0x50108008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_RX_CFG
@@ -113,6 +116,7 @@ UDMA_SPIM_3_REG_TX_SADDR
 
 `Address: 0x50108000 + 0x10 = 0x50108010`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_TX_SADDR
@@ -136,6 +140,7 @@ UDMA_SPIM_3_REG_TX_SIZE
 
 `Address: 0x50108000 + 0x14 = 0x50108014`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_TX_SIZE
@@ -159,6 +164,7 @@ UDMA_SPIM_3_REG_TX_CFG
 
 `Address: 0x50108000 + 0x18 = 0x50108018`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_TX_CFG
@@ -193,6 +199,7 @@ UDMA_SPIM_3_REG_CMD_SADDR
 
 `Address: 0x50108000 + 0x20 = 0x50108020`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_CMD_SADDR
@@ -216,6 +223,7 @@ UDMA_SPIM_3_REG_CMD_SIZE
 
 `Address: 0x50108000 + 0x24 = 0x50108024`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_CMD_SIZE
@@ -239,6 +247,7 @@ UDMA_SPIM_3_REG_CMD_CFG
 
 `Address: 0x50108000 + 0x28 = 0x50108028`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_CMD_CFG
@@ -270,6 +279,7 @@ UDMA_SPIM_3_REG_STATUS
 
 `Address: 0x50108000 + 0x30 = 0x50108030`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_qspi/rtl/udma_spim_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SPIM_3_REG_STATUS

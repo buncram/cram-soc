@@ -37,6 +37,7 @@ UDMA_UART_3_REG_RX_SADDR
 
 `Address: 0x50104000 + 0x0 = 0x50104000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_RX_SADDR
@@ -60,6 +61,7 @@ UDMA_UART_3_REG_RX_SIZE
 
 `Address: 0x50104000 + 0x4 = 0x50104004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_RX_SIZE
@@ -83,6 +85,7 @@ UDMA_UART_3_REG_RX_CFG
 
 `Address: 0x50104000 + 0x8 = 0x50104008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_RX_CFG
@@ -114,6 +117,7 @@ UDMA_UART_3_REG_TX_SADDR
 
 `Address: 0x50104000 + 0x10 = 0x50104010`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_TX_SADDR
@@ -137,6 +141,7 @@ UDMA_UART_3_REG_TX_SIZE
 
 `Address: 0x50104000 + 0x14 = 0x50104014`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_TX_SIZE
@@ -160,6 +165,7 @@ UDMA_UART_3_REG_TX_CFG
 
 `Address: 0x50104000 + 0x18 = 0x50104018`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_TX_CFG
@@ -191,6 +197,7 @@ UDMA_UART_3_REG_STATUS
 
 `Address: 0x50104000 + 0x20 = 0x50104020`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_STATUS
@@ -214,6 +221,7 @@ UDMA_UART_3_REG_UART_SETUP
 
 `Address: 0x50104000 + 0x24 = 0x50104024`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_UART_SETUP
@@ -259,6 +267,7 @@ UDMA_UART_3_REG_ERROR
 
 `Address: 0x50104000 + 0x28 = 0x50104028`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_ERROR
@@ -285,6 +294,7 @@ UDMA_UART_3_REG_IRQ_EN
 
 `Address: 0x50104000 + 0x2c = 0x5010402c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_IRQ_EN
@@ -311,6 +321,7 @@ UDMA_UART_3_REG_VALID
 
 `Address: 0x50104000 + 0x30 = 0x50104030`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_VALID
@@ -334,6 +345,7 @@ UDMA_UART_3_REG_DATA
 
 `Address: 0x50104000 + 0x34 = 0x50104034`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_uart/rtl/udma_uart_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_UART_3_REG_DATA

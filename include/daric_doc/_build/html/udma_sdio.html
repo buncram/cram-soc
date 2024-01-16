@@ -99,7 +99,8 @@
 <h3>UDMA_SDIO_REG_RX_SADDR<a class="headerlink" href="#udma-sdio-reg-rx-saddr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x0 = 0x5010d000</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -130,7 +131,8 @@
 <h3>UDMA_SDIO_REG_RX_SIZE<a class="headerlink" href="#udma-sdio-reg-rx-size" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x4 = 0x5010d004</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -161,7 +163,8 @@
 <h3>UDMA_SDIO_REG_RX_CFG<a class="headerlink" href="#udma-sdio-reg-rx-cfg" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x8 = 0x5010d008</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -203,7 +206,8 @@
 <h3>UDMA_SDIO_REG_TX_SADDR<a class="headerlink" href="#udma-sdio-reg-tx-saddr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x10 = 0x5010d010</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -234,7 +238,8 @@
 <h3>UDMA_SDIO_REG_TX_SIZE<a class="headerlink" href="#udma-sdio-reg-tx-size" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x14 = 0x5010d014</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -265,7 +270,8 @@
 <h3>UDMA_SDIO_REG_TX_CFG<a class="headerlink" href="#udma-sdio-reg-tx-cfg" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x18 = 0x5010d018</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -307,7 +313,8 @@
 <h3>UDMA_SDIO_REG_CMD_OP<a class="headerlink" href="#udma-sdio-reg-cmd-op" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x20 = 0x5010d020</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -315,7 +322,9 @@
         {"name": "r_cmd_rsp_type",  "bits": 3},
         {"bits": 5},
         {"name": "r_cmd_op",  "bits": 6},
-        {"bits": 18}
+        {"bits": 2},
+        {"name": "r_cmd_stopopt",  "bits": 2},
+        {"bits": 14}
     ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
 }
 </script>
@@ -337,6 +346,10 @@
 <td><p>R_CMD_OP</p></td>
 <td><p>r_cmd_op</p></td>
 </tr>
+<tr class="row-even"><td><p>[17:16]</p></td>
+<td><p>R_CMD_STOPOPT</p></td>
+<td><p>r_cmd_stopopt</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -344,7 +357,8 @@
 <h3>UDMA_SDIO_REG_DATA_SETUP<a class="headerlink" href="#udma-sdio-reg-data-setup" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x28 = 0x5010d028</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -396,7 +410,8 @@
 <h3>UDMA_SDIO_REG_START<a class="headerlink" href="#udma-sdio-reg-start" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x2c = 0x5010d02c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -427,7 +442,8 @@
 <h3>UDMA_SDIO_REG_RSP0<a class="headerlink" href="#udma-sdio-reg-rsp0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x30 = 0x5010d030</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -457,7 +473,8 @@
 <h3>UDMA_SDIO_REG_RSP1<a class="headerlink" href="#udma-sdio-reg-rsp1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x34 = 0x5010d034</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -487,7 +504,8 @@
 <h3>UDMA_SDIO_REG_RSP2<a class="headerlink" href="#udma-sdio-reg-rsp2" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x38 = 0x5010d038</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -517,7 +535,8 @@
 <h3>UDMA_SDIO_REG_RSP3<a class="headerlink" href="#udma-sdio-reg-rsp3" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x3c = 0x5010d03c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -547,7 +566,8 @@
 <h3>UDMA_SDIO_REG_CLK_DIV<a class="headerlink" href="#udma-sdio-reg-clk-div" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x40 = 0x5010d040</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -583,7 +603,8 @@
 <h3>UDMA_SDIO_REG_STATUS<a class="headerlink" href="#udma-sdio-reg-status" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x5010d000 + 0x44 = 0x5010d044</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv">file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -688,8 +709,6 @@
 <li class="toctree-l1"><a class="reference internal" href="qfc.html">QFC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mbox_apb.html">MBOX_APB</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gluechain.html">GLUECHAIN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mesh.html">MESH</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sensorc.html">SENSORC</a></li>
 </ul>
 
 <div class="relations">
@@ -724,7 +743,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2023, Cramium, Inc..
+      &copy;2024, Cramium, Inc..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>

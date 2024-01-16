@@ -54,6 +54,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#sysctrl-sfr-cgulp"><span class="std std-ref">SYSCTRL_SFR_CGULP</span></a></p></td>
 <td><p><a class="reference internal" href="#sysctrl-sfr-cgulp"><span class="std std-ref">0x40040004</span></a></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sysctrl-sfr-seed"><span class="std std-ref">SYSCTRL_SFR_SEED</span></a></p></td>
+<td><p><a class="reference internal" href="#sysctrl-sfr-seed"><span class="std std-ref">0x40040008</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sysctrl-sfr-seedar"><span class="std std-ref">SYSCTRL_SFR_SEEDAR</span></a></p></td>
+<td><p><a class="reference internal" href="#sysctrl-sfr-seedar"><span class="std std-ref">0x4004000c</span></a></p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sysctrl-sfr-cgusel0"><span class="std std-ref">SYSCTRL_SFR_CGUSEL0</span></a></p></td>
 <td><p><a class="reference internal" href="#sysctrl-sfr-cgusel0"><span class="std std-ref">0x40040010</span></a></p></td>
 </tr>
@@ -153,7 +159,8 @@
 <h3>SYSCTRL_SFR_CGUSEC<a class="headerlink" href="#sysctrl-sfr-cgusec" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x0 = 0x40040000</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -184,7 +191,8 @@
 <h3>SYSCTRL_SFR_CGULP<a class="headerlink" href="#sysctrl-sfr-cgulp" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x4 = 0x40040004</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -211,11 +219,74 @@
 </tbody>
 </table>
 </section>
+<section id="sysctrl-sfr-seed">
+<h3>SYSCTRL_SFR_SEED<a class="headerlink" href="#sysctrl-sfr-seed" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40040000 + 0x8 = 0x40040008</cite></p>
+<blockquote>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_seed",  "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>SFR_SEED</p></td>
+<td><p>sfr_seed read/write control register</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sysctrl-sfr-seedar">
+<h3>SYSCTRL_SFR_SEEDAR<a class="headerlink" href="#sysctrl-sfr-seedar" title="Permalink to this heading">¶</a></h3>
+<p><cite>Address: 0x40040000 + 0xc = 0x4004000c</cite></p>
+<blockquote>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
+<div style="overflow-x:auto">
+<script type="WaveDrom">
+{
+    "reg": [
+        {"name": "sfr_seedar",  "type": 4, "bits": 32}
+    ], "config": {"hspace": 400, "bits": 32, "lanes": 1 }, "options": {"hspace": 400, "bits": 32, "lanes": 1}
+}
+</script>
+</div>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[31:0]</p></td>
+<td><p>SFR_SEEDAR</p></td>
+<td><p>sfr_seedar performs action on write of value: 0x5a</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="sysctrl-sfr-cgusel0">
 <h3>SYSCTRL_SFR_CGUSEL0<a class="headerlink" href="#sysctrl-sfr-cgusel0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x10 = 0x40040010</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -246,7 +317,8 @@
 <h3>SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_0<a class="headerlink" href="#sysctrl-sfr-cgufd-cfgfdcr-0-4-0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x14 = 0x40040014</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -277,7 +349,8 @@
 <h3>SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_1<a class="headerlink" href="#sysctrl-sfr-cgufd-cfgfdcr-0-4-1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x18 = 0x40040018</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -308,7 +381,8 @@
 <h3>SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_2<a class="headerlink" href="#sysctrl-sfr-cgufd-cfgfdcr-0-4-2" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x1c = 0x4004001c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -339,7 +413,8 @@
 <h3>SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_3<a class="headerlink" href="#sysctrl-sfr-cgufd-cfgfdcr-0-4-3" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x20 = 0x40040020</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -370,7 +445,8 @@
 <h3>SYSCTRL_SFR_CGUFD_CFGFDCR_0_4_4<a class="headerlink" href="#sysctrl-sfr-cgufd-cfgfdcr-0-4-4" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x24 = 0x40040024</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -401,7 +477,8 @@
 <h3>SYSCTRL_SFR_CGUFDAO<a class="headerlink" href="#sysctrl-sfr-cgufdao" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x28 = 0x40040028</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -432,7 +509,8 @@
 <h3>SYSCTRL_SFR_CGUSET<a class="headerlink" href="#sysctrl-sfr-cguset" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x2c = 0x4004002c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -462,7 +540,8 @@
 <h3>SYSCTRL_SFR_CGUSEL1<a class="headerlink" href="#sysctrl-sfr-cgusel1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x30 = 0x40040030</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -493,7 +572,8 @@
 <h3>SYSCTRL_SFR_CGUFDPKE<a class="headerlink" href="#sysctrl-sfr-cgufdpke" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x34 = 0x40040034</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -524,7 +604,8 @@
 <h3>SYSCTRL_SFR_CGUFSSR_FSFREQ0<a class="headerlink" href="#sysctrl-sfr-cgufssr-fsfreq0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x40 = 0x40040040</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -555,7 +636,8 @@
 <h3>SYSCTRL_SFR_CGUFSSR_FSFREQ1<a class="headerlink" href="#sysctrl-sfr-cgufssr-fsfreq1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x44 = 0x40040044</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -586,7 +668,8 @@
 <h3>SYSCTRL_SFR_CGUFSSR_FSFREQ2<a class="headerlink" href="#sysctrl-sfr-cgufssr-fsfreq2" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x48 = 0x40040048</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -617,7 +700,8 @@
 <h3>SYSCTRL_SFR_CGUFSSR_FSFREQ3<a class="headerlink" href="#sysctrl-sfr-cgufssr-fsfreq3" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x4c = 0x4004004c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -648,7 +732,8 @@
 <h3>SYSCTRL_SFR_CGUFSVLD<a class="headerlink" href="#sysctrl-sfr-cgufsvld" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x50 = 0x40040050</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -679,7 +764,8 @@
 <h3>SYSCTRL_SFR_CGUFSCR<a class="headerlink" href="#sysctrl-sfr-cgufscr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x54 = 0x40040054</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -710,7 +796,8 @@
 <h3>SYSCTRL_SFR_ACLKGR<a class="headerlink" href="#sysctrl-sfr-aclkgr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x60 = 0x40040060</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -741,7 +828,8 @@
 <h3>SYSCTRL_SFR_HCLKGR<a class="headerlink" href="#sysctrl-sfr-hclkgr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x64 = 0x40040064</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -772,7 +860,8 @@
 <h3>SYSCTRL_SFR_ICLKGR<a class="headerlink" href="#sysctrl-sfr-iclkgr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x68 = 0x40040068</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -803,7 +892,8 @@
 <h3>SYSCTRL_SFR_PCLKGR<a class="headerlink" href="#sysctrl-sfr-pclkgr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x6c = 0x4004006c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -834,7 +924,8 @@
 <h3>SYSCTRL_SFR_RCURST0<a class="headerlink" href="#sysctrl-sfr-rcurst0" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x80 = 0x40040080</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -864,7 +955,8 @@
 <h3>SYSCTRL_SFR_RCURST1<a class="headerlink" href="#sysctrl-sfr-rcurst1" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x84 = 0x40040084</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -894,7 +986,8 @@
 <h3>SYSCTRL_SFR_RCUSRCFR<a class="headerlink" href="#sysctrl-sfr-rcusrcfr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x88 = 0x40040088</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -926,7 +1019,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCARIPFLOW<a class="headerlink" href="#sysctrl-sfr-ipcaripflow" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x90 = 0x40040090</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -956,7 +1050,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCEN<a class="headerlink" href="#sysctrl-sfr-ipcen" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x94 = 0x40040094</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -987,7 +1082,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCLPEN<a class="headerlink" href="#sysctrl-sfr-ipclpen" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x98 = 0x40040098</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -1018,7 +1114,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCOSC<a class="headerlink" href="#sysctrl-sfr-ipcosc" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0x9c = 0x4004009c</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -1040,7 +1137,7 @@ respective bit position to clear the flag</p></td>
 <tbody>
 <tr class="row-even"><td><p>[6:0]</p></td>
 <td><p>SFR_IPCOSC</p></td>
-<td><p>sfr_ipcosc read/write control register</p></td>
+<td><p>sfr_ipcosc read only status register</p></td>
 </tr>
 </tbody>
 </table>
@@ -1049,7 +1146,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCPLLMN<a class="headerlink" href="#sysctrl-sfr-ipcpllmn" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0xa0 = 0x400400a0</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -1080,7 +1178,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCPLLF<a class="headerlink" href="#sysctrl-sfr-ipcpllf" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0xa4 = 0x400400a4</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -1111,7 +1210,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCPLLQ<a class="headerlink" href="#sysctrl-sfr-ipcpllq" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0xa8 = 0x400400a8</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -1142,7 +1242,8 @@ respective bit position to clear the flag</p></td>
 <h3>SYSCTRL_SFR_IPCCR<a class="headerlink" href="#sysctrl-sfr-ipccr" title="Permalink to this heading">¶</a></h3>
 <p><cite>Address: 0x40040000 + 0xac = 0x400400ac</cite></p>
 <blockquote>
-<div>
+<div><p>See <a class="reference external" href="file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv">file:///F:/code/cram-soc/soc-oss/rtl/sysctrl/sysctrl_v0.2.sv</a></p>
+
 <div style="overflow-x:auto">
 <script type="WaveDrom">
 {
@@ -1242,8 +1343,6 @@ respective bit position to clear the flag</p></td>
 <li class="toctree-l1"><a class="reference internal" href="qfc.html">QFC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mbox_apb.html">MBOX_APB</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gluechain.html">GLUECHAIN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mesh.html">MESH</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sensorc.html">SENSORC</a></li>
 </ul>
 
 <div class="relations">
@@ -1278,7 +1377,7 @@ respective bit position to clear the flag</p></td>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2023, Cramium, Inc..
+      &copy;2024, Cramium, Inc..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>

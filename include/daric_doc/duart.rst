@@ -21,6 +21,7 @@ DUART_SFR_TXD
 
 `Address: 0x40042000 + 0x0 = 0x40042000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/duart_v0.1.sv
 
     .. wavedrom::
         :caption: DUART_SFR_TXD
@@ -44,6 +45,7 @@ DUART_SFR_CR
 
 `Address: 0x40042000 + 0x4 = 0x40042004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/duart_v0.1.sv
 
     .. wavedrom::
         :caption: DUART_SFR_CR
@@ -67,6 +69,7 @@ DUART_SFR_SR
 
 `Address: 0x40042000 + 0x8 = 0x40042008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/duart_v0.1.sv
 
     .. wavedrom::
         :caption: DUART_SFR_SR
@@ -90,6 +93,7 @@ DUART_SFR_ETUC
 
 `Address: 0x40042000 + 0xc = 0x4004200c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/core/duart_v0.1.sv
 
     .. wavedrom::
         :caption: DUART_SFR_ETUC

@@ -33,6 +33,7 @@ UDMA_I2S_REG_RX_SADDR
 
 `Address: 0x5010e000 + 0x0 = 0x5010e000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_RX_SADDR
@@ -56,6 +57,7 @@ UDMA_I2S_REG_RX_SIZE
 
 `Address: 0x5010e000 + 0x4 = 0x5010e004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_RX_SIZE
@@ -79,6 +81,7 @@ UDMA_I2S_REG_RX_CFG
 
 `Address: 0x5010e000 + 0x8 = 0x5010e008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_RX_CFG
@@ -112,6 +115,7 @@ UDMA_I2S_REG_TX_SADDR
 
 `Address: 0x5010e000 + 0x10 = 0x5010e010`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_TX_SADDR
@@ -135,6 +139,7 @@ UDMA_I2S_REG_TX_SIZE
 
 `Address: 0x5010e000 + 0x14 = 0x5010e014`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_TX_SIZE
@@ -158,6 +163,7 @@ UDMA_I2S_REG_TX_CFG
 
 `Address: 0x5010e000 + 0x18 = 0x5010e018`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_TX_CFG
@@ -191,6 +197,7 @@ UDMA_I2S_REG_I2S_CLKCFG_SETUP
 
 `Address: 0x5010e000 + 0x20 = 0x5010e020`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_I2S_CLKCFG_SETUP
@@ -241,6 +248,7 @@ UDMA_I2S_REG_I2S_SLV_SETUP
 
 `Address: 0x5010e000 + 0x24 = 0x5010e024`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_I2S_SLV_SETUP
@@ -278,6 +286,7 @@ UDMA_I2S_REG_I2S_MST_SETUP
 
 `Address: 0x5010e000 + 0x28 = 0x5010e028`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_I2S_MST_SETUP
@@ -315,6 +324,7 @@ UDMA_I2S_REG_I2S_PDM_SETUP
 
 `Address: 0x5010e000 + 0x2c = 0x5010e02c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_i2s/rtl/udma_i2s_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_I2S_REG_I2S_PDM_SETUP

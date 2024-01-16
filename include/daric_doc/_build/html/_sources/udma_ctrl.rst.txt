@@ -19,6 +19,7 @@ UDMA_CTRL_REG_CG
 
 `Address: 0x50100000 + 0x0 = 0x50100000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_core/rtl/common/udma_ctrl.sv
 
     .. wavedrom::
         :caption: UDMA_CTRL_REG_CG
@@ -42,6 +43,7 @@ UDMA_CTRL_REG_CFG_EVT
 
 `Address: 0x50100000 + 0x4 = 0x50100004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_core/rtl/common/udma_ctrl.sv
 
     .. wavedrom::
         :caption: UDMA_CTRL_REG_CFG_EVT
@@ -73,6 +75,7 @@ UDMA_CTRL_REG_RST
 
 `Address: 0x50100000 + 0x8 = 0x50100008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_core/rtl/common/udma_ctrl.sv
 
     .. wavedrom::
         :caption: UDMA_CTRL_REG_RST

@@ -39,6 +39,7 @@ UDMA_SCIF_REG_RX_SADDR
 
 `Address: 0x50111000 + 0x0 = 0x50111000`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_RX_SADDR
@@ -62,6 +63,7 @@ UDMA_SCIF_REG_RX_SIZE
 
 `Address: 0x50111000 + 0x4 = 0x50111004`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_RX_SIZE
@@ -85,6 +87,7 @@ UDMA_SCIF_REG_RX_CFG
 
 `Address: 0x50111000 + 0x8 = 0x50111008`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_RX_CFG
@@ -108,6 +111,7 @@ UDMA_SCIF_REG_TX_SADDR
 
 `Address: 0x50111000 + 0x10 = 0x50111010`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_TX_SADDR
@@ -131,6 +135,7 @@ UDMA_SCIF_REG_TX_SIZE
 
 `Address: 0x50111000 + 0x14 = 0x50111014`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_TX_SIZE
@@ -154,6 +159,7 @@ UDMA_SCIF_REG_TX_CFG
 
 `Address: 0x50111000 + 0x18 = 0x50111018`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_TX_CFG
@@ -177,6 +183,7 @@ UDMA_SCIF_REG_STATUS
 
 `Address: 0x50111000 + 0x20 = 0x50111020`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_STATUS
@@ -200,6 +207,7 @@ UDMA_SCIF_REG_SCIF_SETUP
 
 `Address: 0x50111000 + 0x24 = 0x50111024`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_SCIF_SETUP
@@ -248,6 +256,7 @@ UDMA_SCIF_REG_ERROR
 
 `Address: 0x50111000 + 0x28 = 0x50111028`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_ERROR
@@ -274,6 +283,7 @@ UDMA_SCIF_REG_IRQ_EN
 
 `Address: 0x50111000 + 0x2c = 0x5011102c`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_IRQ_EN
@@ -300,6 +310,7 @@ UDMA_SCIF_REG_VALID
 
 `Address: 0x50111000 + 0x30 = 0x50111030`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_VALID
@@ -323,6 +334,7 @@ UDMA_SCIF_REG_DATA
 
 `Address: 0x50111000 + 0x34 = 0x50111034`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_DATA
@@ -346,6 +358,7 @@ UDMA_SCIF_REG_SCIF_ETU
 
 `Address: 0x50111000 + 0x38 = 0x50111038`
 
+    See file:///F:/code/cram-soc/soc-oss/rtl/ifsub/udma_scif_reg_v0.1.sv
 
     .. wavedrom::
         :caption: UDMA_SCIF_REG_SCIF_ETU

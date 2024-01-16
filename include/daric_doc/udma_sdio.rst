@@ -43,6 +43,7 @@ UDMA_SDIO_REG_RX_SADDR
 
 `Address: 0x5010d000 + 0x0 = 0x5010d000`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RX_SADDR
@@ -66,6 +67,7 @@ UDMA_SDIO_REG_RX_SIZE
 
 `Address: 0x5010d000 + 0x4 = 0x5010d004`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RX_SIZE
@@ -89,6 +91,7 @@ UDMA_SDIO_REG_RX_CFG
 
 `Address: 0x5010d000 + 0x8 = 0x5010d008`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RX_CFG
@@ -119,6 +122,7 @@ UDMA_SDIO_REG_TX_SADDR
 
 `Address: 0x5010d000 + 0x10 = 0x5010d010`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_TX_SADDR
@@ -142,6 +146,7 @@ UDMA_SDIO_REG_TX_SIZE
 
 `Address: 0x5010d000 + 0x14 = 0x5010d014`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_TX_SIZE
@@ -165,6 +170,7 @@ UDMA_SDIO_REG_TX_CFG
 
 `Address: 0x5010d000 + 0x18 = 0x5010d018`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_TX_CFG
@@ -195,6 +201,7 @@ UDMA_SDIO_REG_CMD_OP
 
 `Address: 0x5010d000 + 0x20 = 0x5010d020`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_CMD_OP
@@ -204,24 +211,29 @@ UDMA_SDIO_REG_CMD_OP
                 {"name": "r_cmd_rsp_type",  "bits": 3},
                 {"bits": 5},
                 {"name": "r_cmd_op",  "bits": 6},
-                {"bits": 18}
+                {"bits": 2},
+                {"name": "r_cmd_stopopt",  "bits": 2},
+                {"bits": 14}
             ], "config": {"hspace": 400, "bits": 32, "lanes": 4 }, "options": {"hspace": 400, "bits": 32, "lanes": 4}
         }
 
 
-+--------+----------------+----------------+
-| Field  | Name           | Description    |
-+========+================+================+
-| [2:0]  | R_CMD_RSP_TYPE | r_cmd_rsp_type |
-+--------+----------------+----------------+
-| [13:8] | R_CMD_OP       | r_cmd_op       |
-+--------+----------------+----------------+
++---------+----------------+----------------+
+| Field   | Name           | Description    |
++=========+================+================+
+| [2:0]   | R_CMD_RSP_TYPE | r_cmd_rsp_type |
++---------+----------------+----------------+
+| [13:8]  | R_CMD_OP       | r_cmd_op       |
++---------+----------------+----------------+
+| [17:16] | R_CMD_STOPOPT  | r_cmd_stopopt  |
++---------+----------------+----------------+
 
 UDMA_SDIO_REG_DATA_SETUP
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 `Address: 0x5010d000 + 0x28 = 0x5010d028`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_DATA_SETUP
@@ -258,6 +270,7 @@ UDMA_SDIO_REG_START
 
 `Address: 0x5010d000 + 0x2c = 0x5010d02c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_START
@@ -281,6 +294,7 @@ UDMA_SDIO_REG_RSP0
 
 `Address: 0x5010d000 + 0x30 = 0x5010d030`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RSP0
@@ -303,6 +317,7 @@ UDMA_SDIO_REG_RSP1
 
 `Address: 0x5010d000 + 0x34 = 0x5010d034`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RSP1
@@ -325,6 +340,7 @@ UDMA_SDIO_REG_RSP2
 
 `Address: 0x5010d000 + 0x38 = 0x5010d038`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RSP2
@@ -347,6 +363,7 @@ UDMA_SDIO_REG_RSP3
 
 `Address: 0x5010d000 + 0x3c = 0x5010d03c`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_RSP3
@@ -369,6 +386,7 @@ UDMA_SDIO_REG_CLK_DIV
 
 `Address: 0x5010d000 + 0x40 = 0x5010d040`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_CLK_DIV
@@ -395,6 +413,7 @@ UDMA_SDIO_REG_STATUS
 
 `Address: 0x5010d000 + 0x44 = 0x5010d044`
 
+    See file:///F:/code/cram-soc/soc-oss/ips/udma/udma_sdio/rtl/udma_sdio_reg_if.sv
 
     .. wavedrom::
         :caption: UDMA_SDIO_REG_STATUS
