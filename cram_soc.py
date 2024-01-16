@@ -697,7 +697,7 @@ def main():
         else:
             shutil.copy('./build/gateware/reram_mem.init', './build/sim/gateware/')
             shutil.copy('./VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
-            shutil.copy('do_not_checkin/rtl/amba/template.sv', './build/sim/gateware/')
+            shutil.copy('soc_oss/rtl/common/template.sv', './build/sim/gateware/')
 
             # this runs the sim
             builder.build(
