@@ -592,7 +592,6 @@ def sim_args(parser):
                         choices=['normal', 'fast'],
                         help="Run at `normal` or `fast` speed. Fast runs do not save waveform data. Only valid with `verilator` simulator option.")
 
-    # Speed. In reality, just selects whether we save a waveform, or not.
     parser.add_argument("--simulator",            type=str, default="verilator",
                         choices=['verilator', 'xsim'],
                         help="Switch between `verilator` or `xsim`")
