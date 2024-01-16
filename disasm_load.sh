@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# Generates listings for binary objects so that codezoom.py can do its thing
+# Called by verilate.sh
+
 PREFIX="../xous-core"
 
 riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-xous-elf/release/loader > listings/load.lst
