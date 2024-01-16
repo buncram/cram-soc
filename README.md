@@ -2,13 +2,16 @@
 
 This repo contains is the open source components of the Cramium SoC: the RISC-V core, cryptographic accelerators, and other miscellaneous primitives.
 
-Compiled documentation: [RV core complex register set](https://ci.betrusted.io/cramium/index.html).
+Compiled documentation:
+
+- [RV core complex register set](https://ci.betrusted.io/cramium-cpu/index.html).
+- [SoC registers][https://ci.betrusted.io/cramium/index.html]
 
 ## Overview
 
 The Cramium SoC is composed of a mix of closed and open source components. The physical design targets TSMC 22ULL, using traditional closed-source tooling, e.g. Synopsis & Cadence, with standard cell libraries and memory macros provided by TSMC and ARM.
 
-Specific RTL components, such as the RISC-V CPU, SCE (Secure Crypto Engine), DA (Data Access Controller), and peripheral functions are shared with a CERN-OHL-W license.
+Specific RTL components, such as the RISC-V CPU, SCE (Secure Crypto Engine), DA (Data Access Controller), and peripheral functions are shared with a [CERN-OHL-V2-W license](https://ohwr.org/cern_ohl_w_v2.txt).
 
 Developers can use the shared RTL to disambiguate device functions, check header files, and more fully exploit the features of the chip through a better understanding of the underlying hardware implementation.
 
