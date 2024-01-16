@@ -35,6 +35,29 @@ The SoC verilog & LiteX artifacts are located in the `soc-oss` repository. Unles
 
 There is a "shadow" repository called `soc-mpw` that contains the entire chip source tree, including proprietary/non-free components, which is not checked into the public github repository. However, all of the scripts referenced here are intended to run with just the code available in `soc-oss`. If there is a dangling reference to `soc-mpw` that is an oversight. Please open an issue so that it can be corrected.
 
+## Dependencies
+
+This section is WIP, as there are a *lot* of dependencies for this project. Expect to spend some time tooling up, and if something is missing please open an issue so we can add it here.
+
+- [Rust](https://www.rust-lang.org/tools/install) and [rustfilt](https://crates.io/crates/rustfilt)
+- [riscv toolchain](https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases)
+- Litex is included in the repo at `deps/litex` if checked out recursively. You will need to add the checked out version to your PYTHONPATH. Litex refers to a whole family of submodules, including `litex`, `compiler_rt`, `litescope`, `litedram`, `pythondata-software-picolibc`. Many of these are not strictly needed to build the source views here but are required because Litex does some "sanity checking" of its build environment for these tools even if they are not used.
+- SpinalHDL to build the Vex CPU needs [Scala](https://spinalhdl.github.io/SpinalDoc-RTD/v1.3.8/SpinalHDL/Simulation/install.html)
+- Migen is similarly included at `deps/migen`, and PYTHONPATH should point to this version.
+- [`Xous`](https://github.com/betrusted-io/xous-core/), cloned into a parallel repository at the path `../xous-core`, for building bootable OS images
+- [`verilator`](https://github.com/verilator/verilator): tested against version `5.007 devel`. Check the version in your distro, it is likely out of date or incompatible, so you have to build from source.
+- Python 3.8 or later
+- Python modules to generate documentation: `sphinx`, `wavedrom`, `sphinxcontrib-wavedrom`, `sphinx-math-dollar`
+
+Highly Recommended:
+
+- An IDE that is capable of clicking through method definitions to their source, for each of the relevant languages (Rust, Python, Scala). This repo was developed using a combination of `vscode` (Rust, Python, Verilog) and `IntelliJ` (for Scala).
+
+Optional:
+
+- [GTKWave](https://github.com/buncram/gtkwave/commits/udp-send), built from source at [this branch](https://github.com/buncram/gtkwave/commits/udp-send), if you want to use `codezoom.py` to dynamically view source code lines and waveforms simultaneously.
+- [Vivado](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools.html) toolchain if targeting FPGAs (note: closed-source, requires registration but "free as in beer" version available, needs about 100GiB disk space). Note that the primary flows envisioned for this repo do not involve an FPGA target, but it is *possible* if you have an Arty A7-100T dev board on hard.
+
 ## OSS Tooling Flow
 
 The primary targets of this repository are developers who need accurate header files that describe the hardware, and integrators/auditors who want to inspect the function of key RTL blocks. Thus, there are two tooling flows to cover: one for automated header file extraction, and one for simulating the RTL blocks.
