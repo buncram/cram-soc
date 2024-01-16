@@ -121,13 +121,13 @@ class MboxAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "amba")
-        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
-
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "common")
         platform.add_source(os.path.join(rtl_dir, "template.sv"))
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "amba")
+        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
         platform.add_source(os.path.join(rtl_dir, "mbox_v0.1.sv"))

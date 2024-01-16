@@ -223,13 +223,13 @@ class PioAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "rtl", "amba")
-        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
-
         rtl_dir = os.path.join(os.path.dirname(__file__), "rtl", "common")
         platform.add_source(os.path.join(rtl_dir, "template.sv"))
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "rtl", "amba")
+        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "pio")
         platform.add_source(os.path.join(rtl_dir, "pio_apb.sv"))
