@@ -38,6 +38,8 @@ deps/pio/cross-validation/target
 boot/daric.sh
 candidate/sync_s32.sh
 xous-s32.sh
+xous-fpga.sh
+get_bit.sh
 
 # code listings
 listings/
