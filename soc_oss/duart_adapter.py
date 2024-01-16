@@ -15,7 +15,7 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 from litex.soc.interconnect import ahb
-from axi_common import *
+from soc_oss.axi_common import *
 
 # AHB to APB to DUART --------------------------------------------------------------------------
 
@@ -106,10 +106,22 @@ class DuartAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "do_not_checkin", "rtl", "amba")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "amba")
+        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "common")
         platform.add_source(os.path.join(rtl_dir, "template.sv"))
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
-        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
-        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
-        rtl_dir = os.path.join(os.path.dirname(__file__), "do_not_checkin", "rtl")
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "core")
         platform.add_source(os.path.join(rtl_dir, "duart_v0.1.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss")
+        platform.add_source(os.path.join(rtl_dir, "duart_top.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "general")
+        platform.add_source(os.path.join(rtl_dir, "gnrl_sync_v0.1.sv"))
+
+        print(f"TODO: clean up this contamination! {__file__}")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "ambabuilder", "logical", "cmsdk_ahb_to_apb", "verilog")
+        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))

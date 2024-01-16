@@ -12,7 +12,7 @@ import logging
 from migen import *
 
 from litex.soc.interconnect.axi import *
-from axi_common import *
+from soc_oss.axi_common import *
 
 # AXI Adapter --------------------------------------------------------------------------------------
 
@@ -241,7 +241,7 @@ class AXIAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "verilog-axi", "rtl")
         platform.add_source(os.path.join(rtl_dir, "axi_adapter_wr.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_adapter_rd.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_adapter.v"))

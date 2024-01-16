@@ -15,7 +15,7 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 from litex.soc.interconnect import ahb
-from axi_common import *
+from soc_oss.axi_common import *
 
 # AHB to APB to PIO --------------------------------------------------------------------------
 
@@ -223,18 +223,19 @@ class PioAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "do_not_checkin", "rtl", "amba")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "rtl", "amba")
+        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "rtl", "common")
         platform.add_source(os.path.join(rtl_dir, "template.sv"))
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
-        platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
-        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
         platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
 
-        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "pio")
         platform.add_source(os.path.join(rtl_dir, "pio_apb.sv"))
         platform.add_source(os.path.join(rtl_dir, "rp_pio.sv"))
 
-        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "pio", "upstream", "src")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "pio", "upstream", "src")
         platform.add_source(os.path.join(rtl_dir, "pio_decoder.v"))
         platform.add_source(os.path.join(rtl_dir, "pio_divider.v"))
         platform.add_source(os.path.join(rtl_dir, "pio_fifo.v"))
@@ -244,5 +245,9 @@ class PioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "pio_pc.v"))
         platform.add_source(os.path.join(rtl_dir, "pio_scratch.v"))
 
-        rtl_dir = os.path.join(os.path.dirname(__file__), "sim_support")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
         platform.add_source(os.path.join(rtl_dir, "cdc_blinded.v"))
+
+        print(f"TODO: clean up this contamination! {__file__}")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "ambabuilder", "logical", "cmsdk_ahb_to_apb", "verilog")
+        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))

@@ -363,4 +363,4 @@ mbc = MboxClient(platform)
 
 # Build --------------------------------------------------------------------------------------------
 
-platform.build(mbc, regular_comb=True, build_dir="sim_support", build_name="mbox_client")
+platform.build(mbc, regular_comb=True, build_dir="../sim_support", build_name="mbox_client")

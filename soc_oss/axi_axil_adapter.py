@@ -15,7 +15,7 @@ from enum import IntEnum
 from migen import *
 
 from litex.soc.interconnect.axi import *
-from axi_common import *
+from soc_oss.axi_common import *
 
 # AXI to AXI-Lite Adapter --------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ class AXI2AXILiteAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "verilog-axi", "rtl")
         platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_wr.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_axil_adapter_rd.v"))

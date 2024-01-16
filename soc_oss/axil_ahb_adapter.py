@@ -16,7 +16,7 @@ from migen import *
 from litex.soc.interconnect.axi import *
 from litex.soc.interconnect.axi.axi_common import BURST_FIXED
 from litex.soc.interconnect import ahb
-from axi_common import *
+from soc_oss.axi_common import *
 
 # AXI to AXI-Lite Adapter --------------------------------------------------------------------------
 
@@ -194,12 +194,12 @@ class AXILite2AHBAdapter(Module):
     @staticmethod
     def add_sources(platform):
         if SELECTED_MODULE == PRODUCTION_MODULE:
-            rtl_dir = os.path.join(os.path.dirname(__file__), "do_not_checkin", "rtl", "cm7aab", "verilog")
+            rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "rtl", "cm7aab", "verilog")
             platform.add_source(os.path.join(rtl_dir, "cm7aab_axi.v"))
             platform.add_source(os.path.join(rtl_dir, "cm7aab_ahb.v"))
             platform.add_source(os.path.join(rtl_dir, "CM7AAB.v"))
         else:
-            rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "axi2ahb")
+            rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "axi2ahb")
             platform.add_source(os.path.join(rtl_dir, "axi2ahb.v"))
             platform.add_source(os.path.join(rtl_dir, "axi2ahb_cmd.v"))
             platform.add_source(os.path.join(rtl_dir, "axi2ahb_ctrl.v"))

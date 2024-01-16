@@ -13,7 +13,7 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-from axi_common import *
+from soc_oss.axi_common import *
 
 # AXI Lite Crossbar Interface ----------------------------------------------------------------------
 
@@ -320,7 +320,7 @@ class AXILiteCrossbar(Module):
 
     @staticmethod
     def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "deps", "verilog-axi", "rtl")
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "verilog-axi", "rtl")
         platform.add_source(os.path.join(rtl_dir, "arbiter.v"))
         platform.add_source(os.path.join(rtl_dir, "priority_encoder.v"))
         platform.add_source(os.path.join(rtl_dir, "axil_crossbar.v"))
