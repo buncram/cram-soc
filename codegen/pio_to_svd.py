@@ -1240,7 +1240,7 @@ def main():
 
     subprocess.run(['cargo', 'run', '../include/pio.svd' , '../include/pio_generated.rs'], cwd='./svd2utra')
     subprocess.run(['sphinx-build', '-M', 'html', 'include/pio_doc/', 'include/pio_doc/_build'])
-    subprocess.run(['rsync', '-a', '--delete', 'include/pio_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/pio/'])
+    # subprocess.run(['rsync', '-a', '--delete', 'include/pio_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/pio/'])
 
 if __name__ == "__main__":
     main()

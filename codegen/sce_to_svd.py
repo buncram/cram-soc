@@ -1282,7 +1282,7 @@ def main():
 
     subprocess.run(['cargo', 'run', '../include/sce.svd' , '../include/sce_generated.rs'], cwd='./svd2utra')
     subprocess.run(['sphinx-build', '-M', 'html', 'include/doc/', 'include/doc/_build'])
-    subprocess.run(['rsync', '-a', '--delete', 'include/doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
+    # subprocess.run(['rsync', '-a', '--delete', 'include/doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
 
 if __name__ == "__main__":
     main()
