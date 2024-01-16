@@ -39,6 +39,9 @@ boot/daric.sh
 candidate/sync_s32.sh
 xous-s32.sh
 
+# code listings
+listings/
+
 # files that shouldn't be checked into github
 do_not_checkin/
 soc-mpw/
