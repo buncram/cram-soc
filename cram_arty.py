@@ -12,6 +12,8 @@
 # - DDR3 should be disabled: ex --integrated-main-ram-size=8192
 # - Clk Freq should be lowered: ex --sys-clk-freq=50e6
 
+from pathlib import Path
+
 from migen import *
 
 from litex.gen import *
@@ -97,7 +99,7 @@ def arty_extensions(self,
     self.comb += self.platform.request("rgb_led", number=0).g.eq(self.coreuser)
 
     # Local RAM option for faster bringup (but less capacity)
-    from axi_ram import AXIRAM
+    from soc_oss.axi_ram import AXIRAM
     # size overrides for the default region sizes because we can't fit the whole thing on an A100
     RERAM_SIZE=64*1024
     SRAM_SIZE=128*1024
@@ -226,6 +228,10 @@ def main():
     assert not (args.with_etherbone and args.eth_dynamic_ip)
 
     platform = digilent_arty.Platform(variant=args.variant, toolchain=args.toolchain)
+    pathroot = Path(__file__).parent
+    platform.verilog_include_paths = [
+        str(pathroot / "soc_oss/rtl/common"),
+    ]
 
     # add various platform I/O extensions
     pio = [
