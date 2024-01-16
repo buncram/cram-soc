@@ -55,6 +55,6 @@ cp ../sim_support/cdc_blinded.v .
 #cp -r ../build/gateware/build/documentation/_build/html/* docs/
 #cp ../build/gateware/build/documentation/_build/latex/cramiumsocrisc-vcorecomplex.pdf docs/
 
+# sync the docs to the web
 rsync -a --delete ../build/gateware/build/documentation/_build/html/* bunnie@ci.betrusted.io:/var/cramium-cpu/
-
 rsync -a --delete ../include/daric_doc/_build/html/* bunnie@ci.betrusted.io:/var/cramium/
