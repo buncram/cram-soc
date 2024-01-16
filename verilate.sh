@@ -89,9 +89,9 @@ else
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
   cargo xtask boot-image --no-default-features --feature daric --feature gdb-load --feature pio-test # --feature pl230-test # --feature xip
 
-  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > listings/boot.lst
-  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> listings/boot.lst
-  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/betrusted-boot -S -d | rustfilt >> listings/boot.lst
+  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > ../listings/boot.lst
+  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> ../listings/boot.lst
+  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/betrusted-boot -S -d | rustfilt >> ../listings/boot.lst
 
   cd ../
   BIOS="./boot/boot.bin"
