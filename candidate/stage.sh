@@ -1,7 +1,7 @@
 #!/bin/bash
 cd ..
 
-python3 ./mbox_client.py
+python3 ./soc_oss/mbox_client.py
 
 python3 ./cram_core.py
 
@@ -50,9 +50,11 @@ cp ../deps/pio/rp_pio.sv pio/
 # add support modules
 cp ../sim_support/cdc_blinded.v .
 
-rm -rf docs
-mkdir docs
-cp -r ../build/gateware/build/documentation/_build/html/* docs/
-cp ../build/gateware/build/documentation/_build/latex/cramiumsocrisc-vcorecomplex.pdf docs/
+#rm -rf docs
+#mkdir docs
+#cp -r ../build/gateware/build/documentation/_build/html/* docs/
+#cp ../build/gateware/build/documentation/_build/latex/cramiumsocrisc-vcorecomplex.pdf docs/
 
-scp -r docs/* bunnie@ci.betrusted.io:/var/cramium/
+rsync -a --delete ../build/gateware/build/documentation/_build/html/* bunnie@ci.betrusted.io:/var/cramium-cpu/
+
+rsync -a --delete ../include/daric_doc/_build/html/* bunnie@ci.betrusted.io:/var/cramium/
