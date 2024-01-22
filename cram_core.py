@@ -1138,6 +1138,7 @@ def dupe_irqs(pins, comb):
 
     dupe_pins = []
     dupe_names = []
+    flattened_map = {}
     for i, bank in enumerate(range(IRQ_BANKS)):
         irq_remap = Signal(IRQS_PER_BANK)
         dupe_pins += [irq_remap]
@@ -1186,9 +1187,13 @@ def dupe_irqs(pins, comb):
                 ]
                 if cur_pin_name is not None and cur_pin_name != '':
                     dupe_names[bank][pin] = f"{cur_pin_name.replace('[','').replace(']','')}" # _b{bank}_s{pin}
+                    # the +16 is just a quirk of the implementation -- all the offsets are pushed by 16,
+                    # I think the bottom 16 were originally meant to be reserved for something else but
+                    # it never actually got used?
+                    flattened_map[evmap_offset + 16] = f"{cur_pin_name.replace('[','').replace(']','')}"
     # check that all dupes got mapped
     assert(dupes_mapped == len(dupes))
-    return dupe_pins, dupe_names
+    return dupe_pins, dupe_names, flattened_map
 
 # ResetValue ----------------------------------------------------------------------------------
 
@@ -1831,11 +1836,13 @@ class cramSoC(SoCCore):
         for bank in range(IRQ_BANKS):
             pins += [getattr(irqpins, 'bank{}'.format(bank))]
 
-        duped_pins, duped_names = dupe_irqs(pins, self.comb)
+        duped_pins, duped_names, ev_map = dupe_irqs(pins, self.comb)
         for bank in range(IRQ_BANKS):
             setattr(self.submodules, 'irqarray{}'.format(bank),
                     ClockDomainsRenamer({"sys":"always_on"})(IrqArray(bank, duped_pins[bank], duped_names[bank])))
             self.irq.add("irqarray{}".format(bank))
+        for index, name in ev_map.items():
+            self.add_constant(f'IFSUB_EV_{name}', index)
 
         # Ticktimer --------------------------------------------------------------------------------
         self.submodules.ticktimer = ClockDomainsRenamer({"sys":"always_on"})(TickTimer(1000, sys_clk_freq))
