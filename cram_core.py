@@ -937,7 +937,7 @@ class EventSourceFlex(Module, _EventSource):
 
 class IrqArray(Module, AutoCSR, AutoDoc):
     """Interrupt Array Handler"""
-    def __init__(self, bank, pins):
+    def __init__(self, bank, pins, names):
         self.intro = ModuleDoc("""
 `IrqArray` provides a large bank of interrupts for SoC integration. It is different from e.g. the NVIC
 or CLINT in that the register bank is structured along page boundaries, so that the interrupt handler CSRs
@@ -1001,8 +1001,8 @@ Repeated `1` writes without clearing will still trigger an interrupt.""",
                 edge_triggered=edge_triggered.fields.use_edge[i],
                 polarity=polarity.fields.rising[i],
                 soft_trigger=soft.fields.trigger[i],
-                name='source{}'.format(i),
-                description='`1` when a source{} event occurs. This event uses an `EventSourceFlex` form of triggering'.format(i)
+                name=names[i], #'source{}'.format(i),
+                description=f'`1` when a "{names[i]}" event occurs. This event uses an `EventSourceFlex` form of triggering'
             )
             setattr(ev, 'source{}'.format(i), bit_int)
 
@@ -1137,9 +1137,14 @@ def dupe_irqs(pins, comb):
     dupes_mapped = 0
 
     dupe_pins = []
-    for bank in range(IRQ_BANKS):
+    dupe_names = []
+    for i, bank in enumerate(range(IRQ_BANKS)):
         irq_remap = Signal(IRQS_PER_BANK)
         dupe_pins += [irq_remap]
+        names = []
+        for j in range(IRQS_PER_BANK):
+            names += [f'nc_b{i}s{j}']
+        dupe_names += [names]
 
     for bank in range(IRQ_BANKS):
         for pin in range(IRQS_PER_BANK):
@@ -1172,15 +1177,18 @@ def dupe_irqs(pins, comb):
                                     pins[int(source_abs_offset / IRQS_PER_BANK)][source_abs_offset % IRQS_PER_BANK]
                                 )
                             ]
+                            dupe_names[bank][pin] = f"{name.replace('[','').replace(']','')}_dupe" # _b{d_bank}s{d_pin}
                             dupes_mapped += 1
             if found is False:
                 # just pass the wiring through
                 comb += [
                     dupe_pins[bank][pin].eq(pins[bank][pin])
                 ]
+                if cur_pin_name is not None and cur_pin_name != '':
+                    dupe_names[bank][pin] = f"{cur_pin_name.replace('[','').replace(']','')}" # _b{bank}_s{pin}
     # check that all dupes got mapped
     assert(dupes_mapped == len(dupes))
-    return dupe_pins
+    return dupe_pins, dupe_names
 
 # ResetValue ----------------------------------------------------------------------------------
 
@@ -1823,9 +1831,10 @@ class cramSoC(SoCCore):
         for bank in range(IRQ_BANKS):
             pins += [getattr(irqpins, 'bank{}'.format(bank))]
 
-        duped_pins = dupe_irqs(pins, self.comb)
+        duped_pins, duped_names = dupe_irqs(pins, self.comb)
         for bank in range(IRQ_BANKS):
-            setattr(self.submodules, 'irqarray{}'.format(bank), ClockDomainsRenamer({"sys":"always_on"})(IrqArray(bank, duped_pins[bank])))
+            setattr(self.submodules, 'irqarray{}'.format(bank),
+                    ClockDomainsRenamer({"sys":"always_on"})(IrqArray(bank, duped_pins[bank], duped_names[bank])))
             self.irq.add("irqarray{}".format(bank))
 
         # Ticktimer --------------------------------------------------------------------------------

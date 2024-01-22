@@ -2738,15 +2738,15 @@ def main():
     with open('boot/betrusted-boot/src/apb_check.rs', 'w') as rust_f:
         generate_rust_test(doc_soc, rust_f)
 
-    doc_dir = args.outdir + 'daric_doc/'
+    doc_dir = 'build/doc/daric_doc/'
     generate_docs(doc_soc, doc_dir, project_name="Cramium SoC", author="Cramium, Inc.")
 
     subprocess.run(['cargo', 'run', '../include/daric.svd' , '../include/daric_generated.rs'], cwd='./svd2utra')
     subprocess.run(['cp', 'include/daric_generated.rs', 'boot/betrusted-boot/src/'])
     subprocess.run(['cp', 'include/daric.svd', '../xous-cramium/precursors/daric.svd'])
     subprocess.run(['cp', 'include/daric.svd', '../xous-core/utralib/cramium/daric.svd'])
-    subprocess.run(['sphinx-build', '-M', 'html', 'include/daric_doc/', 'include/daric_doc/_build'])
-    # subprocess.run(['rsync', '-a', '--delete', 'include/daric_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/sce/'])
+    subprocess.run(['sphinx-build', '-M', 'html', 'build/doc/daric_doc/', 'build/doc/daric_doc/_build'])
+    subprocess.run(['rsync', '-aiv', '--delete', 'build/doc/daric_doc/_build/html/', 'bunnie@ci.betrusted.io:/var/cramium/'])
 
 if __name__ == "__main__":
     main()
