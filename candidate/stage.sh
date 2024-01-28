@@ -57,4 +57,4 @@ cp ../sim_support/cdc_blinded.v .
 
 # sync the docs to the web
 rsync -a --delete ../build/gateware/build/documentation/_build/html/* bunnie@ci.betrusted.io:/var/cramium-cpu/
-rsync -a --delete ../include/daric_doc/_build/html/* bunnie@ci.betrusted.io:/var/cramium/
+rsync -a --delete ../build/doc/daric_doc/_build/html/* bunnie@ci.betrusted.io:/var/cramium/
