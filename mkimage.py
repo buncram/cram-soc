@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 
-KERNEL_OFFSET=0x9000
+KERNEL_OFFSET=0x28000
 TARGET_PATH="../xous-core/target/riscv32imac-unknown-xous-elf/release/"
 def main():
     parser = argparse.ArgumentParser(description="Build a Cramium FPGA dev image")
