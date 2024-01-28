@@ -2469,7 +2469,7 @@ def main():
             {
                 'socregion' : SoCRegion(
                             origin=0x5012_0000,
-                            size=0x1_0000,
+                            size=0x3000,
                             mode='rw',
                             cached=False
                         ),
@@ -2689,14 +2689,17 @@ def main():
         size=0x1000,
         mode='rw', cached=False
     )
-
-    # ----------- temporary case: mbox_ext mapping -- until the description is main-lined!
-    if False:
-        doc_soc.mem_regions['mbox_ext'] = SoCRegion(
-            origin=0x5012_4000,
-            size=0x1000,
-            mode='rw', cached=False
-        )
+    # ---------- SPECIAL CASE - add I/O regions
+    doc_soc.mem_regions['iox'] = SoCRegion(
+        origin=0x5012_F000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
+    doc_soc.mem_regions['aoc'] = SoCRegion(
+        origin=0x4006_0000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
