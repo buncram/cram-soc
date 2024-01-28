@@ -109,6 +109,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cramium-hal"
+version = "0.1.0"
+dependencies = [
+ "bitflags",
+ "utralib 0.1.24",
+ "xous",
+]
+
+[[package]]
 name = "crunchy"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -632,9 +641,9 @@ dependencies = [
 
 [[package]]
 name = "svd2utra"
-version = "0.1.21"
+version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc50c4494d56184b865d78a7c8a4bef3efc1edbb131e806b7429fbb01bf6c40d"
+checksum = "c25aa8b02b722429dce9144a5de9228b90ad4867e237b97c27b770d684c3d050"
 dependencies = [
  "quick-xml",
 ]
@@ -726,11 +735,11 @@ dependencies = [
 
 [[package]]
 name = "utralib"
-version = "0.1.23"
+version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a83e90f56d5fde77d2e4df7d1d3582e831fc30b1feba2f26f92af62e8a9f208"
+checksum = "5f0f72e630285ad2b85470d3e9d1f0e880a54325084d045d7025131f6d0d1b6f"
 dependencies = [
- "svd2utra 0.1.21",
+ "svd2utra 0.1.22",
 ]
 
 [[package]]
@@ -910,9 +919,9 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 
 [[package]]
 name = "xous"
-version = "0.9.56"
+version = "0.9.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3eb6c419ffe6436d43db172b8f1b1c32d857db663e6ffce7791149332e894a2"
+checksum = "129436029fe61fe1008604175a280e0a607a7a74acf48ca08773c74aae22d743"
 dependencies = [
  "lazy_static",
 ]
@@ -924,7 +933,7 @@ dependencies = [
  "log",
  "pio",
  "pio-proc",
- "utralib 0.1.23",
+ "utralib 0.1.24",
  "xous",
 ]
 
@@ -933,10 +942,11 @@ name = "xous-pl230"
 version = "0.1.0"
 dependencies = [
  "bitfield",
+ "cramium-hal",
  "log",
  "pio",
  "pio-proc",
- "utralib 0.1.23",
+ "utralib 0.1.24",
  "xous",
  "xous-pio",
 ]
