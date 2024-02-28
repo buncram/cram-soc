@@ -48,7 +48,7 @@
 `endif
 
 // uncomment this for register file in extra module
-// `define PICORV32_REGS picorv32_regs
+`define PICORV32_REGS picorv32_regs_bio
 
 // this macro can be used to check if the verilog files in your
 // design are read in the correct order.
@@ -85,7 +85,9 @@ module picorv32 #(
 	parameter [31:0] LATCHED_IRQ = 32'h ffff_ffff,
 	parameter [31:0] PROGADDR_RESET = 32'h 0000_0000,
 	parameter [31:0] PROGADDR_IRQ = 32'h 0000_0010,
-	parameter [31:0] STACKADDR = 32'h ffff_ffff
+	parameter [31:0] STACKADDR = 32'h ffff_ffff,
+    parameter NUM_MACH = 4,
+    parameter NUM_MACH_BITS = $clog2(NUM_MACH)
 ) (
 	input clk, resetn,
 	output reg trap,
@@ -119,6 +121,35 @@ module picorv32 #(
 	// IRQ Interface
 	input      [31:0] irq,
 	output reg [31:0] eoi,
+
+	// Bio Interface
+    input [31:0]  regfifo_rdata[4],
+    output [3:0]  regfifo_rd,
+    output [31:0] regfifo_wdata,
+    output [3:0]  regfifo_wr,
+
+    output        quanta_wr,  // asserted on any write access to r20
+
+    output [31:0] gpio_set,
+    output [31:0] gpio_clr,
+    output [31:0] gpdir_set,
+    output [31:0] gpdir_clr,
+    output        gpio_set_valid,
+    output        gpio_clr_valid,
+    output        gpdir_set_valid,
+    output        gpdir_clr_valid,
+    input [31:0]  gpio_pins,
+
+    input [31:0]  aggregated_events,
+    output        stalling_for_event,
+    output [31:0] event_set,
+    output        event_set_valid,
+    output [31:0] event_clr,
+    output        event_clr_valid,
+
+    input [NUM_MACH_BITS-1:0]    core_id,
+    input [31 - NUM_MACH_BITS:0] clk_count,
+
 
 `ifdef RISCV_FORMAL
 	output reg        rvfi_valid,
@@ -1373,7 +1404,31 @@ module picorv32 #(
 	wire [5:0] cpuregs_raddr2 = ENABLE_REGS_DUALPORT ? decoded_rs2 : 0;
 
 	`PICORV32_REGS cpuregs (
+		.regfifo_rdata(regfifo_rdata),
+		.regfifo_rd(regfifo_rd),
+		.regfifo_wdata(regfifo_wdata),
+		.regfifo_wr(regfifo_wr),
+		.quanta_wr(quanta_wr),
+		.gpio_set(gpio_set),
+		.gpio_clr(gpio_clr),
+		.gpdir_set(gpdir_set),
+		.gpdir_clr(gpidr_clr),
+		.gpio_set_valid(gpio_set_valid),
+		.gpio_clr_valid(gpio_clr_valid),
+		.gpdir_set_valid(gpdir_set_valid),
+		.gpdir_clr_valid(gpdir_clr_valid),
+		.gpio_pins(gpio_pins),
+		.aggregated_events(aggregated_events),
+		.stalling_for_event(stalling_for_event),
+		.event_set(event_set),
+		.event_set_valid(event_set_valid),
+		.event_clr(event_clr),
+		.event_clr_valid(event_clr_valid),
+		.core_id(core_id),
+		.clk_count(clk_count),
+
 		.clk(clk),
+		.reset_n(resetn),
 		.wen(resetn && cpuregs_write && latched_rd),
 		.waddr(cpuregs_waddr),
 		.raddr1(cpuregs_raddr1),
