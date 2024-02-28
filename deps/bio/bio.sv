@@ -12,7 +12,7 @@ module bio #(
     input logic         cmatpg, cmbist,
 
     ioif.drive          bio_gpio[0:31],
-    output logic        irq[3:0],
+    output logic        irq[3:0], // these can double as dma_req/ack effectively for MDMA
 
     apbif.slavein       apbs,
     apbif.slave         apbx
@@ -37,25 +37,13 @@ module bio #(
     logic [31:0] gpio_in_cleaned;
     logic [31:0] gpio_in_sync0;
     logic [31:0] gpio_in_sync1;
-
-    generate
-        for (genvar gp = 0; gp < 32; gp++) begin: gp_iface
-            assign bio_gpio[gp].po = gpio_out[gp] ^ out_invert[gp];
-            assign bio_gpio[gp].oe = gpio_dir[gp] ^ oe_invert[gp];
-            assign gpio_in[gp] = bio_gpio[gp].pi ^ in_invert[gp];
-        end
-    endgenerate
-    // add metastability hardening, with optional bypass path
-    always @(posedge aclk) begin
-        gpio_in_sync0 <= gpio_in;
-        gpio_in_sync1 <= gpio_in_sync0;
-    end
-    generate
-        genvar m;
-        for(m = 0; m < 32; m = m + 1) begin: gen_bypass
-            assign gpio_in_cleaned[m] = sync_bypass[m] ? gpio_in[m] : gpio_in_sync1[m];
-        end
-    endgenerate
+    logic [31:0] irqmask0;
+    logic [31:0] irqmask1;
+    logic [31:0] irqmask2;
+    logic [31:0] irqmask3;
+    logic [3:0] irq_agg;
+    logic [3:0] irq_agg_q;
+    logic [3:0] irq_edge;
 
     /////////////////////// machine hookup
     logic [15:0]  div_int      [NUM_MACH];
@@ -104,6 +92,19 @@ module bio #(
     logic [NUM_MACH-1:0] gpdir_set_valid;
     logic [NUM_MACH-1:0] gpbir_clr_valid;
 
+    logic [23:0] event_set [NUM_MACH];
+    logic [NUM_MACH-1:0] event_set_valid;
+    logic [23:0] event_clr [NUM_MACH];
+    logic [NUM_MACH-1:0] event_clr_valid;
+    logic [31:0] aggregated_events;
+    logic [NUM_MACH-1:0] stalling_for_event;
+    logic [23:0] host_event_set;
+    logic host_event_set_valid;
+    logic [23:0] host_event_clr;
+    logic host_event_clr_valid;
+
+    logic [29:0] core_clk_count [NUM_MACH];
+
     // modes
     logic [NUM_MACH-1:0]   en;
     logic [NUM_MACH-1:0]   en_sync; // enable has to be synchronized to the ar bit so it hits when clkdivreset, restart hits
@@ -149,6 +150,11 @@ module bio #(
     logic ctl_action_sync;
     logic [3:0] push_sync;
     logic [3:0] pull_sync;
+    logic [24:0] pclk_event_set;
+    logic pclk_event_set_valid;
+    logic [24:0] pclk_event_clr;
+    logic pclk_event_clr_valid;
+
     // nc fields
     wire ctl_action_sync_ack;
     logic [31:0] host_mem_rdata_pclk;
@@ -156,6 +162,7 @@ module bio #(
     always_ff @(posedge pclk) begin
         pclk_regfifo_level <= regfifo_level;
         fdout <= regfifo_rdata;
+        pclk_event_status <= aggregated_events;
     end
     always_ff @(posedge aclk) begin
         fdin_sync <= fdin;
@@ -163,6 +170,8 @@ module bio #(
         host_fifo_event_eq_mask <= pclk_fifo_event_eq_mask;
         host_fifo_event_lt_mask <= pclk_fifo_event_lt_mask;
         host_fifo_event_gt_mask <= pclk_fifo_event_gt_mask;
+        host_event_set <= pclk_event_set;
+        host_event_clr <= pclk_event_clr;
     end
 
     `apbs_common;
@@ -180,6 +189,9 @@ module bio #(
             sfr_elevel0      .prdata32 |
             sfr_elevel1      .prdata32 |
             sfr_etype        .prdata32 |
+            sfr_event_set    .prdata32 |
+            sfr_event_clr    .prdata32 |
+            sfr_event_status .prdata32 |
             sfr_qdiv0        .prdata32 |
             sfr_qdiv1        .prdata32 |
             sfr_qdiv2        .prdata32 |
@@ -188,6 +200,11 @@ module bio #(
             sfr_io_oe_inv    .prdata32 |
             sfr_io_o_inv     .prdata32 |
             sfr_io_i_inv     .prdata32 |
+            sfr_irqmask_0    .prdata32 |
+            sfr_irqmask_1    .prdata32 |
+            sfr_irqmask_2    .prdata32 |
+            sfr_irqmask_3    .prdata32 |
+            sfr_irq_edge     .prdata32 |
             host_mem_rdata_pclk
             ;
 
@@ -205,31 +222,41 @@ module bio #(
     apb_asr #(.A('h28), .DW(32))     sfr_rxf2             (.sr(fdout[2]), .ar(pull[2]), .prdata32(),.*);
     apb_asr #(.A('h2C), .DW(32))     sfr_rxf3             (.sr(fdout[3]), .ar(pull[3]), .prdata32(),.*);
 
-    apb_sr  #(.A('h30), .DW(32))     sfr_elevel0          (.sr({
+    apb_cr  #(.A('h30), .DW(32))     sfr_elevel0          (.cr({
                                                             pclk_fifo_event_level[3], pclk_fifo_event_level[2],
                                                             pclk_fifo_event_level[1], pclk_fifo_event_level[0],}), .prdata32(),.*);
-    apb_sr  #(.A('h34), .DW(32))     sfr_elevel1          (.sr({
+    apb_cr  #(.A('h34), .DW(32))     sfr_elevel1          (.cr({
                                                             pclk_fifo_event_level[7], pclk_fifo_event_level[6],
                                                             pclk_fifo_event_level[5], pclk_fifo_event_level[4],}), .prdata32(),.*);
-    apb_sr  #(.A('h38), .DW(24))     sfr_etype            (.sr({
+    apb_cr  #(.A('h38), .DW(24))     sfr_etype            (.cr({
                                                             pclk_fifo_event_gt_mask, pclk_fifo_event_eq_mask,
                                                             pclk_fifo_event_lt_mask}), .prdata32(),.*);
+    apb_acr #(.A('h3C), .DW(24))     sfr_event_set        (.cr(pclk_event_set), .ar(pclk_event_set_valid), .prdata32(),.*);
+    apb_acr #(.A('h40), .DW(24))     sfr_event_clr        (.cr(pclk_event_clr), .ar(pclk_event_clr_valid), .prdata32(),.*);
+    apb_sr  #(.A('h44), .DW(32))     sfr_event_status     (.sr(pclk_event_status), .prdata32(), .*);
 
-    apb_cr #(.A('h40), .DW(32))      sfr_qdiv0            (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
-    apb_cr #(.A('h50), .DW(32))      sfr_qdiv1            (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
-    apb_cr #(.A('h60), .DW(32))      sfr_qdiv2            (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
-    apb_cr #(.A('h70), .DW(32))      sfr_qdiv3            (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
+    apb_cr #(.A('h50), .DW(32))      sfr_qdiv0            (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
+    apb_cr #(.A('h54), .DW(32))      sfr_qdiv1            (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
+    apb_cr #(.A('h58), .DW(32))      sfr_qdiv2            (.cr({div_int[2], div_frac[2], unused_div[2]}), .prdata32(),.*);
+    apb_cr #(.A('h5C), .DW(32))      sfr_qdiv3            (.cr({div_int[3], div_frac[3], unused_div[3]}), .prdata32(),.*);
 
-    apb_cr #(.A('h80), .DW(32))      sfr_sync_bypass      (.cr(sync_bypass), .prdata32(),.*);
+    apb_cr #(.A('h60), .DW(32))      sfr_sync_bypass      (.cr(sync_bypass), .prdata32(),.*);
+    apb_cr #(.A('h64), .DW(32))      sfr_io_oe_inv        (.cr(oe_invert), .prdata32(),.*);
+    apb_cr #(.A('h68), .DW(32))      sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
+    apb_cr #(.A('h6C), .DW(32))      sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
 
-    apb_cr #(.A('h180), .DW(32))     sfr_io_oe_inv        (.cr(oe_invert), .prdata32(),.*);
-    apb_cr #(.A('h184), .DW(32))     sfr_io_o_inv         (.cr(out_invert), .prdata32(),.*);
-    apb_cr #(.A('h188), .DW(32))     sfr_io_i_inv         (.cr(in_invert), .prdata32(),.*);
+    apb_cr #(.A('h70), .DW(32))      sfr_irqmask_0        (.cr(irqmask0), .prdata32(),.*);
+    apb_cr #(.A('h74), .DW(32))      sfr_irqmask_1        (.cr(irqmask1), .prdata32(),.*);
+    apb_cr #(.A('h78), .DW(32))      sfr_irqmask_2        (.cr(irqmask2), .prdata32(),.*);
+    apb_cr #(.A('h7C), .DW(32))      sfr_irqmask_3        (.cr(irqmask3), .prdata32(),.*);
+    apb_cr #(.A('h80), .DW(4))       sfr_irq_edge         (.cr(irq_edge), .prdata32(),.*);
 
     cdc_blinded       ctl_action_cdc     (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       ctl_action_ack_cdc (.reset(!resetn), .clk_a(aclk), .clk_b(pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
-    cdc_blinded       push_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(push                  ), .out_b(push_sync                  ));
-    cdc_blinded       pull_cdc[3:0]    (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_blinded       push_cdc[3:0]      (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(push                  ), .out_b(push_sync                  ));
+    cdc_blinded       pull_cdc[3:0]      (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_blinded       event_set_cdc      (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_set_valid  ), .out_b(host_event_set_valid       ));
+    cdc_blinded       event_clr_cdc      (.reset(!resetn), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
 
     /////////////////////// machine instantiation & instruction memory
     assign reset = ~resetn;
@@ -458,8 +485,171 @@ module bio #(
     endgenerate
 
     /////////////////////// event logic
-    // TODO: left off here
+    logic [7:0] level_eq_result;
+    logic [7:0] level_lt_result;
+    logic [7:0] level_gt_result;
+    logic [23:0] event_set_agg;
+    logic [23:0] event_clr_agg;
+    always_comb begin
+        generate
+            genvar i;
+            for(i=0; i<4; i=i+1) begin: event_levels
+                level_eq_result[2*i] = (regfifo_level[i] == host_fifo_event_level[2*i]);
+                level_eq_result[2*i+1] = (regfifo_level[i] == host_fifo_event_level[2*i+1]);
+                level_lt_result[2*i] = (regfifo_level[i] < host_fifo_event_level[2*i]);
+                level_lt_result[2*i+1] = (regfifo_level[i] < host_fifo_event_level[2*i+1]);
+                level_gt_result[2*i] = (regfifo_level[i] > host_fifo_event_level[2*i]);
+                level_gt_result[2*i+1] = (regfifo_level[i] > host_fifo_event_level[2*i+1]);
+            end
+        endgenerate
+    end
+    always_ff @(posedge aclk) begin
+        generate
+            genvar i;
+            for(i=0; i<8; i=i+1) begin: event_levels_hookup
+                aggregated_events[i] <= host_fifo_event_eq_mask[i] && level_eq_result[i]
+                    || host_fifo_event_lt_mask[i] && level_lt_result[i]
+                    || host_fifo_event_gt_mask[i] && level_gt_result[i];
+            end
+        endgenerate
 
+    end
+    priority_demux #(
+        .DATAW(24),
+        .LEVELS(5)
+    ) event_set_aggregator (
+        .stb({event_set_valid, host_event_set_valid}),
+        .input({event_set, host_event_set}),
+        .output(event_set_agg)
+    );
+    priority_demux #(
+        .DATAW(24),
+        .LEVELS(5)
+    ) event_clr_aggregator (
+        .stb({event_clr_valid, host_event_clr_valid}),
+        .input({event_clr, host_event_clr}),
+        .output(event_clr_agg)
+    );
+    scc_ff #(
+        .RESET(0),
+        .WIDTH(24),
+    ) event_aggregator (
+        .clk(aclk),
+        .reset_n(reset_n),
+        .set(event_set_agg),
+        .clr(event_clr_agg),
+        .clobber('0),
+        .value('0),
+        .q(aggregated_events[31:8])
+    );
+
+    /////////////////////// gpio logic
+    generate
+        for (genvar gp = 0; gp < 32; gp++) begin: gp_iface
+            assign bio_gpio[gp].po = gpio_out[gp] ^ out_invert[gp];
+            assign bio_gpio[gp].oe = gpio_dir[gp] ^ oe_invert[gp];
+            assign gpio_in[gp] = bio_gpio[gp].pi ^ in_invert[gp];
+        end
+    endgenerate
+    // add metastability hardening, with optional bypass path
+    always @(posedge aclk) begin
+        gpio_in_sync0 <= gpio_in;
+        gpio_in_sync1 <= gpio_in_sync0;
+    end
+    generate
+        genvar m;
+        for(m = 0; m < 32; m = m + 1) begin: gen_bypass
+            assign gpio_in_cleaned[m] = sync_bypass[m] ? gpio_in[m] : gpio_in_sync1[m];
+        end
+    endgenerate
+
+    logic [31:0] gpio_set_agg;
+    logic [31:0] gpio_clr_agg;
+    logic [31:0] gpdir_set_agg;
+    logic [31:0] gpdir_clr_agg;
+    logic [31:0] gpio_out;
+    logic [31:0] gpio_dir;
+    priority_demux #(
+        .DATAW(32),
+        .LEVELS(4)
+    ) gpio_set_aggregator (
+        .stb(gpio_set_valid),
+        .input(gpio_set),
+        .output(gpio_set_agg)
+    );
+    priority_demux #(
+        .DATAW(32),
+        .LEVELS(4)
+    ) gpio_clr_aggregator (
+        .stb(gpio_clr_valid),
+        .input(gpio_clr),
+        .output(gpio_clr_agg)
+    );
+    scc_ff #(
+        .RESET(0),
+        .WIDTH(32),
+    ) gpio_aggregator (
+        .clk(aclk),
+        .reset_n(reset_n),
+        .set(gpio_set_agg),
+        .clr(gpio_clr_agg),
+        .clobber('0),
+        .value('0),
+        .q(gpio_out)
+    );
+
+    priority_demux #(
+        .DATAW(32),
+        .LEVELS(4)
+    ) gpdir_set_aggregator (
+        .stb(gpdir_set_valid),
+        .input(gpdir_set),
+        .output(gpdir_set_agg)
+    );
+    priority_demux #(
+        .DATAW(32),
+        .LEVELS(4)
+    ) gpdir_clr_aggregator (
+        .stb(gpdir_clr_valid),
+        .input(gpdir_clr),
+        .output(gpdir_clr_agg)
+    );
+    scc_ff #(
+        .RESET(0),
+        .WIDTH(32),
+    ) gpdir_aggregator (
+        .clk(aclk),
+        .reset_n(reset_n),
+        .set(gpdir_set_agg),
+        .clr(gpdir_clr_agg),
+        .clobber('0),
+        .value('0),
+        .q(gpio_dir)
+    );
+
+    /////////////////////// irq
+    always_comb begin
+        irq_agg[0] = (irqmask0 & aggregated_events) != 0;
+        irq_agg[1] = (irqmask1 & aggregated_events) != 0;
+        irq_agg[2] = (irqmask2 & aggregated_events) != 0;
+        irq_agg[3] = (irqmask3 & aggregated_events) != 0;
+    end
+    always_ff @(posedge pclk or negedge reset_n) begin
+        if (~reset_n) begin
+            irq <= '0;
+        end else begin
+            irq_agg_q <= irq_agg;
+            generate
+                for(genvar i=0; i < 4; i = i + 1) begin: IRQs
+                    if (irq_edge[i]) begin
+                        irq[i] <= irq_agg[i] & ~irq_agg_q;
+                    end else begin
+                        irq[i] <= irq_agg[i];
+                    end
+                end
+            endgenerate
+        end
+    end
 
     /////////////////////// repeated core units
     generate
@@ -471,6 +661,13 @@ module bio #(
                     en_sync[j] <= 0;
                 end else if (ctl_action_sync) begin
                     en_sync[j] <= en[j];
+                end
+            end
+            always_ff @(posedge aclk) begin
+                if (en_sync == 0) begin
+                    core_clk_count <= '0;
+                end else begin
+                    core_clk_count <= core_clk_count + '1;
                 end
             end
             pio_divider clk_divider (
@@ -524,14 +721,14 @@ module bio #(
                 .gpdir_set_valid(gpdir_set_valid[j]),
                 .gpdir_clr_valid(gpdir_clr_valid[j]),
                 .gpio_pins(gpio_in_cleaned),
-                .aggregated_events(aggregated_events[j]),
+                .aggregated_events(aggregated_events),
                 .stalling_for_event(stalling_for_event[j]),
                 .event_set(event_set[j]),
                 .event_set_valid(event_set_valid[j]),
                 .event_clr(event_clr[j]),
                 .event_clr_valid(event_clr_valid[j]),
                 .core_id(j),
-                .clk_count(clk_count[j]),
+                .clk_count(core_clk_count[j]),
 
                 .clk(core_clk[j]),
                 .resetn(resetn),
@@ -576,7 +773,7 @@ module priority_demux #(
     input [LEVELS-1:0]  stb,
     input [DATAW-1:0]   data_in[LEVELS],
     output [DATAW-1:0]  data_out
-)
+);
     always_comb begin
         data_out = 0;
         generate
@@ -585,6 +782,40 @@ module priority_demux #(
                 if (stb[i]) data_out = data_in[i];
             end
         endgenerate
+    end
+endmodule
+
+module scc_ff #( // set-clear-clobber ff
+    parameter RESET = '0,
+    parameter WIDTH = 1,
+) (
+    input clk,
+    input reset_n,
+    input [WIDTH-1:0] set,
+    input [WIDTH-1:0] clr,
+    input [WIDTH-1:0] clobber,
+    input [WIDTH-1:0] value,
+    logic [WIDTH-1:0] q
+);
+    always_ff @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            q <= RESET;
+        end else begin
+            generate
+                genvar i;
+                for(i = 0; i < WIDTH; i = i + 1) begin: scc_gen
+                    if (clobber[i]) begin
+                        q[i] <= value[i];
+                    end else if (set[i] && !clr[i]) begin
+                        q[i] <= 1;
+                    end else if (!set && clr) begin
+                        q[i] <= 0;
+                    end else begin
+                        q[i] <= q[i];
+                    end
+                end
+            endgenerate
+        end
     end
 endmodule
 
@@ -611,9 +842,9 @@ module picorv32_regs_bio #(
 
     input [31:0]  aggregated_events,
     output        stalling_for_event,
-    output [31:0] event_set,
+    output [23:0] event_set,
     output        event_set_valid,
-    output [31:0] event_clr,
+    output [23:0] event_clr,
     output        event_clr_valid,
 
     input [NUM_MACH_BITS-1:0]    core_id,
@@ -669,8 +900,8 @@ module picorv32_regs_bio #(
         gpio_clr = ~gpio_mask | ~wdata;
         gpdir_set = gpio_mask & wdata;
         gpdir_clr = ~gpio_mask | ~wdata;
-        event_set = wdata;
-        event_clr = wdata;
+        event_set = wdata[31:8];
+        event_clr = wdata[31:8];
 
         stalling_for_event = (event_mask & aggregated_events) == event_mask;
 

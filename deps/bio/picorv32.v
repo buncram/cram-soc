@@ -142,9 +142,9 @@ module picorv32 #(
 
     input [31:0]  aggregated_events,
     output        stalling_for_event,
-    output [31:0] event_set,
+    output [23:0] event_set,
     output        event_set_valid,
-    output [31:0] event_clr,
+    output [23:0] event_clr,
     output        event_clr_valid,
 
     input [NUM_MACH_BITS-1:0]    core_id,

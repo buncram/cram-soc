@@ -76,7 +76,7 @@ For the following registers, the result only reflects to the GPIO bank on the ri
 - Bits set in R26 will mask operations to R22-25. It is all 1's on reset. Reads from R26 return the mask state.
 - Reads from R22-25 are undefined, but do not block execution.
 
-In the case of a conflict (set and clear simultaneously), the command from the lowest-numbered core wins.
+In the case of a conflict (set and clear simultaneously), the command is ignored, and the previous state is kept.
 
 If the goal is to have a constant bit-pattern appear on a set of GPIO pins, the code
 to do that would be a `mov r22, const` followed by a `mov r23, const`. This works because
@@ -97,7 +97,7 @@ Bits 0-7 on R30 are wired to the FIFO level event flags; these bits cannot be se
 
 The host can read the contents of the aggregated events in real-time, and an interrupt can be generated based on an enable mask AND'd with the contents of R30.
 
-The host also similarly has bit-wise set/clear write-only registers that can manipulate the aggregated events. The host's set/clear commands have priority over all of the cores.
+The host also similarly has bit-wise set/clear write-only registers that can manipulate the aggregated events. The host's set/clear commands have priority over all of the cores. In case of simultaneous set/clear, the conflicting bits are ignored and the previous state is kept.
 
 # R31 core ID and cycle count
 
