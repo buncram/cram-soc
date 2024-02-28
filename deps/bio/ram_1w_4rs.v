@@ -27,8 +27,8 @@ module Ram_1w_4rs #(
     input  wire                             rd_en[4],
     input  wire [rdAddressWidth - 1:0]      rd_addr[4],
     output reg  [rdDataWidth - 1:0]         rd_data[4],
-    input  wire                             CMBIST, // dummy pins for test insertion
-    input  wire                             CMATPG // dummy pins for test insertion
+    input  wire                             cmbist, // dummy pins for test insertion
+    input  wire                             cmatpg // dummy pins for test insertion
 );
 
 parameter WORD_WIDTH = wrMaskWidth;
@@ -65,22 +65,19 @@ initial begin
 end
 
 always @(posedge wr_clk) begin
-    for (i = 0; i < WORD_WIDTH; i = i + 1) begin
+    for (i = 0; i < WORD_WIDTH; i = i + 1) begin: writes
         if (wr_en & (wr_mask[i] | !wrMaskEnable)) begin
             mem[wr_addr][WORD_SIZE*i +: WORD_SIZE] <= wr_data[WORD_SIZE*i +: WORD_SIZE];
         end
     end
 end
-generate
-    genvar j;
-    for(j=0; j<4; j=j+1) begin; ports
-        always @(posedge rd_clk) begin
-            if (rd_en[j]) begin
-                rd_data[j] <= mem[rd_addr[j]];
-            end
+always @(posedge rd_clk) begin
+    for(j = 0; j < 4; j = j + 1) begin: ports
+        if (rd_en[j]) begin
+            rd_data[j] <= mem[rd_addr[j]];
         end
     end
-endgenerate
+end
 
 endmodule
 

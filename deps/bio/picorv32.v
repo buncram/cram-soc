@@ -1412,7 +1412,7 @@ module picorv32 #(
 		.gpio_set(gpio_set),
 		.gpio_clr(gpio_clr),
 		.gpdir_set(gpdir_set),
-		.gpdir_clr(gpidr_clr),
+		.gpdir_clr(gpdir_clr),
 		.gpio_set_valid(gpio_set_valid),
 		.gpio_clr_valid(gpio_clr_valid),
 		.gpdir_set_valid(gpdir_set_valid),
