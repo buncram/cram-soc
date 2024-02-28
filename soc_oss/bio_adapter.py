@@ -235,6 +235,7 @@ class BioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "picorv32.v"))
         platform.add_source(os.path.join(rtl_dir, "pio_divider.v"))
         platform.add_source(os.path.join(rtl_dir, "ram_1w_4rs.v"))
+        platform.add_source(os.path.join(rtl_dir, "regfifo.v"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
         platform.add_source(os.path.join(rtl_dir, "cdc_blinded.v"))
