@@ -58,21 +58,25 @@ Normally, the code loop run by one core should finish before the quantum is up, 
 
 When the `quanta` value is identical across all cores, the cores will all run in lock-step with each other. However, the user is free to configure the per-core `quanta` however they see fit.
 
+Reads to this register return an undefined value and have no effect on the clocking of the block.
+
 ## GPIO R21-26
 
 GPIOs are wired to the cores as follows:
 
-- All cores can read R21 at any time to get the state of a pin. A per-core host register configures if R21 updates only at the rising edge of every quantum, or if the values are directly piped in from the I/O pin. R21 is not masked by R26.
+- All cores can read R21 at any time to get the state of a pin. A per-core host register configures if R21 updates only at the rising edge of every quantum, or if the values are directly piped in from the I/O pin at `aclk` rate. R21 is not masked by R26.
 
 For the following registers, the result only reflects to the GPIO bank on the rising edge of every quantum. Only the last update to a given register will have any effect. This also allows a core to both set and clear bits on a GPIO simultaneously on a given quantum, even though the instructions are executed separately.
 
+- Writes to R21 will be masked by R26 and "clobber" all unmasked values on the GPIO block
 - Bits set on a write to R22 will set the corresponding GPIO pin
 - Bits cleared on a write to R23 will clear the corresponding GPIO pin
 - Bits set on a write to R24 will drive the corresponding GPIO pin
 - Bits cleared on a write to R25 will tristate the corresponding GPIO pin
-- Bits set in R26 will mask operations to R22-25. It is all 1's on reset.
+- Bits set in R26 will mask operations to R22-25. It is all 1's on reset. Reads from R26 return the mask state.
+- Reads from R22-25 are undefined, but do not block execution.
 
-In the case of a conflict (both set and clear on a single bit from multiple cores), the core with the lowest number wins.
+In the case of a conflict (set and clear simultaneously), the command from the lowest-numbered core wins.
 
 If the goal is to have a constant bit-pattern appear on a set of GPIO pins, the code
 to do that would be a `mov r22, const` followed by a `mov r23, const`. This works because
@@ -106,5 +110,5 @@ The count will wrap around on overflow.
 
 ## Missed Quantum Register
 
-This is a host register, one per core, that counts the number of quanta that were missed by a given core. This is primarily for debugging code loops.
+This is a host register, one per core, that counts the number of quanta that were missed by a given core (e.g., a quanta pulse has passed without the core stalling on the quanta pulse). This is primarily for debugging code loops.
 
