@@ -103,7 +103,8 @@ class CramSoC(SoCCore):
         self.axi_peri_map = {
             "testbench" : [0x4008_0000, 0x1_0000], # 64k
             "duart"     : [0x4004_2000, 0x0_1000],
-            "pio"       : [0x5012_3000, 0x0_1000],
+            # "pio"       : [0x5012_3000, 0x0_1000],
+            "bio"       : [0x5012_4000, 0x0_1000],
             "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
@@ -225,6 +226,7 @@ class CramSoC(SoCCore):
         # But we need to define them so we don't have an explosion of SoC wiring options down below
         pio_irq0 = Signal()
         pio_irq1 = Signal()
+        bio_irq = Signal(4)
         irq_available = Signal()
         irq_abort_init = Signal()
         irq_abort_done = Signal()
@@ -286,6 +288,24 @@ class CramSoC(SoCCore):
                         getattr(self, name +"_ahb"), platform.request("pio"), pio_irq0, pio_irq1, sel_addr=region[0],
                         sim=sim
                     ))
+                elif name == "bio":
+                    if variant == "sim":
+                        sim = True  # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
+                    else:
+                        sim = False
+                    from soc_oss.bio_adapter import BioAdapter
+                    if variant == "sim":
+                        clock_remap = {"sys" : "p"}
+                    else: # arty variant
+                        clock_remap = {"sys" : "p", "bio": "sys"}
+                    self.submodules += ClockDomainsRenamer(clock_remap)(BioAdapter(platform,
+                        getattr(self, name +"_ahb"), platform.request("pio"), bio_irq, sel_addr=region[0],
+                        sim=sim
+                    ))
+                    self.comb += [
+                        pio_irq0.eq(bio_irq[0]),
+                        pio_irq1.eq(bio_irq[1]),
+                    ]
                 elif name == "duart":
                     from soc_oss.duart_adapter import DuartAdapter
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
@@ -470,7 +490,7 @@ class CramSoC(SoCCore):
             i_irqarray_bank7      = zero_irq,
             i_irqarray_bank8      = zero_irq,
             i_irqarray_bank9      = zero_irq,
-            i_irqarray_bank10      = Cat(zero_irq[:3], pio_irq0, pio_irq1, zero_irq[5:]),
+            i_irqarray_bank10      = Cat(zero_irq[:3], pio_irq0, pio_irq1, bio_irq[2:3], zero_irq[7:]),
             i_irqarray_bank11      = zero_irq,
             i_irqarray_bank12      = zero_irq,
             i_irqarray_bank13      = zero_irq,
@@ -478,7 +498,7 @@ class CramSoC(SoCCore):
             i_irqarray_bank15      = zero_irq,
             i_irqarray_bank16      = zero_irq,
             i_irqarray_bank17      = zero_irq,
-            i_irqarray_bank18      = Cat(pio_irq0, pio_irq1, self.irqtest0.fields.trigger, zero_irq[2:]),
+            i_irqarray_bank18      = Cat(pio_irq0, pio_irq1, bio_irq[2:3], self.irqtest0.fields.trigger, zero_irq[0]),
             i_irqarray_bank19      = Cat(irq_available, irq_abort_init, irq_abort_done, irq_error, zero_irq[4:]),
 
             i_mbox_w_dat           = mbox.w_dat,

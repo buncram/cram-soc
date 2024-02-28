@@ -1079,7 +1079,7 @@ def dupe_irqs(pins, comb):
             # bank
             # 80
             'ioxirq',   'usbc',     'sddcirq',       'pioirq[0]',
-            'pioirq[1]','',         '',              '',
+            'pioirq[1]','pioirq[2]','pioirq[3]',     '',
             # 88
             '', '', '', '', '', '', '', '',
             # bank
@@ -1120,6 +1120,8 @@ def dupe_irqs(pins, comb):
         'mbox_irq_error':          (19, 3),
         'pioirq[0]'  :             (18, 0), # mapped here for soc/fpga "local" variants as well
         'pioirq[1]'  :             (18, 1),
+        'pioirq[2]'  :             (18, 2),
+        'pioirq[3]'  :             (18, 3),
         'mdmairq'    :             (0, 0),  # unused 0-bank
         'usbc' :                   (1, 0),   # unused bottom half of coresub
         'i2s_rx' :                 (11, 0),   # unused bank in ifsubev

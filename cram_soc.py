@@ -48,6 +48,7 @@ _io = [
     ("sys_clk", 0, Pins(1)),
     ("p_clk", 0, Pins(1)),
     ("pio_clk", 0, Pins(1)),
+    ("bio_clk", 0, Pins(1)),
     # ("sys_reset", 0, Pins(1)),
 
     ("jtag", 0,
@@ -168,11 +169,12 @@ class SimUartPhy(Module, AutoCSR):
 
 # Simulation CRG -----------------------------------------------------------------------------------
 class SimCRG(Module):
-    def __init__(self, clk, p_clk, pio_clk, rst, sleep_req):
+    def __init__(self, clk, p_clk, pio_clk, bio_clk, rst, sleep_req):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain(reset_less=True)
         self.clock_domains.cd_p = ClockDomain()
         self.clock_domains.cd_pio = ClockDomain()
+        self.clock_domains.cd_bio = ClockDomain()
         self.clock_domains.cd_sys_always_on = ClockDomain()
 
         # Power on Reset (vendor agnostic)
@@ -186,6 +188,8 @@ class SimCRG(Module):
             self.cd_p.rst.eq(int_rst),
             self.cd_pio.clk.eq(pio_clk),
             self.cd_pio.rst.eq(int_rst),
+            self.cd_bio.clk.eq(bio_clk),
+            self.cd_bio.rst.eq(int_rst),
             self.cd_sys_always_on.clk.eq(clk),
         ]
 
@@ -473,7 +477,8 @@ def verilator_extensions(self, nosave=False):
         )
     self.crg = SimCRG(
         self.platform.request("sys_clk"),
-        self.platform.request("p_clk"), self.platform.request("pio_clk"),
+        self.platform.request("p_clk"),
+        self.platform.request("pio_clk"), self.platform.request("bio_clk"),
         ic_reset, self.sleep_req)
 
     # Add SoC memory regions
@@ -642,6 +647,7 @@ def main():
     sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
     sim_config.add_clocker("p_clk", freq_hz=100e6) # simulated down to 50MHz, but left at 100MHz to speed up simulations
     sim_config.add_clocker("pio_clk", freq_hz=200e6)
+    sim_config.add_clocker("bio_clk", freq_hz=sys_clk_freq)
 
     bios_path = args.bios
 
