@@ -51,6 +51,8 @@ module bio #(
     logic [7:0]  unused_div    [NUM_MACH];
     logic [NUM_MACH-1:0]       clkdiv_restart;
     logic [NUM_MACH-1:0]       restart;
+    logic [NUM_MACH-1:0]       a_restart;
+    logic [NUM_MACH-1:0]       a_restart_q[2];
     logic [NUM_MACH-1:0]       penable;
     logic [NUM_MACH-1:0]       core_ena;
 
@@ -170,6 +172,9 @@ module bio #(
         host_fifo_event_gt_mask <= pclk_fifo_event_gt_mask;
         host_event_set <= pclk_event_set;
         host_event_clr <= pclk_event_clr;
+        a_restart_q[0] <= restart;
+        a_restart_q[1] <= a_restart_q[0];
+        a_restart <= a_restart_q[1];
     end
     // SFR bank
     logic apbrd, apbwr, sfrlock;
@@ -303,9 +308,9 @@ module bio #(
             ram_wr_en = mem_la_write[0];
             ram_wr_mask = mem_la_wstrb[0];
             ram_wr_data = mem_la_wdata[0];
-            ram_wr_addr = mem_la_addr[0][MEM_ADDR_BITS-1:0];
+            ram_wr_addr = mem_la_addr[0][MEM_ADDR_BITS+2:2];
 
-            ram_rd_addr[0] = mem_la_addr[0][MEM_ADDR_BITS-1:0];
+            ram_rd_addr[0] = mem_la_addr[0][MEM_ADDR_BITS+2:2];
             ram_rd_enable[0] = mem_la_read[0];
         end else begin
             // host can write & read
@@ -321,9 +326,9 @@ module bio #(
                 ram_rd_enable[0] = host_mem_rd_d;
             end
         end
-        ram_rd_addr[1] = mem_la_addr[1][MEM_ADDR_BITS-1:0];
-        ram_rd_addr[2] = mem_la_addr[2][MEM_ADDR_BITS-1:0];
-        ram_rd_addr[3] = mem_la_addr[3][MEM_ADDR_BITS-1:0];
+        ram_rd_addr[1] = mem_la_addr[1][MEM_ADDR_BITS+2:2];
+        ram_rd_addr[2] = mem_la_addr[2][MEM_ADDR_BITS+2:2];
+        ram_rd_addr[3] = mem_la_addr[3][MEM_ADDR_BITS+2:2];
         ram_rd_enable[1:3] = mem_la_read[1:3];
     end
     // apb<->imem
@@ -402,7 +407,7 @@ module bio #(
                     | mach_regfifo_rd[j] & !regfifo_readable[j]        // FIFO read but empty
                     | mach_regfifo_wr[j] & !regfifo_writable[j]        // FIFO write but full
                     | stalling_for_event[j]                            // event stall
-                ) && en_sync[j];                                       // overall machine enable
+                ) || ~en_sync[j];                                      // overall machine enable
             end
         end
     endgenerate
@@ -731,7 +736,7 @@ module bio #(
                 .clk_count(core_clk_count[j]),
 
                 .clk(core_clk[j]),
-                .resetn(reset_n),
+                .resetn(reset_n & ~a_restart),
                 .trap(trap[j]),
                 .mem_ready(mem_ready[j]),
                 .mem_rdata(mem_rdata[j]),
@@ -816,9 +821,9 @@ module scc_ff #( // set-clear-clobber ff
                     if (clobber[i]) begin
                         q[i] <= value[i];
                     end else if (set[i] && !clr[i]) begin
-                        q[i] <= 1;
-                    end else if (!set && clr) begin
-                        q[i] <= 0;
+                        q[i] <= 1'b1;
+                    end else if (!set[i] && clr[i]) begin
+                        q[i] <= 1'b0;
                     end else begin
                         q[i] <= q[i];
                     end
