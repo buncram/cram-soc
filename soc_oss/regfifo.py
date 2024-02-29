@@ -70,7 +70,7 @@ class RegFifo(Module):
             self.writable.eq(f.writable),
 
             self.wdata.eq(f.dout),
-            self.re.eq(self.re),
+            self.re.eq(f.re),
             self.readable.eq(f.readable),
 
             self.level.eq(f.level),
