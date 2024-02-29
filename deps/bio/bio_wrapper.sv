@@ -5,7 +5,7 @@
 // Integration wrapper for bio
 
 module bio_apb #(
-    parameter AW = 12
+    parameter AW = 13
 )(
     input logic aclk,  // clock of the BIO block itself
     input logic pclk,  // clock of the APB bus

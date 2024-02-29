@@ -177,6 +177,7 @@ module bio #(
     `apbs_common;
     assign  apbx.prdata = '0 |
             sfr_ctrl         .prdata32 |
+            sfr_cfginfo      .prdata32 |
             sfr_flevel       .prdata32 |
             sfr_txf0         .prdata32 |
             sfr_txf1         .prdata32 |
@@ -209,6 +210,7 @@ module bio #(
             ;
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
+    apb_sr  #(.A('h04), .DW(32))     sfr_cfginfo          (.sr({16'd4096, 8'd4, 8'd8}), .prdata32(),.*);
 
     apb_sr  #(.A('h0C), .DW(16))     sfr_flevel           (.sr({
                                                             pclk_regfifo_level[3], pclk_regfifo_level[2],
@@ -250,6 +252,8 @@ module bio #(
     apb_cr #(.A('h78), .DW(32))      sfr_irqmask_2        (.cr(irqmask2), .prdata32(),.*);
     apb_cr #(.A('h7C), .DW(32))      sfr_irqmask_3        (.cr(irqmask3), .prdata32(),.*);
     apb_cr #(.A('h80), .DW(4))       sfr_irq_edge         (.cr(irq_edge), .prdata32(),.*);
+    apb_sr #(.A('h84), .DW(32))      sfr_dbg_padout       (.sr(gpio_out), .prdata32(),.*);
+    apb_sr #(.A('h88), .DW(32))      sfr_dbg_padoe        (.sr(gpio_dir), .prdata32(),.*);
 
     cdc_blinded       ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b(pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
@@ -278,8 +282,8 @@ module bio #(
     logic [1:0] psel_sync;
     logic [1:0] pwrite_sync;
     logic [1:0] penable_sync;
-    logic [MEM_ADDR_BITS-1:0] host_mem_addr_sync[2];
-    logic [MEM_ADDR_BITS-1:0] host_mem_addr;
+    logic [MEM_ADDR_BITS:0] host_mem_addr_sync[2];
+    logic [MEM_ADDR_BITS:0] host_mem_addr;
     logic [31:0] host_mem_rdata_capture;
     logic [31:0] host_mem_rdata;
 
@@ -289,6 +293,8 @@ module bio #(
     assign imem_wr_mode = en_sync[0]; // when machine 0 is disabled, the host can use its port to read/write
     // mux on port 0 of imem between host and machines
     always_comb begin
+        ram_wr_en = 0;
+        ram_rd_enable[0] = 0;
         host_mem_wr_d = psel_sync[1] & pwrite_sync[1] & penable_sync[1];
         host_mem_rd_d = psel_sync[1] & !pwrite_sync[1];
 
@@ -303,13 +309,17 @@ module bio #(
             ram_rd_enable[0] = mem_la_read[0];
         end else begin
             // host can write & read
-            ram_wr_en = host_mem_wr_stb;
+            if (host_mem_addr_sync[1][MEM_ADDR_BITS] == 1) begin // memory is mapped to page above the register interface
+                ram_wr_en = host_mem_wr_stb;
+            end
             ram_wr_mask = 4'b1111; // only full 32-bit writes are allowed, anything else is undefined
             ram_wr_data = host_mem_wdata;
             ram_wr_addr = host_mem_addr;
 
             ram_rd_addr[0] = host_mem_addr;
-            ram_rd_enable[0] = host_mem_rd_d;
+            if (host_mem_addr_sync[1][MEM_ADDR_BITS] == 1) begin
+                ram_rd_enable[0] = host_mem_rd_d;
+            end
         end
         ram_rd_addr[1] = mem_la_addr[1][MEM_ADDR_BITS-1:0];
         ram_rd_addr[2] = mem_la_addr[2][MEM_ADDR_BITS-1:0];
@@ -327,12 +337,12 @@ module bio #(
         penable_sync[1] <= penable_sync[0];
         host_mem_wdata_sync[0] <= apbs.pwdata;
         host_mem_wdata_sync[1] <= host_mem_wdata_sync[0];
-        host_mem_addr_sync[0] <= apbs.paddr[MEM_ADDR_BITS-1:0];
+        host_mem_addr_sync[0] <= apbs.paddr[MEM_ADDR_BITS+2:2]; // extract word-level address here
         host_mem_addr_sync[1] <= host_mem_addr_sync[0];
 
         host_mem_wr <= host_mem_wr_d;
         host_mem_wr_stb <= host_mem_wr_d & !host_mem_wr;
-        host_mem_addr <= host_mem_wr_d & !host_mem_wr ? host_mem_addr_sync[1] : host_mem_addr;
+        host_mem_addr <= host_mem_wr_d & !host_mem_wr ? host_mem_addr_sync[1][MEM_ADDR_BITS-1:0] : host_mem_addr;
         host_mem_wdata <= host_mem_wr_d & !host_mem_wr ? host_mem_wdata_sync[1] : host_mem_wdata;
 
         host_mem_rd <= host_mem_rd_d;
@@ -376,6 +386,13 @@ module bio #(
         .cmatpg(cmatpg)
     );
     assign mem_rdata = ram_rd_data;
+    always_ff @(posedge aclk) begin
+        mem_ready[0] <= ram_wr_en || ram_rd_enable[0];
+        mem_ready[1] <= ram_rd_enable[1];
+        mem_ready[2] <= ram_rd_enable[2];
+        mem_ready[3] <= ram_rd_enable[3];
+    end
+
     // machine stall signal
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: stalls
@@ -620,6 +637,15 @@ module bio #(
     endgenerate
 
     /////////////////////// repeated core units
+    // `define FPGA 1
+    `ifdef FPGA
+        logic aclk_buf;
+        // insert a BUFH to help with clock mux distribution
+        BUFH aclk_fixer (
+            .I(aclk),
+            .O(aclk_buf)
+        );
+    `endif
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: mach
             always_ff @(posedge aclk) begin
@@ -644,7 +670,11 @@ module bio #(
                 .div_frac(div_frac[j]),
                 .penable(penable[j])
             );
-            ICG icg(.CK(aclk),.EN(~stall[j]),.SE(cmatpg),.CKG(core_clk[j]));
+            `ifdef FPGA
+                ICG icg(.CK(aclk_buf),.EN(~stall[j]),.SE(cmatpg),.CKG(core_clk[j]));
+            `else
+                ICG icg(.CK(aclk),.EN(~stall[j]),.SE(cmatpg),.CKG(core_clk[j]));
+            `endif
             picorv32 #(
                 .ENABLE_COUNTERS(0),
                 .ENABLE_COUNTERS64(0),
@@ -674,7 +704,10 @@ module bio #(
 	            .STACKADDR(MEM_SIZE_BYTES - 1)
             ) core
             (
-                .regfifo_rdata(regfifo_rdata),
+                .regfifo_rdata_0(regfifo_rdata_0),
+                .regfifo_rdata_1(regfifo_rdata_1),
+                .regfifo_rdata_2(regfifo_rdata_2),
+                .regfifo_rdata_3(regfifo_rdata_3),
                 .regfifo_rd(mach_regfifo_rd[j]),
                 .regfifo_wdata(mach_regfifo_wdata[j]),
                 .regfifo_wr(mach_regfifo_wr[j]),
@@ -799,17 +832,20 @@ module picorv32_regs_bio #(
     parameter NUM_MACH = 4,
     parameter NUM_MACH_BITS = $clog2(NUM_MACH)
 )(
-    input [31:0]        regfifo_rdata[4],
+    input [31:0]        regfifo_rdata_0,
+    input [31:0]        regfifo_rdata_1,
+    input [31:0]        regfifo_rdata_2,
+    input [31:0]        regfifo_rdata_3,
     output logic [3:0]  regfifo_rd, // must guarantee one pulse per read, even on successive repeated reads. Machine stalls with pulse asserted if FIFO is empty.
     output logic [31:0] regfifo_wdata,
     output logic [3:0]  regfifo_wr, // must guarantee one pulse per write, even on successive repeated writes. Machine stalls with pulse asserted if FIFO is full.
 
     output logic  quanta_wr,  // asserted on any write access to r20
 
-    output [31:0] gpio_set,
-    output [31:0] gpio_clr,
-    output [31:0] gpdir_set,
-    output [31:0] gpdir_clr,
+    output logic [31:0] gpio_set,
+    output logic [31:0] gpio_clr,
+    output logic [31:0] gpdir_set,
+    output logic [31:0] gpdir_clr,
     output logic  gpio_set_valid,
     output logic  gpio_clr_valid,
     output logic  gpdir_set_valid,
@@ -817,7 +853,7 @@ module picorv32_regs_bio #(
     input [31:0]  gpio_pins,
 
     input [31:0]        aggregated_events,
-    output              stalling_for_event,
+    output logic        stalling_for_event,
     output logic [23:0] event_set,
     output logic        event_set_valid,
     output logic [23:0] event_clr,
@@ -878,7 +914,7 @@ module picorv32_regs_bio #(
         event_set = wdata[31:8];
         event_clr = wdata[31:8];
 
-        stalling_for_event = (event_mask & aggregated_events) == event_mask;
+        stalling_for_event = ((event_mask & aggregated_events) == event_mask) && (event_mask != 0);
 
         if (wen) begin
             casez (waddr)
@@ -929,9 +965,21 @@ module picorv32_regs_bio #(
             6'b00????: begin // 0-15
                 rdata1 = regs[~raddr1[3:0]];
             end
-            6'b0100??: begin // 16-19
-                rdata1 = regfifo_rdata[raddr1[1:0]];
-                regfifo_rd[raddr1[1:0]] = 1;
+            6'b010000: begin // 16
+                rdata1 = regfifo_rdata_0;
+                regfifo_rd[0] = 1;
+            end
+            6'b010001: begin // 17
+                rdata1 = regfifo_rdata_1;
+                regfifo_rd[1] = 1;
+            end
+            6'b010010: begin // 18
+                rdata1 = regfifo_rdata_2;
+                regfifo_rd[2] = 1;
+            end
+            6'b010011: begin // 19
+                rdata1 = regfifo_rdata_3;
+                regfifo_rd[3] = 1;
             end
             // 20 undefined
             6'b010101: begin // 21
@@ -957,9 +1005,21 @@ module picorv32_regs_bio #(
             6'b00????: begin // 0-15
                 rdata2 = regs[~raddr2[3:0]];
             end
-            6'b0100??: begin // 16-19
-                rdata2 = regfifo_rdata[raddr2[1:0]];
-                regfifo_rd[raddr2] = 1'b1;
+            6'b010000: begin // 16
+                rdata2 = regfifo_rdata_0;
+                regfifo_rd[0] = 1;
+            end
+            6'b010001: begin // 17
+                rdata2 = regfifo_rdata_1;
+                regfifo_rd[1] = 1;
+            end
+            6'b010010: begin // 18
+                rdata2 = regfifo_rdata_2;
+                regfifo_rd[2] = 1;
+            end
+            6'b010011: begin // 19
+                rdata2 = regfifo_rdata_3;
+                regfifo_rd[3] = 1;
             end
             // 20 undefined
             6'b010101: begin // 21

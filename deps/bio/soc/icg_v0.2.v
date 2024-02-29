@@ -1,4 +1,4 @@
-
+// `define FPGA 1
 module ICG(CK,EN,SE,CKG);
 input	CK,EN,SE;
 output	CKG;

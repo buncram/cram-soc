@@ -123,7 +123,10 @@ module picorv32 #(
 	output reg [31:0] eoi,
 
 	// Bio Interface
-    input [31:0]  regfifo_rdata[4],
+    input [31:0]  regfifo_rdata_0,
+    input [31:0]  regfifo_rdata_1,
+    input [31:0]  regfifo_rdata_2,
+    input [31:0]  regfifo_rdata_3,
     output [3:0]  regfifo_rd,
     output [31:0] regfifo_wdata,
     output [3:0]  regfifo_wr,
@@ -1404,7 +1407,10 @@ module picorv32 #(
 	wire [5:0] cpuregs_raddr2 = ENABLE_REGS_DUALPORT ? decoded_rs2 : 0;
 
 	`PICORV32_REGS cpuregs (
-		.regfifo_rdata(regfifo_rdata),
+		.regfifo_rdata_0(regfifo_rdata_0),
+		.regfifo_rdata_1(regfifo_rdata_1),
+		.regfifo_rdata_2(regfifo_rdata_2),
+		.regfifo_rdata_3(regfifo_rdata_3),
 		.regfifo_rd(regfifo_rd),
 		.regfifo_wdata(regfifo_wdata),
 		.regfifo_wr(regfifo_wr),
