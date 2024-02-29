@@ -71,13 +71,15 @@ always @(posedge wr_clk) begin
         end
     end
 end
-always @(posedge rd_clk) begin
-    for(j = 0; j < 4; j = j + 1) begin: ports
-        if (rd_en[j]) begin
-            rd_data[j] <= mem[rd_addr[j]];
+generate
+    for(genvar rp = 0; rp < 4; rp = rp + 1) begin: ports
+        always @(posedge rd_clk) begin
+            if (rd_en[rp]) begin
+                rd_data[rp] <= mem[rd_addr[rp]];
+            end
         end
     end
-end
+endgenerate
 
 endmodule
 

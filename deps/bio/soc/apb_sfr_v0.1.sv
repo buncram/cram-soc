@@ -34,8 +34,8 @@ module sfrdatrev
     #(
         parameter DW=16,
         parameter SFRCNT=4,
-        parameter REVX=0,
-        parameter REVY=0
+        parameter [0:0] REVX=0,
+        parameter [0:0] REVY=0
     )(
         input  logic [0:SFRCNT-1][DW-1:0]   din,
         output logic [0:SFRCNT-1][DW-1:0]   dout

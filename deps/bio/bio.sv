@@ -12,7 +12,7 @@ module bio #(
     input logic         cmatpg, cmbist,
 
     ioif.drive          bio_gpio[0:31],
-    output logic        irq[3:0], // these can double as dma_req/ack effectively for MDMA
+    output logic  [3:0] irq, // these can double as dma_req/ack effectively for MDMA
 
     apbif.slavein       apbs,
     apbif.slave         apbx
@@ -66,20 +66,20 @@ module bio #(
 	// logic [31:0] mem_addr   [NUM_MACH];
 	// logic [31:0] mem_wdata  [NUM_MACH];
 	// logic [ 3:0] mem_wstrb  [NUM_MACH];
-	logic [31:0] mem_rdata      [NUM_MACH];
+	logic [31:0] mem_rdata    [NUM_MACH];
 
 	// Look-Ahead Interface
-	logic [NUM_MACH-1:0]    mem_la_read;
-	logic [NUM_MACH-1:0]    mem_la_write;
-	logic [31:0] mem_la_addr      [NUM_MACH];
+	logic        mem_la_read  [NUM_MACH];
+	logic        mem_la_write [NUM_MACH];
+	logic [31:0] mem_la_addr  [NUM_MACH];
 	logic [31:0] mem_la_wdata [NUM_MACH];
 	logic [ 3:0] mem_la_wstrb [NUM_MACH];
 
     // high register interfaces
     logic [31:0] mach_regfifo_rdata [NUM_MACH];
-    logic [NUM_MACH-1:0] mach_regfifo_rd;
+    logic [3:0] mach_regfifo_rd [NUM_MACH];
     logic [31:0] mach_regfifo_wdata [NUM_MACH];
-    logic [NUM_MACH-1:0] mach_regfifo_wr;
+    logic [3:0] mach_regfifo_wr [NUM_MACH];
 
     logic [NUM_MACH-1:0] quanta_wr;
 
@@ -115,15 +115,12 @@ module bio #(
     // the signals of the FIFO itself. Note, 4 FIFO regs, 4 machines is just a coincidence. The two
     // are not necessarily the same (machine count is parameterized, FIFO regs is *always* 4).
     logic [31:0]  regfifo_wdata [4];
-    logic [3:0]   regfifo_we;
-    logic [3:0]   regfifo_writable;
+    logic         regfifo_we [4];
+    logic         regfifo_writable[4];
     logic [31:0]  regfifo_rdata [4];
-    logic [3:0]   regfifo_re;
-    logic [3:0]   regfifo_readable;
+    logic         regfifo_re [4];
+    logic         regfifo_readable[4];
     logic [3:0]   regfifo_level [4];
-    // the readable/writable signals, but selected according to a given machine's target FIFO
-    logic [3:0] mach_regfifo_readable;
-    logic [3:0] mach_regfifo_writable;
 
     logic [31:0] host_regfifo_wdata [4];
     logic [3:0]  host_regfifo_we;
@@ -287,7 +284,7 @@ module bio #(
     logic [31:0] host_mem_rdata;
 
     logic [31:0] ram_rd_data [NUM_MACH];
-    logic [NUM_MACH-1:0] ram_rd_enable;
+    logic ram_rd_enable [NUM_MACH];
 
     assign imem_wr_mode = en_sync[0]; // when machine 0 is disabled, the host can use its port to read/write
     // mux on port 0 of imem between host and machines
@@ -302,8 +299,8 @@ module bio #(
             ram_wr_data = mem_la_wdata[0];
             ram_wr_addr = mem_la_addr[0][MEM_ADDR_BITS-1:0];
 
-            ram_rd_addr = mem_la_addr;
-            ram_rd_enable = mem_la_read;
+            ram_rd_addr[0] = mem_la_addr[0][MEM_ADDR_BITS-1:0];
+            ram_rd_enable[0] = mem_la_read[0];
         end else begin
             // host can write & read
             ram_wr_en = host_mem_wr_stb;
@@ -312,10 +309,12 @@ module bio #(
             ram_wr_addr = host_mem_addr;
 
             ram_rd_addr[0] = host_mem_addr;
-            ram_rd_addr[1:3] = mem_la_addr[1:3][MEM_ADDR_BITS-1:0];
-            ram_rd_enable = host_mem_rd_d;
-            ram_rd_enable[1:3] = mem_la_read[1:3];
+            ram_rd_enable[0] = host_mem_rd_d;
         end
+        ram_rd_addr[1] = mem_la_addr[1][MEM_ADDR_BITS-1:0];
+        ram_rd_addr[2] = mem_la_addr[2][MEM_ADDR_BITS-1:0];
+        ram_rd_addr[3] = mem_la_addr[3][MEM_ADDR_BITS-1:0];
+        ram_rd_enable[1:3] = mem_la_read[1:3];
     end
     // apb<->imem
     always_ff @(posedge aclk) begin
@@ -339,7 +338,7 @@ module bio #(
         host_mem_rd <= host_mem_rd_d;
         host_mem_rd_stb <= host_mem_rd_d & !host_mem_rd;
 
-        host_mem_rdata_capture <= host_mem_rd_d & !host_mem_rd ? ram_rd_data : host_mem_rdata_capture;
+        host_mem_rdata_capture <= (host_mem_rd_d & !host_mem_rd) ? ram_rd_data[0] : host_mem_rdata_capture;
     end
     // convert rdata to pclk domain
     always_ff @(posedge pclk) begin
@@ -376,50 +375,21 @@ module bio #(
         .cmbist(cmbist),
         .cmatpg(cmatpg)
     );
+    assign mem_rdata = ram_rd_data;
     // machine stall signal
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: stalls
             always_comb begin
                 stall[j] = (
                     quanta_wr[j] & ~penable[j]                         // stall to next quanta
-                    | mach_regfifo_rd[j] & !mach_regfifo_readable[j]   // FIFO read but empty
-                    | mach_regfifo_wr[j] & !mach_regfifo_writable[j]   // FIFO write but full
+                    | mach_regfifo_rd[j] & !regfifo_readable[j]        // FIFO read but empty
+                    | mach_regfifo_wr[j] & !regfifo_writable[j]        // FIFO write but full
                     | stalling_for_event[j]                            // event stall
                 ) && en_sync[j];                                       // overall machine enable
             end
         end
     endgenerate
 
-    /////////////////////// fifo hookup
-    // fifo -> machine back propagate
-    generate
-        for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: fifo_to_mach
-            priority_demux #(
-                .DATAW(1),
-                .LEVELS(4)
-            ) select_readable (
-                .stb(mach_regfifo_rd), // 4-bit wide, 1-hot encoding of which fifo to target
-                .data_in(regfifo_readable),
-                .data_out(mach_regfifo_readable[j]) // 1-bit wire, per-machine
-            );
-            priority_demux #(
-                .DATAW(32),
-                .LEVELS(4)
-            ) select_rdata (
-                .stb(mach_regfifo_rd), // 4-bit wide, 1-hot encoding of which fifo to target
-                .data_in(regfifo_rdata), // 4x 32 wide bus
-                .data_out(mach_regfifo_rdata[j]) // 32 wide bus
-            );
-            priority_demux #(
-                .DATAW(1),
-                .LEVELS(4)
-            ) select_writable (
-                .stb(mach_regfifo_wr), // 4-bit wide, 1-hot encoding of which fifo to target
-                .data_in(regfifo_writable),
-                .data_out(mach_regfifo_writable[j]) // 1-bit wire, per-machine
-            );
-        end
-    endgenerate
     // machine+host -> fifo
     generate
         for(genvar k = 0; k <4; k = k + 1) begin: mach_to_fifo
@@ -518,7 +488,7 @@ module bio #(
         .LEVELS(5)
     ) event_set_aggregator (
         .stb({event_set_valid, host_event_set_valid}),
-        .data_in({event_set, host_event_set}),
+        .data_in({event_set[3], event_set[2], event_set[1], event_set[0], host_event_set}),
         .data_out(event_set_agg)
     );
     priority_demux #(
@@ -526,7 +496,7 @@ module bio #(
         .LEVELS(5)
     ) event_clr_aggregator (
         .stb({event_clr_valid, host_event_clr_valid}),
-        .data_in({event_clr, host_event_clr}),
+        .data_in({event_clr[3], event_clr[2], event_clr[1], event_clr[0], host_event_clr}),
         .data_out(event_clr_agg)
     );
     scc_ff #(
@@ -556,8 +526,7 @@ module bio #(
         gpio_in_sync1 <= gpio_in_sync0;
     end
     generate
-        genvar m;
-        for(m = 0; m < 32; m = m + 1) begin: gen_bypass
+        for(genvar m = 0; m < 32; m = m + 1) begin: gen_bypass
             assign gpio_in_cleaned[m] = sync_bypass[m] ? gpio_in[m] : gpio_in_sync1[m];
         end
     endgenerate
@@ -638,7 +607,7 @@ module bio #(
         for(genvar i = 0; i < 4; i = i + 1) begin: IRQs
             always_ff @(posedge pclk or negedge reset_n) begin
                 if (~reset_n) begin
-                    irq <= '0;
+                    irq[i] <= '0;
                 end else begin
                     if (irq_edge[i]) begin
                         irq[i] <= irq_agg[i] & ~irq_agg_q;
@@ -662,10 +631,10 @@ module bio #(
                 end
             end
             always_ff @(posedge aclk) begin
-                if (en_sync == 0) begin
-                    core_clk_count <= '0;
+                if (en_sync[j] == 0) begin
+                    core_clk_count[j] <= '0;
                 end else begin
-                    core_clk_count <= core_clk_count + '1;
+                    core_clk_count[j] <= core_clk_count[j] + '1;
                 end
             end
             pio_divider clk_divider (
@@ -705,7 +674,7 @@ module bio #(
 	            .STACKADDR(MEM_SIZE_BYTES - 1)
             ) core
             (
-                .regfifo_rdata(mach_regfifo_rdata[j]),
+                .regfifo_rdata(regfifo_rdata),
                 .regfifo_rd(mach_regfifo_rd[j]),
                 .regfifo_wdata(mach_regfifo_wdata[j]),
                 .regfifo_wr(mach_regfifo_wr[j]),
@@ -787,14 +756,10 @@ module priority_demux #(
 );
     always_comb begin
         data_out = '0;
-    end
-    generate
-        for(genvar i = LEVELS - 1; i >= 0; i = i - 1) begin: priorities
-            always_comb begin
-                if (stb[i]) data_out = data_in[i];
-            end
+        for(int i = LEVELS - 1; i >= 0; i = i - 1) begin: priorities
+            if (stb[i]) data_out = data_in[i];
         end
-    endgenerate
+    end
 endmodule
 
 module scc_ff #( // set-clear-clobber ff
@@ -834,29 +799,29 @@ module picorv32_regs_bio #(
     parameter NUM_MACH = 4,
     parameter NUM_MACH_BITS = $clog2(NUM_MACH)
 )(
-    input [31:0]  regfifo_rdata[4],
-    output [3:0]  regfifo_rd, // must guarantee one pulse per read, even on successive repeated reads. Machine stalls with pulse asserted if FIFO is empty.
-    output [31:0] regfifo_wdata,
-    output [3:0]  regfifo_wr, // must guarantee one pulse per write, even on successive repeated writes. Machine stalls with pulse asserted if FIFO is full.
+    input [31:0]        regfifo_rdata[4],
+    output logic [3:0]  regfifo_rd, // must guarantee one pulse per read, even on successive repeated reads. Machine stalls with pulse asserted if FIFO is empty.
+    output logic [31:0] regfifo_wdata,
+    output logic [3:0]  regfifo_wr, // must guarantee one pulse per write, even on successive repeated writes. Machine stalls with pulse asserted if FIFO is full.
 
-    output        quanta_wr,  // asserted on any write access to r20
+    output logic  quanta_wr,  // asserted on any write access to r20
 
     output [31:0] gpio_set,
     output [31:0] gpio_clr,
     output [31:0] gpdir_set,
     output [31:0] gpdir_clr,
-    output        gpio_set_valid,
-    output        gpio_clr_valid,
-    output        gpdir_set_valid,
-    output        gpdir_clr_valid,
+    output logic  gpio_set_valid,
+    output logic  gpio_clr_valid,
+    output logic  gpdir_set_valid,
+    output logic  gpdir_clr_valid,
     input [31:0]  gpio_pins,
 
-    input [31:0]  aggregated_events,
-    output        stalling_for_event,
-    output [23:0] event_set,
-    output        event_set_valid,
-    output [23:0] event_clr,
-    output        event_clr_valid,
+    input [31:0]        aggregated_events,
+    output              stalling_for_event,
+    output logic [23:0] event_set,
+    output logic        event_set_valid,
+    output logic [23:0] event_clr,
+    output logic        event_clr_valid,
 
     input [NUM_MACH_BITS-1:0]    core_id,
     input [31 - NUM_MACH_BITS:0] clk_count,
@@ -868,8 +833,8 @@ module picorv32_regs_bio #(
 	input [5:0] raddr1,
 	input [5:0] raddr2,
 	input [31:0] wdata,
-	output [31:0] rdata1,
-	output [31:0] rdata2
+	output logic [31:0] rdata1,
+	output logic [31:0] rdata2
 );
 	logic [31:0] regs [0:14];
     logic [31:0] gpio_mask;
