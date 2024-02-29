@@ -2730,6 +2730,12 @@ def main():
         size=0x1000,
         mode='rw', cached=False
     )
+    # ---------- SPECIAL CASE - add BIO memory
+    doc_soc.mem_regions['bio_ram'] = SoCRegion(
+        origin=0x5012_5000,
+        size=0x1000,
+        mode='rw', cached=False
+    )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files
