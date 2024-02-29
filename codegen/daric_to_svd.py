@@ -1486,6 +1486,9 @@ def extract_bitwidth(schema, module, code_line):
     if module == 'rp_pio':
         code_line = code_line.replace('[0:NUM_MACHINES-1]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
         code_line = code_line.replace('[NUM_MACHINES-1:0]', '')
+    if module == 'bio':
+        code_line = code_line.replace('[NUM_MACH]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
+
     bw_re = re.compile('[\s]*(bit|logic|reg|wire)[\s]*(\[.*\])*(.*)')
     matches = bw_re.search(code_line.strip(';'))
     if matches is not None:
@@ -1697,7 +1700,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                 bitfields = base_str.split(',')
                                 for bf in reversed(bitfields):
                                     bf = bf.strip()
-                                    if module == 'rp_pio':
+                                    if module == 'rp_pio' or module == 'bio':
                                         # FIXME: special case hack to remove index from all bitfields except for the [r,t]x_level series
                                         if '_level' not in bf:
                                             bf = bf.split('[')[0]
@@ -1713,8 +1716,15 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                                 bitwidth = 3
                                             else:
                                                 if "'d" not in bf: # we do handle 'd constant fields, just below...
-                                                    logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
-                                                    bitwidth = 1
+                                                    if 'pclk_fifo_event_level' in bf:
+                                                        logging.warning(f"{bf} assigned width = 8 through special case")
+                                                        bitwidth = 8
+                                                    elif 'pclk_regfifo_level' in bf:
+                                                        logging.warning(f"{bf} assigned width = 4 through special case")
+                                                        bitwidth = 4
+                                                    else:
+                                                        logging.warning(f"{bf} can't be found, assuming width=1. Manual check is necessary!")
+                                                        bitwidth = 1
                                     else:
                                         if bf in schema[module]['localparam']:
                                             bitwidth = schema[module]['localparam'][bf]
@@ -2311,9 +2321,11 @@ def main():
                     if version > old_version:
                         versioned_files[basename] = (file, version)
     # SPECIAL CASE: PIO data is located in 'ips' directory
-    versioned_files['rp_pio'] = ('soc_mpw/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
+    versioned_files['rp_pio'] = ('soc_oss/ips/vexriscv/cram-soc/candidate/pio/rp_pio.sv', 0)
     # SPECIAL CASE: mbox is located in the 'ips' directory
-    versioned_files['mbox'] = ('soc_mpw/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
+    versioned_files['mbox'] = ('soc_oss/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
+    # SPECIAL CASE: BIO data is located in 'deps' directory
+    versioned_files['bio'] = ('deps/bio/bio.sv', 0)
 
     # extract the Pulpino files
     pulp_path = Path(args.path + '/ips/udma').glob('**/*')
@@ -2373,7 +2385,12 @@ def main():
                     else:
                         code_line = remove_comments(line.strip()).lstrip()
                         if re.match('^apb_[csfa2hfinbur]+[rnf]', code_line):
-                            add_reg(schema, mod_or_pkg, code_line, str(file).split('soc_mpw/')[1])
+                            if 'soc_mpw' in str(file):
+                                add_reg(schema, mod_or_pkg, code_line, str(file).split('soc_mpw/')[1])
+                            elif 'soc_oss' in str(file):
+                                add_reg(schema, mod_or_pkg, code_line, str(file).split('soc_oss/')[1])
+                            elif 'deps' in str(file):
+                                add_reg(schema, mod_or_pkg, code_line, str(file).split('deps/')[1])
                         elif code_line.startswith('localparam'):
                             # simple one line case
                             if code_line.strip().endswith(';'):
@@ -2509,6 +2526,17 @@ def main():
                 'banks' : {},
                 'display_name' : 'pio',
             },
+        'bio' :
+            {
+                'socregion' : SoCRegion(
+                            origin=0x5012_4000,
+                            size=0x1000,
+                            mode='rw',
+                            cached=False
+                        ),
+                'banks' : {},
+                'display_name' : 'bio',
+            },
     }
     # --------- extract bank numbers for each region, so we can fix the addresses of various registers ---------
     for (region, attrs) in top_regions.items():
@@ -2539,6 +2567,8 @@ def main():
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbsec\[([0-9]+)\]")
                     elif region == 'rp_pio':
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]") # ignored, actually: rp_pio address is explicitly called out
+                    elif region == 'bio':
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]") # ignored, actually: bio address is explicitly called out
                     else:
                         print("unknown region!")
                         exit(0)
