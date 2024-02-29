@@ -47,7 +47,8 @@ version = "0.1.0"
 dependencies = [
  "pio",
  "pio-proc",
- "utralib 0.1.22",
+ "utralib",
+ "xous-bio",
  "xous-pio",
  "xous-pl230",
  "xous-riscv",
@@ -115,7 +116,7 @@ dependencies = [
  "bitflags",
  "num-derive",
  "num-traits",
- "utralib 0.1.24",
+ "utralib",
  "xous",
 ]
 
@@ -656,13 +657,6 @@ dependencies = [
 
 [[package]]
 name = "svd2utra"
-version = "0.1.19"
-dependencies = [
- "quick-xml",
-]
-
-[[package]]
-name = "svd2utra"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c25aa8b02b722429dce9144a5de9228b90ad4867e237b97c27b770d684c3d050"
@@ -750,18 +744,9 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 
 [[package]]
 name = "utralib"
-version = "0.1.22"
-dependencies = [
- "svd2utra 0.1.19",
-]
-
-[[package]]
-name = "utralib"
 version = "0.1.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f0f72e630285ad2b85470d3e9d1f0e880a54325084d045d7025131f6d0d1b6f"
 dependencies = [
- "svd2utra 0.1.22",
+ "svd2utra",
 ]
 
 [[package]]
@@ -949,13 +934,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "xous-bio"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "utralib",
+ "xous",
+]
+
+[[package]]
 name = "xous-pio"
 version = "0.1.0"
 dependencies = [
  "log",
  "pio",
  "pio-proc",
- "utralib 0.1.24",
+ "utralib",
  "xous",
 ]
 
@@ -968,7 +962,7 @@ dependencies = [
  "log",
  "pio",
  "pio-proc",
- "utralib 0.1.24",
+ "utralib",
  "xous",
  "xous-pio",
 ]
@@ -989,12 +983,3 @@ version = "0.1.0"
 dependencies = [
  "powershell_script",
 ]
-
-[[patch.unused]]
-name = "curve25519-dalek"
-version = "3.2.1"
-source = "git+https://github.com/betrusted-io/curve25519-dalek.git?branch=main#b8f71e85d1e251aeeea4fe0da8ff8c8815e51c69"
-
-[[patch.unused]]
-name = "sha2"
-version = "0.9.5"

@@ -1,6 +1,6 @@
 [package]
 name = "utralib"
-version = "0.1.22"
+version = "0.1.24"
 authors = ["Sean Cross <sean@xobs.io>"]
 edition = "2018"
 
@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 
 [build-dependencies]
-svd2utra = { path = "../svd2utra" }
+svd2utra = "0.1.22"
 
 [features]
 cramium-soc = []

@@ -827,6 +827,10 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     #[cfg(feature="pio-test")]
     xous_pio::pio_tests::pio_tests();
 
+    // ---------- bio test option -------------
+    #[cfg(feature="bio-test")]
+    xous_bio::bio_tests::bio_tests();
+
     // ---------- exception setup ------------------
     irqs::irq_setup();
 
