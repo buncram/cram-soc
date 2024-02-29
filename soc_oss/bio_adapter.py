@@ -21,7 +21,7 @@ from soc_oss.axi_common import *
 
 class BioAdapter(Module):
     def __init__(self, platform, s_ahb, pads, irq, sel_addr = 0x2000,
-        address_width = 12, sim=False,
+        address_width = 13, sim=False,
     ):
         self.logger = logging.getLogger("BioAdapter")
 
@@ -36,7 +36,7 @@ class BioAdapter(Module):
         apb_rdata = Signal(32)
         apb_ready = Signal()
         apb_slverr = Signal()
-        sel_fullwidth = Signal(12, reset=((sel_addr & 0xFF_FFFF) >> 12))
+        sel_fullwidth = Signal(address_width, reset=((sel_addr & 0xFF_FFFF) >> address_width))
 
         self.specials += Instance("cmsdk_ahb_to_apb",
             p_ADDRWIDTH            = address_width,
@@ -44,7 +44,7 @@ class BioAdapter(Module):
             i_HCLK                 = ClockSignal(),
             i_HRESETn              = ~ResetSignal(),
             i_PCLKEN               = 1,
-            i_HSEL                 = s_ahb.addr[12:24] == sel_fullwidth,
+            i_HSEL                 = s_ahb.addr[address_width:24] == sel_fullwidth,
             i_HADDR                = s_ahb.addr[:address_width],
             i_HTRANS               = s_ahb.trans,
             i_HSIZE                = s_ahb.size,
@@ -183,7 +183,7 @@ class BioAdapter(Module):
         self.specials += Instance("bio_apb",
             # Parameters.
             # -----------
-            p_AW = 12,
+            p_AW = 13,
 
             # Clk / Rst.
             # ----------
@@ -234,7 +234,7 @@ class BioAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "bio.sv"))
         platform.add_source(os.path.join(rtl_dir, "picorv32.v"))
         platform.add_source(os.path.join(rtl_dir, "pio_divider.v"))
-        platform.add_source(os.path.join(rtl_dir, "ram_1w_4rs.v"))
+        platform.add_source(os.path.join(rtl_dir, "ram_1w_4rs.sv"))
         platform.add_source(os.path.join(rtl_dir, "regfifo.v"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
