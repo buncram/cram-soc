@@ -11,7 +11,7 @@ module bio #(
     input logic         reset_n,
     input logic         cmatpg, cmbist,
 
-    ioif.drive          bio_gpio[0:31],
+    ioif.drive          bio_gpio[31:0],
     output logic  [3:0] irq, // these can double as dma_req/ack effectively for MDMA
 
     apbif.slavein       apbs,
