@@ -913,11 +913,8 @@ module picorv32 #(
 			{ decoded_imm_j[31:20], decoded_imm_j[10:1], decoded_imm_j[11], decoded_imm_j[19:12], decoded_imm_j[0] } <= $signed({mem_rdata_latched[31:12], 1'b0});
 
 			decoded_rd <= mem_rdata_latched[11:7];
-			// read registers clamped to 0 when fields are not specified as registers,
-			// since reads side-effect state of FIFOs!
-			decoded_rs1 <= is_lui_auipc_jal ? 0 : mem_rdata_latched[19:15];
-			decoded_rs2 <= (is_beq_bne_blt_bge_bltu_bgeu || is_alu_reg_imm || is_alu_reg_reg) && !is_slli_srli_srai
-				? mem_rdata_latched[24:20] : 0;
+			decoded_rs1 <= mem_rdata_latched[19:15];
+			decoded_rs2 <= mem_rdata_latched[24:20];
 
 			if (mem_rdata_latched[6:0] == 7'b0001011 && mem_rdata_latched[31:25] == 7'b0000000 && ENABLE_IRQ && ENABLE_IRQ_QREGS)
 				decoded_rs1[regindex_bits-1] <= 1; // instr_getq
