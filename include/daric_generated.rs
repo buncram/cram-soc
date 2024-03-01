@@ -2992,7 +2992,7 @@ pub mod utra {
     }
 
     pub mod bio {
-        pub const BIO_NUMREGS: usize = 32;
+        pub const BIO_NUMREGS: usize = 33;
 
         pub const SFR_CTRL: crate::Register = crate::Register::new(0, 0xfff);
         pub const SFR_CTRL_EN: crate::Field = crate::Field::new(4, 0, SFR_CTRL);
@@ -3003,6 +3003,10 @@ pub mod utra {
         pub const SFR_CFGINFO_CONSTANT0: crate::Field = crate::Field::new(8, 0, SFR_CFGINFO);
         pub const SFR_CFGINFO_CONSTANT1: crate::Field = crate::Field::new(8, 8, SFR_CFGINFO);
         pub const SFR_CFGINFO_CONSTANT2: crate::Field = crate::Field::new(16, 16, SFR_CFGINFO);
+
+        pub const SFR_CONFIG: crate::Register = crate::Register::new(2, 0x7);
+        pub const SFR_CONFIG_SNAP_TO_WHICH: crate::Field = crate::Field::new(2, 0, SFR_CONFIG);
+        pub const SFR_CONFIG_SNAP_TO_QUANTUM: crate::Field = crate::Field::new(1, 2, SFR_CONFIG);
 
         pub const SFR_FLEVEL: crate::Register = crate::Register::new(3, 0xffff);
         pub const SFR_FLEVEL_PCLK_REGFIFO_LEVEL0: crate::Field = crate::Field::new(4, 0, SFR_FLEVEL);
@@ -10869,6 +10873,19 @@ mod tests {
         let mut baz = bio_csr.zf(utra::bio::SFR_CFGINFO_CONSTANT2, bar);
         baz |= bio_csr.ms(utra::bio::SFR_CFGINFO_CONSTANT2, 1);
         bio_csr.wfo(utra::bio::SFR_CFGINFO_CONSTANT2, baz);
+
+        let foo = bio_csr.r(utra::bio::SFR_CONFIG);
+        bio_csr.wo(utra::bio::SFR_CONFIG, foo);
+        let bar = bio_csr.rf(utra::bio::SFR_CONFIG_SNAP_TO_WHICH);
+        bio_csr.rmwf(utra::bio::SFR_CONFIG_SNAP_TO_WHICH, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_CONFIG_SNAP_TO_WHICH, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_CONFIG_SNAP_TO_WHICH, 1);
+        bio_csr.wfo(utra::bio::SFR_CONFIG_SNAP_TO_WHICH, baz);
+        let bar = bio_csr.rf(utra::bio::SFR_CONFIG_SNAP_TO_QUANTUM);
+        bio_csr.rmwf(utra::bio::SFR_CONFIG_SNAP_TO_QUANTUM, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_CONFIG_SNAP_TO_QUANTUM, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_CONFIG_SNAP_TO_QUANTUM, 1);
+        bio_csr.wfo(utra::bio::SFR_CONFIG_SNAP_TO_QUANTUM, baz);
 
         let foo = bio_csr.r(utra::bio::SFR_FLEVEL);
         bio_csr.wo(utra::bio::SFR_FLEVEL, foo);
