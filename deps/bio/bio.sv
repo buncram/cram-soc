@@ -587,29 +587,29 @@ module bio #(
                 .data_in({gpio_clr[0][g], gpio_clr[1][g], gpio_clr[2][g], gpio_clr[3][g]}),
                 .data_out(gpio_clr_agg[g])
             );
+            priority_demux #(
+                .DATAW(1),
+                .LEVELS(4)
+            ) gpdir_set_aggregator (
+                .stb({gpdir_set[3][g] & gpdir_set_valid[3],
+                    gpdir_set[2][g] & gpdir_set_valid[2],
+                    gpdir_set[1][g] & gpdir_set_valid[1],
+                    gpdir_set[0][g] & gpdir_set_valid[0]}),
+                .data_in({gpdir_set[0][g], gpdir_set[1][g], gpdir_set[2][g], gpdir_set[3][g]}),
+                .data_out(gpdir_set_agg[g])
+            );
+            priority_demux #(
+                .DATAW(1),
+                .LEVELS(4)
+            ) gpdir_clr_aggregator (
+                .stb({gpdir_clr[3][g] & gpdir_clr_valid[3],
+                    gpdir_clr[2][g] & gpdir_clr_valid[2],
+                    gpdir_clr[1][g] & gpdir_clr_valid[1],
+                    gpdir_clr[0][g] & gpdir_clr_valid[0]}),
+                .data_in({gpdir_clr[0][g], gpdir_clr[1][g], gpdir_clr[2][g], gpdir_clr[3][g]}),
+                .data_out(gpdir_clr_agg[g])
+            );
         end
-        priority_demux #(
-            .DATAW(1),
-            .LEVELS(4)
-        ) gpdir_set_aggregator (
-            .stb({gpdir_set[3][g] & gpdir_set_valid[3],
-                gpdir_set[2][g] & gpdir_set_valid[2],
-                gpdir_set[1][g] & gpdir_set_valid[1],
-                gpdir_set[0][g] & gpdir_set_valid[0]}),
-            .data_in({gpdir_set[0][g], gpdir_set[1][g], gpdir_set[2][g], gpdir_set[3][g]}),
-            .data_out(gpdir_set_agg[g])
-        );
-        priority_demux #(
-            .DATAW(1),
-            .LEVELS(4)
-        ) gpdir_clr_aggregator (
-            .stb({gpdir_clr[3][g] & gpdir_clr_valid[3],
-                gpdir_clr[2][g] & gpdir_clr_valid[2],
-                gpdir_clr[1][g] & gpdir_clr_valid[1],
-                gpdir_clr[0][g] & gpdir_clr_valid[0]}),
-            .data_in({gpdir_clr[0][g], gpdir_clr[1][g], gpdir_clr[2][g], gpdir_clr[3][g]}),
-            .data_out(gpdir_clr_agg[g])
-        );
     endgenerate
     scc_ff #(
         .RESET(0),
