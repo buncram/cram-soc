@@ -829,7 +829,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     // ---------- bio test option -------------
     #[cfg(feature="bio-test")]
+    uart.tiny_write_str("bio start\r");
+    #[cfg(feature="bio-test")]
     xous_bio::bio_tests::bio_tests();
+    #[cfg(feature="bio-test")]
+    uart.tiny_write_str("bio end\r");
 
     // ---------- exception setup ------------------
     irqs::irq_setup();
