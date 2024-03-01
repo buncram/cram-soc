@@ -29,6 +29,35 @@ Each core has a reset vector that can be independently set.
 
 Each core can be independently configured to wrap the PC back to the reset value when a fetch happens to a prescribed address. If none is set, the PC will wrap around to 0 if it increments off the end of instruction memory.
 
+## Writing Code for the RV32E+C
+
+### Only R0-R15 Have Guaranteed Arithmetic Behaviors
+Note that the PicoRV is wired to only correctly execute code out of R0-R15. Thus, the upper
+registers can only safely be accessed with an explicit `mv` instruction to or from the register;
+for example, immediate opcodes won't always decode correctly when used in combination with upper
+registers for arithmetic.
+
+For example, it might be tempting to use
+
+`li x26, 0xFF00`
+
+to setup the GPIO mask. This won't work, because the immediate does not decode correctly
+(you end up getting 0xFFFFFF00 in x26, because the immediate is 0 in the pipe). Instead, use
+the two-instruction sequence
+
+`li x2, 0xFF00`
+`mv x26, x2`
+
+to load these registers. Same goes for the FIFO registers, etc. Two-operand arithmetic, however,
+seems to work correctly when accessing the upper registers, but this has not been thoroughly characterized.
+
+### Compressed Instructions
+The core will execute "C" instructions (which is not part of the RV32E spec). Beware when laying
+out the initial jump vector table, that most assemblers will emit a compressed jump if your code
+starts in the bottom 2k of instruction memory, but will emit an uncompressed instruction if it's
+farther out. This can cause some troubles laying out the vector table if your code extends
+beyond the 2k limit.
+
 ## Inter-core FIFO bank R16-R19
 
 - R[16:19] are depth-K FIFOs (K=8 by default), such that any core can read from the head of the FIFO, and any core can write to the tail of the FIFO with a `mov` instruction.

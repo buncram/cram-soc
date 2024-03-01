@@ -44,6 +44,10 @@ module bio #(
     logic [3:0] irq_agg_q;
     logic [3:0] irq_edge;
     logic [31:0] sync_bypass;
+    logic snap_to_quantum;
+    logic [1:0] snap_to_which;
+    logic [31:0] gpio_out_aclk;
+    logic [31:0] gpio_dir_aclk;
 
     /////////////////////// machine hookup
     logic [15:0]  div_int      [NUM_MACH];
@@ -182,6 +186,7 @@ module bio #(
     `apbs_common;
     assign  apbx.prdata = '0 |
             sfr_ctrl         .prdata32 |
+            sfr_config       .prdata32 |
             sfr_cfginfo      .prdata32 |
             sfr_flevel       .prdata32 |
             sfr_txf0         .prdata32 |
@@ -216,6 +221,7 @@ module bio #(
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))     sfr_cfginfo          (.sr({16'd4096, 8'd4, 8'd8}), .prdata32(),.*);
+    apb_cr  #(.A('h08), .DW(8))      sfr_config           (.cr({snap_to_quantum, snap_to_which}), .prdata32(),.*);
 
     apb_sr  #(.A('h0C), .DW(16))     sfr_flevel           (.sr({
                                                             pclk_regfifo_level[3], pclk_regfifo_level[2],
@@ -557,22 +563,54 @@ module bio #(
     logic [31:0] gpio_clr_agg;
     logic [31:0] gpdir_set_agg;
     logic [31:0] gpdir_clr_agg;
-    priority_demux #(
-        .DATAW(32),
-        .LEVELS(4)
-    ) gpio_set_aggregator (
-        .stb(gpio_set_valid),
-        .data_in(gpio_set),
-        .data_out(gpio_set_agg)
-    );
-    priority_demux #(
-        .DATAW(32),
-        .LEVELS(4)
-    ) gpio_clr_aggregator (
-        .stb(gpio_clr_valid),
-        .data_in(gpio_clr),
-        .data_out(gpio_clr_agg)
-    );
+    generate
+        for(genvar g = 0; g < 32; g = g + 1) begin: gen_gpio
+            priority_demux #(
+                .DATAW(1),
+                .LEVELS(4)
+            ) gpio_set_aggregator (
+                .stb({gpio_set[3][g] & gpio_set_valid[3],
+                      gpio_set[2][g] & gpio_set_valid[2],
+                      gpio_set[1][g] & gpio_set_valid[1],
+                      gpio_set[0][g] & gpio_set_valid[0]}),
+                .data_in({gpio_set[0][g], gpio_set[1][g], gpio_set[2][g], gpio_set[3][g]}),
+                .data_out(gpio_set_agg[g])
+            );
+            priority_demux #(
+                .DATAW(1),
+                .LEVELS(4)
+            ) gpio_clr_aggregator (
+                .stb({gpio_clr[3][g] & gpio_clr_valid[3],
+                    gpio_clr[2][g] & gpio_clr_valid[2],
+                    gpio_clr[1][g] & gpio_clr_valid[1],
+                    gpio_clr[0][g] & gpio_clr_valid[0]}),
+                .data_in({gpio_clr[0][g], gpio_clr[1][g], gpio_clr[2][g], gpio_clr[3][g]}),
+                .data_out(gpio_clr_agg[g])
+            );
+        end
+        priority_demux #(
+            .DATAW(1),
+            .LEVELS(4)
+        ) gpdir_set_aggregator (
+            .stb({gpdir_set[3][g] & gpdir_set_valid[3],
+                gpdir_set[2][g] & gpdir_set_valid[2],
+                gpdir_set[1][g] & gpdir_set_valid[1],
+                gpdir_set[0][g] & gpdir_set_valid[0]}),
+            .data_in({gpdir_set[0][g], gpdir_set[1][g], gpdir_set[2][g], gpdir_set[3][g]}),
+            .data_out(gpdir_set_agg[g])
+        );
+        priority_demux #(
+            .DATAW(1),
+            .LEVELS(4)
+        ) gpdir_clr_aggregator (
+            .stb({gpdir_clr[3][g] & gpdir_clr_valid[3],
+                gpdir_clr[2][g] & gpdir_clr_valid[2],
+                gpdir_clr[1][g] & gpdir_clr_valid[1],
+                gpdir_clr[0][g] & gpdir_clr_valid[0]}),
+            .data_in({gpdir_clr[0][g], gpdir_clr[1][g], gpdir_clr[2][g], gpdir_clr[3][g]}),
+            .data_out(gpdir_clr_agg[g])
+        );
+    endgenerate
     scc_ff #(
         .RESET(0),
         .WIDTH(32)
@@ -583,24 +621,7 @@ module bio #(
         .clr(gpio_clr_agg),
         .clobber('0),
         .value('0),
-        .q(gpio_out)
-    );
-
-    priority_demux #(
-        .DATAW(32),
-        .LEVELS(4)
-    ) gpdir_set_aggregator (
-        .stb(gpdir_set_valid),
-        .data_in(gpdir_set),
-        .data_out(gpdir_set_agg)
-    );
-    priority_demux #(
-        .DATAW(32),
-        .LEVELS(4)
-    ) gpdir_clr_aggregator (
-        .stb(gpdir_clr_valid),
-        .data_in(gpdir_clr),
-        .data_out(gpdir_clr_agg)
+        .q(gpio_out_aclk)
     );
     scc_ff #(
         .RESET(0),
@@ -612,8 +633,53 @@ module bio #(
         .clr(gpdir_clr_agg),
         .clobber('0),
         .value('0),
-        .q(gpio_dir)
+        .q(gpio_dir_aclk)
     );
+    always_ff @(posedge aclk) begin
+        if (snap_to_quantum) begin
+            case (snap_to_which)
+                2'b00: begin
+                    if (penable[0]) begin
+                        gpio_out <= gpio_out_aclk;
+                        gpio_dir <= gpio_dir_aclk;
+                    end else begin
+                        gpio_out <= gpio_out;
+                        gpio_dir <= gpio_dir;
+                    end
+                end
+                2'b01: begin
+                    if (penable[1]) begin
+                        gpio_out <= gpio_out_aclk;
+                        gpio_dir <= gpio_dir_aclk;
+                    end else begin
+                        gpio_out <= gpio_out;
+                        gpio_dir <= gpio_dir;
+                    end
+                end
+                2'b10: begin
+                    if (penable[2]) begin
+                        gpio_out <= gpio_out_aclk;
+                        gpio_dir <= gpio_dir_aclk;
+                    end else begin
+                        gpio_out <= gpio_out;
+                        gpio_dir <= gpio_dir;
+                    end
+                end
+                2'b11: begin
+                    if (penable[3]) begin
+                        gpio_out <= gpio_out_aclk;
+                        gpio_dir <= gpio_dir_aclk;
+                    end else begin
+                        gpio_out <= gpio_out;
+                        gpio_dir <= gpio_dir;
+                    end
+                end
+            endcase
+        end else begin
+            gpio_out <= gpio_out_aclk;
+            gpio_dir <= gpio_dir_aclk;
+        end
+    end
 
     /////////////////////// irq
     always_comb begin
@@ -665,7 +731,7 @@ module bio #(
                 if (en_sync[j] == 0) begin
                     core_clk_count[j] <= '0;
                 end else begin
-                    core_clk_count[j] <= core_clk_count[j] + '1;
+                    core_clk_count[j] <= core_clk_count[j] + 30'h1;
                 end
             end
             pio_divider clk_divider (
@@ -870,6 +936,8 @@ module picorv32_regs_bio #(
 	input clk,
     input reset_n,
     input wen,
+    input ren1,
+    input ren2,
 	input [5:0] waddr,
 	input [5:0] raddr1,
 	input [5:0] raddr2,
@@ -913,9 +981,9 @@ module picorv32_regs_bio #(
 
         regfifo_wdata = wdata;
         gpio_set = gpio_mask & wdata;
-        gpio_clr = ~gpio_mask | ~wdata;
+        gpio_clr = gpio_mask & ~wdata;
         gpdir_set = gpio_mask & wdata;
-        gpdir_clr = ~gpio_mask | ~wdata;
+        gpdir_clr = gpio_mask & ~wdata;
         event_set = wdata[31:8];
         event_clr = wdata[31:8];
 
@@ -972,19 +1040,19 @@ module picorv32_regs_bio #(
             end
             6'b010000: begin // 16
                 rdata1 = regfifo_rdata_0;
-                regfifo_rd[0] = 1;
+                regfifo_rd[0] = ren1;
             end
             6'b010001: begin // 17
                 rdata1 = regfifo_rdata_1;
-                regfifo_rd[1] = 1;
+                regfifo_rd[1] = ren1;
             end
             6'b010010: begin // 18
                 rdata1 = regfifo_rdata_2;
-                regfifo_rd[2] = 1;
+                regfifo_rd[2] = ren1;
             end
             6'b010011: begin // 19
                 rdata1 = regfifo_rdata_3;
-                regfifo_rd[3] = 1;
+                regfifo_rd[3] = ren1;
             end
             // 20 undefined
             6'b010101: begin // 21
@@ -1012,19 +1080,19 @@ module picorv32_regs_bio #(
             end
             6'b010000: begin // 16
                 rdata2 = regfifo_rdata_0;
-                regfifo_rd[0] = 1;
+                regfifo_rd[0] = ren2;
             end
             6'b010001: begin // 17
                 rdata2 = regfifo_rdata_1;
-                regfifo_rd[1] = 1;
+                regfifo_rd[1] = ren2;
             end
             6'b010010: begin // 18
                 rdata2 = regfifo_rdata_2;
-                regfifo_rd[2] = 1;
+                regfifo_rd[2] = ren2;
             end
             6'b010011: begin // 19
                 rdata2 = regfifo_rdata_3;
-                regfifo_rd[3] = 1;
+                regfifo_rd[3] = ren2;
             end
             // 20 undefined
             6'b010101: begin // 21
