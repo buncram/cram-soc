@@ -83,6 +83,13 @@ These events are combinable into four IRQ lines that go to the host system. The 
 
 R20 is a dummy register that discards any data written. However, when any CPU writes to R20, its clock is stalled until the next quantum pulse.
 
+The quantum pulse can originate from two sources:
+- Internal fractional clock divider, dividing down from `aclk` (one per core)
+- External clock pin, selected by flipping `use_extclk` and configuring `extclk_gpio` (one pin per core)
+
+The `extclk` pin will unstall a core waiting on an R20 write on its rising edge. If a falling edge
+unstall is desired, use the `io_i_inv` register to invert the input bit.
+
 Normally, the code loop run by one core should finish before the quantum is up, so that every CPU runs its loop in sync. However, if a CPU does not end its code with a `mov r20, r0`, it will free-run.
 
 When the `quanta` value is identical across all cores, the cores will all run in lock-step with each other. However, the user is free to configure the per-core `quanta` however they see fit.

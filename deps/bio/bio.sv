@@ -60,6 +60,13 @@ module bio #(
     logic [NUM_MACH-1:0]       a_restart_q[2];
     logic [NUM_MACH-1:0]       penable;
     logic [NUM_MACH-1:0]       core_ena;
+    logic [NUM_MACH-1:0]       use_extclk;
+    logic [NUM_MACH-1:0]       use_extclk_aclk;
+    logic [4:0]                extclk_gpio[NUM_MACH];
+    logic [4:0]                extclk_gpio_aclk[NUM_MACH];
+    logic [3:0]                extclk_selected;
+    logic [3:0]                extclk_selected_q;
+    logic [3:0]                quantum;
 
     logic [NUM_MACH-1:0]       core_clk;
     logic [NUM_MACH-1:0]       stall;
@@ -180,6 +187,8 @@ module bio #(
         a_restart_q[0] <= restart;
         a_restart_q[1] <= a_restart_q[0];
         a_restart <= a_restart_q[1];
+        extclk_gpio_aclk <= extclk_gpio;
+        use_extclk_aclk <= use_extclk;
     end
     // SFR bank
     logic apbrd, apbwr, sfrlock;
@@ -204,6 +213,7 @@ module bio #(
             sfr_event_set    .prdata32 |
             sfr_event_clr    .prdata32 |
             sfr_event_status .prdata32 |
+            sfr_extclock     .prdata32 |
             sfr_qdiv0        .prdata32 |
             sfr_qdiv1        .prdata32 |
             sfr_qdiv2        .prdata32 |
@@ -248,6 +258,9 @@ module bio #(
     apb_acr #(.A('h3C), .DW(24))     sfr_event_set        (.cr(pclk_event_set), .ar(pclk_event_set_valid), .prdata32(),.*);
     apb_acr #(.A('h40), .DW(24))     sfr_event_clr        (.cr(pclk_event_clr), .ar(pclk_event_clr_valid), .prdata32(),.*);
     apb_sr  #(.A('h44), .DW(32))     sfr_event_status     (.sr(pclk_event_status), .prdata32(), .*);
+
+    apb_cr  #(.A('h48), .DW(32))     sfr_extclock         (.cr({extclk_gpio[3], extclk_gpio[2],
+                                                            extclk_gpio[1], extclk_gpio[0], use_extclk}), .prdata32(),.*);
 
     apb_cr #(.A('h50), .DW(32))      sfr_qdiv0            (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
     apb_cr #(.A('h54), .DW(32))      sfr_qdiv1            (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
@@ -409,14 +422,21 @@ module bio #(
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: stalls
             always_comb begin
+                extclk_selected[j] = gpio_in_cleaned[extclk_gpio_aclk[j]];
+                // stall is probably critical path...?
                 stall[j] = (
-                    quanta_wr[j] & ~penable[j]                          // stall to next quanta
+                    quanta_wr[j] & ~quantum[j]                          // stall to next quanta
                     | (mach_regfifo_rd[j] &                             // FIFO read but empty
                       ~{regfifo_readable[3], regfifo_readable[2], regfifo_readable[1], regfifo_readable[0]}) != '0
                     | (mach_regfifo_wr[j] &                              // FIFO write but full
                       ~{regfifo_writable[3], regfifo_writable[2], regfifo_writable[1], regfifo_writable[0]}) != '0
                     | stalling_for_event[j]                             // event stall
                 ) || ~en_sync[j];                                       // overall machine enable
+            end
+            always_ff @(posedge aclk) begin
+                // register this to reduce critical path to stall
+                quantum[j] <= use_extclk_aclk ? (extclk_selected[j] & ~extclk_selected_q[j]) : penable[j];
+                extclk_selected_q <= extclk_selected;
             end
         end
     endgenerate
