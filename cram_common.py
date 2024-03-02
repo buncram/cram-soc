@@ -103,8 +103,8 @@ class CramSoC(SoCCore):
         self.axi_peri_map = {
             "testbench" : [0x4008_0000, 0x1_0000], # 64k
             "duart"     : [0x4004_2000, 0x0_1000],
-            # "pio"       : [0x5012_3000, 0x0_1000],
-            "bio"       : [0x5012_4000, 0x0_2000],
+            "pio"       : [0x5012_3000, 0x0_1000],
+            # "bio"       : [0x5012_4000, 0x0_2000],
             "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
@@ -285,7 +285,8 @@ class CramSoC(SoCCore):
                     else: # arty variant
                         clock_remap = {"sys" : "p", "pio": "sys"}
                     self.submodules += ClockDomainsRenamer(clock_remap)(PioAdapter(platform,
-                        getattr(self, name +"_ahb"), platform.request("pio"), pio_irq0, pio_irq1, sel_addr=region[0],
+                        getattr(self, name +"_ahb"), platform.request("pio"), pio_irq0, pio_irq1,
+                        base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
                     ))
                 elif name == "bio":
@@ -317,7 +318,8 @@ class CramSoC(SoCCore):
                     from soc_oss.mbox_adapter import MboxAdapter
                     clock_remap = {"pclk" : "p"}
                     self.submodules += ClockDomainsRenamer(clock_remap)(MboxAdapter(platform,
-                        getattr(self, name +"_ahb"), mbox, irq_available, irq_abort_init, irq_abort_done, irq_error, sel_addr=region[0],
+                        getattr(self, name +"_ahb"), mbox, irq_available, irq_abort_init, irq_abort_done, irq_error,
+                        base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
                     ))
 

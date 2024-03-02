@@ -16,60 +16,18 @@ from migen import *
 from litex.soc.interconnect.axi import *
 from litex.soc.interconnect import ahb
 from soc_oss.axi_common import *
+from .apb import *
 
 # AHB to APB to PIO --------------------------------------------------------------------------
 
 class MboxAdapter(Module):
-    def __init__(self, platform, s_ahb, mbox, irq_available, irq_abort_init, irq_abort_done, irq_error, sel_addr = 0x4000,
+    def __init__(self, platform, s_ahb, mbox, irq_available, irq_abort_init, irq_abort_done, irq_error, base = 0x1_3000,
         address_width = 12, sim=False,
     ):
         self.logger = logging.getLogger("MboxAdapter")
 
-        apb_addr = Signal(address_width)
-        apb_enable = Signal()
-        apb_write = Signal()
-        apb_strb = Signal(4)
-        apb_prot = Signal(3)
-        apb_wdata = Signal(32)
-        apb_sel = Signal()
-        apb_active = Signal()
-        apb_rdata = Signal(32)
-        apb_ready = Signal()
-        apb_slverr = Signal()
-        sel_fullwidth = Signal(12, reset=((sel_addr & 0xFF_FFFF) >> 12))
-
-        self.specials += Instance("cmsdk_ahb_to_apb",
-            p_ADDRWIDTH            = address_width,
-
-            i_HCLK                 = ClockSignal("pclk"),
-            i_HRESETn              = ~ResetSignal(),
-            i_PCLKEN               = 1,
-            i_HSEL                 = s_ahb.addr[12:24] == sel_fullwidth,
-            i_HADDR                = s_ahb.addr[:address_width],
-            i_HTRANS               = s_ahb.trans,
-            i_HSIZE                = s_ahb.size,
-            i_HPROT                = s_ahb.prot,
-            i_HWRITE               = s_ahb.write,
-            i_HREADY               = 1, # s_ahb.mastlock, # ??
-            i_HWDATA               = s_ahb.wdata,
-
-            o_HREADYOUT            = s_ahb.readyout,
-            o_HRDATA               = s_ahb.rdata,
-            o_HRESP                = s_ahb.resp,
-
-            o_PADDR                = apb_addr,
-            o_PENABLE              = apb_enable,
-            o_PWRITE               = apb_write,
-            o_PSTRB                = apb_strb,
-            o_PPROT                = apb_prot,
-            o_PWDATA               = apb_wdata,
-            o_PSEL                 = apb_sel,
-            o_APBACTIVE            = apb_active,
-
-            i_PRDATA               = apb_rdata,
-            i_PREADY               = apb_ready,
-            i_PSLVERR              = apb_slverr,
-        )
+        apb = APBInterface(address_width=address_width)
+        self.submodules += AHB2APB(s_ahb, apb, base=base)
 
         self.specials += Instance("mbox_wrapper",
             # Parameters.
@@ -86,17 +44,17 @@ class MboxAdapter(Module):
 
             # AHB Slave interface
             # --------------------------
-            i_PADDR                = apb_addr,
-            i_PENABLE              = apb_enable,
-            i_PWRITE               = apb_write,
-            i_PSTRB                = apb_strb,
-            i_PPROT                = apb_prot,
-            i_PWDATA               = apb_wdata,
-            i_PSEL                 = apb_sel,
-            i_APBACTIVE            = apb_active,
-            o_PRDATA               = apb_rdata,
-            o_PREADY               = apb_ready,
-            o_PSLVERR              = apb_slverr,
+            i_PADDR                = apb.paddr,
+            i_PENABLE              = apb.penable,
+            i_PWRITE               = apb.pwrite,
+            i_PSTRB                = apb.pstrb,
+            i_PPROT                = apb.pprot,
+            i_PWDATA               = apb.pwdata,
+            i_PSEL                 = apb.psel,
+            i_APBACTIVE            = apb.pactive,
+            o_PRDATA               = apb.prdata,
+            o_PREADY               = apb.pready,
+            o_PSLVERR              = apb.pslverr,
 
             o_mbox_w_dat           = mbox.w_dat,
             o_mbox_w_valid         = mbox.w_valid,
