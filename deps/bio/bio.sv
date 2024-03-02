@@ -3,6 +3,7 @@
 `include "apb_sfr_v0.1.sv"
 `endif
 
+// `define FPGA 1
 
 module bio #(
 )(
@@ -710,7 +711,6 @@ module bio #(
     endgenerate
 
     /////////////////////// repeated core units
-    // `define FPGA 1
     `ifdef FPGA
         logic aclk_buf;
         // insert a BUFH to help with clock mux distribution
