@@ -91,7 +91,3 @@ class MboxAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "mbox_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "mbox_client.v"))
         platform.add_source(os.path.join(rtl_dir, "mbox_wrapper.sv"))
-
-        print(f"TODO: clean up this contamination! {__file__}")
-        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "ambabuilder", "logical", "cmsdk_ahb_to_apb", "verilog")
-        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
