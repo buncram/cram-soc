@@ -65,12 +65,12 @@ class RegFifo(Module):
         self.level = platform.request("level")
 
         self.comb += [
-            f.din.eq(self.rdata),
+            f.din.eq(self.wdata),
             f.we.eq(self.we),
             self.writable.eq(f.writable),
 
-            self.wdata.eq(f.dout),
-            self.re.eq(f.re),
+            self.rdata.eq(f.dout),
+            f.re.eq(self.re),
             self.readable.eq(f.readable),
 
             self.level.eq(f.level),
