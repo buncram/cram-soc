@@ -63,16 +63,18 @@ class AHB2APB(Module):
 
                 NextState("DATA-PHASE"),
             ).Else(
-                NextValue(apb.psel, 0)
+                NextValue(apb.psel, 0),
+                NextValue(apb.pstrb, 0),
             )
         )
         fsm.act("DATA-PHASE",
             data_phase.eq(1),
             ahb.resp.eq(apb.pslverr),
-            NextValue(apb.penable, 1),
             If(apb.pready & apb.penable, # funky hack that adds an extra beat to data-phase, because penable is a NextValue
+                NextValue(apb.penable, 0),
                 NextValue(ahb.rdata, apb.prdata),
-                NextState("ADDRESS-PHASE")
+                NextState("ADDRESS-PHASE"),
             ).Else(
+                NextValue(apb.penable, 1),
             )
         )
