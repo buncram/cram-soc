@@ -103,8 +103,8 @@ class CramSoC(SoCCore):
         self.axi_peri_map = {
             "testbench" : [0x4008_0000, 0x1_0000], # 64k
             "duart"     : [0x4004_2000, 0x0_1000],
-            "pio"       : [0x5012_3000, 0x0_1000],
-            # "bio"       : [0x5012_4000, 0x0_2000],
+            # "pio"       : [0x5012_3000, 0x0_1000],
+            "bio"       : [0x5012_4000, 0x0_2000],
             "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
