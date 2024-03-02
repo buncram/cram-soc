@@ -1488,6 +1488,7 @@ def extract_bitwidth(schema, module, code_line):
         code_line = code_line.replace('[NUM_MACHINES-1:0]', '')
     if module == 'bio':
         code_line = code_line.replace('[NUM_MACH]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
+        code_line = code_line.replace('[NUM_MACH-1:0]', '')
 
     bw_re = re.compile('[\s]*(bit|logic|reg|wire)[\s]*(\[.*\])*(.*)')
     matches = bw_re.search(code_line.strip(';'))
