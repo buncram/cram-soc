@@ -88,7 +88,7 @@ The quantum pulse can originate from two sources:
 - External clock pin, selected by flipping `use_extclk` and configuring `extclk_gpio` (one pin per core)
 
 The `extclk` pin will unstall a core waiting on an R20 write on its rising edge. If a falling edge
-unstall is desired, use the `io_i_inv` register to invert the input bit.
+unstall is desired, use the `io_i_inv` register to invert the input bit. Note that the input signal used to derive `extclk` is always before any quantum snapping. If sampling on a quantum is desired, simply read the GPIO register immediately after a resume from quantum.
 
 Normally, the code loop run by one core should finish before the quantum is up, so that every CPU runs its loop in sync. However, if a CPU does not end its code with a `mov r20, r0`, it will free-run.
 
@@ -100,10 +100,7 @@ Reads to this register return an undefined value and have no effect on the clock
 
 GPIOs are wired to the cores as follows:
 
-- All cores can read R21 at any time to get the state of a pin. A per-core host register configures if R21 updates only at the rising edge of every quantum, or if the values are directly piped in from the I/O pin at `aclk` rate. R21 is not masked by R26.
-
-For the following registers, the result only reflects to the GPIO bank on the rising edge of every quantum. Only the last update to a given register will have any effect. This also allows a core to both set and clear bits on a GPIO simultaneously on a given quantum, even though the instructions are executed separately.
-
+- All cores can read R21 at any time to get the state of a pin. R21 is not masked by R26.
 - Writes to R21 will be masked by R26 and "clobber" all unmasked values on the GPIO block
 - Bits set on a write to R22 will set the corresponding GPIO pin
 - Bits cleared on a write to R23 will clear the corresponding GPIO pin
@@ -114,10 +111,10 @@ For the following registers, the result only reflects to the GPIO bank on the ri
 
 In the case of a conflict (set and clear simultaneously), the command is ignored, and the previous state is kept.
 
-If the goal is to have a constant bit-pattern appear on a set of GPIO pins, the code
-to do that would be a `mov r22, const` followed by a `mov r23, const`. This works because
-of the inverted sense of the set/clear on r23 and r23, allowing the same value to be re-used
-to compose a single bit pattern.
+A host register configures if the external GPIO values update only at the rising edge of every quantum, or if the values update directly at `aclk` rate. Setting external update at quantum edges allows users to compose GPIO patterns with multiple accesses to the GPIO registers, without the partially finished intermediate values appearing on the output.
+
+- When snap-to-quantum is active, it applies to all GPIO pins, and only one core's clock may be used to snap all the pins at once.
+- Input and output directions may independently specify snap-to-quantum, as well as their snap-to-quantum core clock.
 
 ## Inter-core Events R27, R28, R29, R30
 

@@ -35,6 +35,8 @@ module bio #(
     logic [31:0] out_invert;
     logic [31:0] in_invert;
     logic [31:0] gpio_in_cleaned;
+    logic [31:0] gpio_in_snapped;
+    logic [31:0] gpio_in_maybe_snapped;
     logic [31:0] gpio_in_sync0;
     logic [31:0] gpio_in_sync1;
     logic [31:0] irqmask0;
@@ -45,8 +47,10 @@ module bio #(
     logic [3:0] irq_agg_q;
     logic [3:0] irq_edge;
     logic [31:0] sync_bypass;
-    logic snap_to_quantum;
-    logic [1:0] snap_to_which;
+    logic snap_output_to_quantum;
+    logic [1:0] snap_output_to_which;
+    logic snap_input_to_quantum;
+    logic [1:0] snap_input_to_which;
     logic [31:0] gpio_out_aclk;
     logic [31:0] gpio_dir_aclk;
 
@@ -238,7 +242,8 @@ module bio #(
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))     sfr_cfginfo          (.sr({16'd4096, 8'd4, 8'd8}), .prdata32(),.*);
-    apb_cr  #(.A('h08), .DW(8))      sfr_config           (.cr({snap_to_quantum, snap_to_which}), .prdata32(),.*);
+    apb_cr  #(.A('h08), .DW(6))      sfr_config           (.cr({snap_input_to_quantum, snap_input_to_which,
+                                                            snap_output_to_quantum, snap_output_to_which}), .prdata32(),.*);
 
     apb_sr  #(.A('h0C), .DW(16))     sfr_flevel           (.sr({
                                                             pclk_regfifo_level[3], pclk_regfifo_level[2],
@@ -265,7 +270,7 @@ module bio #(
     apb_acr #(.A('h40), .DW(24))     sfr_event_clr        (.cr(pclk_event_clr), .ar(pclk_event_clr_valid), .prdata32(),.*);
     apb_sr  #(.A('h44), .DW(32))     sfr_event_status     (.sr(pclk_event_status), .prdata32(), .*);
 
-    apb_cr  #(.A('h48), .DW(32))     sfr_extclock         (.cr({extclk_gpio_3, extclk_gpio_2,
+    apb_cr  #(.A('h48), .DW(24))     sfr_extclock         (.cr({extclk_gpio_3, extclk_gpio_2,
                                                             extclk_gpio_1, extclk_gpio_0, use_extclk}), .prdata32(),.*);
 
     apb_cr #(.A('h50), .DW(32))      sfr_qdiv0            (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
@@ -665,8 +670,8 @@ module bio #(
         .q(gpio_dir_aclk)
     );
     always_ff @(posedge aclk) begin
-        if (snap_to_quantum) begin
-            case (snap_to_which)
+        if (snap_output_to_quantum) begin
+            case (snap_output_to_which)
                 2'b00: begin
                     if (penable[0]) begin
                         gpio_out <= gpio_out_aclk;
@@ -707,6 +712,45 @@ module bio #(
         end else begin
             gpio_out <= gpio_out_aclk;
             gpio_dir <= gpio_dir_aclk;
+        end
+    end
+    always_ff @(posedge aclk) begin
+        case (snap_input_to_which)
+            2'b00: begin
+                if (penable[0]) begin
+                    gpio_in_snapped <= gpio_in_cleaned;
+                end else begin
+                    gpio_in_snapped <= gpio_in_snapped;
+                end
+            end
+            2'b01: begin
+                if (penable[1]) begin
+                    gpio_in_snapped <= gpio_in_cleaned;
+                end else begin
+                    gpio_in_snapped <= gpio_in_snapped;
+                end
+            end
+            2'b10: begin
+                if (penable[2]) begin
+                    gpio_in_snapped <= gpio_in_cleaned;
+                end else begin
+                    gpio_in_snapped <= gpio_in_snapped;
+                end
+            end
+            2'b11: begin
+                if (penable[3]) begin
+                    gpio_in_snapped <= gpio_in_cleaned;
+                end else begin
+                    gpio_in_snapped <= gpio_in_snapped;
+                end
+            end
+        endcase
+    end
+    always_comb begin
+        if (snap_input_to_quantum) begin
+            gpio_in_maybe_snapped = gpio_in_snapped;
+        end else begin
+            gpio_in_maybe_snapped = gpio_in_cleaned;
         end
     end
 
@@ -819,7 +863,7 @@ module bio #(
                 .gpio_clr_valid(gpio_clr_valid[j]),
                 .gpdir_set_valid(gpdir_set_valid[j]),
                 .gpdir_clr_valid(gpdir_clr_valid[j]),
-                .gpio_pins(gpio_in_cleaned),
+                .gpio_pins(gpio_in_maybe_snapped),
                 .aggregated_events(aggregated_events),
                 .stalling_for_event(stalling_for_event[j]),
                 .event_set(event_set[j]),
