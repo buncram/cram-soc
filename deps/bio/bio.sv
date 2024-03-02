@@ -60,9 +60,12 @@ module bio #(
     logic [NUM_MACH-1:0]       a_restart_q[2];
     logic [NUM_MACH-1:0]       penable;
     logic [NUM_MACH-1:0]       core_ena;
-    logic [NUM_MACH-1:0]       use_extclk;
+    logic [3:0]                use_extclk; // FIXME: for some reason, NUM_MACH-1 syntax doesn't extract automatically in SVD extractor...
     logic [NUM_MACH-1:0]       use_extclk_aclk;
-    logic [4:0]                extclk_gpio[NUM_MACH];
+    logic [4:0]                extclk_gpio_0;
+    logic [4:0]                extclk_gpio_1;
+    logic [4:0]                extclk_gpio_2;
+    logic [4:0]                extclk_gpio_3;
     logic [4:0]                extclk_gpio_aclk[NUM_MACH];
     logic [3:0]                extclk_selected;
     logic [3:0]                extclk_selected_q;
@@ -187,7 +190,10 @@ module bio #(
         a_restart_q[0] <= restart;
         a_restart_q[1] <= a_restart_q[0];
         a_restart <= a_restart_q[1];
-        extclk_gpio_aclk <= extclk_gpio;
+        extclk_gpio_aclk[0] <= extclk_gpio_0;
+        extclk_gpio_aclk[1] <= extclk_gpio_1;
+        extclk_gpio_aclk[2] <= extclk_gpio_2;
+        extclk_gpio_aclk[3] <= extclk_gpio_3;
         use_extclk_aclk <= use_extclk;
     end
     // SFR bank
@@ -259,8 +265,8 @@ module bio #(
     apb_acr #(.A('h40), .DW(24))     sfr_event_clr        (.cr(pclk_event_clr), .ar(pclk_event_clr_valid), .prdata32(),.*);
     apb_sr  #(.A('h44), .DW(32))     sfr_event_status     (.sr(pclk_event_status), .prdata32(), .*);
 
-    apb_cr  #(.A('h48), .DW(32))     sfr_extclock         (.cr({extclk_gpio[3], extclk_gpio[2],
-                                                            extclk_gpio[1], extclk_gpio[0], use_extclk}), .prdata32(),.*);
+    apb_cr  #(.A('h48), .DW(32))     sfr_extclock         (.cr({extclk_gpio_3, extclk_gpio_2,
+                                                            extclk_gpio_1, extclk_gpio_0, use_extclk}), .prdata32(),.*);
 
     apb_cr #(.A('h50), .DW(32))      sfr_qdiv0            (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
     apb_cr #(.A('h54), .DW(32))      sfr_qdiv1            (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
