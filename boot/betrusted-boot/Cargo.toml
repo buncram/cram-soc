@@ -27,7 +27,7 @@ cram-fpga = [] # target the cramium FPGA dev board instead of the SoC
 xip = []
 apb-test = []
 pl230-test = ["xous-pl230"]
-default = ["daric", "bio-test"]
+default = ["daric"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

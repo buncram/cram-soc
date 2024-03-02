@@ -2992,7 +2992,7 @@ pub mod utra {
     }
 
     pub mod bio {
-        pub const BIO_NUMREGS: usize = 33;
+        pub const BIO_NUMREGS: usize = 34;
 
         pub const SFR_CTRL: crate::Register = crate::Register::new(0, 0xfff);
         pub const SFR_CTRL_EN: crate::Field = crate::Field::new(4, 0, SFR_CTRL);
@@ -3063,6 +3063,13 @@ pub mod utra {
 
         pub const SFR_EVENT_STATUS: crate::Register = crate::Register::new(17, 0xffffffff);
         pub const SFR_EVENT_STATUS_SFR_EVENT_STATUS: crate::Field = crate::Field::new(32, 0, SFR_EVENT_STATUS);
+
+        pub const SFR_EXTCLOCK: crate::Register = crate::Register::new(18, 0xffffff);
+        pub const SFR_EXTCLOCK_USE_EXTCLK: crate::Field = crate::Field::new(4, 0, SFR_EXTCLOCK);
+        pub const SFR_EXTCLOCK_EXTCLK_GPIO_0: crate::Field = crate::Field::new(5, 4, SFR_EXTCLOCK);
+        pub const SFR_EXTCLOCK_EXTCLK_GPIO_1: crate::Field = crate::Field::new(5, 9, SFR_EXTCLOCK);
+        pub const SFR_EXTCLOCK_EXTCLK_GPIO_2: crate::Field = crate::Field::new(5, 14, SFR_EXTCLOCK);
+        pub const SFR_EXTCLOCK_EXTCLK_GPIO_3: crate::Field = crate::Field::new(5, 19, SFR_EXTCLOCK);
 
         pub const SFR_QDIV0: crate::Register = crate::Register::new(20, 0xffffffff);
         pub const SFR_QDIV0_UNUSED_DIV: crate::Field = crate::Field::new(8, 0, SFR_QDIV0);
@@ -11061,6 +11068,34 @@ mod tests {
         let mut baz = bio_csr.zf(utra::bio::SFR_EVENT_STATUS_SFR_EVENT_STATUS, bar);
         baz |= bio_csr.ms(utra::bio::SFR_EVENT_STATUS_SFR_EVENT_STATUS, 1);
         bio_csr.wfo(utra::bio::SFR_EVENT_STATUS_SFR_EVENT_STATUS, baz);
+
+        let foo = bio_csr.r(utra::bio::SFR_EXTCLOCK);
+        bio_csr.wo(utra::bio::SFR_EXTCLOCK, foo);
+        let bar = bio_csr.rf(utra::bio::SFR_EXTCLOCK_USE_EXTCLK);
+        bio_csr.rmwf(utra::bio::SFR_EXTCLOCK_USE_EXTCLK, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_EXTCLOCK_USE_EXTCLK, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_EXTCLOCK_USE_EXTCLK, 1);
+        bio_csr.wfo(utra::bio::SFR_EXTCLOCK_USE_EXTCLK, baz);
+        let bar = bio_csr.rf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_0);
+        bio_csr.rmwf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_0, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_0, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_0, 1);
+        bio_csr.wfo(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_0, baz);
+        let bar = bio_csr.rf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_1);
+        bio_csr.rmwf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_1, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_1, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_1, 1);
+        bio_csr.wfo(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_1, baz);
+        let bar = bio_csr.rf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_2);
+        bio_csr.rmwf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_2, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_2, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_2, 1);
+        bio_csr.wfo(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_2, baz);
+        let bar = bio_csr.rf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_3);
+        bio_csr.rmwf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_3, bar);
+        let mut baz = bio_csr.zf(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_3, bar);
+        baz |= bio_csr.ms(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_3, 1);
+        bio_csr.wfo(utra::bio::SFR_EXTCLOCK_EXTCLK_GPIO_3, baz);
 
         let foo = bio_csr.r(utra::bio::SFR_QDIV0);
         bio_csr.wo(utra::bio::SFR_QDIV0, foo);
