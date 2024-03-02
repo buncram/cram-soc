@@ -409,11 +409,13 @@ module bio #(
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: stalls
             always_comb begin
                 stall[j] = (
-                    quanta_wr[j] & ~penable[j]                         // stall to next quanta
-                    | mach_regfifo_rd[j] & !regfifo_readable[j]        // FIFO read but empty
-                    | mach_regfifo_wr[j] & !regfifo_writable[j]        // FIFO write but full
-                    | stalling_for_event[j]                            // event stall
-                ) || ~en_sync[j];                                      // overall machine enable
+                    quanta_wr[j] & ~penable[j]                          // stall to next quanta
+                    | (mach_regfifo_rd[j] &                             // FIFO read but empty
+                      ~{regfifo_readable[3], regfifo_readable[2], regfifo_readable[1], regfifo_readable[0]}) != '0
+                    | (mach_regfifo_wr[j] &                              // FIFO write but full
+                      ~{regfifo_writable[3], regfifo_writable[2], regfifo_writable[1], regfifo_writable[0]}) != '0
+                    | stalling_for_event[j]                             // event stall
+                ) || ~en_sync[j];                                       // overall machine enable
             end
         end
     endgenerate
@@ -433,11 +435,11 @@ module bio #(
                     push_sync[k]
                 }),
                 .data_in({
-                    mach_regfifo_wdata[3],
-                    mach_regfifo_wdata[2],
-                    mach_regfifo_wdata[1],
+                    fdin_sync[k],
                     mach_regfifo_wdata[0],
-                    fdin_sync[k]
+                    mach_regfifo_wdata[1],
+                    mach_regfifo_wdata[2],
+                    mach_regfifo_wdata[3]
                 }),
                 .data_out(regfifo_wdata[k])
             );
@@ -453,11 +455,11 @@ module bio #(
                     push_sync[k]
                 }),
                 .data_in({
-                    mach_regfifo_wr[3][k],
-                    mach_regfifo_wr[2][k],
-                    mach_regfifo_wr[1][k],
+                    push_sync[k],
                     mach_regfifo_wr[0][k],
-                    push_sync[k]
+                    mach_regfifo_wr[1][k],
+                    mach_regfifo_wr[2][k],
+                    mach_regfifo_wr[3][k]
                 }),
                 .data_out(regfifo_we[k])
             );
@@ -473,11 +475,11 @@ module bio #(
                     pull_sync[k]
                 }),
                 .data_in({
-                    mach_regfifo_rd[3][k],
-                    mach_regfifo_rd[2][k],
-                    mach_regfifo_rd[1][k],
+                    pull_sync[k],
                     mach_regfifo_rd[0][k],
-                    pull_sync[k]
+                    mach_regfifo_rd[1][k],
+                    mach_regfifo_rd[2][k],
+                    mach_regfifo_rd[3][k]
                 }),
                 .data_out(regfifo_re[k])
             );
@@ -775,10 +777,10 @@ module bio #(
 	            .STACKADDR(MEM_SIZE_BYTES - 1)
             ) core
             (
-                .regfifo_rdata_0(regfifo_rdata_0),
-                .regfifo_rdata_1(regfifo_rdata_1),
-                .regfifo_rdata_2(regfifo_rdata_2),
-                .regfifo_rdata_3(regfifo_rdata_3),
+                .regfifo_rdata_0(regfifo_rdata[0]),
+                .regfifo_rdata_1(regfifo_rdata[1]),
+                .regfifo_rdata_2(regfifo_rdata[2]),
+                .regfifo_rdata_3(regfifo_rdata[3]),
                 .regfifo_rd(mach_regfifo_rd[j]),
                 .regfifo_wdata(mach_regfifo_wdata[j]),
                 .regfifo_wr(mach_regfifo_wr[j]),

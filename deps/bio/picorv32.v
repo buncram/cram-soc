@@ -1437,7 +1437,10 @@ module picorv32 #(
 		.reset_n(resetn),
 		.wen(resetn && cpuregs_write && latched_rd),
 		.ren1(resetn && (cpu_state == cpu_state_ld_rs1)),
-		.ren2(resetn && (cpu_state == cpu_state_ld_rs2) && !is_slli_srli_srai),
+		.ren2(resetn && (cpu_state == cpu_state_ld_rs1)
+		   // predicates that determine if rs2 field is valid or not
+		   && !is_slli_srli_srai && !is_jalr_addi_slti_sltiu_xori_ori_andi
+		   && !is_lui_auipc_jal && !is_lb_lh_lw_lbu_lhu),
 		.waddr(cpuregs_waddr),
 		.raddr1(cpuregs_raddr1),
 		.raddr2(cpuregs_raddr2),
