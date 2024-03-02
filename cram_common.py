@@ -267,7 +267,7 @@ class CramSoC(SoCCore):
                                    getattr(self, name + "_axil"),
                                    getattr(self, name + "_slower_axil"),
                         ))
-                setattr(self, name + "_ahb", ahb.Interface())
+                setattr(self, name + "_ahb", ahb.AHBInterface())
                 self.submodules += ClockDomainsRenamer({"sys" : "p"})(
                     AXILite2AHBAdapter(platform,
                                        getattr(self, name + "_slower_axil"),
@@ -299,7 +299,8 @@ class CramSoC(SoCCore):
                     else: # arty variant
                         clock_remap = {"sys" : "p", "bio": "sys"}
                     self.submodules += ClockDomainsRenamer(clock_remap)(BioAdapter(platform,
-                        getattr(self, name +"_ahb"), platform.request("pio"), bio_irq, sel_addr=region[0],
+                        getattr(self, name +"_ahb"), platform.request("pio"), bio_irq,
+                        base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
                     ))
                     self.comb += [
