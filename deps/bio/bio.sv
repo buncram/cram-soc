@@ -143,11 +143,6 @@ module bio #(
     logic         regfifo_readable[4];
     logic [3:0]   regfifo_level [4];
 
-    logic [31:0] host_regfifo_wdata [4];
-    logic [3:0]  host_regfifo_we;
-    logic [31:0] host_regfifo_rdata [4];
-    logic [3:0]  host_regfifo_re;
-
     logic [3:0] pclk_fifo_event_level[8];
     logic [3:0] host_fifo_event_level[8];
     logic [7:0] host_fifo_event_eq_mask;
@@ -390,9 +385,9 @@ module bio #(
     always_ff @(posedge pclk) begin
         host_mem_rdata <= host_mem_rdata_capture;
     end
-    // only assert when selected
+    // only assert when selected, and the high bit of the address range is set
     always_comb begin
-        host_mem_rdata_pclk = apbs.psel & apbs.penable & ~apbs.pwrite ? host_mem_rdata : '0;
+        host_mem_rdata_pclk = apbs.psel & apbs.penable & ~apbs.pwrite & (apbs.paddr[12] == 1'b1) ? host_mem_rdata : '0;
     end
     // imem
     Ram_1w_4rs #(
