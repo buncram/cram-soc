@@ -308,13 +308,14 @@ class CramSoC(SoCCore):
                         pio_irq0.eq(bio_irq[0]),
                         pio_irq1.eq(bio_irq[1]),
                     ]
-                    self.comb += [
-                        self.bioadapter.i2c.eq(self.sim_coherence_w.storage[0]),
-                        self.bioadapter.force.eq(self.sim_coherence_w.storage[1]),
-                        self.bioadapter.loop_oe.eq(self.sim_coherence_w.storage[2]),
-                        self.bioadapter.invert.eq(self.sim_coherence_w.storage[3]),
-                        self.bioadapter.force_val.eq(self.sim_coherence_w.storage[16:]),
-                    ]
+                    if variant == "sim":
+                        self.comb += [
+                            self.bioadapter.i2c.eq(self.sim_coherence_w.storage[0]),
+                            self.bioadapter.force.eq(self.sim_coherence_w.storage[1]),
+                            self.bioadapter.loop_oe.eq(self.sim_coherence_w.storage[2]),
+                            self.bioadapter.invert.eq(self.sim_coherence_w.storage[3]),
+                            self.bioadapter.force_val.eq(self.sim_coherence_w.storage[16:]),
+                        ]
                 elif name == "duart":
                     from soc_oss.duart_adapter import DuartAdapter
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
