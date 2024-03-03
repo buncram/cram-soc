@@ -106,7 +106,7 @@ Remember, just because the rules allow it, doesn't mean it's a good idea. It jus
 
 FIFO events:
 
-The host can configure a watermark flags on every FIFO to trigger an event when the value is less than, equal to, and/or greater than the specified value. lt, eq, gt are a bit mask of statuses that are OR'd together to create the event. Each FIFO has two configurable event flags.
+The host can configure a watermark flags on every FIFO to trigger an event when the value is less than, equal to, and/or greater than the specified value. lt, eq, gt are a bit mask of statuses that are OR'd together to create the event. Each FIFO has two configurable event flag channels, A and B, mapped in a bit vector like [3b, 3a, 2b, 2a, 1b, 1a, 0b, 0a] to the highest bits of the event aggregator.
 
 These events are combinable into four IRQ lines that go to the host system. The intention is that the IRQ lines should be routed to the MDMA block for automated refilling of FIFOs.
 
@@ -157,7 +157,7 @@ A core can clear an event bit by writing a `1` to R29. This write does not regar
 
 A core can wait until an event happens by reading R30. It will stall until all of the bits marked as sensitive in R27 are set. The stall is computed at `aclk` rates, e.g. if one needs synchronization to the quantum timer, the code sequence should be `mov r20, r0` followed by `mov ra, r29`.
 
-Bits 0-7 on R30 are wired to the FIFO level event flags; these bits cannot be set or cleared by R28 and R29.
+Bits 31:24 on R30 are wired to the FIFO level event flags; these bits cannot be set or cleared by R28 and R29.
 
 The host can read the contents of the aggregated events in real-time, and an interrupt can be generated based on an enable mask AND'd with the contents of R30.
 

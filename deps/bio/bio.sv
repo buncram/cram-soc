@@ -143,22 +143,26 @@ module bio #(
     logic         regfifo_readable[4];
     logic [3:0]   regfifo_level [4];
 
-    logic [3:0] pclk_fifo_event_level[8];
+    logic [3:0] fifo_event_level[8];
     logic [3:0] host_fifo_event_level[8];
     logic [7:0] host_fifo_event_eq_mask;
     logic [7:0] host_fifo_event_lt_mask;
     logic [7:0] host_fifo_event_gt_mask;
-    logic [7:0] pclk_fifo_event_eq_mask;
-    logic [7:0] pclk_fifo_event_lt_mask;
-    logic [7:0] pclk_fifo_event_gt_mask;
+    logic [7:0] fifo_event_eq_mask;
+    logic [7:0] fifo_event_lt_mask;
+    logic [7:0] fifo_event_gt_mask;
 
     logic [31:0] fdin       [NUM_MACH];
     logic [31:0] fdin_sync  [NUM_MACH];
     logic [31:0] fdout      [NUM_MACH];
     logic [3:0] push;
     logic [3:0] pull;
+    logic [3:0] fifo_to_reset;
+    logic do_fifo_clr;
 
     /////////////////////// register bank
+    // nc fields
+    wire ctl_action_sync_ack;
     // synchronizers for .ar pulses
     logic ctl_action_sync;
     logic [3:0] push_sync;
@@ -168,9 +172,8 @@ module bio #(
     logic [24:0] pclk_event_clr;
     logic pclk_event_clr_valid;
     logic ctl_action;
-
-    // nc fields
-    wire ctl_action_sync_ack;
+    logic [3:0] fifo_to_reset_aclk;
+    logic do_fifo_clr_aclk;
     logic [31:0] host_mem_rdata_pclk;
     logic [3:0]  pclk_regfifo_level [4];
     always_ff @(posedge pclk) begin
@@ -180,10 +183,10 @@ module bio #(
     end
     always_ff @(posedge aclk) begin
         fdin_sync <= fdin;
-        host_fifo_event_level <= pclk_fifo_event_level;
-        host_fifo_event_eq_mask <= pclk_fifo_event_eq_mask;
-        host_fifo_event_lt_mask <= pclk_fifo_event_lt_mask;
-        host_fifo_event_gt_mask <= pclk_fifo_event_gt_mask;
+        host_fifo_event_level <= fifo_event_level;
+        host_fifo_event_eq_mask <= fifo_event_eq_mask;
+        host_fifo_event_lt_mask <= fifo_event_lt_mask;
+        host_fifo_event_gt_mask <= fifo_event_gt_mask;
         host_event_set <= pclk_event_set;
         host_event_clr <= pclk_event_clr;
         a_restart_q[0] <= restart;
@@ -194,6 +197,7 @@ module bio #(
         extclk_gpio_aclk[2] <= extclk_gpio_2;
         extclk_gpio_aclk[3] <= extclk_gpio_3;
         use_extclk_aclk <= use_extclk;
+        fifo_to_reset_aclk <= fifo_to_reset;
     end
     // SFR bank
     logic apbrd, apbwr, sfrlock;
@@ -212,13 +216,13 @@ module bio #(
             sfr_rxf1         .prdata32 |
             sfr_rxf2         .prdata32 |
             sfr_rxf3         .prdata32 |
-            sfr_elevel0      .prdata32 |
-            sfr_elevel1      .prdata32 |
+            sfr_elevel       .prdata32 |
             sfr_etype        .prdata32 |
             sfr_event_set    .prdata32 |
             sfr_event_clr    .prdata32 |
             sfr_event_status .prdata32 |
             sfr_extclock     .prdata32 |
+            sfr_fifo_clr     .prdata32 |
             sfr_qdiv0        .prdata32 |
             sfr_qdiv1        .prdata32 |
             sfr_qdiv2        .prdata32 |
@@ -252,21 +256,21 @@ module bio #(
     apb_asr #(.A('h28), .DW(32))     sfr_rxf2             (.sr(fdout[2]), .ar(pull[2]), .prdata32(),.*);
     apb_asr #(.A('h2C), .DW(32))     sfr_rxf3             (.sr(fdout[3]), .ar(pull[3]), .prdata32(),.*);
 
-    apb_cr  #(.A('h30), .DW(32))     sfr_elevel0          (.cr({
-                                                            pclk_fifo_event_level[3], pclk_fifo_event_level[2],
-                                                            pclk_fifo_event_level[1], pclk_fifo_event_level[0]}), .prdata32(),.*);
-    apb_cr  #(.A('h34), .DW(32))     sfr_elevel1          (.cr({
-                                                            pclk_fifo_event_level[7], pclk_fifo_event_level[6],
-                                                            pclk_fifo_event_level[5], pclk_fifo_event_level[4]}), .prdata32(),.*);
-    apb_cr  #(.A('h38), .DW(24))     sfr_etype            (.cr({
-                                                            pclk_fifo_event_gt_mask, pclk_fifo_event_eq_mask,
-                                                            pclk_fifo_event_lt_mask}), .prdata32(),.*);
-    apb_acr #(.A('h3C), .DW(24))     sfr_event_set        (.cr(pclk_event_set), .ar(pclk_event_set_valid), .prdata32(),.*);
-    apb_acr #(.A('h40), .DW(24))     sfr_event_clr        (.cr(pclk_event_clr), .ar(pclk_event_clr_valid), .prdata32(),.*);
-    apb_sr  #(.A('h44), .DW(32))     sfr_event_status     (.sr(pclk_event_status), .prdata32(), .*);
+    apb_cr  #(.A('h30), .DW(32))     sfr_elevel           (.cr({
+                                                            fifo_event_level[7], fifo_event_level[6],
+                                                            fifo_event_level[5], fifo_event_level[4],
+                                                            fifo_event_level[3], fifo_event_level[2],
+                                                            fifo_event_level[1], fifo_event_level[0]}), .prdata32(),.*);
+    apb_cr  #(.A('h34), .DW(24))     sfr_etype            (.cr({
+                                                            fifo_event_gt_mask, fifo_event_eq_mask,
+                                                            fifo_event_lt_mask}), .prdata32(),.*);
+    apb_acr #(.A('h38), .DW(24))     sfr_event_set        (.cr(pclk_event_set), .ar(pclk_event_set_valid), .prdata32(),.*);
+    apb_acr #(.A('h3C), .DW(24))     sfr_event_clr        (.cr(pclk_event_clr), .ar(pclk_event_clr_valid), .prdata32(),.*);
+    apb_sr  #(.A('h40), .DW(32))     sfr_event_status     (.sr(pclk_event_status), .prdata32(), .*);
 
-    apb_cr  #(.A('h48), .DW(24))     sfr_extclock         (.cr({extclk_gpio_3, extclk_gpio_2,
+    apb_cr  #(.A('h44), .DW(24))     sfr_extclock         (.cr({extclk_gpio_3, extclk_gpio_2,
                                                             extclk_gpio_1, extclk_gpio_0, use_extclk}), .prdata32(),.*);
+    apb_acr  #(.A('h48), .DW(4))     sfr_fifo_clr         (.cr(fifo_to_reset), .ar(do_fifo_clr), .prdata32(), .*);
 
     apb_cr #(.A('h50), .DW(32))      sfr_qdiv0            (.cr({div_int[0], div_frac[0], unused_div[0]}), .prdata32(),.*);
     apb_cr #(.A('h54), .DW(32))      sfr_qdiv1            (.cr({div_int[1], div_frac[1], unused_div[1]}), .prdata32(),.*);
@@ -292,6 +296,7 @@ module bio #(
     cdc_blinded       pull_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
     cdc_blinded       event_set_cdc      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_set_valid  ), .out_b(host_event_set_valid       ));
     cdc_blinded       event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
+    cdc_blinded       fifo_clr_cdc       (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(do_fifo_clr           ), .out_b(do_fifo_clr_aclk           ));
 
     /////////////////////// machine instantiation & instruction memory
     assign reset = ~reset_n;
@@ -454,11 +459,13 @@ module bio #(
                 .DATAW(32),
                 .LEVELS(NUM_MACH + 1)
             ) select_wdata (
+                // strobes are modified by en_sync, so that if the core is disabled on a write
+                // to fifo instruction, the write doesn't "stick around".
                 .stb({
-                    mach_regfifo_wr[3][k],
-                    mach_regfifo_wr[2][k],
-                    mach_regfifo_wr[1][k],
-                    mach_regfifo_wr[0][k],
+                    mach_regfifo_wr[3][k] & en_sync[k],
+                    mach_regfifo_wr[2][k] & en_sync[k],
+                    mach_regfifo_wr[1][k] & en_sync[k],
+                    mach_regfifo_wr[0][k] & en_sync[k],
                     push_sync[k]
                 }),
                 .data_in({
@@ -475,10 +482,10 @@ module bio #(
                 .LEVELS(NUM_MACH + 1)
             ) select_wr (
                 .stb({
-                    mach_regfifo_wr[3][k],
-                    mach_regfifo_wr[2][k],
-                    mach_regfifo_wr[1][k],
-                    mach_regfifo_wr[0][k],
+                    mach_regfifo_wr[3][k] & en_sync[k],
+                    mach_regfifo_wr[2][k] & en_sync[k],
+                    mach_regfifo_wr[1][k] & en_sync[k],
+                    mach_regfifo_wr[0][k] & en_sync[k],
                     push_sync[k]
                 }),
                 .data_in({
@@ -495,10 +502,10 @@ module bio #(
                 .LEVELS(NUM_MACH + 1)
             ) select_rd (
                 .stb({
-                    mach_regfifo_rd[3][k],
-                    mach_regfifo_rd[2][k],
-                    mach_regfifo_rd[1][k],
-                    mach_regfifo_rd[0][k],
+                    mach_regfifo_rd[3][k] & en_sync[k],
+                    mach_regfifo_rd[2][k] & en_sync[k],
+                    mach_regfifo_rd[1][k] & en_sync[k],
+                    mach_regfifo_rd[0][k] & en_sync[k],
                     pull_sync[k]
                 }),
                 .data_in({
@@ -534,7 +541,7 @@ module bio #(
     generate
         for(genvar i = 0; i < 8; i = i + 1) begin: event_levels_hookup
             always_ff @(posedge aclk) begin
-                aggregated_events[i] <= host_fifo_event_eq_mask[i] && level_eq_result[i]
+                aggregated_events[i + 24] <= host_fifo_event_eq_mask[i] && level_eq_result[i]
                     || host_fifo_event_lt_mask[i] && level_lt_result[i]
                     || host_fifo_event_gt_mask[i] && level_gt_result[i];
             end
@@ -545,7 +552,7 @@ module bio #(
         .LEVELS(5)
     ) event_set_aggregator (
         .stb({event_set_valid, host_event_set_valid}),
-        .data_in({event_set[3], event_set[2], event_set[1], event_set[0], host_event_set}),
+        .data_in({host_event_set, event_set[0], event_set[1], event_set[2], event_set[3]}),
         .data_out(event_set_agg)
     );
     priority_demux #(
@@ -553,7 +560,7 @@ module bio #(
         .LEVELS(5)
     ) event_clr_aggregator (
         .stb({event_clr_valid, host_event_clr_valid}),
-        .data_in({event_clr[3], event_clr[2], event_clr[1], event_clr[0], host_event_clr}),
+        .data_in({host_event_clr, event_clr[0], event_clr[1], event_clr[2], event_clr[3]}),
         .data_out(event_clr_agg)
     );
     scc_ff #(
@@ -566,7 +573,7 @@ module bio #(
         .clr(event_clr_agg),
         .clobber('0),
         .value('0),
-        .q(aggregated_events[31:8])
+        .q(aggregated_events[23:0])
     );
 
     /////////////////////// gpio logic
@@ -903,7 +910,7 @@ module bio #(
     generate
         for(genvar k = 0; k < 4; k = k + 1) begin: fifos
             regfifo regfifo(
-                .reset(reset),
+                .reset(reset | fifo_to_reset_aclk[k] & do_fifo_clr_aclk),
                 .aclk(aclk),
                 .wdata(regfifo_wdata[k]),
                 .we(regfifo_we[k]),
@@ -1051,10 +1058,11 @@ module picorv32_regs_bio #(
         gpio_clr = gpio_mask & ~wdata;
         gpdir_set = gpio_mask & wdata;
         gpdir_clr = gpio_mask & ~wdata;
-        event_set = wdata[31:8];
-        event_clr = wdata[31:8];
+        event_set = wdata[24:0]; // can't set or clear FIFO events, so they are masked
+        event_clr = wdata[24:0];
 
-        stalling_for_event = ((event_mask & aggregated_events) == event_mask) && (event_mask != 0);
+        stalling_for_event = ((event_mask & aggregated_events) != event_mask) && (event_mask != 0) &&
+            ((ren1 && (raddr1 == 30)) || (ren2 && (raddr2 == 30)));
 
         if (wen) begin
             casez (waddr)
