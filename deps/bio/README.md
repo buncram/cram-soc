@@ -11,7 +11,7 @@ The PicoRV cores are configured as follows:
   - Dual port register file enabled
   - Compressed instructions on
 
-All four PicoRV cores fetch instructions out of a shared 1kx32, 4-read, 1-write RAM. The RAM is accessible from the host via the 1-write port, and is memory mapped into the host memory space. Reads from the instruction space only succeed if core #3 is stopped, as it shares a read port with the host.
+All four PicoRV cores fetch instructions out of a shared 1kx32, 4-read, 1-write RAM. The RAM is accessible from the host via the 1-write port, and is memory mapped into the host memory space. Host access to instruction space only succeed if core #0 is stopped, as that core shares its r/w port with the host.
 
 The BIO is managed via a host interface, which is memory-mapped into the host system. To be clear, the BIO
 PicoRV cores have no access to the host address space; the BIO CPU cores live entirely within their private
@@ -30,7 +30,6 @@ Each core has a reset vector that can be independently set.
 Each core can be independently configured to wrap the PC back to the reset value when a fetch happens to a prescribed address. If none is set, the PC will wrap around to 0 if it increments off the end of instruction memory.
 
 ## Writing Code for the RV32E+C
-
 ### Only R0-R15 Have Guaranteed Arithmetic Behaviors
 Note that the PicoRV is wired to only correctly execute code out of R0-R15. Thus, the upper
 registers can only safely be accessed with an explicit `mv` instruction to or from the register;
@@ -57,6 +56,38 @@ out the initial jump vector table, that most assemblers will emit a compressed j
 starts in the bottom 2k of instruction memory, but will emit an uncompressed instruction if it's
 farther out. This can cause some troubles laying out the vector table if your code extends
 beyond the 2k limit.
+
+## Extended Registers
+
+## Summary
+
+FIFO - 8-deep fifo head/tail access. Cores halt on overflow/underflow.
+- x16 r/w  fifo[0]
+- x17 r/w  fifo[1]
+- x18 r/w  fifo[2]
+- x19 r/w  fifo[3]
+
+Quantum - core will halt until host-configured clock divider pules occurs,
+or an external event comes in on a host-specified GPIO pin.
+- x20 -/w  halt to quantum
+
+GPIO - note clear-on-0 semantics for bit-clear ops
+- x21 r/w  write: (x26 & x21) -> gpio pins; read: gpio pins -> x21
+- x22 -/w  (x26 & x22) -> `1` will set corresponding pin on gpio
+- x23 -/w  (x26 & x23) -> `0` will clear corresponding pin on gpio
+- x24 -/w  (x26 & x24) -> `1` will make corresponding gpio pin an output
+- x25 -/w  (x26 & x25) -> `0` will make corresponding gpio pin an input
+- x26 r/w  mask GPIO action outputs
+
+Events - operate on a shared event register. Bits [7:0] are hard-wired to FIFO
+level flags, configured by the host; writes to bits [7:0] are ignored.
+- x27 -/w  mask event sensitivity bits
+- x28 -/w  `1` will set the corresponding event bit. Only [31:8] are wired up.
+- x29 -/w  `1` will clear the corresponding event bit Only [31:8] are wired up.
+- x30 r/-  halt until ((x27 & events) == x27), and return unmasked `events` value
+
+Core ID & debug:
+- x31 r/-  [31:30] -> core ID; [29:0] -> cpu clocks since reset
 
 ## Inter-core FIFO bank R16-R19
 
