@@ -299,7 +299,7 @@ class CramSoC(SoCCore):
                         clock_remap = {"sys" : "p"}
                     else: # arty variant
                         clock_remap = {"sys" : "p", "bio": "sys"}
-                    self.submodules += ClockDomainsRenamer(clock_remap)(BioAdapter(platform,
+                    self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioAdapter(platform,
                         getattr(self, name +"_ahb"), platform.request("pio"), bio_irq,
                         base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
@@ -307,6 +307,13 @@ class CramSoC(SoCCore):
                     self.comb += [
                         pio_irq0.eq(bio_irq[0]),
                         pio_irq1.eq(bio_irq[1]),
+                    ]
+                    self.comb += [
+                        self.bioadapter.i2c.eq(self.sim_coherence_w.storage[0]),
+                        self.bioadapter.force.eq(self.sim_coherence_w.storage[1]),
+                        self.bioadapter.loop_oe.eq(self.sim_coherence_w.storage[2]),
+                        self.bioadapter.invert.eq(self.sim_coherence_w.storage[3]),
+                        self.bioadapter.force_val.eq(self.sim_coherence_w.storage[16:]),
                     ]
                 elif name == "duart":
                     from soc_oss.duart_adapter import DuartAdapter

@@ -17,6 +17,7 @@ from litex.soc.interconnect.axi import *
 from litex.soc.interconnect import ahb
 from soc_oss.axi_common import *
 from .apb import *
+from litex.soc.interconnect.csr import *
 
 # AHB to APB to BIO --------------------------------------------------------------------------
 
@@ -33,6 +34,12 @@ class BioAdapter(Module):
         gpio_o = Signal(32)
         gpio_oe = Signal(32)
         if sim:
+            self.i2c = Signal()
+            self.force = Signal()
+            self.loop_oe = Signal()
+            self.invert = Signal()
+            self.force_val = Signal(16)
+
             FAILING_ADDRESS = 0x17
             i2c_scl = Signal()
             i2c_sda = Signal()
@@ -123,18 +130,54 @@ class BioAdapter(Module):
             if sim:
                 if (i == 2): # SDA
                     self.comb += [
-                        i2c_sda_controller_drive_low.eq(gpio_oe[i]),
-                        i2c_sda.eq(~(i2c_sda_controller_drive_low | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
-                        gpio_i[i].eq(i2c_sda)
+                        If(self.i2c,
+                            i2c_sda_controller_drive_low.eq(gpio_oe[i]),
+                            i2c_sda.eq(~(i2c_sda_controller_drive_low | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
+                            gpio_i[i].eq(i2c_sda)
+                        ).Else(
+                            If(self.force,
+                                gpio_i[i].eq(self.force_val[i - 16]),
+                            ).Elif(self.loop_oe,
+                                gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                            ).Else(
+                                gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                            )
+                        )
                     ]
                     # self.comb += gpio_i[i].eq(0) # for NAK testing
                 elif (i == 3): # SCL
-                    self.comb += gpio_i[i].eq(~gpio_oe[i]) # funky setup to try and "fake" some I2C-ish pullups
-                    self.comb += i2c_scl.eq(~gpio_oe[i])
-                elif (i == 31): # for register tests
-                    self.comb += gpio_i[i].eq(gpio_oe[i])
+                    self.comb += [
+                        If(self.i2c,
+                            gpio_i[i].eq(~gpio_oe[i]), # funky setup to try and "fake" some I2C-ish pullups
+                            i2c_scl.eq(~gpio_oe[i])
+                        ).Else(
+                            If(self.force,
+                                gpio_i[i].eq(self.force_val[i - 16]),
+                            ).Elif(self.loop_oe,
+                                gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                            ).Else(
+                                gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                            )
+                        )
+                    ]
+                elif (i < 16):
+                    self.comb += [
+                        If(self.loop_oe,
+                            gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                        ).Else(
+                            gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                        )
+                    ]
                 else:
-                    self.comb += gpio_i[i].eq(gpio_o[i]) # loopback for testing
+                    self.comb += [
+                        If(self.force,
+                            gpio_i[i].eq(self.force_val[i - 16]),
+                        ).Elif(self.loop_oe,
+                            gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                        ).Else(
+                            gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                        )
+                    ]
             else:
                 self.comb += gpio_i[i].eq(self.gpio.i)
 
