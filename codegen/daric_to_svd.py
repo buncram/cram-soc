@@ -1717,10 +1717,10 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                                 bitwidth = 3
                                             else:
                                                 if "'d" not in bf: # we do handle 'd constant fields, just below...
-                                                    if 'pclk_fifo_event_level' in bf:
-                                                        logging.warning(f"{bf} assigned width = 8 through special case")
-                                                        bitwidth = 8
-                                                    elif 'pclk_regfifo_level' in bf:
+                                                    if 'fifo_event_level' in bf:
+                                                        logging.warning(f"{bf} assigned width = 4 through special case")
+                                                        bitwidth = 4
+                                                    elif 'regfifo_level' in bf:
                                                         logging.warning(f"{bf} assigned width = 4 through special case")
                                                         bitwidth = 4
                                                     else:
