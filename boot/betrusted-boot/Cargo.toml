@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 utralib = {path = "../utralib"}
 riscv = { version = "0.5.6", package = "xous-riscv" }
-# xous-bio = {path="../../../xous-core/libs/xous-bio", default-features=false, features=["tests", "cramium-soc", "baremetal"]}
+xous-bio = {path="../../../xous-core/libs/xous-bio", default-features=false, features=["tests", "cramium-soc", "baremetal"]}
 xous-pio = {path="../../../xous-core/libs/xous-pio", default-features=false, features=["tests", "cramium-soc", "baremetal"]}
 xous-pl230 = {path="../../../xous-core/libs/xous-pl230", optional=true, default-features=false, features=["tests", "cramium-soc", "baremetal"]}
 pio-proc = "0.2.2"

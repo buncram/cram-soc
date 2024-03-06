@@ -48,6 +48,7 @@ dependencies = [
  "pio",
  "pio-proc",
  "utralib",
+ "xous-bio",
  "xous-pio",
  "xous-pl230",
  "xous-riscv",
@@ -930,6 +931,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb93122c9dab77f8bde501ff0677d3df7777982f9faa23603423aeb5eae4e55d"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "xous-bio"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "utralib",
+ "xous",
 ]
 
 [[package]]
