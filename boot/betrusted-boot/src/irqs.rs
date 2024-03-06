@@ -1,6 +1,31 @@
 use utralib::generated::*;
 use riscv::register::{scause, sepc, stval, vexriscv::sim, vexriscv::sip, sie};
-use crate::report_api;
+use crate::*;
+
+#[cfg(feature="quanta-test")]
+pub fn setup_quantum_timer() {
+    let mut pio_ss = xous_pio::PioSharedState::new();
+    let mut sm_a = pio_ss.alloc_sm().unwrap();
+
+    pio_ss.clear_instruction_memory();
+    pio_ss.pio.rmwf(utra::rp_pio::SFR_CTRL_EN, 0);
+    #[rustfmt::skip]
+    let timer_code = pio_proc::pio_asm!(
+        "restart:",
+        "set x, 6",  // 4 cycles overhead gets us to 10 iterations per pulse
+        "waitloop:",
+        "jmp x-- waitloop",
+        "irq set 0",
+        "jmp restart",
+    );
+    let a_prog = LoadedProg::load(timer_code.program, &mut pio_ss).unwrap();
+    sm_a.sm_set_enabled(false);
+    a_prog.setup_default_config(&mut sm_a);
+    sm_a.config_set_clkdiv(5000.0f32);
+    sm_a.sm_init(a_prog.entry());
+    sm_a.sm_irq0_source_enabled(PioIntSource::Sm, true);
+    sm_a.sm_set_enabled(true);
+}
 
 pub fn enable_irq(irq_no: usize) {
     // Note that the vexriscv "IRQ Mask" register is inverse-logic --
@@ -28,6 +53,11 @@ pub fn irq_setup() {
     let mut irqarray19 = CSR::new(utra::irqarray19::HW_IRQARRAY19_BASE as *mut u32);
     // unmask interrupt sources
     irqarray18.wo(utra::irqarray18::EV_ENABLE, 0x4); // don't allow PIO IROQs to trigger us
+    #[cfg(feature="quanta-test")]
+    {
+        irqarray18.rmwf(utra::irqarray18::EV_ENABLE_PIOIRQ0_DUPE, 1);
+        setup_quantum_timer();
+    }
     irqarray19.wo(utra::irqarray19::EV_ENABLE, 0x80); // narrow this down because mdma currently maps to this and causes troubles if we don't handle it
     // enable IRQ handling
     sim::write(0x0); // first make sure everything is disabled, so we aren't OR'ing in garbage
@@ -236,9 +266,17 @@ pub extern "C" fn trap_handler(
         let irqs_pending = sip::read();
         report_api(irqs_pending as u32);
         if (irqs_pending & (1 << 18)) != 0 {
+            let mut irqarray18 = CSR::new(utra::irqarray18::HW_IRQARRAY18_BASE as *mut u32);
+            #[cfg(feature="quanta-test")]
+            {
+                if irqarray18.rf(utra::irqarray18::EV_PENDING_PIOIRQ0_DUPE) != 0 {
+                    report_api(0x51C2_1111);
+                    let mut pio_ss = xous_pio::PioSharedState::new();
+                    pio_ss.pio.wo(utra::rp_pio::SFR_IRQ, 1 << 0); // clear irq bit 0
+                }
+            }
             // handle irq18 hw test
             main.wfo(utra::main::IRQTEST0_TRIGGER, 0);
-            let mut irqarray18 = CSR::new(utra::irqarray18::HW_IRQARRAY18_BASE as *mut u32);
             let pending = irqarray18.r(utra::irqarray18::EV_PENDING);
             report_api(pending << 16 | 18); // encode the irq bank number and bit number as [bit | bank]
             irqarray18.wo(utra::irqarray18::EV_PENDING, pending);
