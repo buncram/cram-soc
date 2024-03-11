@@ -69,7 +69,7 @@ FIFO - 8-deep fifo head/tail access. Cores halt on overflow/underflow.
 
 Quantum - core will halt until host-configured clock divider pules occurs,
 or an external event comes in on a host-specified GPIO pin.
-- x20 -/w  halt to quantum
+- x20 z/w  halt to quantum
 
 GPIO - note clear-on-0 semantics for bit-clear ops
 - x21 r/w  write: (x26 & x21) -> gpio pins; read: gpio pins -> x21
@@ -112,7 +112,7 @@ These events are combinable into four IRQ lines that go to the host system. The 
 
 ## Halt to Quantum R20
 
-R20 is a dummy register that discards any data written. However, when any CPU writes to R20, its clock is stalled until the next quantum pulse.
+R20 is a dummy register that discards any data written. However, when any CPU accesses R20, the accessing CPU's clock is stalled until the next quantum pulse.
 
 The quantum pulse can originate from two sources:
 - Internal fractional clock divider, dividing down from `aclk` (one per core)
@@ -125,7 +125,7 @@ Normally, the code loop run by one core should finish before the quantum is up, 
 
 When the `quanta` value is identical across all cores, the cores will all run in lock-step with each other. However, the user is free to configure the per-core `quanta` however they see fit.
 
-Reads to this register return an undefined value and have no effect on the clocking of the block.
+Reads from this register return `0`.
 
 ## GPIO R21-26
 

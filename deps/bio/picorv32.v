@@ -131,7 +131,7 @@ module picorv32 #(
     output [31:0] regfifo_wdata,
     output [3:0]  regfifo_wr,
 
-    output        quanta_wr,  // asserted on any write access to r20
+    output        quanta_halt,
 
     output [31:0] gpio_set,
     output [31:0] gpio_clr,
@@ -1414,7 +1414,7 @@ module picorv32 #(
 		.regfifo_rd(regfifo_rd),
 		.regfifo_wdata(regfifo_wdata),
 		.regfifo_wr(regfifo_wr),
-		.quanta_wr(quanta_wr),
+		.quanta_halt(quanta_halt),
 		.gpio_set(gpio_set),
 		.gpio_clr(gpio_clr),
 		.gpdir_set(gpdir_set),

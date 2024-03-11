@@ -102,7 +102,7 @@ module bio #(
     logic [31:0] mach_regfifo_wdata [NUM_MACH];
     logic [3:0] mach_regfifo_wr [NUM_MACH];
 
-    logic [NUM_MACH-1:0] quanta_wr;
+    logic [NUM_MACH-1:0] quanta_halt;
 
     logic [31:0] gpio_set  [NUM_MACH];
     logic [31:0] gpio_clr  [NUM_MACH];
@@ -423,10 +423,10 @@ module bio #(
     );
     assign mem_rdata = ram_rd_data;
     always_ff @(posedge aclk) begin
-        mem_ready[0] <= ram_wr_en || ram_rd_enable[0];
-        mem_ready[1] <= ram_rd_enable[1];
-        mem_ready[2] <= ram_rd_enable[2];
-        mem_ready[3] <= ram_rd_enable[3];
+        mem_ready[0] <= ram_wr_en || ram_rd_enable[0] || quanta_halt[0] && mem_ready[0];
+        mem_ready[1] <= ram_rd_enable[1] || quanta_halt[1] && mem_ready[1];
+        mem_ready[2] <= ram_rd_enable[2] || quanta_halt[2] && mem_ready[2];
+        mem_ready[3] <= ram_rd_enable[3] || quanta_halt[3] && mem_ready[3];
     end
 
     // machine stall signal
@@ -436,7 +436,7 @@ module bio #(
                 extclk_selected[j] = gpio_in_cleaned[extclk_gpio_aclk[j]];
                 // stall is probably critical path...?
                 stall[j] = (
-                    quanta_wr[j] & ~quantum[j]                          // stall to next quanta
+                    quanta_halt[j] & ~quantum[j]                        // stall to next quanta
                     | (mach_regfifo_rd[j] &                             // FIFO read but empty
                       ~{regfifo_readable[3], regfifo_readable[2], regfifo_readable[1], regfifo_readable[0]}) != '0
                     | (mach_regfifo_wr[j] &                              // FIFO write but full
@@ -446,7 +446,7 @@ module bio #(
             end
             always_ff @(posedge aclk) begin
                 // register this to reduce critical path to stall
-                quantum[j] <= use_extclk_aclk ? (extclk_selected[j] & ~extclk_selected_q[j]) : penable[j];
+                quantum[j] <= use_extclk_aclk[j] ? (extclk_selected[j] & ~extclk_selected_q[j]) : penable[j];
                 extclk_selected_q <= extclk_selected;
             end
         end
@@ -856,7 +856,7 @@ module bio #(
                 .regfifo_rd(mach_regfifo_rd[j]),
                 .regfifo_wdata(mach_regfifo_wdata[j]),
                 .regfifo_wr(mach_regfifo_wr[j]),
-                .quanta_wr(quanta_wr[j]),
+                .quanta_halt(quanta_halt[j]),
                 .gpio_set(gpio_set[j]),
                 .gpio_clr(gpio_clr[j]),
                 .gpdir_set(gpdir_set[j]),
@@ -876,7 +876,7 @@ module bio #(
                 .clk_count(core_clk_count[j]),
 
                 .clk(core_clk[j]),
-                .resetn(reset_n & ~a_restart),
+                .resetn(reset_n & ~a_restart[j]),
                 .trap(trap[j]),
                 .mem_ready(mem_ready[j]),
                 .mem_rdata(mem_rdata[j]),
@@ -985,7 +985,7 @@ module picorv32_regs_bio #(
     output logic [31:0] regfifo_wdata,
     output logic [3:0]  regfifo_wr, // must guarantee one pulse per write, even on successive repeated writes. Machine stalls with pulse asserted if FIFO is full.
 
-    output logic  quanta_wr,  // asserted on any write access to r20
+    output logic  quanta_halt,  // asserted on any write access to r20
 
     output logic [31:0] gpio_set,
     output logic [31:0] gpio_clr,
@@ -1022,6 +1022,8 @@ module picorv32_regs_bio #(
 	logic [31:0] regs [0:14];
     logic [31:0] gpio_mask;
     logic [31:0] event_mask;
+    logic quanta_wr;
+    logic quanta_rd;
 
     always_ff @(posedge clk or negedge reset_n) begin
         if (!reset_n) gpio_mask <= 32'hffff_ffff;
@@ -1040,6 +1042,8 @@ module picorv32_regs_bio #(
             regs[~waddr[3:0]] <= wdata;
         end
     end
+
+    assign quanta_halt = quanta_wr || quanta_rd;
 
     // write path
     always_comb begin
@@ -1108,6 +1112,7 @@ module picorv32_regs_bio #(
         regfifo_rd = 4'h0;
         rdata1 = 32'h0;
         rdata2 = 32'h0;
+        quanta_rd = 0;
 
         casez (raddr1)
             6'b00????: begin // 0-15
@@ -1129,7 +1134,10 @@ module picorv32_regs_bio #(
                 rdata1 = regfifo_rdata_3;
                 regfifo_rd[3] = ren1;
             end
-            // 20 undefined
+            6'b010100: begin // 20
+                rdata1 = 0;
+                quanta_rd = 1;
+            end
             6'b010101: begin // 21
                 rdata1 = gpio_pins;
             end
@@ -1169,7 +1177,10 @@ module picorv32_regs_bio #(
                 rdata2 = regfifo_rdata_3;
                 regfifo_rd[3] = ren2;
             end
-            // 20 undefined
+            6'b010100: begin // 20
+                rdata2 = 0;
+                quanta_rd = 1;
+            end
             6'b010101: begin // 21
                 rdata2 = gpio_pins;
             end
