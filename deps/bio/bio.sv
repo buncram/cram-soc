@@ -462,10 +462,10 @@ module bio #(
                 // strobes are modified by en_sync, so that if the core is disabled on a write
                 // to fifo instruction, the write doesn't "stick around".
                 .stb({
-                    mach_regfifo_wr[3][k] & en_sync[k],
-                    mach_regfifo_wr[2][k] & en_sync[k],
-                    mach_regfifo_wr[1][k] & en_sync[k],
-                    mach_regfifo_wr[0][k] & en_sync[k],
+                    mach_regfifo_wr[3][k] & en_sync[3],
+                    mach_regfifo_wr[2][k] & en_sync[2],
+                    mach_regfifo_wr[1][k] & en_sync[1],
+                    mach_regfifo_wr[0][k] & en_sync[0],
                     push_sync[k]
                 }),
                 .data_in({
@@ -482,10 +482,10 @@ module bio #(
                 .LEVELS(NUM_MACH + 1)
             ) select_wr (
                 .stb({
-                    mach_regfifo_wr[3][k] & en_sync[k],
-                    mach_regfifo_wr[2][k] & en_sync[k],
-                    mach_regfifo_wr[1][k] & en_sync[k],
-                    mach_regfifo_wr[0][k] & en_sync[k],
+                    mach_regfifo_wr[3][k] & en_sync[3],
+                    mach_regfifo_wr[2][k] & en_sync[2],
+                    mach_regfifo_wr[1][k] & en_sync[1],
+                    mach_regfifo_wr[0][k] & en_sync[0],
                     push_sync[k]
                 }),
                 .data_in({
@@ -502,10 +502,10 @@ module bio #(
                 .LEVELS(NUM_MACH + 1)
             ) select_rd (
                 .stb({
-                    mach_regfifo_rd[3][k] & en_sync[k],
-                    mach_regfifo_rd[2][k] & en_sync[k],
-                    mach_regfifo_rd[1][k] & en_sync[k],
-                    mach_regfifo_rd[0][k] & en_sync[k],
+                    mach_regfifo_rd[3][k] & en_sync[3],
+                    mach_regfifo_rd[2][k] & en_sync[2],
+                    mach_regfifo_rd[1][k] & en_sync[1],
+                    mach_regfifo_rd[0][k] & en_sync[0],
                     pull_sync[k]
                 }),
                 .data_in({
