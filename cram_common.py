@@ -502,7 +502,7 @@ class CramSoC(SoCCore):
             i_irqarray_bank7      = zero_irq,
             i_irqarray_bank8      = zero_irq,
             i_irqarray_bank9      = zero_irq,
-            i_irqarray_bank10      = Cat(zero_irq[:3], pio_irq0, pio_irq1, bio_irq[2:3], zero_irq[7:]),
+            i_irqarray_bank10      = Cat(zero_irq[:3], pio_irq0, pio_irq1, bio_irq[2:4], zero_irq[7:]),
             i_irqarray_bank11      = zero_irq,
             i_irqarray_bank12      = zero_irq,
             i_irqarray_bank13      = zero_irq,
@@ -510,7 +510,7 @@ class CramSoC(SoCCore):
             i_irqarray_bank15      = zero_irq,
             i_irqarray_bank16      = zero_irq,
             i_irqarray_bank17      = zero_irq,
-            i_irqarray_bank18      = Cat(pio_irq0, pio_irq1, bio_irq[2:3], self.irqtest0.fields.trigger, zero_irq[0]),
+            i_irqarray_bank18      = Cat(pio_irq0, pio_irq1, bio_irq[2:4], self.irqtest0.fields.trigger, zero_irq[0]),
             i_irqarray_bank19      = Cat(irq_available, irq_abort_init, irq_abort_done, irq_error, zero_irq[4:]),
 
             i_mbox_w_dat           = mbox.w_dat,
