@@ -120,6 +120,18 @@ fn build_hw_image(
         return Err("cargo build failed".into());
     }
 
+    // Pad to multiple of 32 bytes length
+    let mut file = std::fs::OpenOptions::new().read(true).write(true).open(boot_bin)?;
+    use std::io::{Write, Seek};
+    // Get the current size of the file
+    let current_size = file.seek(std::io::SeekFrom::End(0))?;
+    let padding_needed = (32 - (current_size % 32)) % 32;
+
+    // Pad the file with zeros if needed
+    if padding_needed > 0 {
+        let padding = vec![0u8; padding_needed as usize];
+        file.write_all(&padding)?;
+    }
     println!();
     println!("Bootloader binary file created at {}", boot.as_os_str().to_str().unwrap());
 
