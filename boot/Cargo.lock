@@ -45,6 +45,7 @@ dependencies = [
 name = "betrusted-boot"
 version = "0.1.0"
 dependencies = [
+ "cramium-hal",
  "pio",
  "pio-proc",
  "utralib",
@@ -926,9 +927,9 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 
 [[package]]
 name = "xous"
-version = "0.9.58"
+version = "0.9.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb93122c9dab77f8bde501ff0677d3df7777982f9faa23603423aeb5eae4e55d"
+checksum = "64aba6a7276a8e58db2ab9735c84aeac107e61db39d4f61e7f9f4caf66439930"
 dependencies = [
  "lazy_static",
 ]
