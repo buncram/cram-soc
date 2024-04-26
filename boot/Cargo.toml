@@ -15,6 +15,6 @@ path = "./utralib"
 codegen-units = 1 # 1 better optimizations
 debug = true
 lto = "fat"
-opt-level = 1   # 's' = Optimize for size instead of performance
+opt-level = 3   # 's' = Optimize for size instead of performance
 panic = "abort" # Remove panic output, which can reduce file size
 strip = false
