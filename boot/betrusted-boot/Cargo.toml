@@ -10,6 +10,7 @@ riscv = { version = "0.5.6", package = "xous-riscv" }
 xous-bio = {path="../../../xous-core/libs/xous-bio", default-features=false, features=["tests", "cramium-soc", "baremetal"]}
 xous-pio = {path="../../../xous-core/libs/xous-pio", default-features=false, features=["tests", "cramium-soc", "baremetal"]}
 xous-pl230 = {path="../../../xous-core/libs/xous-pl230", optional=true, default-features=false, features=["tests", "cramium-soc", "baremetal"]}
+cramium-hal = {path="../../../xous-core/libs/cramium-hal"}
 pio-proc = "0.2.2"
 pio = "0.2.1"
 
@@ -28,7 +29,11 @@ xip = []
 apb-test = []
 pl230-test = ["xous-pl230"]
 quanta-test = []
-default = ["daric"]
+boot-delay = []
+sram-margin = []
+rram-testing = [] # used to try and help debug/bringup RRAM issues
+simulation = []
+default = ["daric", "pl230-test", "boot-delay", "sram-margin"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}
