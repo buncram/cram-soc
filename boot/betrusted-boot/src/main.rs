@@ -4,8 +4,11 @@
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
 use utralib::generated::*;
+use utralib::utra::pl230;
+use utralib::utra::sysctrl;
 use core::convert::TryInto;
 use core::convert::TryFrom;
+use core::fmt::Write;
 use core::mem::size_of;
 
 mod debug;
@@ -351,9 +354,206 @@ pub fn snap_ticks(title: &str) {
     uart.tiny_write_str(" time: ");
     uart.print_hex_word(tt.rf(utra::ticktimer::TIME0_TIME));
     // write!(uart, "{} time: {} ticks\n", title, elapsed).ok();
-    uart.tiny_write_str(" ticks\n");
+    uart.tiny_write_str(" ticks\r");
 }
 
+pub fn init_duart(etu: u32) {
+    /*
+    let mut duart = CSR::new(utra::duart::HW_DUART_BASE as *mut u32);
+    // freq of 32MHz RC is low
+    duart.wo(utra::duart::SFR_CR, 0);
+    duart.wo(utra::duart::SFR_ETUC, etu);
+    duart.wo(utra::duart::SFR_CR, 1);
+    */
+    /*
+    let daric_sramwait = utra::coresub_sramtrm::HW_CORESUB_SRAMTRM_BASE as *mut u32;
+    unsafe {
+        let waitcycles = 3;
+        daric_sramwait.add(utra::coresub_sramtrm::SFR_SRAM0.offset()).write_volatile(
+            daric_sramwait.add(utra::coresub_sramtrm::SFR_SRAM0.offset()).read_volatile()
+            & !0x18 | ((waitcycles << 3) & 0x18)
+        );
+        daric_sramwait.add(utra::coresub_sramtrm::SFR_SRAM1.offset()).write_volatile(
+            daric_sramwait.add(utra::coresub_sramtrm::SFR_SRAM1.offset()).read_volatile()
+            & !0x18 | ((waitcycles << 3) & 0x18)
+        );
+    } */
+    let daric_cgu = sysctrl::HW_SYSCTRL_BASE as *mut u32;
+    unsafe {
+        daric_cgu.add(utra::sysctrl::SFR_CGUSEL1.offset()).write_volatile(1);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFSCR.offset()).write_volatile(48);
+        daric_cgu.add(utra::sysctrl::SFR_CGUSET.offset()).write_volatile(0x32);
+        daric_cgu.add(utra::sysctrl::SFR_IPCOSC.offset()).write_volatile(16_000_000);
+        daric_cgu.add(utra::sysctrl::SFR_IPCARIPFLOW.offset()).write_volatile(0x32);
+
+        daric_cgu.add(utra::sysctrl::SFR_CGUSEL0.offset()).write_volatile(0);
+        daric_cgu.add(utra::sysctrl::SFR_CGUSET.offset()).write_volatile(0x32);
+
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_0.offset()).write_volatile(0x7f7f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_1.offset()).write_volatile(0x7f7f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_2.offset()).write_volatile(0x3f3f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_3.offset()).write_volatile(0x1f1f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_4.offset()).write_volatile(0x0f0f);
+        daric_cgu.add(utra::sysctrl::SFR_ACLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_HCLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_ICLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_PCLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_CGUSET.offset()).write_volatile(0x32);
+    }
+
+    let duart = utra::duart::HW_DUART_BASE as *mut u32;
+    unsafe {
+        duart.add(utra::duart::SFR_CR.offset()).write_volatile(0);
+        duart.add(utra::duart::SFR_ETUC.offset()).write_volatile(etu);
+        duart.add(utra::duart::SFR_CR.offset()).write_volatile(1);
+    }
+}
+
+pub unsafe fn init_clock_asic(freq_hz: u32) {
+    let daric_cgu = sysctrl::HW_SYSCTRL_BASE as *mut u32;
+
+    const F_MHZ: u32 = 1_000_000;
+    const FREQ_0: u32 = 16 * F_MHZ;
+
+    const TBL_Q: [u16; 7] = [
+        // keep later DIV even number as possible
+        0x7777, // 16-32 MHz
+        0x7737, // 32-64
+        0x3733, // 64-128
+        0x3313, // 128-256
+        0x3311, // 256-512 // keep ~ 100MHz
+        0x3301, // 512-1024
+        0x3301, // 1024-1500
+        // 0x1303, // 256-512
+        // 0x0103, // 512-1024
+        // 0x0001, // 1024-2048
+    ];
+    const TBL_MUL: [u32; 7] = [
+        64, // 16-32 MHz
+        32, // 32-64
+        16, // 64-128
+        8,  // 128-256
+        4,  // 256-512
+        2,  // 512-1024
+        2,  // 1024-2048
+    ];
+    const M: u32 = 24 - 1;
+
+    report_api(0xc0c0_0000);
+    let f16_mhz_log2 = (freq_hz / FREQ_0).ilog2() as usize;
+    report_api(f16_mhz_log2 as u32);
+    let n_fxp24: u64 = (((freq_hz as u64) << 24) * TBL_MUL[f16_mhz_log2] as u64) / (2 * F_MHZ as u64);
+    report_api(n_fxp24 as u32);
+    report_api((n_fxp24 >> 32) as u32);
+    let n_frac: u32 = (n_fxp24 & 0x00ffffff) as u32;
+    report_api(n_frac);
+    let pllmn = ((M << 12) & 0x0001F000) | ((n_fxp24 >> 24) & 0x00000fff) as u32;
+    report_api(pllmn);
+    let pllf = n_frac | (if 0 == n_frac {0} else {1 << 24});
+    report_api(pllf);
+    let pllq = TBL_Q[f16_mhz_log2] as u32;
+    report_api(pllq);
+
+    daric_cgu.add(sysctrl::SFR_CGUSEL1.offset()).write_volatile(1);  // 0: RC, 1: XTAL
+    daric_cgu.add(sysctrl::SFR_CGUFSCR.offset()).write_volatile(48); // external crystal is 48MHz
+    daric_cgu.add(sysctrl::SFR_CGUSET.offset()).write_volatile(0x32);
+
+    if freq_hz < 1_000_000 {
+        daric_cgu.add(sysctrl::SFR_IPCOSC.offset()).write_volatile(freq_hz);
+        daric_cgu.add(sysctrl::SFR_IPCARIPFLOW.offset()).write_volatile(0x32); // commit, must write 32
+    }
+    // switch to OSC
+    daric_cgu.add(sysctrl::SFR_CGUSEL0.offset()).write_volatile(0); // clktop sel, 0:clksys, 1:clkpll0
+    daric_cgu.add(sysctrl::SFR_CGUSET.offset()).write_volatile(0x32); // commit
+
+    if 0 == freq_hz {
+        // do nothing
+    } else {
+
+        // PD PLL
+        daric_cgu.add(sysctrl::SFR_IPCLPEN.offset())
+            .write_volatile(daric_cgu.add(sysctrl::SFR_IPCLPEN.offset()).read_volatile() | 0x02);
+        daric_cgu.add(sysctrl::SFR_IPCARIPFLOW.offset()).write_volatile(0x32); // commit, must write 32
+
+        // delay
+        for _ in 0..1024 {
+            unsafe{core::arch::asm!("nop")};
+        }
+        for _ in 0..4 {
+            report_api(0xc0c0_dddd);
+        }
+
+        // printf ("%s(%4" PRIu32 "MHz) M = 24, N = %4lu.%08lu, Q = %2lu\n",
+        //     __FUNCTION__, freqHz / 1000000, (uint32_t)(n_fxp24 >> 24).write_volatile((uint32_t)((uint64_t)(n_fxp24 & 0x00ffffff) * 100000000/(1UL <<24)).write_volatile(TBL_MUL[f16MHzLog2]);
+        daric_cgu.add(sysctrl::SFR_IPCPLLMN.offset()).write_volatile(pllmn); // 0x1F598; // ??
+        daric_cgu.add(sysctrl::SFR_IPCPLLF.offset()).write_volatile(pllf); // ??
+        daric_cgu.add(sysctrl::SFR_IPCPLLQ.offset()).write_volatile(pllq);   // ?? TODO select DIV for VCO freq
+
+        //               VCO bias   CPP bias   CPI bias
+        //                1          2          3
+        // DARIC_IPC->ipc = (3 << 6) | (5 << 3) | (5);
+        daric_cgu.add(sysctrl::SFR_IPCCR.offset()).write_volatile((1 << 6) | (2 << 3) | (3));
+        daric_cgu.add(sysctrl::SFR_IPCARIPFLOW.offset()).write_volatile(0x32); // commit, must write 32
+
+        daric_cgu.add(sysctrl::SFR_IPCLPEN.offset()).write_volatile(
+            daric_cgu.add(sysctrl::SFR_IPCLPEN.offset()).read_volatile() & !0x02);
+        daric_cgu.add(sysctrl::SFR_IPCARIPFLOW.offset()).write_volatile(0x32); // commit, must write 32
+
+        // delay
+        for _ in 0..1024 {
+            unsafe{core::arch::asm!("nop")};
+        }
+        for _ in 0..4 {
+            report_api(0xc0c0_eeee);
+        }
+        // printf("read reg a0 : %08" PRIx32"\n", *((volatile uint32_t* )0x400400a0));
+        // printf("read reg a4 : %04" PRIx16"\n", *((volatile uint16_t* )0x400400a4));
+        // printf("read reg a8 : %04" PRIx16"\n", *((volatile uint16_t* )0x400400a8));
+
+        // TODO wait/poll lock status?
+        daric_cgu.add(sysctrl::SFR_CGUSEL0.offset()).write_volatile(1); // clktop sel, 0:clksys, 1:clkpll0
+        daric_cgu.add(sysctrl::SFR_CGUSET.offset()).write_volatile(0x32); // commit
+
+        report_api(0xc0c0_ffff);
+        // printf ("    MN: 0x%05x, F: 0x%06x, Q: 0x%04x\n",
+        //     DARIC_IPC->pll_mn, DARIC_IPC->pll_f, DARIC_IPC->pll_q);
+        // printf ("    LPEN: 0x%01x, OSC: 0x%04x, BIAS: 0x%04x,\n",
+        //     DARIC_IPC->lpen, DARIC_IPC->osc, DARIC_IPC->ipc);
+    }
+
+    /*
+    daric_cgu.add(sysctrl::SFR_CGUFD_CFGFDCR_0_4_0.offset()).write_volatile(0x3f7f); // fdfclk
+    daric_cgu.add(sysctrl::SFR_CGUFD_CFGFDCR_0_4_1.offset()).write_volatile(0x3f7f); // fdaclk
+    daric_cgu.add(sysctrl::SFR_CGUFD_CFGFDCR_0_4_2.offset()).write_volatile(0x3f7f); // fdhclk
+    daric_cgu.add(sysctrl::SFR_CGUFD_CFGFDCR_0_4_3.offset()).write_volatile(0x3f7f); // fdiclk
+    daric_cgu.add(sysctrl::SFR_CGUFD_CFGFDCR_0_4_4.offset()).write_volatile(0x3f7f); // fdpclk
+    report_api(0xc0c0_0006);
+    daric_cgu.add(sysctrl::SFR_CGUSET.offset()).write_volatile(0x32); // commit
+    */
+
+    // UDMACORE->CFG_CG = 0xffffffff; // everything on
+
+    // SCB_InvalidateDCache();
+    // __DMB();
+    // printf("read reg 90 :%04" PRIx16"\n", *((volatile uint16_t* )0x40040090));
+
+    // SCB_InvalidateDCache();
+    // printf("read reg 14 : %04" PRIx16"\n", *((volatile uint16_t* )0x40040014));
+    // printf("read reg 18 : %04" PRIx16"\n", *((volatile uint16_t* )0x40040018));
+    // printf("read reg 1c : %04" PRIx16"\n", *((volatile uint16_t* )0x4004001c));
+    // printf("read reg 20 : %04" PRIx16"\n", *((volatile uint16_t* )0x40040020));
+    // printf("read reg 24 : %04" PRIx16"\n", *((volatile uint16_t* )0x40040024));
+    // printf("read reg 10 : %04" PRIx16"\n", *((volatile uint16_t* )0x40040010));
+
+    // IFRAM clear
+    /*
+    volatile uint32_t *const IFRAM = (uint32_t *)0x50000000;
+    for (size_t i = 0; i < 256UL * 1024UL / sizeof(uint32_t); i++)
+    {
+        IFRAM[i] = 0;
+    } */
+    report_api(0xc0c0_0007);
+}
 
 #[cfg(feature="full-chip")]
 pub fn early_init() {
@@ -427,61 +627,79 @@ pub fn early_init() {
 
 // these register do not exist in our local simulation model
 //#[cfg(feature="full-chip")]
-pub fn setup_uart1() {
+pub fn setup_uart2() {
+    const UART_IFRAM_ADDR: usize = utralib::HW_IFRAM0_MEM + utralib::HW_IFRAM0_MEM_LEN - 4096;
+    use cramium_hal::iox::{Iox, IoxPort, IoxEnable, IoxFunction, IoxDir};
+    use cramium_hal::udma;
+    use cramium_hal::udma::Udma;
+
     let mut uart = debug::Uart {};
     let sysctrl = CSR::new(utra::sysctrl::HW_SYSCTRL_BASE as *mut u32);
     uart.tiny_write_str("FREQ0: ");
     uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ0_FSFREQ0));
-    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("\r");
     uart.tiny_write_str("FREQ1: ");
     uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ1_FSFREQ1));
-    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("\r");
     uart.tiny_write_str("FREQ2: ");
     uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ2_FSFREQ2));
-    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("\r");
     uart.tiny_write_str("FREQ3: ");
     uart.print_hex_word(sysctrl.rf(utra::sysctrl::SFR_CGUFSSR_FSFREQ3_FSFREQ3));
-    uart.tiny_write_str("\n\r");
+    uart.tiny_write_str("\r");
 
-    let mut udma_ctrl = CSR::new(utra::udma_ctrl::HW_UDMA_CTRL_BASE as *mut u32);
-    // peripheral ID 1 is UART0
-    // setup iomux
-    // TODO: fix parameter resolution to trace back to the top level file. there's actually 6*16 IO banks, not the 4 specified in the leaf design file :P
-    let iox_csr = utra::iox::HW_IOX_BASE as *mut u32;
-    unsafe {
-        iox_csr.add(0).write_volatile(0b00_00_00_01_01_00_00_00);  // PAL AF1 on PA3/PA4
-        iox_csr.add(0x1c / core::mem::size_of::<u32>()).write_volatile(0x1400); // PDH
-        iox_csr.add(0x148 / core::mem::size_of::<u32>()).write_volatile(0x10); // PA4 output
-        iox_csr.add(0x148 / core::mem::size_of::<u32>() + 3).write_volatile(0xffff); // PD
-        iox_csr.add(0x160 / core::mem::size_of::<u32>()).write_volatile(0x8); // PA3 pullup
-    }
-
-    // TODO: fix register generator, input is incorrect and pins peripheral count at 6
     uart.tiny_write_str("udma\r");
-    udma_ctrl.wo(utra::udma_ctrl::REG_CG, 1);
+    //  UART_RX_A[1] = PD13
+    //  UART_RX_A[1] = PD14
+    let mut iox = Iox::new(utra::iox::HW_IOX_BASE as *mut u32);
+    iox.set_alternate_function(IoxPort::PD, 13, IoxFunction::AF1);
+    iox.set_alternate_function(IoxPort::PD, 14, IoxFunction::AF1);
+    // rx as input, with pull-up
+    iox.set_gpio_dir(IoxPort::PD, 13, IoxDir::Input);
+    iox.set_gpio_pullup(IoxPort::PD, 13, IoxEnable::Enable);
+    // tx as output
+    iox.set_gpio_dir(IoxPort::PD, 14, IoxDir::Output);
+
+    // Set up the UDMA_UART block to the correct baud rate and enable status
+    let mut udma_global = udma::GlobalConfig::new(utra::udma_ctrl::HW_UDMA_CTRL_BASE as *mut u32);
+    udma_global.clock_on(udma::PeriphId::Uart1);
+    udma_global.map_event(
+        udma::PeriphId::Uart1,
+        udma::PeriphEventType::Uart(udma::EventUartOffset::Rx),
+        udma::EventChannel::Channel0,
+    );
+    udma_global.map_event(
+        udma::PeriphId::Uart1,
+        udma::PeriphEventType::Uart(udma::EventUartOffset::Tx),
+        udma::EventChannel::Channel1,
+    );
 
     let baudrate: u32 = 115200;
-    let freq: u32 = 100_000_000;
-    let clk_counter: u32 = (freq + baudrate / 2) / baudrate;
-    let mut udma_uart = CSR::new(utra::udma_uart_0::HW_UDMA_UART_0_BASE as *mut u32);
-    udma_uart.wo(utra::udma_uart_0::REG_UART_SETUP,
-        0x0306 | (clk_counter << 16));
+    let freq: u32 = 45_882_000;
 
-    let tx_buf = utralib::HW_IFRAM0_MEM as *mut u8;
+    // the address of the UART buffer is "hard-allocated" at an offset one page from the top of
+    // IFRAM0. This is a convention that must be respected by the UDMA UART library implementation
+    // for things to work.
+    let uart_buf_addr = UART_IFRAM_ADDR;
+    let mut udma_uart = unsafe {
+        // safety: this is safe to call, because we set up clock and events prior to calling new.
+        udma::Uart::get_handle(utra::udma_uart_1::HW_UDMA_UART_1_BASE, uart_buf_addr, uart_buf_addr)
+    };
+    let div: u32 = (freq + baudrate / 2) / baudrate;
+    uart.tiny_write_str("divder: 0x");
+    report_api(div);
+    udma_uart.set_baud(baudrate, freq);
+
     uart.print_hex_word(
-        udma_uart.r(utra::udma_uart_0::REG_UART_SETUP)
+        udma_uart.csr().r(utra::udma_uart_1::REG_UART_SETUP)
     );
-    // let mut tx_buf = [0u8; 256];
-    for i in 0..16 {
-        unsafe { tx_buf.add(i).write_volatile('0' as u32 as u8 + i as u8) };
+    let mut tx_buf = [0u8; 32];
+    for (i, t) in tx_buf.iter_mut().enumerate() {
+        *t = '0' as char as u8 + i as u8;
     }
-    udma_uart.wo(utra::udma_uart_0::REG_TX_SADDR, tx_buf as u32);
-    udma_uart.wo(utra::udma_uart_0::REG_TX_SIZE, 4); // abridged so simulation run faster
-    // send it
-    udma_uart.wo(utra::udma_uart_0::REG_TX_CFG, 0x10); // EN
-    // wait for it all to be done
-    while udma_uart.rf(utra::udma_uart_0::REG_TX_CFG_R_TX_EN) != 0 {   }
-    while (udma_uart.r(utra::udma_uart_0::REG_STATUS) & 1) != 0 {  }
+    for _ in 0..16 {
+        udma_uart.write(&tx_buf);
+    }
     uart.tiny_write_str("udma done\r");
 
 }
@@ -758,12 +976,252 @@ pub fn sce_dma_tests() -> bool {
     passing
 }
 
+pub mod rrc {
+    pub const RRC_LOAD_BUFFER: u32 = 0x5200;
+    pub const RRC_WRITE_BUFFER: u32 = 0x9528;
+    pub const RRC_CR: utralib::Register = utralib::Register::new(0, 0xffff_ffff);
+    pub const RRC_CR_NORMAL: u32 = 0;
+    pub const RRC_CR_POWERDOWN: u32 = 1;
+    pub const RRC_CR_WRITE_DATA: u32 = 0;
+    pub const RRC_CR_WRITE_CMD: u32 = 2;
+    pub const RRC_FD: utralib::Register = utralib::Register::new(1, 0xffff_ffff);
+    pub const RRC_SR: utralib::Register = utralib::Register::new(2, 0xffff_ffff);
+    pub const HW_RRC_BASE: usize = 0x4000_0000;
+}
+pub struct Reram {
+    pl230: xous_pl230::Pl230,
+    csr: CSR::<u32>,
+    array: &'static mut [u32],
+}
+
+impl Reram {
+    pub fn new() -> Self {
+        Reram {
+            csr: CSR::new(rrc::HW_RRC_BASE as *mut u32),
+            pl230: xous_pl230::Pl230::new(),
+            array: unsafe {core::slice::from_raw_parts_mut(utralib::HW_RERAM_MEM as *mut u32,
+                utralib::HW_RERAM_MEM_LEN / core::mem::size_of::<u32>())},
+        }
+    }
+    /// This is a crappy "unsafe" initial version that requires the write
+    /// destination address to be aligned to a 256-bit boundary, and the data
+    /// to be exactly 256 bits long.
+    pub unsafe fn write_u32_aligned(&mut self, addr: usize, data: &[u32]) {
+        assert!(addr % 0x20 == 0, "unaligned destination address!");
+        assert!(data.len() % 8 == 0, "unaligned source data!");
+        for d in data.chunks_exact(8) {
+            // write the data to the buffer
+            for (&src, dst) in d.iter()
+            .zip(self.array[addr / core::mem::size_of::<u32>()..addr / core::mem::size_of::<u32>() + 8].iter_mut()) {
+                *dst = src;
+            }
+            self.csr.wo(rrc::RRC_CR, rrc::RRC_CR_WRITE_CMD);
+            self.array[addr / core::mem::size_of::<u32>()] = rrc::RRC_LOAD_BUFFER;
+            self.array[addr / core::mem::size_of::<u32>()] = rrc::RRC_WRITE_BUFFER;
+            self.csr.wo(rrc::RRC_CR, rrc::RRC_CR_NORMAL);
+        }
+    }
+
+    pub unsafe fn write_u32_aligned_dma(&mut self, addr: usize, data: &[u32]) {
+        use xous_pl230::*;
+        //assert!(addr % 0x20 == 0, "unaligned destination address!");
+        //assert!(data.len() % 8 == 0, "unaligned source data!");
+        let init_ptr = utralib::HW_IFRAM1_MEM as *mut u32;
+        for i in 0..(4 * 8 * 2) {
+            unsafe { init_ptr.add(i).write_volatile(0) };
+        }
+        let cc_struct: &mut ControlChannels =
+        unsafe { (utralib::HW_IFRAM0_MEM as *mut ControlChannels).as_mut().unwrap() };
+
+        // read the status register
+        self.pl230.csr.wfo(utra::pl230::CFG_MASTER_ENABLE, 1); // enable
+
+        //cc_struct.channels[0].dst_end_ptr = (&self.array[addr / core::mem::size_of::<u32>() + data.len() - 1]) as *const u32 as u32;
+        cc_struct.channels[0].dst_end_ptr = 0x6010_003C;
+        cc_struct.channels[0].src_end_ptr = (&data[data.len()-1]) as *const u32 as u32;
+        let mut cc = DmaChanControl(0);
+        cc.set_src_size(DmaWidth::Word as u32);
+        cc.set_src_inc(DmaWidth::Word as u32);
+        cc.set_dst_size(DmaWidth::Word as u32);
+        cc.set_dst_inc(DmaWidth::Word as u32);
+        cc.set_r_power(ArbitrateAfter::Xfer1024 as u32);
+        cc.set_n_minus_1(data.len() as u32 - 1);
+        cc.set_cycle_ctrl(DmaCycleControl::AutoRequest as u32);
+        cc_struct.channels[0].control = cc.0;
+
+        self.pl230.csr.wo(utra::pl230::CTRLBASEPTR, cc_struct.channels.as_ptr() as u32);
+        self.pl230.csr.wo(utra::pl230::CHNLREQMASKSET, 1);
+        self.pl230.csr.wo(utra::pl230::CHNLENABLESET, 1);
+
+        // this should kick off the DMA
+        self.pl230.csr.wo(utra::pl230::CHNLSWREQUEST, 1);
+
+        let mut timeout = 0;
+        while (DmaChanControl(cc_struct.channels[0].control).cycle_ctrl() != 0) && timeout < 16 {
+            // report_api("dma progress ", cc_struct.channels[0].control);
+            report_api(unsafe { cc_struct.channels.as_ptr().read() }.control);
+            timeout += 1;
+        }
+
+        /*
+        // does this also need to be a DMA?
+        self.csr.wo(rrc::RRC_CR, rrc::RRC_CR_WRITE_CMD);
+        self.array[addr / core::mem::size_of::<u32>()] = rrc::RRC_LOAD_BUFFER;
+        self.array[addr / core::mem::size_of::<u32>()] = rrc::RRC_WRITE_BUFFER;
+        self.csr.wo(rrc::RRC_CR, rrc::RRC_CR_NORMAL); */
+    }
+}
+
 #[export_name = "rust_entry"]
 pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! {
     let mut uart = debug::Uart {};
+    #[cfg(not(feature="simulation"))]
+    unsafe {
+        // this is MANDATORY for any chip stapbility in real silicon, as the initial
+        // clocks are too unstable to do anything otherwise. However, for the simulation
+        // environment, this can (should?) be dropped
+        let daric_cgu = sysctrl::HW_SYSCTRL_BASE as *mut u32;
+        daric_cgu.add(sysctrl::SFR_CGUSEL1.offset()).write_volatile(1);  // 0: RC, 1: XTAL
+        daric_cgu.add(sysctrl::SFR_CGUFSCR.offset()).write_volatile(48); // external crystal is 48MHz
+
+        daric_cgu.add(sysctrl::SFR_CGUSET.offset()).write_volatile(0x32);
+
+        let duart = utra::duart::HW_DUART_BASE as *mut u32;
+        duart.add(utra::duart::SFR_CR.offset()).write_volatile(0);
+        duart.add(utra::duart::SFR_ETUC.offset()).write_volatile(24);
+        duart.add(utra::duart::SFR_CR.offset()).write_volatile(1);
+    }
+    // this block is mandatory in all cases to get clocks set into some consistent, expected mode
+    unsafe {
+        let daric_cgu = sysctrl::HW_SYSCTRL_BASE as *mut u32;
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_0.offset()).write_volatile(0x7f7f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_1.offset()).write_volatile(0x7f7f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_2.offset()).write_volatile(0x3f3f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_3.offset()).write_volatile(0x1f1f);
+        daric_cgu.add(utra::sysctrl::SFR_CGUFD_CFGFDCR_0_4_4.offset()).write_volatile(0x0f0f);
+        daric_cgu.add(utra::sysctrl::SFR_ACLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_HCLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_ICLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_PCLKGR.offset()).write_volatile(0xFF);
+        daric_cgu.add(utra::sysctrl::SFR_CGUSET.offset()).write_volatile(0x32);
+
+        let duart = utra::duart::HW_DUART_BASE as *mut u32;
+        // enable DUART
+        duart.add(utra::duart::SFR_CR.offset()).write_volatile(1);
+    }
+    // pre-boot establishment of ... anything working at all ...?
+    uart.tiny_write_str("hello world?\r");
+
+    #[cfg(feature="boot-delay")]
+    { // this block should immediately follow the CGU setup
+        let duart = utra::duart::HW_DUART_BASE as *mut u32;
+        // ~2 second delay for debugger to attach
+        let msg = b"boot\r";
+        for j in 0..20_000 {
+            // variable count of .'s to create a sense of motion on the console
+            for _ in 0..j & 0x7 {
+                while duart.add(utra::duart::SFR_SR.offset()).read_volatile() != 0 {}
+                duart.add(utra::duart::SFR_TXD.offset()).write_volatile('.' as char as u32);
+            }
+            for &b in msg {
+                while duart.add(utra::duart::SFR_SR.offset()).read_volatile() != 0 {}
+                duart.add(utra::duart::SFR_TXD.offset()).write_volatile(b as char as u32);
+            }
+        }
+    }
+    #[cfg(feature = "sram-margin")]
+    {
+        // set SRAM delay to max - opens up timing margin as much a possible, supposedly?
+        let sram_ctl = utra::coresub_sramtrm::HW_CORESUB_SRAMTRM_BASE as *mut u32;
+        let waitcycles = 3;
+        sram_ctl.add(utra::coresub_sramtrm::SFR_SRAM0.offset()).write_volatile(
+            (sram_ctl.add(utra::coresub_sramtrm::SFR_SRAM0.offset()).read_volatile()
+            & !0x18) | ((waitcycles << 3) & 0x18)
+        );
+        sram_ctl.add(utra::coresub_sramtrm::SFR_SRAM1.offset()).write_volatile(
+            (sram_ctl.add(utra::coresub_sramtrm::SFR_SRAM1.offset()).read_volatile()
+            & !0x18) | ((waitcycles << 3) & 0x18)
+        );
+    }
+    #[cfg(feature="rram-testing")]
+    {
+        let mut rbk = [0u32; 16];
+        let rram = 0x6010_0000 as *mut u32;
+        let rram_ctl = 0x4000_0000 as *mut u32;
+        report_api(0x3e3a_1770);
+        unsafe {
+            // readback
+            for (i, r) in rbk.iter_mut().enumerate() {
+                *r = rram.add(i).read_volatile();
+            }
+            for &r in rbk.iter() {
+                report_api(r);
+            }
+
+            // this writes bytes in linear order
+            // rram.add(0).write_volatile(0x1234_1234);
+            // rram.add(1).write_volatile(0xfeed_face);
+            // rram.add(2).write_volatile(0x3141_5926);
+            // rram.add(3).write_volatile(0x1111_1111);
+            // rram.add(4).write_volatile(0xc0de_f00d);
+            // rram.add(5).write_volatile(0xace0_bace);
+            // rram.add(6).write_volatile(0x600d_c0de);
+            // rram.add(7).write_volatile(0x2222_2222);
+
+            // this was an attempt to reverse/swap byte writing orders to
+            // see how this impacts the RRAM receiver
+            rram.add(1).write_volatile(0x2222_2222);
+            rram.add(0).write_volatile(0x1111_1111);
+            rram.add(2).write_volatile(0x3333_3333);
+            rram.add(3).write_volatile(0x4444_4444);
+            rram.add(4).write_volatile(0x5555_5555);
+            rram.add(5).write_volatile(0x6666_6666);
+            rram.add(7).write_volatile(0x8888_8888);
+            rram.add(6).write_volatile(0x7777_7777);
+            rram_ctl.add(0).write_volatile(2);
+            rram.add(0).write_volatile(0x5200);
+            rram.add(0).write_volatile(0x9528);
+            rram_ctl.add(0).write_volatile(0);
+        }
+        report_api(0x3e3a_1771); // make some delay while RRAM processes
+        let mut reram = Reram::new();
+        let test_data: [u32; 8] = [
+            0xeeee_eeee,
+            0xbabe_600d,
+            0x3141_5926,
+            0x3333_3333,
+            0xc0de_f00d,
+            0xace0_bace,
+            0x600d_c0de,
+            0x1010_1010,
+        ];
+        unsafe {
+            reram.write_u32_aligned_dma(8, &test_data);
+            rram_ctl.add(0).write_volatile(2);
+            rram.add(0).write_volatile(0x5200);
+            rram.add(0).write_volatile(0x9528);
+            rram_ctl.add(0).write_volatile(0);
+
+            core::arch::asm!(
+                ".word 0x500F",
+            );
+            report_api(0x3e3a_1772); // make some delay while RRAM processes
+            // readback
+            for (i, r) in rbk.iter_mut().enumerate() {
+                *r = rram.add(i).read_volatile();
+            }
+            for (i, &r) in rbk.iter().enumerate() {
+                if i == 8 {
+                    report_api(0x3e3a_1773);
+                }
+                report_api(r);
+            }
+        };
+    }
+    uart.tiny_write_str("pre-hello world!\r");
     uart.tiny_write_str("hello world!\r");
 
-    #[cfg(feature="full-chip")]
+    #[cfg(all(feature = "simulation", feature = "full-chip"))]
     {
         let u8_test =  crate::debug::duart::HW_DUART_BASE as *mut u8;
         let u16_test = crate::debug::duart::HW_DUART_BASE as *mut u16;
@@ -778,13 +1236,18 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             u16_test.write_volatile(0x44);
             u16_test.add(1).write_volatile(0x55);
         }
+    }
+
+    #[cfg(feature="full-chip")]
+    {
         reset_ticktimer();
         snap_ticks("sysctrl: ipen ");
 
-        early_init();
+        uart.tiny_write_str("setting clocks\r");
+        init_clock_asic(128_000_000);
+        // early_init();
     }
-
-    uart.tiny_write_str("booting... 006\r");
+    uart.tiny_write_str("booting... 001\r");
 
     let mut report = CSR::new(utra::main::HW_MAIN_BASE as *mut u32);
     report_api(0x600dc0de);
@@ -793,11 +1256,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     let resetvalue = CSR::new(utra::resetvalue::HW_RESETVALUE_BASE as *mut u32);
     report_api(resetvalue.r(utra::resetvalue::PC));
 
-    #[cfg(feature="full-chip")]
+    // #[cfg(feature="full-chip")]
     // sce_dma_tests();
 
     #[cfg(feature="full-chip")]
-    setup_uart1();
+    setup_uart2();
 
     // ---------- if activated, run the APB test. This is based off of Philip's "touch all the registers" test.
     #[cfg(feature="apb-test")]
@@ -1008,6 +1471,61 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
     // let mut test_slice = core::slice::from_raw_parts_mut(BASE_ADDR as *mut u8, 0x6000);
 
     report.wfo(utra::main::DONE_DONE, 1);
+
+    #[cfg(feature="rram-testing")]
+    {
+        let rram_base = 0x6000_0000 as *const u32;
+        uart.tiny_write_str("0x6000_0000:\r");
+        for i in 0..8 {
+            report_api(unsafe{rram_base.add(i).read_volatile()});
+        }
+        uart.tiny_write_str("0x6020_0000:\r");
+        for i in 0..8 {
+            report_api(unsafe{rram_base.add(i + 0x20_0000 / core::mem::size_of::<u32>()).read_volatile()});
+        }
+        uart.tiny_write_str("0x603f8000:\r");
+        for i in 0..8 {
+            report_api(unsafe{rram_base.add(i + 0x3F_8000 / core::mem::size_of::<u32>()).read_volatile()});
+        }
+        /*
+        let mut reram = Reram::new();
+        let test_data: [u32; 8] = [
+            0x1234_1234,
+            0xfeed_face,
+            0x3141_5926,
+            0x1111_1111,
+            0xc0de_f00d,
+            0xace0_bace,
+            0x600d_c0de,
+            0x2222_2222
+        ];
+        unsafe {reram.write_u32_aligned(0, &test_data)};*/
+        unsafe {
+            let rram_ctl = 0x4000_0000 as *mut u32;
+            let rram = 0x6000_0000 as *mut u32;
+            rram.add(0).write_volatile(0x1234_1234);
+            rram.add(1).write_volatile(0xfeed_face);
+            rram.add(2).write_volatile(0x3141_5926);
+            rram.add(3).write_volatile(0x1111_1111);
+            rram.add(4).write_volatile(0xc0de_f00d);
+            rram.add(5).write_volatile(0xace0_bace);
+            rram.add(6).write_volatile(0x600d_c0de);
+            rram.add(7).write_volatile(0x2222_2222);
+            rram_ctl.add(0).write_volatile(2);
+            rram.add(0).write_volatile(0x5200);
+            rram.add(0).write_volatile(0x9528);
+            rram_ctl.add(0).write_volatile(0);
+        }
+
+        uart.tiny_write_str("0x6020_0000:\r");
+        for i in 0..8 {
+            report_api(unsafe{rram_base.add(i + 0x20_0000 / core::mem::size_of::<u32>()).read_volatile()});
+        }
+        uart.tiny_write_str("0x6000_0000:\r");
+        for i in 0..8 {
+            report_api(unsafe{rram_base.add(i).read_volatile()});
+        }
+    }
 
     uart.tiny_write_str("test finished\r");
     loop {
