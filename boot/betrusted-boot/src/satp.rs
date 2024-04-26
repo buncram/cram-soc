@@ -70,6 +70,12 @@ fn set_l2_pte(from_va: usize, to_pa: usize, l2_pt: &mut PageTable, flags: usize)
 /// mappings being 1:1 between VA->PA, except for code which is remapped to address 0x0 in VA space.
 #[inline(never)] // correct behavior depends on RA being set.
 pub fn satp_setup() {
+    unsafe {
+        let pt_clr = ROOT_PT_PA as *mut u32;
+        for i in 0..(PT_LIMIT - ROOT_PT_PA) / core::mem::size_of::<u32>() {
+            pt_clr.add(i).write_volatile(0x0000_0000);
+        }
+    }
     // root page table is at p0x6100_0000 == v0x6100_0000
     let mut root_pt = unsafe { &mut *(ROOT_PT_PA as *mut PageTable) };
     let mut sram_pt = unsafe { &mut *(SRAM_PT_PA as *mut PageTable) };
@@ -89,9 +95,9 @@ pub fn satp_setup() {
     set_l1_pte(RV_VA, RV_PT_PA, &mut root_pt);
 
     // map code space. This is the only one that has a difference on VA->PA
-    const CODE_LEN: usize = 0x30_0000; // 3 megs
+    const CODE_LEN: usize = 0x40_0000; // 4 megs, a whole superpage.
     for offset in (0..CODE_LEN).step_by(PAGE_SIZE) {
-        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R | FLG_U);
+        set_l2_pte(CODE_VA + offset, RERAM_PA + offset, &mut code_pt, FLG_X | FLG_R | FLG_U | FLG_W);
     }
 
     // map sram. Mapping is 1:1, so we use _VA and _PA targets for both args
@@ -100,9 +106,9 @@ pub fn satp_setup() {
     for offset in (0..SCRATCH_PAGE - utralib::HW_SRAM_MEM).step_by(PAGE_SIZE) {
         set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_R | FLG_U);
     }
-    // rest of RAM is r/w
+    // rest of RAM is r/w/x
     for offset in ((SCRATCH_PAGE - utralib::HW_SRAM_MEM)..SRAM_LEN).step_by(PAGE_SIZE) {
-        set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U);
+        set_l2_pte(SRAM_VA + offset, SRAM_VA + offset, &mut sram_pt, FLG_W | FLG_R | FLG_U | FLG_X);
     }
     // map SoC-local peripherals (ticktimer, etc.)
     const CSR_LEN: usize = 0x2_0000;
