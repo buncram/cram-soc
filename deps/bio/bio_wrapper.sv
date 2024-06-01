@@ -51,7 +51,7 @@ module bio_apb #(
         .pslverr      (PSLVERR)
     );
 
-    ioif  bio_gpio[0:31]();
+    ioif  bio_gpio[31:0]();
     generate
         for (genvar j = 0; j < 32; j++) begin:gp
             assign gpio_out[j] = bio_gpio[j].po;

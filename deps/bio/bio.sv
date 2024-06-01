@@ -1059,9 +1059,9 @@ module picorv32_regs_bio #(
 
         regfifo_wdata = wdata;
         gpio_set = gpio_mask & wdata;
-        gpio_clr = gpio_mask & ~wdata;
+        gpio_clr = gpio_mask & ~wdata; // this is done so we can just bit-shift a stream without inversion to deserialize
         gpdir_set = gpio_mask & wdata;
-        gpdir_clr = gpio_mask & ~wdata;
+        gpdir_clr = gpio_mask & wdata; // this is "normal"
         event_set = wdata[24:0]; // can't set or clear FIFO events, so they are masked
         event_clr = wdata[24:0];
 
