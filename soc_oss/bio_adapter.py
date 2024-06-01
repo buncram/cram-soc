@@ -120,6 +120,9 @@ class BioAdapter(Module):
                 # i2c_sda_peripheral_drive_low.eq(1),
             )
 
+        self.comb += [
+            i2c_sda.eq(~(i2c_sda_controller_drive_low | gpio_oe[2] | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
+        ]
         for i in range(32):
             self.gpio = TSTriple()
             self.specials += self.gpio.get_tristate(pads.gpio[i])
@@ -131,8 +134,6 @@ class BioAdapter(Module):
                 if (i == 2): # SDA
                     self.comb += [
                         If(self.i2c,
-                            i2c_sda_controller_drive_low.eq(gpio_oe[i]),
-                            i2c_sda.eq(~(i2c_sda_controller_drive_low | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
                             gpio_i[i].eq(i2c_sda)
                         ).Else(
                             If(self.force,
