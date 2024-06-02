@@ -4,11 +4,9 @@
 #![allow(unreachable_code)] // allow debugging of failures to jump out of the bootloader
 
 use utralib::generated::*;
-use utralib::utra::pl230;
 use utralib::utra::sysctrl;
 use core::convert::TryInto;
 use core::convert::TryFrom;
-use core::fmt::Write;
 use core::mem::size_of;
 
 mod debug;
@@ -1022,7 +1020,7 @@ impl Reram {
         }
     }
 
-    pub unsafe fn write_u32_aligned_dma(&mut self, addr: usize, data: &[u32]) {
+    pub unsafe fn write_u32_aligned_dma(&mut self, _addr: usize, data: &[u32]) {
         use xous_pl230::*;
         //assert!(addr % 0x20 == 0, "unaligned destination address!");
         //assert!(data.len() % 8 == 0, "unaligned source data!");
@@ -1218,7 +1216,6 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
             }
         };
     }
-    uart.tiny_write_str("pre-hello world!\r");
     uart.tiny_write_str("hello world!\r");
 
     #[cfg(all(feature = "simulation", feature = "full-chip"))]
@@ -1292,11 +1289,11 @@ pub unsafe extern "C" fn rust_entry(_unused1: *const usize, _unused2: u32) -> ! 
 
     // ---------- bio test option -------------
     #[cfg(feature="bio-test")]
-    uart.tiny_write_str("bio start\r");
+    print!("bio start\r");
     #[cfg(feature="bio-test")]
     xous_bio::bio_tests::bio_tests();
     #[cfg(feature="bio-test")]
-    uart.tiny_write_str("bio end\r");
+    print!("bio end\r");
 
     // ---------- exception setup ------------------
     irqs::irq_setup();

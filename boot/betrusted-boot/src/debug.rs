@@ -117,7 +117,6 @@ impl Write for Uart {
 }
 
 #[macro_use]
-#[cfg(all(not(test), feature = "debug-print"))]
 pub mod debug_print_hardware {
     #[macro_export]
     macro_rules! print
@@ -125,30 +124,6 @@ pub mod debug_print_hardware {
         ($($args:tt)+) => ({
                 use core::fmt::Write;
                 let _ = write!(crate::debug::Uart {}, $($args)+);
-        });
-    }
-}
-
-#[macro_use]
-#[cfg(all(not(test), not(feature = "debug-print")))]
-mod debug_print_hardware {
-    #[macro_export]
-    #[allow(unused_variables)]
-    macro_rules! print {
-        ($($args:tt)+) => ({
-            ()
-        });
-    }
-}
-
-#[macro_use]
-#[cfg(test)]
-mod debug_print_hardware {
-    #[macro_export]
-    #[allow(unused_variables)]
-    macro_rules! print {
-        ($($args:tt)+) => ({
-            std::print!($($args)+)
         });
     }
 }
