@@ -21,9 +21,9 @@ memory space.
 
 `st` instructions on all cores are effectively NOPs, except for core #0 which can have its `st` result wired into the instruction memory while the core is running, at the cost of the host being unable to write to the instruction memory as execution is active. This capability is set by a host register.
 
-Each core has a `quantum` signal, configured by a host register, which is derived by creating one `quantum` pulse every `quantum_count` cycles of `aclk`.
+Each core has a `quantum` signal, configured by a host register, which is derived by creating one `quantum` pulse every `quantum_count` cycles of `fclk`.
 
-All four cores run at `aclk` (800 MHz) speed, but each core has an independent fetch-stall signal. Each core also has an independent enable/run signal, which is automatically synchronized to the quantum signal.
+All four cores run at `fclk` (800 MHz) speed, but each core has an independent fetch-stall signal. Each core also has an independent enable/run signal, which is automatically synchronized to the quantum signal.
 
 Each core has a reset vector that can be independently set.
 
@@ -119,7 +119,7 @@ These events are combinable into four IRQ lines that go to the host system. The 
 R20 is a dummy register that discards any data written. However, when any CPU accesses R20, the accessing CPU's clock is stalled until the next quantum pulse.
 
 The quantum pulse can originate from two sources:
-- Internal fractional clock divider, dividing down from `aclk` (one per core)
+- Internal fractional clock divider, dividing down from `fclk` (one per core)
 - External clock pin, selected by flipping `use_extclk` and configuring `extclk_gpio` (one pin per core)
 
 The `extclk` pin will unstall a core waiting on an R20 write on its rising edge. If a falling edge
@@ -146,7 +146,7 @@ GPIOs are wired to the cores as follows:
 
 In the case of a conflict (set and clear simultaneously), the command is ignored, and the previous state is kept.
 
-A host register configures if the external GPIO values update only at the rising edge of every quantum, or if the values update directly at `aclk` rate. Setting external update at quantum edges allows users to compose GPIO patterns with multiple accesses to the GPIO registers, without the partially finished intermediate values appearing on the output.
+A host register configures if the external GPIO values update only at the rising edge of every quantum, or if the values update directly at `fclk` rate. Setting external update at quantum edges allows users to compose GPIO patterns with multiple accesses to the GPIO registers, without the partially finished intermediate values appearing on the output.
 
 - When snap-to-quantum is active, it applies to all GPIO pins, and only one core's clock may be used to snap all the pins at once.
 - Input and output directions may independently specify snap-to-quantum, as well as their snap-to-quantum core clock.
@@ -159,7 +159,7 @@ A core can set an event bit by writing a `1` to R28. This write does not regard 
 
 A core can clear an event bit by writing a `1` to R29. This write does not regard the R27 mask.
 
-A core can wait until an event happens by reading R30. It will stall until all of the bits marked as sensitive in R27 are set. The stall is computed at `aclk` rates, e.g. if one needs synchronization to the quantum timer, the code sequence should be `mov r20, r0` followed by `mov ra, r29`.
+A core can wait until an event happens by reading R30. It will stall until all of the bits marked as sensitive in R27 are set. The stall is computed at `fclk` rates, e.g. if one needs synchronization to the quantum timer, the code sequence should be `mov r20, r0` followed by `mov ra, r29`.
 
 Bits 31:24 on R30 are wired to the FIFO level event flags; these bits cannot be set or cleared by R28 and R29.
 
@@ -169,10 +169,10 @@ The host also similarly has bit-wise set/clear write-only registers that can man
 
 # R31 core ID and cycle count
 
-Reading R31 returns the ID number of the core (0-3), and number of aclk cycles elapsed since reset:
+Reading R31 returns the ID number of the core (0-3), and number of fclk cycles elapsed since reset:
 
 - r31[30:31] contains the ID of the core (0-3)
-- r31[0:29] contains the elapsed aclk count
+- r31[0:29] contains the elapsed fclk count
 
 The count will wrap around on overflow.
 
