@@ -197,7 +197,7 @@ class BioAdapter(Module):
 
             # Clk / Rst.
             # ----------
-            i_aclk = ClockSignal("bio"),
+            i_fclk = ClockSignal("bio"),
             i_pclk = ClockSignal(),
             i_resetn = ~ResetSignal(),
             i_cmatpg = Open(),
