@@ -119,6 +119,7 @@ dependencies = [
  "num-traits",
  "utralib",
  "xous",
+ "xous-riscv",
 ]
 
 [[package]]
@@ -927,9 +928,9 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 
 [[package]]
 name = "xous"
-version = "0.9.59"
+version = "0.9.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64aba6a7276a8e58db2ab9735c84aeac107e61db39d4f61e7f9f4caf66439930"
+checksum = "e540c5677fdb7e291b45db72ad1af7b6148ea2b3c194f92cf2d7078df602e34c"
 dependencies = [
  "lazy_static",
 ]
