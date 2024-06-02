@@ -91,8 +91,12 @@ class BioAdapter(Module):
                 ).Elif(~i2c_scl & i2c_scl_d, # falling edge
                     NextValue(i2c_dout, ~i2c_adr_in), # reflect the inverse of the address back for testing
                     If(i2c_adr_in != FAILING_ADDRESS,
-                        NextState("RESP_D"),
-                        NextValue(i2c_ctr, 8)
+                       NextValue(i2c_ctr, 8),
+                       If(i2c_adr_in[0],
+                            NextState("RESP_D"),
+                       ).Else(
+                           NextState("START_A"),
+                       )
                     ).Else(
                         # on the failing case, just go back to idle because the cycle aborts here
                         NextState("IDLE")
@@ -100,7 +104,9 @@ class BioAdapter(Module):
                 )
             )
             i2c_p.act("RESP_D",
-                If(~i2c_scl & i2c_scl_d, # falling edge
+                If(~i2c_sda_d & i2c_sda & i2c_scl & i2c_scl_d, # stop condition
+                    NextState("IDLE")
+                ).Elif(~i2c_scl & i2c_scl_d, # falling edge
                     NextValue(i2c_ctr, i2c_ctr - 1),
                     If(i2c_ctr != 0,
                         NextValue(i2c_dout, Cat(zero, i2c_dout[:-1]))
@@ -113,7 +119,9 @@ class BioAdapter(Module):
                 i2c_sda_controller_drive_low.eq(~i2c_dout[7])
             )
             i2c_p.act("ACK_D",
-                If(~i2c_scl & i2c_scl_d, # falling edge
+                If(~i2c_sda_d & i2c_sda & i2c_scl & i2c_scl_d, # stop condition
+                    NextState("IDLE")
+                ).Elif(~i2c_scl & i2c_scl_d, # falling edge
                    NextState("IDLE")
                 ),
                 # host drives it here
