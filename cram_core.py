@@ -1669,6 +1669,7 @@ class cramSoC(SoCCore):
             bus_interconnect     = "crossbar",
             # bus_timeout          = None,
             with_ctrl            = False,
+            with_timer           = True,
             io_regions           = {
                 # Origin, Length.
                 0x4000_0000 : 0x2000_0000,
@@ -1676,6 +1677,7 @@ class cramSoC(SoCCore):
             },
             **kwargs)
 
+        self.irq.locs['timer0'] = 30 # fix the IRQ so we don't stomp on MPW compat
         self.cpu.use_external_variant("VexRiscv/VexRiscv_CramSoC.v")
         self.cpu.add_debug()
         # self.cpu.set_reset_address(reset_address)
