@@ -18,10 +18,11 @@ pub extern "C" fn _start() {
             "li          t1, 0xDEADC0DE",
             "mv          t0, {stack_limit}",
             "mv          t2, {ram_top}",
-        "100:", // fillstack
+        // "100:", // fillstack
             "sw          t1, 0(t0)",
+            // "lw          a0, 0(t0)",  // read back one byte
             "addi        t0, t0, 4",
-            "bltu        t0, t2, 100b",
+            // "bltu        t0, t2, 100b",
 
             // Place the stack pointer at the end of RAM
             "mv          sp, {ram_top}",

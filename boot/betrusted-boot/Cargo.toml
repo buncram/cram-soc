@@ -33,7 +33,7 @@ boot-delay = []
 sram-margin = []
 rram-testing = [] # used to try and help debug/bringup RRAM issues
 simulation = []
-default = ["daric", "pl230-test", "boot-delay", "sram-margin"]
+default = ["daric", "pl230-test", "bio-test"]
 
 [target.'cfg(not(any(windows, unix)))'.dependencies]
 utralib = { path = "../utralib"}

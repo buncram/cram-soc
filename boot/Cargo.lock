@@ -114,6 +114,7 @@ dependencies = [
 name = "cramium-hal"
 version = "0.1.0"
 dependencies = [
+ "bitfield",
  "bitflags",
  "num-derive",
  "num-traits",
@@ -928,9 +929,9 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 
 [[package]]
 name = "xous"
-version = "0.9.61"
+version = "0.9.62"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e540c5677fdb7e291b45db72ad1af7b6148ea2b3c194f92cf2d7078df602e34c"
+checksum = "8b47723b5d1d480630f10fe66eeaa9c4912b842a02cdc18e25db2728db6f606e"
 dependencies = [
  "lazy_static",
 ]

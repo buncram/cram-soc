@@ -5,6 +5,10 @@ MEMORY
   /*FLASH : ORIGIN = 0x20D00000, LENGTH = 128k*/  /* use for dev work, along with --simple-boot build option for betrusted_soc.py */
   MEMLCD: ORIGIN = 0xB0000000, LENGTH = 32k
 }
+/*
+0x60200000
+0x61080000 <--
+*/
 
 REGION_ALIAS("REGION_TEXT", FLASH);
 REGION_ALIAS("REGION_RODATA", FLASH);
