@@ -5,13 +5,7 @@
 // particularly around reset conditions.
 
 module finisher(
-    input wire [7:0] kuart_from_cpu,
-    input wire kuart_from_cpu_valid,
-    output wire [7:0] kuart_to_cpu,
-    output reg kuart_to_cpu_valid,
-    input wire kuart_to_cpu_ready,
     input wire [31:0] report,
-    input wire success,
     input wire done,
     input wire clk
 );
@@ -30,11 +24,6 @@ end
 
 always @(*) begin
     if (kprint_done == 1'b1) begin
-        if (success == 1'b1) begin
-            $display("Simulation success: %h", report);
-        end else begin
-            $display("Simulation failure: %h", report);
-        end
         $dumpflush;
         $dumpoff;
         $finish;
@@ -55,26 +44,6 @@ always @(posedge clk) begin
         $dumpoff;
         $finish;
 `endif
-        kprint_trigger <= 1'b1;
-    end else begin
-        kprint_trigger <= kprint_trigger;
-    end
-
-    // extract the rising edge, if we see it, send the 'r' character by triggering valid
-    // we assume the "ready" is always ready...
-    kprint_trigger_d <= kprint_trigger;
-    if (kprint_trigger & !kprint_trigger_d) begin
-        $display("Got end of simulation signal; triggering kernel RAM usage print");
-        kuart_to_cpu_valid <= 1'b1;
-    end else begin
-        kuart_to_cpu_valid <= 1'b0;
-    end
-
-    // signal simulation end when the final trailing '.' is seen, but only after the trigger is set
-    if ((kprint_trigger == 1'b1) && (kuart_from_cpu == 8'h2e /* '.' */) && (kuart_from_cpu_valid == 1'b1)) begin
-        kprint_done <= 1'b1;
-    end else begin
-        kprint_done <= kprint_done;
     end
 end
 
