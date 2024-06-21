@@ -43,6 +43,7 @@ def get_common_ios():
         # Clk/Rst.
         ("aclk", 0, Pins(1)),
         ("rst", 0, Pins(1)),
+        ("vexsramtrm", 0, Pins(3)),
         # `always_on` is an `aclk` replica that is running even when the core `aclk` is stopped.
         # if power management is not supported, tie this directly to `aclk`
         ("always_on", 0, Pins(1)),
@@ -129,6 +130,7 @@ class SyncFIFOMacro(Module, _FIFOInterface):
 
         self.cmbist = Signal()
         self.cmatpg = Signal()
+        self.vexsramtrm = Signal(3)
         self.level = Signal(max=depth+1)
         self.replace = 0
 
@@ -165,6 +167,7 @@ class SyncFIFOMacro(Module, _FIFOInterface):
             o_rd_data = rdport_dat_r,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
+            i_sramtrm = self.vexsramtrm,
         )
 
         self.comb += [
@@ -212,10 +215,12 @@ class SyncFIFOBufferedMacro(Module, _FIFOInterface):
         _FIFOInterface.__init__(self, width, depth)
         self.cmbist = Signal()
         self.cmatpg = Signal()
+        self.vexsramtrm = Signal(3)
         self.submodules.fifo = fifo = SyncFIFOMacro(width, depth, False)
         self.comb += [
             self.fifo.cmbist.eq(self.cmbist),
             self.fifo.cmatpg.eq(self.cmatpg),
+            self.fifo.vexsramtrm.eq(self.vexsramtrm),
         ]
 
         self.writable = fifo.writable
@@ -489,6 +494,7 @@ field specifying the number of words that were accepted.
         # self-test signals
         self.cmatpg = Signal()
         self.cmbist = Signal()
+        self.vexsramtrm = Signal(3)
 
         depth_bits = log2_int(fifo_depth)
         # data going from us to them
@@ -573,6 +579,7 @@ from the peer.""", pulse=True)
 
             self.w_fifo.cmbist.eq(self.cmbist),
             self.w_fifo.cmatpg.eq(self.cmatpg),
+            self.w_fifo.vexsramtrm.eq(self.vexsramtrm),
         ]
 
         # build the incoming fifo
@@ -596,6 +603,7 @@ from the peer.""", pulse=True)
 
             self.r_fifo.cmbist.eq(self.cmbist),
             self.r_fifo.cmatpg.eq(self.cmatpg),
+            self.r_fifo.vexsramtrm.eq(self.vexsramtrm),
         ]
 
         self.comb += [
@@ -1265,6 +1273,7 @@ the `satp` setting and user code execution.
         """)
         self.cmbist = Signal()
         self.cmatpg = Signal()
+        self.vexsramtrm = Signal(3)
         self.set_asid = CSRStorage(fields=[
             CSRField("asid", size=9, description="ASID to set. Writing to this register commits the value in `trusted` to the specified `asid` value"),
             CSRField("trusted", size=1, description="Set to `1` if the ASID is trusted"),
@@ -1366,6 +1375,7 @@ the `satp` setting and user code execution.
             o_rd_data = asid_rd_dat_mux,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
+            i_sramtrm = self.vexsramtrm,
         )
         demux_mask_cases = {}
         demux_data_cases = {}
@@ -1410,6 +1420,7 @@ the `satp` setting and user code execution.
             o_rd_data = readback_rd_dat_mux,
             i_CMBIST = self.cmbist,
             i_CMATPG = self.cmatpg,
+            i_sramtrm = self.vexsramtrm,
         )
         readback_shift_delay = Signal(4)
         self.sync += readback_shift_delay.eq(self.get_asid_addr.fields.asid[:4])
@@ -1765,9 +1776,11 @@ class cramSoC(SoCCore):
         # Self test breakout -----------------------------------------------------------------------
         cmbist = platform.request("cmbist")
         cmatpg = platform.request("cmatpg")
+        vexsramtrm = platform.request("vexsramtrm")
         self.comb += [
             self.cpu.cmbist.eq(cmbist),
             self.cpu.cmatpg.eq(cmatpg),
+            self.cpu.vexsramtrm.eq(vexsramtrm),
         ]
 
         # CoreUser computation ---------------------------------------------------------------------
@@ -1775,6 +1788,7 @@ class cramSoC(SoCCore):
         self.comb += [
             self.coreuser.cmbist.eq(cmbist),
             self.coreuser.cmatpg.eq(cmatpg),
+            self.coreuser.vexsramtrm.eq(vexsramtrm),
         ]
 
         # WFI breakout -----------------------------------------------------------------------------
@@ -1878,6 +1892,7 @@ class cramSoC(SoCCore):
         self.comb += [
             self.mailbox.cmatpg.eq(cmatpg),
             self.mailbox.cmbist.eq(cmbist),
+            self.mailbox.vexsramtrm.eq(vexsramtrm),
         ]
 
         # Mailbox Thin Client ----------------------------------------------------------------------
