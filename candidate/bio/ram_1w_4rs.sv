@@ -3,18 +3,18 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module Ram_1w_1rs #(
+module Ram_1w_4rs #(
     parameter ramname = "undefined",
-    parameter wordCount = 32,
+    parameter wordCount = 1024,
     parameter wordWidth = 32,
     parameter clockCrossing = 0,
     parameter technology = "auto", // not used
     parameter readUnderWrite = "dontCare",
-    parameter wrAddressWidth = 5,
+    parameter wrAddressWidth = 10,
     parameter wrDataWidth = 32,
-    parameter wrMaskWidth = 1,
+    parameter wrMaskWidth = 4,
     parameter wrMaskEnable = 0,
-    parameter rdAddressWidth = 5,
+    parameter rdAddressWidth = 10,
     parameter rdDataWidth = 32
 )
 (
@@ -24,12 +24,11 @@ module Ram_1w_1rs #(
     input  wire [wrAddressWidth - 1:0]      wr_addr,
     input  wire [wrDataWidth - 1:0]         wr_data,
     input  wire                             rd_clk,
-    input  wire                             rd_en,
-    input  wire [rdAddressWidth - 1:0]      rd_addr,
-    output reg  [rdDataWidth - 1:0]         rd_data,
-    input  wire                             CMBIST, // dummy pins for test insertion
-    input  wire                             CMATPG, // dummy pins for test insertion
-    input  wire [2:0]                       sramtrm // dummy pins for SRAM trim
+    input  wire                             rd_en[4],
+    input  wire [rdAddressWidth - 1:0]      rd_addr[4],
+    output reg  [rdDataWidth - 1:0]         rd_data[4],
+    input  wire                             cmbist, // dummy pins for test insertion
+    input  wire                             cmatpg // dummy pins for test insertion
 );
 
 parameter WORD_WIDTH = wrMaskWidth;
@@ -66,17 +65,21 @@ initial begin
 end
 
 always @(posedge wr_clk) begin
-    for (i = 0; i < WORD_WIDTH; i = i + 1) begin
+    for (i = 0; i < WORD_WIDTH; i = i + 1) begin: writes
         if (wr_en & (wr_mask[i] | !wrMaskEnable)) begin
             mem[wr_addr][WORD_SIZE*i +: WORD_SIZE] <= wr_data[WORD_SIZE*i +: WORD_SIZE];
         end
     end
 end
-always @(posedge rd_clk) begin
-    if (rd_en) begin
-        rd_data <= mem[rd_addr];
+generate
+    for(genvar rp = 0; rp < 4; rp = rp + 1) begin: ports
+        always @(posedge rd_clk) begin
+            if (rd_en[rp]) begin
+                rd_data[rp] <= mem[rd_addr[rp]];
+            end
+        end
     end
-end
+endgenerate
 
 endmodule
 

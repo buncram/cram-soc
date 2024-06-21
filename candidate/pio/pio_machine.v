@@ -409,7 +409,7 @@ module pio_machine (
 
   // Execute the current instruction
   always @* begin
-    isr_val = '0; //philip,faye: add to avoid latch
+    isr_val = 32'h0; //philip,faye: add to avoid latch
     irq_waiting_next = 0; //philip,faye: add to avoid latch
     jmp  = 0;
     pull = 0;

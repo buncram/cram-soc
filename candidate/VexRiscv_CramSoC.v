@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
 // Component : VexRiscvAxi4
-// Git hash  : 47cb4bc714cdb6114065598631ad5f678d3a8662
+// Git hash  : 4318650f7374919d70f065d56242cbaa90a71688
 
 `timescale 1ns/1ps
 
@@ -79,6 +79,7 @@ module VexRiscvAxi4 (
   input               clk,
   input               CMBIST,
   input               CMATPG,
+  input      [2:0]    sramtrm,
   input               reset,
   input               debugReset
 );
@@ -2751,6 +2752,7 @@ module VexRiscvAxi4 (
     .clk                                   (clk                                                       ), //i
     .CMBIST                                (CMBIST                                                    ), //i
     .CMATPG                                (CMATPG                                                    ), //i
+    .sramtrm                               (sramtrm[2:0]                                              ), //i
     .reset                                 (reset                                                     )  //i
   );
   DataCache dataCache_1 (
@@ -2839,6 +2841,7 @@ module VexRiscvAxi4 (
     .clk                                    (clk                                              ), //i
     .CMBIST                                 (CMBIST                                           ), //i
     .CMATPG                                 (CMATPG                                           ), //i
+    .sramtrm                                (sramtrm[2:0]                                     ), //i
     .reset                                  (reset                                            )  //i
   );
   JtagBridge jtagBridge_1 (
@@ -10208,6 +10211,7 @@ module DataCache (
   input               clk,
   input               CMBIST,
   input               CMATPG,
+  input      [2:0]    sramtrm,
   input               reset
 );
 
@@ -10517,7 +10521,8 @@ module DataCache (
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
     .rd_data (ways_0_tags_rd_data[21:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10543,7 +10548,8 @@ module DataCache (
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
     .rd_data (ways_0_data_rd_data[31:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -10569,7 +10575,8 @@ module DataCache (
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
     .rd_data (ways_1_tags_rd_data[21:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10595,7 +10602,8 @@ module DataCache (
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
     .rd_data (ways_1_data_rd_data[31:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -10621,7 +10629,8 @@ module DataCache (
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
     .rd_data (ways_2_tags_rd_data[21:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10647,7 +10656,8 @@ module DataCache (
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
     .rd_data (ways_2_data_rd_data[31:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -10673,7 +10683,8 @@ module DataCache (
     .rd_addr (tagsReadCmd_payload[6:0]         ), //i
     .rd_data (ways_3_tags_rd_data[21:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   Ram_1w_1rs #(
     .wordCount(1024),
@@ -10699,7 +10710,8 @@ module DataCache (
     .rd_addr (dataReadCmd_payload[9:0]         ), //i
     .rd_data (ways_3_data_rd_data[31:0]        ), //o
     .CMBIST  (CMBIST                           ), //i
-    .CMATPG  (CMATPG                           )  //i
+    .CMATPG  (CMATPG                           ), //i
+    .sramtrm (sramtrm[2:0]                     )  //i
   );
   always @(*) begin
     case(_zz_stageB_dataMux_4)
@@ -11600,6 +11612,7 @@ module InstructionCache (
   input               clk,
   input               CMBIST,
   input               CMATPG,
+  input      [2:0]    sramtrm,
   input               reset
 );
 
@@ -11810,7 +11823,8 @@ module InstructionCache (
     .rd_addr (banks_0_rd_addr[8:0]                        ), //i
     .rd_data (banks_0_rd_data[63:0]                       ), //o
     .CMBIST  (CMBIST                                      ), //i
-    .CMATPG  (CMATPG                                      )  //i
+    .CMATPG  (CMATPG                                      ), //i
+    .sramtrm (sramtrm[2:0]                                )  //i
   );
   Ram_1w_1rs #(
     .wordCount(512),
@@ -11836,7 +11850,8 @@ module InstructionCache (
     .rd_addr (banks_1_rd_addr[8:0]                        ), //i
     .rd_data (banks_1_rd_data[63:0]                       ), //o
     .CMBIST  (CMBIST                                      ), //i
-    .CMATPG  (CMATPG                                      )  //i
+    .CMATPG  (CMATPG                                      ), //i
+    .sramtrm (sramtrm[2:0]                                )  //i
   );
   Ram_1w_1rs #(
     .wordCount(512),
@@ -11862,7 +11877,8 @@ module InstructionCache (
     .rd_addr (banks_2_rd_addr[8:0]                        ), //i
     .rd_data (banks_2_rd_data[63:0]                       ), //o
     .CMBIST  (CMBIST                                      ), //i
-    .CMATPG  (CMATPG                                      )  //i
+    .CMATPG  (CMATPG                                      ), //i
+    .sramtrm (sramtrm[2:0]                                )  //i
   );
   Ram_1w_1rs #(
     .wordCount(512),
@@ -11888,7 +11904,8 @@ module InstructionCache (
     .rd_addr (banks_3_rd_addr[8:0]                        ), //i
     .rd_data (banks_3_rd_data[63:0]                       ), //o
     .CMBIST  (CMBIST                                      ), //i
-    .CMATPG  (CMATPG                                      )  //i
+    .CMATPG  (CMATPG                                      ), //i
+    .sramtrm (sramtrm[2:0]                                )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11914,7 +11931,8 @@ module InstructionCache (
     .rd_addr (ways_0_tags_rd_addr[6:0]                   ), //i
     .rd_data (ways_0_tags_rd_data[21:0]                  ), //o
     .CMBIST  (CMBIST                                     ), //i
-    .CMATPG  (CMATPG                                     )  //i
+    .CMATPG  (CMATPG                                     ), //i
+    .sramtrm (sramtrm[2:0]                               )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11940,7 +11958,8 @@ module InstructionCache (
     .rd_addr (ways_1_tags_rd_addr[6:0]                   ), //i
     .rd_data (ways_1_tags_rd_data[21:0]                  ), //o
     .CMBIST  (CMBIST                                     ), //i
-    .CMATPG  (CMATPG                                     )  //i
+    .CMATPG  (CMATPG                                     ), //i
+    .sramtrm (sramtrm[2:0]                               )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11966,7 +11985,8 @@ module InstructionCache (
     .rd_addr (ways_2_tags_rd_addr[6:0]                   ), //i
     .rd_data (ways_2_tags_rd_data[21:0]                  ), //o
     .CMBIST  (CMBIST                                     ), //i
-    .CMATPG  (CMATPG                                     )  //i
+    .CMATPG  (CMATPG                                     ), //i
+    .sramtrm (sramtrm[2:0]                               )  //i
   );
   Ram_1w_1rs #(
     .wordCount(128),
@@ -11992,7 +12012,8 @@ module InstructionCache (
     .rd_addr (ways_3_tags_rd_addr[6:0]                   ), //i
     .rd_data (ways_3_tags_rd_data[21:0]                  ), //o
     .CMBIST  (CMBIST                                     ), //i
-    .CMATPG  (CMATPG                                     )  //i
+    .CMATPG  (CMATPG                                     ), //i
+    .sramtrm (sramtrm[2:0]                               )  //i
   );
   always @(*) begin
     case(_zz_fetchStage_read_banksValue_0_data_1)

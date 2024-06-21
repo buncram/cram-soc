@@ -50,6 +50,9 @@ cp ../deps/pio/rp_pio.sv pio/
 # add support modules
 cp ../sim_support/cdc_blinded.v .
 
+rm -rf bio/*
+cp -r ../deps/bio/* bio/
+
 #rm -rf docs
 #mkdir docs
 #cp -r ../build/gateware/build/documentation/_build/html/* docs/
