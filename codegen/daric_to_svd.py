@@ -2701,7 +2701,7 @@ def main():
     )
     doc_soc.mem_regions['xip'] = SoCRegion(
         origin=0x7000_0000,
-        size=1024*1024 * 128,
+        size=1024*1024 * 64, # can be up to 128M in size, revised down to save RPT tracking space
         mode='rw', cached=True
     )
     # ---------- SPECIAL CASE - add PL230 memory region
