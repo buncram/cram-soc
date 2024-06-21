@@ -28,7 +28,8 @@ module Ram_1w_1rs #(
     input  wire [rdAddressWidth - 1:0]      rd_addr,
     output reg  [rdDataWidth - 1:0]         rd_data,
     input  wire                             CMBIST, // dummy pins for test insertion
-    input  wire                             CMATPG // dummy pins for test insertion
+    input  wire                             CMATPG, // dummy pins for test insertion
+    input  wire [2:0]                       sramtrm // dummy pins for SRAM trim
 );
 
 parameter WORD_WIDTH = wrMaskWidth;

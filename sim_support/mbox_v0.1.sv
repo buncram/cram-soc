@@ -15,6 +15,7 @@ module mbox_apb #(
     input logic         pclk,
     input logic         resetn,
     input logic cmatpg, cmbist,
+    input logic [2:0]   sramtrm,
 
     output logic [31:0] mbox_w_dat,
     output logic        mbox_w_valid,
