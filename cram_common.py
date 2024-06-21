@@ -147,36 +147,8 @@ class CramSoC(SoCCore):
         jtag_cpu = platform.request("jtag_cpu")
 
         # Add simulation "output pins" -----------------------------------------------------
-        self.sim_report = CSRStorage(32, name = "report", description="A 32-bit value to report sim state")
-        self.sim_success = CSRStorage(1, name = "success", description="Determines the result code for the simulation. 0 means fail, 1 means pass")
         self.sim_done = CSRStorage(1, name ="done", description="Set to `1` if the simulation should auto-terminate")
-
-        # test that caching is OFF for the I/O regions
-        self.sim_coherence_w = CSRStorage(32, name= "wdata", description="Write values here to check cache coherence issues")
-        self.sim_coherence_r = CSRStatus(32, name="rdata", description="Data readback derived from coherence_w")
-        self.sim_coherence_inc = CSRStatus(32, name="rinc", description="Every time this is read, the base value is incremented by 3", reset=0)
-
-        # work around AXIL->CSR bugs in Litex. The spec says that "we" should be a single pulse. But,
-        # it seems that the AXIL->CSR adapter will happily generate a longer pulse. Seems to have to do with
-        # some "clever hack" that was done to adapt AXIL to simple csrs, where axi_lite_to_simple() inside axi_lite.py
-        # is not your usual Module but some function that returns a tuple of FSMs and combs to glom into the parent
-        # object. But because of this everything in it has to be computed in just one cycle, but actually it seems
-        # that this causes the "do_read" to trigger a cycle earlier than the FSM's state, which later on gets
-        # OR'd together to create a 2-long cycle for WE, violating the CSR spec. Moving "do_read" back a cycle doesn't
-        # quite fix it because you also need to gate off the "adr" signal, and I can't seem to find that code.
-        # Anyways, this is a Litex-specific bug, so I'm not going to worry about it for SoC integration simulations.
-        sim_coherence_axil_bug = Signal()
-        self.sync += [
-            sim_coherence_axil_bug.eq(self.sim_coherence_inc.we),
-            If(self.sim_coherence_inc.we & ~sim_coherence_axil_bug,
-                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status + 3)
-            ).Else(
-                self.sim_coherence_inc.status.eq(self.sim_coherence_inc.status)
-            )
-        ]
-        self.comb += [
-            self.sim_coherence_r.status.eq(self.sim_coherence_w.storage + 5)
-        ]
+        self.test = Signal(32)
 
         # Add AXI RAM to SoC (Through AXI Crossbar).
         # ------------------------------------------
@@ -310,11 +282,11 @@ class CramSoC(SoCCore):
                     ]
                     if variant == "sim":
                         self.comb += [
-                            self.bioadapter.i2c.eq(self.sim_coherence_w.storage[0]),
-                            self.bioadapter.force.eq(self.sim_coherence_w.storage[1]),
-                            self.bioadapter.loop_oe.eq(self.sim_coherence_w.storage[2]),
-                            self.bioadapter.invert.eq(self.sim_coherence_w.storage[3]),
-                            self.bioadapter.force_val.eq(self.sim_coherence_w.storage[16:]),
+                            self.bioadapter.i2c.eq(self.test[0]),
+                            self.bioadapter.force.eq(self.test[1]),
+                            self.bioadapter.loop_oe.eq(self.test[2]),
+                            self.bioadapter.invert.eq(self.test[3]),
+                            self.bioadapter.force_val.eq(self.test[16:]),
                         ]
                 elif name == "duart":
                     from soc_oss.duart_adapter import DuartAdapter
@@ -525,6 +497,7 @@ class CramSoC(SoCCore):
             o_mbox_r_abort         = mbox.r_abort,
 
             o_sleep_req            = self.sleep_req,
+            o_test                 = self.test,
         )
 
     def add_sdram_emu(self, name="sdram", mem_bus=None, phy=None, module=None, origin=None, size=None,
