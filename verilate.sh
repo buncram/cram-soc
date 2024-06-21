@@ -70,7 +70,7 @@ then
   # set up the linker for our target
   # cp link-soc.x link.x
   # cd ../
-  cargo xtask cramium-fpga cram-mbox1 cram-mbox2 --kernel-feature fake-rng
+  cargo xtask cramium-soc cram-mbox1 cram-mbox2 --kernel-feature fake-rng
   # cargo xtask cramium-fpga --kernel-feature fake-rng
   cd ../cram-soc
   python3 ./mkimage.py
@@ -83,18 +83,17 @@ else
   #cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
   #cp include/pio.svd ../xous-cramium/precursors/
 
-  cd boot
-  # cp betrusted-boot/link.x.remap betrusted-boot/link.x
-  cp betrusted-boot/link.x.straight betrusted-boot/link.x # to be used in conjunction with --feature gdb-load
+  cd ../nto-tests
+  cp tests/link.x.straight tests/link.x
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
-  cargo xtask boot-image --no-default-features --feature daric --feature gdb-load --feature bio-test # --feature pl230-test # --feature xip
+  cargo xtask boot-image --no-default-features --feature bio-test # --feature pl230-test # --feature xip
 
-  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/betrusted-boot > ../listings/boot.lst
-  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/betrusted-boot | rustfilt >> ../listings/boot.lst
-  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/betrusted-boot -S -d | rustfilt >> ../listings/boot.lst
+  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > /mnt/f/code/cram-soc/listings/boot.lst
+  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/tests | rustfilt >> /mnt/f/code/cram-soc/listings/boot.lst
+  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/tests -S -d | rustfilt >> /mnt/f/code/cram-soc/listings/boot.lst
 
-  cd ../
-  BIOS="./boot/boot.bin"
+  cd ../cram-soc
+  BIOS="../nto-tests/boot.bin"
 fi
 echo "******************** RUN SIM ***********************"
 
