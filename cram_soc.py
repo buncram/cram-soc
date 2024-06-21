@@ -118,44 +118,6 @@ _io = [
      )
 ]
 
-# BtGpio -------------------------------------------------------------------------------------------
-
-class BtGpio(Module, AutoDoc, AutoCSR):
-    def __init__(self):
-        self.intro = ModuleDoc("""BtGpio - GPIO interface for betrusted""")
-
-        self.uartsel = CSRStorage(2, name="uartsel", description="Used to select which UART is routed to physical pins, 00 = kernel debug, 01 = console, others reserved based on build")
-
-# Dummy module that just copies the UART data to a register and immediately indicates we're good to go.
-class SimPhyTx(Module):
-    def __init__(self, sim_data_out, sim_data_out_valid):
-        self.sink = sink = stream.Endpoint([("data", 8)])
-        valid_r = Signal()
-
-        self.sync += [
-            valid_r.eq(sink.valid),
-            If(sink.valid,
-                sim_data_out.eq(sink.data),
-                sink.ready.eq(1)
-            ).Else(
-                sim_data_out.eq(sim_data_out),
-                sink.ready.eq(0),
-            ),
-            sim_data_out_valid.eq(~valid_r & sink.valid),
-        ]
-
-# Dummy module that injects nothing. This is written so that we can extend it to have the test bench inject data eventually if we wanted to.
-class SimPhyRx(Module):
-    def __init__(self, data_in, data_valid, data_ready):
-        self.source = source = stream.Endpoint([("data", 8)])
-
-        # # #
-        self.comb += [
-            source.valid.eq(data_valid),
-            source.data.eq(data_in),
-            data_ready.eq(source.ready),
-        ]
-
 # Simulation UART ----------------------------------------------------------------------------------
 class SimUartPhy(Module, AutoCSR):
     def __init__(self, data_in, data_in_valid, data_in_ready, data_out, data_out_valid, clk_freq, baudrate=115200, with_dynamic_baudrate=False):
@@ -327,131 +289,21 @@ def common_extensions(self):
     self.mbus.add_master(name = "sram",  m_axi=sram_axi,  origin=self.axi_mem_map["sram"][0],  size=self.axi_mem_map["sram"][1])
     self.mbus.add_master(name = "xip",  m_axi=xip_axi,  origin=self.axi_mem_map["xip"][0],  size=self.axi_mem_map["sram"][1])
 
-    # Muxed UARTS ---------------------------------------------------------------------------
-    # this is necessary for Xous to recognize the UARTs out of the box. We can simplify this later on.
-
-    self.submodules.gpio = BtGpio()
-    self.add_csr("gpio")
-
-    uart_pins = self.platform.request("serial")
-    serial_layout = [("tx", 1), ("rx", 1)]
-    kernel_pads = Record(serial_layout)
-    console_pads = Record(serial_layout)
-    app_uart_pads = Record(serial_layout)
-    self.comb += [
-        If(self.gpio.uartsel.storage == 0,
-            uart_pins.tx.eq(kernel_pads.tx),
-            kernel_pads.rx.eq(uart_pins.rx),
-        ).Elif(self.gpio.uartsel.storage == 1,
-            uart_pins.tx.eq(console_pads.tx),
-            console_pads.rx.eq(uart_pins.rx),
-        ).Else(
-            uart_pins.tx.eq(app_uart_pads.tx),
-            app_uart_pads.rx.eq(uart_pins.rx),
-        )
-    ]
-    sim_uart_pins = self.platform.request("sim_uart")
-    kernel_input = Signal(8)
-    kernel_input_valid = Signal()
-    kernel_input_ready = Signal()
-    self.submodules.uart_phy = SimUartPhy(
-        kernel_input,
-        kernel_input_valid,
-        kernel_input_ready,
-        sim_uart_pins.kernel,
-        sim_uart_pins.kernel_valid,
-        clk_freq=self.sys_clk_freq,
-        baudrate=115200)
-    self.submodules.uart = ResetInserter()(
-        uart.UART(self.uart_phy,
-            tx_fifo_depth=16, rx_fifo_depth=16)
-        )
-
-    self.add_csr("uart_phy")
-    self.add_csr("uart")
-    self.irq.add("uart")
-
-    console_data_in = Signal(8, reset=13) # 13=0xd
-    console_data_valid = Signal(reset = 0)
-    console_data_ready = Signal()
-    self.submodules.console_phy = SimUartPhy(
-        console_data_in,
-        console_data_valid,
-        console_data_ready,
-        sim_uart_pins.log,
-        sim_uart_pins.log_valid,
-        clk_freq=self.sys_clk_freq,
-        baudrate=115200)
-    self.submodules.console = ResetInserter()(
-        uart.UART(self.console_phy,
-            tx_fifo_depth=16, rx_fifo_depth=16)
-        )
-
-    self.add_csr("console_phy")
-    self.add_csr("console")
-    self.irq.add("console")
-
-    # extra PHY for "application" uses -- mainly things like the FCC testing agent
-    app_data_in = Signal(8, reset=13) # 13=0xd
-    app_data_valid = Signal(reset = 0)
-    app_data_ready = Signal()
-    self.submodules.app_uart_phy = SimUartPhy(
-        app_data_in,
-        app_data_valid,
-        app_data_ready,
-        sim_uart_pins.app,
-        sim_uart_pins.app_valid,
-        clk_freq=self.sys_clk_freq,
-        baudrate=115200)
-    self.submodules.app_uart = ResetInserter()(
-        uart.UART(self.app_uart_phy,
-            tx_fifo_depth=16, rx_fifo_depth=16)
-        )
-
-    self.add_csr("app_uart_phy")
-    self.add_csr("app_uart")
-    self.irq.add("app_uart")
-
-    self.specials += Instance("uart_print",
-        p_TYPE="log",
-        i_uart_data=sim_uart_pins.log,
-        i_uart_data_valid=sim_uart_pins.log_valid,
-        i_resetn=~ResetSignal(),
-        i_clk=ClockSignal(),
-    )
-    self.specials += Instance("uart_print",
-        p_TYPE="kernel",
-        i_uart_data=sim_uart_pins.kernel,
-        i_uart_data_valid=sim_uart_pins.kernel_valid,
-        i_resetn=~ResetSignal(),
-        i_clk=ClockSignal(),
-    )
-    self.platform.add_source("sim_support/uart_print.v")
-
     # Simulation framework I/O ----------------------------------------------------------------------
     self.sim = sim = self.platform.request("simio")
     self.comb += [
-        sim.report.eq(self.sim_report.storage),
-        sim.success.eq(self.sim_success.storage),
+        sim.report.eq(self.test),
+        sim.success.eq(0),
         sim.done.eq(self.sim_done.storage),
         sim.coreuser.eq(self.coreuser),
     ]
 
     self.specials += Instance("finisher",
-        i_kuart_from_cpu=sim_uart_pins.kernel,
-        i_kuart_from_cpu_valid=sim_uart_pins.kernel_valid,
-        o_kuart_to_cpu=kernel_input,
-        o_kuart_to_cpu_valid=kernel_input_valid,
-        i_kuart_to_cpu_ready=kernel_input_ready,
-        i_report=self.sim.report,
-        i_success=self.sim.success,
+        i_report=self.test,
         i_done=self.sim.done,
         i_clk = ClockSignal(),
     )
     self.platform.add_source("sim_support/finisher.v")
-
-    # pass the UART IRQ back to the common framework
-    self.comb += self.uart_irq.eq(self.uart.ev.irq)
 
 # Tune the common platform for verilator --------------------------------------------------------
 def verilator_extensions(self, nosave=False):
