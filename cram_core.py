@@ -69,7 +69,9 @@ def get_common_ios():
             Subsignal("r_done", Pins(1)),
             Subsignal("w_abort", Pins(1)),
             Subsignal("r_abort", Pins(1)),
-        )
+        ),
+        # Signals for facilitating design testing
+        ("test", 0, Pins(32))
     ]
     irqs = ["irqarray", 0]
     for bank in range(IRQ_BANKS):
@@ -1945,6 +1947,9 @@ class cramSoC(SoCCore):
 
         # CSR bus test loopback register -----------------------------------------------------------
         self.submodules.csrtest = CsrTest()
+        self.comb += [
+            self.platform.request("test").eq(self.csrtest.csr_wtest.storage)
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 def main():
