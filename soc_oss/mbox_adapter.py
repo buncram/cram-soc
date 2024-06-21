@@ -41,6 +41,7 @@ class MboxAdapter(Module):
             i_resetn = ~ResetSignal(),
             i_cmatpg = Open(),
             i_cmbist = Open(),
+            i_sramtrm = Open(),
 
             # AHB Slave interface
             # --------------------------
