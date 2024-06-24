@@ -180,3 +180,75 @@ The count will wrap around on overflow.
 
 This is a host register, one per core, that counts the number of quanta that were missed by a given core (e.g., a quanta pulse has passed without the core stalling on the quanta pulse). This is primarily for debugging code loops.
 
+# Better DMA
+
+Core #3 can be configured such that the load/store unit in connected directly to the host's bus via AXI. This effectively turns core #3 into a DMA engine. The main caveat in writing programs for core #3 is the coder has to remember is that one cannot fetch constant values for memory for use in programs, as the code space is not 1:1 mapped into data space.
+
+Here is a simple example of a copy DMA loop using just core #3. This will wait until it receives the source address, destination address, and the number of bytes to copy, before executing the DMA and then returning to the wait state.
+
+```
+wait:
+  mv x3, x18   // src address
+  mv x2, x17   // dst address
+  mv x1, x16   // wait for # of bytes to move
+
+  add x4, x1, x3  // x4 <- end condition based on source address increment
+
+loop:
+  ld  x5, 0(x3)    // blocks until load responds
+  st  x5, 0(x2)    // blocks until store completes
+  addi x3, x3, 4   // 3 cycles
+  addi x2, x2, 4   // 3 cycles
+  bne x3, x4, loop // 5 cycles
+  j wait
+```
+
+Better performance can be achieved if the loop counters are updated by another core. Here is an example that uses three cores simultaneously (note that the labels are symbolic for readability, the actual assembler requires labels to be numeric codes):
+
+```
+"nop",     // core 0 jump slot not used
+"nop",
+"j core1,  // core 1
+"nop",
+"j core2", // core 2
+"nop",
+"j loop",  // core 3
+"nop",
+
+// core 3 just waits for addresses to appear on FIFOs x16, x17
+loop:
+  ld x5, 0(x16)
+  st x5, 0(x17)
+  ld x5, 0(x16)  // optionally unroll the loop to amortize jump cost
+  st x5, 0(x17)
+  ld x5, 0(x16)
+  st x5, 0(x17)
+  ld x5, 0(x16)
+  st x5, 0(x17)
+  j loop
+
+core1:
+  mv x1, x18  // src address on FIFO x18
+  mv x2, x18  // # bytes to move on FIFO x18
+  add x3, x2, x2
+core1_loop:
+  mv x16, x1
+  addi x1, x1, 4
+  bne x1, x3, core1_loop
+  j core1
+
+core2:
+  mv x1, x19  // dst address on FIFO x19
+  mv x2, x19  // # bytes to move on FIFO x19
+  add x3, x2, x2
+core2_loop:
+  mv x17, x1
+  addi x1, x1, 4
+  bne x1, x3, core2_loop
+  j core2
+
+```
+
+Here, core 0 just waits for addresses to appear on FIFOs x16 and x17, performing loads and stores at the maximum possible rate.
+
+Core 1 waits for two words to appear, the source address and bytes to move to appear on FIFO 18; core 2 waits for two words to appear, the destination address and bytes to move. Each core computes the addresses and feeds them to core 0 via the respective FIFOs for the source and destination addresses.
