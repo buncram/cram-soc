@@ -67,6 +67,7 @@ module mbox_wrapper #(
         .resetn  ,
         .cmatpg  ,
         .cmbist  ,
+        .sramtrm ,
 
         .mbox_w_dat,
         .mbox_w_valid,
