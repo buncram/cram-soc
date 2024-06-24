@@ -1489,6 +1489,9 @@ def extract_bitwidth(schema, module, code_line):
     if module == 'bio':
         code_line = code_line.replace('[NUM_MACH]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
         code_line = code_line.replace('[NUM_MACH-1:0]', '')
+    if module == 'bio_dma':
+        code_line = code_line.replace('[NUM_MACH]', '') # FIXME: hack to ignore machine index. Works for this specific module only!
+        code_line = code_line.replace('[NUM_MACH-1:0]', '')
 
     bw_re = re.compile('[\s]*(bit|logic|reg|wire)[\s]*(\[.*\])*(.*)')
     matches = bw_re.search(code_line.strip(';'))
@@ -1701,7 +1704,7 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
                                 bitfields = base_str.split(',')
                                 for bf in reversed(bitfields):
                                     bf = bf.strip()
-                                    if module == 'rp_pio' or module == 'bio':
+                                    if module == 'rp_pio' or module == 'bio' or module == 'bio_bdma':
                                         # FIXME: special case hack to remove index from all bitfields except for the [r,t]x_level series
                                         if '_level' not in bf:
                                             bf = bf.split('[')[0]
@@ -2326,7 +2329,9 @@ def main():
     # SPECIAL CASE: mbox is located in the 'ips' directory
     versioned_files['mbox'] = ('soc_oss/ips/vexriscv/cram-soc/candidate/mbox_v0.1.sv', 1)
     # SPECIAL CASE: BIO data is located in 'deps' directory
-    versioned_files['bio'] = ('deps/bio/bio.sv', 0)
+    # versioned_files['bio'] = ('deps/bio/bio.sv', 0)
+    # SPECIAL CASE: BIO BDMA data is located in 'deps' directory
+    versioned_files['bio_bdma'] = ('deps/bio/bio_bdma.sv', 0)
 
     # extract the Pulpino files
     pulp_path = Path(args.path + '/ips/udma').glob('**/*')
@@ -2527,7 +2532,18 @@ def main():
                 'banks' : {},
                 'display_name' : 'pio',
             },
-        'bio' :
+        # 'bio' :
+        #     {
+        #         'socregion' : SoCRegion(
+        #                     origin=0x5012_4000,
+        #                     size=0x1000,
+        #                     mode='rw',
+        #                     cached=False
+        #                 ),
+        #         'banks' : {},
+        #         'display_name' : 'bio',
+        #     },
+        'bio_bdma' :
             {
                 'socregion' : SoCRegion(
                             origin=0x5012_4000,
@@ -2536,7 +2552,7 @@ def main():
                             cached=False
                         ),
                 'banks' : {},
-                'display_name' : 'bio',
+                'display_name' : 'bio_bdma',
             },
     }
     # --------- extract bank numbers for each region, so we can fix the addresses of various registers ---------
@@ -2570,6 +2586,8 @@ def main():
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]") # ignored, actually: rp_pio address is explicitly called out
                     elif region == 'bio':
                         apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]") # ignored, actually: bio address is explicitly called out
+                    elif region == 'bio_bdma':
+                        apbs_re = re.compile(r"\.apbs(.*?)\(.*?apbs\[([0-9]+)\]") # ignored, actually: bio_bdma address is explicitly called out
                     else:
                         print("unknown region!")
                         exit(0)
@@ -2734,7 +2752,7 @@ def main():
     # ---------- SPECIAL CASE - add BIO memory
     doc_soc.mem_regions['bio_ram'] = SoCRegion(
         origin=0x5012_5000,
-        size=0x1000,
+        size=0x2000,
         mode='rw', cached=False
     )
 
