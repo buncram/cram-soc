@@ -104,7 +104,8 @@ class CramSoC(SoCCore):
             "testbench" : [0x4008_0000, 0x1_0000], # 64k
             "duart"     : [0x4004_2000, 0x0_1000],
             # "pio"       : [0x5012_3000, 0x0_1000],
-            "bio"       : [0x5012_4000, 0x0_2000],
+            # "bio"       : [0x5012_4000, 0x0_2000],
+            "bio_bdma"    : [0x5012_4000, 0x0_4000],
             "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
@@ -272,6 +273,33 @@ class CramSoC(SoCCore):
                     else: # arty variant
                         clock_remap = {"sys" : "p", "bio": "sys"}
                     self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioAdapter(platform,
+                        getattr(self, name +"_ahb"), platform.request("pio"), bio_irq,
+                        base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
+                        sim=sim
+                    ))
+                    self.comb += [
+                        pio_irq0.eq(bio_irq[0]),
+                        pio_irq1.eq(bio_irq[1]),
+                    ]
+                    if variant == "sim":
+                        self.comb += [
+                            self.bioadapter.i2c.eq(self.test[0]),
+                            self.bioadapter.force.eq(self.test[1]),
+                            self.bioadapter.loop_oe.eq(self.test[2]),
+                            self.bioadapter.invert.eq(self.test[3]),
+                            self.bioadapter.force_val.eq(self.test[16:]),
+                        ]
+                elif name == "bio_bdma":
+                    if variant == "sim":
+                        sim = True  # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
+                    else:
+                        sim = False
+                    from soc_oss.bio_bdma_adapter import BioBdmaAdapter
+                    if variant == "sim":
+                        clock_remap = {"sys" : "p"}
+                    else: # arty variant
+                        clock_remap = {"sys" : "p", "bio": "sys"}
+                    self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioBdmaAdapter(platform,
                         getattr(self, name +"_ahb"), platform.request("pio"), bio_irq,
                         base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
