@@ -105,7 +105,7 @@ class CramSoC(SoCCore):
             "duart"     : [0x4004_2000, 0x0_1000],
             # "pio"       : [0x5012_3000, 0x0_1000],
             # "bio"       : [0x5012_4000, 0x0_2000],
-            "bio_bdma"    : [0x5012_4000, 0x0_4000],
+            "bio_bdma"    : [0x5012_8000, 0x0_8000],
             "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
