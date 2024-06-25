@@ -2543,10 +2543,12 @@ def main():
         #         'banks' : {},
         #         'display_name' : 'bio',
         #     },
+
+        # The address in soc_ifsub needs to be changed here as well!!!
         'bio_bdma' :
             {
                 'socregion' : SoCRegion(
-                            origin=0x5012_4000,
+                            origin=0x5012_8000,
                             size=0x1000,
                             mode='rw',
                             cached=False
@@ -2751,8 +2753,8 @@ def main():
     )
     # ---------- SPECIAL CASE - add BIO memory
     doc_soc.mem_regions['bio_ram'] = SoCRegion(
-        origin=0x5012_5000,
-        size=0x2000,
+        origin=0x5012_9000,
+        size=0x4000,
         mode='rw', cached=False
     )
 

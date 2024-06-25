@@ -22,8 +22,8 @@ from litex.soc.interconnect.csr import *
 # AHB to APB to BIO --------------------------------------------------------------------------
 
 class BioBdmaAdapter(Module):
-    def __init__(self, platform, s_ahb, pads, irq, base = 0x12_4000,
-        address_width = 14, sim=False,
+    def __init__(self, platform, s_ahb, pads, irq, base = 0x12_8000,
+        address_width = 15, sim=False,
     ):
         self.logger = logging.getLogger("BioAdapter")
 
@@ -193,7 +193,7 @@ class BioBdmaAdapter(Module):
         self.specials += Instance("bio_bdma_wrapper",
             # Parameters.
             # -----------
-            p_APW = 14,
+            p_APW = address_width,
 
             # Clk / Rst.
             # ----------

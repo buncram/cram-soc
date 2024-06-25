@@ -1,7 +1,7 @@
-# Better IO
+# Better IO + Better DMA
 
-The Better IO (BIO) is a microcoded I/O peripheral which consists of four of Claire Xenia Wolfe's
-PicoRV RV32E+ cores running out of a private memory space, with the top 16 registers wired to
+The Better IO (BIO) + Better DMA (BDMA) is a microcoded I/O peripheral which consists of four of Claire Xenia Wolfe's
+PicoRV RV32E+ cores running out of a private instruction memory space, with the top 16 registers wired to
 peripheral and synchronization functions.
 
 The PicoRV cores are configured as follows:
@@ -11,23 +11,21 @@ The PicoRV cores are configured as follows:
   - Dual port register file enabled
   - Compressed instructions on
 
-All four PicoRV cores fetch instructions out of a shared 1kx32, 4-read, 1-write RAM. The RAM is accessible from the host via the 1-write port, and is memory mapped into the host memory space. Host access to instruction space only succeed if core #0 is stopped, as that core shares its r/w port with the host.
+Each PicoRV core fetches instructions out of a private, 1024x32, single-ported synchronous RAM. When the core is disabled, the RAM is mapped into the host memory space, where it can be updated with new instructions.
 
-The BIO is managed via a host interface, which is memory-mapped into the host system. To be clear, the BIO
-PicoRV cores have no access to the host address space; the BIO CPU cores live entirely within their private
-memory space.
+In addition to the memory-mapped code space, there is a register space used by the host to manage parameters such as the clock divider, and other options for synchronization and interrupts.
 
-`ld` instructions read data out of the shared instruction memory through the same port as the instruction fetch.
+Addresses below 0x1000_0000 just return aliased copies of the private memory space. Thus, each core resets at address 0x0, but the instructions fetched at 0x0 will be different for each core because each core has a different physical memory.
 
-`st` instructions on all cores are effectively NOPs, except for core #0 which can have its `st` result wired into the instruction memory while the core is running, at the cost of the host being unable to write to the instruction memory as execution is active. This capability is set by a host register.
+Addresses 0x1000_0000 and above will attempt to access the system memory through a bus master interface. There is only a single bus master interface, and all cores get the same view of the system above 0x1000_0000.
+
+A core will get a lock on the interface for the entire duration of a load or store transaction, and will continue to keep the lock as long as data is in flight. There is no mechanism to guarantee fairness between the cores: in the case that two cores contend simultaneously, the lower-numbered core has priority.
+
+In general, it's assumed that only one core will use external system resources as a DMA master; if a system programmer wants to try to use multiple cores to access system resources, they can, but there is no guarantee of coherence, locking or fairness.
 
 Each core has a `quantum` signal, configured by a host register, which is derived by creating one `quantum` pulse every `quantum_count` cycles of `fclk`.
 
 All four cores run at `fclk` (800 MHz) speed, but each core has an independent fetch-stall signal. Each core also has an independent enable/run signal, which is automatically synchronized to the quantum signal.
-
-Each core has a reset vector that can be independently set.
-
-Each core can be independently configured to wrap the PC back to the reset value when a fetch happens to a prescribed address. If none is set, the PC will wrap around to 0 if it increments off the end of instruction memory.
 
 ## Writing Code for the RV32E+C
 ### Only R0-R15 Have Guaranteed Arithmetic Behaviors
@@ -180,11 +178,11 @@ The count will wrap around on overflow.
 
 This is a host register, one per core, that counts the number of quanta that were missed by a given core (e.g., a quanta pulse has passed without the core stalling on the quanta pulse). This is primarily for debugging code loops.
 
-# Better DMA
+# Use as a DMA Engine
 
-Core #3 can be configured such that the load/store unit in connected directly to the host's bus via AXI. This effectively turns core #3 into a DMA engine. The main caveat in writing programs for core #3 is the coder has to remember is that one cannot fetch constant values for memory for use in programs, as the code space is not 1:1 mapped into data space.
+Every core can fetch and store data to system memory, allowing them to operate as a DMA controller. However, it is strongly recommended that the system programmer only ever use one core at a time for this, because there is no mechanism for locking or fairness if multiple cores contend for the system address space.
 
-Here is a simple example of a copy DMA loop using just core #3. This will wait until it receives the source address, destination address, and the number of bytes to copy, before executing the DMA and then returning to the wait state.
+Here is a simple example of a copy DMA loop using just one core. This will wait until it receives the source address, destination address, and the number of bytes to copy, before executing the DMA and then returning to the wait state.
 
 ```
 wait:
@@ -205,18 +203,11 @@ loop:
 
 Better performance can be achieved if the loop counters are updated by another core. Here is an example that uses three cores simultaneously (note that the labels are symbolic for readability, the actual assembler requires labels to be numeric codes):
 
-```
-"nop",     // core 0 jump slot not used
-"nop",
-"j core1,  // core 1
-"nop",
-"j core2", // core 2
-"nop",
-"j loop",  // core 3
-"nop",
+Core 0:
 
-// core 3 just waits for addresses to appear on FIFOs x16, x17
-loop:
+```
+// core 0 just waits for addresses to appear on FIFOs x16, x17
+core0:
   ld x5, 0(x16)
   st x5, 0(x17)
   ld x5, 0(x16)  // optionally unroll the loop to amortize jump cost
@@ -225,8 +216,11 @@ loop:
   st x5, 0(x17)
   ld x5, 0(x16)
   st x5, 0(x17)
-  j loop
+  j core0
+```
 
+Core 1:
+```
 core1:
   mv x1, x18  // src address on FIFO x18
   mv x2, x18  // # bytes to move on FIFO x18
@@ -236,7 +230,11 @@ core1_loop:
   addi x1, x1, 4
   bne x1, x3, core1_loop
   j core1
+```
 
+Core 2:
+
+```
 core2:
   mv x1, x19  // dst address on FIFO x19
   mv x2, x19  // # bytes to move on FIFO x19
