@@ -6,10 +6,10 @@
 // This is modeled on Single-Port High Density SRAM for 22ULL spec
 module Ram_1rw_s #(
     parameter ramname = "undefined",
-    parameter wordCount = 512,
+    parameter wordCount = 1024,
     parameter wordWidth = 32,
     parameter technology = "auto", // not used
-    parameter AddressWidth = 9,
+    parameter AddressWidth = 10,
     parameter DataWidth = 32,
     parameter wrMaskWidth = 4,
     parameter wrMaskEnable = 1

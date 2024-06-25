@@ -11,7 +11,7 @@ The PicoRV cores are configured as follows:
   - Dual port register file enabled
   - Compressed instructions on
 
-Each PicoRV core fetches instructions out of a private, 512x32, single-ported synchronous RAM. When the core is disabled, the RAM is mapped into the host memory space, where it can be updated with new instructions.
+Each PicoRV core fetches instructions out of a private, 1024x32, single-ported synchronous RAM. When the core is disabled, the RAM is mapped into the host memory space, where it can be updated with new instructions.
 
 In addition to the memory-mapped code space, there is a register space used by the host to manage parameters such as the clock divider, and other options for synchronization and interrupts.
 

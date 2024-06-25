@@ -5,7 +5,7 @@
 // Integration wrapper for bio + dma
 
 module bio_bdma_wrapper #(
-    parameter APW = 14,  // APB address width
+    parameter APW = 15,  // APB address width
     parameter DW = 32,
     parameter AHW = 32,  // AHB address width
     parameter IDW = 4,
@@ -62,6 +62,7 @@ module bio_bdma_wrapper #(
 
     apbif #(.PAW(APW)) theapb();
     ahbif #(.AW(AHW),.DW(DW),.IDW(IDW),.UW(UW)) dma_ahb32();
+    apbif #(.PAW(APW)) apb_imem[4]();
 
     apb_wire2ifm #(
       .AW(APW)
@@ -100,6 +101,8 @@ module bio_bdma_wrapper #(
         .irq     (irq),
         .apbs    (theapb),
         .apbx    (theapb),
+        .apbs_imem(apb_imem),
+        .apbx_imem(apb_imem),
         .ahbm    (dma_ahb32)
     );
 endmodule

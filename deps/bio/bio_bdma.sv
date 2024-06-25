@@ -10,7 +10,11 @@
 // `define FPGA 1
 
 module bio_bdma #(
-)(
+    parameter APW = 15  // APB address width
+    // 0x8000 is offset of the BIO config space
+    // 0x9000-0xD000 is offset of RAM
+)
+(
     input logic         aclk,
     input logic         pclk,
     input logic         reset_n,
@@ -22,11 +26,16 @@ module bio_bdma #(
 
     apbif.slavein       apbs,
     apbif.slave         apbx,
+
+    apbif.slavein       apbs_imem[4],
+    apbif.slave         apbx_imem[4],
+
 	ahbif.master        ahbm
 );
     localparam NUM_MACH = 4;
-    localparam MEM_SIZE_BYTES = 32'h800;
-    localparam MEM_SIZE_WORDS = 32'h800 / 4;
+    localparam MEM_SIZE_BYTES = 32'h1000;
+    localparam MEM_SIZE_WORDS = 32'h1000 / 4;
+    // bits to address the RAM macro
     localparam MEM_ADDR_BITS = $clog2(MEM_SIZE_WORDS);
 
     /////////////////////// module glue
@@ -314,7 +323,7 @@ module bio_bdma #(
     logic [31:0] ram_wr_data [NUM_MACH];
     logic [31:0] host_mem_wdata_sync[2];
     logic [31:0] host_mem_wdata;
-    logic host_mem_wr_stb;
+    logic host_mem_wr_stb [NUM_MACH];
     logic host_mem_wr;
     logic host_mem_wr_d;
     logic host_mem_rd_stb;
@@ -323,8 +332,10 @@ module bio_bdma #(
     logic [1:0] psel_sync;
     logic [1:0] pwrite_sync;
     logic [1:0] penable_sync;
-    logic [MEM_ADDR_BITS+2:0] host_mem_addr_sync[2];
-    logic [MEM_ADDR_BITS+2:0] host_mem_addr;
+    // -2 for word-addressing; -1 because APW is top-exclusive
+    logic [APW-1 -2:0] host_mem_addr_sync[2];
+    // -2 for word-addressing; -2 b/c there are 4 banks; -1 because APW is top-exclusive
+    logic [APW-1 -2 -2:0] host_mem_addr;
     logic [31:0] host_mem_rdata_capture;
     logic [31:0] host_mem_rdata;
     logic [3:0] host_mem_wr_en_decode;
@@ -342,12 +353,15 @@ module bio_bdma #(
         penable_sync[1] <= penable_sync[0];
         host_mem_wdata_sync[0] <= apbs.pwdata;
         host_mem_wdata_sync[1] <= host_mem_wdata_sync[0];
-        host_mem_addr_sync[0] <= apbs.paddr[MEM_ADDR_BITS+4:2]; // extract word-level address here
+        host_mem_addr_sync[0] <= apbs.paddr[APW-1:2]; // extract word-level address here
         host_mem_addr_sync[1] <= host_mem_addr_sync[0];
 
         host_mem_wr <= host_mem_wr_d;
-        host_mem_wr_stb <= host_mem_wr_d & !host_mem_wr;
-        host_mem_addr <= host_mem_wr_d & !host_mem_wr ? host_mem_addr_sync[1][MEM_ADDR_BITS+2:0] : host_mem_addr;
+        host_mem_wr_stb[0] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b001);
+        host_mem_wr_stb[1] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b010);
+        host_mem_wr_stb[2] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b011);
+        host_mem_wr_stb[3] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b111);
+        host_mem_addr <= host_mem_wr_d & !host_mem_wr ? host_mem_addr_sync[1][MEM_ADDR_BITS-1:0] : host_mem_addr;
         host_mem_wdata <= host_mem_wr_d & !host_mem_wr ? host_mem_wdata_sync[1] : host_mem_wdata;
 
         host_mem_rd <= host_mem_rd_d;
@@ -722,7 +736,7 @@ module bio_bdma #(
         host_mem_wr_d = psel_sync[1] & pwrite_sync[1] & penable_sync[1];
         host_mem_rd_d = psel_sync[1] & !pwrite_sync[1];
         host_mem_wr_en_decode = 4'b0;
-        case (host_mem_addr_sync[1][MEM_ADDR_BITS+2:MEM_ADDR_BITS])
+        case (host_mem_addr_sync[1][APW-1:APW-3])
             2'b00: begin
                 host_mem_wr_en_decode[0] = 1;
             end
@@ -761,7 +775,7 @@ module bio_bdma #(
                     ram_addr[j] = mem_la_addr[j][MEM_ADDR_BITS+2:2];
                 end else begin
                     // host can write & read; machine can't touch
-                    ram_wr_en[j] = host_mem_wr_stb;
+                    ram_wr_en[j] = host_mem_wr_stb[j];
                     ram_wr_mask[j] = 4'b1111; // only full 32-bit writes are allowed, anything else is undefined
                     ram_wr_data[j] = host_mem_wdata;
                     ram_addr[j] = host_mem_addr;
@@ -793,7 +807,7 @@ module bio_bdma #(
 
             assign mem_rdata = ram_rd_data;
             always_ff @(posedge aclk) begin
-                mem_ready[j] <= ram_wr_en[j] || quanta_halt[j] && mem_ready[j];
+                mem_ready[j] <= mem_la_read[j] || ram_wr_en[j] || quanta_halt[j] && mem_ready[j];
             end
 
             always_ff @(posedge aclk) begin
@@ -847,8 +861,8 @@ module bio_bdma #(
 	            .REGS_INIT_ZERO(0),
 	            .MASKED_IRQ(32'h 0000_0000),
 	            .LATCHED_IRQ(32'h ffff_ffff),
-	            .PROGADDR_RESET(j * 4),
-	            .PROGADDR_IRQ(j * 4 + 32'h 0000_0010),
+	            .PROGADDR_RESET(0),
+	            .PROGADDR_IRQ(32'h 0000_0010),
 	            .STACKADDR(MEM_SIZE_BYTES - 1)
             ) core
             (
