@@ -105,7 +105,7 @@ class CramSoC(SoCCore):
             "duart"     : [0x4004_2000, 0x0_1000],
             # "pio"       : [0x5012_3000, 0x0_1000],
             # "bio"       : [0x5012_4000, 0x0_2000],
-            "bio_bdma"    : [0x5012_8000, 0x0_8000],
+            "bio_bdma"    : [0x5012_4000, 0x0_1000], # also infers 4x memory pages in addition to the control page
             "mbox_apb"  : [0x4001_3000, 0x0_1000],
         }
         self.mem_map = {**SoCCore.mem_map, **{
@@ -290,6 +290,32 @@ class CramSoC(SoCCore):
                             self.bioadapter.force_val.eq(self.test[16:]),
                         ]
                 elif name == "bio_bdma":
+                    # build subordinate page mapping list
+                    bdma_imem = []
+                    for i in range(4):
+                        imem_name = f'bio_bdma_imem{i}'
+                        setattr(self, imem_name + "_region", SoCIORegion(region[0] + (i + 1) * 0x1000, region[1], mode="rw", cached=False))
+                        setattr(self, imem_name + "_axil", AXILiteInterface(name=f'bio_bdma_imem{i}' + "_axil"))
+                        pxbar.add_master(
+                            name = imem_name,
+                            m_axil = getattr(self, imem_name + "_axil"),
+                            origin = region[0] + (i + 1) * 0x1000,
+                            size = region[1],
+                        )
+                        setattr(self, imem_name + "_slower_axil", AXILiteInterface(clock_domain="p", name=imem_name + "_slower_axil"))
+                        setattr(self.submodules, imem_name + "_slower_axi",
+                                AXILiteCDC(platform,
+                                        getattr(self, imem_name + "_axil"),
+                                        getattr(self, imem_name + "_slower_axil"),
+                                ))
+                        setattr(self, imem_name + "_ahb", ahb.AHBInterface())
+                        self.submodules += ClockDomainsRenamer({"sys" : "p"})(
+                            AXILite2AHBAdapter(platform,
+                                            getattr(self, imem_name + "_slower_axil"),
+                                            getattr(self, imem_name + "_ahb")
+                        ))
+                        bdma_imem += [getattr(self, imem_name + "_ahb")]
+
                     if variant == "sim":
                         sim = True  # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
                     else:
@@ -300,7 +326,9 @@ class CramSoC(SoCCore):
                     else: # arty variant
                         clock_remap = {"sys" : "p", "bio": "sys"}
                     self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioBdmaAdapter(platform,
-                        getattr(self, name +"_ahb"), platform.request("pio"), bio_irq,
+                        getattr(self, name +"_ahb"),
+                        bdma_imem,
+                        platform.request("pio"), bio_irq,
                         base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
                     ))
@@ -334,6 +362,13 @@ class CramSoC(SoCCore):
                 else:
                     print("Missing binding for peripheral block {}".format(name))
                     exit(1)
+
+        if "bio_bdma" in self.axi_peri_map.keys():
+            # backfill the created map items
+            region = self.axi_peri_map['bio_bdma']
+            for i in range(4):
+                imem_name = f'bio_bdma_imem{i}'
+                self.axi_peri_map[imem_name] = region[0] + (i + 1) * 0x1000
 
         # add interrupt handler
         interrupt = Signal(32)
