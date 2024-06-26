@@ -2548,7 +2548,7 @@ def main():
         'bio_bdma' :
             {
                 'socregion' : SoCRegion(
-                            origin=0x5012_8000,
+                            origin=0x5012_4000,
                             size=0x1000,
                             mode='rw',
                             cached=False
@@ -2752,11 +2752,12 @@ def main():
         mode='rw', cached=False
     )
     # ---------- SPECIAL CASE - add BIO memory
-    doc_soc.mem_regions['bio_ram'] = SoCRegion(
-        origin=0x5012_9000,
-        size=0x4000,
-        mode='rw', cached=False
-    )
+    for i in range(4):
+        doc_soc.mem_regions[f'bio_imem{i}'] = SoCRegion(
+            origin=0x5012_5000 + i * 0x1000,
+            size=0x1000,
+            mode='rw', cached=False
+        )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
     # sort the CSR objects according to their 'n' so they appear in the correct locations in the generated files

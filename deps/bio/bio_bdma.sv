@@ -10,7 +10,7 @@
 // `define FPGA 1
 
 module bio_bdma #(
-    parameter APW = 15  // APB address width
+    parameter APW = 12  // APB address width
     // 0x8000 is offset of the BIO config space
     // 0x9000-0xD000 is offset of RAM
 )
@@ -37,6 +37,7 @@ module bio_bdma #(
     localparam MEM_SIZE_WORDS = 32'h1000 / 4;
     // bits to address the RAM macro
     localparam MEM_ADDR_BITS = $clog2(MEM_SIZE_WORDS);
+    localparam PC_SIZE_BITS = $clog2(MEM_SIZE_BYTES);
 
     /////////////////////// module glue
     logic reset;
@@ -93,6 +94,7 @@ module bio_bdma #(
     logic [NUM_MACH-1:0]       core_clk;
     logic [NUM_MACH-1:0]       stall;
     logic [NUM_MACH-1:0]       trap;
+    logic [PC_SIZE_BITS-1:0]   dbg_pc[NUM_MACH];
 
     // Memory interfaces
 	// logic [NUM_MACH-1:0]       mem_valid;
@@ -189,7 +191,6 @@ module bio_bdma #(
     logic ctl_action;
     logic [3:0] fifo_to_reset_aclk;
     logic do_fifo_clr_aclk;
-    logic [31:0] host_mem_rdata_pclk;
     logic [3:0]  pclk_regfifo_level [4];
     always_ff @(posedge pclk) begin
         pclk_regfifo_level <= regfifo_level;
@@ -251,7 +252,10 @@ module bio_bdma #(
             sfr_irqmask_2    .prdata32 |
             sfr_irqmask_3    .prdata32 |
             sfr_irq_edge     .prdata32 |
-            host_mem_rdata_pclk
+            sfr_dbg0         .prdata32 |
+            sfr_dbg1         .prdata32 |
+            sfr_dbg2         .prdata32 |
+            sfr_dbg3         .prdata32
             ;
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
@@ -305,6 +309,11 @@ module bio_bdma #(
     apb_sr #(.A('h84), .DW(32))      sfr_dbg_padout       (.sr(gpio_out), .prdata32(),.*);
     apb_sr #(.A('h88), .DW(32))      sfr_dbg_padoe        (.sr(gpio_dir), .prdata32(),.*);
 
+    apb_sr #(.A('h90), .DW(32))      sfr_dbg0             (.sr({trap[0], dbg_pc[0]}), .prdata32(),.*);
+    apb_sr #(.A('h94), .DW(32))      sfr_dbg1             (.sr({trap[1], dbg_pc[1]}), .prdata32(),.*);
+    apb_sr #(.A('h98), .DW(32))      sfr_dbg2             (.sr({trap[2], dbg_pc[2]}), .prdata32(),.*);
+    apb_sr #(.A('h9C), .DW(32))      sfr_dbg3             (.sr({trap[3], dbg_pc[3]}), .prdata32(),.*);
+
     cdc_blinded       ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded       ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b(pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
     cdc_blinded       push_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(push                  ), .out_b(push_sync                  ));
@@ -321,62 +330,25 @@ module bio_bdma #(
     logic [3:0] ram_wr_mask [NUM_MACH];
     logic [MEM_ADDR_BITS-1:0] ram_addr[NUM_MACH];
     logic [31:0] ram_wr_data [NUM_MACH];
-    logic [31:0] host_mem_wdata_sync[2];
-    logic [31:0] host_mem_wdata;
     logic host_mem_wr_stb [NUM_MACH];
-    logic host_mem_wr;
-    logic host_mem_wr_d;
-    logic host_mem_rd_stb;
-    logic host_mem_rd;
-    logic host_mem_rd_d;
-    logic [1:0] psel_sync;
-    logic [1:0] pwrite_sync;
-    logic [1:0] penable_sync;
+    logic host_mem_wr [NUM_MACH];
+    logic host_mem_wr_d [NUM_MACH];
+    logic host_mem_rd [NUM_MACH];
+    logic [1:0] psel_sync [NUM_MACH];
+    logic [1:0] pwrite_sync [NUM_MACH];
+    logic [1:0] penable_sync [NUM_MACH];
     // -2 for word-addressing; -1 because APW is top-exclusive
-    logic [APW-1 -2:0] host_mem_addr_sync[2];
-    // -2 for word-addressing; -2 b/c there are 4 banks; -1 because APW is top-exclusive
-    logic [APW-1 -2 -2:0] host_mem_addr;
-    logic [31:0] host_mem_rdata_capture;
+    logic [APW-1 -2:0] host_mem_addr_sync[NUM_MACH][2];
+    // -2 for word-addressing; -1 because APW is top-exclusive
+    logic [APW-1 -2:0] host_mem_addr[NUM_MACH];
+    logic [31:0] host_mem_rdata_capture[NUM_MACH];
+
+    logic [31:0] host_mem_wdata_sync[NUM_MACH][2];
+    logic [31:0] host_mem_wdata[NUM_MACH];
+    // this one is shared by all on the read path
     logic [31:0] host_mem_rdata;
-    logic [3:0] host_mem_wr_en_decode;
 
     logic [31:0] ram_rd_data [NUM_MACH];
-
-    // apb<->imem
-    always_ff @(posedge aclk) begin
-        // cdc syncs
-        psel_sync[0] <= apbs.psel;
-        psel_sync[1] <= psel_sync[0];
-        pwrite_sync[0] <= apbs.pwrite;
-        pwrite_sync[1] <= pwrite_sync[0];
-        penable_sync[0] <= apbs.penable;
-        penable_sync[1] <= penable_sync[0];
-        host_mem_wdata_sync[0] <= apbs.pwdata;
-        host_mem_wdata_sync[1] <= host_mem_wdata_sync[0];
-        host_mem_addr_sync[0] <= apbs.paddr[APW-1:2]; // extract word-level address here
-        host_mem_addr_sync[1] <= host_mem_addr_sync[0];
-
-        host_mem_wr <= host_mem_wr_d;
-        host_mem_wr_stb[0] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b001);
-        host_mem_wr_stb[1] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b010);
-        host_mem_wr_stb[2] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b011);
-        host_mem_wr_stb[3] <= (host_mem_wr_d & !host_mem_wr) && ((host_mem_addr_sync[1][(APW-1-2):(APW-1-2)-3]) == 3'b111);
-        host_mem_addr <= host_mem_wr_d & !host_mem_wr ? host_mem_addr_sync[1][MEM_ADDR_BITS-1:0] : host_mem_addr;
-        host_mem_wdata <= host_mem_wr_d & !host_mem_wr ? host_mem_wdata_sync[1] : host_mem_wdata;
-
-        host_mem_rd <= host_mem_rd_d;
-        host_mem_rd_stb <= host_mem_rd_d & !host_mem_rd;
-
-        host_mem_rdata_capture <= (host_mem_rd_d & !host_mem_rd) ? ram_rd_data[0] : host_mem_rdata_capture;
-    end
-    // convert rdata to pclk domain
-    always_ff @(posedge pclk) begin
-        host_mem_rdata <= host_mem_rdata_capture;
-    end
-    // only assert when selected, and the high bit of the address range is set
-    always_comb begin
-        host_mem_rdata_pclk = apbs.psel & apbs.penable & ~apbs.pwrite & (apbs.paddr[12] == 1'b1) ? host_mem_rdata : '0;
-    end
 
     // machine stall signal
     generate
@@ -732,26 +704,6 @@ module bio_bdma #(
     endgenerate
 
     /////////////////////// repeated core units
-    always_comb begin
-        host_mem_wr_d = psel_sync[1] & pwrite_sync[1] & penable_sync[1];
-        host_mem_rd_d = psel_sync[1] & !pwrite_sync[1];
-        host_mem_wr_en_decode = 4'b0;
-        case (host_mem_addr_sync[1][APW-1:APW-3])
-            2'b00: begin
-                host_mem_wr_en_decode[0] = 1;
-            end
-            2'b01: begin
-                host_mem_wr_en_decode[1] = 1;
-            end
-            2'b10: begin
-                host_mem_wr_en_decode[2] = 1;
-            end
-            2'b11: begin
-                host_mem_wr_en_decode[3] = 1;
-            end
-        endcase
-    end
-
     `ifdef FPGA
         logic aclk_buf;
         // insert a BUFH to help with clock mux distribution
@@ -762,6 +714,47 @@ module bio_bdma #(
     `endif
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: mach
+            // apb<->imem
+            always_comb begin
+                host_mem_wr_d[j] = psel_sync[j][1] & pwrite_sync[j][1] & penable_sync[j][1];
+                host_mem_rd[j] = psel_sync[j][1] & !pwrite_sync[j][1] & penable_sync[j][1];
+                apbx_imem[j].pready = 1'b1;
+                apbx_imem[j].pslverr = 1'b0;
+                apbx_imem[j].prdata = host_mem_rdata;
+                // already synchronized below, just pass through
+                host_mem_addr[j] = host_mem_addr_sync[j][1][MEM_ADDR_BITS-1:0];
+            end
+
+            always_ff @(posedge aclk) begin
+                // cdc syncs
+                psel_sync[j][0] <= apbs_imem[j].psel;
+                psel_sync[j][1] <= psel_sync[j][0];
+                pwrite_sync[j][0] <= apbs_imem[j].pwrite;
+                pwrite_sync[j][1] <= pwrite_sync[j][0];
+                penable_sync[j][0] <= apbs_imem[j].penable;
+                penable_sync[j][1] <= penable_sync[j][0];
+
+                host_mem_wdata_sync[j][0] <= apbs_imem[j].pwdata;
+                host_mem_wdata_sync[j][1] <= host_mem_wdata_sync[j][0];
+
+                host_mem_addr_sync[j][0] <= apbs_imem[j].paddr[APW-1:2]; // extract word-level address here
+                host_mem_addr_sync[j][1] <= host_mem_addr_sync[j][0];
+
+                host_mem_wr[j] <= host_mem_wr_d[j];
+                host_mem_wr_stb[j] <= (host_mem_wr_d[j] & !host_mem_wr[j]);
+                host_mem_wdata[j] <= host_mem_wr_d[j] & !host_mem_wr[j] ? host_mem_wdata_sync[j][1] : host_mem_wdata[j];
+
+                host_mem_rdata_capture[j] <= ram_rd_data[j];
+            end
+            // give a full aclk to mux between the banks
+            // host_mem_rdata is in aclk -> which returns on pclk domain
+            // Somewhat fragile time: this circuit assumes aclk is >= 2x speed of pclk
+            always_ff @(posedge aclk) begin
+                if (host_mem_rd[j]) begin
+                    host_mem_rdata <= host_mem_rdata_capture[j];
+                end
+            end
+
             assign imem_wr_mode[j] = en_sync[j]; // when machine j is disabled, the host can use its port to read/write
             // mux between host and machines
             always_comb begin
@@ -777,8 +770,8 @@ module bio_bdma #(
                     // host can write & read; machine can't touch
                     ram_wr_en[j] = host_mem_wr_stb[j];
                     ram_wr_mask[j] = 4'b1111; // only full 32-bit writes are allowed, anything else is undefined
-                    ram_wr_data[j] = host_mem_wdata;
-                    ram_addr[j] = host_mem_addr;
+                    ram_wr_data[j] = host_mem_wdata[j];
+                    ram_addr[j] = host_mem_addr[j];
                 end
             end
 
@@ -797,7 +790,9 @@ module bio_bdma #(
                 .wr_n(~ram_wr_en[j]),
                 .addr(ram_addr[j]),
                 .wr_mask_n(~ram_wr_mask[j]),
-                .ce_n(0),
+                .ce_n(~(
+                    mem_la_write[j] || mem_la_read[j] // during run mode, make sure data does not move
+                    || (psel_sync[j][1] & ~imem_wr_mode[j]))), // during host mode, access whenever PSEL active
                 .d(ram_wr_data[j]),
                 .q(ram_rd_data[j]),
                 .cmbist(cmbist),
@@ -863,6 +858,7 @@ module bio_bdma #(
 	            .LATCHED_IRQ(32'h ffff_ffff),
 	            .PROGADDR_RESET(0),
 	            .PROGADDR_IRQ(32'h 0000_0010),
+                .PC_SIZE_BITS(PC_SIZE_BITS),
 	            .STACKADDR(MEM_SIZE_BYTES - 1)
             ) core
             (
@@ -902,6 +898,9 @@ module bio_bdma #(
                 .mem_la_addr(mem_la_addr[j]),
                 .mem_la_wdata(mem_la_wdata[j]),
                 .mem_la_wstrb(mem_la_wstrb[j]),
+
+                // custom pins
+                .dbg_pc(dbg_pc[j]),
 
                 // unused pins
                 .mem_valid(),
