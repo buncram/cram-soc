@@ -3,7 +3,8 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-// This is modeled on Single-Port High Density SRAM for 22ULL spec
+// This is modeled on Single-Port High Density Register File for 22ULL spec
+// Clock speed target = 800MHz, Min Cycle clk ~0.6ns @ typical
 module Ram_1rw_s #(
     parameter ramname = "undefined",
     parameter wordCount = 1024,
