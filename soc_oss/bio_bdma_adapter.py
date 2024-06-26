@@ -22,13 +22,18 @@ from litex.soc.interconnect.csr import *
 # AHB to APB to BIO --------------------------------------------------------------------------
 
 class BioBdmaAdapter(Module):
-    def __init__(self, platform, s_ahb, pads, irq, base = 0x12_8000,
-        address_width = 15, sim=False,
+    def __init__(self, platform, s_ahb, imem_ahb, pads, irq, base = 0x12_8000,
+        address_width = 12, sim=False,
     ):
         self.logger = logging.getLogger("BioAdapter")
 
         apb = APBInterface(address_width=address_width)
         self.submodules += AHB2APB(s_ahb, apb, base=base)
+
+        apb_imem = [None, None, None, None]
+        for i in range(4):
+            apb_imem[i] = APBInterface(address_width=address_width)
+            self.submodules += AHB2APB(imem_ahb[i], apb_imem[i], base=(base + 0x1000 * (i+1)))
 
         gpio_i = Signal(32)
         gpio_o = Signal(32)
@@ -217,6 +222,54 @@ class BioBdmaAdapter(Module):
             o_PRDATA               = apb.prdata,
             o_PREADY               = apb.pready,
             o_PSLVERR              = apb.pslverr,
+
+            i_IM0_PADDR                = apb_imem[0].paddr,
+            i_IM0_PENABLE              = apb_imem[0].penable,
+            i_IM0_PWRITE               = apb_imem[0].pwrite,
+            i_IM0_PSTRB                = apb_imem[0].pstrb,
+            i_IM0_PPROT                = apb_imem[0].pprot,
+            i_IM0_PWDATA               = apb_imem[0].pwdata,
+            i_IM0_PSEL                 = apb_imem[0].psel,
+            i_IM0_APBACTIVE            = apb_imem[0].pactive,
+            o_IM0_PRDATA               = apb_imem[0].prdata,
+            o_IM0_PREADY               = apb_imem[0].pready,
+            o_IM0_PSLVERR              = apb_imem[0].pslverr,
+
+            i_IM1_PADDR                = apb_imem[1].paddr,
+            i_IM1_PENABLE              = apb_imem[1].penable,
+            i_IM1_PWRITE               = apb_imem[1].pwrite,
+            i_IM1_PSTRB                = apb_imem[1].pstrb,
+            i_IM1_PPROT                = apb_imem[1].pprot,
+            i_IM1_PWDATA               = apb_imem[1].pwdata,
+            i_IM1_PSEL                 = apb_imem[1].psel,
+            i_IM1_APBACTIVE            = apb_imem[1].pactive,
+            o_IM1_PRDATA               = apb_imem[1].prdata,
+            o_IM1_PREADY               = apb_imem[1].pready,
+            o_IM1_PSLVERR              = apb_imem[1].pslverr,
+
+            i_IM2_PADDR                = apb_imem[2].paddr,
+            i_IM2_PENABLE              = apb_imem[2].penable,
+            i_IM2_PWRITE               = apb_imem[2].pwrite,
+            i_IM2_PSTRB                = apb_imem[2].pstrb,
+            i_IM2_PPROT                = apb_imem[2].pprot,
+            i_IM2_PWDATA               = apb_imem[2].pwdata,
+            i_IM2_PSEL                 = apb_imem[2].psel,
+            i_IM2_APBACTIVE            = apb_imem[2].pactive,
+            o_IM2_PRDATA               = apb_imem[2].prdata,
+            o_IM2_PREADY               = apb_imem[2].pready,
+            o_IM2_PSLVERR              = apb_imem[2].pslverr,
+
+            i_IM3_PADDR                = apb_imem[3].paddr,
+            i_IM3_PENABLE              = apb_imem[3].penable,
+            i_IM3_PWRITE               = apb_imem[3].pwrite,
+            i_IM3_PSTRB                = apb_imem[3].pstrb,
+            i_IM3_PPROT                = apb_imem[3].pprot,
+            i_IM3_PWDATA               = apb_imem[3].pwdata,
+            i_IM3_PSEL                 = apb_imem[3].psel,
+            i_IM3_APBACTIVE            = apb_imem[3].pactive,
+            o_IM3_PRDATA               = apb_imem[3].prdata,
+            o_IM3_PREADY               = apb_imem[3].pready,
+            o_IM3_PSLVERR              = apb_imem[3].pslverr,
 
             # gpio interfaces
             i_gpio_in              = gpio_i,
