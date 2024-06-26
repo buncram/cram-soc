@@ -30,9 +30,6 @@ always @(*) begin
     end
 end
 
-// just one character is needed for the ram print trigger
-assign kuart_to_cpu = 8'h72; // 'r'
-
 // This block waits for `done` to rise; then, it triggers an 'r' into the kernel
 // so that the RAM usage dump gets printed. Finally, the simulation termination
 // signal `kprint_done` is triggered when the '.' character is seen in the kernel log.
