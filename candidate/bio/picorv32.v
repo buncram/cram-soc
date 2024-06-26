@@ -86,6 +86,7 @@ module picorv32 #(
 	parameter [31:0] PROGADDR_RESET = 32'h 0000_0000,
 	parameter [31:0] PROGADDR_IRQ = 32'h 0000_0010,
 	parameter [31:0] STACKADDR = 32'h ffff_ffff,
+	parameter PC_SIZE_BITS = 32,
     parameter NUM_MACH = 4,
     parameter NUM_MACH_BITS = $clog2(NUM_MACH)
 ) (
@@ -153,6 +154,7 @@ module picorv32 #(
     input [NUM_MACH_BITS-1:0]    core_id,
     input [31 - NUM_MACH_BITS:0] clk_count,
 
+	output reg [PC_SIZE_BITS-1:0] dbg_pc,
 
 `ifdef RISCV_FORMAL
 	output reg        rvfi_valid,
@@ -1471,6 +1473,7 @@ module picorv32 #(
 		set_mem_do_rinst = 0;
 		set_mem_do_rdata = 0;
 		set_mem_do_wdata = 0;
+		dbg_pc <= reg_pc[PC_SIZE_BITS-1:0];
 
 		alu_out_0_q <= alu_out_0;
 		alu_out_q <= alu_out;
