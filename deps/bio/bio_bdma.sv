@@ -16,7 +16,8 @@ module bio_bdma #(
 )
 (
     input logic         aclk,
-    input logic         pclk,
+    input logic         pclk, // APB clock
+    input logic         hclk, // AHB clock
     input logic         reset_n,
     input logic         cmatpg, cmbist,
     input logic [2:0]   sramtrm,
@@ -30,6 +31,9 @@ module bio_bdma #(
     apbif.slavein       apbs_imem[4],
     apbif.slave         apbx_imem[4],
 
+   // above 0x6000_0000 (inclusive) go to this AXI interface on HCLK. The matrix is AXI-native.
+    AXI_BUS.Master      axim,
+    // below 0x6000_0000 go to this AHB interface on HCLK. The matrix is AHB-native.
 	ahbif.master        ahbm
 );
     localparam NUM_MACH = 4;
@@ -97,13 +101,13 @@ module bio_bdma #(
     logic [PC_SIZE_BITS-1:0]   dbg_pc[NUM_MACH];
 
     // Memory interfaces
-	// logic [NUM_MACH-1:0]       mem_valid;
-	// logic [NUM_MACH-1:0]       mem_instr;
+	logic [NUM_MACH-1:0]       mem_valid;
+	logic [NUM_MACH-1:0]       mem_instr;
 	logic [NUM_MACH-1:0]       mem_ready;
 
-	// logic [31:0] mem_addr   [NUM_MACH];
-	// logic [31:0] mem_wdata  [NUM_MACH];
-	// logic [ 3:0] mem_wstrb  [NUM_MACH];
+	logic [31:0] mem_addr     [NUM_MACH];
+	logic [31:0] mem_wdata    [NUM_MACH];
+	logic [ 3:0] mem_wstrb    [NUM_MACH];
 	logic [31:0] mem_rdata    [NUM_MACH];
 
 	// Look-Ahead Interface
@@ -112,6 +116,45 @@ module bio_bdma #(
 	logic [31:0] mem_la_addr  [NUM_MACH];
 	logic [31:0] mem_la_wdata [NUM_MACH];
 	logic [ 3:0] mem_la_wstrb [NUM_MACH];
+
+    // In theory, we could do some overlapping write-over-read with AHB and multiple cores
+    // owning different read//write ops, but I think it's not worth the complexity
+    // DMA signals in aclk domain
+    logic ext_addr                 [NUM_MACH];
+    logic merged_mem_ready         [NUM_MACH];
+	logic [31:0] merged_mem_rdata  [NUM_MACH];
+    logic [NUM_MACH-1:0] core_dma_ready;
+    logic dma_ready;
+    logic [1:0] mahb_ready_aclk;
+    logic [31:0] dma_rdata         [2]; // 2 stages to sync into aclk
+    logic [31:0] dma_addr;
+    logic [31:0] dma_wdata;
+    logic dma_write;
+    logic [NUM_MACH-1:0] dma_owner; // the lowest numbered core has priority if more than 1 bit is set
+    logic [0:0] dma_state;
+    logic [0:0] dma_next_state;
+    logic [0:0] dma_state_aclk [2];
+    logic [3:0] dma_wstrb;
+    logic [2:0] dma_size;
+    parameter DMA_STATE_IDLE =  1'b0;
+    parameter DMA_STATE_WAIT =  1'b1;
+    parameter AHB_HTRANS_IDLE = 2'b00;
+    parameter AHB_HTRANS_BUSY = 2'b01;
+    parameter AHB_HTRANS_NONSEQ = 2'b10;
+    parameter AHB_HTRANS_SEQ = 2'b11;
+    logic [1:0] dma_htrans;
+
+    // DMA signals to hclk domain
+    logic [NUM_MACH-1:0] dma_owner_hclk [2];
+    logic [3:0] dma_wstrb_hclk[2];
+    /*
+    logic [31:0] mahb_addr [2];
+    logic [31:0] mahb_wdata [2];
+    logic [1:0] mahb_htrans [2];
+    logic [1:0] mahb_hsel;
+    logic [1:0] mahb_write;
+    logic [2:0] mahb_hsize [2];
+    */
 
     // high register interfaces
     logic [31:0] mach_regfifo_rdata [NUM_MACH];
@@ -703,6 +746,168 @@ module bio_bdma #(
         end
     endgenerate
 
+    /////////////////////// DMA control FSM
+    always_ff @(posedge aclk) begin
+        if (~reset_n) begin
+            dma_owner <= '0;
+        end else begin
+            if (dma_owner == 4'b0) begin
+                if (mem_valid[0] & ext_addr[0]) begin
+                    dma_owner <= 4'b0001;
+                end else if (mem_valid[1] & ext_addr[1]) begin
+                    dma_owner <= 4'b0010;
+                end else if (mem_valid[2] & ext_addr[2]) begin
+                    dma_owner <= 4'b0100;
+                end else if (mem_valid[3] & ext_addr[3]) begin
+                    dma_owner <= 4'b1000;
+                end else begin
+                    dma_owner <= 4'b0000;
+                end
+            end else begin
+                if (dma_ready && (dma_state_aclk[0] == DMA_STATE_WAIT)) begin
+                    dma_owner <= 4'b0000;
+                end else begin
+                    dma_owner <= dma_owner;
+                end
+            end
+        end
+
+        // read synchronizer for data to aclk domain
+        dma_rdata[1] <= ahbm.hrdata;
+        dma_rdata[0] <= dma_rdata[1];
+        mahb_ready_aclk[1] <= ahbm.hready;
+        mahb_ready_aclk[0] <= mahb_ready_aclk[1];
+
+        dma_state_aclk[1] <= dma_state;
+        dma_state_aclk[0] <= dma_state_aclk[1];
+    end
+    assign dma_ready = mahb_ready_aclk[0];
+    always_comb begin // aclk combs
+        core_dma_ready = 0;
+        if ((dma_state_aclk[0] == DMA_STATE_WAIT) && dma_ready) begin
+            // dma_owner goes to 0 after 1 pulse
+            core_dma_ready = dma_owner;
+        end
+    end
+
+    always_ff @(posedge hclk) begin
+        // state reset & update
+        if (~reset_n) begin
+            dma_state <= DMA_STATE_IDLE;
+        end else begin
+            dma_state <= dma_next_state;
+        end
+
+        // control signal select
+        // dma_owner is an aclk signal, but it is guaranteed stable for 2 cycles prior to use
+        // it's also 1-hot encoded, which should help with metastability resistance
+        case (dma_owner)
+            4'b0001: begin
+                dma_addr <= mem_addr[0];
+                dma_wdata <= mem_wdata[0];
+                dma_wstrb <= mem_wstrb[0];
+            end
+            4'b0010: begin
+                dma_addr <= mem_addr[1];
+                dma_wdata <= mem_wdata[1];
+                dma_wstrb <= mem_wstrb[1];
+            end
+            4'b0100: begin
+                dma_addr <= mem_addr[2];
+                dma_wdata <= mem_wdata[2];
+                dma_wstrb <= mem_wstrb[2];
+            end
+            4'b1000: begin
+                dma_addr <= mem_addr[3];
+                dma_wdata <= mem_wdata[3];
+                dma_wstrb <= mem_wstrb[3];
+            end
+            default: begin
+                dma_addr <= '0;
+                dma_wdata <= '0;
+            end
+        endcase
+
+        /*
+        mahb_htrans[1] <= dma_htrans;
+        mahb_htrans[0] <= mahb_htrans[1];
+        mahb_addr[1] <= dma_addr;
+        mahb_addr[0] <= mahb_addr[1];
+        mahb_wdata[1] <= dma_wdata;
+        mahb_wdata[0] <= mahb_wdata[1];
+        mahb_hsel[1] <= dma_hsel;
+        mahb_hsel[0] <= mahb_hsel[1];
+        mahb_write[1] <= dma_write;
+        mahb_write[0] <= mahb_write[1];
+        mahb_hsize[1] <= dma_size;
+        mahb_hsize[0] <= mahb_hsize[1];
+        */
+        dma_owner_hclk[1] <= dma_owner;
+        dma_owner_hclk[0] <= dma_owner_hclk[1];
+        dma_wstrb_hclk[1] <= dma_wstrb;
+        dma_wstrb_hclk[0] <= dma_wstrb_hclk[0];
+    end
+
+    assign ahbm.hsel = 1;
+    assign ahbm.htrans = dma_htrans;
+    assign ahbm.hwrite = dma_write;
+    assign ahbm.haddr = dma_addr;
+    assign ahbm.hwdata = dma_wdata;
+    assign ahbm.hsize = dma_size;
+    assign ahbm.hburst = 3'b000;
+    assign ahbm.hmasterlock = '0;
+    assign ahbm.hmaster = '0;
+    assign ahbm.hprot = '0;
+
+    always_comb begin // hclk combs
+        dma_size = 3'b010;
+        case (dma_wstrb_hclk[0])
+            4'b0001: begin
+                dma_size = 3'b000;
+            end
+            4'b0011: begin
+                dma_size = 3'b001;
+            end
+            // TODO: see if there are other cases, maybe we have to add to the address to
+            // handle mis-aligned byte/word accesses...
+            default: begin
+                dma_size = 3'b010;
+            end
+        endcase
+        case (dma_state)
+            DMA_STATE_IDLE: begin
+                dma_write = 0;
+                dma_htrans = AHB_HTRANS_IDLE;
+                dma_state = DMA_STATE_IDLE;
+                if (dma_owner_hclk[0] != 0) begin
+                    if (dma_wstrb_hclk[0] == 0) begin
+                        dma_next_state = DMA_STATE_WAIT;
+                        dma_write = 0;
+                        dma_htrans = AHB_HTRANS_NONSEQ;
+                    end else begin
+                        dma_write = 1;
+                        dma_next_state = DMA_STATE_WAIT;
+                        dma_htrans = AHB_HTRANS_NONSEQ;
+                    end
+                end
+            end
+            DMA_STATE_WAIT: begin
+                dma_write = 0;
+                dma_htrans = AHB_HTRANS_IDLE;
+                if (ahbm.hready) begin
+                    dma_next_state = DMA_STATE_IDLE;
+                end else begin
+                    dma_next_state = DMA_STATE_WAIT;
+                end
+            end
+            default: begin
+                dma_write = 0;
+                dma_htrans = AHB_HTRANS_IDLE;
+                dma_next_state = DMA_STATE_IDLE;
+            end
+        endcase
+    end
+
     /////////////////////// repeated core units
     `ifdef FPGA
         logic aclk_buf;
@@ -773,6 +978,13 @@ module bio_bdma #(
                     ram_wr_data[j] = host_mem_wdata[j];
                     ram_addr[j] = host_mem_addr[j];
                 end
+            end
+
+            // DMA.
+            always_comb begin
+                ext_addr[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
+                merged_mem_ready[j] = ext_addr[j] ? core_dma_ready[j] : mem_ready[j];
+                merged_mem_rdata[j] = ext_addr[j] ? dma_rdata[0] : mem_rdata[j];
             end
 
             // Instruction Memory.
@@ -891,23 +1103,23 @@ module bio_bdma #(
                 .clk(core_clk[j]),
                 .resetn(reset_n & ~a_restart[j]),
                 .trap(trap[j]),
-                .mem_ready(mem_ready[j]),
-                .mem_rdata(mem_rdata[j]),
+                .mem_ready(merged_mem_ready[j]),
+                .mem_rdata(merged_mem_rdata[j]),
                 .mem_la_read(mem_la_read[j]),
                 .mem_la_write(mem_la_write[j]),
                 .mem_la_addr(mem_la_addr[j]),
                 .mem_la_wdata(mem_la_wdata[j]),
                 .mem_la_wstrb(mem_la_wstrb[j]),
+                .mem_valid(mem_valid[j]),
+                .mem_addr(mem_addr[j]),
+                .mem_wdata(mem_wdata[j]),
+                .mem_wstrb(mem_wstrb[j]),
+                .mem_instr(mem_instr[j]),
 
                 // custom pins
                 .dbg_pc(dbg_pc[j]),
 
                 // unused pins
-                .mem_valid(),
-                .mem_instr(),
-                .mem_addr(),
-                .mem_wdata(),
-                .mem_wstrb(),
                 .pcpi_valid(),
                 .pcpi_insn(),
                 .pcpi_rs1(),
@@ -920,6 +1132,15 @@ module bio_bdma #(
 	            .eoi(),
                 .trace_valid(),
                 .trace_data()
+            );
+            picorv32_axi_adapter prv_axil (
+	            .mem_valid(mem_valid[j]),
+	            .mem_instr(mem_instr[j]),
+	            .mem_ready(mem_ready[j]),
+	            .mem_addr(mem_addr[j]),
+	            .mem_wdata(mem_wdata[j]),
+	            .mem_wstrb(mem_wstrb[j]),
+	            .mem_rdata(mem_rdata[j])
             );
         end
     endgenerate
