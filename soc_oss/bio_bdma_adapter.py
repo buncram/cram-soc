@@ -22,7 +22,7 @@ from litex.soc.interconnect.csr import *
 # AHB to APB to BIO --------------------------------------------------------------------------
 
 class BioBdmaAdapter(Module):
-    def __init__(self, platform, s_ahb, imem_ahb, pads, irq, base = 0x12_8000,
+    def __init__(self, platform, s_ahb, imem_ahb, dma_ahb, dma_axi, pads, irq, base = 0x12_8000,
         address_width = 12, sim=False,
     ):
         self.logger = logging.getLogger("BioAdapter")
@@ -204,6 +204,7 @@ class BioBdmaAdapter(Module):
             # ----------
             i_fclk = ClockSignal("bio"),
             i_pclk = ClockSignal(),
+            i_hclk = ClockSignal("h_clk"),
             i_resetn = ~ResetSignal(),
             i_cmatpg = Open(),
             i_cmbist = Open(),
@@ -279,19 +280,19 @@ class BioBdmaAdapter(Module):
             # irq interfaces
             o_irq                  = irq,
 
-            # AHB Master interface
-            o_htrans               = Open(),         # Transfer type
-            o_hwrite               = Open(),         # Transfer direction
-            o_haddr                = Open(),         # Address bus
-            o_hsize                = Open(),         # Transfer size
-            o_hburst               = Open(),         # Burst type
-            o_hmasterlock          = Open(),         # Locked Sequence
-            o_hwdata               = Open(),         # Write data
+            # AHB Master interface (for peripheral range)
+            o_htrans               = dma_ahb.trans,         # Transfer type
+            o_hwrite               = dma_ahb.write,         # Transfer direction
+            o_haddr                = dma_ahb.addr,          # Address bus
+            o_hsize                = dma_ahb.size,          # Transfer size
+            o_hburst               = dma_ahb.burst,         # Burst type
+            o_hmasterlock          = dma_ahb.mastlock,      # Locked Sequence
+            o_hwdata               = dma_ahb.wdata,         # Write data
 
-            i_hrdata               = Open(),         # Read data bus
-            i_hready               = Open(),         # HREADY feedback
-            i_hresp                = Open(),         # Transfer response
-            i_hruser               = Open(),
+            i_hrdata               = dma_ahb.rdata,         # Read data bus
+            i_hready               = dma_ahb.readyout,      # HREADY feedback
+            i_hresp                = dma_ahb.resp,          # Transfer response
+            i_hruser               = 0,
 
             # AHB NC wires
             o_hsel                 = Open(),         # Slave Select
@@ -300,6 +301,57 @@ class BioBdmaAdapter(Module):
             i_hreadym              = Open(),         # Transfer done
             o_hauser               = Open(),
             o_hwuser               = Open(),
+
+            # AXI Master interface (for main memory range)
+            o_aw_id        = dma_axi.aw.id,
+            o_aw_addr      = dma_axi.aw.addr,
+            o_aw_len       = dma_axi.aw.len,
+            o_aw_size      = dma_axi.aw.size,
+            o_aw_burst     = dma_axi.aw.burst,
+            o_aw_lock      = dma_axi.aw.lock,
+            o_aw_cache     = dma_axi.aw.cache,
+            o_aw_prot      = dma_axi.aw.prot,
+            o_aw_qos       = dma_axi.aw.qos,
+            o_aw_region    = dma_axi.aw.region,
+            # o_aw_atop      = dma_axi.aw.atop,
+            o_aw_user      = dma_axi.aw.user,
+            o_aw_valid     = dma_axi.aw.valid,
+            i_aw_ready     = dma_axi.aw.ready,
+
+            o_w_data       = dma_axi.w.data   ,
+            o_w_strb       = dma_axi.w.strb   ,
+            o_w_last       = dma_axi.w.last   ,
+            o_w_user       = dma_axi.w.user   ,
+            o_w_valid      = dma_axi.w.valid  ,
+            i_w_ready      = dma_axi.w.ready  ,
+
+            i_b_id         = dma_axi.b.id     ,
+            i_b_resp       = dma_axi.b.resp   ,
+            i_b_user       = dma_axi.b.user   ,
+            i_b_valid      = dma_axi.b.valid  ,
+            o_b_ready      = dma_axi.b.ready  ,
+
+            o_ar_id        = dma_axi.ar.id    ,
+            o_ar_addr      = dma_axi.ar.addr  ,
+            o_ar_len       = dma_axi.ar.len   ,
+            o_ar_size      = dma_axi.ar.size  ,
+            o_ar_burst     = dma_axi.ar.burst ,
+            o_ar_lock      = dma_axi.ar.lock  ,
+            o_ar_cache     = dma_axi.ar.cache ,
+            o_ar_prot      = dma_axi.ar.prot  ,
+            o_ar_qos       = dma_axi.ar.qos   ,
+            o_ar_region    = dma_axi.ar.region,
+            o_ar_user      = dma_axi.ar.user  ,
+            o_ar_valid     = dma_axi.ar.valid ,
+            i_ar_ready     = dma_axi.ar.ready ,
+
+            i_r_id         = dma_axi.r.id     ,
+            i_r_data       = dma_axi.r.data   ,
+            i_r_resp       = dma_axi.r.resp   ,
+            i_r_last       = dma_axi.r.last   ,
+            i_r_user       = dma_axi.r.user   ,
+            i_r_valid      = dma_axi.r.valid  ,
+            o_r_ready      = dma_axi.r.ready  ,
         )
 
         # Add Sources.
@@ -314,6 +366,32 @@ class BioBdmaAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
         # platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "icg_v0.2.v"))
+        platform.add_source(os.path.join(rtl_dir, "axi_intf.sv"))
+        platform.add_source(os.path.join(rtl_dir, "daric_cfg_sim_v0.1.sv"))
+        # platform.add_source(os.path.join(rtl_dir, "axi_pkg.sv")) # as `include already
+        # crossbar sources
+        if False:
+            platform.add_source(os.path.join(rtl_dir, "arbiter.v"))
+            platform.add_source(os.path.join(rtl_dir, "priority_encoder.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_register_wr.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_register_rd.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_crossbar.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_crossbar_wr.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_crossbar_rd.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_crossbar_addr.v"))
+        # cdc sources
+        if False:
+            platform.add_source(os.path.join(rtl_dir, "axil_cdc_wr.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_cdc_rd.v"))
+            platform.add_source(os.path.join(rtl_dir, "axil_cdc.v"))
+        # axi2ahb sources
+        if False:
+            platform.add_source(os.path.join(rtl_dir, "axi2ahb.v"))
+            platform.add_source(os.path.join(rtl_dir, "axi2ahb_cmd.v"))
+            platform.add_source(os.path.join(rtl_dir, "axi2ahb_ctrl.v"))
+            platform.add_source(os.path.join(rtl_dir, "axi2ahb_rd_fifo.v"))
+            platform.add_source(os.path.join(rtl_dir, "axi2ahb_wr_fifo.v"))
+            platform.add_source(os.path.join(rtl_dir, "prgen_fifo.v"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "bio")
         platform.add_source(os.path.join(rtl_dir, "bio_bdma_wrapper.sv"))
