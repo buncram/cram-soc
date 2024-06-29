@@ -39,6 +39,25 @@ cp ../deps/verilog-axi/rtl/axi_adapter_wr.v .
 cp ../deps/verilog-axi/rtl/axi_adapter_rd.v .
 cp ../deps/verilog-axi/rtl/axi_adapter.v .
 
+# used by BIO
+cp ../deps/verilog-axi/rtl/axil_crossbar.v .
+cp ../deps/verilog-axi/rtl/axil_crossbar_addr.v .
+cp ../deps/verilog-axi/rtl/axil_crossbar_rd.v .
+cp ../deps/verilog-axi/rtl/axil_crossbar_wr.v .
+cp ../deps/verilog-axi/rtl/axil_register_wr.v .
+cp ../deps/verilog-axi/rtl/axil_register_rd.v .
+cp ../deps/verilog-axi/rtl/axil_cdc.v .
+cp ../deps/verilog-axi/rtl/axil_wr.v .
+cp ../deps/verilog-axi/rtl/axil_rd.v .
+
+# used by BIO; maybe substitute with CM7 HDK option if performance is better
+cp ../deps/bio/soc/axi2ahb.v .
+cp ../deps/bio/soc/axi2ahb_cmd.v .
+cp ../deps/bio/soc/axi2ahb_ctrl.v .
+cp ../deps/bio/soc/axi2ahb_rd_fifo.v .
+cp ../deps/bio/soc/axi2ahb_wr_fifo.v .
+cp ../deps/bio/soc/prgen_fifo.v .
+
 # copy over PIO rtl models
 rm -rf pio/*
 cp ../deps/pio/upstream/src/*.v pio/
