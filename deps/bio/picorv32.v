@@ -2827,6 +2827,8 @@ module picorv32_axi_adapter (
 
 	input         mem_valid,
 	input         mem_instr,
+	input         mem_la_read,
+	input         mem_la_write,
 	output        mem_ready,
 	input  [31:0] mem_addr,
 	input  [31:0] mem_wdata,
@@ -2837,6 +2839,7 @@ module picorv32_axi_adapter (
 	reg ack_arvalid;
 	reg ack_wvalid;
 	reg xfer_done;
+	reg write_or_read_n;
 
 	assign mem_axi_awvalid = mem_valid && |mem_wstrb && !ack_awvalid;
 	assign mem_axi_awaddr = mem_addr;
@@ -2850,12 +2853,24 @@ module picorv32_axi_adapter (
 	assign mem_axi_wdata = mem_wdata;
 	assign mem_axi_wstrb = mem_wstrb;
 
-	assign mem_ready = mem_axi_bvalid || mem_axi_rvalid;
+	assign mem_ready = write_or_read_n && mem_axi_bvalid || !write_or_read_n && mem_axi_rvalid;
 	assign mem_axi_bready = mem_valid && |mem_wstrb;
 	assign mem_axi_rready = mem_valid && !mem_wstrb;
 	assign mem_rdata = mem_axi_rdata;
 
 	always @(posedge clk) begin
+		if (!resetn) begin
+			write_or_read_n <= 0;
+		end else begin
+			if (mem_la_read) begin
+				write_or_read_n <= 0;
+			end else if (mem_la_write) begin
+				write_or_read_n <= 1;
+			end else begin
+				write_or_read_n <= write_or_read_n;
+			end
+		end
+
 		if (!resetn) begin
 			ack_awvalid <= 0;
 		end else begin

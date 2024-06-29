@@ -3,9 +3,11 @@
 `include "apb_sfr_v0.1.sv"
 `endif
 
+`include "soc/axi_pkg.sv"
+
 // TODO:
-// [ ] HCLK-ACLK synchronizers for data transfer
-// [ ] Read/write pipelined connectors for PicoRV to AHB bus
+//   - IRQs for DMA
+//   - Split FIFO endpoints across pages
 
 // `define FPGA 1
 
@@ -124,37 +126,41 @@ module bio_bdma #(
     logic merged_mem_ready         [NUM_MACH];
 	logic [31:0] merged_mem_rdata  [NUM_MACH];
     logic [NUM_MACH-1:0] core_dma_ready;
+    logic [1:0] dma_owner;
+    logic dma_active;
     logic dma_ready;
-    logic [1:0] mahb_ready_aclk;
-    logic [31:0] dma_rdata         [2]; // 2 stages to sync into aclk
+    logic [31:0] dma_rdata;
     logic [31:0] dma_addr;
     logic [31:0] dma_wdata;
     logic dma_write;
-    logic [NUM_MACH-1:0] dma_owner; // the lowest numbered core has priority if more than 1 bit is set
-    logic [0:0] dma_state;
-    logic [0:0] dma_next_state;
     logic [0:0] dma_state_aclk [2];
     logic [3:0] dma_wstrb;
     logic [2:0] dma_size;
-    parameter DMA_STATE_IDLE =  1'b0;
-    parameter DMA_STATE_WAIT =  1'b1;
-    parameter AHB_HTRANS_IDLE = 2'b00;
-    parameter AHB_HTRANS_BUSY = 2'b01;
-    parameter AHB_HTRANS_NONSEQ = 2'b10;
-    parameter AHB_HTRANS_SEQ = 2'b11;
     logic [1:0] dma_htrans;
 
-    // DMA signals to hclk domain
-    logic [NUM_MACH-1:0] dma_owner_hclk [2];
-    logic [3:0] dma_wstrb_hclk[2];
-    /*
-    logic [31:0] mahb_addr [2];
-    logic [31:0] mahb_wdata [2];
-    logic [1:0] mahb_htrans [2];
-    logic [1:0] mahb_hsel;
-    logic [1:0] mahb_write;
-    logic [2:0] mahb_hsize [2];
-    */
+    // core AXI-lite endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) core_axil();
+
+    // memory demux endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) mem_axil();
+
+    // peripheral demux endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) peri_axil();
+
+    // peripheral clock domain crossing endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) peri_cdc_axil();
 
     // high register interfaces
     logic [31:0] mach_regfifo_rdata [NUM_MACH];
@@ -750,163 +756,295 @@ module bio_bdma #(
     always_ff @(posedge aclk) begin
         if (~reset_n) begin
             dma_owner <= '0;
+            dma_active <= '0;
         end else begin
-            if (dma_owner == 4'b0) begin
-                if (mem_valid[0] & ext_addr[0]) begin
-                    dma_owner <= 4'b0001;
-                end else if (mem_valid[1] & ext_addr[1]) begin
-                    dma_owner <= 4'b0010;
-                end else if (mem_valid[2] & ext_addr[2]) begin
-                    dma_owner <= 4'b0100;
-                end else if (mem_valid[3] & ext_addr[3]) begin
-                    dma_owner <= 4'b1000;
-                end else begin
-                    dma_owner <= 4'b0000;
+            if (dma_active == 0) begin
+                if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[0]) begin
+                    dma_owner <= 2'h0;
+                    dma_active <= 1;
+                end else if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[1]) begin
+                    dma_owner <= 2'h1;
+                    dma_active <= 1;
+                end else if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[2]) begin
+                    dma_owner <= 2'h2;
+                    dma_active <= 1;
+                end else if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[3]) begin
+                    dma_owner <= 2'h3;
+                    dma_active <= 1;
+                /* end else begin
+                    dma_owner <= '0;
+                    dma_active <= 0;
+                    */
                 end
             end else begin
-                if (dma_ready && (dma_state_aclk[0] == DMA_STATE_WAIT)) begin
-                    dma_owner <= 4'b0000;
+                if (dma_ready) begin
+                    dma_owner <= '0;
+                    dma_active <= 0;
                 end else begin
                     dma_owner <= dma_owner;
+                    dma_active <= dma_active;
                 end
             end
         end
-
-        // read synchronizer for data to aclk domain
-        dma_rdata[1] <= ahbm.hrdata;
-        dma_rdata[0] <= dma_rdata[1];
-        mahb_ready_aclk[1] <= ahbm.hready;
-        mahb_ready_aclk[0] <= mahb_ready_aclk[1];
-
-        dma_state_aclk[1] <= dma_state;
-        dma_state_aclk[0] <= dma_state_aclk[1];
-    end
-    assign dma_ready = mahb_ready_aclk[0];
-    always_comb begin // aclk combs
-        core_dma_ready = 0;
-        if ((dma_state_aclk[0] == DMA_STATE_WAIT) && dma_ready) begin
-            // dma_owner goes to 0 after 1 pulse
-            core_dma_ready = dma_owner;
-        end
     end
 
-    always_ff @(posedge hclk) begin
-        // state reset & update
-        if (~reset_n) begin
-            dma_state <= DMA_STATE_IDLE;
-        end else begin
-            dma_state <= dma_next_state;
-        end
+    /////////////////////// Demux & CDC of datapath for each CPU
+    // convert interface to AXIL
+    picorv32_axi_adapter prv_axil (
+        .clk(aclk),
+        .resetn(reset_n),
 
-        // control signal select
-        // dma_owner is an aclk signal, but it is guaranteed stable for 2 cycles prior to use
-        // it's also 1-hot encoded, which should help with metastability resistance
-        case (dma_owner)
-            4'b0001: begin
-                dma_addr <= mem_addr[0];
-                dma_wdata <= mem_wdata[0];
-                dma_wstrb <= mem_wstrb[0];
-            end
-            4'b0010: begin
-                dma_addr <= mem_addr[1];
-                dma_wdata <= mem_wdata[1];
-                dma_wstrb <= mem_wstrb[1];
-            end
-            4'b0100: begin
-                dma_addr <= mem_addr[2];
-                dma_wdata <= mem_wdata[2];
-                dma_wstrb <= mem_wstrb[2];
-            end
-            4'b1000: begin
-                dma_addr <= mem_addr[3];
-                dma_wdata <= mem_wdata[3];
-                dma_wstrb <= mem_wstrb[3];
-            end
-            default: begin
-                dma_addr <= '0;
-                dma_wdata <= '0;
-            end
-        endcase
+        // AXI4-lite master memory interface
+        .mem_axi_awvalid(core_axil.aw_valid),
+        .mem_axi_awready(core_axil.aw_ready),
+        .mem_axi_awaddr(core_axil.aw_addr),
+        .mem_axi_awprot(core_axil.aw_prot),
 
-        /*
-        mahb_htrans[1] <= dma_htrans;
-        mahb_htrans[0] <= mahb_htrans[1];
-        mahb_addr[1] <= dma_addr;
-        mahb_addr[0] <= mahb_addr[1];
-        mahb_wdata[1] <= dma_wdata;
-        mahb_wdata[0] <= mahb_wdata[1];
-        mahb_hsel[1] <= dma_hsel;
-        mahb_hsel[0] <= mahb_hsel[1];
-        mahb_write[1] <= dma_write;
-        mahb_write[0] <= mahb_write[1];
-        mahb_hsize[1] <= dma_size;
-        mahb_hsize[0] <= mahb_hsize[1];
-        */
-        dma_owner_hclk[1] <= dma_owner;
-        dma_owner_hclk[0] <= dma_owner_hclk[1];
-        dma_wstrb_hclk[1] <= dma_wstrb;
-        dma_wstrb_hclk[0] <= dma_wstrb_hclk[0];
-    end
+        .mem_axi_wvalid(core_axil.w_valid),
+        .mem_axi_wready(core_axil.w_ready),
+        .mem_axi_wdata(core_axil.w_data),
+        .mem_axi_wstrb(core_axil.w_strb),
 
-    assign ahbm.hsel = 1;
-    assign ahbm.htrans = dma_htrans;
-    assign ahbm.hwrite = dma_write;
-    assign ahbm.haddr = dma_addr;
-    assign ahbm.hwdata = dma_wdata;
-    assign ahbm.hsize = dma_size;
-    assign ahbm.hburst = 3'b000;
-    assign ahbm.hmasterlock = '0;
-    assign ahbm.hmaster = '0;
-    assign ahbm.hprot = '0;
+        .mem_axi_bvalid(core_axil.b_valid),
+        .mem_axi_bready(core_axil.b_ready),
 
-    always_comb begin // hclk combs
-        dma_size = 3'b010;
-        case (dma_wstrb_hclk[0])
-            4'b0001: begin
-                dma_size = 3'b000;
-            end
-            4'b0011: begin
-                dma_size = 3'b001;
-            end
-            // TODO: see if there are other cases, maybe we have to add to the address to
-            // handle mis-aligned byte/word accesses...
-            default: begin
-                dma_size = 3'b010;
-            end
-        endcase
-        case (dma_state)
-            DMA_STATE_IDLE: begin
-                dma_write = 0;
-                dma_htrans = AHB_HTRANS_IDLE;
-                dma_state = DMA_STATE_IDLE;
-                if (dma_owner_hclk[0] != 0) begin
-                    if (dma_wstrb_hclk[0] == 0) begin
-                        dma_next_state = DMA_STATE_WAIT;
-                        dma_write = 0;
-                        dma_htrans = AHB_HTRANS_NONSEQ;
-                    end else begin
-                        dma_write = 1;
-                        dma_next_state = DMA_STATE_WAIT;
-                        dma_htrans = AHB_HTRANS_NONSEQ;
-                    end
-                end
-            end
-            DMA_STATE_WAIT: begin
-                dma_write = 0;
-                dma_htrans = AHB_HTRANS_IDLE;
-                if (ahbm.hready) begin
-                    dma_next_state = DMA_STATE_IDLE;
-                end else begin
-                    dma_next_state = DMA_STATE_WAIT;
-                end
-            end
-            default: begin
-                dma_write = 0;
-                dma_htrans = AHB_HTRANS_IDLE;
-                dma_next_state = DMA_STATE_IDLE;
-            end
-        endcase
-    end
+        .mem_axi_arvalid(core_axil.ar_valid),
+        .mem_axi_arready(core_axil.ar_ready),
+        .mem_axi_araddr(core_axil.ar_addr),
+        .mem_axi_arprot(core_axil.ar_prot),
+
+        .mem_axi_rvalid(core_axil.r_valid),
+        .mem_axi_rready(core_axil.r_ready),
+        .mem_axi_rdata(core_axil.r_data),
+
+        .mem_la_read(mem_la_read[dma_owner]),
+        .mem_la_write(mem_la_write[dma_owner]),
+        .mem_valid(mem_valid[dma_owner] & dma_active),
+        .mem_instr(mem_instr[dma_owner]),
+        .mem_ready(dma_ready),
+        .mem_addr(mem_addr[dma_owner]),
+        .mem_wdata(mem_wdata[dma_owner]),
+        .mem_wstrb(mem_wstrb[dma_owner]),
+        .mem_rdata(dma_rdata)
+    );
+    // axilthru_pulp core_thru(core_axil, core_axil);
+    // AXIL crossbar to demux address space further
+    axil_crossbar #(
+        .S_COUNT(1),
+        .M_COUNT(2),
+        .M_BASE_ADDR({32'h6000_0000,32'h4000_0000}),
+        .M_ADDR_WIDTH({32'd29,32'd29}),
+    ) axil_demux (
+        .clk(aclk),
+        .rst(~reset_n),
+        .s_axil_awaddr(core_axil.aw_addr),
+        .s_axil_awprot(core_axil.aw_prot),
+        .s_axil_awvalid(core_axil.aw_valid),
+        .s_axil_awready(core_axil.aw_ready),
+        .s_axil_wdata(core_axil.w_data),
+        .s_axil_wstrb(core_axil.w_strb),
+        .s_axil_wvalid(core_axil.w_valid),
+        .s_axil_wready(core_axil.w_ready),
+        .s_axil_bresp(core_axil.b_resp),
+        .s_axil_bvalid(core_axil.b_valid),
+        .s_axil_bready(core_axil.b_ready),
+        .s_axil_araddr(core_axil.ar_addr),
+        .s_axil_arprot(core_axil.ar_prot),
+        .s_axil_arvalid(core_axil.ar_valid),
+        .s_axil_arready(core_axil.ar_ready),
+        .s_axil_rdata(core_axil.r_data),
+        .s_axil_rresp(core_axil.r_resp),
+        .s_axil_rvalid(core_axil.r_valid),
+        .s_axil_rready(core_axil.r_ready),
+
+        .m_axil_awaddr({mem_axil.aw_addr, peri_axil.aw_addr}),
+        .m_axil_awprot({mem_axil.aw_prot, peri_axil.aw_prot}),
+        .m_axil_awvalid({mem_axil.aw_valid, peri_axil.aw_valid}),
+        .m_axil_awready({mem_axil.aw_ready, peri_axil.aw_ready}),
+        .m_axil_wdata({mem_axil.w_data, peri_axil.w_data}),
+        .m_axil_wstrb({mem_axil.w_strb, peri_axil.w_strb}),
+        .m_axil_wvalid({mem_axil.w_valid, peri_axil.w_valid}),
+        .m_axil_wready({mem_axil.w_ready, peri_axil.w_ready}),
+        .m_axil_bresp({mem_axil.b_resp, peri_axil.b_resp}),
+        .m_axil_bvalid({mem_axil.b_valid, peri_axil.b_valid}),
+        .m_axil_bready({mem_axil.b_ready, peri_axil.b_ready}),
+        .m_axil_araddr({mem_axil.ar_addr, peri_axil.ar_addr}),
+        .m_axil_arprot({mem_axil.ar_prot, peri_axil.ar_prot}),
+        .m_axil_arvalid({mem_axil.ar_valid, peri_axil.ar_valid}),
+        .m_axil_arready({mem_axil.ar_ready, peri_axil.ar_ready}),
+        .m_axil_rdata({mem_axil.r_data, peri_axil.r_data}),
+        .m_axil_rresp({mem_axil.r_resp, peri_axil.r_resp}),
+        .m_axil_rvalid({mem_axil.r_valid, peri_axil.r_valid}),
+        .m_axil_rready({mem_axil.r_ready, peri_axil.r_ready})
+    );
+
+    axil_cdc #(
+        .DATA_WIDTH(32),
+        .ADDR_WIDTH(32)
+    ) mem_cdc (
+        .s_clk(aclk),
+        .s_rst(~reset_n),
+        .s_axil_awaddr(mem_axil.aw_addr),
+        .s_axil_awprot(mem_axil.aw_prot),
+        .s_axil_awvalid(mem_axil.aw_valid),
+        .s_axil_awready(mem_axil.aw_ready),
+        .s_axil_wdata(mem_axil.w_data),
+        .s_axil_wstrb(mem_axil.w_strb),
+        .s_axil_wvalid(mem_axil.w_valid),
+        .s_axil_wready(mem_axil.w_ready),
+        .s_axil_bresp(mem_axil.b_resp),
+        .s_axil_bvalid(mem_axil.b_valid),
+        .s_axil_bready(mem_axil.b_ready),
+        .s_axil_araddr(mem_axil.ar_addr),
+        .s_axil_arprot(mem_axil.ar_prot),
+        .s_axil_arvalid(mem_axil.ar_valid),
+        .s_axil_arready(mem_axil.ar_ready),
+        .s_axil_rdata(mem_axil.r_data),
+        .s_axil_rresp(mem_axil.r_resp),
+        .s_axil_rvalid(mem_axil.r_valid),
+        .s_axil_rready(mem_axil.r_ready),
+
+        .m_clk(hclk),
+        .m_rst(~reset_n),
+        .m_axil_awaddr(axim.aw_addr),
+        .m_axil_awprot(axim.aw_prot),
+        .m_axil_awvalid(axim.aw_valid),
+        .m_axil_awready(axim.aw_ready),
+        .m_axil_wdata(axim.w_data),
+        .m_axil_wstrb(axim.w_strb),
+        .m_axil_wvalid(axim.w_valid),
+        .m_axil_wready(axim.w_ready),
+        .m_axil_bresp(axim.b_resp),
+        .m_axil_bvalid(axim.b_valid),
+        .m_axil_bready(axim.b_ready),
+        .m_axil_araddr(axim.ar_addr),
+        .m_axil_arprot(axim.ar_prot),
+        .m_axil_arvalid(axim.ar_valid),
+        .m_axil_arready(axim.ar_ready),
+        .m_axil_rdata(axim.r_data),
+        .m_axil_rresp(axim.r_resp),
+        .m_axil_rvalid(axim.r_valid),
+        .m_axil_rready(axim.r_ready)
+    );
+    // tie off AXI-master signals not driven by AXI-Lite
+    assign axim.aw_id = daric_cfg::AMBAID4_MDMA;
+    assign axim.aw_len = '0;
+    assign axim.aw_size = 2;  // size = 4 bytes
+    assign axim.aw_burst = 0; // fixed burst
+    assign axim.aw_lock = '0;
+    assign axim.aw_cache = '0;
+    assign axim.aw_prot = 2;
+    assign axim.aw_qos = '0;
+    assign axim.aw_region = '0;
+    assign axim.aw_atop = '0;
+    assign axim.aw_user = '0;
+    assign axim.w_last = '1;
+    assign axim.w_user = '0;
+    assign axim.ar_id = daric_cfg::AMBAID4_MDMA;
+    assign axim.ar_len = '0;
+    assign axim.ar_size = 2; // size = 4 bytes
+    assign axim.ar_burst = 0; // fixed burst
+    assign axim.ar_lock = '0;
+    assign axim.ar_cache = '0;
+    assign axim.ar_prot = 2;
+    assign axim.ar_qos = '0;
+    assign axim.ar_region = '0;
+    assign axim.ar_user = '0;
+
+    axil_cdc #(
+        .DATA_WIDTH(32),
+        .ADDR_WIDTH(32)
+    ) peri_cdc (
+        .s_clk(aclk),
+        .s_rst(~reset_n),
+        .s_axil_awaddr(peri_axil.aw_addr),
+        .s_axil_awprot(peri_axil.aw_prot),
+        .s_axil_awvalid(peri_axil.aw_valid),
+        .s_axil_awready(peri_axil.aw_ready),
+        .s_axil_wdata(peri_axil.w_data),
+        .s_axil_wstrb(peri_axil.w_strb),
+        .s_axil_wvalid(peri_axil.w_valid),
+        .s_axil_wready(peri_axil.w_ready),
+        .s_axil_bresp(peri_axil.b_resp),
+        .s_axil_bvalid(peri_axil.b_valid),
+        .s_axil_bready(peri_axil.b_ready),
+        .s_axil_araddr(peri_axil.ar_addr),
+        .s_axil_arprot(peri_axil.ar_prot),
+        .s_axil_arvalid(peri_axil.ar_valid),
+        .s_axil_arready(peri_axil.ar_ready),
+        .s_axil_rdata(peri_axil.r_data),
+        .s_axil_rresp(peri_axil.r_resp),
+        .s_axil_rvalid(peri_axil.r_valid),
+        .s_axil_rready(peri_axil.r_ready),
+
+        .m_clk(hclk),
+        .m_rst(~reset_n),
+        .m_axil_awaddr(peri_cdc_axil.aw_addr),
+        .m_axil_awprot(peri_cdc_axil.aw_prot),
+        .m_axil_awvalid(peri_cdc_axil.aw_valid),
+        .m_axil_awready(peri_cdc_axil.aw_ready),
+        .m_axil_wdata(peri_cdc_axil.w_data),
+        .m_axil_wstrb(peri_cdc_axil.w_strb),
+        .m_axil_wvalid(peri_cdc_axil.w_valid),
+        .m_axil_wready(peri_cdc_axil.w_ready),
+        .m_axil_bresp(peri_cdc_axil.b_resp),
+        .m_axil_bvalid(peri_cdc_axil.b_valid),
+        .m_axil_bready(peri_cdc_axil.b_ready),
+        .m_axil_araddr(peri_cdc_axil.ar_addr),
+        .m_axil_arprot(peri_cdc_axil.ar_prot),
+        .m_axil_arvalid(peri_cdc_axil.ar_valid),
+        .m_axil_arready(peri_cdc_axil.ar_ready),
+        .m_axil_rdata(peri_cdc_axil.r_data),
+        .m_axil_rresp(peri_cdc_axil.r_resp),
+        .m_axil_rvalid(peri_cdc_axil.r_valid),
+        .m_axil_rready(peri_cdc_axil.r_ready)
+    );
+
+    // AXIL->AHB bridge for peripheral bus
+    axi2ahb peri_axi2ahb(
+        .clk(hclk),
+        .reset(~reset_n),
+        .AWID('0),
+        .AWADDR(peri_cdc_axil.aw_addr),
+        .AWLEN('0),
+        .AWSIZE('0),
+        .AWVALID(peri_cdc_axil.aw_valid),
+        .AWREADY(peri_cdc_axil.aw_ready),
+        .WID('0),
+        .WDATA(peri_cdc_axil.w_data),
+        .WSTRB(peri_cdc_axil.w_strb),
+        .WLAST('1),
+        .WVALID(peri_cdc_axil.w_valid),
+        .WREADY(peri_cdc_axil.w_ready),
+        // .BID('0),
+        .BRESP(peri_cdc_axil.b_resp),
+        .BVALID(peri_cdc_axil.b_valid),
+        .BREADY(peri_cdc_axil.b_ready),
+        .ARID('0),
+        .ARADDR(peri_cdc_axil.ar_addr),
+        .ARLEN('0),
+        .ARSIZE('0),
+        .ARVALID(peri_cdc_axil.ar_valid),
+        .ARREADY(peri_cdc_axil.ar_ready),
+        // .RID('0),
+        .RDATA(peri_cdc_axil.r_data),
+        .RRESP(peri_cdc_axil.r_resp),
+        // .RLAST(peri_cdc_axil.),
+        .RVALID(peri_cdc_axil.r_valid),
+        .RREADY(peri_cdc_axil.r_ready),
+
+        .HADDR(ahbm.haddr),
+        .HBURST(ahbm.hburst),
+        .HSIZE(ahbm.hsize),
+        .HTRANS(ahbm.htrans),
+        .HWRITE(ahbm.hwrite),
+        .HWDATA(ahbm.hwdata),
+        .HRDATA(ahbm.hrdata),
+        .HREADY(ahbm.hready),
+        .HRESP(ahbm.hresp)
+    );
+    // tie off unused pins
+    assign ahbm.hsel = '1;
 
     /////////////////////// repeated core units
     `ifdef FPGA
@@ -983,8 +1121,8 @@ module bio_bdma #(
             // DMA.
             always_comb begin
                 ext_addr[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
-                merged_mem_ready[j] = ext_addr[j] ? core_dma_ready[j] : mem_ready[j];
-                merged_mem_rdata[j] = ext_addr[j] ? dma_rdata[0] : mem_rdata[j];
+                merged_mem_ready[j] = ext_addr[j] ? dma_ready : mem_ready[j];
+                merged_mem_rdata[j] = ext_addr[j] ? dma_rdata : mem_rdata[j];
             end
 
             // Instruction Memory.
@@ -1132,15 +1270,6 @@ module bio_bdma #(
 	            .eoi(),
                 .trace_valid(),
                 .trace_data()
-            );
-            picorv32_axi_adapter prv_axil (
-	            .mem_valid(mem_valid[j]),
-	            .mem_instr(mem_instr[j]),
-	            .mem_ready(mem_ready[j]),
-	            .mem_addr(mem_addr[j]),
-	            .mem_wdata(mem_wdata[j]),
-	            .mem_wstrb(mem_wstrb[j]),
-	            .mem_rdata(mem_rdata[j])
             );
         end
     endgenerate
@@ -1644,4 +1773,36 @@ module apb_asr
             .apbwr       (               )
          );
     `theregfull(pclk, resetn, ar, '0) <= sfrapbrd;
+endmodule
+
+module axilthru_pulp (
+    AXI_LITE.Slave  axis,
+    AXI_LITE.Master  axim
+);
+
+/*  addr_t           */ assign axim.aw_addr     = axis.aw_addr     ; // axis.awaddr   ;
+/*  logic            */ assign axim.aw_valid    = axis.aw_valid    ; // axis.awvalid  ;
+/*  axi_pkg::prot_t  */ assign axim.aw_prot     = axis.aw_prot     ; // axis.awprot   ;
+
+/*  data_t           */ assign axim.w_data      = axis.w_data      ; //axis.wdata    ;
+/*  strb_t           */ assign axim.w_strb      = axis.w_strb      ; //axis.wstrb    ;
+/*  logic            */ assign axim.w_valid     = axis.w_valid     ; //axis.wvalid   ;
+
+/*  addr_t           */ assign axim.ar_addr     = axis.ar_addr     ; //axis.araddr    ;
+/*  logic            */ assign axim.ar_valid    = axis.ar_valid    ; //axis.arvalid   ;
+/*  axi_pkg::prot_t  */ assign axim.ar_prot     = axis.ar_prot     ; //axis.arprot    ;
+
+/*  logic            */ assign axim.b_ready     = axis.b_ready    ;
+/*  logic            */ assign axim.r_ready     = axis.r_ready    ;
+
+/*  axi_pkg::resp_t  */ assign axis.b_resp     = axim.b_resp     ; //bresp       ;
+/*  logic            */ assign axis.b_valid    = axim.b_valid    ; //bvalid      ;
+/*  data_t           */ assign axis.r_data     = axim.r_data     ; //rdata       ;
+/*  axi_pkg::resp_t  */ assign axis.r_resp     = axim.r_resp     ; //rresp       ;
+/*  logic            */ assign axis.r_valid    = axim.r_valid    ; //rvalid      ;
+
+/*  logic            */ assign axis.aw_ready     = axim.aw_ready  ;
+/*  logic            */ assign axis.w_ready      = axim.w_ready   ;
+/*  logic            */ assign axis.ar_ready     = axim.ar_ready  ;
+
 endmodule

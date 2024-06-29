@@ -5,6 +5,11 @@
 // Integration wrapper for bio + dma
 
 module bio_bdma_wrapper #(
+    parameter AXI_ADDR_WIDTH = 32,
+    parameter AXI_ID_WIDTH = 6,
+    parameter AXI_USER_WIDTH = 8,
+    parameter AXI_STRB_WIDTH = 4,
+    parameter AXI_DATA_WIDTH = 32,
     parameter APW = 12,  // APB address width
     parameter DW = 32,
     parameter AHW = 32,  // AHB address width
@@ -13,6 +18,7 @@ module bio_bdma_wrapper #(
 )(
     input logic fclk,  // clock of the BIO block itself
     input logic pclk,  // clock of the APB bus
+    input logic hclk,  // clock of the AHB bus
     input logic resetn,
     input logic cmatpg, cmbist,
     input logic [2:0] sramtrm,
@@ -43,6 +49,56 @@ module bio_bdma_wrapper #(
     input  wire            hreadym,       // Transfer done     // old hreadyin
     output wire  [UW-1:0]  hauser,
     output wire  [UW-1:0]  hwuser,
+
+    // AXIM wires
+    output [AXI_ADDR_WIDTH-1:0]  aw_addr,
+    output [2:0]                 aw_prot,
+    output [3:0]                 aw_region,
+    output [7:0]                 aw_len,
+    output [2:0]                 aw_size,
+    output [1:0]                 aw_burst,
+    output                       aw_lock,
+    output [3:0]                 aw_cache,
+    output [3:0]                 aw_qos,
+    output [AXI_ID_WIDTH-1:0]    aw_id,
+    output [AXI_USER_WIDTH-1:0]  aw_user,
+    input                        aw_ready,
+    output                       aw_valid,
+
+    output [AXI_ADDR_WIDTH-1:0]  ar_addr,
+    output [2:0]                 ar_prot,
+    output [3:0]                 ar_region,
+    output [7:0]                 ar_len,
+    output [2:0]                 ar_size,
+    output [1:0]                 ar_burst,
+    output                       ar_lock,
+    output [3:0]                 ar_cache,
+    output [3:0]                 ar_qos,
+    output [AXI_ID_WIDTH-1:0]    ar_id,
+    output [AXI_USER_WIDTH-1:0]  ar_user,
+    input                        ar_ready,
+    output                       ar_valid,
+
+    output                       w_valid,
+    output [AXI_DATA_WIDTH-1:0]  w_data,
+    output [AXI_STRB_WIDTH-1:0]  w_strb,
+    output [AXI_USER_WIDTH-1:0]  w_user,
+    output                       w_last,
+    input                        w_ready,
+
+    input [AXI_DATA_WIDTH-1:0]  r_data,
+    input [1:0]                 r_resp,
+    input                       r_last,
+    input [AXI_ID_WIDTH-1:0]    r_id,
+    input [AXI_USER_WIDTH-1:0]  r_user,
+    output                      r_ready,
+    input                       r_valid,
+
+    input [1:0]                 b_resp,
+    input [AXI_ID_WIDTH-1:0]    b_id,
+    input [AXI_USER_WIDTH-1:0]  b_user,
+    output                      b_ready,
+    input                       b_valid,
 
     // APB configuration interface
     input  wire       [APW-1:0] PADDR,     // APB Address
@@ -111,6 +167,12 @@ module bio_bdma_wrapper #(
     apbif #(.PAW(APW)) theapb();
     ahbif #(.AW(AHW),.DW(DW),.IDW(IDW),.UW(UW)) dma_ahb32();
     apbif #(.PAW(APW)) apb_imem[4]();
+    AXI_BUS #(
+        .AXI_ADDR_WIDTH     ( AXI_ADDR_WIDTH ),
+        .AXI_DATA_WIDTH     ( AXI_DATA_WIDTH ),
+        .AXI_ID_WIDTH       ( AXI_ID_WIDTH   ),
+        .AXI_USER_WIDTH     ( AXI_USER_WIDTH )
+    ) dma_axi();
 
     apb_wire2ifm #(
       .AW(APW)
@@ -197,6 +259,74 @@ module bio_bdma_wrapper #(
         .pslverr      (IM3_PSLVERR    )
     );
 
+    ahb_ifs2wire ahbtrans(
+        .ahbslave     (dma_ahb32      ),
+        .hsel         (hsel           ),
+        .haddr        (haddr          ),
+        .htrans       (htrans         ),
+        .hwrite       (hwrite         ),
+        .hsize        (hsize          ),
+        .hburst       (hburst         ),
+        .hprot        (hprot          ),
+        .hmaster      (hmaster        ),
+        .hwdata       (hwdata         ),
+        .hmasterlock  (hmasterlock    ),
+        // .hreadym      (hready         ),
+        .hrdata       (hrdata         ),
+        .hready       (hready        ),
+        .hresp        (hresp          )
+    );
+
+    // no off the shelf primitive for this, so we do it by hand.
+    assign aw_addr    = dma_axi.aw_addr      ;
+    assign aw_prot    = dma_axi.aw_prot      ;
+    assign aw_region  = dma_axi.aw_region      ;
+    assign aw_len     = dma_axi.aw_len      ;
+    assign aw_size    = dma_axi.aw_size      ;
+    assign aw_burst   = dma_axi.aw_burst      ;
+    assign aw_lock    = dma_axi.aw_lock      ;
+    assign aw_cache   = dma_axi.aw_cache      ;
+    assign aw_qos     = dma_axi.aw_qos      ;
+    assign aw_id      = dma_axi.aw_id      ;
+    assign aw_user    = dma_axi.aw_user      ;
+    assign dma_axi.aw_ready   = aw_ready      ;
+    assign aw_valid   = dma_axi.aw_valid      ;
+
+    assign ar_addr    = dma_axi.ar_addr      ;
+    assign ar_prot    = dma_axi.ar_prot      ;
+    assign ar_region  = dma_axi.ar_region      ;
+    assign ar_len     = dma_axi.ar_len      ;
+    assign ar_size    = dma_axi.ar_size      ;
+    assign ar_burst   = dma_axi.ar_burst      ;
+    assign ar_lock    = dma_axi.ar_lock      ;
+    assign ar_cache   = dma_axi.ar_cache      ;
+    assign ar_qos     = dma_axi.ar_qos      ;
+    assign ar_id      = dma_axi.ar_id      ;
+    assign ar_user    = dma_axi.ar_user      ;
+    assign dma_axi.ar_ready   = ar_ready      ;
+    assign ar_valid   = dma_axi.ar_valid      ;
+
+    assign w_valid    = dma_axi.w_valid      ;
+    assign w_data     = dma_axi.w_data      ;
+    assign w_strb     = dma_axi.w_strb      ;
+    assign w_user     = dma_axi.w_user      ;
+    assign w_last     = dma_axi.w_last      ;
+    assign dma_axi.w_ready    = w_ready      ;
+
+    assign dma_axi.r_data     = r_data      ;
+    assign dma_axi.r_resp     = r_resp      ;
+    assign dma_axi.r_last     = r_last      ;
+    assign dma_axi.r_id       = r_id      ;
+    assign dma_axi.r_user     = r_user      ;
+    assign r_ready    = dma_axi.r_ready      ;
+    assign dma_axi.r_valid    = r_valid      ;
+
+    assign dma_axi.b_resp     = b_resp      ;
+    assign dma_axi.b_id       = b_id      ;
+    assign dma_axi.b_user     = b_user      ;
+    assign b_ready    = dma_axi.b_ready      ;
+    assign dma_axi.b_valid    = b_valid      ;
+
     ioif  bio_gpio[31:0]();
     generate
         for (genvar j = 0; j < 32; j++) begin:gp
@@ -209,6 +339,7 @@ module bio_bdma_wrapper #(
     bio_bdma bio_bdma(
         .aclk    (fclk),
         .pclk    ,
+        .hclk    (fclk), // because in verilator this is actually the clock used; we'll hash out the final CDC on the full chip sim
         .reset_n (resetn),
         .cmatpg  ,
         .cmbist  ,
@@ -219,6 +350,87 @@ module bio_bdma_wrapper #(
         .apbx    (theapb),
         .apbs_imem(apb_imem),
         .apbx_imem(apb_imem),
-        .ahbm    (dma_ahb32)
+        .ahbm    (dma_ahb32),
+        .axim    (dma_axi)
     );
+endmodule
+
+//
+//  ahb_ifs2wire,ahb_wire2ifm,apb_ifs2wire,apb_wire2ifm
+//  ==
+
+module ahb_ifs2wire #(
+    parameter AW=32,
+    parameter DW=32
+    )(
+    ahbif.slave             ahbslave,
+    output  logic           hsel,           // Slave Select
+    output  logic  [AW-1:0] haddr,          // Address bus
+    output  logic  [1:0]    htrans,         // Transfer type
+    output  logic           hwrite,         // Transfer direction
+    output  logic  [2:0]    hsize,          // Transfer size
+    output  logic  [2:0]    hburst,         // Burst type
+    output  logic  [3:0]    hprot,          // Protection control
+    output  logic  [3:0]    hmaster,        //Master select
+    output  logic  [DW-1:0] hwdata,         // Write data
+    output  logic           hmasterlock,    // Locked Sequence
+    output  logic           hreadym,       // Transfer done
+    input   logic  [DW-1:0] hrdata,         // Read data bus
+    input   logic           hready,         // HREADY feedback
+    input   logic           hresp          // Transfer response
+);
+
+    assign hsel        = ahbslave.hsel        ;
+    assign haddr       = ahbslave.haddr       ;
+    assign htrans      = ahbslave.htrans      ;
+    assign hwrite      = ahbslave.hwrite      ;
+    assign hsize       = ahbslave.hsize       ;
+    assign hburst      = ahbslave.hburst      ;
+    assign hprot       = ahbslave.hprot       ;
+    assign hmaster     = ahbslave.hmaster     ;
+    assign hwdata      = ahbslave.hwdata      ;
+    assign hmasterlock = ahbslave.hmasterlock ;
+    assign hreadym    = ahbslave.hreadym    ;
+    assign ahbslave.hrdata      = hrdata      ;
+    assign ahbslave.hready      = hready      ;
+    assign ahbslave.hresp       = hresp       ;
+
+endmodule
+
+module ahb_wire2ifm #(
+    parameter AW=32,
+    parameter DW=32
+    )(
+    ahbif.master            ahbmaster,
+    input   logic           hsel,           // Slave Select
+    input   logic  [AW-1:0] haddr,          // Address bus
+    input   logic  [1:0]    htrans,         // Transfer type
+    input   logic           hwrite,         // Transfer direction
+    input   logic  [2:0]    hsize,          // Transfer size
+    input   logic  [2:0]    hburst,         // Burst type
+    input   logic  [3:0]    hprot,          // Protection control
+    input   logic  [3:0]    hmaster,        //Master select
+    input   logic  [DW-1:0] hwdata,         // Write data
+    input   logic           hmasterlock,    // Locked Sequence
+    input   logic           hreadym,       // Transfer done
+    output  logic  [DW-1:0] hrdata,         // Read data bus
+    output  logic           hready,         // HREADY feedback
+    output  logic           hresp          // Transfer response
+);
+
+    assign ahbmaster.hsel        = hsel        ;
+    assign ahbmaster.haddr       = haddr       ;
+    assign ahbmaster.htrans      = htrans      ;
+    assign ahbmaster.hwrite      = hwrite      ;
+    assign ahbmaster.hsize       = hsize       ;
+    assign ahbmaster.hburst      = hburst      ;
+    assign ahbmaster.hprot       = hprot       ;
+    assign ahbmaster.hmaster     = hmaster     ;
+    assign ahbmaster.hwdata      = hwdata      ;
+    assign ahbmaster.hmasterlock = hmasterlock ;
+    assign ahbmaster.hreadym    = hreadym    ;
+    assign hrdata      = ahbmaster.hrdata      ;
+    assign hready      = ahbmaster.hready      ;
+    assign hresp       = ahbmaster.hresp       ;
+
 endmodule

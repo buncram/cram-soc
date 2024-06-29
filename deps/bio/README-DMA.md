@@ -193,8 +193,8 @@ wait:
   add x4, x1, x3  // x4 <- end condition based on source address increment
 
 loop:
-  ld  x5, 0(x3)    // blocks until load responds
-  st  x5, 0(x2)    // blocks until store completes
+  lw  x5, 0(x3)    // blocks until load responds
+  sw  x5, 0(x2)    // blocks until store completes
   addi x3, x3, 4   // 3 cycles
   addi x2, x2, 4   // 3 cycles
   bne x3, x4, loop // 5 cycles
@@ -208,14 +208,14 @@ Core 0:
 ```
 // core 0 just waits for addresses to appear on FIFOs x16, x17
 core0:
-  ld x5, 0(x16)
-  st x5, 0(x17)
-  ld x5, 0(x16)  // optionally unroll the loop to amortize jump cost
-  st x5, 0(x17)
-  ld x5, 0(x16)
-  st x5, 0(x17)
-  ld x5, 0(x16)
-  st x5, 0(x17)
+  lw x5, 0(x16)
+  sw x5, 0(x17)
+  lw x5, 0(x16)  // optionally unroll the loop to amortize jump cost
+  sw x5, 0(x17)
+  lw x5, 0(x16)
+  sw x5, 0(x17)
+  lw x5, 0(x16)
+  sw x5, 0(x17)
   j core0
 ```
 
