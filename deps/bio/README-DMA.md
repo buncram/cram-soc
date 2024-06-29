@@ -224,7 +224,7 @@ Core 1:
 core1:
   mv x1, x18  // src address on FIFO x18
   mv x2, x18  // # bytes to move on FIFO x18
-  add x3, x2, x2
+  add x3, x2, x1
 core1_loop:
   mv x16, x1
   addi x1, x1, 4
@@ -238,7 +238,7 @@ Core 2:
 core2:
   mv x1, x19  // dst address on FIFO x19
   mv x2, x19  // # bytes to move on FIFO x19
-  add x3, x2, x2
+  add x3, x2, x1
 core2_loop:
   mv x17, x1
   addi x1, x1, 4

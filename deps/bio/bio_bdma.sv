@@ -113,8 +113,8 @@ module bio_bdma #(
 	logic [31:0] mem_rdata    [NUM_MACH];
 
 	// Look-Ahead Interface
-	logic        mem_la_read  [NUM_MACH];
-	logic        mem_la_write [NUM_MACH];
+	logic [NUM_MACH-1:0]      mem_la_read;
+	logic [NUM_MACH-1:0]      mem_la_write;
 	logic [31:0] mem_la_addr  [NUM_MACH];
 	logic [31:0] mem_la_wdata [NUM_MACH];
 	logic [ 3:0] mem_la_wstrb [NUM_MACH];
@@ -122,8 +122,8 @@ module bio_bdma #(
     // In theory, we could do some overlapping write-over-read with AHB and multiple cores
     // owning different read//write ops, but I think it's not worth the complexity
     // DMA signals in aclk domain
-    logic ext_addr                 [NUM_MACH];
-    logic merged_mem_ready         [NUM_MACH];
+    logic [NUM_MACH-1:0] ext_addr;
+    logic [NUM_MACH-1:0] merged_mem_ready;
 	logic [31:0] merged_mem_rdata  [NUM_MACH];
     logic [NUM_MACH-1:0] core_dma_ready;
     logic [1:0] dma_owner;
@@ -137,6 +137,9 @@ module bio_bdma #(
     logic [3:0] dma_wstrb;
     logic [2:0] dma_size;
     logic [1:0] dma_htrans;
+    // align with the dma_owner signal, which takes a cycle to resolve
+	logic [NUM_MACH-1:0]      mem_la_read_reg;
+	logic [NUM_MACH-1:0]      mem_la_write_reg;
 
     // core AXI-lite endpoints
     AXI_LITE #(
@@ -759,16 +762,16 @@ module bio_bdma #(
             dma_active <= '0;
         end else begin
             if (dma_active == 0) begin
-                if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[0]) begin
+                if ((mem_la_read[0] | mem_la_write[0] | (mem_valid[0] & !mem_ready[0])) & ext_addr[0]) begin
                     dma_owner <= 2'h0;
                     dma_active <= 1;
-                end else if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[1]) begin
+                end else if ((mem_la_read[1] | mem_la_write[1] | (mem_valid[1] & !mem_ready[1])) & ext_addr[1]) begin
                     dma_owner <= 2'h1;
                     dma_active <= 1;
-                end else if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[2]) begin
+                end else if ((mem_la_read[2] | mem_la_write[2] | (mem_valid[2] & !mem_ready[2])) & ext_addr[2]) begin
                     dma_owner <= 2'h2;
                     dma_active <= 1;
-                end else if ((mem_la_read[0] | mem_la_write[0]) & ext_addr[3]) begin
+                end else if ((mem_la_read[3] | mem_la_write[3] | (mem_valid[3] & !mem_ready[3])) & ext_addr[3]) begin
                     dma_owner <= 2'h3;
                     dma_active <= 1;
                 /* end else begin
@@ -817,8 +820,6 @@ module bio_bdma #(
         .mem_axi_rready(core_axil.r_ready),
         .mem_axi_rdata(core_axil.r_data),
 
-        .mem_la_read(mem_la_read[dma_owner]),
-        .mem_la_write(mem_la_write[dma_owner]),
         .mem_valid(mem_valid[dma_owner] & dma_active),
         .mem_instr(mem_instr[dma_owner]),
         .mem_ready(dma_ready),
@@ -1121,7 +1122,7 @@ module bio_bdma #(
             // DMA.
             always_comb begin
                 ext_addr[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
-                merged_mem_ready[j] = ext_addr[j] ? dma_ready : mem_ready[j];
+                merged_mem_ready[j] = ext_addr[j] ? dma_ready && (dma_owner == j) : mem_ready[j];
                 merged_mem_rdata[j] = ext_addr[j] ? dma_rdata : mem_rdata[j];
             end
 
