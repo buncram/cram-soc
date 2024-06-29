@@ -47,6 +47,7 @@ _io = [
     # Clk / Rst.
     ("sys_clk", 0, Pins(1)),
     ("p_clk", 0, Pins(1)),
+    ("h_clk", 0, Pins(1)),
     ("pio_clk", 0, Pins(1)),
     ("bio_clk", 0, Pins(1)),
     # ("sys_reset", 0, Pins(1)),
@@ -131,13 +132,14 @@ class SimUartPhy(Module, AutoCSR):
 
 # Simulation CRG -----------------------------------------------------------------------------------
 class SimCRG(Module):
-    def __init__(self, clk, p_clk, pio_clk, bio_clk, rst, sleep_req):
+    def __init__(self, clk, p_clk, pio_clk, bio_clk, h_clk, rst, sleep_req):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_por = ClockDomain(reset_less=True)
         self.clock_domains.cd_p = ClockDomain()
         self.clock_domains.cd_pio = ClockDomain()
         self.clock_domains.cd_bio = ClockDomain()
         self.clock_domains.cd_sys_always_on = ClockDomain()
+        self.clock_domains.cd_h_clk = ClockDomain()
 
         # Power on Reset (vendor agnostic)
         int_rst = Signal(reset=1)
@@ -153,6 +155,8 @@ class SimCRG(Module):
             self.cd_bio.clk.eq(bio_clk),
             self.cd_bio.rst.eq(int_rst),
             self.cd_sys_always_on.clk.eq(clk),
+            self.cd_h_clk.clk.eq(h_clk),
+            self.cd_h_clk.rst.eq(int_rst),
         ]
 
 # XsimCRG ------------------------------------------------------------------------------------------
@@ -276,12 +280,12 @@ class XsimCRG(Module):
 
 def common_extensions(self):
     # Add crossbar ports for memory
-    reram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    reram_axi = AXIInterface(data_width=64, address_width=32, id_width=6, bursting=True)
     self.submodules.axi_reram = AXIRAM(
         self.platform, reram_axi, size=self.axi_mem_map["reram"][1], name="reram", init=self.bios_data)
-    sram_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    sram_axi = AXIInterface(data_width=64, address_width=32, id_width=6, bursting=True)
     self.submodules.axi_sram = AXIRAM(self.platform, sram_axi, size=self.axi_mem_map["sram"][1], name="sram")
-    xip_axi = AXIInterface(data_width=64, address_width=32, id_width=2, bursting=True)
+    xip_axi = AXIInterface(data_width=64, address_width=32, id_width=6, bursting=True)
     self.submodules.xip_sram = AXIRAM(self.platform, xip_axi, size=65536, name="xip") # just a small amount of RAM for testing
     # vex debug is internal to the core, no interface to build
 
@@ -330,7 +334,9 @@ def verilator_extensions(self, nosave=False):
     self.crg = SimCRG(
         self.platform.request("sys_clk"),
         self.platform.request("p_clk"),
-        self.platform.request("pio_clk"), self.platform.request("bio_clk"),
+        self.platform.request("pio_clk"),
+        self.platform.request("bio_clk"),
+        self.platform.request("h_clk"),
         ic_reset, self.sleep_req)
 
     # Add SoC memory regions
@@ -500,6 +506,7 @@ def main():
     sim_config.add_clocker("p_clk", freq_hz=100e6) # simulated down to 50MHz, but left at 100MHz to speed up simulations
     sim_config.add_clocker("pio_clk", freq_hz=200e6)
     sim_config.add_clocker("bio_clk", freq_hz=sys_clk_freq)
+    sim_config.add_clocker("h_clk", freq_hz=200e6)
 
     bios_path = args.bios
 

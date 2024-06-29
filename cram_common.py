@@ -33,6 +33,8 @@ from soc_oss.axi_common import *
 
 from soc_oss.axil_ahb_adapter import AXILite2AHBAdapter
 from litex.soc.interconnect import ahb
+from soc_oss.ahb_axi_adapter import AHB2AxiAdapter
+from soc_oss.axi_axil_adapter import AXI2AXILiteAdapter
 
 from math import ceil, log2
 
@@ -111,6 +113,7 @@ class CramSoC(SoCCore):
         self.mem_map = {**SoCCore.mem_map, **{
             "csr": self.axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
         }}
+        use_bdma = "bio_bdma" in self.axi_peri_map
 
         # Add standalone SoC sources.
         platform.add_source("build/gateware/cram_axi.v")
@@ -155,10 +158,24 @@ class CramSoC(SoCCore):
         # ------------------------------------------
 
         # 1) Create AXI interface and connect it to SoC.
-        dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=1, bursting=True)
-        dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1, bursting=True)
+        dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=4, bursting=True)
+        dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
         self.submodules += AXIAdapter(platform, s_axi = dbus_axi, m_axi = dbus64_axi, convert_burst=True, convert_narrow_burst=True)
-        ibus64_axi = AXIInterface(data_width=64, address_width=32, id_width=1, bursting=True)
+        ibus64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
+        if use_bdma:
+            # Convert to 64-bits for the main memory crossbar
+            dma_axi = AXIInterface(data_width=32, address_width=32, id_width=4, bursting=False)
+            dma64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
+            self.submodules += AXIAdapter(platform, s_axi=dma_axi, m_axi = dma64_axi, convert_burst=True, convert_narrow_burst=True)
+
+            # convert AHB to AXIL for peripheral integration
+            ahb_from_dma = ahb.AHBInterface(data_width=32, address_width=32)
+            axi_from_dma = AXIInterface(data_width=32, address_width=32, id_width=1, bursting=True)
+            ahb2axi = AHB2AxiAdapter(platform, m_axi=axi_from_dma, s_ahb=ahb_from_dma)
+            self.submodules += ahb2axi
+
+            dma_axil = AXILiteInterface(name="dma_pbus", bursting = False)
+            self.submodules += AXI2AXILiteAdapter(platform, axi_from_dma, dma_axil)
 
         # 2) Add 2 X AXILiteSRAM to emulate ReRAM and SRAM; much smaller now just for testing
         if bios_path is not None:
@@ -185,6 +202,23 @@ class CramSoC(SoCCore):
             ar_reg = AXIRegister.BYPASS,
             r_reg  = AXIRegister.BYPASS,
         )
+        if use_bdma:
+            mbus.add_slave(name = "bdma", s_axi=dma64_axi,
+                aw_reg = AXIRegister.BYPASS,
+                w_reg  = AXIRegister.BYPASS,
+                b_reg  = AXIRegister.BYPASS,
+                ar_reg = AXIRegister.BYPASS,
+                r_reg  = AXIRegister.BYPASS,
+            )
+            # add a dummy interface because the AXI requires power of two clients
+            dummy_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
+            mbus.add_slave(name = "dummy", s_axi=dummy_axi,
+                aw_reg = AXIRegister.BYPASS,
+                w_reg  = AXIRegister.BYPASS,
+                b_reg  = AXIRegister.BYPASS,
+                ar_reg = AXIRegister.BYPASS,
+                r_reg  = AXIRegister.BYPASS,
+            )
 
         # Crossbar masters (from crossbar to RAM) -- added by platform extensions method
 
@@ -195,6 +229,10 @@ class CramSoC(SoCCore):
         pxbar.add_slave(
             name = "p_axil", s_axil = p_axil,
         )
+        if use_bdma:
+            pxbar.add_slave(
+                name = "dma_axil", s_axil = dma_axil,
+            )
         # Define the interrupt signals; if they aren't used, they will just stay at 0 and be harmless
         # But we need to define them so we don't have an explosion of SoC wiring options down below
         pio_irq0 = Signal()
@@ -328,6 +366,8 @@ class CramSoC(SoCCore):
                     self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioBdmaAdapter(platform,
                         getattr(self, name +"_ahb"),
                         bdma_imem,
+                        ahb_from_dma,
+                        dma_axi,
                         platform.request("pio"), bio_irq,
                         base=(region[0] & 0xFF_FFFF), address_width=log2_int(region[1], need_pow2=True),
                         sim=sim
@@ -393,6 +433,14 @@ class CramSoC(SoCCore):
         trimming_reset = Signal(32, reset=(0x6000_0000 + boot_offset))
 
         # Pull in DUT IP ---------------------------------------------------------------------------
+        # remap the IDs to match system params
+        self.comb += [
+            ibus64_axi.aw.id.eq(3),
+            ibus64_axi.ar.id.eq(3),
+            dbus_axi.aw.id.eq(4),
+            dbus_axi.ar.id.eq(4),
+            dbus_axi.w.id.eq(4),
+        ]
         self.specials += Instance("cram_axi",
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
@@ -431,7 +479,7 @@ class CramSoC(SoCCore):
             o_ibus_axi_awcache    = ibus64_axi.aw.cache ,
             o_ibus_axi_awqos      = ibus64_axi.aw.qos   ,
             o_ibus_axi_awregion   = ibus64_axi.aw.region,
-            o_ibus_axi_awid       = ibus64_axi.aw.id    ,
+            # *simulation override* o_ibus_axi_awid       = ibus64_axi.aw.id    ,
             #o_ibus_axi_awdest     = ibus64_axi.aw.dest  ,
             o_ibus_axi_awuser     = ibus64_axi.aw.user  ,
             o_ibus_axi_wvalid     = ibus64_axi.w.valid  ,
@@ -459,7 +507,7 @@ class CramSoC(SoCCore):
             o_ibus_axi_arcache    = ibus64_axi.ar.cache ,
             o_ibus_axi_arqos      = ibus64_axi.ar.qos   ,
             o_ibus_axi_arregion   = ibus64_axi.ar.region,
-            o_ibus_axi_arid       = ibus64_axi.ar.id    ,
+            # *simulation override* o_ibus_axi_arid       = ibus64_axi.ar.id    ,
             #o_ibus_axi_ardest     = ibus64_axi.ar.dest  ,
             o_ibus_axi_aruser     = ibus64_axi.ar.user  ,
             i_ibus_axi_rvalid     = ibus64_axi.r.valid  ,
@@ -481,7 +529,7 @@ class CramSoC(SoCCore):
             o_dbus_axi_awcache    = dbus_axi.aw.cache ,
             o_dbus_axi_awqos      = dbus_axi.aw.qos   ,
             o_dbus_axi_awregion   = dbus_axi.aw.region,
-            o_dbus_axi_awid       = dbus_axi.aw.id    ,
+            # *simulation override* o_dbus_axi_awid       = dbus_axi.aw.id    ,
             #o_dbus_axi_awdest     = dbus_axi.aw.dest  ,
             o_dbus_axi_awuser     = dbus_axi.aw.user  ,
             o_dbus_axi_wvalid     = dbus_axi.w.valid  ,
@@ -489,7 +537,7 @@ class CramSoC(SoCCore):
             o_dbus_axi_wlast      = dbus_axi.w.last   ,
             o_dbus_axi_wdata      = dbus_axi.w.data   ,
             o_dbus_axi_wstrb      = dbus_axi.w.strb   ,
-            #o_dbus_axi_wid        = dbus_axi.w.id     ,
+            # *simulation override* o_dbus_axi_wid        = dbus_axi.w.id     ,
             #o_dbus_axi_wdest      = dbus_axi.w.dest  ,
             o_dbus_axi_wuser      = dbus_axi.w.user  ,
             i_dbus_axi_bvalid     = dbus_axi.b.valid  ,
@@ -509,7 +557,7 @@ class CramSoC(SoCCore):
             o_dbus_axi_arcache    = dbus_axi.ar.cache ,
             o_dbus_axi_arqos      = dbus_axi.ar.qos   ,
             o_dbus_axi_arregion   = dbus_axi.ar.region,
-            o_dbus_axi_arid       = dbus_axi.ar.id    ,
+            # *simulation override* o_dbus_axi_arid       = dbus_axi.ar.id    ,
             #o_dbus_axi_ardest     = dbus_axi.ar.dest  ,
             o_dbus_axi_aruser     = dbus_axi.ar.user  ,
             i_dbus_axi_rvalid     = dbus_axi.r.valid  ,
