@@ -123,6 +123,7 @@ module bio_bdma #(
     // owning different read//write ops, but I think it's not worth the complexity
     // DMA signals in aclk domain
     logic [NUM_MACH-1:0] ext_addr;
+    logic [NUM_MACH-1:0] ext_addr_la;
     logic [NUM_MACH-1:0] merged_mem_ready;
 	logic [31:0] merged_mem_rdata  [NUM_MACH];
     logic [NUM_MACH-1:0] core_dma_ready;
@@ -140,6 +141,11 @@ module bio_bdma #(
     // align with the dma_owner signal, which takes a cycle to resolve
 	logic [NUM_MACH-1:0]      mem_la_read_reg;
 	logic [NUM_MACH-1:0]      mem_la_write_reg;
+
+    // bodge for AHB size decoding: this relies on a spec-non-compliance of
+    // the actual IFRAM core, which gates byte writes with HSIZE
+    logic [2:0] ahb_size_bodge;
+    logic [31:0] axi_aw_bodge;
 
     // core AXI-lite endpoints
     AXI_LITE #(
@@ -762,22 +768,18 @@ module bio_bdma #(
             dma_active <= '0;
         end else begin
             if (dma_active == 0) begin
-                if ((mem_la_read[0] | mem_la_write[0] | (mem_valid[0] & !mem_ready[0])) & ext_addr[0]) begin
+                if ((mem_la_read[0] | mem_la_write[0] | (mem_valid[0] & !mem_ready[0])) & ext_addr_la[0]) begin
                     dma_owner <= 2'h0;
                     dma_active <= 1;
-                end else if ((mem_la_read[1] | mem_la_write[1] | (mem_valid[1] & !mem_ready[1])) & ext_addr[1]) begin
+                end else if ((mem_la_read[1] | mem_la_write[1] | (mem_valid[1] & !mem_ready[1])) & ext_addr_la[1]) begin
                     dma_owner <= 2'h1;
                     dma_active <= 1;
-                end else if ((mem_la_read[2] | mem_la_write[2] | (mem_valid[2] & !mem_ready[2])) & ext_addr[2]) begin
+                end else if ((mem_la_read[2] | mem_la_write[2] | (mem_valid[2] & !mem_ready[2])) & ext_addr_la[2]) begin
                     dma_owner <= 2'h2;
                     dma_active <= 1;
-                end else if ((mem_la_read[3] | mem_la_write[3] | (mem_valid[3] & !mem_ready[3])) & ext_addr[3]) begin
+                end else if ((mem_la_read[3] | mem_la_write[3] | (mem_valid[3] & !mem_ready[3])) & ext_addr_la[3]) begin
                     dma_owner <= 2'h3;
                     dma_active <= 1;
-                /* end else begin
-                    dma_owner <= '0;
-                    dma_active <= 0;
-                    */
                 end
             end else begin
                 if (dma_ready) begin
@@ -1002,13 +1004,54 @@ module bio_bdma #(
     );
 
     // AXIL->AHB bridge for peripheral bus
-    axi2ahb peri_axi2ahb(
+    // encode address and size into AHB per cmsdk_ahb_to_sram.v spec-abuse
+    always_comb begin
+        case (peri_cdc_axil.w_strb)
+            4'b0001: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = peri_cdc_axil.aw_addr & 32'hFFFF_FFFC;
+            end
+            4'b0010: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h1;
+            end
+            4'b0100: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h2;
+            end
+            4'b1000: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h3;
+            end
+            4'b0011: begin
+                ahb_size_bodge = 3'b001;
+                axi_aw_bodge = peri_cdc_axil.aw_addr & 32'hFFFF_FFFC;
+            end
+            4'b1100: begin
+                ahb_size_bodge = 3'b001;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h2;
+            end
+            4'b1111: begin
+                ahb_size_bodge = 3'b010;
+                axi_aw_bodge = peri_cdc_axil.aw_addr;
+            end
+            // default is coded to write the full word because this is probably least
+            // surprising and most compatible behavior. The way the RAM block is coded,
+            // a size of '0' still results in a byte being written to the LSB of the address.
+            default: begin
+                ahb_size_bodge = 3'b010;
+                axi_aw_bodge = peri_cdc_axil.aw_addr;
+            end
+        endcase
+    end
+
+    axi2ahb peri_axi2ahb (
         .clk(hclk),
         .reset(~reset_n),
         .AWID('0),
-        .AWADDR(peri_cdc_axil.aw_addr),
+        .AWADDR(axi_aw_bodge),
         .AWLEN('0),
-        .AWSIZE('0),
+        .AWSIZE(ahb_size_bodge),
         .AWVALID(peri_cdc_axil.aw_valid),
         .AWREADY(peri_cdc_axil.aw_ready),
         .WID('0),
@@ -1024,7 +1067,7 @@ module bio_bdma #(
         .ARID('0),
         .ARADDR(peri_cdc_axil.ar_addr),
         .ARLEN('0),
-        .ARSIZE('0),
+        .ARSIZE(3'b010), // always read full words
         .ARVALID(peri_cdc_axil.ar_valid),
         .ARREADY(peri_cdc_axil.ar_ready),
         // .RID('0),
@@ -1044,6 +1087,65 @@ module bio_bdma #(
         .HREADY(ahbm.hready),
         .HRESP(ahbm.hresp)
     );
+/* // TODO: CM7 model doesn't match up with Daric MPW specs, remove it once confirmed on integration tests
+    CM7AAB #(.DW_64(0)) peri_axi2ahb (
+        .CLK(hclk),
+        .nSYSRESET(reset_n),
+        .AWADDR(peri_cdc_axil.aw_addr),
+        .AWBURST('0),
+        .AWID('0),
+        .AWLEN('0),
+        .AWSIZE(ahb_size_bodge),
+        .AWLOCK('0),
+        .AWPROT('0),
+        .AWCACHE('0),
+        .AWSPARSE(1),
+        .AWVALID(peri_cdc_axil.aw_valid),
+        .AWUSER('0),
+        .AWREADY(peri_cdc_axil.aw_ready),
+
+        .WLAST('1),
+        .WSTRB(peri_cdc_axil.w_strb),
+        .WDATA(peri_cdc_axil.w_data),
+        .WVALID(peri_cdc_axil.w_valid),
+        .WREADY(peri_cdc_axil.w_ready),
+        // .WID('0),
+        // .BID('0),
+        .BRESP(peri_cdc_axil.b_resp),
+        .BVALID(peri_cdc_axil.b_valid),
+        .BREADY(peri_cdc_axil.b_ready),
+
+        .ARADDR(peri_cdc_axil.ar_addr),
+        .ARBURST('0),
+        .ARID('0),
+        .ARLEN('0),
+        .ARSIZE('0),
+        .ARLOCK('0),
+        .ARPROT('0),
+        .ARCACHE('0),
+        .ARUSER('0),
+        .ARVALID(peri_cdc_axil.ar_valid),
+        .ARREADY(peri_cdc_axil.ar_ready),
+
+        // .RID('0),
+        .RREADY(peri_cdc_axil.r_ready),
+        .RVALID(peri_cdc_axil.r_valid),
+        .RDATA(peri_cdc_axil.r_data),
+        .RRESP(peri_cdc_axil.r_resp),
+        // .RLAST(peri_cdc_axil.),
+
+        .HADDR(ahbm.haddr),
+        .HWRITE(ahbm.hwrite),
+        .HSIZE(ahbm.hsize),
+        .HWDATA(ahbm.hwdata),
+        // .HPROT(ahbm.prot),
+        .HBURST(ahbm.hburst),
+        .HTRANS(ahbm.htrans),
+        .HRDATA(ahbm.hrdata),
+        .HREADY(ahbm.hready),
+        .HRESP(ahbm.hresp)
+    );
+*/
     // tie off unused pins
     assign ahbm.hsel = '1;
 
@@ -1121,7 +1223,11 @@ module bio_bdma #(
 
             // DMA.
             always_comb begin
-                ext_addr[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
+                // engine select uses look-ahead version. Look-ahead address bounces all over the place
+                /// so it must be gated with the rd/wr la strobes for decoding.
+                ext_addr_la[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
+                // readback path uses the stable clocked ext_addr to avoid combinational cycle on ready
+                ext_addr[j] = mem_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
                 merged_mem_ready[j] = ext_addr[j] ? dma_ready && (dma_owner == j) : mem_ready[j];
                 merged_mem_rdata[j] = ext_addr[j] ? dma_rdata : mem_rdata[j];
             end
@@ -1138,7 +1244,7 @@ module bio_bdma #(
                 .ramname("RAM_SP_512_32")
             ) imem (
                 .clk(aclk),
-                .wr_n(~ram_wr_en[j]),
+                .wr_n(~(ram_wr_en[j] & (!ext_addr[j] | ~imem_wr_mode[j]))),
                 .addr(ram_addr[j]),
                 .wr_mask_n(~ram_wr_mask[j]),
                 .ce_n(~(
