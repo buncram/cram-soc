@@ -51,8 +51,8 @@ class AHB2APB(Module):
             data_phase.eq(0),
             NextValue(apb.penable, 0),
             If(
-              (ahb.addr >= base) &
-              (ahb.addr < (base + (1 << apb.address_width))) &
+              ((ahb.addr & 0x00FF_FFFF) >= base) &
+              ((ahb.addr & 0x00FF_FFFF) < (base + (1 << apb.address_width))) &
               (ahb.size  <= log2_int(ahb.data_width//8)) &
               (ahb.trans == AHBTransferType.NONSEQUENTIAL),
                 NextValue(apb.paddr, ahb.addr[:apb.address_width]),
