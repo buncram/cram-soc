@@ -27,6 +27,7 @@ from deps.gateware.gateware import memlcd
 from soc_oss.axi_crossbar import AXICrossbar
 from soc_oss.axi_adapter import AXIAdapter
 from soc_oss.axi_ram import AXIRAM
+from soc_oss.axil_ram import AXILiteRAM
 from soc_oss.axil_crossbar import AXILiteCrossbar
 from soc_oss.axil_cdc import AXILiteCDC
 from soc_oss.axi_common import *
@@ -96,19 +97,21 @@ class CramSoC(SoCCore):
         self.axi_mem_map = {
             "reram"          : [0x6000_0000, 4 * 1024 * 1024], # +4M
             "sram"           : [0x6100_0000, 2 * 1024 * 1024], # +2M
-            "xip"           :  [0x7000_0000, 128 * 1024 * 1024], # up to 128MiB of XIP
+            "xip"            : [0x7000_0000, 128 * 1024 * 1024], # up to 128MiB of XIP
             "vexriscv_debug" : [0xefff_0000, 0x1000],
         }
         # Firmware note:
         #    - entire region from 0x4000_0000 through 0x4010_0000 is VM-mapped in test bench
         #    - entire region from 0x5012_0000 through 0x5013_0000 is VM-mapped in test bench
         self.axi_peri_map = {
-            "testbench" : [0x4008_0000, 0x1_0000], # 64k
-            "duart"     : [0x4004_2000, 0x0_1000],
+            "testbench"   : [0x4008_0000, 0x1_0000], # 64k
+            "duart"       : [0x4004_2000, 0x0_1000],
             # "pio"       : [0x5012_3000, 0x0_1000],
             # "bio"       : [0x5012_4000, 0x0_2000],
             "bio_bdma"    : [0x5012_4000, 0x0_1000], # also infers 4x memory pages in addition to the control page
-            "mbox_apb"  : [0x4001_3000, 0x0_1000],
+            "mbox_apb"    : [0x4001_3000, 0x0_1000],
+            "ifram0"      : [0x5000_0000, 128 * 1024],
+            "ifram1"      : [0x5002_0000, 128 * 1024],
         }
         self.mem_map = {**SoCCore.mem_map, **{
             "csr": self.axi_peri_map["testbench"][0], # save bottom 0x10_0000 for compatibility with Cramium native registers
@@ -272,18 +275,19 @@ class CramSoC(SoCCore):
                 self.bus.add_master(name="pbus", master=self.testbench_axil)
             else:
                 # connect the SoC via AHB adapters
-                setattr(self, name + "_slower_axil", AXILiteInterface(clock_domain="p", name=name + "_slower_axil"))
-                setattr(self.submodules, name + "_slower_axi",
-                        AXILiteCDC(platform,
-                                   getattr(self, name + "_axil"),
-                                   getattr(self, name + "_slower_axil"),
-                        ))
-                setattr(self, name + "_ahb", ahb.AHBInterface())
-                self.submodules += ClockDomainsRenamer({"sys" : "p"})(
-                    AXILite2AHBAdapter(platform,
-                                       getattr(self, name + "_slower_axil"),
-                                       getattr(self, name + "_ahb")
-                ))
+                if "ifram" not in name:
+                    setattr(self, name + "_slower_axil", AXILiteInterface(clock_domain="p", name=name + "_slower_axil"))
+                    setattr(self.submodules, name + "_slower_axi",
+                            AXILiteCDC(platform,
+                                    getattr(self, name + "_axil"),
+                                    getattr(self, name + "_slower_axil"),
+                            ))
+                    setattr(self, name + "_ahb", ahb.AHBInterface())
+                    self.submodules += ClockDomainsRenamer({"sys" : "p"})(
+                        AXILite2AHBAdapter(platform,
+                                        getattr(self, name + "_slower_axil"),
+                                        getattr(self, name + "_ahb")
+                    ))
                 # wire up the specific subsystems
                 if name == "pio":
                     if variant == "sim":
@@ -384,6 +388,14 @@ class CramSoC(SoCCore):
                             self.bioadapter.invert.eq(self.test[3]),
                             self.bioadapter.force_val.eq(self.test[16:]),
                         ]
+
+                # add RAMs for IFRAM testing
+                elif name == "ifram0" or name == "ifram1":
+                    setattr(
+                        self.submodules,
+                        name + "_sram",
+                        AXILiteRAM(platform=platform, s_axil=getattr(self, name + "_axil"), size=region[1])
+                    )
                 elif name == "duart":
                     from soc_oss.duart_adapter import DuartAdapter
                     self.submodules += ClockDomainsRenamer({"sys" : "p"})(DuartAdapter(platform,
