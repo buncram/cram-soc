@@ -59,7 +59,7 @@ module axi2ahb (clk,
     input              reset;
 
     input [3:0]        AWID;
-    input [23:0]       AWADDR;
+    input [31:0]       AWADDR;
     input [3:0]        AWLEN;
     input [1:0]        AWSIZE;
     input              AWVALID;
@@ -75,7 +75,7 @@ module axi2ahb (clk,
     output             BVALID;
     input              BREADY;
     input [3:0]        ARID;
-    input [23:0]       ARADDR;
+    input [31:0]       ARADDR;
     input [3:0]        ARLEN;
     input [1:0]        ARSIZE;
     input              ARVALID;
@@ -87,7 +87,7 @@ module axi2ahb (clk,
     output             RVALID;
     input              RREADY;
 
-    output [23:0]      HADDR;
+    output [31:0]      HADDR;
     output [2:0]       HBURST;
     output [1:0]       HSIZE;
     output [1:0]       HTRANS;
@@ -102,7 +102,7 @@ module axi2ahb (clk,
     wire                   cmd_empty;
     wire                   cmd_read;
     wire [4-1:0]     cmd_id;
-    wire [24-1:0]   cmd_addr;
+    wire [32-1:0]   cmd_addr;
     wire [3:0]             cmd_len;
     wire [1:0]             cmd_size;
     wire                   cmd_err;

@@ -51,18 +51,18 @@ module axi2ahb_cmd (clk,
     input                  reset;
 
     input [3:0]            AWID;
-    input [23:0]           AWADDR;
+    input [31:0]           AWADDR;
     input [3:0]            AWLEN;
     input [1:0]            AWSIZE;
     input                  AWVALID;
     output                 AWREADY;
     input [3:0]            ARID;
-    input [23:0]           ARADDR;
+    input [31:0]           ARADDR;
     input [3:0]            ARLEN;
     input [1:0]            ARSIZE;
     input                  ARVALID;
     output                 ARREADY;
-    input [23:0]           HADDR;
+    input [31:0]           HADDR;
     input [2:0]            HBURST;
     input [1:0]            HSIZE;
     input [1:0]            HTRANS;
@@ -76,14 +76,14 @@ module axi2ahb_cmd (clk,
     output                 cmd_empty;
     output                 cmd_read;
     output [4-1:0]   cmd_id;
-    output [24-1:0] cmd_addr;
+    output [32-1:0] cmd_addr;
     output [3:0]           cmd_len;
     output [1:0]           cmd_size;
     output                 cmd_err;
 
 
     wire [3:0]             AID;
-    wire [23:0]            AADDR;
+    wire [31:0]            AADDR;
     wire [3:0]             ALEN;
     wire [1:0]             ASIZE;
     wire                   AVALID;
@@ -142,7 +142,7 @@ module axi2ahb_cmd (clk,
     assign               cmd_push = AVALID & AREADY;
     assign               cmd_pop  = ahb_finish;
 
-    prgen_fifo #(4+24+4+2+1+1, 1)
+    prgen_fifo #(4+32+4+2+1+1, 1)
     cmd_fifo(
         .clk(clk),
         .reset(reset),

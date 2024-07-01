@@ -41,7 +41,7 @@ module axi2ahb_ctrl (clk,
     input                  clk;
     input                  reset;
 
-    output [23:0]          HADDR;
+    output [31:0]          HADDR;
     output [2:0]           HBURST;
     output [1:0]           HSIZE;
     output [1:0]           HTRANS;
@@ -60,7 +60,7 @@ module axi2ahb_ctrl (clk,
     input                  wdata_ready;
     input                  cmd_empty;
     input                  cmd_read;
-    input [24-1:0]  cmd_addr;
+    input [32-1:0]  cmd_addr;
     input [3:0]            cmd_len;
     input [1:0]            cmd_size;
 
@@ -90,7 +90,7 @@ module axi2ahb_ctrl (clk,
     reg [2:0]              HBURST;
     reg [1:0]              HSIZE;
     reg                    HWRITE;
-    reg [24-1:0]    HADDR;
+    reg [32-1:0]    HADDR;
 
 
     assign                 ahb_finish = ahb_ack_last;
@@ -166,11 +166,11 @@ module axi2ahb_ctrl (clk,
 
     always @(posedge clk or posedge reset)
         if (reset)
-            HADDR <= {24{1'b0}};
+            HADDR <= {32{1'b0}};
         else if (ahb_start)
             HADDR <= cmd_addr;
         else if (ahb_ack_last)
-            HADDR <= {24{1'b0}};
+            HADDR <= {32{1'b0}};
         else if (ahb_ack)
             HADDR <= HADDR + (
             HSIZE == 2'b00 ? 4'd1 :
