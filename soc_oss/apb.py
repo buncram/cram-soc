@@ -51,6 +51,10 @@ class AHB2APB(Module):
             data_phase.eq(0),
             NextValue(apb.penable, 0),
             If(
+                # Note: the bitmask below of 0x00FF_FFFF is specific to cramium
+                # this could should probably be generalized to rely on address_width, however
+                # the most obvious implementation of that didn't work and I don't have time
+                # to figure out what went wrong there.
               ((ahb.addr & 0x00FF_FFFF) >= base) &
               ((ahb.addr & 0x00FF_FFFF) < (base + (1 << apb.address_width))) &
               (ahb.size  <= log2_int(ahb.data_width//8)) &
