@@ -18,7 +18,7 @@ from litex.soc.interconnect.axi.axi_common import BURST_FIXED
 from litex.soc.interconnect import ahb
 from soc_oss.axi_common import *
 
-# AXI to AXI-Lite Adapter --------------------------------------------------------------------------
+# AHB to AXI Adapter --------------------------------------------------------------------------
 
 class AHB2AxiAdapter(Module):
     def __init__(self, platform, m_axi, s_ahb):
@@ -37,9 +37,8 @@ class AHB2AxiAdapter(Module):
         self.specials += Instance("ahb_to_axi4",
             # Clk / Rst.
             # ----------
-            i_aclk       = ClockSignal(clock_domain),
-            i_rst_l      = ~ResetSignal(clock_domain),
-            i_hclk       = ClockSignal("h_clk"),
+            i_clk       = ClockSignal(clock_domain),
+            i_resetn    = ~ResetSignal(clock_domain),
 
             # AXI signals
             # AXI Write Channels
@@ -102,5 +101,10 @@ class AHB2AxiAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "bio", "soc")
+        # platform.add_source(os.path.join(rtl_dir, "template_v0.1.sv"))
+        platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
+        platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
+
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss")
         platform.add_source(os.path.join(rtl_dir, "ahb_to_axi4.sv"))
