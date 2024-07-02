@@ -403,3 +403,13 @@ class BioBdmaAdapter(Module):
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
         platform.add_source(os.path.join(rtl_dir, "cdc_blinded.v"))
+        platform.add_source(os.path.join(rtl_dir, "cdc_level_to_pulse.sv"))
+
+        # CM7AAB sources - proprietary sim model for validation against SoC sources
+        # TODO: remove once we have validated that we don't need this anymore (e.g. we have a clean test against full chip source)
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "cortexm7", "logical", "cm7aab", "verilog")
+        platform.add_source(os.path.join(rtl_dir, "cm7aab_axi.v"))
+        platform.add_source(os.path.join(rtl_dir, "cm7aab_ahb.v"))
+        platform.add_source(os.path.join(rtl_dir, "CM7AAB.v"))
+        platform.add_source(os.path.join(rtl_dir, "cortexm7_decl_axi_types.v"))
+        platform.add_source(os.path.join(rtl_dir, "cortexm7_decl_ahb_types.v"))
