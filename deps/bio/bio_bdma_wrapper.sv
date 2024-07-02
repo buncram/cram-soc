@@ -167,11 +167,14 @@ module bio_bdma_wrapper #(
     apbif #(.PAW(APW)) theapb();
     ahbif #(.AW(AHW),.DW(DW),.IDW(IDW),.UW(UW)) dma_ahb32();
     apbif #(.PAW(APW)) apb_imem[4]();
-    AXI_BUS #(
-        .AXI_ADDR_WIDTH     ( AXI_ADDR_WIDTH ),
-        .AXI_DATA_WIDTH     ( AXI_DATA_WIDTH ),
-        .AXI_ID_WIDTH       ( AXI_ID_WIDTH   ),
-        .AXI_USER_WIDTH     ( AXI_USER_WIDTH )
+    parameter XUDW  = 8;     // axi userdata width
+    parameter XLENW = 8;     // axi len width
+    axiif #(
+    .AW     ( 32     ),
+    .DW     ( 32     ),
+    .LENW   ( XLENW  ),
+    .IDW    ( 6      ),
+    .UW     ( XUDW   )
     ) dma_axi();
 
     apb_wire2ifm #(
@@ -278,54 +281,54 @@ module bio_bdma_wrapper #(
     );
 
     // no off the shelf primitive for this, so we do it by hand.
-    assign aw_addr    = dma_axi.aw_addr      ;
-    assign aw_prot    = dma_axi.aw_prot      ;
-    assign aw_region  = dma_axi.aw_region      ;
-    assign aw_len     = dma_axi.aw_len      ;
-    assign aw_size    = dma_axi.aw_size      ;
-    assign aw_burst   = dma_axi.aw_burst      ;
-    assign aw_lock    = dma_axi.aw_lock      ;
-    assign aw_cache   = dma_axi.aw_cache      ;
-    assign aw_qos     = dma_axi.aw_qos      ;
-    assign aw_id      = dma_axi.aw_id      ;
-    assign aw_user    = dma_axi.aw_user      ;
-    assign dma_axi.aw_ready   = aw_ready      ;
-    assign aw_valid   = dma_axi.aw_valid      ;
+    assign aw_addr    = dma_axi.awaddr      ;
+    assign aw_prot    = dma_axi.awprot      ;
+    // assign aw_region  = dma_axi.awregion      ;
+    assign aw_len     = dma_axi.awlen      ;
+    assign aw_size    = dma_axi.awsize      ;
+    assign aw_burst   = dma_axi.awburst      ;
+    assign aw_lock    = dma_axi.awlock      ;
+    assign aw_cache   = dma_axi.awcache      ;
+    // assign aw_qos     = dma_axi.awqos      ;
+    assign aw_id      = dma_axi.awid      ;
+    assign aw_user    = dma_axi.awuser      ;
+    assign dma_axi.awready   = aw_ready      ;
+    assign aw_valid   = dma_axi.awvalid      ;
 
-    assign ar_addr    = dma_axi.ar_addr      ;
-    assign ar_prot    = dma_axi.ar_prot      ;
-    assign ar_region  = dma_axi.ar_region      ;
-    assign ar_len     = dma_axi.ar_len      ;
-    assign ar_size    = dma_axi.ar_size      ;
-    assign ar_burst   = dma_axi.ar_burst      ;
-    assign ar_lock    = dma_axi.ar_lock      ;
-    assign ar_cache   = dma_axi.ar_cache      ;
-    assign ar_qos     = dma_axi.ar_qos      ;
-    assign ar_id      = dma_axi.ar_id      ;
-    assign ar_user    = dma_axi.ar_user      ;
-    assign dma_axi.ar_ready   = ar_ready      ;
-    assign ar_valid   = dma_axi.ar_valid      ;
+    assign ar_addr    = dma_axi.araddr      ;
+    assign ar_prot    = dma_axi.arprot      ;
+    // assign ar_region  = dma_axi.arregion      ;
+    assign ar_len     = dma_axi.arlen      ;
+    assign ar_size    = dma_axi.arsize      ;
+    assign ar_burst   = dma_axi.arburst      ;
+    assign ar_lock    = dma_axi.arlock      ;
+    assign ar_cache   = dma_axi.arcache      ;
+    // assign ar_qos     = dma_axi.arqos      ;
+    assign ar_id      = dma_axi.arid      ;
+    assign ar_user    = dma_axi.aruser      ;
+    assign dma_axi.arready   = ar_ready      ;
+    assign ar_valid   = dma_axi.arvalid      ;
 
-    assign w_valid    = dma_axi.w_valid      ;
-    assign w_data     = dma_axi.w_data      ;
-    assign w_strb     = dma_axi.w_strb      ;
-    assign w_user     = dma_axi.w_user      ;
-    assign w_last     = dma_axi.w_last      ;
-    assign dma_axi.w_ready    = w_ready      ;
+    assign w_valid    = dma_axi.wvalid      ;
+    assign w_data     = dma_axi.wdata      ;
+    assign w_strb     = dma_axi.wstrb      ;
+    assign w_user     = dma_axi.wuser      ;
+    assign w_last     = dma_axi.wlast      ;
+    assign dma_axi.wready    = w_ready      ;
 
-    assign dma_axi.r_data     = r_data      ;
-    assign dma_axi.r_resp     = r_resp      ;
-    assign dma_axi.r_last     = r_last      ;
-    assign dma_axi.r_id       = r_id      ;
-    assign dma_axi.r_user     = r_user      ;
-    assign r_ready    = dma_axi.r_ready      ;
-    assign dma_axi.r_valid    = r_valid      ;
+    assign dma_axi.rdata     = r_data      ;
+    assign dma_axi.rresp     = r_resp      ;
+    assign dma_axi.rlast     = r_last      ;
+    assign dma_axi.rid       = r_id      ;
+    assign dma_axi.ruser     = r_user      ;
+    assign r_ready    = dma_axi.rready      ;
+    assign dma_axi.rvalid    = r_valid      ;
 
-    assign dma_axi.b_resp     = b_resp      ;
-    assign dma_axi.b_id       = b_id      ;
-    assign dma_axi.b_user     = b_user      ;
-    assign b_ready    = dma_axi.b_ready      ;
-    assign dma_axi.b_valid    = b_valid      ;
+    assign dma_axi.bresp     = b_resp      ;
+    assign dma_axi.bid       = b_id      ;
+    assign dma_axi.buser     = b_user      ;
+    assign b_ready    = dma_axi.bready      ;
+    assign dma_axi.bvalid    = b_valid      ;
 
     ioif  bio_gpio[31:0]();
     generate
@@ -340,6 +343,7 @@ module bio_bdma_wrapper #(
         .aclk    (fclk),
         .pclk    ,
         .hclk    (fclk), // because in verilator this is actually the clock used; we'll hash out the final CDC on the full chip sim
+        .dmaclk  (fclk),
         .reset_n (resetn),
         .cmatpg  ,
         .cmbist  ,

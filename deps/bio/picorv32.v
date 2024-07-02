@@ -2234,6 +2234,7 @@ module picorv32 #(
 `endif
 endmodule
 
+`ifdef ALLOW_UNUSED_LINT
 // This is a simple example implementation of PICORV32_REGS.
 // Use the PICORV32_REGS mechanism if you want to use custom
 // memory resources to implement the processor register file.
@@ -2791,6 +2792,7 @@ module picorv32_axi #(
 	);
 endmodule
 
+`endif
 
 /***************************************************************
  * picorv32_axi_adapter
@@ -2875,7 +2877,7 @@ module picorv32_axi_adapter (
 	end
 endmodule
 
-
+`ifdef ALLOW_UNUSED_LINT
 /***************************************************************
  * picorv32_wb
  ***************************************************************/
@@ -3115,3 +3117,4 @@ module picorv32_wb #(
 		end
 	end
 endmodule
+`endif

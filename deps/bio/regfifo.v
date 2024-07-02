@@ -46,7 +46,7 @@ wire          syncfifo_readable;
 wire   [31:0] syncfifo_din;
 wire   [31:0] syncfifo_dout;
 reg     [3:0] level0;
-reg           replace;
+wire          replace;
 reg     [2:0] produce;
 reg     [2:0] consume;
 reg     [2:0] wrport_adr;
@@ -63,6 +63,7 @@ wire    [3:0] level1;
 // Combinatorial Logic
 //------------------------------------------------------------------------------
 
+assign replace = 1'b0;
 assign aclk_clk = aclk;
 assign aclk_rst = reset;
 assign syncfifo_din = wdata;

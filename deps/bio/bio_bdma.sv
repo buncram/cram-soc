@@ -3,8 +3,6 @@
 `include "apb_sfr_v0.1.sv"
 `endif
 
-`include "soc/axi_pkg.sv"
-
 // TODO:
 //   - IRQs for DMA
 //   - Split FIFO endpoints across pages
@@ -19,7 +17,8 @@ module bio_bdma #(
 (
     input logic         aclk,
     input logic         pclk, // APB clock
-    input logic         hclk, // AHB clock
+    input logic         hclk, // AXI clock
+    input logic         dmaclk, // AHB clock
     input logic         reset_n,
     input logic         cmatpg, cmbist,
     input logic [2:0]   sramtrm,
@@ -33,8 +32,8 @@ module bio_bdma #(
     apbif.slavein       apbs_imem[4],
     apbif.slave         apbx_imem[4],
 
-   // above 0x6000_0000 (inclusive) go to this AXI interface on HCLK. The matrix is AXI-native.
-    AXI_BUS.Master      axim,
+    // above 0x6000_0000 (inclusive) go to this AXI interface on HCLK. The matrix is AXI-native.
+    axiif.master        axim,
     // below 0x6000_0000 go to this AHB interface on HCLK. The matrix is AHB-native.
 	ahbif.master        ahbm
 );
@@ -118,6 +117,15 @@ module bio_bdma #(
 	logic [31:0] mem_la_addr  [NUM_MACH];
 	logic [31:0] mem_la_wdata [NUM_MACH];
 	logic [ 3:0] mem_la_wstrb [NUM_MACH];
+
+    // Tie-offs
+	logic [NUM_MACH-1:0] pcpi_valid;
+	logic [31:0] pcpi_insn  [NUM_MACH];
+	logic [31:0] pcpi_rs1  [NUM_MACH];
+	logic [31:0] pcpi_rs2  [NUM_MACH];
+	logic [31:0] eoi  [NUM_MACH];
+	logic [NUM_MACH-1:0] trace_valid;
+	logic [35:0] trace_data [NUM_MACH];
 
     // In theory, we could do some overlapping write-over-read with AHB and multiple cores
     // owning different read//write ops, but I think it's not worth the complexity
@@ -372,13 +380,13 @@ module bio_bdma #(
     apb_sr #(.A('h98), .DW(32))      sfr_dbg2             (.sr({trap[2], dbg_pc[2]}), .prdata32(),.*);
     apb_sr #(.A('h9C), .DW(32))      sfr_dbg3             (.sr({trap[3], dbg_pc[3]}), .prdata32(),.*);
 
-    cdc_blinded       ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
-    cdc_blinded       ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b(pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
-    cdc_blinded       push_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(push                  ), .out_b(push_sync                  ));
-    cdc_blinded       pull_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
-    cdc_blinded       event_set_cdc      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_set_valid  ), .out_b(host_event_set_valid       ));
-    cdc_blinded       event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
-    cdc_blinded       fifo_clr_cdc       (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(do_fifo_clr           ), .out_b(do_fifo_clr_aclk           ));
+    cdc_level_to_pulse   ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
+    cdc_blinded          ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b     (pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
+    cdc_level_to_pulse   push_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(push                  ), .out_b(push_sync                  ));
+    cdc_level_to_pulse   pull_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_level_to_pulse   event_set_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_set_valid  ), .out_b(host_event_set_valid       ));
+    cdc_level_to_pulse   event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
+    cdc_level_to_pulse   fifo_clr_cdc       (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(do_fifo_clr           ), .out_b(do_fifo_clr_aclk           ));
 
     /////////////////////// machine instantiation & instruction memory
     assign reset = ~reset_n;
@@ -426,7 +434,7 @@ module bio_bdma #(
             always_ff @(posedge aclk) begin
                 // register this to reduce critical path to stall
                 quantum[j] <= use_extclk_aclk[j] ? (extclk_selected[j] & ~extclk_selected_q[j]) : penable[j];
-                extclk_selected_q <= extclk_selected;
+                extclk_selected_q[j] <= extclk_selected[j];
             end
         end
     endgenerate
@@ -830,13 +838,13 @@ module bio_bdma #(
         .mem_wstrb(mem_wstrb[dma_owner]),
         .mem_rdata(dma_rdata)
     );
-    // axilthru_pulp core_thru(core_axil, core_axil);
+
     // AXIL crossbar to demux address space further
     axil_crossbar #(
         .S_COUNT(1),
         .M_COUNT(2),
         .M_BASE_ADDR({32'h6000_0000,32'h4000_0000}),
-        .M_ADDR_WIDTH({32'd29,32'd29}),
+        .M_ADDR_WIDTH({32'd29,32'd29})
     ) axil_demux (
         .clk(aclk),
         .rst(~reset_n),
@@ -909,50 +917,60 @@ module bio_bdma #(
 
         .m_clk(hclk),
         .m_rst(~reset_n),
-        .m_axil_awaddr(axim.aw_addr),
-        .m_axil_awprot(axim.aw_prot),
-        .m_axil_awvalid(axim.aw_valid),
-        .m_axil_awready(axim.aw_ready),
-        .m_axil_wdata(axim.w_data),
-        .m_axil_wstrb(axim.w_strb),
-        .m_axil_wvalid(axim.w_valid),
-        .m_axil_wready(axim.w_ready),
-        .m_axil_bresp(axim.b_resp),
-        .m_axil_bvalid(axim.b_valid),
-        .m_axil_bready(axim.b_ready),
-        .m_axil_araddr(axim.ar_addr),
-        .m_axil_arprot(axim.ar_prot),
-        .m_axil_arvalid(axim.ar_valid),
-        .m_axil_arready(axim.ar_ready),
-        .m_axil_rdata(axim.r_data),
-        .m_axil_rresp(axim.r_resp),
-        .m_axil_rvalid(axim.r_valid),
-        .m_axil_rready(axim.r_ready)
+        .m_axil_awaddr  (axim.awaddr),
+        .m_axil_awprot  (axim.awprot),
+        .m_axil_awvalid (axim.awvalid),
+        .m_axil_awready (axim.awready),
+        .m_axil_wdata   (axim.wdata),
+        .m_axil_wstrb   (axim.wstrb),
+        .m_axil_wvalid  (axim.wvalid),
+        .m_axil_wready  (axim.wready),
+        .m_axil_bresp   (axim.bresp),
+        .m_axil_bvalid  (axim.bvalid),
+        .m_axil_bready  (axim.bready),
+        .m_axil_araddr  (axim.araddr),
+        .m_axil_arprot  (axim.arprot),
+        .m_axil_arvalid (axim.arvalid),
+        .m_axil_arready (axim.arready),
+        .m_axil_rdata   (axim.rdata),
+        .m_axil_rresp   (axim.rresp),
+        .m_axil_rvalid  (axim.rvalid),
+        .m_axil_rready  (axim.rready)
     );
     // tie off AXI-master signals not driven by AXI-Lite
-    assign axim.aw_id = daric_cfg::AMBAID4_MDMA;
-    assign axim.aw_len = '0;
-    assign axim.aw_size = 2;  // size = 4 bytes
-    assign axim.aw_burst = 0; // fixed burst
-    assign axim.aw_lock = '0;
-    assign axim.aw_cache = '0;
-    assign axim.aw_prot = 2;
-    assign axim.aw_qos = '0;
-    assign axim.aw_region = '0;
-    assign axim.aw_atop = '0;
-    assign axim.aw_user = '0;
-    assign axim.w_last = '1;
-    assign axim.w_user = '0;
-    assign axim.ar_id = daric_cfg::AMBAID4_MDMA;
-    assign axim.ar_len = '0;
-    assign axim.ar_size = 2; // size = 4 bytes
-    assign axim.ar_burst = 0; // fixed burst
-    assign axim.ar_lock = '0;
-    assign axim.ar_cache = '0;
-    assign axim.ar_prot = 2;
-    assign axim.ar_qos = '0;
-    assign axim.ar_region = '0;
-    assign axim.ar_user = '0;
+    assign axim.awid = daric_cfg::AMBAID4_MDMA;
+    assign axim.awlen = '0;
+    assign axim.awsize = 2;  // size = 4 bytes
+    assign axim.awburst = 0; // fixed burst
+    assign axim.awlock = '0;
+    assign axim.awcache = '0;
+    assign axim.awmaster = '0;
+    assign axim.awinner = '0;
+    assign axim.awshare = '0;
+    assign axim.awsparse = '1;
+//  assign axim.awprot = 2;
+//  assign axim.awqos = '0;
+//  assign axim.awregion = '0;
+//  assign axim.awatop = '0;
+    assign axim.awuser = '0;
+    assign axim.wlast = '1;
+    assign axim.wuser = '0;
+    assign axim.wid   = daric_cfg::AMBAID4_MDMA;
+    assign axim.arid = daric_cfg::AMBAID4_MDMA;
+    assign axim.arlen = '0;
+    assign axim.arsize = 2; // size = 4 bytes
+    assign axim.arburst = 0; // fixed burst
+    assign axim.arlock = '0;
+    assign axim.arcache = '0;
+//  assign axim.arprot = 2;
+//  assign axim.arqos = '0;
+//  assign axim.arregion = '0;
+    assign axim.aruser = '0;
+    assign axim.armaster = '0;
+    assign axim.arinner = '0;
+    assign axim.arshare = '0;
+    // assign axim.ruser = '0;
+    // assign axim.buser = '0;
 
     axil_cdc #(
         .DATA_WIDTH(32),
@@ -980,7 +998,7 @@ module bio_bdma #(
         .s_axil_rvalid(peri_axil.r_valid),
         .s_axil_rready(peri_axil.r_ready),
 
-        .m_clk(hclk),
+        .m_clk(dmaclk),
         .m_rst(~reset_n),
         .m_axil_awaddr(peri_cdc_axil.aw_addr),
         .m_axil_awprot(peri_cdc_axil.aw_prot),
@@ -1045,9 +1063,18 @@ module bio_bdma #(
         endcase
     end
 
+    // cleanup lints
+    logic [3:0] axi2ahb_bid_null;
+    logic [3:0] axi2ahb_rid_null;
+    logic       axi2ahb_rlast_null;
     axi2ahb peri_axi2ahb (
-        .clk(hclk),
+        .clk(dmaclk),
         .reset(~reset_n),
+        // tie unused outputs
+        .BID(axi2ahb_bid_null),
+        .RID(axi2ahb_rid_null),
+        .RLAST(axi2ahb_rlast_null),
+
         .AWID('0),
         .AWADDR(axi_aw_bodge),
         .AWLEN('0),
@@ -1087,6 +1114,12 @@ module bio_bdma #(
         .HREADY(ahbm.hready),
         .HRESP(ahbm.hresp)
     );
+    assign ahbm.hprot = '0;
+    assign ahbm.hmaster = '0;
+    assign ahbm.hmasterlock = '0;
+    assign ahbm.hreadym = ahbm.hready;
+    assign ahbm.hauser = '0;
+    assign ahbm.hwuser = '0;
 /* // TODO: CM7 model doesn't match up with Daric MPW specs, remove it once confirmed on integration tests
     CM7AAB #(.DW_64(0)) peri_axi2ahb (
         .CLK(hclk),
@@ -1158,15 +1191,32 @@ module bio_bdma #(
             .O(aclk_buf)
         );
     `endif
+
+    assign mem_rdata = ram_rd_data;
+    // give a full aclk to mux between the banks
+    // host_mem_rdata is in aclk -> which returns on pclk domain
+    // Somewhat fragile time: this circuit assumes aclk is >= 2x speed of pclk
+    always_ff @(posedge aclk) begin
+        if (host_mem_rd[0]) begin
+            host_mem_rdata <= host_mem_rdata_capture[0];
+        end else if (host_mem_rd[1]) begin
+            host_mem_rdata <= host_mem_rdata_capture[1];
+        end else if (host_mem_rd[2]) begin
+            host_mem_rdata <= host_mem_rdata_capture[2];
+        end else if (host_mem_rd[3]) begin
+            host_mem_rdata <= host_mem_rdata_capture[3];
+        end
+    end
+
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: mach
             // apb<->imem
+            assign apbx_imem[j].pready = 1'b1;
+            assign apbx_imem[j].pslverr = 1'b0;
+            assign apbx_imem[j].prdata = host_mem_rdata;
             always_comb begin
                 host_mem_wr_d[j] = psel_sync[j][1] & pwrite_sync[j][1] & penable_sync[j][1];
                 host_mem_rd[j] = psel_sync[j][1] & !pwrite_sync[j][1] & penable_sync[j][1];
-                apbx_imem[j].pready = 1'b1;
-                apbx_imem[j].pslverr = 1'b0;
-                apbx_imem[j].prdata = host_mem_rdata;
                 // already synchronized below, just pass through
                 host_mem_addr[j] = host_mem_addr_sync[j][1][MEM_ADDR_BITS-1:0];
             end
@@ -1191,14 +1241,6 @@ module bio_bdma #(
                 host_mem_wdata[j] <= host_mem_wr_d[j] & !host_mem_wr[j] ? host_mem_wdata_sync[j][1] : host_mem_wdata[j];
 
                 host_mem_rdata_capture[j] <= ram_rd_data[j];
-            end
-            // give a full aclk to mux between the banks
-            // host_mem_rdata is in aclk -> which returns on pclk domain
-            // Somewhat fragile time: this circuit assumes aclk is >= 2x speed of pclk
-            always_ff @(posedge aclk) begin
-                if (host_mem_rd[j]) begin
-                    host_mem_rdata <= host_mem_rdata_capture[j];
-                end
             end
 
             assign imem_wr_mode[j] = en_sync[j]; // when machine j is disabled, the host can use its port to read/write
@@ -1244,7 +1286,7 @@ module bio_bdma #(
                 .ramname("RAM_SP_512_32")
             ) imem (
                 .clk(aclk),
-                .wr_n(~(ram_wr_en[j] & (!ext_addr[j] | ~imem_wr_mode[j]))),
+                .wr_n(~(ram_wr_en[j] & (~ext_addr_la[j] | ~imem_wr_mode[j]))),
                 .addr(ram_addr[j]),
                 .wr_mask_n(~ram_wr_mask[j]),
                 .ce_n(~(
@@ -1257,7 +1299,6 @@ module bio_bdma #(
                 .sramtrm(sramtrm)
             );
 
-            assign mem_rdata = ram_rd_data;
             always_ff @(posedge aclk) begin
                 mem_ready[j] <= mem_la_read[j] || ram_wr_en[j] || quanta_halt[j] && mem_ready[j];
             end
@@ -1365,18 +1406,18 @@ module bio_bdma #(
                 .dbg_pc(dbg_pc[j]),
 
                 // unused pins
-                .pcpi_valid(),
-                .pcpi_insn(),
-                .pcpi_rs1(),
-                .pcpi_rs2(),
+                .pcpi_valid(pcpi_valid[j]),
+                .pcpi_insn(pcpi_insn[j]),
+                .pcpi_rs1(pcpi_rs1[j]),
+                .pcpi_rs2(pcpi_rs2[j]),
                 .pcpi_wr('0),
                 .pcpi_rd('0),
                 .pcpi_wait('0),
                 .pcpi_ready('0),
 	            .irq('0),
-	            .eoi(),
-                .trace_valid(),
-                .trace_data()
+	            .eoi(eoi[j]),
+                .trace_valid(trace_valid[j]),
+                .trace_data(trace_data[j])
             );
         end
     endgenerate
@@ -1880,36 +1921,4 @@ module apb_asr
             .apbwr       (               )
          );
     `theregfull(pclk, resetn, ar, '0) <= sfrapbrd;
-endmodule
-
-module axilthru_pulp (
-    AXI_LITE.Slave  axis,
-    AXI_LITE.Master  axim
-);
-
-/*  addr_t           */ assign axim.aw_addr     = axis.aw_addr     ; // axis.awaddr   ;
-/*  logic            */ assign axim.aw_valid    = axis.aw_valid    ; // axis.awvalid  ;
-/*  axi_pkg::prot_t  */ assign axim.aw_prot     = axis.aw_prot     ; // axis.awprot   ;
-
-/*  data_t           */ assign axim.w_data      = axis.w_data      ; //axis.wdata    ;
-/*  strb_t           */ assign axim.w_strb      = axis.w_strb      ; //axis.wstrb    ;
-/*  logic            */ assign axim.w_valid     = axis.w_valid     ; //axis.wvalid   ;
-
-/*  addr_t           */ assign axim.ar_addr     = axis.ar_addr     ; //axis.araddr    ;
-/*  logic            */ assign axim.ar_valid    = axis.ar_valid    ; //axis.arvalid   ;
-/*  axi_pkg::prot_t  */ assign axim.ar_prot     = axis.ar_prot     ; //axis.arprot    ;
-
-/*  logic            */ assign axim.b_ready     = axis.b_ready    ;
-/*  logic            */ assign axim.r_ready     = axis.r_ready    ;
-
-/*  axi_pkg::resp_t  */ assign axis.b_resp     = axim.b_resp     ; //bresp       ;
-/*  logic            */ assign axis.b_valid    = axim.b_valid    ; //bvalid      ;
-/*  data_t           */ assign axis.r_data     = axim.r_data     ; //rdata       ;
-/*  axi_pkg::resp_t  */ assign axis.r_resp     = axim.r_resp     ; //rresp       ;
-/*  logic            */ assign axis.r_valid    = axim.r_valid    ; //rvalid      ;
-
-/*  logic            */ assign axis.aw_ready     = axim.aw_ready  ;
-/*  logic            */ assign axis.w_ready      = axim.w_ready   ;
-/*  logic            */ assign axis.ar_ready     = axim.ar_ready  ;
-
 endmodule
