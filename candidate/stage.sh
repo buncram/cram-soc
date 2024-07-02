@@ -46,17 +46,21 @@ cp ../deps/verilog-axi/rtl/axil_crossbar_rd.v .
 cp ../deps/verilog-axi/rtl/axil_crossbar_wr.v .
 cp ../deps/verilog-axi/rtl/axil_register_wr.v .
 cp ../deps/verilog-axi/rtl/axil_register_rd.v .
+cp ../deps/verilog-axi/rtl/axil_reg_if.v .
+cp ../deps/verilog-axi/rtl/axil_reg_if_rd.v .
+cp ../deps/verilog-axi/rtl/axil_reg_if_wr.v .
 cp ../deps/verilog-axi/rtl/axil_cdc.v .
-cp ../deps/verilog-axi/rtl/axil_wr.v .
-cp ../deps/verilog-axi/rtl/axil_rd.v .
+cp ../deps/verilog-axi/rtl/axil_cdc_wr.v .
+cp ../deps/verilog-axi/rtl/axil_cdc_rd.v .
+cp ../sim_support/cdc_level_to_pulse.sv .
 
 # used by BIO; maybe substitute with CM7 HDK option if performance is better
-cp ../deps/bio/soc/axi2ahb.v .
-cp ../deps/bio/soc/axi2ahb_cmd.v .
-cp ../deps/bio/soc/axi2ahb_ctrl.v .
-cp ../deps/bio/soc/axi2ahb_rd_fifo.v .
-cp ../deps/bio/soc/axi2ahb_wr_fifo.v .
-cp ../deps/bio/soc/prgen_fifo.v .
+cp ../deps/axi2ahb/axi2ahb.v .
+cp ../deps/axi2ahb/axi2ahb_cmd.v .
+cp ../deps/axi2ahb/axi2ahb_ctrl.v .
+cp ../deps/axi2ahb/axi2ahb_rd_fifo.v .
+cp ../deps/axi2ahb/axi2ahb_wr_fifo.v .
+cp ../deps/axi2ahb/prgen_fifo.v .
 
 # copy over PIO rtl models
 rm -rf pio/*

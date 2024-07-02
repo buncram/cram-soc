@@ -507,7 +507,8 @@ generate
         end
 
         // address arbitration
-        reg [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] w_select_reg = 0, w_select_next;
+        // reg [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] w_select_reg = 0, w_select_next;
+        reg [S_COUNT*2-1:0] w_select_reg = 0, w_select_next;
         reg w_select_valid_reg = 1'b0, w_select_valid_next;
         reg w_select_new_reg = 1'b0, w_select_new_next;
 
@@ -515,7 +516,9 @@ generate
         wire [S_COUNT-1:0] a_acknowledge;
         wire [S_COUNT-1:0] a_grant;
         wire a_grant_valid;
-        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
+        // wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
+        // this needs to be wider than strictly necessary to work around a verilator bug
+        wire [S_COUNT*2-1:0] a_grant_encoded;
 
         arbiter #(
             .PORTS(S_COUNT),

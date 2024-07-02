@@ -81,11 +81,11 @@ GPIO - note clear-on-0 semantics for bit-clear for data pins!
 - x25 -/w  (x26 & x25) -> `1` will make corresponding gpio pin an input
 - x26 r/w  mask GPIO action outputs
 
-Events - operate on a shared event register. Bits [7:0] are hard-wired to FIFO
-level flags, configured by the host; writes to bits [7:0] are ignored.
+Events - operate on a shared event register. Bits [31:24] are hard-wired to FIFO
+level flags, configured by the host; writes to bits [31:24] are ignored.
 - x27 -/w  mask event sensitivity bits
-- x28 -/w  `1` will set the corresponding event bit. Only [31:8] are wired up.
-- x29 -/w  `1` will clear the corresponding event bit Only [31:8] are wired up.
+- x28 -/w  `1` will set the corresponding event bit. Only [23:0] are wired up.
+- x29 -/w  `1` will clear the corresponding event bit Only [23:0] are wired up.
 - x30 r/-  halt until ((x27 & events) == x27), and return unmasked `events` value
 
 Core ID & debug:
@@ -193,8 +193,8 @@ wait:
   add x4, x1, x3  // x4 <- end condition based on source address increment
 
 loop:
-  ld  x5, 0(x3)    // blocks until load responds
-  st  x5, 0(x2)    // blocks until store completes
+  lw  x5, 0(x3)    // blocks until load responds
+  sw  x5, 0(x2)    // blocks until store completes
   addi x3, x3, 4   // 3 cycles
   addi x2, x2, 4   // 3 cycles
   bne x3, x4, loop // 5 cycles
@@ -208,14 +208,14 @@ Core 0:
 ```
 // core 0 just waits for addresses to appear on FIFOs x16, x17
 core0:
-  ld x5, 0(x16)
-  st x5, 0(x17)
-  ld x5, 0(x16)  // optionally unroll the loop to amortize jump cost
-  st x5, 0(x17)
-  ld x5, 0(x16)
-  st x5, 0(x17)
-  ld x5, 0(x16)
-  st x5, 0(x17)
+  lw x5, 0(x16)
+  sw x5, 0(x17)
+  lw x5, 0(x16)  // optionally unroll the loop to amortize jump cost
+  sw x5, 0(x17)
+  lw x5, 0(x16)
+  sw x5, 0(x17)
+  lw x5, 0(x16)
+  sw x5, 0(x17)
   j core0
 ```
 
@@ -224,7 +224,7 @@ Core 1:
 core1:
   mv x1, x18  // src address on FIFO x18
   mv x2, x18  // # bytes to move on FIFO x18
-  add x3, x2, x2
+  add x3, x2, x1
 core1_loop:
   mv x16, x1
   addi x1, x1, 4
@@ -238,7 +238,7 @@ Core 2:
 core2:
   mv x1, x19  // dst address on FIFO x19
   mv x2, x19  // # bytes to move on FIFO x19
-  add x3, x2, x2
+  add x3, x2, x1
 core2_loop:
   mv x17, x1
   addi x1, x1, 4

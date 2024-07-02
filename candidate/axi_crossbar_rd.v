@@ -454,7 +454,9 @@ generate
         wire [S_COUNT-1:0] a_acknowledge;
         wire [S_COUNT-1:0] a_grant;
         wire a_grant_valid;
-        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
+        // wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
+        // this needs to be wider than strictly necessary to work around a verilator bug
+        wire [S_COUNT*2-1:0] a_grant_encoded;
 
         arbiter #(
             .PORTS(S_COUNT),
@@ -487,6 +489,14 @@ generate
         wire [ARUSER_WIDTH-1:0] s_axi_aruser_mux   = int_s_axi_aruser[a_grant_encoded*ARUSER_WIDTH +: ARUSER_WIDTH];
         wire                    s_axi_arvalid_mux  = int_axi_arvalid[a_grant_encoded*M_COUNT+n] && a_grant_valid;
         wire                    s_axi_arready_mux;
+
+        /*
+        always @(posedge clk) begin
+            if (a_grant != 0) begin
+                $display("araddr_mux %d, a_grant_encoded %d, ADDR_WIDTH %d", a_grant_encoded*ADDR_WIDTH, a_grant_encoded, ADDR_WIDTH);
+            end
+        end
+        */
 
         assign int_axi_arready[n*S_COUNT +: S_COUNT] = (a_grant_valid && s_axi_arready_mux) << a_grant_encoded;
 

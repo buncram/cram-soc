@@ -4,8 +4,8 @@
 `endif
 
 // TODO:
-// [ ] HCLK-ACLK synchronizers for data transfer
-// [ ] Read/write pipelined connectors for PicoRV to AHB bus
+//   - IRQs for DMA
+//   - Split FIFO endpoints across pages
 
 // `define FPGA 1
 
@@ -16,7 +16,9 @@ module bio_bdma #(
 )
 (
     input logic         aclk,
-    input logic         pclk,
+    input logic         pclk, // APB clock
+    input logic         hclk, // AXI clock
+    input logic         dmaclk, // AHB clock
     input logic         reset_n,
     input logic         cmatpg, cmbist,
     input logic [2:0]   sramtrm,
@@ -30,6 +32,9 @@ module bio_bdma #(
     apbif.slavein       apbs_imem[4],
     apbif.slave         apbx_imem[4],
 
+    // above 0x6000_0000 (inclusive) go to this AXI interface on HCLK. The matrix is AXI-native.
+    axiif.master        axim,
+    // below 0x6000_0000 go to this AHB interface on HCLK. The matrix is AHB-native.
 	ahbif.master        ahbm
 );
     localparam NUM_MACH = 4;
@@ -97,21 +102,82 @@ module bio_bdma #(
     logic [PC_SIZE_BITS-1:0]   dbg_pc[NUM_MACH];
 
     // Memory interfaces
-	// logic [NUM_MACH-1:0]       mem_valid;
-	// logic [NUM_MACH-1:0]       mem_instr;
+	logic [NUM_MACH-1:0]       mem_valid;
+	logic [NUM_MACH-1:0]       mem_instr;
 	logic [NUM_MACH-1:0]       mem_ready;
 
-	// logic [31:0] mem_addr   [NUM_MACH];
-	// logic [31:0] mem_wdata  [NUM_MACH];
-	// logic [ 3:0] mem_wstrb  [NUM_MACH];
+	logic [31:0] mem_addr     [NUM_MACH];
+	logic [31:0] mem_wdata    [NUM_MACH];
+	logic [ 3:0] mem_wstrb    [NUM_MACH];
 	logic [31:0] mem_rdata    [NUM_MACH];
 
 	// Look-Ahead Interface
-	logic        mem_la_read  [NUM_MACH];
-	logic        mem_la_write [NUM_MACH];
+	logic [NUM_MACH-1:0]      mem_la_read;
+	logic [NUM_MACH-1:0]      mem_la_write;
 	logic [31:0] mem_la_addr  [NUM_MACH];
 	logic [31:0] mem_la_wdata [NUM_MACH];
 	logic [ 3:0] mem_la_wstrb [NUM_MACH];
+
+    // Tie-offs
+	logic [NUM_MACH-1:0] pcpi_valid;
+	logic [31:0] pcpi_insn  [NUM_MACH];
+	logic [31:0] pcpi_rs1  [NUM_MACH];
+	logic [31:0] pcpi_rs2  [NUM_MACH];
+	logic [31:0] eoi  [NUM_MACH];
+	logic [NUM_MACH-1:0] trace_valid;
+	logic [35:0] trace_data [NUM_MACH];
+
+    // In theory, we could do some overlapping write-over-read with AHB and multiple cores
+    // owning different read//write ops, but I think it's not worth the complexity
+    // DMA signals in aclk domain
+    logic [NUM_MACH-1:0] ext_addr;
+    logic [NUM_MACH-1:0] ext_addr_la;
+    logic [NUM_MACH-1:0] merged_mem_ready;
+	logic [31:0] merged_mem_rdata  [NUM_MACH];
+    logic [NUM_MACH-1:0] core_dma_ready;
+    logic [1:0] dma_owner;
+    logic dma_active;
+    logic dma_ready;
+    logic [31:0] dma_rdata;
+    logic [31:0] dma_addr;
+    logic [31:0] dma_wdata;
+    logic dma_write;
+    logic [0:0] dma_state_aclk [2];
+    logic [3:0] dma_wstrb;
+    logic [2:0] dma_size;
+    logic [1:0] dma_htrans;
+    // align with the dma_owner signal, which takes a cycle to resolve
+	logic [NUM_MACH-1:0]      mem_la_read_reg;
+	logic [NUM_MACH-1:0]      mem_la_write_reg;
+
+    // bodge for AHB size decoding: this relies on a spec-non-compliance of
+    // the actual IFRAM core, which gates byte writes with HSIZE
+    logic [2:0] ahb_size_bodge;
+    logic [31:0] axi_aw_bodge;
+
+    // core AXI-lite endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) core_axil();
+
+    // memory demux endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) mem_axil();
+
+    // peripheral demux endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) peri_axil();
+
+    // peripheral clock domain crossing endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) peri_cdc_axil();
 
     // high register interfaces
     logic [31:0] mach_regfifo_rdata [NUM_MACH];
@@ -251,7 +317,11 @@ module bio_bdma #(
             sfr_irqmask_1    .prdata32 |
             sfr_irqmask_2    .prdata32 |
             sfr_irqmask_3    .prdata32 |
-            sfr_irq_edge     .prdata32
+            sfr_irq_edge     .prdata32 |
+            sfr_dbg0         .prdata32 |
+            sfr_dbg1         .prdata32 |
+            sfr_dbg2         .prdata32 |
+            sfr_dbg3         .prdata32
             ;
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
@@ -310,13 +380,13 @@ module bio_bdma #(
     apb_sr #(.A('h98), .DW(32))      sfr_dbg2             (.sr({trap[2], dbg_pc[2]}), .prdata32(),.*);
     apb_sr #(.A('h9C), .DW(32))      sfr_dbg3             (.sr({trap[3], dbg_pc[3]}), .prdata32(),.*);
 
-    cdc_blinded       ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
-    cdc_blinded       ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b(pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
-    cdc_blinded       push_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(push                  ), .out_b(push_sync                  ));
-    cdc_blinded       pull_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
-    cdc_blinded       event_set_cdc      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_set_valid  ), .out_b(host_event_set_valid       ));
-    cdc_blinded       event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
-    cdc_blinded       fifo_clr_cdc       (.reset(reset), .clk_a(pclk), .clk_b(aclk), .in_a(do_fifo_clr           ), .out_b(do_fifo_clr_aclk           ));
+    cdc_level_to_pulse   ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
+    cdc_blinded          ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b     (pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
+    cdc_level_to_pulse   push_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(push                  ), .out_b(push_sync                  ));
+    cdc_level_to_pulse   pull_cdc[3:0]      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pull                  ), .out_b(pull_sync                  ));
+    cdc_level_to_pulse   event_set_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_set_valid  ), .out_b(host_event_set_valid       ));
+    cdc_level_to_pulse   event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
+    cdc_level_to_pulse   fifo_clr_cdc       (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(do_fifo_clr           ), .out_b(do_fifo_clr_aclk           ));
 
     /////////////////////// machine instantiation & instruction memory
     assign reset = ~reset_n;
@@ -330,7 +400,6 @@ module bio_bdma #(
     logic host_mem_wr [NUM_MACH];
     logic host_mem_wr_d [NUM_MACH];
     logic host_mem_rd [NUM_MACH];
-    logic host_mem_rd_d [NUM_MACH];
     logic [1:0] psel_sync [NUM_MACH];
     logic [1:0] pwrite_sync [NUM_MACH];
     logic [1:0] penable_sync [NUM_MACH];
@@ -365,7 +434,7 @@ module bio_bdma #(
             always_ff @(posedge aclk) begin
                 // register this to reduce critical path to stall
                 quantum[j] <= use_extclk_aclk[j] ? (extclk_selected[j] & ~extclk_selected_q[j]) : penable[j];
-                extclk_selected_q <= extclk_selected;
+                extclk_selected_q[j] <= extclk_selected[j];
             end
         end
     endgenerate
@@ -700,6 +769,419 @@ module bio_bdma #(
         end
     endgenerate
 
+    /////////////////////// DMA control FSM
+    always_ff @(posedge aclk) begin
+        if (~reset_n) begin
+            dma_owner <= '0;
+            dma_active <= '0;
+        end else begin
+            if (dma_active == 0) begin
+                if ((mem_la_read[0] | mem_la_write[0] | (mem_valid[0] & !mem_ready[0])) & ext_addr_la[0]) begin
+                    dma_owner <= 2'h0;
+                    dma_active <= 1;
+                end else if ((mem_la_read[1] | mem_la_write[1] | (mem_valid[1] & !mem_ready[1])) & ext_addr_la[1]) begin
+                    dma_owner <= 2'h1;
+                    dma_active <= 1;
+                end else if ((mem_la_read[2] | mem_la_write[2] | (mem_valid[2] & !mem_ready[2])) & ext_addr_la[2]) begin
+                    dma_owner <= 2'h2;
+                    dma_active <= 1;
+                end else if ((mem_la_read[3] | mem_la_write[3] | (mem_valid[3] & !mem_ready[3])) & ext_addr_la[3]) begin
+                    dma_owner <= 2'h3;
+                    dma_active <= 1;
+                end
+            end else begin
+                if (dma_ready) begin
+                    dma_owner <= '0;
+                    dma_active <= 0;
+                end else begin
+                    dma_owner <= dma_owner;
+                    dma_active <= dma_active;
+                end
+            end
+        end
+    end
+
+    /////////////////////// Demux & CDC of datapath for each CPU
+    // convert interface to AXIL
+    picorv32_axi_adapter prv_axil (
+        .clk(aclk),
+        .resetn(reset_n),
+
+        // AXI4-lite master memory interface
+        .mem_axi_awvalid(core_axil.aw_valid),
+        .mem_axi_awready(core_axil.aw_ready),
+        .mem_axi_awaddr(core_axil.aw_addr),
+        .mem_axi_awprot(core_axil.aw_prot),
+
+        .mem_axi_wvalid(core_axil.w_valid),
+        .mem_axi_wready(core_axil.w_ready),
+        .mem_axi_wdata(core_axil.w_data),
+        .mem_axi_wstrb(core_axil.w_strb),
+
+        .mem_axi_bvalid(core_axil.b_valid),
+        .mem_axi_bready(core_axil.b_ready),
+
+        .mem_axi_arvalid(core_axil.ar_valid),
+        .mem_axi_arready(core_axil.ar_ready),
+        .mem_axi_araddr(core_axil.ar_addr),
+        .mem_axi_arprot(core_axil.ar_prot),
+
+        .mem_axi_rvalid(core_axil.r_valid),
+        .mem_axi_rready(core_axil.r_ready),
+        .mem_axi_rdata(core_axil.r_data),
+
+        .mem_valid(mem_valid[dma_owner] & dma_active),
+        .mem_instr(mem_instr[dma_owner]),
+        .mem_ready(dma_ready),
+        .mem_addr(mem_addr[dma_owner]),
+        .mem_wdata(mem_wdata[dma_owner]),
+        .mem_wstrb(mem_wstrb[dma_owner]),
+        .mem_rdata(dma_rdata)
+    );
+
+    // AXIL crossbar to demux address space further
+    axil_crossbar #(
+        .S_COUNT(1),
+        .M_COUNT(2),
+        .M_BASE_ADDR({32'h6000_0000,32'h4000_0000}),
+        .M_ADDR_WIDTH({32'd29,32'd29})
+    ) axil_demux (
+        .clk(aclk),
+        .rst(~reset_n),
+        .s_axil_awaddr(core_axil.aw_addr),
+        .s_axil_awprot(core_axil.aw_prot),
+        .s_axil_awvalid(core_axil.aw_valid),
+        .s_axil_awready(core_axil.aw_ready),
+        .s_axil_wdata(core_axil.w_data),
+        .s_axil_wstrb(core_axil.w_strb),
+        .s_axil_wvalid(core_axil.w_valid),
+        .s_axil_wready(core_axil.w_ready),
+        .s_axil_bresp(core_axil.b_resp),
+        .s_axil_bvalid(core_axil.b_valid),
+        .s_axil_bready(core_axil.b_ready),
+        .s_axil_araddr(core_axil.ar_addr),
+        .s_axil_arprot(core_axil.ar_prot),
+        .s_axil_arvalid(core_axil.ar_valid),
+        .s_axil_arready(core_axil.ar_ready),
+        .s_axil_rdata(core_axil.r_data),
+        .s_axil_rresp(core_axil.r_resp),
+        .s_axil_rvalid(core_axil.r_valid),
+        .s_axil_rready(core_axil.r_ready),
+
+        .m_axil_awaddr({mem_axil.aw_addr, peri_axil.aw_addr}),
+        .m_axil_awprot({mem_axil.aw_prot, peri_axil.aw_prot}),
+        .m_axil_awvalid({mem_axil.aw_valid, peri_axil.aw_valid}),
+        .m_axil_awready({mem_axil.aw_ready, peri_axil.aw_ready}),
+        .m_axil_wdata({mem_axil.w_data, peri_axil.w_data}),
+        .m_axil_wstrb({mem_axil.w_strb, peri_axil.w_strb}),
+        .m_axil_wvalid({mem_axil.w_valid, peri_axil.w_valid}),
+        .m_axil_wready({mem_axil.w_ready, peri_axil.w_ready}),
+        .m_axil_bresp({mem_axil.b_resp, peri_axil.b_resp}),
+        .m_axil_bvalid({mem_axil.b_valid, peri_axil.b_valid}),
+        .m_axil_bready({mem_axil.b_ready, peri_axil.b_ready}),
+        .m_axil_araddr({mem_axil.ar_addr, peri_axil.ar_addr}),
+        .m_axil_arprot({mem_axil.ar_prot, peri_axil.ar_prot}),
+        .m_axil_arvalid({mem_axil.ar_valid, peri_axil.ar_valid}),
+        .m_axil_arready({mem_axil.ar_ready, peri_axil.ar_ready}),
+        .m_axil_rdata({mem_axil.r_data, peri_axil.r_data}),
+        .m_axil_rresp({mem_axil.r_resp, peri_axil.r_resp}),
+        .m_axil_rvalid({mem_axil.r_valid, peri_axil.r_valid}),
+        .m_axil_rready({mem_axil.r_ready, peri_axil.r_ready})
+    );
+
+    axil_cdc #(
+        .DATA_WIDTH(32),
+        .ADDR_WIDTH(32)
+    ) mem_cdc (
+        .s_clk(aclk),
+        .s_rst(~reset_n),
+        .s_axil_awaddr(mem_axil.aw_addr),
+        .s_axil_awprot(mem_axil.aw_prot),
+        .s_axil_awvalid(mem_axil.aw_valid),
+        .s_axil_awready(mem_axil.aw_ready),
+        .s_axil_wdata(mem_axil.w_data),
+        .s_axil_wstrb(mem_axil.w_strb),
+        .s_axil_wvalid(mem_axil.w_valid),
+        .s_axil_wready(mem_axil.w_ready),
+        .s_axil_bresp(mem_axil.b_resp),
+        .s_axil_bvalid(mem_axil.b_valid),
+        .s_axil_bready(mem_axil.b_ready),
+        .s_axil_araddr(mem_axil.ar_addr),
+        .s_axil_arprot(mem_axil.ar_prot),
+        .s_axil_arvalid(mem_axil.ar_valid),
+        .s_axil_arready(mem_axil.ar_ready),
+        .s_axil_rdata(mem_axil.r_data),
+        .s_axil_rresp(mem_axil.r_resp),
+        .s_axil_rvalid(mem_axil.r_valid),
+        .s_axil_rready(mem_axil.r_ready),
+
+        .m_clk(hclk),
+        .m_rst(~reset_n),
+        .m_axil_awaddr  (axim.awaddr),
+        .m_axil_awprot  (axim.awprot),
+        .m_axil_awvalid (axim.awvalid),
+        .m_axil_awready (axim.awready),
+        .m_axil_wdata   (axim.wdata),
+        .m_axil_wstrb   (axim.wstrb),
+        .m_axil_wvalid  (axim.wvalid),
+        .m_axil_wready  (axim.wready),
+        .m_axil_bresp   (axim.bresp),
+        .m_axil_bvalid  (axim.bvalid),
+        .m_axil_bready  (axim.bready),
+        .m_axil_araddr  (axim.araddr),
+        .m_axil_arprot  (axim.arprot),
+        .m_axil_arvalid (axim.arvalid),
+        .m_axil_arready (axim.arready),
+        .m_axil_rdata   (axim.rdata),
+        .m_axil_rresp   (axim.rresp),
+        .m_axil_rvalid  (axim.rvalid),
+        .m_axil_rready  (axim.rready)
+    );
+    // tie off AXI-master signals not driven by AXI-Lite
+    assign axim.awid = daric_cfg::AMBAID4_MDMA;
+    assign axim.awlen = '0;
+    assign axim.awsize = 2;  // size = 4 bytes
+    assign axim.awburst = 0; // fixed burst
+    assign axim.awlock = '0;
+    assign axim.awcache = '0;
+    assign axim.awmaster = '0;
+    assign axim.awinner = '0;
+    assign axim.awshare = '0;
+    assign axim.awsparse = '1;
+//  assign axim.awprot = 2;
+//  assign axim.awqos = '0;
+//  assign axim.awregion = '0;
+//  assign axim.awatop = '0;
+    assign axim.awuser = '0;
+    assign axim.wlast = '1;
+    assign axim.wuser = '0;
+    assign axim.wid   = daric_cfg::AMBAID4_MDMA;
+    assign axim.arid = daric_cfg::AMBAID4_MDMA;
+    assign axim.arlen = '0;
+    assign axim.arsize = 2; // size = 4 bytes
+    assign axim.arburst = 0; // fixed burst
+    assign axim.arlock = '0;
+    assign axim.arcache = '0;
+//  assign axim.arprot = 2;
+//  assign axim.arqos = '0;
+//  assign axim.arregion = '0;
+    assign axim.aruser = '0;
+    assign axim.armaster = '0;
+    assign axim.arinner = '0;
+    assign axim.arshare = '0;
+    // assign axim.ruser = '0;
+    // assign axim.buser = '0;
+
+    axil_cdc #(
+        .DATA_WIDTH(32),
+        .ADDR_WIDTH(32)
+    ) peri_cdc (
+        .s_clk(aclk),
+        .s_rst(~reset_n),
+        .s_axil_awaddr(peri_axil.aw_addr),
+        .s_axil_awprot(peri_axil.aw_prot),
+        .s_axil_awvalid(peri_axil.aw_valid),
+        .s_axil_awready(peri_axil.aw_ready),
+        .s_axil_wdata(peri_axil.w_data),
+        .s_axil_wstrb(peri_axil.w_strb),
+        .s_axil_wvalid(peri_axil.w_valid),
+        .s_axil_wready(peri_axil.w_ready),
+        .s_axil_bresp(peri_axil.b_resp),
+        .s_axil_bvalid(peri_axil.b_valid),
+        .s_axil_bready(peri_axil.b_ready),
+        .s_axil_araddr(peri_axil.ar_addr),
+        .s_axil_arprot(peri_axil.ar_prot),
+        .s_axil_arvalid(peri_axil.ar_valid),
+        .s_axil_arready(peri_axil.ar_ready),
+        .s_axil_rdata(peri_axil.r_data),
+        .s_axil_rresp(peri_axil.r_resp),
+        .s_axil_rvalid(peri_axil.r_valid),
+        .s_axil_rready(peri_axil.r_ready),
+
+        .m_clk(dmaclk),
+        .m_rst(~reset_n),
+        .m_axil_awaddr(peri_cdc_axil.aw_addr),
+        .m_axil_awprot(peri_cdc_axil.aw_prot),
+        .m_axil_awvalid(peri_cdc_axil.aw_valid),
+        .m_axil_awready(peri_cdc_axil.aw_ready),
+        .m_axil_wdata(peri_cdc_axil.w_data),
+        .m_axil_wstrb(peri_cdc_axil.w_strb),
+        .m_axil_wvalid(peri_cdc_axil.w_valid),
+        .m_axil_wready(peri_cdc_axil.w_ready),
+        .m_axil_bresp(peri_cdc_axil.b_resp),
+        .m_axil_bvalid(peri_cdc_axil.b_valid),
+        .m_axil_bready(peri_cdc_axil.b_ready),
+        .m_axil_araddr(peri_cdc_axil.ar_addr),
+        .m_axil_arprot(peri_cdc_axil.ar_prot),
+        .m_axil_arvalid(peri_cdc_axil.ar_valid),
+        .m_axil_arready(peri_cdc_axil.ar_ready),
+        .m_axil_rdata(peri_cdc_axil.r_data),
+        .m_axil_rresp(peri_cdc_axil.r_resp),
+        .m_axil_rvalid(peri_cdc_axil.r_valid),
+        .m_axil_rready(peri_cdc_axil.r_ready)
+    );
+
+    // AXIL->AHB bridge for peripheral bus
+    // encode address and size into AHB per cmsdk_ahb_to_sram.v spec-abuse
+    always_comb begin
+        case (peri_cdc_axil.w_strb)
+            4'b0001: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = peri_cdc_axil.aw_addr & 32'hFFFF_FFFC;
+            end
+            4'b0010: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h1;
+            end
+            4'b0100: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h2;
+            end
+            4'b1000: begin
+                ahb_size_bodge = 3'b000;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h3;
+            end
+            4'b0011: begin
+                ahb_size_bodge = 3'b001;
+                axi_aw_bodge = peri_cdc_axil.aw_addr & 32'hFFFF_FFFC;
+            end
+            4'b1100: begin
+                ahb_size_bodge = 3'b001;
+                axi_aw_bodge = (peri_cdc_axil.aw_addr & 32'hFFFF_FFFC) + 32'h2;
+            end
+            4'b1111: begin
+                ahb_size_bodge = 3'b010;
+                axi_aw_bodge = peri_cdc_axil.aw_addr;
+            end
+            // default is coded to write the full word because this is probably least
+            // surprising and most compatible behavior. The way the RAM block is coded,
+            // a size of '0' still results in a byte being written to the LSB of the address.
+            default: begin
+                ahb_size_bodge = 3'b010;
+                axi_aw_bodge = peri_cdc_axil.aw_addr;
+            end
+        endcase
+    end
+
+    // cleanup lints
+    logic [3:0] axi2ahb_bid_null;
+    logic [3:0] axi2ahb_rid_null;
+    logic       axi2ahb_rlast_null;
+    axi2ahb peri_axi2ahb (
+        .clk(dmaclk),
+        .reset(~reset_n),
+        // tie unused outputs
+        .BID(axi2ahb_bid_null),
+        .RID(axi2ahb_rid_null),
+        .RLAST(axi2ahb_rlast_null),
+
+        .AWID('0),
+        .AWADDR(axi_aw_bodge),
+        .AWLEN('0),
+        .AWSIZE(ahb_size_bodge),
+        .AWVALID(peri_cdc_axil.aw_valid),
+        .AWREADY(peri_cdc_axil.aw_ready),
+        .WID('0),
+        .WDATA(peri_cdc_axil.w_data),
+        .WSTRB(peri_cdc_axil.w_strb),
+        .WLAST('1),
+        .WVALID(peri_cdc_axil.w_valid),
+        .WREADY(peri_cdc_axil.w_ready),
+        // .BID('0),
+        .BRESP(peri_cdc_axil.b_resp),
+        .BVALID(peri_cdc_axil.b_valid),
+        .BREADY(peri_cdc_axil.b_ready),
+        .ARID('0),
+        .ARADDR(peri_cdc_axil.ar_addr),
+        .ARLEN('0),
+        .ARSIZE(3'b010), // always read full words
+        .ARVALID(peri_cdc_axil.ar_valid),
+        .ARREADY(peri_cdc_axil.ar_ready),
+        // .RID('0),
+        .RDATA(peri_cdc_axil.r_data),
+        .RRESP(peri_cdc_axil.r_resp),
+        // .RLAST(peri_cdc_axil.),
+        .RVALID(peri_cdc_axil.r_valid),
+        .RREADY(peri_cdc_axil.r_ready),
+
+        .HADDR(ahbm.haddr),
+        .HBURST(ahbm.hburst),
+        .HSIZE(ahbm.hsize),
+        .HTRANS(ahbm.htrans),
+        .HWRITE(ahbm.hwrite),
+        .HWDATA(ahbm.hwdata),
+        .HRDATA(ahbm.hrdata),
+        .HREADY(ahbm.hready),
+        .HRESP(ahbm.hresp)
+    );
+    assign ahbm.hprot = '0;
+    assign ahbm.hmaster = '0;
+    assign ahbm.hmasterlock = '0;
+    assign ahbm.hreadym = ahbm.hready;
+    assign ahbm.hauser = '0;
+    assign ahbm.hwuser = '0;
+/* // TODO: CM7 model doesn't match up with Daric MPW specs, remove it once confirmed on integration tests
+    CM7AAB #(.DW_64(0)) peri_axi2ahb (
+        .CLK(hclk),
+        .nSYSRESET(reset_n),
+        .AWADDR(peri_cdc_axil.aw_addr),
+        .AWBURST('0),
+        .AWID('0),
+        .AWLEN('0),
+        .AWSIZE(ahb_size_bodge),
+        .AWLOCK('0),
+        .AWPROT('0),
+        .AWCACHE('0),
+        .AWSPARSE(1),
+        .AWVALID(peri_cdc_axil.aw_valid),
+        .AWUSER('0),
+        .AWREADY(peri_cdc_axil.aw_ready),
+
+        .WLAST('1),
+        .WSTRB(peri_cdc_axil.w_strb),
+        .WDATA(peri_cdc_axil.w_data),
+        .WVALID(peri_cdc_axil.w_valid),
+        .WREADY(peri_cdc_axil.w_ready),
+        // .WID('0),
+        // .BID('0),
+        .BRESP(peri_cdc_axil.b_resp),
+        .BVALID(peri_cdc_axil.b_valid),
+        .BREADY(peri_cdc_axil.b_ready),
+
+        .ARADDR(peri_cdc_axil.ar_addr),
+        .ARBURST('0),
+        .ARID('0),
+        .ARLEN('0),
+        .ARSIZE('0),
+        .ARLOCK('0),
+        .ARPROT('0),
+        .ARCACHE('0),
+        .ARUSER('0),
+        .ARVALID(peri_cdc_axil.ar_valid),
+        .ARREADY(peri_cdc_axil.ar_ready),
+
+        // .RID('0),
+        .RREADY(peri_cdc_axil.r_ready),
+        .RVALID(peri_cdc_axil.r_valid),
+        .RDATA(peri_cdc_axil.r_data),
+        .RRESP(peri_cdc_axil.r_resp),
+        // .RLAST(peri_cdc_axil.),
+
+        .HADDR(ahbm.haddr),
+        .HWRITE(ahbm.hwrite),
+        .HSIZE(ahbm.hsize),
+        .HWDATA(ahbm.hwdata),
+        // .HPROT(ahbm.prot),
+        .HBURST(ahbm.hburst),
+        .HTRANS(ahbm.htrans),
+        .HRDATA(ahbm.hrdata),
+        .HREADY(ahbm.hready),
+        .HRESP(ahbm.hresp)
+    );
+*/
+    // tie off unused pins
+    assign ahbm.hsel = '1;
+
     /////////////////////// repeated core units
     `ifdef FPGA
         logic aclk_buf;
@@ -709,14 +1191,34 @@ module bio_bdma #(
             .O(aclk_buf)
         );
     `endif
+
+    assign mem_rdata = ram_rd_data;
+    // give a full aclk to mux between the banks
+    // host_mem_rdata is in aclk -> which returns on pclk domain
+    // Somewhat fragile time: this circuit assumes aclk is >= 2x speed of pclk
+    always_ff @(posedge aclk) begin
+        if (host_mem_rd[0]) begin
+            host_mem_rdata <= host_mem_rdata_capture[0];
+        end else if (host_mem_rd[1]) begin
+            host_mem_rdata <= host_mem_rdata_capture[1];
+        end else if (host_mem_rd[2]) begin
+            host_mem_rdata <= host_mem_rdata_capture[2];
+        end else if (host_mem_rd[3]) begin
+            host_mem_rdata <= host_mem_rdata_capture[3];
+        end
+    end
+
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: mach
             // apb<->imem
+            assign apbx_imem[j].pready = 1'b1;
+            assign apbx_imem[j].pslverr = 1'b0;
+            assign apbx_imem[j].prdata = host_mem_rdata;
             always_comb begin
                 host_mem_wr_d[j] = psel_sync[j][1] & pwrite_sync[j][1] & penable_sync[j][1];
-                host_mem_rd_d[j] = psel_sync[j][1] & !pwrite_sync[j][1] & penable_sync[j][1];
-                apbx_imem[j].pready = 1'b1;
-                apbx_imem[j].pslverr = 1'b0;
+                host_mem_rd[j] = psel_sync[j][1] & !pwrite_sync[j][1] & penable_sync[j][1];
+                // already synchronized below, just pass through
+                host_mem_addr[j] = host_mem_addr_sync[j][1][MEM_ADDR_BITS-1:0];
             end
 
             always_ff @(posedge aclk) begin
@@ -736,21 +1238,9 @@ module bio_bdma #(
 
                 host_mem_wr[j] <= host_mem_wr_d[j];
                 host_mem_wr_stb[j] <= (host_mem_wr_d[j] & !host_mem_wr[j]);
-                host_mem_addr[j] <= host_mem_wr_d[j] & !host_mem_wr[j] ? host_mem_addr_sync[j][1][MEM_ADDR_BITS-1:0] : host_mem_addr[j];
                 host_mem_wdata[j] <= host_mem_wr_d[j] & !host_mem_wr[j] ? host_mem_wdata_sync[j][1] : host_mem_wdata[j];
 
                 host_mem_rdata_capture[j] <= ram_rd_data[j];
-            end
-            // convert rdata to pclk domain, while demuxing into the common output bank
-            always_ff @(posedge pclk) begin
-                host_mem_rd[j] <= host_mem_rd_d[j];
-                if (host_mem_rd_d[j] & !host_mem_rd[j]) begin
-                    host_mem_rdata <= host_mem_rdata_capture[j];
-                end
-            end
-            // only assert when selected, and the high bit of the address range is set
-            always_comb begin
-                apbx_imem[j].prdata = host_mem_rdata;
             end
 
             assign imem_wr_mode[j] = en_sync[j]; // when machine j is disabled, the host can use its port to read/write
@@ -773,6 +1263,17 @@ module bio_bdma #(
                 end
             end
 
+            // DMA.
+            always_comb begin
+                // engine select uses look-ahead version. Look-ahead address bounces all over the place
+                /// so it must be gated with the rd/wr la strobes for decoding.
+                ext_addr_la[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
+                // readback path uses the stable clocked ext_addr to avoid combinational cycle on ready
+                ext_addr[j] = mem_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
+                merged_mem_ready[j] = ext_addr[j] ? dma_ready && (dma_owner == j) : mem_ready[j];
+                merged_mem_rdata[j] = ext_addr[j] ? dma_rdata : mem_rdata[j];
+            end
+
             // Instruction Memory.
             Ram_1rw_s #(
                 .wordCount(MEM_SIZE_WORDS),
@@ -785,10 +1286,12 @@ module bio_bdma #(
                 .ramname("RAM_SP_512_32")
             ) imem (
                 .clk(aclk),
-                .wr_n(~ram_wr_en[j]),
+                .wr_n(~(ram_wr_en[j] & (~ext_addr_la[j] | ~imem_wr_mode[j]))),
                 .addr(ram_addr[j]),
                 .wr_mask_n(~ram_wr_mask[j]),
-                .ce_n(0),
+                .ce_n(~(
+                    mem_la_write[j] || mem_la_read[j] // during run mode, make sure data does not move
+                    || (psel_sync[j][1] & ~imem_wr_mode[j]))), // during host mode, access whenever PSEL active
                 .d(ram_wr_data[j]),
                 .q(ram_rd_data[j]),
                 .cmbist(cmbist),
@@ -796,7 +1299,6 @@ module bio_bdma #(
                 .sramtrm(sramtrm)
             );
 
-            assign mem_rdata = ram_rd_data;
             always_ff @(posedge aclk) begin
                 mem_ready[j] <= mem_la_read[j] || ram_wr_en[j] || quanta_halt[j] && mem_ready[j];
             end
@@ -887,35 +1389,35 @@ module bio_bdma #(
                 .clk(core_clk[j]),
                 .resetn(reset_n & ~a_restart[j]),
                 .trap(trap[j]),
-                .mem_ready(mem_ready[j]),
-                .mem_rdata(mem_rdata[j]),
+                .mem_ready(merged_mem_ready[j]),
+                .mem_rdata(merged_mem_rdata[j]),
                 .mem_la_read(mem_la_read[j]),
                 .mem_la_write(mem_la_write[j]),
                 .mem_la_addr(mem_la_addr[j]),
                 .mem_la_wdata(mem_la_wdata[j]),
                 .mem_la_wstrb(mem_la_wstrb[j]),
+                .mem_valid(mem_valid[j]),
+                .mem_addr(mem_addr[j]),
+                .mem_wdata(mem_wdata[j]),
+                .mem_wstrb(mem_wstrb[j]),
+                .mem_instr(mem_instr[j]),
 
                 // custom pins
                 .dbg_pc(dbg_pc[j]),
 
                 // unused pins
-                .mem_valid(),
-                .mem_instr(),
-                .mem_addr(),
-                .mem_wdata(),
-                .mem_wstrb(),
-                .pcpi_valid(),
-                .pcpi_insn(),
-                .pcpi_rs1(),
-                .pcpi_rs2(),
+                .pcpi_valid(pcpi_valid[j]),
+                .pcpi_insn(pcpi_insn[j]),
+                .pcpi_rs1(pcpi_rs1[j]),
+                .pcpi_rs2(pcpi_rs2[j]),
                 .pcpi_wr('0),
                 .pcpi_rd('0),
                 .pcpi_wait('0),
                 .pcpi_ready('0),
 	            .irq('0),
-	            .eoi(),
-                .trace_valid(),
-                .trace_data()
+	            .eoi(eoi[j]),
+                .trace_valid(trace_valid[j]),
+                .trace_data(trace_data[j])
             );
         end
     endgenerate
