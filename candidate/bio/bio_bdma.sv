@@ -452,8 +452,8 @@ module bio_bdma #(
 	generate
 		for (genvar e = 0; e < EVC_REGS; e++) begin: dmagen
             for (genvar g = 0; g < 32; g++) begin: dmagate
-                assign gated_dmareq[e*32 + g] = dmareq[e*32 + g] & cr_evmap[e][g];
-                assign sr_evstat[e][g] = gated_dmareq[e*32 + g];
+                assign gated_dmareq[e*32 + g] = dmareq[e*32 + g] & cr_evmap[EVC_REGS - 1 - e][g];
+                assign sr_evstat[e][g] = gated_dmareq[(EVC_REGS - 1 - e)*32 + g];
             end
 		end
         for (genvar c = 0; c < 24; c++) begin: reduce
@@ -1659,7 +1659,7 @@ module picorv32_regs_bio #(
         event_set = wdata[23:0]; // can't set or clear FIFO events, so they are masked
         event_clr = wdata[23:0];
 
-        stalling_for_event = ((event_mask & aggregated_events) != event_mask) && (event_mask != 0) &&
+        stalling_for_event = ((event_mask & aggregated_events) == 0) && (event_mask != 0) &&
             ((ren1 && (raddr1 == 30)) || (ren2 && (raddr2 == 30)));
 
         if (wen) begin
