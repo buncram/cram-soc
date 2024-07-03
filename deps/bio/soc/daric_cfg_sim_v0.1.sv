@@ -17,4 +17,6 @@ package daric_cfg;
     localparam bit [3:0] AMBAID4_UDMA = 4'hA;
     localparam bit [3:0] AMBAID4_UDCA = 4'hB;
     localparam bit [3:0] AMBAID4_SDDC = 4'hC;
+
+    localparam IRQCNT = 256;
 endpackage : daric_cfg

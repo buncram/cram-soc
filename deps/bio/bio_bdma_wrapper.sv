@@ -161,12 +161,60 @@ module bio_bdma_wrapper #(
     input  wire                 IM3_APBACTIVE ,
     output wire          [31:0] IM3_PRDATA    ,
     output wire                 IM3_PREADY    ,
-    output wire                 IM3_PSLVERR
+    output wire                 IM3_PSLVERR   ,
+
+    input  wire       [APW-1:0] FP0_PADDR     ,
+    input  wire                 FP0_PENABLE   ,
+    input  wire                 FP0_PWRITE    ,
+    input  wire           [3:0] FP0_PSTRB     ,
+    input  wire           [2:0] FP0_PPROT     ,
+    input  wire          [31:0] FP0_PWDATA    ,
+    input  wire                 FP0_PSEL      ,
+    input  wire                 FP0_APBACTIVE ,
+    output wire          [31:0] FP0_PRDATA    ,
+    output wire                 FP0_PREADY    ,
+    output wire                 FP0_PSLVERR   ,
+
+    input  wire       [APW-1:0] FP1_PADDR     ,
+    input  wire                 FP1_PENABLE   ,
+    input  wire                 FP1_PWRITE    ,
+    input  wire           [3:0] FP1_PSTRB     ,
+    input  wire           [2:0] FP1_PPROT     ,
+    input  wire          [31:0] FP1_PWDATA    ,
+    input  wire                 FP1_PSEL      ,
+    input  wire                 FP1_APBACTIVE ,
+    output wire          [31:0] FP1_PRDATA    ,
+    output wire                 FP1_PREADY    ,
+    output wire                 FP1_PSLVERR   ,
+
+    input  wire       [APW-1:0] FP2_PADDR     ,
+    input  wire                 FP2_PENABLE   ,
+    input  wire                 FP2_PWRITE    ,
+    input  wire           [3:0] FP2_PSTRB     ,
+    input  wire           [2:0] FP2_PPROT     ,
+    input  wire          [31:0] FP2_PWDATA    ,
+    input  wire                 FP2_PSEL      ,
+    input  wire                 FP2_APBACTIVE ,
+    output wire          [31:0] FP2_PRDATA    ,
+    output wire                 FP2_PREADY    ,
+    output wire                 FP2_PSLVERR   ,
+
+    input  wire       [APW-1:0] FP3_PADDR     ,
+    input  wire                 FP3_PENABLE   ,
+    input  wire                 FP3_PWRITE    ,
+    input  wire           [3:0] FP3_PSTRB     ,
+    input  wire           [2:0] FP3_PPROT     ,
+    input  wire          [31:0] FP3_PWDATA    ,
+    input  wire                 FP3_PSEL      ,
+    input  wire                 FP3_APBACTIVE ,
+    output wire          [31:0] FP3_PRDATA    ,
+    output wire                 FP3_PREADY    ,
+    output wire                 FP3_PSLVERR
 );
 
     apbif #(.PAW(APW)) theapb();
     ahbif #(.AW(AHW),.DW(DW),.IDW(IDW),.UW(UW)) dma_ahb32();
-    apbif #(.PAW(APW)) apb_imem[4]();
+    apbif #(.PAW(APW)) apb_imem[4](), apb_fifo[4]();
     parameter XUDW  = 8;     // axi userdata width
     parameter XLENW = 8;     // axi len width
     axiif #(
@@ -262,6 +310,74 @@ module bio_bdma_wrapper #(
         .pslverr      (IM3_PSLVERR    )
     );
 
+    apb_wire2ifm #(
+      .AW(APW)
+    )apbtrans_fp0(
+        .apbmaster    (apb_fifo[0]),
+        .psel         (FP0_PSEL       ),
+        .paddr        (FP0_PADDR      ),
+        .penable      (FP0_PENABLE    ),
+        .pwrite       (FP0_PWRITE     ),
+        .pstrb        (FP0_PSTRB      ),
+        .pprot        (FP0_PPROT      ),
+        .pwdata       (FP0_PWDATA     ),
+        .apbactive    (FP0_APBACTIVE  ),
+        .prdata       (FP0_PRDATA     ),
+        .pready       (FP0_PREADY     ),
+        .pslverr      (FP0_PSLVERR    )
+    );
+
+    apb_wire2ifm #(
+      .AW(APW)
+    )apbtrans_fp1(
+        .apbmaster    (apb_fifo[1]),
+        .psel         (FP1_PSEL       ),
+        .paddr        (FP1_PADDR      ),
+        .penable      (FP1_PENABLE    ),
+        .pwrite       (FP1_PWRITE     ),
+        .pstrb        (FP1_PSTRB      ),
+        .pprot        (FP1_PPROT      ),
+        .pwdata       (FP1_PWDATA     ),
+        .apbactive    (FP1_APBACTIVE  ),
+        .prdata       (FP1_PRDATA     ),
+        .pready       (FP1_PREADY     ),
+        .pslverr      (FP1_PSLVERR    )
+    );
+
+    apb_wire2ifm #(
+      .AW(APW)
+    )apbtrans_fp2(
+        .apbmaster    (apb_fifo[2]),
+        .psel         (FP2_PSEL       ),
+        .paddr        (FP2_PADDR      ),
+        .penable      (FP2_PENABLE    ),
+        .pwrite       (FP2_PWRITE     ),
+        .pstrb        (FP2_PSTRB      ),
+        .pprot        (FP2_PPROT      ),
+        .pwdata       (FP2_PWDATA     ),
+        .apbactive    (FP2_APBACTIVE  ),
+        .prdata       (FP2_PRDATA     ),
+        .pready       (FP2_PREADY     ),
+        .pslverr      (FP2_PSLVERR    )
+    );
+
+    apb_wire2ifm #(
+      .AW(APW)
+    )apbtrans_fp3(
+        .apbmaster    (apb_fifo[3]),
+        .psel         (FP3_PSEL       ),
+        .paddr        (FP3_PADDR      ),
+        .penable      (FP3_PENABLE    ),
+        .pwrite       (FP3_PWRITE     ),
+        .pstrb        (FP3_PSTRB      ),
+        .pprot        (FP3_PPROT      ),
+        .pwdata       (FP3_PWDATA     ),
+        .apbactive    (FP3_APBACTIVE  ),
+        .prdata       (FP3_PRDATA     ),
+        .pready       (FP3_PREADY     ),
+        .pslverr      (FP3_PSLVERR    )
+    );
+
     ahb_ifs2wire ahbtrans(
         .ahbslave     (dma_ahb32      ),
         .hsel         (hsel           ),
@@ -339,6 +455,10 @@ module bio_bdma_wrapper #(
         end
     endgenerate
 
+    // tie this off for now
+    logic [191:0] dmareq;
+    assign dmareq = '0;
+
     bio_bdma bio_bdma(
         .aclk    (fclk),
         .pclk    ,
@@ -350,10 +470,13 @@ module bio_bdma_wrapper #(
         .sramtrm ,
         .bio_gpio,
         .irq     (irq),
+        .dmareq  (dmareq),
         .apbs    (theapb),
         .apbx    (theapb),
         .apbs_imem(apb_imem),
         .apbx_imem(apb_imem),
+        .apbs_fifo(apb_fifo),
+        .apbx_fifo(apb_fifo),
         .ahbm    (dma_ahb32),
         .axim    (dma_axi)
     );
