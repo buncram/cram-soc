@@ -3,16 +3,15 @@
 `include "apb_sfr_v0.1.sv"
 `endif
 
-// TODO:
-//   - IRQs for DMA
-//   - Split FIFO endpoints across pages
-
 // `define FPGA 1
 
 module bio_bdma #(
-    parameter APW = 12  // APB address width
+    parameter APW = 12,  // APB address width
     // 0x8000 is offset of the BIO config space
     // 0x9000-0xD000 is offset of RAM
+    parameter CHNLC = 8,
+    parameter EVC = 192,
+    parameter AHBMID4 = daric_cfg::AMBAID4_MDMA
 )
 (
     input logic         aclk,
@@ -24,13 +23,25 @@ module bio_bdma #(
     input logic [2:0]   sramtrm,
 
     ioif.drive          bio_gpio[31:0],
-    output logic  [3:0] irq, // these can double as dma_req/ack effectively for MDMA
+    // interrupt sources originating from BIO
+    output logic  [3:0] irq,
+
+    // dma request input - every event in the system coming in on an hclk-aligned edge
+    // In order to be more logic-efficient, the bottom 16 events, which are accessible
+    // only to the CM7, are not routed into this core. Thus any event number in the system
+    // maps to a BIO-BDMA event by subtracting 16 from the event number.
+    input logic [EVC-1:0] dmareq,
 
     apbif.slavein       apbs,
     apbif.slave         apbx,
 
+    // memory pages for instruction memory, one per core
     apbif.slavein       apbs_imem[4],
     apbif.slave         apbx_imem[4],
+
+    // page-mapped FIFO ins/outs/status for easy OS integration
+    apbif.slavein       apbs_fifo[4],
+    apbif.slave         apbx_fifo[4],
 
     // above 0x6000_0000 (inclusive) go to this AXI interface on HCLK. The matrix is AXI-native.
     axiif.master        axim,
@@ -205,8 +216,19 @@ module bio_bdma #(
     logic [NUM_MACH-1:0] stalling_for_event;
     logic [23:0] host_event_set;
     logic host_event_set_valid;
+    logic [23:0] host_event_set_p; // retime to relax critical path
+    logic host_event_set_valid_p;
     logic [23:0] host_event_clr;
     logic host_event_clr_valid;
+    logic [23:0] host_event_clr_p; // retime to relax critical path
+    logic host_event_clr_valid_p;
+    logic [23:0] host_event_set_alias [NUM_MACH];
+    logic host_event_set_valid_alias [NUM_MACH];
+    logic [23:0] host_event_clr_alias [NUM_MACH];
+    logic host_event_clr_valid_alias [NUM_MACH];
+    // dma events
+    logic [23:0] dma_event_set;
+    logic dma_event_set_valid;
 
     logic [29:0] core_clk_count [NUM_MACH];
 
@@ -237,9 +259,13 @@ module bio_bdma #(
 
     logic [31:0] fdin       [NUM_MACH];
     logic [31:0] fdin_sync  [NUM_MACH];
+    logic [31:0] fdin_alias [NUM_MACH];
+    logic [31:0] fdin_alias_sync [NUM_MACH];
     logic [31:0] fdout      [NUM_MACH];
     logic [3:0] push;
     logic [3:0] pull;
+    logic [3:0] push_alias;
+    logic [3:0] pull_alias;
     logic [3:0] fifo_to_reset;
     logic do_fifo_clr;
 
@@ -250,10 +276,16 @@ module bio_bdma #(
     logic ctl_action_sync;
     logic [3:0] push_sync;
     logic [3:0] pull_sync;
-    logic [24:0] pclk_event_set;
+    logic [3:0] push_alias_sync;
+    logic [3:0] pull_alias_sync;
+    logic [23:0] pclk_event_set;
     logic pclk_event_set_valid;
-    logic [24:0] pclk_event_clr;
+    logic [23:0] pclk_event_set_alias [NUM_MACH];
+    logic [NUM_MACH-1:0] pclk_event_set_valid_alias;
+    logic [23:0] pclk_event_clr;
     logic pclk_event_clr_valid;
+    logic [23:0] pclk_event_clr_alias [NUM_MACH];
+    logic [NUM_MACH-1:0] pclk_event_clr_valid_alias;
     logic ctl_action;
     logic [3:0] fifo_to_reset_aclk;
     logic do_fifo_clr_aclk;
@@ -265,12 +297,15 @@ module bio_bdma #(
     end
     always_ff @(posedge aclk) begin
         fdin_sync <= fdin;
+        fdin_alias_sync <= fdin_alias;
         host_fifo_event_level <= fifo_event_level;
         host_fifo_event_eq_mask <= fifo_event_eq_mask;
         host_fifo_event_lt_mask <= fifo_event_lt_mask;
         host_fifo_event_gt_mask <= fifo_event_gt_mask;
         host_event_set <= pclk_event_set;
         host_event_clr <= pclk_event_clr;
+        host_event_set_alias <= pclk_event_set_alias;
+        host_event_clr_alias <= pclk_event_clr_alias;
         a_restart_q[0] <= restart;
         a_restart_q[1] <= a_restart_q[0];
         a_restart <= a_restart_q[1];
@@ -321,7 +356,9 @@ module bio_bdma #(
             sfr_dbg0         .prdata32 |
             sfr_dbg1         .prdata32 |
             sfr_dbg2         .prdata32 |
-            sfr_dbg3         .prdata32
+            sfr_dbg3         .prdata32 |
+            sfr_dmareq_map   .prdata32 |
+            sfr_dmareq_stat  .prdata32
             ;
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
@@ -388,6 +425,78 @@ module bio_bdma #(
     cdc_level_to_pulse   event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_clr_valid  ), .out_b(host_event_clr_valid       ));
     cdc_level_to_pulse   fifo_clr_cdc       (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(do_fifo_clr           ), .out_b(do_fifo_clr_aclk           ));
 
+    /////////////////////// dma request
+    // The DMA request interface maps one of up to 192 sources to one of the 24 event bits.
+    //
+    // When an event comes in, it will set the event bit. A core can halt and wait on the event
+    // by setting x27 to mask for the event bit, and then accessing x30.
+    //
+    // The 192 sources are masked with a control register, and then muxed 8:1 down to each event bit.
+    // The mask is configured by a bank of 6x 32-bit registers.
+    //
+    // If the event goes high, it will set the event bit. The event bit setting is only level sensitive:
+    // the responding core is repsonible for clearing the event generating condition before waiting
+    // on the event register again (it can do this because it has access to the peripheral bus).
+    //
+    // In order to help differentiate which bit was set in a multi-bit event scenario, the incoming
+    // events are also readable as a bank of status registers, mapped again 1:1 into 6x 32-bit registers.
+    localparam EVC_REGS = EVC / 32;
+
+    logic [0:EVC_REGS-1][31:0] cr_evmap;
+    logic [0:EVC_REGS-1][31:0] sr_evstat;
+    logic [23:0] muxed_events[3]; // also sychronize into aclk-domain
+    logic [EVC-1:0] gated_dmareq;
+
+	apb_cr #(.A('hB0),              .DW(32), .SFRCNT(EVC_REGS))  sfr_dmareq_map   (.cr(cr_evmap  ), .prdata32(),.*);
+	apb_sr #(.A('hB0 + EVC_REGS*4), .DW(32), .SFRCNT(EVC_REGS))  sfr_dmareq_stat  (.sr(sr_evstat ), .prdata32(),.*);
+	generate
+		for (genvar e = 0; e < EVC_REGS; e++) begin: dmagen
+            for (genvar g = 0; g < 32; g++) begin: dmagate
+                assign gated_dmareq[e*32 + g] = dmareq[e*32 + g] & cr_evmap[e][g];
+                assign sr_evstat[e][g] = gated_dmareq[e*32 + g];
+            end
+		end
+        for (genvar c = 0; c < 24; c++) begin: reduce
+            assign muxed_events[2][c] = |gated_dmareq[(c+1)*8-1:c*8];
+        end
+	endgenerate
+    always_ff @(posedge aclk) begin
+        muxed_events[1] <= muxed_events[2];
+        muxed_events[0] <= muxed_events[1];
+    end
+    assign dma_event_set = muxed_events[0];
+    // any bit set here will perennially cause the bit to be set in the event register
+    assign dma_event_set_valid = |muxed_events[0];
+
+    /////////////////////// page maps for FIFO endpoints
+    generate
+        for(genvar p = 0; p < NUM_MACH; p = p + 1) begin: pages
+            apb_sr  #(.A('h0C), .DW(16))     sfr_flevel_alias       (.apbs(apbs_fifo[p]), .sr({
+                                                                    pclk_regfifo_level[3], pclk_regfifo_level[2],
+                                                                    pclk_regfifo_level[1], pclk_regfifo_level[0]}), .prdata32(),.*);
+            // Note: the .A() contents here must reflect what is in daric_to_svd.py BIO FIFO alias special case (line 2768 or so) for register extraction to function properly
+            apb_acr #(.A('h10+4*p), .DW(32)) sfr_txf_alias          (.apbs(apbs_fifo[p]), .cr(fdin_alias[p]), .ar(push_alias[p]), .prdata32(),.*);
+            apb_asr #(.A('h20+4*p), .DW(32)) sfr_rxf_alias          (.apbs(apbs_fifo[p]), .sr(fdout[p]), .ar(pull_alias[p]), .prdata32(),.*);
+            apb_acr #(.A('h38), .DW(24))     sfr_event_set_alias    (.apbs(apbs_fifo[p]), .cr(pclk_event_set_alias[p]), .ar(pclk_event_set_valid_alias[p]), .prdata32(),.*);
+            apb_acr #(.A('h3C), .DW(24))     sfr_event_clr_alias    (.apbs(apbs_fifo[p]), .cr(pclk_event_clr_alias[p]), .ar(pclk_event_clr_valid_alias[p]), .prdata32(),.*);
+            apb_sr  #(.A('h40), .DW(32))     sfr_event_status_alias (.apbs(apbs_fifo[p]), .sr(pclk_event_status), .prdata32(), .*);
+
+            cdc_level_to_pulse   event_set_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_set_valid_alias[p]), .out_b(host_event_set_valid_alias[p] ));
+            cdc_level_to_pulse   event_clr_cdc      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pclk_event_clr_valid_alias[p]), .out_b(host_event_clr_valid_alias[p] ));
+            assign apbx_fifo[p]          .prdata = '0 |
+                   sfr_flevel_alias       .prdata32 |
+                   sfr_txf_alias         .prdata32 |
+                   sfr_rxf_alias         .prdata32 |
+                   sfr_event_set_alias   .prdata32 |
+                   sfr_event_clr_alias   .prdata32 |
+                   sfr_event_status_alias.prdata32;
+            assign apbx_fifo[p].pready = 1'b1;
+            assign apbx_fifo[p].pslverr = 1'b0;
+        end
+    endgenerate
+    cdc_level_to_pulse   push_cdc_alias[3:0]      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(push_alias       ), .out_b(push_alias_sync   ));
+    cdc_level_to_pulse   pull_cdc_alias[3:0]      (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(pull_alias       ), .out_b(pull_alias_sync   ));
+
     /////////////////////// machine instantiation & instruction memory
     assign reset = ~reset_n;
     assign resetn = reset_n;
@@ -453,10 +562,10 @@ module bio_bdma #(
                     mach_regfifo_wr[2][k] & en_sync[2],
                     mach_regfifo_wr[1][k] & en_sync[1],
                     mach_regfifo_wr[0][k] & en_sync[0],
-                    push_sync[k]
+                    push_sync[k] | push_alias_sync[k]
                 }),
                 .data_in({
-                    fdin_sync[k],
+                    (fdin_sync[k] & {32{push_sync[k]}}) | (fdin_alias_sync[k] & {32{push_alias_sync[k]}}),
                     mach_regfifo_wdata[0],
                     mach_regfifo_wdata[1],
                     mach_regfifo_wdata[2],
@@ -473,10 +582,10 @@ module bio_bdma #(
                     mach_regfifo_wr[2][k] & en_sync[2],
                     mach_regfifo_wr[1][k] & en_sync[1],
                     mach_regfifo_wr[0][k] & en_sync[0],
-                    push_sync[k]
+                    push_sync[k] | push_alias_sync[k]
                 }),
                 .data_in({
-                    push_sync[k],
+                    push_sync[k] | push_alias_sync[k],
                     mach_regfifo_wr[0][k],
                     mach_regfifo_wr[1][k],
                     mach_regfifo_wr[2][k],
@@ -493,10 +602,10 @@ module bio_bdma #(
                     mach_regfifo_rd[2][k] & en_sync[2],
                     mach_regfifo_rd[1][k] & en_sync[1],
                     mach_regfifo_rd[0][k] & en_sync[0],
-                    pull_sync[k]
+                    pull_sync[k] | pull_alias_sync[k]
                 }),
                 .data_in({
-                    pull_sync[k],
+                    pull_sync[k] | pull_alias_sync[k],
                     mach_regfifo_rd[0][k],
                     mach_regfifo_rd[1][k],
                     mach_regfifo_rd[2][k],
@@ -534,20 +643,49 @@ module bio_bdma #(
             end
         end
     endgenerate
+    // retime the event set/clear sources through an aclk pipe stage to relax timing
+    // a small delay on this signal should not affect operation since this is an
+    // asynchronous software-controlled signal
+    always_ff @(posedge aclk) begin
+        host_event_set_valid_p <= host_event_set_valid
+                | host_event_set_valid_alias[0]
+                | host_event_set_valid_alias[1]
+                | host_event_set_valid_alias[2]
+                | host_event_set_valid_alias[3]
+                | dma_event_set_valid; // dma reqs will override everything
+        host_event_set_p <= host_event_set & {24{host_event_set_valid}}
+            | host_event_set_alias[0] & {24{host_event_set_valid_alias[0]}}
+            | host_event_set_alias[1] & {24{host_event_set_valid_alias[1]}}
+            | host_event_set_alias[2] & {24{host_event_set_valid_alias[2]}}
+            | host_event_set_alias[3] & {24{host_event_set_valid_alias[3]}}
+            | dma_event_set & {24{dma_event_set_valid}}; // dma reqs will override everything
+        host_event_clr_valid_p <= host_event_clr_valid
+                | host_event_clr_valid_alias[0]
+                | host_event_clr_valid_alias[1]
+                | host_event_clr_valid_alias[2]
+                | host_event_clr_valid_alias[3];
+        host_event_clr_p <= host_event_clr & {24{host_event_clr_valid}}
+            | host_event_clr_alias[0] & {24{host_event_clr_valid_alias[0]}}
+            | host_event_clr_alias[1] & {24{host_event_clr_valid_alias[1]}}
+            | host_event_clr_alias[2] & {24{host_event_clr_valid_alias[2]}}
+            | host_event_clr_alias[3] & {24{host_event_clr_valid_alias[3]}};
+    end
     priority_demux #(
         .DATAW(24),
         .LEVELS(5)
     ) event_set_aggregator (
-        .stb({event_set_valid, host_event_set_valid}),
-        .data_in({host_event_set, event_set[0], event_set[1], event_set[2], event_set[3]}),
+        .stb({event_set_valid, host_event_set_valid_p}),
+        .data_in({host_event_set_p,
+            event_set[0], event_set[1], event_set[2], event_set[3]}),
         .data_out(event_set_agg)
     );
     priority_demux #(
         .DATAW(24),
         .LEVELS(5)
     ) event_clr_aggregator (
-        .stb({event_clr_valid, host_event_clr_valid}),
-        .data_in({host_event_clr, event_clr[0], event_clr[1], event_clr[2], event_clr[3]}),
+        .stb({event_clr_valid, host_event_clr_valid_p}),
+        .data_in({host_event_clr_p,
+            event_clr[0], event_clr[1], event_clr[2], event_clr[3]}),
         .data_out(event_clr_agg)
     );
     scc_ff #(
@@ -938,7 +1076,7 @@ module bio_bdma #(
         .m_axil_rready  (axim.rready)
     );
     // tie off AXI-master signals not driven by AXI-Lite
-    assign axim.awid = daric_cfg::AMBAID4_MDMA;
+    assign axim.awid = AHBMID4;
     assign axim.awlen = '0;
     assign axim.awsize = 2;  // size = 4 bytes
     assign axim.awburst = 0; // fixed burst
@@ -955,8 +1093,8 @@ module bio_bdma #(
     assign axim.awuser = '0;
     assign axim.wlast = '1;
     assign axim.wuser = '0;
-    assign axim.wid   = daric_cfg::AMBAID4_MDMA;
-    assign axim.arid = daric_cfg::AMBAID4_MDMA;
+    assign axim.wid   = AHBMID4;
+    assign axim.arid = AHBMID4;
     assign axim.arlen = '0;
     assign axim.arsize = 2; // size = 4 bytes
     assign axim.arburst = 0; // fixed burst
@@ -1120,65 +1258,7 @@ module bio_bdma #(
     assign ahbm.hreadym = ahbm.hready;
     assign ahbm.hauser = '0;
     assign ahbm.hwuser = '0;
-/* // TODO: CM7 model doesn't match up with Daric MPW specs, remove it once confirmed on integration tests
-    CM7AAB #(.DW_64(0)) peri_axi2ahb (
-        .CLK(hclk),
-        .nSYSRESET(reset_n),
-        .AWADDR(peri_cdc_axil.aw_addr),
-        .AWBURST('0),
-        .AWID('0),
-        .AWLEN('0),
-        .AWSIZE(ahb_size_bodge),
-        .AWLOCK('0),
-        .AWPROT('0),
-        .AWCACHE('0),
-        .AWSPARSE(1),
-        .AWVALID(peri_cdc_axil.aw_valid),
-        .AWUSER('0),
-        .AWREADY(peri_cdc_axil.aw_ready),
 
-        .WLAST('1),
-        .WSTRB(peri_cdc_axil.w_strb),
-        .WDATA(peri_cdc_axil.w_data),
-        .WVALID(peri_cdc_axil.w_valid),
-        .WREADY(peri_cdc_axil.w_ready),
-        // .WID('0),
-        // .BID('0),
-        .BRESP(peri_cdc_axil.b_resp),
-        .BVALID(peri_cdc_axil.b_valid),
-        .BREADY(peri_cdc_axil.b_ready),
-
-        .ARADDR(peri_cdc_axil.ar_addr),
-        .ARBURST('0),
-        .ARID('0),
-        .ARLEN('0),
-        .ARSIZE('0),
-        .ARLOCK('0),
-        .ARPROT('0),
-        .ARCACHE('0),
-        .ARUSER('0),
-        .ARVALID(peri_cdc_axil.ar_valid),
-        .ARREADY(peri_cdc_axil.ar_ready),
-
-        // .RID('0),
-        .RREADY(peri_cdc_axil.r_ready),
-        .RVALID(peri_cdc_axil.r_valid),
-        .RDATA(peri_cdc_axil.r_data),
-        .RRESP(peri_cdc_axil.r_resp),
-        // .RLAST(peri_cdc_axil.),
-
-        .HADDR(ahbm.haddr),
-        .HWRITE(ahbm.hwrite),
-        .HSIZE(ahbm.hsize),
-        .HWDATA(ahbm.hwdata),
-        // .HPROT(ahbm.prot),
-        .HBURST(ahbm.hburst),
-        .HTRANS(ahbm.htrans),
-        .HRDATA(ahbm.hrdata),
-        .HREADY(ahbm.hready),
-        .HRESP(ahbm.hresp)
-    );
-*/
     // tie off unused pins
     assign ahbm.hsel = '1;
 
@@ -1424,7 +1504,7 @@ module bio_bdma #(
     generate
         for(genvar k = 0; k < 4; k = k + 1) begin: fifos
             regfifo regfifo(
-                .reset(reset | fifo_to_reset_aclk[k] & do_fifo_clr_aclk),
+                .reset(reset | fifo_to_reset_aclk[k] & do_fifo_clr_aclk | a_restart[k]),
                 .aclk(aclk),
                 .wdata(regfifo_wdata[k]),
                 .we(regfifo_we[k]),
@@ -1576,8 +1656,8 @@ module picorv32_regs_bio #(
         gpio_clr = gpio_mask & ~wdata; // this is done so we can just bit-shift a stream without inversion to deserialize
         gpdir_set = gpio_mask & wdata;
         gpdir_clr = gpio_mask & wdata; // this is "normal"
-        event_set = wdata[24:0]; // can't set or clear FIFO events, so they are masked
-        event_clr = wdata[24:0];
+        event_set = wdata[23:0]; // can't set or clear FIFO events, so they are masked
+        event_clr = wdata[23:0];
 
         stalling_for_event = ((event_mask & aggregated_events) != event_mask) && (event_mask != 0) &&
             ((ren1 && (raddr1 == 30)) || (ren2 && (raddr2 == 30)));
@@ -1865,28 +1945,21 @@ endmodule
 // can trigger an action.
 module apb_asr
 #(
-      parameter A=0,
-      parameter AW=12,
-      parameter DW=16,
-//      parameter IV=32'h0,                   // useless
-      parameter SFRCNT=1,
-//      parameter SRMASK=32'h0,               // set write 1 to clr ( for status reg )
-      parameter RMASK=32'hffff_ffff,        // read mask to remove undefined bit
-      parameter SRMASK=32'hffff_ffff              // read ext mask
+    parameter A=0,
+    parameter AW=12,
+    parameter DW=16,
+    parameter SFRCNT=1,
+    parameter RMASK=32'hffff_ffff,        // read mask to remove undefined bit
+    parameter SRMASK=32'hffff_ffff              // read ext mask
 )(
-        input  logic                          pclk        ,
-        input  logic                          resetn      ,
-        apbif.slavein                         apbs        ,
-        input  bit                          sfrlock     ,
-//        input  bit   [AW-1:0]               sfrpaddr    ,
-//        input  bit   [0:SFRCNT-1][DW-1:0]   sfrprdataext,
-//        input  bit   [0:SFRCNT-1][DW-1:0]   sfrsr       ,
-        output logic [31:0]                 prdata32    ,
-        input  logic [0:SFRCNT-1][DW-1:0]   sr          ,
-        output bit                          ar
+    input  logic                        pclk        ,
+    input  logic                        resetn      ,
+    apbif.slavein                       apbs        ,
+    input  bit                          sfrlock     ,
+    output logic [31:0]                 prdata32    ,
+    input  logic [0:SFRCNT-1][DW-1:0]   sr          ,
+    output bit                          ar
 );
-
-
     logic[DW-1:0] prdata;
     assign prdata32 = prdata | 32'h0;
 
@@ -1898,7 +1971,7 @@ module apb_asr
             .RMASK       ( RMASK         ),      // read mask to remove undefined bit
             .FRMASK      ( 32'h0         ),      // set write 1 to clr ( for status reg )
             .SRMASK      ( SRMASK        )       // read ext mask
-         )apb_sfr(
+        ) apb_sfr (
             .pclk        (pclk           ),
             .resetn      (resetn         ),
             .apbslave    (apbs           ),
@@ -1908,7 +1981,7 @@ module apb_asr
             .sfrfr       ('0             ),
             .sfrprdata   (prdata         ),
             .sfrdata     (               )
-         );
+        );
 
     logic sfrapbrd;
     apb_sfrop2 #(
