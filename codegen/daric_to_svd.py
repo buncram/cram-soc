@@ -1600,7 +1600,7 @@ def eval_tree(tree, schema, module, level=0, do_print=False):
             if do_print:
                 print(' ' * level + f'{tree}')
 
-def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
+def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000, bio_aliases={}):
     regtypes = ['cr', 'sr', 'fr', 'ar', 'asr', 'acr', 'ascr', 'ac2r', 'shfin', 'buf', 'sfr']
     regdescs = {
         'cr': ' read/write control register',
@@ -1634,6 +1634,10 @@ def create_csrs(doc_soc, schema, module, banks, ctrl_offset=0x4002_8000):
             for rtype in regtypes:
                 if bank == 'apb_' + rtype:
                     for (leaf_name, leaf_desc) in leaves.items():
+                        if 'apbs' in leaf_desc['args']:
+                            # don't generate entries for aliased register banks in BIO-BDMA, just note the alias
+                            bio_aliases[leaf_desc['params']['A'].eval_result] = leaf_name
+                            continue
                         if 'sfrs' in leaf_desc:
                             the_arg = leaf_desc['args'][rtype]
                             sfr_dict = leaf_desc['sfrs']
@@ -1946,7 +1950,7 @@ def convert_verilog_integer(expression):
     except ValueError:
         raise ValueError("Invalid Verilog-style integer expression")
 
-def process_pulp(doc_soc, pulp_reg_files, schema):
+def process_pulp(doc_soc, pulp_reg_files, schema, path):
     reg_addrs = {}
     reg_rd_fields = {} # dictionary of fields storing a tuple of (msb,lsb)
     reg_wr_fields = {}
@@ -1974,7 +1978,7 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
                 reg_addrs[prefix] = {}
                 reg_rd_fields[prefix] = {}
                 reg_wr_fields[prefix] = {}
-                reg_srcs[prefix] = str(file).split('soc_mpw/')[1]
+                reg_srcs[prefix] = Path(file).as_posix().split(path)[1]
 
             # extract the register address offsets, and setup fields placeholders
             includes = []
@@ -2162,6 +2166,8 @@ def process_pulp(doc_soc, pulp_reg_files, schema):
     udma_index = 0
     for index, p in enumerate(peripherals):
         (base_name, base_offset) = p
+        if base_name == 'SDIO':
+            continue # work around suppressed SDIO block in current source tree
         # prefer to use next index as a marker for count of peripheral, as it is a more
         # reliable extraction
         if len(peripherals) > index + 1:
@@ -2284,7 +2290,7 @@ def consolidate_lines(file, skip_directives = True):
 def main():
     parser = argparse.ArgumentParser(description="Extract SVD from Daric design")
     parser.add_argument(
-        "--path", required=False, help="Path to Daric data", type=str, default="./soc_mpw")
+        "--path", required=False, help="Path to Daric data", type=str, default="soc_mpw")
     parser.add_argument(
         "--loglevel", required=False, help="set logging level (INFO/DEBUG/WARNING/ERROR)", type=str, default="INFO",
     )
@@ -2653,13 +2659,14 @@ def main():
 
     # --------- process the subsystems derived from PULP code
     schema['udma_sub']['localparam']['PER_ID_UART'] # lookup path for data on IDs for mapping regions
-    process_pulp(doc_soc, pulp_versioned_files, schema)
+    process_pulp(doc_soc, pulp_versioned_files, schema, args.path + '/')
 
     # ---------- Go through each region and extract the CSRs
+    bio_aliases = {}
     for (region, attrs) in top_regions.items():
         doc_soc.mem_regions[attrs['display_name']] = attrs['socregion']
         for (module, leaves) in schema.items():
-            create_csrs(doc_soc, schema, module, attrs['banks'], ctrl_offset=doc_soc.mem_regions[attrs['display_name']].origin)
+            create_csrs(doc_soc, schema, module, attrs['banks'], ctrl_offset=doc_soc.mem_regions[attrs['display_name']].origin, bio_aliases=bio_aliases)
 
     # ---------- SPECIAL CASE - extract SCERAM offsets from source code
     sceram_origin = 0x4002_0000
@@ -2757,6 +2764,35 @@ def main():
             origin=0x5012_5000 + i * 0x1000,
             size=0x1000,
             mode='rw', cached=False
+        )
+    # ---------- SPECIAL CASE - add BIO FIFO Aliases
+    for i in range(4):
+        doc_soc.mem_regions[f'bio_fifo{i}'] = SoCRegion(
+            origin=0x5012_5000 + 0x4000 + i * 0x1000,
+            size=0x1000,
+            mode='rw', cached=False
+        )
+    # copy the aliased registers - feeling a bit lazy, so just hard-coding this now.
+    for i in range(4):
+        csrs = []
+        for (n, name) in bio_aliases.items():
+            # patch up the complicated generate expression. totally relies on the code formatting being
+            # identical to this search string :-O
+            if type(n) == str:
+                if "'h10" in n:
+                    n = 0x10+4*i
+                elif "'h20" in n:
+                    n = 0x20+4*i
+            index = n / 4
+            # find the CSR to copy in the bio-bdma regions list
+            for csr in doc_soc.csr.regions['bio_bdma'].obj:
+                if csr.n == index:
+                    csrs += [csr]
+                    break
+        doc_soc.csr.regions[f'bio_fifo{i}'] = SoCCSRRegion(
+            0x5012_5000 + 0x4000 + i * 0x1000,
+            32,
+            csrs
         )
 
     # ---------- boilerplate tail to convert the extracted database into Rust code
