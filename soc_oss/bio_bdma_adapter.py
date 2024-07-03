@@ -22,7 +22,7 @@ from litex.soc.interconnect.csr import *
 # AHB to APB to BIO --------------------------------------------------------------------------
 
 class BioBdmaAdapter(Module):
-    def __init__(self, platform, s_ahb, imem_ahb, dma_ahb, dma_axi, pads, irq, base = 0x12_8000,
+    def __init__(self, platform, s_ahb, imem_apb, fifo_apb, dma_ahb, dma_axi, pads, irq, base = 0x12_8000,
         address_width = 12, sim=False,
     ):
         self.logger = logging.getLogger("BioAdapter")
@@ -33,7 +33,12 @@ class BioBdmaAdapter(Module):
         apb_imem = [None, None, None, None]
         for i in range(4):
             apb_imem[i] = APBInterface(address_width=address_width)
-            self.submodules += AHB2APB(imem_ahb[i], apb_imem[i], base=(base + 0x1000 * (i+1)))
+            self.submodules += AHB2APB(imem_apb[i], apb_imem[i], base=(base + 0x1000 * (i+1)))
+
+        apb_fifo = [None, None, None, None]
+        for i in range(4):
+            apb_fifo[i] = APBInterface(address_width=address_width)
+            self.submodules += AHB2APB(fifo_apb[i], apb_fifo[i], base=(base + 0x4000 + 0x1000 * (i+1)))
 
         gpio_i = Signal(32)
         gpio_o = Signal(32)
@@ -271,6 +276,54 @@ class BioBdmaAdapter(Module):
             o_IM3_PRDATA               = apb_imem[3].prdata,
             o_IM3_PREADY               = apb_imem[3].pready,
             o_IM3_PSLVERR              = apb_imem[3].pslverr,
+
+            i_FP0_PADDR                = apb_fifo[0].paddr,
+            i_FP0_PENABLE              = apb_fifo[0].penable,
+            i_FP0_PWRITE               = apb_fifo[0].pwrite,
+            i_FP0_PSTRB                = apb_fifo[0].pstrb,
+            i_FP0_PPROT                = apb_fifo[0].pprot,
+            i_FP0_PWDATA               = apb_fifo[0].pwdata,
+            i_FP0_PSEL                 = apb_fifo[0].psel,
+            i_FP0_APBACTIVE            = apb_fifo[0].pactive,
+            o_FP0_PRDATA               = apb_fifo[0].prdata,
+            o_FP0_PREADY               = apb_fifo[0].pready,
+            o_FP0_PSLVERR              = apb_fifo[0].pslverr,
+
+            i_FP1_PADDR                = apb_fifo[1].paddr,
+            i_FP1_PENABLE              = apb_fifo[1].penable,
+            i_FP1_PWRITE               = apb_fifo[1].pwrite,
+            i_FP1_PSTRB                = apb_fifo[1].pstrb,
+            i_FP1_PPROT                = apb_fifo[1].pprot,
+            i_FP1_PWDATA               = apb_fifo[1].pwdata,
+            i_FP1_PSEL                 = apb_fifo[1].psel,
+            i_FP1_APBACTIVE            = apb_fifo[1].pactive,
+            o_FP1_PRDATA               = apb_fifo[1].prdata,
+            o_FP1_PREADY               = apb_fifo[1].pready,
+            o_FP1_PSLVERR              = apb_fifo[1].pslverr,
+
+            i_FP2_PADDR                = apb_fifo[2].paddr,
+            i_FP2_PENABLE              = apb_fifo[2].penable,
+            i_FP2_PWRITE               = apb_fifo[2].pwrite,
+            i_FP2_PSTRB                = apb_fifo[2].pstrb,
+            i_FP2_PPROT                = apb_fifo[2].pprot,
+            i_FP2_PWDATA               = apb_fifo[2].pwdata,
+            i_FP2_PSEL                 = apb_fifo[2].psel,
+            i_FP2_APBACTIVE            = apb_fifo[2].pactive,
+            o_FP2_PRDATA               = apb_fifo[2].prdata,
+            o_FP2_PREADY               = apb_fifo[2].pready,
+            o_FP2_PSLVERR              = apb_fifo[2].pslverr,
+
+            i_FP3_PADDR                = apb_fifo[3].paddr,
+            i_FP3_PENABLE              = apb_fifo[3].penable,
+            i_FP3_PWRITE               = apb_fifo[3].pwrite,
+            i_FP3_PSTRB                = apb_fifo[3].pstrb,
+            i_FP3_PPROT                = apb_fifo[3].pprot,
+            i_FP3_PWDATA               = apb_fifo[3].pwdata,
+            i_FP3_PSEL                 = apb_fifo[3].psel,
+            i_FP3_APBACTIVE            = apb_fifo[3].pactive,
+            o_FP3_PRDATA               = apb_fifo[3].prdata,
+            o_FP3_PREADY               = apb_fifo[3].pready,
+            o_FP3_PSLVERR              = apb_fifo[3].pslverr,
 
             # gpio interfaces
             i_gpio_in              = gpio_i,
