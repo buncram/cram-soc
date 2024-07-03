@@ -440,6 +440,9 @@ module bio_bdma #(
     //
     // In order to help differentiate which bit was set in a multi-bit event scenario, the incoming
     // events are also readable as a bank of status registers, mapped again 1:1 into 6x 32-bit registers.
+    //
+    // NOTE NOTE NOTE: the ordering of the SFR registers to word position is reversed, so the higher-number
+    // register maps to the lower-numbered 32-bit word of the event map.
     localparam EVC_REGS = EVC / 32;
 
     logic [0:EVC_REGS-1][31:0] cr_evmap;
@@ -452,8 +455,8 @@ module bio_bdma #(
 	generate
 		for (genvar e = 0; e < EVC_REGS; e++) begin: dmagen
             for (genvar g = 0; g < 32; g++) begin: dmagate
-                assign gated_dmareq[e*32 + g] = dmareq[e*32 + g] & cr_evmap[e][g];
-                assign sr_evstat[e][g] = gated_dmareq[e*32 + g];
+                assign gated_dmareq[e*32 + g] = dmareq[e*32 + g] & cr_evmap[EVC_REGS - 1 - e][g];
+                assign sr_evstat[e][g] = gated_dmareq[(EVC_REGS - 1 - e)*32 + g];
             end
 		end
         for (genvar c = 0; c < 24; c++) begin: reduce

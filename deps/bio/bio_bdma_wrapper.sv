@@ -455,9 +455,11 @@ module bio_bdma_wrapper #(
         end
     endgenerate
 
-    // tie this off for now
+    // feed our IRQ back as a dmareq - this approximates how the system actually works
     logic [191:0] dmareq;
-    assign dmareq = '0;
+    always_ff @(posedge pclk) begin
+        dmareq = {57'b0,irq[3:0],83'b0,48'b0};
+    end
 
     bio_bdma bio_bdma(
         .aclk    (fclk),
