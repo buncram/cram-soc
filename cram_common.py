@@ -108,7 +108,7 @@ class CramSoC(SoCCore):
             "duart"       : [0x4004_2000, 0x0_1000],
             # "pio"       : [0x5012_3000, 0x0_1000],
             # "bio"       : [0x5012_4000, 0x0_2000],
-            "bio_bdma"    : [0x5012_4000, 0x0_1000], # also infers 4x memory pages in addition to the control page
+            "bio_bdma"    : [0x5012_4000, 0x0_1000], # also infers 8x pages in addition to the control page
             "mbox_apb"    : [0x4001_3000, 0x0_1000],
             "ifram0"      : [0x5000_0000, 128 * 1024],
             "ifram1"      : [0x5002_0000, 128 * 1024],
@@ -357,6 +357,31 @@ class CramSoC(SoCCore):
                                             getattr(self, imem_name + "_ahb")
                         ))
                         bdma_imem += [getattr(self, imem_name + "_ahb")]
+                    # build fifo page mapping list
+                    bdma_fifo = []
+                    for i in range(4):
+                        fifo_name = f'bio_bdma_fifo{i}'
+                        setattr(self, fifo_name + "_region", SoCIORegion(region[0] + 0x4000 + (i + 1) * 0x1000, region[1], mode="rw", cached=False))
+                        setattr(self, fifo_name + "_axil", AXILiteInterface(name=f'bio_bdma_fifo{i}' + "_axil"))
+                        pxbar.add_master(
+                            name = fifo_name,
+                            m_axil = getattr(self, fifo_name + "_axil"),
+                            origin = region[0] + 0x4000 + (i + 1) * 0x1000,
+                            size = region[1],
+                        )
+                        setattr(self, fifo_name + "_slower_axil", AXILiteInterface(clock_domain="p", name=fifo_name + "_slower_axil"))
+                        setattr(self.submodules, fifo_name + "_slower_axi",
+                                AXILiteCDC(platform,
+                                        getattr(self, fifo_name + "_axil"),
+                                        getattr(self, fifo_name + "_slower_axil"),
+                                ))
+                        setattr(self, fifo_name + "_ahb", ahb.AHBInterface())
+                        self.submodules += ClockDomainsRenamer({"sys" : "p"})(
+                            AXILite2AHBAdapter(platform,
+                                            getattr(self, fifo_name + "_slower_axil"),
+                                            getattr(self, fifo_name + "_ahb")
+                        ))
+                        bdma_fifo += [getattr(self, fifo_name + "_ahb")]
 
                     if variant == "sim":
                         sim = True  # this will cause some funky stuff to appear on the GPIO for simulation frameworking/testbenching
@@ -370,6 +395,7 @@ class CramSoC(SoCCore):
                     self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioBdmaAdapter(platform,
                         getattr(self, name +"_ahb"),
                         bdma_imem,
+                        bdma_fifo,
                         ahb_from_dma,
                         dma_axi,
                         platform.request("pio"), bio_irq,
