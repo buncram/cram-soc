@@ -454,9 +454,10 @@ generate
         wire [S_COUNT-1:0] a_acknowledge;
         wire [S_COUNT-1:0] a_grant;
         wire a_grant_valid;
-        // wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded;
+        wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded_from_arb;
         // this needs to be wider than strictly necessary to work around a verilator bug
         wire [S_COUNT*2-1:0] a_grant_encoded;
+        assign a_grant_encoded = a_grant_encoded_from_arb | '0;
 
         arbiter #(
             .PORTS(S_COUNT),
@@ -472,7 +473,7 @@ generate
             .acknowledge(a_acknowledge),
             .grant(a_grant),
             .grant_valid(a_grant_valid),
-            .grant_encoded(a_grant_encoded)
+            .grant_encoded(a_grant_encoded_from_arb)
         );
 
         // address mux
