@@ -9,6 +9,7 @@ module bio_bdma #(
     parameter APW = 12,  // APB address width
     // 0x8000 is offset of the BIO config space
     // 0x9000-0xD000 is offset of RAM
+    parameter DW = 32,
     parameter CHNLC = 8,
     parameter EVC = 192,
     parameter AHBMID4 = daric_cfg::AMBAID4_MDMA
@@ -137,6 +138,9 @@ module bio_bdma #(
 	logic [31:0] eoi  [NUM_MACH];
 	logic [NUM_MACH-1:0] trace_valid;
 	logic [35:0] trace_data [NUM_MACH];
+
+    // lint fixes
+    logic [1:0] core_id_from_loop [NUM_MACH];
 
     // In theory, we could do some overlapping write-over-read with AHB and multiple cores
     // owning different read//write ops, but I think it's not worth the complexity
@@ -412,10 +416,10 @@ module bio_bdma #(
     apb_sr #(.A('h84), .DW(32))      sfr_dbg_padout       (.sr(gpio_out), .prdata32(),.*);
     apb_sr #(.A('h88), .DW(32))      sfr_dbg_padoe        (.sr(gpio_dir), .prdata32(),.*);
 
-    apb_sr #(.A('h90), .DW(32))      sfr_dbg0             (.sr({trap[0], dbg_pc[0]}), .prdata32(),.*);
-    apb_sr #(.A('h94), .DW(32))      sfr_dbg1             (.sr({trap[1], dbg_pc[1]}), .prdata32(),.*);
-    apb_sr #(.A('h98), .DW(32))      sfr_dbg2             (.sr({trap[2], dbg_pc[2]}), .prdata32(),.*);
-    apb_sr #(.A('h9C), .DW(32))      sfr_dbg3             (.sr({trap[3], dbg_pc[3]}), .prdata32(),.*);
+    apb_sr #(.A('h90), .DW(13))      sfr_dbg0             (.sr({trap[0], dbg_pc[0]}), .prdata32(),.*);
+    apb_sr #(.A('h94), .DW(13))      sfr_dbg1             (.sr({trap[1], dbg_pc[1]}), .prdata32(),.*);
+    apb_sr #(.A('h98), .DW(13))      sfr_dbg2             (.sr({trap[2], dbg_pc[2]}), .prdata32(),.*);
+    apb_sr #(.A('h9C), .DW(13))      sfr_dbg3             (.sr({trap[3], dbg_pc[3]}), .prdata32(),.*);
 
     cdc_level_to_pulse   ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded          ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b     (pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
@@ -1219,7 +1223,7 @@ module bio_bdma #(
         .AWID('0),
         .AWADDR(axi_aw_bodge),
         .AWLEN('0),
-        .AWSIZE(ahb_size_bodge),
+        .AWSIZE(ahb_size_bodge[1:0]),
         .AWVALID(peri_cdc_axil.aw_valid),
         .AWREADY(peri_cdc_axil.aw_ready),
         .WID('0),
@@ -1235,7 +1239,7 @@ module bio_bdma #(
         .ARID('0),
         .ARADDR(peri_cdc_axil.ar_addr),
         .ARLEN('0),
-        .ARSIZE(3'b010), // always read full words
+        .ARSIZE(2'b10), // always read full words
         .ARVALID(peri_cdc_axil.ar_valid),
         .ARREADY(peri_cdc_axil.ar_ready),
         // .RID('0),
@@ -1247,7 +1251,7 @@ module bio_bdma #(
 
         .HADDR(ahbm.haddr),
         .HBURST(ahbm.hburst),
-        .HSIZE(ahbm.hsize),
+        .HSIZE(ahbm.hsize[1:0]),
         .HTRANS(ahbm.htrans),
         .HWRITE(ahbm.hwrite),
         .HWDATA(ahbm.hwdata),
@@ -1413,6 +1417,7 @@ module bio_bdma #(
             `else
                 ICG icg(.CK(aclk),.EN(~stall[j]),.SE(cmatpg),.CKG(core_clk[j]));
             `endif
+            assign core_id_from_loop[j] = j;
             picorv32 #(
                 .ENABLE_COUNTERS(0),
                 .ENABLE_COUNTERS64(0),
@@ -1466,7 +1471,7 @@ module bio_bdma #(
                 .event_set_valid(event_set_valid[j]),
                 .event_clr(event_clr[j]),
                 .event_clr_valid(event_clr_valid[j]),
-                .core_id(j),
+                .core_id(core_id_from_loop[j]),
                 .clk_count(core_clk_count[j]),
 
                 .clk(core_clk[j]),
