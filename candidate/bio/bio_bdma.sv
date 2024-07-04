@@ -23,7 +23,7 @@ module bio_bdma #(
     input logic         cmatpg, cmbist,
     input logic [2:0]   sramtrm,
 
-    ioif.drive          bio_gpio[31:0],
+    ioif.drive          bio_gpio[0:31],
     // interrupt sources originating from BIO
     output logic  [3:0] irq,
 

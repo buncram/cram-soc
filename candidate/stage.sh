@@ -18,6 +18,7 @@ cp ../sim_support/mbox_v0.1.sv .
 cp ../sim_support/mbox_client.v .
 cp ../sim_support/ram_1w_1ra.v .
 cp ../sim_support/ram_1w_1rs.v .
+cp ../sim_support/bio_tb.v ../do_not_checkin/s32-nto/tb/
 cp ../VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin .
 cp ../VexRiscv/VexRiscv_CramSoC.v .
 cp ../build/gateware/cram_axi.v .
