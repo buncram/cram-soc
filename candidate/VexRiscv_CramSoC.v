@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
 // Component : VexRiscvAxi4
-// Git hash  : 4318650f7374919d70f065d56242cbaa90a71688
+// Git hash  : 9300aff2028737c42d31398de9169b0a78419160
 
 `timescale 1ns/1ps
 
@@ -154,7 +154,6 @@ module VexRiscvAxi4 (
   wire                dataCache_1_io_mem_cmd_ready;
   wire       [31:0]   _zz_RegFilePlugin_regFile_port0;
   wire       [31:0]   _zz_RegFilePlugin_regFile_port1;
-  reg        [31:0]   _zz_memory_AesPlugin_rom_storage_port0;
   wire                IBusCachedPlugin_cache_io_cpu_prefetch_haltIt;
   wire       [31:0]   IBusCachedPlugin_cache_io_cpu_fetch_data;
   wire       [31:0]   IBusCachedPlugin_cache_io_cpu_fetch_physicalAddress;
@@ -203,6 +202,7 @@ module VexRiscvAxi4 (
   wire       [31:0]   systemDebugger_1_io_mem_cmd_payload_data;
   wire                systemDebugger_1_io_mem_cmd_payload_wr;
   wire       [1:0]    systemDebugger_1_io_mem_cmd_payload_size;
+  wire       [31:0]   memory_AesPlugin_rom_storage_data;
   wire       [51:0]   _zz_memory_MUL_LOW;
   wire       [51:0]   _zz_memory_MUL_LOW_1;
   wire       [51:0]   _zz_memory_MUL_LOW_2;
@@ -1342,7 +1342,6 @@ module VexRiscvAxi4 (
   wire       [1:0]    execute_AesPlugin_byteSel;
   wire                execute_AesPlugin_bankSel;
   wire       [8:0]    execute_AesPlugin_romAddress;
-  wire                _zz_memory_AesPlugin_rom_data;
   wire       [31:0]   memory_AesPlugin_rom_data;
   wire       [7:0]    memory_AesPlugin_rom_bytes_0;
   wire       [7:0]    memory_AesPlugin_rom_bytes_1;
@@ -1379,11 +1378,11 @@ module VexRiscvAxi4 (
   reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_1;
   reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_2;
   reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_3;
-  wire                when_AesPlugin_l146;
-  wire                when_AesPlugin_l154;
-  wire                when_AesPlugin_l154_1;
-  wire                when_AesPlugin_l154_2;
-  wire                when_AesPlugin_l154_3;
+  wire                when_AesPlugin_l147;
+  wire                when_AesPlugin_l155;
+  wire                when_AesPlugin_l155_1;
+  wire                when_AesPlugin_l155_2;
+  wire                when_AesPlugin_l155_3;
   wire       [31:0]   memory_AesPlugin_xored;
   reg        [1:0]    _zz_CsrPlugin_privilege;
   reg        [1:0]    CsrPlugin_misa_base;
@@ -2323,7 +2322,7 @@ module VexRiscvAxi4 (
   `endif
 
   (* ram_style = "distributed" *) reg [31:0] RegFilePlugin_regFile [0:31] /* verilator public */ ;
-  (* ram_style = "block" *) reg [31:0] memory_AesPlugin_rom_storage [0:511];
+  (* ram_style = "block" *) reg [31:0] memory_AesPlugin_rom_storage_1 [0:511];
 
   assign _zz_when = ({decodeExceptionPort_valid,IBusCachedPlugin_decodeExceptionPort_valid} != 2'b00);
   assign _zz_memory_MUL_LOW = ($signed(_zz_memory_MUL_LOW_1) + $signed(_zz_memory_MUL_LOW_5));
@@ -2686,14 +2685,7 @@ module VexRiscvAxi4 (
   end
 
   initial begin
-    $readmemb("VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin",memory_AesPlugin_rom_storage);
   end
-  always @(posedge clk) begin
-    if(_zz_memory_AesPlugin_rom_data) begin
-      _zz_memory_AesPlugin_rom_storage_port0 <= memory_AesPlugin_rom_storage[execute_AesPlugin_romAddress];
-    end
-  end
-
   InstructionCache IBusCachedPlugin_cache (
     .io_flush                              (IBusCachedPlugin_cache_io_flush                           ), //i
     .io_cpu_prefetch_isValid               (IBusCachedPlugin_cache_io_cpu_prefetch_isValid            ), //i
@@ -2879,6 +2871,16 @@ module VexRiscvAxi4 (
     .io_mem_rsp_payload             (debug_bus_rsp_data[31:0]                         ), //i
     .clk                            (clk                                              ), //i
     .debugReset                     (debugReset                                       )  //i
+  );
+  memory_AesPlugin_rom_storage_Rom_1rs #(
+    .wordCount(512),
+    .wordWidth(32),
+    .technology("auto")
+  ) memory_AesPlugin_rom_storage (
+    .clk  (clk                                    ), //i
+    .en   (1'b1                                   ), //i
+    .addr (execute_AesPlugin_romAddress[8:0]      ), //i
+    .data (memory_AesPlugin_rom_storage_data[31:0])  //o
   );
   always @(*) begin
     case(_zz_IBusCachedPlugin_jump_pcLoad_payload_7)
@@ -5842,8 +5844,7 @@ module VexRiscvAxi4 (
   assign execute_AesPlugin_byteSel = execute_INSTRUCTION[29 : 28];
   assign execute_AesPlugin_bankSel = (execute_INSTRUCTION[25] && (! execute_INSTRUCTION[26]));
   assign execute_AesPlugin_romAddress = {execute_AesPlugin_bankSel,_zz_execute_AesPlugin_romAddress};
-  assign _zz_memory_AesPlugin_rom_data = (! memory_arbitration_isStuck);
-  assign memory_AesPlugin_rom_data = _zz_memory_AesPlugin_rom_storage_port0;
+  assign memory_AesPlugin_rom_data = memory_AesPlugin_rom_storage_data;
   assign memory_AesPlugin_rom_bytes_0 = memory_AesPlugin_rom_data[7 : 0];
   assign memory_AesPlugin_rom_bytes_1 = memory_AesPlugin_rom_data[15 : 8];
   assign memory_AesPlugin_rom_bytes_2 = memory_AesPlugin_rom_data[23 : 16];
@@ -5871,7 +5872,7 @@ module VexRiscvAxi4 (
   assign memory_AesPlugin_rom_output_3 = _zz_memory_AesPlugin_rom_output_3;
   always @(*) begin
     memory_AesPlugin_wordDesuffle_zero = 4'b0000;
-    if(when_AesPlugin_l146) begin
+    if(when_AesPlugin_l147) begin
       memory_AesPlugin_wordDesuffle_zero = 4'b1111;
       memory_AesPlugin_wordDesuffle_zero[memory_AesPlugin_wordDesuffle_byteSel] = 1'b0;
     end
@@ -5946,39 +5947,39 @@ module VexRiscvAxi4 (
     endcase
   end
 
-  assign when_AesPlugin_l146 = memory_INSTRUCTION[26];
+  assign when_AesPlugin_l147 = memory_INSTRUCTION[26];
   always @(*) begin
     memory_AesPlugin_wordDesuffle_output_0 = _zz_memory_AesPlugin_wordDesuffle_output_0;
-    if(when_AesPlugin_l154) begin
+    if(when_AesPlugin_l155) begin
       memory_AesPlugin_wordDesuffle_output_0 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l154 = memory_AesPlugin_wordDesuffle_zero[0];
+  assign when_AesPlugin_l155 = memory_AesPlugin_wordDesuffle_zero[0];
   always @(*) begin
     memory_AesPlugin_wordDesuffle_output_1 = _zz_memory_AesPlugin_wordDesuffle_output_1;
-    if(when_AesPlugin_l154_1) begin
+    if(when_AesPlugin_l155_1) begin
       memory_AesPlugin_wordDesuffle_output_1 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l154_1 = memory_AesPlugin_wordDesuffle_zero[1];
+  assign when_AesPlugin_l155_1 = memory_AesPlugin_wordDesuffle_zero[1];
   always @(*) begin
     memory_AesPlugin_wordDesuffle_output_2 = _zz_memory_AesPlugin_wordDesuffle_output_2;
-    if(when_AesPlugin_l154_2) begin
+    if(when_AesPlugin_l155_2) begin
       memory_AesPlugin_wordDesuffle_output_2 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l154_2 = memory_AesPlugin_wordDesuffle_zero[2];
+  assign when_AesPlugin_l155_2 = memory_AesPlugin_wordDesuffle_zero[2];
   always @(*) begin
     memory_AesPlugin_wordDesuffle_output_3 = _zz_memory_AesPlugin_wordDesuffle_output_3;
-    if(when_AesPlugin_l154_3) begin
+    if(when_AesPlugin_l155_3) begin
       memory_AesPlugin_wordDesuffle_output_3 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l154_3 = memory_AesPlugin_wordDesuffle_zero[3];
+  assign when_AesPlugin_l155_3 = memory_AesPlugin_wordDesuffle_zero[3];
   assign memory_AesPlugin_xored = ({memory_AesPlugin_wordDesuffle_output_3,{memory_AesPlugin_wordDesuffle_output_2,{memory_AesPlugin_wordDesuffle_output_1,memory_AesPlugin_wordDesuffle_output_0}}} ^ memory_RS1);
   always @(*) begin
     CsrPlugin_privilege = _zz_CsrPlugin_privilege;
