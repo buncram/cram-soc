@@ -110,6 +110,7 @@ class CramSoC(SoCCore):
             # "bio"       : [0x5012_4000, 0x0_2000],
             "bio_bdma"    : [0x5012_4000, 0x0_1000], # also infers 8x pages in addition to the control page
             "mbox_apb"    : [0x4001_3000, 0x0_1000],
+            "iox"         : [0x5012_f000, 0x0_1000], # dummy so tests don't crash when writing here
             "ifram0"      : [0x5000_0000, 128 * 1024],
             "ifram1"      : [0x5002_0000, 128 * 1024],
         }
@@ -275,7 +276,7 @@ class CramSoC(SoCCore):
                 self.bus.add_master(name="pbus", master=self.testbench_axil)
             else:
                 # connect the SoC via AHB adapters
-                if "ifram" not in name:
+                if "ifram" not in name and "iox" not in name:
                     setattr(self, name + "_slower_axil", AXILiteInterface(clock_domain="p", name=name + "_slower_axil"))
                     setattr(self.submodules, name + "_slower_axi",
                             AXILiteCDC(platform,
@@ -416,7 +417,8 @@ class CramSoC(SoCCore):
                         ]
 
                 # add RAMs for IFRAM testing
-                elif name == "ifram0" or name == "ifram1":
+                # IOX is just mapped as a RAM region because we are lazy and don't want to emulate it fully
+                elif name == "ifram0" or name == "ifram1" or name == "iox":
                     setattr(
                         self.submodules,
                         name + "_sram",
