@@ -1,6 +1,6 @@
-// Generator : SpinalHDL dev    git head : b6e06c574a1d60f1bf2e41c024632be972395dc4
+// Generator : SpinalHDL dev    git head : 2bc38bc68cf4bf95cff98bca1c990c0606864538
 // Component : VexRiscvAxi4
-// Git hash  : 9300aff2028737c42d31398de9169b0a78419160
+// Git hash  : 2b70f23f5dc5d066c18a859a6872c9ca0954f1dc
 
 `timescale 1ns/1ps
 
@@ -202,7 +202,7 @@ module VexRiscvAxi4 (
   wire       [31:0]   systemDebugger_1_io_mem_cmd_payload_data;
   wire                systemDebugger_1_io_mem_cmd_payload_wr;
   wire       [1:0]    systemDebugger_1_io_mem_cmd_payload_size;
-  wire       [31:0]   memory_AesPlugin_rom_storage_data;
+  wire       [31:0]   memory_AesZknPlugin_rom_storage_data;
   wire       [51:0]   _zz_memory_MUL_LOW;
   wire       [51:0]   _zz_memory_MUL_LOW_1;
   wire       [51:0]   _zz_memory_MUL_LOW_2;
@@ -298,162 +298,146 @@ module VexRiscvAxi4 (
   wire                _zz__zz_decode_IS_SFENCE_VMA2_17;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_18;
   wire       [26:0]   _zz__zz_decode_IS_SFENCE_VMA2_19;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_20;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_21;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_20;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_21;
   wire                _zz__zz_decode_IS_SFENCE_VMA2_22;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_23;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_24;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_25;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_26;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_27;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_28;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_23;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_24;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_25;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_26;
+  wire       [22:0]   _zz__zz_decode_IS_SFENCE_VMA2_27;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_28;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_29;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_30;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_30;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_31;
-  wire       [21:0]   _zz__zz_decode_IS_SFENCE_VMA2_32;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_33;
-  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_34;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_32;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_33;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_34;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_35;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_36;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_37;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_38;
+  wire       [18:0]   _zz__zz_decode_IS_SFENCE_VMA2_36;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_37;
+  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_38;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_39;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_40;
-  wire       [17:0]   _zz__zz_decode_IS_SFENCE_VMA2_41;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_42;
-  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_43;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_44;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_41;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_42;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_43;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_44;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_45;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_46;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_46;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_47;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_48;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_49;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_50;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_51;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_52;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_48;
+  wire       [14:0]   _zz__zz_decode_IS_SFENCE_VMA2_49;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_50;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_51;
+  wire       [4:0]    _zz__zz_decode_IS_SFENCE_VMA2_52;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_53;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_54;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_55;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_56;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_57;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_58;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_59;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_60;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_61;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_54;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_55;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_56;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_57;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_58;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_59;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_60;
+  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_61;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_62;
-  wire       [4:0]    _zz__zz_decode_IS_SFENCE_VMA2_63;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_63;
   wire                _zz__zz_decode_IS_SFENCE_VMA2_64;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_65;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_66;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_66;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_67;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_68;
-  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_69;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_70;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_68;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_69;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_70;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_71;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_72;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_73;
-  wire       [13:0]   _zz__zz_decode_IS_SFENCE_VMA2_74;
-  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_75;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_76;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_77;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_78;
+  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_74;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_75;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_76;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_77;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_78;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_79;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_80;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_80;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_81;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_82;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_83;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_82;
+  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_83;
   wire                _zz__zz_decode_IS_SFENCE_VMA2_84;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_85;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_86;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_85;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_86;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_87;
-  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_88;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_89;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_90;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_91;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_92;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_88;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_89;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_90;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_91;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_92;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_93;
-  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_94;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_95;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_96;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_97;
-  wire       [4:0]    _zz__zz_decode_IS_SFENCE_VMA2_98;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_99;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_100;
+  wire       [10:0]   _zz__zz_decode_IS_SFENCE_VMA2_94;
+  wire       [6:0]    _zz__zz_decode_IS_SFENCE_VMA2_95;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_96;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_97;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_98;
+  wire       [4:0]    _zz__zz_decode_IS_SFENCE_VMA2_99;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_100;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_101;
-  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_102;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_103;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_102;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_103;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_104;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_105;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_106;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_107;
+  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_105;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_106;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_107;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_108;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_109;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_110;
-  wire       [10:0]   _zz__zz_decode_IS_SFENCE_VMA2_111;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_112;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_113;
-  wire       [5:0]    _zz__zz_decode_IS_SFENCE_VMA2_114;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_115;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_116;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_117;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_110;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_111;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_112;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_113;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_114;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_115;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_116;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_117;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_118;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_119;
-  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_120;
+  wire       [7:0]    _zz__zz_decode_IS_SFENCE_VMA2_119;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_120;
   wire                _zz__zz_decode_IS_SFENCE_VMA2_121;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_122;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_123;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_124;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_124;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_125;
-  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_126;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_127;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_128;
-  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_129;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_130;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_131;
-  wire       [8:0]    _zz__zz_decode_IS_SFENCE_VMA2_132;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_133;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_134;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_135;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_126;
+  wire       [5:0]    _zz__zz_decode_IS_SFENCE_VMA2_127;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_128;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_129;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_130;
+  wire       [4:0]    _zz__zz_decode_IS_SFENCE_VMA2_131;
+  wire                _zz__zz_decode_IS_SFENCE_VMA2_132;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_133;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_134;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_135;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_136;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_137;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_138;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_139;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_139;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_140;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_141;
-  wire       [6:0]    _zz__zz_decode_IS_SFENCE_VMA2_142;
+  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_142;
   wire                _zz__zz_decode_IS_SFENCE_VMA2_143;
   wire                _zz__zz_decode_IS_SFENCE_VMA2_144;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_145;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_146;
-  wire       [5:0]    _zz__zz_decode_IS_SFENCE_VMA2_147;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_148;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_145;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_146;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_147;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_148;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_149;
-  wire       [3:0]    _zz__zz_decode_IS_SFENCE_VMA2_150;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_151;
+  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_150;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_151;
   wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_152;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_153;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_154;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_155;
-  wire       [4:0]    _zz__zz_decode_IS_SFENCE_VMA2_156;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_157;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_153;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_154;
+  wire       [1:0]    _zz__zz_decode_IS_SFENCE_VMA2_155;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_156;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_157;
   wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_158;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_159;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_160;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_161;
-  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_162;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_163;
-  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_164;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_165;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_166;
-  wire       [2:0]    _zz__zz_decode_IS_SFENCE_VMA2_167;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_168;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_169;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_170;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_171;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_172;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_173;
-  wire       [0:0]    _zz__zz_decode_IS_SFENCE_VMA2_174;
-  wire                _zz__zz_decode_IS_SFENCE_VMA2_175;
+  wire       [31:0]   _zz__zz_decode_IS_SFENCE_VMA2_159;
   wire       [0:0]    _zz__zz_execute_REGFILE_WRITE_DATA;
   wire       [2:0]    _zz__zz_execute_SRC1;
   wire       [4:0]    _zz__zz_execute_SRC1_1;
@@ -484,15 +468,15 @@ module VexRiscvAxi4 (
   wire       [0:0]    _zz_memory_DivPlugin_rs1_3;
   wire       [31:0]   _zz_memory_DivPlugin_rs2_1;
   wire       [0:0]    _zz_memory_DivPlugin_rs2_2;
-  reg        [7:0]    _zz_execute_AesPlugin_romAddress;
-  reg        [1:0]    _zz_memory_AesPlugin_rom_output_0;
-  reg        [1:0]    _zz_memory_AesPlugin_rom_output_1;
-  reg        [1:0]    _zz_memory_AesPlugin_rom_output_2;
-  reg        [1:0]    _zz_memory_AesPlugin_rom_output_3;
-  reg        [7:0]    _zz_memory_AesPlugin_wordDesuffle_output_0;
-  reg        [7:0]    _zz_memory_AesPlugin_wordDesuffle_output_1;
-  reg        [7:0]    _zz_memory_AesPlugin_wordDesuffle_output_2;
-  reg        [7:0]    _zz_memory_AesPlugin_wordDesuffle_output_3;
+  reg        [7:0]    _zz_execute_AesZknPlugin_romAddress;
+  reg        [1:0]    _zz_memory_AesZknPlugin_rom_output_0;
+  reg        [1:0]    _zz_memory_AesZknPlugin_rom_output_1;
+  reg        [1:0]    _zz_memory_AesZknPlugin_rom_output_2;
+  reg        [1:0]    _zz_memory_AesZknPlugin_rom_output_3;
+  reg        [7:0]    _zz_memory_AesZknPlugin_wordDesuffle_output_0;
+  reg        [7:0]    _zz_memory_AesZknPlugin_wordDesuffle_output_1;
+  reg        [7:0]    _zz_memory_AesZknPlugin_wordDesuffle_output_2;
+  reg        [7:0]    _zz_memory_AesZknPlugin_wordDesuffle_output_3;
   wire       [1:0]    _zz__zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1;
   wire       [1:0]    _zz__zz_CsrPlugin_exceptionPortCtrl_exceptionContext_code_1_1;
   wire                _zz_when;
@@ -1236,7 +1220,6 @@ module VexRiscvAxi4 (
   wire                _zz_decode_IS_SFENCE_VMA2_8;
   wire                _zz_decode_IS_SFENCE_VMA2_9;
   wire                _zz_decode_IS_SFENCE_VMA2_10;
-  wire                _zz_decode_IS_SFENCE_VMA2_11;
   wire       [1:0]    _zz_decode_SRC1_CTRL_2;
   wire       [1:0]    _zz_decode_ALU_CTRL_2;
   wire       [1:0]    _zz_decode_SRC2_CTRL_2;
@@ -1339,51 +1322,51 @@ module VexRiscvAxi4 (
   wire                _zz_memory_DivPlugin_rs2;
   wire                _zz_memory_DivPlugin_rs1;
   reg        [32:0]   _zz_memory_DivPlugin_rs1_1;
-  wire       [1:0]    execute_AesPlugin_byteSel;
-  wire                execute_AesPlugin_bankSel;
-  wire       [8:0]    execute_AesPlugin_romAddress;
-  wire       [31:0]   memory_AesPlugin_rom_data;
-  wire       [7:0]    memory_AesPlugin_rom_bytes_0;
-  wire       [7:0]    memory_AesPlugin_rom_bytes_1;
-  wire       [7:0]    memory_AesPlugin_rom_bytes_2;
-  wire       [7:0]    memory_AesPlugin_rom_bytes_3;
-  wire       [1:0]    memory_AesPlugin_rom_remap_0_0;
-  wire       [1:0]    memory_AesPlugin_rom_remap_0_1;
-  wire       [1:0]    memory_AesPlugin_rom_remap_0_2;
-  wire       [1:0]    memory_AesPlugin_rom_remap_0_3;
-  wire       [1:0]    memory_AesPlugin_rom_remap_1_0;
-  wire       [1:0]    memory_AesPlugin_rom_remap_1_1;
-  wire       [1:0]    memory_AesPlugin_rom_remap_1_2;
-  wire       [1:0]    memory_AesPlugin_rom_remap_1_3;
-  wire       [1:0]    memory_AesPlugin_rom_remap_2_0;
-  wire       [1:0]    memory_AesPlugin_rom_remap_2_1;
-  wire       [1:0]    memory_AesPlugin_rom_remap_2_2;
-  wire       [1:0]    memory_AesPlugin_rom_remap_2_3;
-  wire       [1:0]    memory_AesPlugin_rom_remap_3_0;
-  wire       [1:0]    memory_AesPlugin_rom_remap_3_1;
-  wire       [1:0]    memory_AesPlugin_rom_remap_3_2;
-  wire       [1:0]    memory_AesPlugin_rom_remap_3_3;
-  wire       [1:0]    memory_AesPlugin_rom_address;
-  wire       [1:0]    memory_AesPlugin_rom_output_0;
-  wire       [1:0]    memory_AesPlugin_rom_output_1;
-  wire       [1:0]    memory_AesPlugin_rom_output_2;
-  wire       [1:0]    memory_AesPlugin_rom_output_3;
-  reg        [3:0]    memory_AesPlugin_wordDesuffle_zero;
-  wire       [1:0]    memory_AesPlugin_wordDesuffle_byteSel;
-  reg        [7:0]    memory_AesPlugin_wordDesuffle_output_0;
-  reg        [7:0]    memory_AesPlugin_wordDesuffle_output_1;
-  reg        [7:0]    memory_AesPlugin_wordDesuffle_output_2;
-  reg        [7:0]    memory_AesPlugin_wordDesuffle_output_3;
-  reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_0;
-  reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_1;
-  reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_2;
-  reg        [1:0]    memory_AesPlugin_wordDesuffle_sel_3;
-  wire                when_AesPlugin_l147;
-  wire                when_AesPlugin_l155;
-  wire                when_AesPlugin_l155_1;
-  wire                when_AesPlugin_l155_2;
-  wire                when_AesPlugin_l155_3;
-  wire       [31:0]   memory_AesPlugin_xored;
+  wire       [1:0]    execute_AesZknPlugin_byteSel;
+  wire                execute_AesZknPlugin_bankSel;
+  wire       [8:0]    execute_AesZknPlugin_romAddress;
+  wire       [31:0]   memory_AesZknPlugin_rom_data;
+  wire       [7:0]    memory_AesZknPlugin_rom_bytes_0;
+  wire       [7:0]    memory_AesZknPlugin_rom_bytes_1;
+  wire       [7:0]    memory_AesZknPlugin_rom_bytes_2;
+  wire       [7:0]    memory_AesZknPlugin_rom_bytes_3;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_0_0;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_0_1;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_0_2;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_0_3;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_1_0;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_1_1;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_1_2;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_1_3;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_2_0;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_2_1;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_2_2;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_2_3;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_3_0;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_3_1;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_3_2;
+  wire       [1:0]    memory_AesZknPlugin_rom_remap_3_3;
+  wire       [1:0]    memory_AesZknPlugin_rom_address;
+  wire       [1:0]    memory_AesZknPlugin_rom_output_0;
+  wire       [1:0]    memory_AesZknPlugin_rom_output_1;
+  wire       [1:0]    memory_AesZknPlugin_rom_output_2;
+  wire       [1:0]    memory_AesZknPlugin_rom_output_3;
+  reg        [3:0]    memory_AesZknPlugin_wordDesuffle_zero;
+  wire       [1:0]    memory_AesZknPlugin_wordDesuffle_byteSel;
+  reg        [7:0]    memory_AesZknPlugin_wordDesuffle_output_0;
+  reg        [7:0]    memory_AesZknPlugin_wordDesuffle_output_1;
+  reg        [7:0]    memory_AesZknPlugin_wordDesuffle_output_2;
+  reg        [7:0]    memory_AesZknPlugin_wordDesuffle_output_3;
+  reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_0;
+  reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_1;
+  reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_2;
+  reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_3;
+  wire                when_AesZknPlugin_l154;
+  wire                when_AesZknPlugin_l162;
+  wire                when_AesZknPlugin_l162_1;
+  wire                when_AesZknPlugin_l162_2;
+  wire                when_AesZknPlugin_l162_3;
+  wire       [31:0]   memory_AesZknPlugin_xored;
   reg        [1:0]    _zz_CsrPlugin_privilege;
   reg        [1:0]    CsrPlugin_misa_base;
   reg        [25:0]   CsrPlugin_misa_extensions;
@@ -2322,7 +2305,7 @@ module VexRiscvAxi4 (
   `endif
 
   (* ram_style = "distributed" *) reg [31:0] RegFilePlugin_regFile [0:31] /* verilator public */ ;
-  (* ram_style = "block" *) reg [31:0] memory_AesPlugin_rom_storage_1 [0:511];
+  (* ram_style = "block" *) reg [31:0] memory_AesZknPlugin_rom_storage_1 [0:511];
 
   assign _zz_when = ({decodeExceptionPort_valid,IBusCachedPlugin_decodeExceptionPort_valid} != 2'b00);
   assign _zz_memory_MUL_LOW = ($signed(_zz_memory_MUL_LOW_1) + $signed(_zz_memory_MUL_LOW_5));
@@ -2414,8 +2397,8 @@ module VexRiscvAxi4 (
   assign _zz_decode_LEGAL_INSTRUCTION_7 = (decode_INSTRUCTION & 32'h0000707b);
   assign _zz_decode_LEGAL_INSTRUCTION_8 = 32'h00000063;
   assign _zz_decode_LEGAL_INSTRUCTION_9 = ((decode_INSTRUCTION & 32'h0000607f) == 32'h0000000f);
-  assign _zz_decode_LEGAL_INSTRUCTION_10 = ((decode_INSTRUCTION & 32'h0000707b) == 32'h0000000b);
-  assign _zz_decode_LEGAL_INSTRUCTION_11 = {((decode_INSTRUCTION & 32'h1800707f) == 32'h0000202f),{((decode_INSTRUCTION & 32'hfc00007f) == 32'h00000033),{((decode_INSTRUCTION & _zz_decode_LEGAL_INSTRUCTION_12) == 32'h0800202f),{(_zz_decode_LEGAL_INSTRUCTION_13 == _zz_decode_LEGAL_INSTRUCTION_14),{_zz_decode_LEGAL_INSTRUCTION_15,{_zz_decode_LEGAL_INSTRUCTION_16,_zz_decode_LEGAL_INSTRUCTION_17}}}}}};
+  assign _zz_decode_LEGAL_INSTRUCTION_10 = ((decode_INSTRUCTION & 32'h1800707f) == 32'h0000202f);
+  assign _zz_decode_LEGAL_INSTRUCTION_11 = {((decode_INSTRUCTION & 32'h3200707f) == 32'h22000033),{((decode_INSTRUCTION & 32'hfc00007f) == 32'h00000033),{((decode_INSTRUCTION & _zz_decode_LEGAL_INSTRUCTION_12) == 32'h0800202f),{(_zz_decode_LEGAL_INSTRUCTION_13 == _zz_decode_LEGAL_INSTRUCTION_14),{_zz_decode_LEGAL_INSTRUCTION_15,{_zz_decode_LEGAL_INSTRUCTION_16,_zz_decode_LEGAL_INSTRUCTION_17}}}}}};
   assign _zz_decode_LEGAL_INSTRUCTION_12 = 32'he800707f;
   assign _zz_decode_LEGAL_INSTRUCTION_13 = (decode_INSTRUCTION & 32'h01f0707f);
   assign _zz_decode_LEGAL_INSTRUCTION_14 = 32'h0000500f;
@@ -2442,9 +2425,9 @@ module VexRiscvAxi4 (
   assign _zz__zz_decode_IS_SFENCE_VMA2_1 = 32'h00000004;
   assign _zz__zz_decode_IS_SFENCE_VMA2_2 = (decode_INSTRUCTION & 32'h00000058);
   assign _zz__zz_decode_IS_SFENCE_VMA2_3 = 32'h00000040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_4 = _zz_decode_IS_SFENCE_VMA2_11;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_5 = (|_zz_decode_IS_SFENCE_VMA2_10);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_6 = (|_zz_decode_IS_SFENCE_VMA2_10);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_4 = _zz_decode_IS_SFENCE_VMA2_10;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_5 = (|_zz_decode_IS_SFENCE_VMA2_9);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_6 = (|_zz_decode_IS_SFENCE_VMA2_9);
   assign _zz__zz_decode_IS_SFENCE_VMA2_7 = {(|{(_zz__zz_decode_IS_SFENCE_VMA2_8 == _zz__zz_decode_IS_SFENCE_VMA2_9),(_zz__zz_decode_IS_SFENCE_VMA2_10 == _zz__zz_decode_IS_SFENCE_VMA2_11)}),{(|(_zz__zz_decode_IS_SFENCE_VMA2_12 == _zz__zz_decode_IS_SFENCE_VMA2_13)),{(|{_zz__zz_decode_IS_SFENCE_VMA2_14,_zz__zz_decode_IS_SFENCE_VMA2_15}),{(|_zz__zz_decode_IS_SFENCE_VMA2_16),{_zz__zz_decode_IS_SFENCE_VMA2_17,{_zz__zz_decode_IS_SFENCE_VMA2_18,_zz__zz_decode_IS_SFENCE_VMA2_19}}}}}};
   assign _zz__zz_decode_IS_SFENCE_VMA2_8 = (decode_INSTRUCTION & 32'h10103050);
   assign _zz__zz_decode_IS_SFENCE_VMA2_9 = 32'h00000050;
@@ -2454,166 +2437,150 @@ module VexRiscvAxi4 (
   assign _zz__zz_decode_IS_SFENCE_VMA2_13 = 32'h00000050;
   assign _zz__zz_decode_IS_SFENCE_VMA2_14 = ((decode_INSTRUCTION & 32'h00001050) == 32'h00001050);
   assign _zz__zz_decode_IS_SFENCE_VMA2_15 = ((decode_INSTRUCTION & 32'h00002050) == 32'h00002050);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_16 = _zz_decode_IS_SFENCE_VMA2_8;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_17 = (|_zz_decode_IS_SFENCE_VMA2_9);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_18 = (|_zz_decode_IS_SFENCE_VMA2_9);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_19 = {(|(_zz__zz_decode_IS_SFENCE_VMA2_20 == _zz__zz_decode_IS_SFENCE_VMA2_21)),{(|_zz__zz_decode_IS_SFENCE_VMA2_22),{(|_zz__zz_decode_IS_SFENCE_VMA2_23),{_zz__zz_decode_IS_SFENCE_VMA2_24,{_zz__zz_decode_IS_SFENCE_VMA2_29,_zz__zz_decode_IS_SFENCE_VMA2_32}}}}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_20 = (decode_INSTRUCTION & 32'h02004064);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_21 = 32'h02004020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_22 = ((decode_INSTRUCTION & 32'h02004074) == 32'h02000030);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_23 = ((decode_INSTRUCTION & 32'h02007054) == 32'h00005010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_24 = (|{(_zz__zz_decode_IS_SFENCE_VMA2_25 == _zz__zz_decode_IS_SFENCE_VMA2_26),(_zz__zz_decode_IS_SFENCE_VMA2_27 == _zz__zz_decode_IS_SFENCE_VMA2_28)});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_29 = (|(_zz__zz_decode_IS_SFENCE_VMA2_30 == _zz__zz_decode_IS_SFENCE_VMA2_31));
-  assign _zz__zz_decode_IS_SFENCE_VMA2_32 = {(|_zz__zz_decode_IS_SFENCE_VMA2_33),{(|_zz__zz_decode_IS_SFENCE_VMA2_34),{_zz__zz_decode_IS_SFENCE_VMA2_36,{_zz__zz_decode_IS_SFENCE_VMA2_38,_zz__zz_decode_IS_SFENCE_VMA2_41}}}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_25 = (decode_INSTRUCTION & 32'h40003054);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_26 = 32'h40001010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_27 = (decode_INSTRUCTION & 32'h02007054);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_28 = 32'h00001010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_30 = (decode_INSTRUCTION & 32'h00001000);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_31 = 32'h00001000;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_33 = ((decode_INSTRUCTION & 32'h00003000) == 32'h00002000);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_34 = {_zz_decode_IS_SFENCE_VMA2_7,((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_35) == 32'h00001000)};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_36 = (|((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_37) == 32'h00004008));
-  assign _zz__zz_decode_IS_SFENCE_VMA2_38 = (|(_zz__zz_decode_IS_SFENCE_VMA2_39 == _zz__zz_decode_IS_SFENCE_VMA2_40));
-  assign _zz__zz_decode_IS_SFENCE_VMA2_41 = {(|{_zz__zz_decode_IS_SFENCE_VMA2_42,_zz__zz_decode_IS_SFENCE_VMA2_43}),{(|_zz__zz_decode_IS_SFENCE_VMA2_54),{_zz__zz_decode_IS_SFENCE_VMA2_56,{_zz__zz_decode_IS_SFENCE_VMA2_59,_zz__zz_decode_IS_SFENCE_VMA2_74}}}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_35 = 32'h00005000;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_37 = 32'h00004048;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_39 = (decode_INSTRUCTION & 32'h00000064);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_40 = 32'h00000024;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_42 = _zz_decode_IS_SFENCE_VMA2_8;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_43 = {(_zz__zz_decode_IS_SFENCE_VMA2_44 == _zz__zz_decode_IS_SFENCE_VMA2_45),{_zz__zz_decode_IS_SFENCE_VMA2_46,{_zz__zz_decode_IS_SFENCE_VMA2_48,_zz__zz_decode_IS_SFENCE_VMA2_51}}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_54 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_55) == 32'h00000008);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_56 = (|(_zz__zz_decode_IS_SFENCE_VMA2_57 == _zz__zz_decode_IS_SFENCE_VMA2_58));
-  assign _zz__zz_decode_IS_SFENCE_VMA2_59 = (|{_zz__zz_decode_IS_SFENCE_VMA2_60,_zz__zz_decode_IS_SFENCE_VMA2_63});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_74 = {(|_zz__zz_decode_IS_SFENCE_VMA2_75),{_zz__zz_decode_IS_SFENCE_VMA2_84,{_zz__zz_decode_IS_SFENCE_VMA2_97,_zz__zz_decode_IS_SFENCE_VMA2_111}}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_44 = (decode_INSTRUCTION & 32'h00000034);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_45 = 32'h00000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_46 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_47) == 32'h00000020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_48 = (_zz__zz_decode_IS_SFENCE_VMA2_49 == _zz__zz_decode_IS_SFENCE_VMA2_50);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_51 = (_zz__zz_decode_IS_SFENCE_VMA2_52 == _zz__zz_decode_IS_SFENCE_VMA2_53);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_55 = 32'h10000008;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_57 = (decode_INSTRUCTION & 32'h10000008);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_58 = 32'h10000008;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_60 = (_zz__zz_decode_IS_SFENCE_VMA2_61 == _zz__zz_decode_IS_SFENCE_VMA2_62);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_63 = {_zz__zz_decode_IS_SFENCE_VMA2_64,{_zz__zz_decode_IS_SFENCE_VMA2_66,_zz__zz_decode_IS_SFENCE_VMA2_69}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_75 = {_zz__zz_decode_IS_SFENCE_VMA2_76,{_zz__zz_decode_IS_SFENCE_VMA2_78,_zz__zz_decode_IS_SFENCE_VMA2_81}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_84 = (|{_zz__zz_decode_IS_SFENCE_VMA2_85,_zz__zz_decode_IS_SFENCE_VMA2_88});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_97 = (|_zz__zz_decode_IS_SFENCE_VMA2_98);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_111 = {_zz__zz_decode_IS_SFENCE_VMA2_112,{_zz__zz_decode_IS_SFENCE_VMA2_128,_zz__zz_decode_IS_SFENCE_VMA2_132}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_47 = 32'h00000064;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_49 = (decode_INSTRUCTION & 32'h08000070);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_50 = 32'h08000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_52 = (decode_INSTRUCTION & 32'h10000070);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_53 = 32'h00000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_61 = (decode_INSTRUCTION & 32'h00002040);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_62 = 32'h00002040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_64 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_65) == 32'h00001040);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_66 = (_zz__zz_decode_IS_SFENCE_VMA2_67 == _zz__zz_decode_IS_SFENCE_VMA2_68);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_69 = {_zz_decode_IS_SFENCE_VMA2_7,{_zz__zz_decode_IS_SFENCE_VMA2_70,_zz__zz_decode_IS_SFENCE_VMA2_71}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_76 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_77) == 32'h08000020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_78 = (_zz__zz_decode_IS_SFENCE_VMA2_79 == _zz__zz_decode_IS_SFENCE_VMA2_80);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_81 = (_zz__zz_decode_IS_SFENCE_VMA2_82 == _zz__zz_decode_IS_SFENCE_VMA2_83);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_85 = (_zz__zz_decode_IS_SFENCE_VMA2_86 == _zz__zz_decode_IS_SFENCE_VMA2_87);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_88 = {_zz__zz_decode_IS_SFENCE_VMA2_89,{_zz__zz_decode_IS_SFENCE_VMA2_91,_zz__zz_decode_IS_SFENCE_VMA2_94}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_98 = {_zz_decode_IS_SFENCE_VMA2_6,{_zz__zz_decode_IS_SFENCE_VMA2_99,_zz__zz_decode_IS_SFENCE_VMA2_102}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_112 = (|{_zz__zz_decode_IS_SFENCE_VMA2_113,_zz__zz_decode_IS_SFENCE_VMA2_114});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_128 = (|_zz__zz_decode_IS_SFENCE_VMA2_129);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_132 = {_zz__zz_decode_IS_SFENCE_VMA2_133,{_zz__zz_decode_IS_SFENCE_VMA2_138,_zz__zz_decode_IS_SFENCE_VMA2_142}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_65 = 32'h00001040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_67 = (decode_INSTRUCTION & 32'h00000050);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_68 = 32'h00000040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_70 = _zz_decode_IS_SFENCE_VMA2_4;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_16 = ((decode_INSTRUCTION & 32'h30003034) == 32'h20000030);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_17 = (|_zz_decode_IS_SFENCE_VMA2_8);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_18 = (|_zz_decode_IS_SFENCE_VMA2_8);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_19 = {(|_zz__zz_decode_IS_SFENCE_VMA2_20),{(|_zz__zz_decode_IS_SFENCE_VMA2_21),{_zz__zz_decode_IS_SFENCE_VMA2_22,{_zz__zz_decode_IS_SFENCE_VMA2_24,_zz__zz_decode_IS_SFENCE_VMA2_27}}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_20 = ((decode_INSTRUCTION & 32'h02004064) == 32'h02004020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_21 = ((decode_INSTRUCTION & 32'h22004074) == 32'h02000030);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_22 = (|((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_23) == 32'h00005010));
+  assign _zz__zz_decode_IS_SFENCE_VMA2_24 = (|{_zz__zz_decode_IS_SFENCE_VMA2_25,_zz__zz_decode_IS_SFENCE_VMA2_26});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_27 = {(|_zz__zz_decode_IS_SFENCE_VMA2_28),{(|_zz__zz_decode_IS_SFENCE_VMA2_29),{_zz__zz_decode_IS_SFENCE_VMA2_30,{_zz__zz_decode_IS_SFENCE_VMA2_33,_zz__zz_decode_IS_SFENCE_VMA2_36}}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_23 = 32'h02007054;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_25 = ((decode_INSTRUCTION & 32'h40003054) == 32'h40001010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_26 = ((decode_INSTRUCTION & 32'h02007054) == 32'h00001010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_28 = ((decode_INSTRUCTION & 32'h00001000) == 32'h00001000);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_29 = ((decode_INSTRUCTION & 32'h00003000) == 32'h00002000);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_30 = (|{_zz_decode_IS_SFENCE_VMA2_7,(_zz__zz_decode_IS_SFENCE_VMA2_31 == _zz__zz_decode_IS_SFENCE_VMA2_32)});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_33 = (|(_zz__zz_decode_IS_SFENCE_VMA2_34 == _zz__zz_decode_IS_SFENCE_VMA2_35));
+  assign _zz__zz_decode_IS_SFENCE_VMA2_36 = {(|_zz__zz_decode_IS_SFENCE_VMA2_37),{(|_zz__zz_decode_IS_SFENCE_VMA2_38),{_zz__zz_decode_IS_SFENCE_VMA2_44,{_zz__zz_decode_IS_SFENCE_VMA2_46,_zz__zz_decode_IS_SFENCE_VMA2_49}}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_31 = (decode_INSTRUCTION & 32'h00005000);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_32 = 32'h00001000;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_34 = (decode_INSTRUCTION & 32'h00004048);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_35 = 32'h00004008;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_37 = ((decode_INSTRUCTION & 32'h00000064) == 32'h00000024);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_38 = {((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_39) == 32'h00000020),{(_zz__zz_decode_IS_SFENCE_VMA2_40 == _zz__zz_decode_IS_SFENCE_VMA2_41),{_zz__zz_decode_IS_SFENCE_VMA2_42,_zz__zz_decode_IS_SFENCE_VMA2_43}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_44 = (|((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_45) == 32'h00000008));
+  assign _zz__zz_decode_IS_SFENCE_VMA2_46 = (|(_zz__zz_decode_IS_SFENCE_VMA2_47 == _zz__zz_decode_IS_SFENCE_VMA2_48));
+  assign _zz__zz_decode_IS_SFENCE_VMA2_49 = {(|{_zz__zz_decode_IS_SFENCE_VMA2_50,_zz__zz_decode_IS_SFENCE_VMA2_52}),{(|_zz__zz_decode_IS_SFENCE_VMA2_61),{_zz__zz_decode_IS_SFENCE_VMA2_68,{_zz__zz_decode_IS_SFENCE_VMA2_81,_zz__zz_decode_IS_SFENCE_VMA2_94}}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_39 = 32'h00000034;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_40 = (decode_INSTRUCTION & 32'h00000064);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_41 = 32'h00000020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_42 = ((decode_INSTRUCTION & 32'h08000070) == 32'h08000020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_43 = ((decode_INSTRUCTION & 32'h10000070) == 32'h00000020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_45 = 32'h10000008;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_47 = (decode_INSTRUCTION & 32'h10000008);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_48 = 32'h10000008;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_50 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_51) == 32'h00002040);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_52 = {(_zz__zz_decode_IS_SFENCE_VMA2_53 == _zz__zz_decode_IS_SFENCE_VMA2_54),{_zz__zz_decode_IS_SFENCE_VMA2_55,{_zz__zz_decode_IS_SFENCE_VMA2_57,_zz__zz_decode_IS_SFENCE_VMA2_58}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_61 = {(_zz__zz_decode_IS_SFENCE_VMA2_62 == _zz__zz_decode_IS_SFENCE_VMA2_63),{_zz__zz_decode_IS_SFENCE_VMA2_64,_zz__zz_decode_IS_SFENCE_VMA2_66}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_68 = (|{_zz__zz_decode_IS_SFENCE_VMA2_69,{_zz__zz_decode_IS_SFENCE_VMA2_71,_zz__zz_decode_IS_SFENCE_VMA2_74}});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_81 = (|{_zz__zz_decode_IS_SFENCE_VMA2_82,_zz__zz_decode_IS_SFENCE_VMA2_83});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_94 = {(|_zz__zz_decode_IS_SFENCE_VMA2_95),{_zz__zz_decode_IS_SFENCE_VMA2_110,{_zz__zz_decode_IS_SFENCE_VMA2_115,_zz__zz_decode_IS_SFENCE_VMA2_119}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_51 = 32'h00002040;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_53 = (decode_INSTRUCTION & 32'h00001040);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_54 = 32'h00001040;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_55 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_56) == 32'h00000040);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_57 = _zz_decode_IS_SFENCE_VMA2_7;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_58 = {_zz_decode_IS_SFENCE_VMA2_4,_zz__zz_decode_IS_SFENCE_VMA2_59};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_62 = (decode_INSTRUCTION & 32'h08000020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_63 = 32'h08000020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_64 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_65) == 32'h00000020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_66 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_67) == 32'h00000020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_69 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_70) == 32'h00000040);
   assign _zz__zz_decode_IS_SFENCE_VMA2_71 = (_zz__zz_decode_IS_SFENCE_VMA2_72 == _zz__zz_decode_IS_SFENCE_VMA2_73);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_77 = 32'h08000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_79 = (decode_INSTRUCTION & 32'h10000020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_80 = 32'h00000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_82 = (decode_INSTRUCTION & 32'h00000028);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_83 = 32'h00000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_86 = (decode_INSTRUCTION & 32'h00000040);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_87 = 32'h00000040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_89 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_90) == 32'h00004020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_91 = (_zz__zz_decode_IS_SFENCE_VMA2_92 == _zz__zz_decode_IS_SFENCE_VMA2_93);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_94 = {_zz__zz_decode_IS_SFENCE_VMA2_95,_zz_decode_IS_SFENCE_VMA2_6};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_99 = (_zz__zz_decode_IS_SFENCE_VMA2_100 == _zz__zz_decode_IS_SFENCE_VMA2_101);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_102 = {_zz__zz_decode_IS_SFENCE_VMA2_103,{_zz__zz_decode_IS_SFENCE_VMA2_105,_zz__zz_decode_IS_SFENCE_VMA2_108}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_113 = _zz_decode_IS_SFENCE_VMA2_2;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_114 = {_zz__zz_decode_IS_SFENCE_VMA2_115,{_zz__zz_decode_IS_SFENCE_VMA2_117,_zz__zz_decode_IS_SFENCE_VMA2_120}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_129 = {_zz_decode_IS_SFENCE_VMA2_5,_zz__zz_decode_IS_SFENCE_VMA2_130};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_133 = (|{_zz__zz_decode_IS_SFENCE_VMA2_134,_zz__zz_decode_IS_SFENCE_VMA2_135});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_74 = {_zz__zz_decode_IS_SFENCE_VMA2_75,{_zz__zz_decode_IS_SFENCE_VMA2_77,_zz__zz_decode_IS_SFENCE_VMA2_80}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_82 = _zz_decode_IS_SFENCE_VMA2_6;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_83 = {_zz__zz_decode_IS_SFENCE_VMA2_84,{_zz__zz_decode_IS_SFENCE_VMA2_86,_zz__zz_decode_IS_SFENCE_VMA2_89}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_95 = {_zz_decode_IS_SFENCE_VMA2_2,{_zz__zz_decode_IS_SFENCE_VMA2_96,_zz__zz_decode_IS_SFENCE_VMA2_99}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_110 = (|{_zz__zz_decode_IS_SFENCE_VMA2_111,_zz__zz_decode_IS_SFENCE_VMA2_112});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_115 = (|_zz__zz_decode_IS_SFENCE_VMA2_116);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_119 = {_zz__zz_decode_IS_SFENCE_VMA2_120,{_zz__zz_decode_IS_SFENCE_VMA2_123,_zz__zz_decode_IS_SFENCE_VMA2_127}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_56 = 32'h00000050;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_59 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_60) == 32'h00000040);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_65 = 32'h10000020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_67 = 32'h00000028;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_70 = 32'h00000040;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_72 = (decode_INSTRUCTION & 32'h00004020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_73 = 32'h00004020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_75 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_76) == 32'h00000010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_77 = (_zz__zz_decode_IS_SFENCE_VMA2_78 == _zz__zz_decode_IS_SFENCE_VMA2_79);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_80 = _zz_decode_IS_SFENCE_VMA2_6;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_84 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_85) == 32'h00002010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_86 = (_zz__zz_decode_IS_SFENCE_VMA2_87 == _zz__zz_decode_IS_SFENCE_VMA2_88);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_89 = {_zz__zz_decode_IS_SFENCE_VMA2_90,_zz__zz_decode_IS_SFENCE_VMA2_92};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_96 = (_zz__zz_decode_IS_SFENCE_VMA2_97 == _zz__zz_decode_IS_SFENCE_VMA2_98);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_99 = {_zz__zz_decode_IS_SFENCE_VMA2_100,{_zz__zz_decode_IS_SFENCE_VMA2_102,_zz__zz_decode_IS_SFENCE_VMA2_105}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_111 = _zz_decode_IS_SFENCE_VMA2_5;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_112 = (_zz__zz_decode_IS_SFENCE_VMA2_113 == _zz__zz_decode_IS_SFENCE_VMA2_114);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_116 = {_zz_decode_IS_SFENCE_VMA2_5,_zz__zz_decode_IS_SFENCE_VMA2_117};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_120 = (|_zz__zz_decode_IS_SFENCE_VMA2_121);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_123 = (|_zz__zz_decode_IS_SFENCE_VMA2_124);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_127 = {_zz__zz_decode_IS_SFENCE_VMA2_128,{_zz__zz_decode_IS_SFENCE_VMA2_138,_zz__zz_decode_IS_SFENCE_VMA2_142}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_60 = 32'h02400040;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_76 = 32'h00000030;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_78 = (decode_INSTRUCTION & 32'h02000010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_79 = 32'h00000010;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_85 = 32'h00002030;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_87 = (decode_INSTRUCTION & 32'h00001030);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_88 = 32'h00000010;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_90 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_91) == 32'h00000020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_92 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_93) == 32'h00002020);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_97 = (decode_INSTRUCTION & 32'h00001010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_98 = 32'h00001010;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_100 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_101) == 32'h00002010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_102 = (_zz__zz_decode_IS_SFENCE_VMA2_103 == _zz__zz_decode_IS_SFENCE_VMA2_104);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_105 = {_zz__zz_decode_IS_SFENCE_VMA2_106,{_zz__zz_decode_IS_SFENCE_VMA2_107,_zz__zz_decode_IS_SFENCE_VMA2_108}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_113 = (decode_INSTRUCTION & 32'h00000070);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_114 = 32'h00000020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_117 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_118) == 32'h0);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_121 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_122) == 32'h00004010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_124 = (_zz__zz_decode_IS_SFENCE_VMA2_125 == _zz__zz_decode_IS_SFENCE_VMA2_126);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_128 = (|{_zz__zz_decode_IS_SFENCE_VMA2_129,_zz__zz_decode_IS_SFENCE_VMA2_131});
   assign _zz__zz_decode_IS_SFENCE_VMA2_138 = (|_zz__zz_decode_IS_SFENCE_VMA2_139);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_142 = {_zz__zz_decode_IS_SFENCE_VMA2_143,{_zz__zz_decode_IS_SFENCE_VMA2_146,_zz__zz_decode_IS_SFENCE_VMA2_156}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_72 = (decode_INSTRUCTION & 32'h02400040);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_73 = 32'h00000040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_90 = 32'h00004020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_92 = (decode_INSTRUCTION & 32'h00000030);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_93 = 32'h00000010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_95 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_96) == 32'h00000010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_100 = (decode_INSTRUCTION & 32'h00002030);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_142 = {_zz__zz_decode_IS_SFENCE_VMA2_143,{_zz__zz_decode_IS_SFENCE_VMA2_149,_zz__zz_decode_IS_SFENCE_VMA2_154}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_91 = 32'h02003020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_93 = 32'h02002068;
   assign _zz__zz_decode_IS_SFENCE_VMA2_101 = 32'h00002010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_103 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_104) == 32'h00000010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_105 = (_zz__zz_decode_IS_SFENCE_VMA2_106 == _zz__zz_decode_IS_SFENCE_VMA2_107);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_108 = (_zz__zz_decode_IS_SFENCE_VMA2_109 == _zz__zz_decode_IS_SFENCE_VMA2_110);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_115 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_116) == 32'h00001010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_117 = (_zz__zz_decode_IS_SFENCE_VMA2_118 == _zz__zz_decode_IS_SFENCE_VMA2_119);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_120 = {_zz__zz_decode_IS_SFENCE_VMA2_121,{_zz__zz_decode_IS_SFENCE_VMA2_123,_zz__zz_decode_IS_SFENCE_VMA2_126}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_130 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_131) == 32'h00000020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_134 = _zz_decode_IS_SFENCE_VMA2_5;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_135 = (_zz__zz_decode_IS_SFENCE_VMA2_136 == _zz__zz_decode_IS_SFENCE_VMA2_137);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_139 = (_zz__zz_decode_IS_SFENCE_VMA2_140 == _zz__zz_decode_IS_SFENCE_VMA2_141);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_143 = (|_zz__zz_decode_IS_SFENCE_VMA2_144);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_146 = (|_zz__zz_decode_IS_SFENCE_VMA2_147);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_156 = {_zz__zz_decode_IS_SFENCE_VMA2_157,{_zz__zz_decode_IS_SFENCE_VMA2_161,_zz__zz_decode_IS_SFENCE_VMA2_167}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_96 = 32'h02000010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_104 = 32'h00001030;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_106 = (decode_INSTRUCTION & 32'h02003020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_107 = 32'h00000020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_109 = (decode_INSTRUCTION & 32'h02002068);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_110 = 32'h00002020;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_116 = 32'h00001010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_118 = (decode_INSTRUCTION & 32'h00002010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_119 = 32'h00002010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_121 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_122) == 32'h00002008);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_123 = (_zz__zz_decode_IS_SFENCE_VMA2_124 == _zz__zz_decode_IS_SFENCE_VMA2_125);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_126 = {_zz_decode_IS_SFENCE_VMA2_6,_zz__zz_decode_IS_SFENCE_VMA2_127};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_131 = 32'h00000070;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_136 = (decode_INSTRUCTION & 32'h00000020);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_137 = 32'h0;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_140 = (decode_INSTRUCTION & 32'h00004014);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_141 = 32'h00004010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_144 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_145) == 32'h00002010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_147 = {_zz__zz_decode_IS_SFENCE_VMA2_148,{_zz__zz_decode_IS_SFENCE_VMA2_149,_zz__zz_decode_IS_SFENCE_VMA2_150}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_157 = (|{_zz__zz_decode_IS_SFENCE_VMA2_158,_zz__zz_decode_IS_SFENCE_VMA2_159});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_161 = (|_zz__zz_decode_IS_SFENCE_VMA2_162);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_167 = {_zz__zz_decode_IS_SFENCE_VMA2_168,{_zz__zz_decode_IS_SFENCE_VMA2_171,_zz__zz_decode_IS_SFENCE_VMA2_174}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_122 = 32'h00002008;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_124 = (decode_INSTRUCTION & 32'h00000050);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_125 = 32'h00000010;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_127 = ((decode_INSTRUCTION & 32'h00000024) == 32'h0);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_145 = 32'h00006014;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_148 = ((decode_INSTRUCTION & 32'h00000044) == 32'h0);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_149 = _zz_decode_IS_SFENCE_VMA2_4;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_150 = {(_zz__zz_decode_IS_SFENCE_VMA2_151 == _zz__zz_decode_IS_SFENCE_VMA2_152),{_zz__zz_decode_IS_SFENCE_VMA2_153,{_zz__zz_decode_IS_SFENCE_VMA2_154,_zz__zz_decode_IS_SFENCE_VMA2_155}}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_158 = _zz_decode_IS_SFENCE_VMA2_3;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_159 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_160) == 32'h0);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_162 = {(_zz__zz_decode_IS_SFENCE_VMA2_163 == _zz__zz_decode_IS_SFENCE_VMA2_164),{_zz__zz_decode_IS_SFENCE_VMA2_165,_zz__zz_decode_IS_SFENCE_VMA2_166}};
-  assign _zz__zz_decode_IS_SFENCE_VMA2_168 = (|{_zz_decode_IS_SFENCE_VMA2_2,{_zz__zz_decode_IS_SFENCE_VMA2_169,_zz__zz_decode_IS_SFENCE_VMA2_170}});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_171 = (|{_zz__zz_decode_IS_SFENCE_VMA2_172,_zz__zz_decode_IS_SFENCE_VMA2_173});
-  assign _zz__zz_decode_IS_SFENCE_VMA2_174 = (|_zz__zz_decode_IS_SFENCE_VMA2_175);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_151 = (decode_INSTRUCTION & 32'h00006004);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_152 = 32'h00002000;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_153 = ((decode_INSTRUCTION & 32'h00005004) == 32'h00001000);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_154 = ((decode_INSTRUCTION & 32'h00004050) == 32'h00004000);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_155 = _zz_decode_IS_SFENCE_VMA2_3;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_160 = 32'h00000058;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_163 = (decode_INSTRUCTION & 32'h00000044);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_164 = 32'h00000040;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_165 = ((decode_INSTRUCTION & 32'h00002014) == 32'h00002010);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_166 = ((decode_INSTRUCTION & 32'h40000034) == 32'h40000030);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_169 = _zz_decode_IS_SFENCE_VMA2_1;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_170 = ((decode_INSTRUCTION & 32'h00002014) == 32'h00000004);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_172 = _zz_decode_IS_SFENCE_VMA2_1;
-  assign _zz__zz_decode_IS_SFENCE_VMA2_173 = ((decode_INSTRUCTION & 32'h0000004c) == 32'h00000004);
-  assign _zz__zz_decode_IS_SFENCE_VMA2_175 = ((decode_INSTRUCTION & 32'h00005048) == 32'h00001008);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_103 = (decode_INSTRUCTION & 32'h00002008);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_104 = 32'h00002008;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_106 = ((decode_INSTRUCTION & 32'h00000050) == 32'h00000010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_107 = _zz_decode_IS_SFENCE_VMA2_6;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_108 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_109) == 32'h0);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_118 = 32'h00000020;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_122 = 32'h00004014;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_125 = (decode_INSTRUCTION & 32'h00006014);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_126 = 32'h00002010;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_129 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_130) == 32'h0);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_131 = {_zz_decode_IS_SFENCE_VMA2_4,{_zz__zz_decode_IS_SFENCE_VMA2_132,{_zz__zz_decode_IS_SFENCE_VMA2_133,_zz__zz_decode_IS_SFENCE_VMA2_135}}};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_139 = {_zz_decode_IS_SFENCE_VMA2_3,(_zz__zz_decode_IS_SFENCE_VMA2_140 == _zz__zz_decode_IS_SFENCE_VMA2_141)};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_143 = (|{_zz__zz_decode_IS_SFENCE_VMA2_144,{_zz__zz_decode_IS_SFENCE_VMA2_145,_zz__zz_decode_IS_SFENCE_VMA2_147}});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_149 = (|{_zz__zz_decode_IS_SFENCE_VMA2_150,_zz__zz_decode_IS_SFENCE_VMA2_151});
+  assign _zz__zz_decode_IS_SFENCE_VMA2_154 = {(|_zz__zz_decode_IS_SFENCE_VMA2_155),(|_zz__zz_decode_IS_SFENCE_VMA2_158)};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_109 = 32'h00000028;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_130 = 32'h00000044;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_132 = ((decode_INSTRUCTION & 32'h00006004) == 32'h00002000);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_133 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_134) == 32'h00001000);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_135 = {(_zz__zz_decode_IS_SFENCE_VMA2_136 == _zz__zz_decode_IS_SFENCE_VMA2_137),_zz_decode_IS_SFENCE_VMA2_3};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_140 = (decode_INSTRUCTION & 32'h00000058);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_141 = 32'h0;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_144 = ((decode_INSTRUCTION & 32'h00000044) == 32'h00000040);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_145 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_146) == 32'h00002010);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_147 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_148) == 32'h40000030);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_150 = _zz_decode_IS_SFENCE_VMA2_2;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_151 = {_zz_decode_IS_SFENCE_VMA2_1,(_zz__zz_decode_IS_SFENCE_VMA2_152 == _zz__zz_decode_IS_SFENCE_VMA2_153)};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_155 = {_zz_decode_IS_SFENCE_VMA2_1,(_zz__zz_decode_IS_SFENCE_VMA2_156 == _zz__zz_decode_IS_SFENCE_VMA2_157)};
+  assign _zz__zz_decode_IS_SFENCE_VMA2_158 = ((decode_INSTRUCTION & _zz__zz_decode_IS_SFENCE_VMA2_159) == 32'h00001008);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_134 = 32'h00005004;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_136 = (decode_INSTRUCTION & 32'h00004050);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_137 = 32'h00004000;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_146 = 32'h00002014;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_148 = 32'h40000034;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_152 = (decode_INSTRUCTION & 32'h00002014);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_153 = 32'h00000004;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_156 = (decode_INSTRUCTION & 32'h0000004c);
+  assign _zz__zz_decode_IS_SFENCE_VMA2_157 = 32'h00000004;
+  assign _zz__zz_decode_IS_SFENCE_VMA2_159 = 32'h00005048;
   assign _zz_execute_BranchPlugin_branch_src2_6 = execute_INSTRUCTION[31];
   assign _zz_execute_BranchPlugin_branch_src2_7 = execute_INSTRUCTION[31];
   assign _zz_execute_BranchPlugin_branch_src2_8 = execute_INSTRUCTION[7];
@@ -2872,15 +2839,15 @@ module VexRiscvAxi4 (
     .clk                            (clk                                              ), //i
     .debugReset                     (debugReset                                       )  //i
   );
-  memory_AesPlugin_rom_storage_Rom_1rs #(
+  memory_AesZknPlugin_rom_storage_Rom_1rs #(
     .wordCount(512),
     .wordWidth(32),
     .technology("auto")
-  ) memory_AesPlugin_rom_storage (
-    .clk  (clk                                    ), //i
-    .en   (1'b1                                   ), //i
-    .addr (execute_AesPlugin_romAddress[8:0]      ), //i
-    .data (memory_AesPlugin_rom_storage_data[31:0])  //o
+  ) memory_AesZknPlugin_rom_storage (
+    .clk  (clk                                       ), //i
+    .en   (1'b1                                      ), //i
+    .addr (execute_AesZknPlugin_romAddress[8:0]      ), //i
+    .data (memory_AesZknPlugin_rom_storage_data[31:0])  //o
   );
   always @(*) begin
     case(_zz_IBusCachedPlugin_jump_pcLoad_payload_7)
@@ -2909,76 +2876,76 @@ module VexRiscvAxi4 (
   end
 
   always @(*) begin
-    case(execute_AesPlugin_byteSel)
-      2'b00 : _zz_execute_AesPlugin_romAddress = execute_RS2[7 : 0];
-      2'b01 : _zz_execute_AesPlugin_romAddress = execute_RS2[15 : 8];
-      2'b10 : _zz_execute_AesPlugin_romAddress = execute_RS2[23 : 16];
-      default : _zz_execute_AesPlugin_romAddress = execute_RS2[31 : 24];
+    case(execute_AesZknPlugin_byteSel)
+      2'b00 : _zz_execute_AesZknPlugin_romAddress = execute_RS2[7 : 0];
+      2'b01 : _zz_execute_AesZknPlugin_romAddress = execute_RS2[15 : 8];
+      2'b10 : _zz_execute_AesZknPlugin_romAddress = execute_RS2[23 : 16];
+      default : _zz_execute_AesZknPlugin_romAddress = execute_RS2[31 : 24];
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_rom_address)
+    case(memory_AesZknPlugin_rom_address)
       2'b00 : begin
-        _zz_memory_AesPlugin_rom_output_0 = memory_AesPlugin_rom_remap_0_0;
-        _zz_memory_AesPlugin_rom_output_1 = memory_AesPlugin_rom_remap_0_1;
-        _zz_memory_AesPlugin_rom_output_2 = memory_AesPlugin_rom_remap_0_2;
-        _zz_memory_AesPlugin_rom_output_3 = memory_AesPlugin_rom_remap_0_3;
+        _zz_memory_AesZknPlugin_rom_output_0 = memory_AesZknPlugin_rom_remap_0_0;
+        _zz_memory_AesZknPlugin_rom_output_1 = memory_AesZknPlugin_rom_remap_0_1;
+        _zz_memory_AesZknPlugin_rom_output_2 = memory_AesZknPlugin_rom_remap_0_2;
+        _zz_memory_AesZknPlugin_rom_output_3 = memory_AesZknPlugin_rom_remap_0_3;
       end
       2'b01 : begin
-        _zz_memory_AesPlugin_rom_output_0 = memory_AesPlugin_rom_remap_1_0;
-        _zz_memory_AesPlugin_rom_output_1 = memory_AesPlugin_rom_remap_1_1;
-        _zz_memory_AesPlugin_rom_output_2 = memory_AesPlugin_rom_remap_1_2;
-        _zz_memory_AesPlugin_rom_output_3 = memory_AesPlugin_rom_remap_1_3;
+        _zz_memory_AesZknPlugin_rom_output_0 = memory_AesZknPlugin_rom_remap_1_0;
+        _zz_memory_AesZknPlugin_rom_output_1 = memory_AesZknPlugin_rom_remap_1_1;
+        _zz_memory_AesZknPlugin_rom_output_2 = memory_AesZknPlugin_rom_remap_1_2;
+        _zz_memory_AesZknPlugin_rom_output_3 = memory_AesZknPlugin_rom_remap_1_3;
       end
       2'b10 : begin
-        _zz_memory_AesPlugin_rom_output_0 = memory_AesPlugin_rom_remap_2_0;
-        _zz_memory_AesPlugin_rom_output_1 = memory_AesPlugin_rom_remap_2_1;
-        _zz_memory_AesPlugin_rom_output_2 = memory_AesPlugin_rom_remap_2_2;
-        _zz_memory_AesPlugin_rom_output_3 = memory_AesPlugin_rom_remap_2_3;
+        _zz_memory_AesZknPlugin_rom_output_0 = memory_AesZknPlugin_rom_remap_2_0;
+        _zz_memory_AesZknPlugin_rom_output_1 = memory_AesZknPlugin_rom_remap_2_1;
+        _zz_memory_AesZknPlugin_rom_output_2 = memory_AesZknPlugin_rom_remap_2_2;
+        _zz_memory_AesZknPlugin_rom_output_3 = memory_AesZknPlugin_rom_remap_2_3;
       end
       default : begin
-        _zz_memory_AesPlugin_rom_output_0 = memory_AesPlugin_rom_remap_3_0;
-        _zz_memory_AesPlugin_rom_output_1 = memory_AesPlugin_rom_remap_3_1;
-        _zz_memory_AesPlugin_rom_output_2 = memory_AesPlugin_rom_remap_3_2;
-        _zz_memory_AesPlugin_rom_output_3 = memory_AesPlugin_rom_remap_3_3;
+        _zz_memory_AesZknPlugin_rom_output_0 = memory_AesZknPlugin_rom_remap_3_0;
+        _zz_memory_AesZknPlugin_rom_output_1 = memory_AesZknPlugin_rom_remap_3_1;
+        _zz_memory_AesZknPlugin_rom_output_2 = memory_AesZknPlugin_rom_remap_3_2;
+        _zz_memory_AesZknPlugin_rom_output_3 = memory_AesZknPlugin_rom_remap_3_3;
       end
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_sel_0)
-      2'b00 : _zz_memory_AesPlugin_wordDesuffle_output_0 = memory_AesPlugin_rom_bytes_0;
-      2'b01 : _zz_memory_AesPlugin_wordDesuffle_output_0 = memory_AesPlugin_rom_bytes_1;
-      2'b10 : _zz_memory_AesPlugin_wordDesuffle_output_0 = memory_AesPlugin_rom_bytes_2;
-      default : _zz_memory_AesPlugin_wordDesuffle_output_0 = memory_AesPlugin_rom_bytes_3;
+    case(memory_AesZknPlugin_wordDesuffle_sel_0)
+      2'b00 : _zz_memory_AesZknPlugin_wordDesuffle_output_0 = memory_AesZknPlugin_rom_bytes_0;
+      2'b01 : _zz_memory_AesZknPlugin_wordDesuffle_output_0 = memory_AesZknPlugin_rom_bytes_1;
+      2'b10 : _zz_memory_AesZknPlugin_wordDesuffle_output_0 = memory_AesZknPlugin_rom_bytes_2;
+      default : _zz_memory_AesZknPlugin_wordDesuffle_output_0 = memory_AesZknPlugin_rom_bytes_3;
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_sel_1)
-      2'b00 : _zz_memory_AesPlugin_wordDesuffle_output_1 = memory_AesPlugin_rom_bytes_0;
-      2'b01 : _zz_memory_AesPlugin_wordDesuffle_output_1 = memory_AesPlugin_rom_bytes_1;
-      2'b10 : _zz_memory_AesPlugin_wordDesuffle_output_1 = memory_AesPlugin_rom_bytes_2;
-      default : _zz_memory_AesPlugin_wordDesuffle_output_1 = memory_AesPlugin_rom_bytes_3;
+    case(memory_AesZknPlugin_wordDesuffle_sel_1)
+      2'b00 : _zz_memory_AesZknPlugin_wordDesuffle_output_1 = memory_AesZknPlugin_rom_bytes_0;
+      2'b01 : _zz_memory_AesZknPlugin_wordDesuffle_output_1 = memory_AesZknPlugin_rom_bytes_1;
+      2'b10 : _zz_memory_AesZknPlugin_wordDesuffle_output_1 = memory_AesZknPlugin_rom_bytes_2;
+      default : _zz_memory_AesZknPlugin_wordDesuffle_output_1 = memory_AesZknPlugin_rom_bytes_3;
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_sel_2)
-      2'b00 : _zz_memory_AesPlugin_wordDesuffle_output_2 = memory_AesPlugin_rom_bytes_0;
-      2'b01 : _zz_memory_AesPlugin_wordDesuffle_output_2 = memory_AesPlugin_rom_bytes_1;
-      2'b10 : _zz_memory_AesPlugin_wordDesuffle_output_2 = memory_AesPlugin_rom_bytes_2;
-      default : _zz_memory_AesPlugin_wordDesuffle_output_2 = memory_AesPlugin_rom_bytes_3;
+    case(memory_AesZknPlugin_wordDesuffle_sel_2)
+      2'b00 : _zz_memory_AesZknPlugin_wordDesuffle_output_2 = memory_AesZknPlugin_rom_bytes_0;
+      2'b01 : _zz_memory_AesZknPlugin_wordDesuffle_output_2 = memory_AesZknPlugin_rom_bytes_1;
+      2'b10 : _zz_memory_AesZknPlugin_wordDesuffle_output_2 = memory_AesZknPlugin_rom_bytes_2;
+      default : _zz_memory_AesZknPlugin_wordDesuffle_output_2 = memory_AesZknPlugin_rom_bytes_3;
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_sel_3)
-      2'b00 : _zz_memory_AesPlugin_wordDesuffle_output_3 = memory_AesPlugin_rom_bytes_0;
-      2'b01 : _zz_memory_AesPlugin_wordDesuffle_output_3 = memory_AesPlugin_rom_bytes_1;
-      2'b10 : _zz_memory_AesPlugin_wordDesuffle_output_3 = memory_AesPlugin_rom_bytes_2;
-      default : _zz_memory_AesPlugin_wordDesuffle_output_3 = memory_AesPlugin_rom_bytes_3;
+    case(memory_AesZknPlugin_wordDesuffle_sel_3)
+      2'b00 : _zz_memory_AesZknPlugin_wordDesuffle_output_3 = memory_AesZknPlugin_rom_bytes_0;
+      2'b01 : _zz_memory_AesZknPlugin_wordDesuffle_output_3 = memory_AesZknPlugin_rom_bytes_1;
+      2'b10 : _zz_memory_AesZknPlugin_wordDesuffle_output_3 = memory_AesZknPlugin_rom_bytes_2;
+      default : _zz_memory_AesZknPlugin_wordDesuffle_output_3 = memory_AesZknPlugin_rom_bytes_3;
     endcase
   end
 
@@ -3916,7 +3883,7 @@ module VexRiscvAxi4 (
   end
   `endif
 
-  assign memory_CALC = memory_AesPlugin_xored;
+  assign memory_CALC = memory_AesZknPlugin_xored;
   assign memory_MUL_LOW = ($signed(_zz_memory_MUL_LOW) + $signed(_zz_memory_MUL_LOW_7));
   assign execute_BRANCH_CALC = {execute_BranchPlugin_branchAdder[31 : 1],1'b0};
   assign execute_BRANCH_DO = ((execute_PREDICTION_HAD_BRANCHED2 != execute_BRANCH_COND_RESULT) || execute_BranchPlugin_missAlignedTarget);
@@ -5433,11 +5400,10 @@ module VexRiscvAxi4 (
   assign _zz_decode_IS_SFENCE_VMA2_5 = ((decode_INSTRUCTION & 32'h00000004) == 32'h00000004);
   assign _zz_decode_IS_SFENCE_VMA2_6 = ((decode_INSTRUCTION & 32'h0000000c) == 32'h00000004);
   assign _zz_decode_IS_SFENCE_VMA2_7 = ((decode_INSTRUCTION & 32'h00002010) == 32'h00002000);
-  assign _zz_decode_IS_SFENCE_VMA2_8 = ((decode_INSTRUCTION & 32'h0000000c) == 32'h00000008);
-  assign _zz_decode_IS_SFENCE_VMA2_9 = ((decode_INSTRUCTION & 32'h00001000) == 32'h0);
-  assign _zz_decode_IS_SFENCE_VMA2_10 = ((decode_INSTRUCTION & 32'h10103050) == 32'h00100050);
-  assign _zz_decode_IS_SFENCE_VMA2_11 = ((decode_INSTRUCTION & 32'h02003050) == 32'h02000050);
-  assign _zz_decode_IS_SFENCE_VMA2 = {(|{_zz_decode_IS_SFENCE_VMA2_2,(_zz__zz_decode_IS_SFENCE_VMA2 == _zz__zz_decode_IS_SFENCE_VMA2_1)}),{(|(_zz__zz_decode_IS_SFENCE_VMA2_2 == _zz__zz_decode_IS_SFENCE_VMA2_3)),{(|_zz_decode_IS_SFENCE_VMA2_11),{(|_zz__zz_decode_IS_SFENCE_VMA2_4),{_zz__zz_decode_IS_SFENCE_VMA2_5,{_zz__zz_decode_IS_SFENCE_VMA2_6,_zz__zz_decode_IS_SFENCE_VMA2_7}}}}}};
+  assign _zz_decode_IS_SFENCE_VMA2_8 = ((decode_INSTRUCTION & 32'h00001000) == 32'h0);
+  assign _zz_decode_IS_SFENCE_VMA2_9 = ((decode_INSTRUCTION & 32'h10103050) == 32'h00100050);
+  assign _zz_decode_IS_SFENCE_VMA2_10 = ((decode_INSTRUCTION & 32'h02003050) == 32'h02000050);
+  assign _zz_decode_IS_SFENCE_VMA2 = {(|{_zz_decode_IS_SFENCE_VMA2_2,(_zz__zz_decode_IS_SFENCE_VMA2 == _zz__zz_decode_IS_SFENCE_VMA2_1)}),{(|(_zz__zz_decode_IS_SFENCE_VMA2_2 == _zz__zz_decode_IS_SFENCE_VMA2_3)),{(|_zz_decode_IS_SFENCE_VMA2_10),{(|_zz__zz_decode_IS_SFENCE_VMA2_4),{_zz__zz_decode_IS_SFENCE_VMA2_5,{_zz__zz_decode_IS_SFENCE_VMA2_6,_zz__zz_decode_IS_SFENCE_VMA2_7}}}}}};
   assign _zz_decode_SRC1_CTRL_2 = _zz_decode_IS_SFENCE_VMA2[2 : 1];
   assign _zz_decode_SRC1_CTRL_1 = _zz_decode_SRC1_CTRL_2;
   assign _zz_decode_ALU_CTRL_2 = _zz_decode_IS_SFENCE_VMA2[7 : 6];
@@ -5841,146 +5807,146 @@ module VexRiscvAxi4 (
     _zz_memory_DivPlugin_rs1_1[31 : 0] = execute_RS1;
   end
 
-  assign execute_AesPlugin_byteSel = execute_INSTRUCTION[29 : 28];
-  assign execute_AesPlugin_bankSel = (execute_INSTRUCTION[25] && (! execute_INSTRUCTION[26]));
-  assign execute_AesPlugin_romAddress = {execute_AesPlugin_bankSel,_zz_execute_AesPlugin_romAddress};
-  assign memory_AesPlugin_rom_data = memory_AesPlugin_rom_storage_data;
-  assign memory_AesPlugin_rom_bytes_0 = memory_AesPlugin_rom_data[7 : 0];
-  assign memory_AesPlugin_rom_bytes_1 = memory_AesPlugin_rom_data[15 : 8];
-  assign memory_AesPlugin_rom_bytes_2 = memory_AesPlugin_rom_data[23 : 16];
-  assign memory_AesPlugin_rom_bytes_3 = memory_AesPlugin_rom_data[31 : 24];
-  assign memory_AesPlugin_rom_remap_0_0 = 2'b10;
-  assign memory_AesPlugin_rom_remap_0_1 = 2'b00;
-  assign memory_AesPlugin_rom_remap_0_2 = 2'b00;
-  assign memory_AesPlugin_rom_remap_0_3 = 2'b01;
-  assign memory_AesPlugin_rom_remap_1_0 = 2'b00;
-  assign memory_AesPlugin_rom_remap_1_1 = 2'b00;
-  assign memory_AesPlugin_rom_remap_1_2 = 2'b00;
-  assign memory_AesPlugin_rom_remap_1_3 = 2'b00;
-  assign memory_AesPlugin_rom_remap_2_0 = 2'b11;
-  assign memory_AesPlugin_rom_remap_2_1 = 2'b10;
-  assign memory_AesPlugin_rom_remap_2_2 = 2'b01;
-  assign memory_AesPlugin_rom_remap_2_3 = 2'b00;
-  assign memory_AesPlugin_rom_remap_3_0 = 2'b11;
-  assign memory_AesPlugin_rom_remap_3_1 = 2'b11;
-  assign memory_AesPlugin_rom_remap_3_2 = 2'b11;
-  assign memory_AesPlugin_rom_remap_3_3 = 2'b11;
-  assign memory_AesPlugin_rom_address = {memory_INSTRUCTION[25],memory_INSTRUCTION[26]};
-  assign memory_AesPlugin_rom_output_0 = _zz_memory_AesPlugin_rom_output_0;
-  assign memory_AesPlugin_rom_output_1 = _zz_memory_AesPlugin_rom_output_1;
-  assign memory_AesPlugin_rom_output_2 = _zz_memory_AesPlugin_rom_output_2;
-  assign memory_AesPlugin_rom_output_3 = _zz_memory_AesPlugin_rom_output_3;
+  assign execute_AesZknPlugin_byteSel = execute_INSTRUCTION[31 : 30];
+  assign execute_AesZknPlugin_bankSel = (execute_INSTRUCTION[27] && execute_INSTRUCTION[26]);
+  assign execute_AesZknPlugin_romAddress = {execute_AesZknPlugin_bankSel,_zz_execute_AesZknPlugin_romAddress};
+  assign memory_AesZknPlugin_rom_data = memory_AesZknPlugin_rom_storage_data;
+  assign memory_AesZknPlugin_rom_bytes_0 = memory_AesZknPlugin_rom_data[7 : 0];
+  assign memory_AesZknPlugin_rom_bytes_1 = memory_AesZknPlugin_rom_data[15 : 8];
+  assign memory_AesZknPlugin_rom_bytes_2 = memory_AesZknPlugin_rom_data[23 : 16];
+  assign memory_AesZknPlugin_rom_bytes_3 = memory_AesZknPlugin_rom_data[31 : 24];
+  assign memory_AesZknPlugin_rom_remap_0_0 = 2'b10;
+  assign memory_AesZknPlugin_rom_remap_0_1 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_0_2 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_0_3 = 2'b01;
+  assign memory_AesZknPlugin_rom_remap_1_0 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_1_1 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_1_2 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_1_3 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_2_0 = 2'b11;
+  assign memory_AesZknPlugin_rom_remap_2_1 = 2'b10;
+  assign memory_AesZknPlugin_rom_remap_2_2 = 2'b01;
+  assign memory_AesZknPlugin_rom_remap_2_3 = 2'b00;
+  assign memory_AesZknPlugin_rom_remap_3_0 = 2'b11;
+  assign memory_AesZknPlugin_rom_remap_3_1 = 2'b11;
+  assign memory_AesZknPlugin_rom_remap_3_2 = 2'b11;
+  assign memory_AesZknPlugin_rom_remap_3_3 = 2'b11;
+  assign memory_AesZknPlugin_rom_address = {memory_INSTRUCTION[27],(! memory_INSTRUCTION[26])};
+  assign memory_AesZknPlugin_rom_output_0 = _zz_memory_AesZknPlugin_rom_output_0;
+  assign memory_AesZknPlugin_rom_output_1 = _zz_memory_AesZknPlugin_rom_output_1;
+  assign memory_AesZknPlugin_rom_output_2 = _zz_memory_AesZknPlugin_rom_output_2;
+  assign memory_AesZknPlugin_rom_output_3 = _zz_memory_AesZknPlugin_rom_output_3;
   always @(*) begin
-    memory_AesPlugin_wordDesuffle_zero = 4'b0000;
-    if(when_AesPlugin_l147) begin
-      memory_AesPlugin_wordDesuffle_zero = 4'b1111;
-      memory_AesPlugin_wordDesuffle_zero[memory_AesPlugin_wordDesuffle_byteSel] = 1'b0;
+    memory_AesZknPlugin_wordDesuffle_zero = 4'b0000;
+    if(when_AesZknPlugin_l154) begin
+      memory_AesZknPlugin_wordDesuffle_zero = 4'b1111;
+      memory_AesZknPlugin_wordDesuffle_zero[memory_AesZknPlugin_wordDesuffle_byteSel] = 1'b0;
     end
   end
 
-  assign memory_AesPlugin_wordDesuffle_byteSel = memory_INSTRUCTION[29 : 28];
+  assign memory_AesZknPlugin_wordDesuffle_byteSel = memory_INSTRUCTION[31 : 30];
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_byteSel)
+    case(memory_AesZknPlugin_wordDesuffle_byteSel)
       2'b00 : begin
-        memory_AesPlugin_wordDesuffle_sel_0 = memory_AesPlugin_rom_output_3;
+        memory_AesZknPlugin_wordDesuffle_sel_0 = memory_AesZknPlugin_rom_output_3;
       end
       2'b01 : begin
-        memory_AesPlugin_wordDesuffle_sel_0 = memory_AesPlugin_rom_output_0;
+        memory_AesZknPlugin_wordDesuffle_sel_0 = memory_AesZknPlugin_rom_output_0;
       end
       2'b10 : begin
-        memory_AesPlugin_wordDesuffle_sel_0 = memory_AesPlugin_rom_output_1;
+        memory_AesZknPlugin_wordDesuffle_sel_0 = memory_AesZknPlugin_rom_output_1;
       end
       default : begin
-        memory_AesPlugin_wordDesuffle_sel_0 = memory_AesPlugin_rom_output_2;
+        memory_AesZknPlugin_wordDesuffle_sel_0 = memory_AesZknPlugin_rom_output_2;
       end
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_byteSel)
+    case(memory_AesZknPlugin_wordDesuffle_byteSel)
       2'b00 : begin
-        memory_AesPlugin_wordDesuffle_sel_1 = memory_AesPlugin_rom_output_2;
+        memory_AesZknPlugin_wordDesuffle_sel_1 = memory_AesZknPlugin_rom_output_2;
       end
       2'b01 : begin
-        memory_AesPlugin_wordDesuffle_sel_1 = memory_AesPlugin_rom_output_3;
+        memory_AesZknPlugin_wordDesuffle_sel_1 = memory_AesZknPlugin_rom_output_3;
       end
       2'b10 : begin
-        memory_AesPlugin_wordDesuffle_sel_1 = memory_AesPlugin_rom_output_0;
+        memory_AesZknPlugin_wordDesuffle_sel_1 = memory_AesZknPlugin_rom_output_0;
       end
       default : begin
-        memory_AesPlugin_wordDesuffle_sel_1 = memory_AesPlugin_rom_output_1;
+        memory_AesZknPlugin_wordDesuffle_sel_1 = memory_AesZknPlugin_rom_output_1;
       end
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_byteSel)
+    case(memory_AesZknPlugin_wordDesuffle_byteSel)
       2'b00 : begin
-        memory_AesPlugin_wordDesuffle_sel_2 = memory_AesPlugin_rom_output_1;
+        memory_AesZknPlugin_wordDesuffle_sel_2 = memory_AesZknPlugin_rom_output_1;
       end
       2'b01 : begin
-        memory_AesPlugin_wordDesuffle_sel_2 = memory_AesPlugin_rom_output_2;
+        memory_AesZknPlugin_wordDesuffle_sel_2 = memory_AesZknPlugin_rom_output_2;
       end
       2'b10 : begin
-        memory_AesPlugin_wordDesuffle_sel_2 = memory_AesPlugin_rom_output_3;
+        memory_AesZknPlugin_wordDesuffle_sel_2 = memory_AesZknPlugin_rom_output_3;
       end
       default : begin
-        memory_AesPlugin_wordDesuffle_sel_2 = memory_AesPlugin_rom_output_0;
+        memory_AesZknPlugin_wordDesuffle_sel_2 = memory_AesZknPlugin_rom_output_0;
       end
     endcase
   end
 
   always @(*) begin
-    case(memory_AesPlugin_wordDesuffle_byteSel)
+    case(memory_AesZknPlugin_wordDesuffle_byteSel)
       2'b00 : begin
-        memory_AesPlugin_wordDesuffle_sel_3 = memory_AesPlugin_rom_output_0;
+        memory_AesZknPlugin_wordDesuffle_sel_3 = memory_AesZknPlugin_rom_output_0;
       end
       2'b01 : begin
-        memory_AesPlugin_wordDesuffle_sel_3 = memory_AesPlugin_rom_output_1;
+        memory_AesZknPlugin_wordDesuffle_sel_3 = memory_AesZknPlugin_rom_output_1;
       end
       2'b10 : begin
-        memory_AesPlugin_wordDesuffle_sel_3 = memory_AesPlugin_rom_output_2;
+        memory_AesZknPlugin_wordDesuffle_sel_3 = memory_AesZknPlugin_rom_output_2;
       end
       default : begin
-        memory_AesPlugin_wordDesuffle_sel_3 = memory_AesPlugin_rom_output_3;
+        memory_AesZknPlugin_wordDesuffle_sel_3 = memory_AesZknPlugin_rom_output_3;
       end
     endcase
   end
 
-  assign when_AesPlugin_l147 = memory_INSTRUCTION[26];
+  assign when_AesZknPlugin_l154 = (! memory_INSTRUCTION[26]);
   always @(*) begin
-    memory_AesPlugin_wordDesuffle_output_0 = _zz_memory_AesPlugin_wordDesuffle_output_0;
-    if(when_AesPlugin_l155) begin
-      memory_AesPlugin_wordDesuffle_output_0 = 8'h0;
+    memory_AesZknPlugin_wordDesuffle_output_0 = _zz_memory_AesZknPlugin_wordDesuffle_output_0;
+    if(when_AesZknPlugin_l162) begin
+      memory_AesZknPlugin_wordDesuffle_output_0 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l155 = memory_AesPlugin_wordDesuffle_zero[0];
+  assign when_AesZknPlugin_l162 = memory_AesZknPlugin_wordDesuffle_zero[0];
   always @(*) begin
-    memory_AesPlugin_wordDesuffle_output_1 = _zz_memory_AesPlugin_wordDesuffle_output_1;
-    if(when_AesPlugin_l155_1) begin
-      memory_AesPlugin_wordDesuffle_output_1 = 8'h0;
+    memory_AesZknPlugin_wordDesuffle_output_1 = _zz_memory_AesZknPlugin_wordDesuffle_output_1;
+    if(when_AesZknPlugin_l162_1) begin
+      memory_AesZknPlugin_wordDesuffle_output_1 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l155_1 = memory_AesPlugin_wordDesuffle_zero[1];
+  assign when_AesZknPlugin_l162_1 = memory_AesZknPlugin_wordDesuffle_zero[1];
   always @(*) begin
-    memory_AesPlugin_wordDesuffle_output_2 = _zz_memory_AesPlugin_wordDesuffle_output_2;
-    if(when_AesPlugin_l155_2) begin
-      memory_AesPlugin_wordDesuffle_output_2 = 8'h0;
+    memory_AesZknPlugin_wordDesuffle_output_2 = _zz_memory_AesZknPlugin_wordDesuffle_output_2;
+    if(when_AesZknPlugin_l162_2) begin
+      memory_AesZknPlugin_wordDesuffle_output_2 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l155_2 = memory_AesPlugin_wordDesuffle_zero[2];
+  assign when_AesZknPlugin_l162_2 = memory_AesZknPlugin_wordDesuffle_zero[2];
   always @(*) begin
-    memory_AesPlugin_wordDesuffle_output_3 = _zz_memory_AesPlugin_wordDesuffle_output_3;
-    if(when_AesPlugin_l155_3) begin
-      memory_AesPlugin_wordDesuffle_output_3 = 8'h0;
+    memory_AesZknPlugin_wordDesuffle_output_3 = _zz_memory_AesZknPlugin_wordDesuffle_output_3;
+    if(when_AesZknPlugin_l162_3) begin
+      memory_AesZknPlugin_wordDesuffle_output_3 = 8'h0;
     end
   end
 
-  assign when_AesPlugin_l155_3 = memory_AesPlugin_wordDesuffle_zero[3];
-  assign memory_AesPlugin_xored = ({memory_AesPlugin_wordDesuffle_output_3,{memory_AesPlugin_wordDesuffle_output_2,{memory_AesPlugin_wordDesuffle_output_1,memory_AesPlugin_wordDesuffle_output_0}}} ^ memory_RS1);
+  assign when_AesZknPlugin_l162_3 = memory_AesZknPlugin_wordDesuffle_zero[3];
+  assign memory_AesZknPlugin_xored = ({memory_AesZknPlugin_wordDesuffle_output_3,{memory_AesZknPlugin_wordDesuffle_output_2,{memory_AesZknPlugin_wordDesuffle_output_1,memory_AesZknPlugin_wordDesuffle_output_0}}} ^ memory_RS1);
   always @(*) begin
     CsrPlugin_privilege = _zz_CsrPlugin_privilege;
     if(CsrPlugin_forceMachineWire) begin

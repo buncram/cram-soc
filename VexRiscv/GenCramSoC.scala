@@ -156,7 +156,7 @@ object GenCramSoC{
           ),
           new MulPlugin,
           new DivPlugin,
-          new AesPlugin,
+          new AesZknPlugin,
           new CsrPlugin(
               CsrPluginConfig.linuxFull(mtVecInit = 0x60000000)
               .copy(ebreakGen = true)
