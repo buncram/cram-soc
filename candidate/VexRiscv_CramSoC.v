@@ -1,6 +1,6 @@
-// Generator : SpinalHDL dev    git head : 2bc38bc68cf4bf95cff98bca1c990c0606864538
+// Generator : SpinalHDL dev    git head : 9cb546dce5b771b06bf04316ea739716517e3e7e
 // Component : VexRiscvAxi4
-// Git hash  : 2b70f23f5dc5d066c18a859a6872c9ca0954f1dc
+// Git hash  : f42b1a865afcda58b3448e1855ec97bd293f4f62
 
 `timescale 1ns/1ps
 
@@ -1361,11 +1361,11 @@ module VexRiscvAxi4 (
   reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_1;
   reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_2;
   reg        [1:0]    memory_AesZknPlugin_wordDesuffle_sel_3;
-  wire                when_AesZknPlugin_l154;
-  wire                when_AesZknPlugin_l162;
-  wire                when_AesZknPlugin_l162_1;
-  wire                when_AesZknPlugin_l162_2;
-  wire                when_AesZknPlugin_l162_3;
+  wire                when_AesZknPlugin_l143;
+  wire                when_AesZknPlugin_l151;
+  wire                when_AesZknPlugin_l151_1;
+  wire                when_AesZknPlugin_l151_2;
+  wire                when_AesZknPlugin_l151_3;
   wire       [31:0]   memory_AesZknPlugin_xored;
   reg        [1:0]    _zz_CsrPlugin_privilege;
   reg        [1:0]    CsrPlugin_misa_base;
@@ -2652,6 +2652,7 @@ module VexRiscvAxi4 (
   end
 
   initial begin
+    $readmemb("VexRiscv_CramSoC.v_toplevel_memory_AesZknPlugin_rom_storage_1.bin",memory_AesZknPlugin_rom_storage_1);
   end
   InstructionCache IBusCachedPlugin_cache (
     .io_flush                              (IBusCachedPlugin_cache_io_flush                           ), //i
@@ -5838,7 +5839,7 @@ module VexRiscvAxi4 (
   assign memory_AesZknPlugin_rom_output_3 = _zz_memory_AesZknPlugin_rom_output_3;
   always @(*) begin
     memory_AesZknPlugin_wordDesuffle_zero = 4'b0000;
-    if(when_AesZknPlugin_l154) begin
+    if(when_AesZknPlugin_l143) begin
       memory_AesZknPlugin_wordDesuffle_zero = 4'b1111;
       memory_AesZknPlugin_wordDesuffle_zero[memory_AesZknPlugin_wordDesuffle_byteSel] = 1'b0;
     end
@@ -5913,39 +5914,39 @@ module VexRiscvAxi4 (
     endcase
   end
 
-  assign when_AesZknPlugin_l154 = (! memory_INSTRUCTION[26]);
+  assign when_AesZknPlugin_l143 = (! memory_INSTRUCTION[26]);
   always @(*) begin
     memory_AesZknPlugin_wordDesuffle_output_0 = _zz_memory_AesZknPlugin_wordDesuffle_output_0;
-    if(when_AesZknPlugin_l162) begin
+    if(when_AesZknPlugin_l151) begin
       memory_AesZknPlugin_wordDesuffle_output_0 = 8'h0;
     end
   end
 
-  assign when_AesZknPlugin_l162 = memory_AesZknPlugin_wordDesuffle_zero[0];
+  assign when_AesZknPlugin_l151 = memory_AesZknPlugin_wordDesuffle_zero[0];
   always @(*) begin
     memory_AesZknPlugin_wordDesuffle_output_1 = _zz_memory_AesZknPlugin_wordDesuffle_output_1;
-    if(when_AesZknPlugin_l162_1) begin
+    if(when_AesZknPlugin_l151_1) begin
       memory_AesZknPlugin_wordDesuffle_output_1 = 8'h0;
     end
   end
 
-  assign when_AesZknPlugin_l162_1 = memory_AesZknPlugin_wordDesuffle_zero[1];
+  assign when_AesZknPlugin_l151_1 = memory_AesZknPlugin_wordDesuffle_zero[1];
   always @(*) begin
     memory_AesZknPlugin_wordDesuffle_output_2 = _zz_memory_AesZknPlugin_wordDesuffle_output_2;
-    if(when_AesZknPlugin_l162_2) begin
+    if(when_AesZknPlugin_l151_2) begin
       memory_AesZknPlugin_wordDesuffle_output_2 = 8'h0;
     end
   end
 
-  assign when_AesZknPlugin_l162_2 = memory_AesZknPlugin_wordDesuffle_zero[2];
+  assign when_AesZknPlugin_l151_2 = memory_AesZknPlugin_wordDesuffle_zero[2];
   always @(*) begin
     memory_AesZknPlugin_wordDesuffle_output_3 = _zz_memory_AesZknPlugin_wordDesuffle_output_3;
-    if(when_AesZknPlugin_l162_3) begin
+    if(when_AesZknPlugin_l151_3) begin
       memory_AesZknPlugin_wordDesuffle_output_3 = 8'h0;
     end
   end
 
-  assign when_AesZknPlugin_l162_3 = memory_AesZknPlugin_wordDesuffle_zero[3];
+  assign when_AesZknPlugin_l151_3 = memory_AesZknPlugin_wordDesuffle_zero[3];
   assign memory_AesZknPlugin_xored = ({memory_AesZknPlugin_wordDesuffle_output_3,{memory_AesZknPlugin_wordDesuffle_output_2,{memory_AesZknPlugin_wordDesuffle_output_1,memory_AesZknPlugin_wordDesuffle_output_0}}} ^ memory_RS1);
   always @(*) begin
     CsrPlugin_privilege = _zz_CsrPlugin_privilege;
