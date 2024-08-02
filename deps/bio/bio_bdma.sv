@@ -55,6 +55,8 @@ module bio_bdma #(
     // bits to address the RAM macro
     localparam MEM_ADDR_BITS = $clog2(MEM_SIZE_WORDS);
     localparam PC_SIZE_BITS = $clog2(MEM_SIZE_BYTES);
+    // number of address filter banks
+    localparam FILTER_RANGES = 4;
 
     /////////////////////// module glue
     logic reset;
@@ -188,11 +190,31 @@ module bio_bdma #(
         .AXI_DATA_WIDTH(32)
     ) peri_axil();
 
+    // memory filter endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) mem_filtered_axil();
+
+    // peripheral filter endpoints
+    AXI_LITE #(
+        .AXI_ADDR_WIDTH(32),
+        .AXI_DATA_WIDTH(32)
+    ) peri_filtered_axil();
+
     // peripheral clock domain crossing endpoints
     AXI_LITE #(
         .AXI_ADDR_WIDTH(32),
         .AXI_DATA_WIDTH(32)
     ) peri_cdc_axil();
+
+    // address range filter wires
+    logic disable_filter_mem;
+    logic disable_filter_peri;
+    logic [19:0] filter_base[FILTER_RANGES];
+    logic [19:0] filter_bounds[FILTER_RANGES];
+    logic [31:0] mem_gutter;
+    logic [31:0] peri_gutter;
 
     // high register interfaces
     logic [31:0] mach_regfifo_rdata [NUM_MACH];
@@ -367,7 +389,9 @@ module bio_bdma #(
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))     sfr_cfginfo          (.sr({16'd4096, 8'd4, 8'd8}), .prdata32(),.*);
-    apb_cr  #(.A('h08), .DW(6))      sfr_config           (.cr({snap_input_to_quantum, snap_input_to_which,
+    apb_cr  #(.A('h08), .DW(8))      sfr_config           (.cr({
+                                                            disable_filter_mem, disable_filter_peri,
+                                                            snap_input_to_quantum, snap_input_to_which,
                                                             snap_output_to_quantum, snap_output_to_which}), .prdata32(),.*);
 
     apb_sr  #(.A('h0C), .DW(16))     sfr_flevel           (.sr({
@@ -420,6 +444,10 @@ module bio_bdma #(
     apb_sr #(.A('h94), .DW(13))      sfr_dbg1             (.sr({trap[1], dbg_pc[1]}), .prdata32(),.*);
     apb_sr #(.A('h98), .DW(13))      sfr_dbg2             (.sr({trap[2], dbg_pc[2]}), .prdata32(),.*);
     apb_sr #(.A('h9C), .DW(13))      sfr_dbg3             (.sr({trap[3], dbg_pc[3]}), .prdata32(),.*);
+
+    // this is part of address filtering, but stuck here because we're running out of bits
+    apb_cr #(.A('hA0), .DW(32))      sfr_mem_gutter           (.cr(mem_gutter), .prdata32(),.*);
+    apb_cr #(.A('hA4), .DW(32))      sfr_peri_gutter          (.cr(peri_gutter), .prdata32(),.*);
 
     cdc_level_to_pulse   ctl_action_cdc     (.reset(reset), .clk_a(pclk), .clk_faster(aclk), .in_a(ctl_action            ), .out_b(ctl_action_sync            ));
     cdc_blinded          ctl_action_ack_cdc (.reset(reset), .clk_a(aclk), .clk_b     (pclk), .in_a(ctl_action_sync       ), .out_b(ctl_action_sync_ack        ));
@@ -474,6 +502,16 @@ module bio_bdma #(
     assign dma_event_set = muxed_events[0];
     // any bit set here will perennially cause the bit to be set in the event register
     assign dma_event_set_valid = |muxed_events[0];
+
+    /////////////////////// address filtering
+    apb_cr #(.A('hE0), .DW(20))      sfr_filter_base_0        (.cr(filter_base[0]), .prdata32(),.*);
+    apb_cr #(.A('hE4), .DW(20))      sfr_filter_bounds_0      (.cr(filter_bounds[0]), .prdata32(),.*);
+    apb_cr #(.A('hE8), .DW(20))      sfr_filter_base_1        (.cr(filter_base[1]), .prdata32(),.*);
+    apb_cr #(.A('hEC), .DW(20))      sfr_filter_bounds_1      (.cr(filter_bounds[1]), .prdata32(),.*);
+    apb_cr #(.A('hF0), .DW(20))      sfr_filter_base_2        (.cr(filter_base[2]), .prdata32(),.*);
+    apb_cr #(.A('hF4), .DW(20))      sfr_filter_bounds_2      (.cr(filter_bounds[2]), .prdata32(),.*);
+    apb_cr #(.A('hF8), .DW(20))      sfr_filter_base_3        (.cr(filter_base[3]), .prdata32(),.*);
+    apb_cr #(.A('hFC), .DW(20))      sfr_filter_bounds_3      (.cr(filter_bounds[3]), .prdata32(),.*);
 
     /////////////////////// page maps for FIFO endpoints
     generate
@@ -1062,26 +1100,77 @@ module bio_bdma #(
 
         .m_clk(hclk),
         .m_rst(~reset_n),
-        .m_axil_awaddr  (axim.awaddr),
-        .m_axil_awprot  (axim.awprot),
-        .m_axil_awvalid (axim.awvalid),
-        .m_axil_awready (axim.awready),
-        .m_axil_wdata   (axim.wdata),
-        .m_axil_wstrb   (axim.wstrb),
-        .m_axil_wvalid  (axim.wvalid),
-        .m_axil_wready  (axim.wready),
-        .m_axil_bresp   (axim.bresp),
-        .m_axil_bvalid  (axim.bvalid),
-        .m_axil_bready  (axim.bready),
-        .m_axil_araddr  (axim.araddr),
-        .m_axil_arprot  (axim.arprot),
-        .m_axil_arvalid (axim.arvalid),
-        .m_axil_arready (axim.arready),
-        .m_axil_rdata   (axim.rdata),
-        .m_axil_rresp   (axim.rresp),
-        .m_axil_rvalid  (axim.rvalid),
-        .m_axil_rready  (axim.rready)
+        .m_axil_awaddr  (mem_filtered_axil.aw_addr ),
+        .m_axil_awprot  (mem_filtered_axil.aw_prot ),
+        .m_axil_awvalid (mem_filtered_axil.aw_valid),
+        .m_axil_awready (mem_filtered_axil.aw_ready),
+        .m_axil_wdata   (mem_filtered_axil.w_data  ),
+        .m_axil_wstrb   (mem_filtered_axil.w_strb  ),
+        .m_axil_wvalid  (mem_filtered_axil.w_valid ),
+        .m_axil_wready  (mem_filtered_axil.w_ready ),
+        .m_axil_bresp   (mem_filtered_axil.b_resp  ),
+        .m_axil_bvalid  (mem_filtered_axil.b_valid ),
+        .m_axil_bready  (mem_filtered_axil.b_ready ),
+        .m_axil_araddr  (mem_filtered_axil.ar_addr ),
+        .m_axil_arprot  (mem_filtered_axil.ar_prot ),
+        .m_axil_arvalid (mem_filtered_axil.ar_valid),
+        .m_axil_arready (mem_filtered_axil.ar_ready),
+        .m_axil_rdata   (mem_filtered_axil.r_data  ),
+        .m_axil_rresp   (mem_filtered_axil.r_resp  ),
+        .m_axil_rvalid  (mem_filtered_axil.r_valid ),
+        .m_axil_rready  (mem_filtered_axil.r_ready )
     );
+
+    axil_filter #(
+        .RANGES(FILTER_RANGES)
+    ) mem_filter (
+        .clk(hclk),
+        .resetn(reset_n),
+        .s_axi_awaddr   (mem_filtered_axil.aw_addr ),
+        .s_axi_awprot   (mem_filtered_axil.aw_prot ),
+        .s_axi_awvalid  (mem_filtered_axil.aw_valid),
+        .s_axi_awready  (mem_filtered_axil.aw_ready),
+        .s_axi_wdata    (mem_filtered_axil.w_data  ),
+        .s_axi_wstrb    (mem_filtered_axil.w_strb  ),
+        .s_axi_wvalid   (mem_filtered_axil.w_valid ),
+        .s_axi_wready   (mem_filtered_axil.w_ready ),
+        .s_axi_bresp    (mem_filtered_axil.b_resp  ),
+        .s_axi_bvalid   (mem_filtered_axil.b_valid ),
+        .s_axi_bready   (mem_filtered_axil.b_ready ),
+        .s_axi_araddr   (mem_filtered_axil.ar_addr ),
+        .s_axi_arprot   (mem_filtered_axil.ar_prot ),
+        .s_axi_arvalid  (mem_filtered_axil.ar_valid),
+        .s_axi_arready  (mem_filtered_axil.ar_ready),
+        .s_axi_rdata    (mem_filtered_axil.r_data  ),
+        .s_axi_rresp    (mem_filtered_axil.r_resp  ),
+        .s_axi_rvalid   (mem_filtered_axil.r_valid ),
+        .s_axi_rready   (mem_filtered_axil.r_ready ),
+
+        .m_axi_awaddr   (axim.awaddr ),
+        .m_axi_awprot   (axim.awprot ),
+        .m_axi_awvalid  (axim.awvalid),
+        .m_axi_awready  (axim.awready),
+        .m_axi_wdata    (axim.wdata  ),
+        .m_axi_wstrb    (axim.wstrb  ),
+        .m_axi_wvalid   (axim.wvalid ),
+        .m_axi_wready   (axim.wready ),
+        .m_axi_bresp    (axim.bresp  ),
+        .m_axi_bvalid   (axim.bvalid ),
+        .m_axi_bready   (axim.bready ),
+        .m_axi_araddr   (axim.araddr ),
+        .m_axi_arprot   (axim.arprot ),
+        .m_axi_arvalid  (axim.arvalid),
+        .m_axi_arready  (axim.arready),
+        .m_axi_rdata    (axim.rdata  ),
+        .m_axi_rresp    (axim.rresp  ),
+        .m_axi_rvalid   (axim.rvalid ),
+        .m_axi_rready   (axim.rready ),
+        .base           (filter_base),
+        .length         (filter_bounds),
+        .gutter         (mem_gutter),
+        .disable_filter (disable_filter_mem)
+    );
+
     // tie off AXI-master signals not driven by AXI-Lite
     assign axim.awid = AHBMID4;
     assign axim.awlen = '0;
@@ -1145,25 +1234,75 @@ module bio_bdma #(
 
         .m_clk(dmaclk),
         .m_rst(~reset_n),
-        .m_axil_awaddr(peri_cdc_axil.aw_addr),
-        .m_axil_awprot(peri_cdc_axil.aw_prot),
-        .m_axil_awvalid(peri_cdc_axil.aw_valid),
-        .m_axil_awready(peri_cdc_axil.aw_ready),
-        .m_axil_wdata(peri_cdc_axil.w_data),
-        .m_axil_wstrb(peri_cdc_axil.w_strb),
-        .m_axil_wvalid(peri_cdc_axil.w_valid),
-        .m_axil_wready(peri_cdc_axil.w_ready),
-        .m_axil_bresp(peri_cdc_axil.b_resp),
-        .m_axil_bvalid(peri_cdc_axil.b_valid),
-        .m_axil_bready(peri_cdc_axil.b_ready),
-        .m_axil_araddr(peri_cdc_axil.ar_addr),
-        .m_axil_arprot(peri_cdc_axil.ar_prot),
-        .m_axil_arvalid(peri_cdc_axil.ar_valid),
-        .m_axil_arready(peri_cdc_axil.ar_ready),
-        .m_axil_rdata(peri_cdc_axil.r_data),
-        .m_axil_rresp(peri_cdc_axil.r_resp),
-        .m_axil_rvalid(peri_cdc_axil.r_valid),
-        .m_axil_rready(peri_cdc_axil.r_ready)
+        .m_axil_awaddr  (peri_filtered_axil.aw_addr ),
+        .m_axil_awprot  (peri_filtered_axil.aw_prot ),
+        .m_axil_awvalid (peri_filtered_axil.aw_valid),
+        .m_axil_awready (peri_filtered_axil.aw_ready),
+        .m_axil_wdata   (peri_filtered_axil.w_data  ),
+        .m_axil_wstrb   (peri_filtered_axil.w_strb  ),
+        .m_axil_wvalid  (peri_filtered_axil.w_valid ),
+        .m_axil_wready  (peri_filtered_axil.w_ready ),
+        .m_axil_bresp   (peri_filtered_axil.b_resp  ),
+        .m_axil_bvalid  (peri_filtered_axil.b_valid ),
+        .m_axil_bready  (peri_filtered_axil.b_ready ),
+        .m_axil_araddr  (peri_filtered_axil.ar_addr ),
+        .m_axil_arprot  (peri_filtered_axil.ar_prot ),
+        .m_axil_arvalid (peri_filtered_axil.ar_valid),
+        .m_axil_arready (peri_filtered_axil.ar_ready),
+        .m_axil_rdata   (peri_filtered_axil.r_data  ),
+        .m_axil_rresp   (peri_filtered_axil.r_resp  ),
+        .m_axil_rvalid  (peri_filtered_axil.r_valid ),
+        .m_axil_rready  (peri_filtered_axil.r_ready )
+    );
+
+    axil_filter #(
+        .RANGES(FILTER_RANGES)
+    ) peri_filter (
+        .clk(dmaclk),
+        .resetn(reset_n),
+        .s_axi_awaddr   (peri_filtered_axil.aw_addr ),
+        .s_axi_awprot   (peri_filtered_axil.aw_prot ),
+        .s_axi_awvalid  (peri_filtered_axil.aw_valid),
+        .s_axi_awready  (peri_filtered_axil.aw_ready),
+        .s_axi_wdata    (peri_filtered_axil.w_data  ),
+        .s_axi_wstrb    (peri_filtered_axil.w_strb  ),
+        .s_axi_wvalid   (peri_filtered_axil.w_valid ),
+        .s_axi_wready   (peri_filtered_axil.w_ready ),
+        .s_axi_bresp    (peri_filtered_axil.b_resp  ),
+        .s_axi_bvalid   (peri_filtered_axil.b_valid ),
+        .s_axi_bready   (peri_filtered_axil.b_ready ),
+        .s_axi_araddr   (peri_filtered_axil.ar_addr ),
+        .s_axi_arprot   (peri_filtered_axil.ar_prot ),
+        .s_axi_arvalid  (peri_filtered_axil.ar_valid),
+        .s_axi_arready  (peri_filtered_axil.ar_ready),
+        .s_axi_rdata    (peri_filtered_axil.r_data  ),
+        .s_axi_rresp    (peri_filtered_axil.r_resp  ),
+        .s_axi_rvalid   (peri_filtered_axil.r_valid ),
+        .s_axi_rready   (peri_filtered_axil.r_ready ),
+
+        .m_axi_awaddr   (peri_cdc_axil.aw_addr ),
+        .m_axi_awprot   (peri_cdc_axil.aw_prot ),
+        .m_axi_awvalid  (peri_cdc_axil.aw_valid),
+        .m_axi_awready  (peri_cdc_axil.aw_ready),
+        .m_axi_wdata    (peri_cdc_axil.w_data  ),
+        .m_axi_wstrb    (peri_cdc_axil.w_strb  ),
+        .m_axi_wvalid   (peri_cdc_axil.w_valid ),
+        .m_axi_wready   (peri_cdc_axil.w_ready ),
+        .m_axi_bresp    (peri_cdc_axil.b_resp  ),
+        .m_axi_bvalid   (peri_cdc_axil.b_valid ),
+        .m_axi_bready   (peri_cdc_axil.b_ready ),
+        .m_axi_araddr   (peri_cdc_axil.ar_addr ),
+        .m_axi_arprot   (peri_cdc_axil.ar_prot ),
+        .m_axi_arvalid  (peri_cdc_axil.ar_valid),
+        .m_axi_arready  (peri_cdc_axil.ar_ready),
+        .m_axi_rdata    (peri_cdc_axil.r_data  ),
+        .m_axi_rresp    (peri_cdc_axil.r_resp  ),
+        .m_axi_rvalid   (peri_cdc_axil.r_valid ),
+        .m_axi_rready   (peri_cdc_axil.r_ready ),
+        .base           (filter_base),
+        .length         (filter_bounds),
+        .gutter         (peri_gutter),
+        .disable_filter (disable_filter_mem)
     );
 
     // AXIL->AHB bridge for peripheral bus
@@ -2002,4 +2141,124 @@ module apb_asr
             .apbwr       (               )
          );
     `theregfull(pclk, resetn, ar, '0) <= sfrapbrd;
+endmodule
+
+
+/***************************************************************
+ * AXI-lite address filter for DMA
+ ***************************************************************/
+
+module axil_filter #(
+    // number of address ranges to filter
+    parameter RANGES=4
+)(
+	input clk, resetn,
+
+	// AXI4-lite manager interface
+
+	output        m_axi_awvalid,
+	input         m_axi_awready,
+	output [31:0] m_axi_awaddr,
+	output [ 2:0] m_axi_awprot,
+
+	output        m_axi_wvalid,
+	input         m_axi_wready,
+	output [31:0] m_axi_wdata,
+	output [ 3:0] m_axi_wstrb,
+
+	input         m_axi_bvalid,
+	output        m_axi_bready,
+    input [1:0]   m_axi_bresp,
+
+	output        m_axi_arvalid,
+	input         m_axi_arready,
+	output [31:0] m_axi_araddr,
+	output [ 2:0] m_axi_arprot,
+
+	input         m_axi_rvalid,
+	output        m_axi_rready,
+	input  [31:0] m_axi_rdata,
+    input  [1:0]  m_axi_rresp,
+
+	// AXI4-lite subordinate interface
+
+	input        s_axi_awvalid,
+	output       s_axi_awready,
+	input [31:0] s_axi_awaddr,
+	input [ 2:0] s_axi_awprot,
+
+	input        s_axi_wvalid,
+	output       s_axi_wready,
+	input [31:0] s_axi_wdata,
+	input [ 3:0] s_axi_wstrb,
+
+	output       s_axi_bvalid,
+	input        s_axi_bready,
+    output [1:0] s_axi_bresp,
+
+	input        s_axi_arvalid,
+	output       s_axi_arready,
+	input [31:0] s_axi_araddr,
+	input [ 2:0] s_axi_arprot,
+
+	output       s_axi_rvalid,
+	input        s_axi_rready,
+	output [31:0] s_axi_rdata,
+    output [1:0] s_axi_rresp,
+
+    // Filter range - these are assumed to be static relative to the AXI data
+    // If they are updated during an access, unpredictable things will happen.
+    // Granularity of filter is page-level (4096 byte)
+    input [19:0] base[RANGES],
+    input [19:0] length[RANGES],
+    input [31:0] gutter,
+    input disable_filter
+);
+    logic [RANGES-1:0] match_write;
+    logic [RANGES-1:0] match_read;
+    logic [20:0] bounds_unchecked[RANGES];
+    logic [19:0] bounds[RANGES];
+    logic allow_write;
+    logic allow_read;
+
+    generate
+        for(genvar k = 0; k<RANGES; k = k + 1) begin: ranges
+            always_comb begin
+                // unchecked bounds
+                bounds_unchecked[k] = base[k] + length[k];
+                // bounds saturated at max_u32
+                bounds[k] = bounds_unchecked[k] > 21'h0_FFFF_F ? 20'hFFFF_F : bounds_unchecked[k][19:0];
+                match_write[k] = (s_axi_awaddr[31:12] >= base[k]) && (s_axi_awaddr[31:12] < bounds[k]);
+                match_read[k] = (s_axi_araddr[31:12] >= base[k]) && (s_axi_araddr[31:12] < bounds[k]);
+            end
+        end
+    endgenerate
+    always_comb begin
+        allow_write = |match_write | disable_filter;
+        allow_read = |match_read | disable_filter;
+    end
+
+    assign m_axi_awvalid = s_axi_awvalid;
+    assign s_axi_awready = m_axi_awready;
+    assign m_axi_awaddr = allow_write ? s_axi_awaddr : gutter;
+    assign m_axi_awprot = s_axi_awprot;
+
+    assign m_axi_wvalid = s_axi_wvalid;
+    assign s_axi_wready = m_axi_wready;
+    assign m_axi_wdata = s_axi_wdata;
+    assign m_axi_wstrb = s_axi_wstrb;
+
+    assign s_axi_bvalid = m_axi_bvalid;
+    assign m_axi_bready = s_axi_bready;
+    assign s_axi_bresp = m_axi_bresp;
+
+    assign m_axi_arvalid = s_axi_arvalid;
+    assign s_axi_arready = m_axi_arready;
+    assign m_axi_araddr = allow_read ? s_axi_araddr: gutter;
+    assign m_axi_arprot = s_axi_arprot;
+
+    assign s_axi_rvalid = m_axi_rvalid;
+    assign m_axi_rready = s_axi_rready;
+    assign s_axi_rdata = m_axi_rdata;
+    assign s_axi_rresp = m_axi_rresp;
 endmodule
