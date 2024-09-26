@@ -49,6 +49,7 @@ class _CRG(LiteXModule):
         self.cd_sys_always_on = ClockDomain()
         self.cd_p   = ClockDomain()
         self.cd_pio = ClockDomain()
+        self.cd_h_clk = ClockDomain()
         if with_dram:
             self.cd_sys4x     = ClockDomain()
             self.cd_sys4x_dqs = ClockDomain()
@@ -67,6 +68,7 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys, sys_clk_freq, buf="bufgce", ce=(pll.locked & ~sleep_req))
         pll.create_clkout(self.cd_sys_always_on, sys_clk_freq)
         pll.create_clkout(self.cd_p, 25e6)
+        pll.create_clkout(self.cd_h_clk, 100e6)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
         if with_dram:
             pll.create_clkout(self.cd_sys4x,     4*sys_clk_freq)
@@ -93,7 +95,9 @@ def arty_extensions(self,
     }}
 
     # CRG --------------------------------------------------------------------------------------
-    self.crg  = _CRG(self.platform, self.sys_clk_freq, True, sleep_req=self.sleep_req)
+    rtl_dir = os.path.join(os.path.dirname(__file__), "VexRiscv")
+    self.platform.add_source(rtl_dir, "VexRiscv/memory_AesZknPlugin_rom_storage_Rom_1rs.v")
+    self.crg  = _CRG(self.platform, self.sys_clk_freq, False, sleep_req=self.sleep_req)
 
     # Various other I/Os
     self.comb += self.platform.request("rgb_led", number=0).g.eq(self.coreuser)
@@ -276,7 +280,8 @@ def main():
     #          G 11         5   21
     #            12 VCC VCC 6
     platform.add_platform_command("create_clock -name jtag_cpu_tck -period {:0.3f} [get_nets jtag_cpu_tck]".format(1e9 / 2e6))
-
+    platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets sys_clk]")
+    platform.add_platform_command('set_false_path -through [get_nets *_rst]')
 
     soc = CramSoC(
         platform,
@@ -284,6 +289,7 @@ def main():
         variant        = args.variant,
         bios_path      = bios_path,
         boot_offset    = args.boot_offset,
+        vivado         = True,
         **parser.soc_argdict
     )
     if args.sdcard_adapter == "numato":
