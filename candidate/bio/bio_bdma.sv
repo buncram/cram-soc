@@ -5,6 +5,70 @@
 
 // `define FPGA 1
 
+// When this is defined, instructions take an extra cycle
+// to execute, but the critical path is shorter.
+//   - Impact is significant on IPC, let's start with it off
+// `define REGISTER_RAM
+// Add pipeline stage to AXI read to CPU
+//   - The impact of this is minimal on IPC but significant on timing closure
+//     so let's start with it enabled
+`define PIPELINE_AXI_RD
+// Add pipeline stage to AXI write coming from CPU
+// `define PIPELINE_AXI_WR // no need to use this; little impact on critical path
+// Add a multiplier to the RV32 core
+`define ENABLE_MUL // minor impact on critical path & area for significant potential gain in function
+
+// Methodology: run "stack test"
+//   - Measure execution time on Core 3
+//   - dbg_ascii_instr trace
+//   - *not* including the initial wait on first data ("add" instruction holding)
+//   - Drop named cursor on front and back, then read out times.
+// Methodology: run "aclk test"
+//   - Record aclk numbers
+// Methodology: run "DMA basic"
+//   - Record time from first ack_arvalid rising edge to last ack_arvalid falling edge (ack_arvalid is inside the block)
+//   - Use named cursors
+//   - Main to main test
+
+// Timing-closure optimized configuration:
+//   - REGISTER_RAM + PIPELINE_AXI_RD enabled
+//   - ENABLE_MUL also enabled because why not
+// Critical path is from mem_valid -> AXI-lite valid/ready -> PCP_MUL -> execute -> mem_rdata
+//   - Mostly net delay, minimal logic - so see how ASIC turns out. -1.2ns slack @ 100MHz
+// Stack test result:
+//   - 103556250 ps - 89472500 ps = 14083750 ps
+// ACLK test result:
+//   - 29, 32, 36, 43, 46, [54, 64] (last two are snapped to quantum)
+// DMA basic m->m result:
+//   - 155848750 ps - 149916250 ps = 5932500 ps
+
+// IPC-optimized configuration:
+//   - ENABLE_MUL enabled
+// Critical path is from mem_wrstb -> mem_ready -> crossbar -> merged_mem_ready -> execute -> dma_owner
+//   - About 3x the logic of fully optimized configuration (-4.3ns slack @ 100MHz)
+// Stack test result:
+//   - 100783750 ps - 89393750 ps = 11390000 ps -> 1.2365x less cycles than REGISTER_RAM
+// ACLK test result:
+//   - 28, 31, 34, 40, 43, [54, 64] (last two are snapped to quantum)
+// DMA basic m->m result:
+//   - 153063750 ps - 147841250 ps = 5222500 ps -> 1.13x less cycles than REGISTER_RAM
+
+// Middle config:
+//   - PIPELINE_AXI_RD enabled
+//   - ENABLE_MUL enabled
+// Critical path is from clear_prefetched_high_word -> PCP_MUL -> execute -> la_addr -> dma_owner -> dma_active
+//   - About 1.5x the logic of fully-optimized config (-1.6ns slack @ 100MHz)
+// Stack test result:
+//   - 100783750 ps - 89393750 ps = 11390000 ps -> 1.2365x less cycles than REGISTER_RAM
+// ACLK test result:
+//   - 28, 31, 34, 40, 43, [54, 64] (last two are snapped to quantum)
+// DMA basic m->m result:
+//   - 153222500 ps - 147841250 ps = 5381250 ps -> 1.10x less cycles than REGISTER_RAM; 1.03x longer than IPC-optimezed
+
+// Conclusion: if cycle time is improved by more than 30% with REGISTER_RAM + PIPELINE_AXI_RD,
+// then we should turn on these options. Question is - are we limited by the VexRV core already?
+// If so, then, might as well go with better IPC in favor of faster cycle time.
+
 module bio_bdma #(
     parameter APW = 12,  // APB address width
     // 0x8000 is offset of the BIO config space
@@ -140,6 +204,21 @@ module bio_bdma #(
 	logic [31:0] eoi  [NUM_MACH];
 	logic [NUM_MACH-1:0] trace_valid;
 	logic [35:0] trace_data [NUM_MACH];
+
+    // Optional pipelining
+`ifdef PIPELINE_AXI_WR
+    logic [ 3:0] mem_wstrb_pipe [NUM_MACH];
+	logic [NUM_MACH-1:0]       mem_valid_pipe;
+    logic dma_active_pipe;
+    logic dma_ready_d;
+    logic [1:0] dma_owner_d;
+`endif
+
+    // Support logic for non-lookahead RAM
+`ifdef REGISTER_RAM
+    reg [NUM_MACH-1:0] mem_valid_d;
+    reg [NUM_MACH-1:0] dead_cycle;
+`endif
 
     // lint fixes
     logic [1:0] core_id_from_loop [NUM_MACH];
@@ -958,6 +1037,7 @@ module bio_bdma #(
             dma_owner <= '0;
             dma_active <= '0;
         end else begin
+`ifndef REGISTER_RAM
             if (dma_active == 0) begin
                 if ((mem_la_read[0] | mem_la_write[0] | (mem_valid[0] & !mem_ready[0])) & ext_addr_la[0]) begin
                     dma_owner <= 2'h0;
@@ -981,12 +1061,49 @@ module bio_bdma #(
                     dma_active <= dma_active;
                 end
             end
+`else
+            if (dma_active == 0) begin
+                if ((mem_valid[0] & !mem_ready[0]) & ext_addr[0]) begin
+                    dma_owner <= 2'h0;
+                    dma_active <= 1;
+                end else if ((mem_valid[1] & !mem_ready[1]) & ext_addr[1]) begin
+                    dma_owner <= 2'h1;
+                    dma_active <= 1;
+                end else if ((mem_valid[2] & !mem_ready[2]) & ext_addr[2]) begin
+                    dma_owner <= 2'h2;
+                    dma_active <= 1;
+                end else if ((mem_valid[3] & !mem_ready[3]) & ext_addr[3]) begin
+                    dma_owner <= 2'h3;
+                    dma_active <= 1;
+                end
+            end else begin
+                if (dma_ready) begin
+                    dma_owner <= '0;
+                    dma_active <= 0;
+                end else begin
+                    dma_owner <= dma_owner;
+                    dma_active <= dma_active;
+                end
+            end
+`endif
         end
+`ifdef PIPELINE_AXI_WR
+        mem_wstrb_pipe <= mem_wstrb;
+        dma_active_pipe <= dma_active;
+        mem_valid_pipe <= mem_valid;
+        dma_ready_d <= dma_ready;
+`endif
     end
 
     /////////////////////// Demux & CDC of datapath for each CPU
     // convert interface to AXIL
-    picorv32_axi_adapter prv_axil (
+    picorv32_axi_adapter #(
+`ifdef PIPELINE_AXI_RD
+        .PIPELINE_AXI_MEM_READY(1)
+`else
+        .PIPELINE_AXI_MEM_READY(0)
+`endif
+    ) prv_axil (
         .clk(aclk),
         .resetn(reset_n),
 
@@ -1013,6 +1130,7 @@ module bio_bdma #(
         .mem_axi_rready(core_axil.r_ready),
         .mem_axi_rdata(core_axil.r_data),
 
+`ifndef PIPELINE_AXI_WR
         .mem_valid(mem_valid[dma_owner] & dma_active),
         .mem_instr(mem_instr[dma_owner]),
         .mem_ready(dma_ready),
@@ -1020,6 +1138,15 @@ module bio_bdma #(
         .mem_wdata(mem_wdata[dma_owner]),
         .mem_wstrb(mem_wstrb[dma_owner]),
         .mem_rdata(dma_rdata)
+`else
+        .mem_valid(mem_valid_pipe[dma_owner] & dma_active_pipe & ~dma_ready_d),
+        .mem_instr(mem_instr[dma_owner]),
+        .mem_ready(dma_ready),
+        .mem_addr(mem_addr[dma_owner]),
+        .mem_wdata(mem_wdata[dma_owner]),
+        .mem_wstrb(mem_wstrb_pipe[dma_owner]),
+        .mem_rdata(dma_rdata)
+`endif
     );
 
     // AXIL crossbar to demux address space further
@@ -1475,11 +1602,19 @@ module bio_bdma #(
                 ram_wr_en[j] = 0;
                 if (imem_wr_mode[j]) begin
                     // machine0 is running
+`ifndef REGISTER_RAM
                     ram_wr_en[j] = mem_la_write[j];
                     ram_wr_mask[j] = mem_la_wstrb[j];
                     ram_wr_data[j] = mem_la_wdata[j];
 
                     ram_addr[j] = mem_la_addr[j][MEM_ADDR_BITS+2:2];
+`else
+                    ram_wr_en[j] = |mem_wstrb[j] & mem_valid[j];
+                    ram_wr_mask[j] = mem_wstrb[j];
+                    ram_wr_data[j] = mem_wdata[j];
+
+                    ram_addr[j] = mem_addr[j][MEM_ADDR_BITS+2:2];
+`endif
                 end else begin
                     // host can write & read; machine can't touch
                     ram_wr_en[j] = host_mem_wr_stb[j];
@@ -1494,13 +1629,16 @@ module bio_bdma #(
                 // engine select uses look-ahead version. Look-ahead address bounces all over the place
                 /// so it must be gated with the rd/wr la strobes for decoding.
                 ext_addr_la[j] = mem_la_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
-                // readback path uses the stable clocked ext_addr to avoid combinational cycle on ready
-                ext_addr[j] = mem_addr[j][31:28] >= 1; // map everything from 0x1000_0000 and higher
                 merged_mem_ready[j] = ext_addr[j] ? dma_ready && (dma_owner == j) : mem_ready[j];
                 merged_mem_rdata[j] = ext_addr[j] ? dma_rdata : mem_rdata[j];
             end
+            always_ff @(posedge aclk) begin
+                // readback path uses the stable clocked ext_addr to avoid combinational cycle on ready
+                ext_addr[j] <= ext_addr_la[j];
+            end
 
             // Instruction Memory.
+`ifndef REGISTER_RAM
             Ram_1rw_s #(
                 .wordCount(MEM_SIZE_WORDS),
                 .wordWidth(32),
@@ -1528,7 +1666,38 @@ module bio_bdma #(
             always_ff @(posedge aclk) begin
                 mem_ready[j] <= mem_la_read[j] || ram_wr_en[j] || quanta_halt[j] && mem_ready[j];
             end
-
+`else
+            Ram_1rw_s #(
+                .wordCount(MEM_SIZE_WORDS),
+                .wordWidth(32),
+                .technology("auto"),
+                .AddressWidth(MEM_ADDR_BITS),
+                .DataWidth(32),
+                .wrMaskWidth(4),
+                .wrMaskEnable(1),
+                .ramname("RAM_SP_512_32")
+            ) imem (
+                .clk(aclk),
+                .wr_n(~(ram_wr_en[j] & (~ext_addr[j] | ~imem_wr_mode[j]))),
+                .addr(ram_addr[j]),
+                .wr_mask_n(~ram_wr_mask[j]),
+                .ce_n(~(
+                    mem_valid[j] // during run mode, make sure data does not move
+                    || (psel_sync[j][1] & ~imem_wr_mode[j]))), // during host mode, access whenever PSEL active
+                .d(ram_wr_data[j]),
+                .q(ram_rd_data[j]),
+                .cmbist(cmbist),
+                .cmatpg(cmatpg),
+                .sramtrm(sramtrm)
+            );
+            always_ff @(posedge aclk) begin
+                mem_valid_d[j] <= (mem_valid[j] & ~ext_addr[j]) || (quanta_halt[j] && mem_valid_d[j]);
+                dead_cycle[j] <= mem_valid_d[j] & mem_ready[j];
+            end
+            always_comb begin
+                mem_ready[j] = mem_valid_d[j] && ~dead_cycle[j] && mem_valid[j]; // de-assert immediately when mem_valid[j] falls
+            end
+`endif
             always_ff @(posedge aclk) begin
                 // this aligns the enable so that it in concurrent with restart/clkdiv_restart
                 if (~reset_n) begin
@@ -1572,7 +1741,11 @@ module bio_bdma #(
 	            .CATCH_ILLINSN(1),
 	            .ENABLE_PCPI(0),
 	            .ENABLE_MUL(0),
+`ifdef ENABLE_MUL
+	            .ENABLE_FAST_MUL(1),
+`else
 	            .ENABLE_FAST_MUL(0),
+`endif
 	            .ENABLE_DIV(0),
 	            .ENABLE_IRQ(0),
 	            .ENABLE_IRQ_QREGS(0),

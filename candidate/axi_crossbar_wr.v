@@ -173,7 +173,7 @@ integer i;
 // check configuration
 initial begin
     if (M_ID_WIDTH < S_ID_WIDTH+$clog2(S_COUNT)) begin
-        $error("Error: M_ID_WIDTH must be at least $clog2(S_COUNT) larger than S_ID_WIDTH (instance %m)");
+        $error("Error: M_ID_WIDTH %d must be at least %d larger than S_ID_WIDTH %d", M_ID_WIDTH, $clog2(S_COUNT), S_ID_WIDTH+$clog2(S_COUNT));
         $finish;
     end
 
@@ -519,7 +519,7 @@ generate
         wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded_from_arb;
         // this needs to be wider than strictly necessary to work around a verilator bug
         wire [S_COUNT*2-1:0] a_grant_encoded;
-        assign a_grant_encoded = a_grant_encoded_from_arb | '0;
+        assign a_grant_encoded = a_grant_encoded_from_arb | 32'h0;
 
         arbiter #(
             .PORTS(S_COUNT),

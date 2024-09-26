@@ -457,7 +457,7 @@ generate
         wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] a_grant_encoded_from_arb;
         // this needs to be wider than strictly necessary to work around a verilator bug
         wire [S_COUNT*2-1:0] a_grant_encoded;
-        assign a_grant_encoded = a_grant_encoded_from_arb | '0;
+        assign a_grant_encoded = a_grant_encoded_from_arb | 32'h0;
 
         arbiter #(
             .PORTS(S_COUNT),
