@@ -138,9 +138,9 @@ class BioBdmaAdapter(Module):
                 # i2c_sda_peripheral_drive_low.eq(1),
             )
 
-        self.comb += [
-            i2c_sda.eq(~(i2c_sda_controller_drive_low | gpio_oe[2] | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
-        ]
+            self.comb += [
+                i2c_sda.eq(~(i2c_sda_controller_drive_low | gpio_oe[2] | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
+            ]
         for i in range(32):
             self.gpio = TSTriple()
             self.specials += self.gpio.get_tristate(pads.gpio[i])
