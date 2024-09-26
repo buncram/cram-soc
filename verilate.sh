@@ -86,7 +86,7 @@ else
   cd ../nto-tests
   cp tests/link.x.straight tests/link.x
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
-  cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn
+  cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul
   python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../daric/daricval/examples/mbox/mbox.bin --out-file=boot.bin
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > /mnt/f/code/cram-soc/listings/boot.lst
