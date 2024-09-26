@@ -53,6 +53,7 @@ class CramSoC(SoCCore):
         production_models=False,
         sim_debug=False,
         trace_reset_on=False,
+        vivado=False,
         # bogus arg handlers - we are doing SoCMini, but the simulator passes args for a full SoC
         bus_standard=None,
         bus_data_width=None,
@@ -192,6 +193,8 @@ class CramSoC(SoCCore):
         # 3) Add AXICrossbar  (2 Slave / 2 Master).
         # Crossbar slaves (from CPU master) -- common to all platforms
         self.submodules.mbus = mbus = AXICrossbar(platform=platform)
+        if vivado:
+            mbus.vivado_only = True
         mbus.add_slave(name = "dbus", s_axi=dbus64_axi,
             aw_reg = AXIRegister.BYPASS,
             w_reg  = AXIRegister.BYPASS,
