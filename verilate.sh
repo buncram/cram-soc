@@ -83,6 +83,12 @@ else
   #cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
   #cp include/pio.svd ../xous-cramium/precursors/
 
+  # copy over all the latest SVD files
+  cp build/software/soc.svd ../nto-tests/svd
+  cp build/software/core.svd ../nto-tests/svd
+  cp include/daric.svd ../nto-tests/svd
+
+  # build the binary
   cd ../nto-tests
   cp tests/link.x.straight tests/link.x
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
