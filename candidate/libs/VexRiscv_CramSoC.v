@@ -1,3 +1,14 @@
+// (c) Copyright CrossBar, Inc. 2024.
+//
+// This documentation describes Open Hardware and is licensed under the
+// [CERN-OHL-W-2.0].
+//
+// You may redistribute and modify this documentation under the terms of the
+// [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
+// distributed WITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF
+// MERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A PARTICULAR PURPOSE.
+// Please see the [CERN-OHL- W-2.0] for applicable conditions.
+
 // Generator : SpinalHDL dev    git head : a86a458deafc582dd15d8ffbb85e8818b92f2edc
 // Component : VexRiscvAxi4
 // Git hash  : 1b0ee47bc539b425b592e7dedf7307538e451190

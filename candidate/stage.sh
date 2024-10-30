@@ -17,10 +17,14 @@ cp ../build/software/core.svd .
 mkdir -p libs
 mkdir -p tb
 
-cp ../sim_support/mbox_v0.1.sv ./libs/
-cp ../sim_support/mbox_client.v ./libs/
+rm -rf mbox/*
+mkdir -p mbox/rtl
+cp ../sim_support/mbox_v0.1.sv ./mbox/rtl/mbox.sv
+cp ../sim_support/mbox_client.v ./mbox/rtl/
+
 cp ../sim_support/ram_1w_1ra.v ./libs/
 cp ../sim_support/ram_1w_1rs.v ./libs/
+cp ../sim_support/fdre_cosim.v ./libs/
 cp ../sim_support/bio_tb.v ./tb/
 cp ../VexRiscv/VexRiscv_CramSoC.v ./libs/
 cp ../VexRiscv/memory_AesZknPlugin_rom_storage_Rom_1rs.v ./libs/
@@ -70,21 +74,26 @@ cp ../deps/axi2ahb/axi2ahb_rd_fifo.v ./bio/libs/
 cp ../deps/axi2ahb/axi2ahb_wr_fifo.v ./bio/libs/
 cp ../deps/axi2ahb/prgen_fifo.v ./bio/libs/
 
+# add support modules - used by both BIO and PIO
+cp ../sim_support/cdc_blinded.v ./bio/libs/
+
 # copy over PIO rtl models
-#rm -rf pio/*
-#cp ../deps/pio/upstream/src/*.v pio/
+rm -rf pio/*
+mkdir -p pio/rtl/
+cp ../deps/pio/upstream/src/*.v pio/rtl/
 # remove the legacy top model
-#rm -f pio/pio.v
+rm -f pio/rtl/pio.v
 # add the correct top model
-#cp ../deps/pio/pio_apb.sv pio/
-#cp ../deps/pio/rp_pio.sv pio/
-# add support modules
-#cp ../sim_support/cdc_blinded.v .
+cp ../deps/pio/pio_apb.sv pio/rtl/
+cp ../deps/pio/rp_pio.sv pio/rtl/
 
 #rm -rf docs
 #mkdir docs
 #cp -r ../build/gateware/build/documentation/_build/html/* docs/
 #cp ../build/gateware/build/documentation/_build/latex/cramiumsocrisc-vcorecomplex.pdf docs/
+
+# Add license headers
+python3 ./licenseheaders.py
 
 # sync the docs to the web
 rsync -a --delete ../build/gateware/build/documentation/_build/html/* bunnie@ci.betrusted.io:/var/cramium-cpu/
