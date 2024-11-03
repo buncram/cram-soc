@@ -1547,56 +1547,86 @@ module bio_bdma #(
     // tie off unused pins
     assign ahbm.hsel = '1;
 `else
+    // tie unused outputs
     logic [15:0] axi2ahb_bid_null;
     logic [15:0] axi2ahb_rid_null;
     logic       axi2ahb_rlast_null;
+    logic [15:0] axi2ahb_ruser_null;
+    logic [3:0] axi2ahb_hprot_null;
+    logic       axi2ahb_hmastlock_null;
+    logic       axi2ahb_extreq_null;
+    logic [15:0] axi2ahb_hauser_null;
+    logic [15:0] axi2ahb_hruser_null;
     CM7AAB # (
         .DW_64(0)
     ) peri_axi2ahb (
         .CLK(dmaclk),
         .nSYSRESET(reset_n),
-        // tie unused outputs
-        .BID(axi2ahb_bid_null),
-        .RID(axi2ahb_rid_null),
-        .RLAST(axi2ahb_rlast_null),
 
-        .AWID('0),
         .AWADDR(axi_aw_bodge),
-        .AWLEN('0),
+        .AWBURST('0),
+        .AWID('0),
         .AWSIZE(ahb_size_bodge[1:0]),
+        .AWLOCK('0),
+        .AWPROT('0),
+        .AWCACHE('0),
+        .AWUSER('0),
+        .AWLEN('0),
+        .AWSPARSE('0),
         .AWVALID(peri_cdc_axil.aw_valid),
         .AWREADY(peri_cdc_axil.aw_ready),
-        .WDATA(peri_cdc_axil.w_data),
-        .WSTRB(peri_cdc_axil.w_strb),
-        .WLAST('1),
-        .WVALID(peri_cdc_axil.w_valid),
-        .WREADY(peri_cdc_axil.w_ready),
-        // .BID('0),
-        .BRESP(peri_cdc_axil.b_resp),
-        .BVALID(peri_cdc_axil.b_valid),
-        .BREADY(peri_cdc_axil.b_ready),
-        .ARID('0),
+
         .ARADDR(peri_cdc_axil.ar_addr),
+        .ARBURST('0),
+        .ARID('0),
         .ARLEN('0),
         .ARSIZE(2'b10), // always read full words
+        .ARLOCK('0),
+        .ARPROT('0),
+        .ARCACHE('0),
+        .ARUSER('0),
         .ARVALID(peri_cdc_axil.ar_valid),
         .ARREADY(peri_cdc_axil.ar_ready),
-        // .RID('0),
-        .RDATA(peri_cdc_axil.r_data),
-        .RRESP(peri_cdc_axil.r_resp),
-        // .RLAST(peri_cdc_axil.),
-        .RVALID(peri_cdc_axil.r_valid),
-        .RREADY(peri_cdc_axil.r_ready),
 
-        .HADDR(ahbm.haddr),
-        .HBURST(ahbm.hburst),
-        .HSIZE(ahbm.hsize[1:0]),
+        .WLAST('1),
+        .WSTRB(peri_cdc_axil.w_strb),
+        .WDATA(peri_cdc_axil.w_data),
+        .WUSER('0),
+        .WVALID(peri_cdc_axil.w_valid),
+        .WREADY(peri_cdc_axil.w_ready),
+
+        .RREADY(peri_cdc_axil.r_ready),
+        .RVALID(peri_cdc_axil.r_valid),
+        .RID(axi2ahb_rid_null),
+        .RLAST(axi2ahb_rlast_null),
+        .RDATA(peri_cdc_axil.r_data),
+        .RUSER(axi2ahb_ruser_null),
+        .RRESP(peri_cdc_axil.r_resp),
+
+        .BVALID(peri_cdc_axil.b_valid),
+        .BREADY(peri_cdc_axil.b_ready),
+        .BRESP(peri_cdc_axil.b_resp),
+        .BID(axi2ahb_bid_null),
+
         .HTRANS(ahbm.htrans),
+        .HBURST(ahbm.hburst),
+        .HADDR(ahbm.haddr),
         .HWRITE(ahbm.hwrite),
+        .HSIZE(ahbm.hsize[1:0]),
         .HWDATA(ahbm.hwdata),
-        .HRDATA(ahbm.hrdata),
+        .HPROT(axi2ahb_hprot_null),
+        .HMASTLOCK(axi2ahb_hmastlock_null),
+
         .HREADY(ahbm.hready),
-        .HRESP(ahbm.hresp)
+        .HRDATA(ahbm.hrdata),
+        .HRESP(ahbm.hresp),
+
+        .EXREQ(axi2ahb_extreq_null),
+        .EXRESP('0),
+
+        .HAUSER(axi2ahb_hauser_null),
+        .HWUSER(axi2ahb_hwuser_null),
+        .HRUSER('0)
     );
     assign ahbm.hprot = '0;
     assign ahbm.hmaster = '0;
