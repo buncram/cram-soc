@@ -1944,7 +1944,9 @@ module picorv32_regs_bio #(
         else if (wen & (waddr == 6'd26)) begin
             gpio_mask <= wdata;
         end
+    end
 
+    always_ff @(posedge clk or negedge reset_n) begin
         if (!reset_n) event_mask <= 32'h0;
         else if (wen & (waddr == 6'd27)) begin
             event_mask <= wdata;
