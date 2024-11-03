@@ -1518,7 +1518,7 @@ module bio_bdma #(
 
         .HADDR(ahbm.haddr),
         .HBURST(ahbm.hburst),
-        .HSIZE(ahbm.hsize[1:0]),
+        .HSIZE(ahbm.hsize),
         .HTRANS(ahbm.htrans),
         .HWRITE(ahbm.hwrite),
         .HWDATA(ahbm.hwdata),
@@ -1545,7 +1545,7 @@ module bio_bdma #(
     logic       axi2ahb_hmastlock_null;
     logic       axi2ahb_extreq_null;
     logic [15:0] axi2ahb_hauser_null;
-    logic [15:0] axi2ahb_hruser_null;
+    logic [15:0] axi2ahb_hwuser_null;
     CM7AAB # (
         .DW_64(0)
     ) peri_axi2ahb (
@@ -1601,7 +1601,7 @@ module bio_bdma #(
         .HBURST(ahbm.hburst),
         .HADDR(ahbm.haddr),
         .HWRITE(ahbm.hwrite),
-        .HSIZE(ahbm.hsize[1:0]),
+        .HSIZE(ahbm.hsize[2:0]),
         .HWDATA(ahbm.hwdata),
         .HPROT(axi2ahb_hprot_null),
         .HMASTLOCK(axi2ahb_hmastlock_null),
