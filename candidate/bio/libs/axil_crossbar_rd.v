@@ -180,35 +180,32 @@ generate
 
         integer i;
 
-        initial begin
-            for (i = 0; i < 2**FIFO_ADDR_WIDTH; i = i + 1) begin
-                fifo_select[i] = 0;
-                fifo_decerr[i] = 0;
-            end
-        end
-
-        always @(posedge clk) begin
-            if (fifo_wr_en) begin
-                fifo_select[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_select;
-                fifo_decerr[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_decerr;
-                fifo_wr_ptr_reg <= fifo_wr_ptr_reg + 1;
-            end
-
-            fifo_rd_valid_reg <= fifo_rd_valid_reg && !fifo_rd_en;
-
-            if ((fifo_rd_ptr_reg != fifo_wr_ptr_reg) && (!fifo_rd_valid_reg || fifo_rd_en)) begin
-                fifo_rd_select_reg <= fifo_select[fifo_rd_ptr_reg[FIFO_ADDR_WIDTH-1:0]];
-                fifo_rd_decerr_reg <= fifo_decerr[fifo_rd_ptr_reg[FIFO_ADDR_WIDTH-1:0]];
-                fifo_rd_valid_reg <= 1'b1;
-                fifo_rd_ptr_reg <= fifo_rd_ptr_reg + 1;
-            end
-
-            fifo_half_full_reg <= $unsigned(fifo_wr_ptr_reg - fifo_rd_ptr_reg) >= 2**(FIFO_ADDR_WIDTH-1);
-
+        always @(posedge clk or posedge rst) begin
             if (rst) begin
                 fifo_wr_ptr_reg <= 0;
                 fifo_rd_ptr_reg <= 0;
                 fifo_rd_valid_reg <= 1'b0;
+                for(i = 0; i < 2**FIFO_ADDR_WIDTH; i = i + 1) begin
+                    fifo_select[i] <= 0;
+                    fifo_decerr[i] <= 0;
+                end
+            end else begin
+                if (fifo_wr_en) begin
+                    fifo_select[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_select;
+                    fifo_decerr[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_decerr;
+                    fifo_wr_ptr_reg <= fifo_wr_ptr_reg + 1;
+                end
+
+                fifo_rd_valid_reg <= fifo_rd_valid_reg && !fifo_rd_en;
+
+                if ((fifo_rd_ptr_reg != fifo_wr_ptr_reg) && (!fifo_rd_valid_reg || fifo_rd_en)) begin
+                    fifo_rd_select_reg <= fifo_select[fifo_rd_ptr_reg[FIFO_ADDR_WIDTH-1:0]];
+                    fifo_rd_decerr_reg <= fifo_decerr[fifo_rd_ptr_reg[FIFO_ADDR_WIDTH-1:0]];
+                    fifo_rd_valid_reg <= 1'b1;
+                    fifo_rd_ptr_reg <= fifo_rd_ptr_reg + 1;
+                end
+
+                fifo_half_full_reg <= $unsigned(fifo_wr_ptr_reg - fifo_rd_ptr_reg) >= 2**(FIFO_ADDR_WIDTH-1);
             end
         end
 
@@ -344,26 +341,23 @@ generate
 
         integer i;
 
-        initial begin
-            for (i = 0; i < 2**FIFO_ADDR_WIDTH; i = i + 1) begin
-                fifo_select[i] = 0;
-            end
-        end
-
-        always @(posedge clk) begin
-            if (fifo_wr_en) begin
-                fifo_select[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_select;
-                fifo_wr_ptr_reg <= fifo_wr_ptr_reg + 1;
-            end
-            if (fifo_rd_en) begin
-                fifo_rd_ptr_reg <= fifo_rd_ptr_reg + 1;
-            end
-
-            fifo_half_full_reg <= $unsigned(fifo_wr_ptr_reg - fifo_rd_ptr_reg) >= 2**(FIFO_ADDR_WIDTH-1);
-
+        always @(posedge clk or posedge rst) begin
             if (rst) begin
                 fifo_wr_ptr_reg <= 0;
                 fifo_rd_ptr_reg <= 0;
+                for (i = 0; i < 2**FIFO_ADDR_WIDTH; i = i + 1) begin
+                    fifo_select[i] <= 0;
+                end
+            end else begin
+                if (fifo_wr_en) begin
+                    fifo_select[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_select;
+                    fifo_wr_ptr_reg <= fifo_wr_ptr_reg + 1;
+                end
+                if (fifo_rd_en) begin
+                    fifo_rd_ptr_reg <= fifo_rd_ptr_reg + 1;
+                end
+
+                fifo_half_full_reg <= $unsigned(fifo_wr_ptr_reg - fifo_rd_ptr_reg) >= 2**(FIFO_ADDR_WIDTH-1);
             end
         end
 
