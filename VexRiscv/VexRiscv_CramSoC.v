@@ -1,6 +1,6 @@
-// Generator : SpinalHDL dev    git head : a86a458deafc582dd15d8ffbb85e8818b92f2edc
+// Generator : SpinalHDL dev    git head : 6267700ddb59e620e105615c5624bc2b0965dc23
 // Component : VexRiscvAxi4
-// Git hash  : 1b0ee47bc539b425b592e7dedf7307538e451190
+// Git hash  : 84bd723ac00e11ef9c1dc1843821160ba0d903fb
 
 `timescale 1ns/1ps
 
@@ -2305,7 +2305,6 @@ module VexRiscvAxi4 (
   `endif
 
   (* ram_style = "distributed" *) reg [31:0] RegFilePlugin_regFile [0:31] /* verilator public */ ;
-  (* ram_style = "block" *) reg [31:0] memory_AesZknPlugin_rom_storage_1 [0:511];
 
   assign _zz_when = ({decodeExceptionPort_valid,IBusCachedPlugin_decodeExceptionPort_valid} != 2'b00);
   assign _zz_memory_MUL_LOW = ($signed(_zz_memory_MUL_LOW_1) + $signed(_zz_memory_MUL_LOW_5));
@@ -2651,9 +2650,6 @@ module VexRiscvAxi4 (
     end
   end
 
-  initial begin
-    $readmemb("VexRiscv_CramSoC.v_toplevel_memory_AesZknPlugin_rom_storage_1.bin",memory_AesZknPlugin_rom_storage_1);
-  end
   InstructionCache IBusCachedPlugin_cache (
     .io_flush                              (IBusCachedPlugin_cache_io_flush                           ), //i
     .io_cpu_prefetch_isValid               (IBusCachedPlugin_cache_io_cpu_prefetch_isValid            ), //i
