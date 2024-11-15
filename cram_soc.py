@@ -31,6 +31,7 @@ from litex.soc.interconnect.axi import AXIInterface
 from soc_oss.axi_ram import AXIRAM
 
 from cram_common import CramSoC
+from cram_udma import CramSoCUdma
 
 import shutil
 
@@ -482,6 +483,9 @@ def sim_args(parser):
     # compatibility with demo scripts
     parser.add_argument("--build",                action="store_true",     help="compatibility flag, ignored by this script")
 
+    # UDMA simulation variant
+    parser.add_argument("--udma",                 action="store_true",     help="use UDMA variant of SoC")
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
@@ -515,35 +519,66 @@ def main():
     else:
         platform = XsimPlatform(_io)
 
-    soc = CramSoC(
-        platform,
-        variant="sim",
-        bios_path=bios_path,
-        boot_offset=args.boot_offset,
-        sys_clk_freq=sys_clk_freq,
-        sim_debug          = args.sim_debug,
-        trace_reset_on     = False,
-        production_models  = production_models,
-        **soc_kwargs
-    )
-    if args.speed == "fast":
-        nosave = True
+    if args.udma:
+        soc = CramSoCUdma(
+            platform,
+            variant="sim",
+            bios_path=bios_path,
+            boot_offset=args.boot_offset,
+            sys_clk_freq=sys_clk_freq,
+            sim_debug          = args.sim_debug,
+            trace_reset_on     = False,
+            production_models  = production_models,
+            **soc_kwargs
+        )
+        if args.speed == "fast":
+            nosave = True
+        else:
+            nosave = False
+
+        # Add extensions for each simulator --------------------------------------------------------
+        CramSoCUdma.common_extensions = common_extensions
+        soc.common_extensions()
+
+        if simulator == 'verilator':
+            CramSoCUdma.sim_extensions = verilator_extensions
+            soc.sim_extensions(nosave)
+
+            def pre_run_callback(vns):
+                generate_gtkw_savefile(builder, vns)
+        else:
+            CramSoCUdma.xsim_extensions = xsim_extensions
+            soc.xsim_extensions()
     else:
-        nosave = False
+        soc = CramSoC(
+            platform,
+            variant="sim",
+            bios_path=bios_path,
+            boot_offset=args.boot_offset,
+            sys_clk_freq=sys_clk_freq,
+            sim_debug          = args.sim_debug,
+            trace_reset_on     = False,
+            production_models  = production_models,
+            **soc_kwargs
+        )
+        if args.speed == "fast":
+            nosave = True
+        else:
+            nosave = False
 
-    # Add extensions for each simulator --------------------------------------------------------
-    CramSoC.common_extensions = common_extensions
-    soc.common_extensions()
+        # Add extensions for each simulator --------------------------------------------------------
+        CramSoC.common_extensions = common_extensions
+        soc.common_extensions()
 
-    if simulator == 'verilator':
-        CramSoC.sim_extensions = verilator_extensions
-        soc.sim_extensions(nosave)
+        if simulator == 'verilator':
+            CramSoC.sim_extensions = verilator_extensions
+            soc.sim_extensions(nosave)
 
-        def pre_run_callback(vns):
-            generate_gtkw_savefile(builder, vns)
-    else:
-        CramSoC.xsim_extensions = xsim_extensions
-        soc.xsim_extensions()
+            def pre_run_callback(vns):
+                generate_gtkw_savefile(builder, vns)
+        else:
+            CramSoC.xsim_extensions = xsim_extensions
+            soc.xsim_extensions()
 
     # turn off regular_comb for simulation
     rc=True
