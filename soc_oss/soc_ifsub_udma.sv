@@ -1,6 +1,10 @@
 `include "template.sv"
 
 module soc_ifsub_udma #(
+    parameter DW = 32,
+    parameter AHW = 32,  // AHB address width
+    parameter IDW = 4,
+    parameter UW = 4,
     parameter IOC = 16*6,
     parameter EVCNT = 128,
     parameter ERRCNT = 1
@@ -52,11 +56,9 @@ module soc_ifsub_udma #(
     // unconnected internal
     padcfg_arm_t  iocfg[0:IOC-1];
 
-    ahbif.slave                 ahbs;
-    ahbif.master                ahbm;
-    ahb_thru converter ( .ahbslave(ahbs), .ahbmaster( ahbm ));
+    ahbif  #(.AW(AHW),.DW(DW),.IDW(IDW),.UW(UW)) ahbs;
     ahb_wire2ifm ahb_wire2ifm (
-        .ahbmaster(ahbm),
+        .ahbmaster(ahbs),
         .hsel(hsel),
         .haddr(haddr),
         .htrans(htrans),
@@ -83,15 +85,6 @@ module soc_ifsub_udma #(
         end
     endgenerate
 
-/*
-    iopad_to_wire iopad_to_wire(
-        .iopad (iopad),
-        .pi,
-        .po,
-        .oe,
-        .pu
-    );
-*/
     parameter IFEVCNT0       = 19*4;
     parameter IFEVCNT        = IFEVCNT0 + 2*4;
         parameter N_SPIM         = 4;

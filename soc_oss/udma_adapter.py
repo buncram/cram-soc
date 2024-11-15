@@ -91,9 +91,14 @@ class UdmaAdapter(Module):
 
     @staticmethod
     def add_sources(platform):
-        shutil.copy('./soc_oss/rtl/common/amba_interface_def_v0.1.sv', './build/sim/gateware/')
+        # shutil.copy('./soc_oss/rtl/common/amba_interface_def_v0.1.sv', './build/sim/gateware/')
         shutil.copy('./soc_oss/rtl/common/io_interface_def_v0.1.sv', './build/sim/gateware/')
         shutil.copy('./soc_oss_tapeout/rtl/common/template_v0.1.sv', './build/sim/gateware/')
+
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "common")
+        platform.add_source(os.path.join(rtl_dir, "ram_interface_def_v0.3.sv"))
+        platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
+        platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "candidate", "bio", "soc")
         platform.add_source(os.path.join(rtl_dir, "axi_pkg.sv"))
@@ -109,10 +114,6 @@ class UdmaAdapter(Module):
         platform.add_source(os.path.join(rtl_dir, "gnrl_sramc_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "pulp_icg_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "ahbsramc_v0.1.sv"))
-
-        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "common")
-        platform.add_source(os.path.join(rtl_dir, "ram_interface_def_v0.3.sv"))
-        platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "amba")
         platform.add_source(os.path.join(rtl_dir, "amba_components_v0.2.sv"))
@@ -135,6 +136,9 @@ class UdmaAdapter(Module):
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "ambabuilder", "logical", "cmsdk_ahb_to_apb", "verilog")
         platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_apb.v"))
 
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "ambabuilder", "logical", "cmsdk_ahb_to_sram", "verilog")
+        platform.add_source(os.path.join(rtl_dir, "cmsdk_ahb_to_sram.v"))
+
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "ips", "common_cells", "src", "deprecated")
         platform.add_source(os.path.join(rtl_dir, "pulp_sync_wedge.sv"))
         platform.add_source(os.path.join(rtl_dir, "pulp_sync.sv"))
@@ -148,12 +152,12 @@ class UdmaAdapter(Module):
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "bio", "soc")
         # platform.add_source(os.path.join(rtl_dir, "template_v0.1.sv"))
-        platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
+        # platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
         platform.add_source(os.path.join(rtl_dir, "io_interface_def_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "apb_sfr_v0.1.sv"))
         # platform.add_source(os.path.join(rtl_dir, "icg_v0.2.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_intf.sv"))
-        platform.add_source(os.path.join(rtl_dir, "daric_cfg_sim_v0.1.sv"))
+        platform.add_source(os.path.join(rtl_dir, "daric_cfg_sim_v0.1.sv")) # this crashes the sim
         # platform.add_source(os.path.join(rtl_dir, "axi_pkg.sv")) # as `include already
 
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "bio")
@@ -181,16 +185,15 @@ class UdmaAdapter(Module):
         soc_sources = [
             "ifram_v0.1.sv",
             "ifsub1_intf_v0.1.sv",
-            "iom_v0.1.sv",
+            ### "iom_v0.1.sv",
             "iox_v0.3.sv",
             "pwm_intf_v0.1.sv",
-            "soc_ifsub_udma.sv",
-            #"udma_adc_ts_reg_if_v0.1.sv",
-            #"udma_adc_ts_top_v0.1.sv",
-            "udma_scif_reg_v0.1.sv",
-            "udma_scif_rx_v0.1.sv",
-            "udma_scif_tx_v0.1.sv",
-            "udma_scif_v0.1.sv",
+            ### "udma_adc_ts_reg_if_v0.1.sv",
+            ### "udma_adc_ts_top_v0.1.sv",
+            #"udma_scif_reg_v0.1.sv",
+            #"udma_scif_rx_v0.1.sv",
+            #"udma_scif_tx_v0.1.sv",
+            #"udma_scif_v0.1.sv",
             "udma_spis_reg_v0.2.sv",
             "udma_spis_txrx_v0.1.sv",
             "udma_spis_v0.3.sv",
@@ -202,14 +205,14 @@ class UdmaAdapter(Module):
         udma_paths = [
             "../soc_oss/ips/udma/udma_core",
             "../soc_oss/ips/udma/udma_camera",
-            "../soc_oss/ips/udma/udma_i2c",
-            "../soc_oss/ips/udma/udma_i2s",
-            "../soc_oss/ips/udma/udma_uart",
-            "../soc_oss/ips/udma/udma_filter",
+            #"../soc_oss/ips/udma/udma_i2c",
+            #"../soc_oss/ips/udma/udma_i2s",
+            #"../soc_oss/ips/udma/udma_uart",
+            #"../soc_oss/ips/udma/udma_filter",
             "../soc_oss/ips/udma/udma_qspi",
-            "../soc_oss/ips/udma/udma_sdio",
+            #"../soc_oss/ips/udma/udma_sdio",
             "../do_not_checkin/s32-nto/ips/axi/axi_slice_dc/src",
-            "../soc_mpw/ips/ahb_mbxif",
+            "../soc_mpw/ips/ahb_bmxif2",
         ]
         for udma in udma_paths:
             search_root = Path(Path(os.path.dirname(__file__)) / udma)
@@ -218,3 +221,5 @@ class UdmaAdapter(Module):
             for file in files:
                 platform.add_source(file)
 
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss")
+        platform.add_source(os.path.join(rtl_dir, "soc_ifsub_udma.sv"))
