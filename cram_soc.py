@@ -323,12 +323,19 @@ def verilator_extensions(self, nosave=False):
             self.comb += self.platform.trace.eq(1)
 
     # Clockgen cluster -------------------------------------------------------------------------
-    reset_cycles = 32
+    reset_cycles = 64
     reset_counter = Signal(log2_int(reset_cycles), reset=reset_cycles - 1)
     ic_reset      = Signal(reset=1)
     self.sync.por += \
         If(reset_counter != 0,
-            reset_counter.eq(reset_counter - 1)
+            reset_counter.eq(reset_counter - 1),
+            If(reset_counter > reset_cycles // 2,
+               # start with reset de-asserted so we can capture the rising edge of reset
+               # to correctly reset async reset logic that needs an assertion transition to work properly.
+               ic_reset.eq(0)
+            ).Else(
+                ic_reset.eq(1)
+            )
         ).Else(
             ic_reset.eq(0)
         )

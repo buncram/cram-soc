@@ -107,7 +107,7 @@ class CramSoCUdma(SoCCore):
         self.axi_peri_map = {
             "testbench"   : [0x4008_0000, 0x1_0000], # 64k
             "duart"       : [0x4004_2000, 0x0_1000],
-            "mbox_apb"    : [0x4001_3000, 0x0_1000],
+            # "mbox_apb"    : [0x4001_3000, 0x0_1000],
             # "pio"       : [0x5012_3000, 0x0_1000],
             # "bio"       : [0x5012_4000, 0x0_2000],
             "periph"      : [0x5000_0000, 0x20_0000], # this absorbs all the I/O blocks
@@ -241,7 +241,7 @@ class CramSoCUdma(SoCCore):
             if name == "testbench":
                 # connect the testbench master
                 self.bus.add_master(name="pbus", master=self.testbench_axil)
-            elif name == "periph":
+            else:
                 # connect the SoC via AHB adapters
                 setattr(self, name + "_slower_axil", AXILiteInterface(clock_domain="p", name=name + "_slower_axil"))
                 setattr(self.submodules, name + "_slower_axi",
