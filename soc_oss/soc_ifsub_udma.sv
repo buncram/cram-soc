@@ -108,8 +108,8 @@ module soc_ifsub_udma #(
     apbif #(.PAW(16)) apbpers();
     axiif #(.DW(32)) axiudma();
 
-generate
-    if(1) begin: __gen_amba
+//generate
+//    if(1) begin: __gen_amba
 
     ahb_thru bmxifs0 ( .ahbslave(ahbs), .ahbmaster( bmxifs[0] ));
 
@@ -176,8 +176,8 @@ generate
     );
 
     apbs_nulls #(.SLVCNT(11))uapbpernull (.apbslave(apbper[4:14]) );
-    end
-endgenerate
+//    end
+//endgenerate
 
 //  INT/EV
 //  ====
@@ -251,8 +251,8 @@ endgenerate
     ioif                  sddc_dat2();
     ioif                  sddc_dat3();
 
-generate
-    if(1) begin: __gen_pers
+//generate
+//    if(1) begin: __gen_pers
     ahbif #(.AW(32)) sdahbm[0:2]();
             // [0]  udc.ahbm
             // [1] sddc.ahbm
@@ -292,8 +292,8 @@ generate
         .apbx_fifo(apbper[9:12])
     );
 `endif
-    end
-endgenerate
+//    end
+//endgenerate
 
 //pwmgpiosrc
 
@@ -341,8 +341,8 @@ endgenerate
         ioif      spis_mosi[N_SPIS-1:0](),spis_mosi_a[N_SPIS-1:0](),spis_mosi_b[N_SPIS-1:0]();
         ioif      spis_miso[N_SPIS-1:0](),spis_miso_a[N_SPIS-1:0](),spis_miso_b[N_SPIS-1:0]();
 
-generate
-    if(1) begin: __gen_udma
+//generate
+//    if(1) begin: __gen_udma
     logic clk16m, clk16m_unbuf, clk16m_reg;
     `theregfull( clk32m, resetn, clk16m_reg, '0 ) <= ~clk16m_reg;
     assign clk16m_unbuf = cmsatpg ? clk : clk16m_reg;
@@ -409,8 +409,8 @@ ifsub1
                               .*
 );
 
-    end
-endgenerate
+//    end
+//endgenerate
 
 //  IOMUX
 //  ====
@@ -418,10 +418,10 @@ endgenerate
     localparam AFC = 4;
     localparam GW = 16;
 
-generate
-    if(1) begin: __gen_iomux
+//generate
+//    if(1) begin: __gen_iomux
     ioif   af1[0:95](),   af2[0:95](),   af3[0:95]();
-    ioif   iopad[0:95]();
+//    ioif   iopad[0:95]();
 
     ioif afnc();
     ionc uionc(.iodrv(afnc));
@@ -765,8 +765,8 @@ afconn afc_F15(.afomask( afom_F[15] ), .afo1( af1_F[15] ), .afo2( af2_F[15] ), .
     afconn afc_F14(.afomask( afom_F[14] ) .afo1( af1_F[14] ), .afo2( af2_F[14] ), .afo3( af3_F[14] ), .afi1( afnc        ), .afi2( afnc        ), .afi3( afnc        ));
     afconn afc_F15(.afomask( afom_F[15] ) .afo1( af1_F[15] ), .afo2( af2_F[15] ), .afo3( af3_F[15] ), .afi1( afnc        ), .afi2( afnc        ), .afi3( afnc        ));
 */
-    end
-endgenerate
+//    end
+//endgenerate
 
 endmodule
 
