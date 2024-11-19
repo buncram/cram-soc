@@ -1,5 +1,3 @@
-import axi_pkg::*;
-
 package daric_cfg;
 // AXIM ID
 // ==
