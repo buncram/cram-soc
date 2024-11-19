@@ -25,7 +25,7 @@
 // - Wolfgang Roenninger <wroennin@iis.ee.ethz.ch>
 // - Andreas Kurth <akurth@iis.ee.ethz.ch>
 
-`include "axi_pkg.sv"
+// `include "axi_pkg.sv"
 
 /// An AXI4 interface.
 interface AXI_BUS #(
