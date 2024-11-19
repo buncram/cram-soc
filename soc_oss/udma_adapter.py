@@ -37,13 +37,13 @@ class UdmaAdapter(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
-            i_pclk = ClockSignal(),
+            i_clk = ClockSignal("pclk"),
+            i_pclk = ClockSignal("pclk"),
             i_pclken = tie_one,
-            i_clk32m = ClockSignal(),
-            i_clkao25m = ClockSignal(),
-            i_resetn = ~ResetSignal(),
-            i_perclk = ClockSignal(),
+            i_clk32m = ClockSignal("pclk"),
+            i_clkao25m = ClockSignal("pclk"),
+            i_resetn = ~ResetSignal("pclk"),
+            i_perclk = ClockSignal("pclk"),
             i_cmsatpg = Open(),
             i_cmsbist = Open(),
             # i_sramtrm = Open(3),
@@ -63,9 +63,9 @@ class UdmaAdapter(Module):
             i_haddr                = s_ahb.addr,          # Address bus
             i_htrans               = s_ahb.trans,         # Transfer type
             i_hwrite               = s_ahb.write,         # Transfer direction
-            i_hsize                = s_ahb.size,          # Transfer size
-            i_hburst               = s_ahb.burst,         # Burst type
-            i_hmasterlock          = s_ahb.mastlock,      # Locked Sequence
+            i_hsize                = 2, # s_ahb.size,         # Transfer size
+            i_hburst               = 0, # s_ahb.burst,         # Burst type
+            i_hmasterlock          = 0, # s_ahb.mastlock,      # Locked Sequence
             i_hwdata               = s_ahb.wdata,         # Write data
             i_hreadyin             = tie_one, # Not sure if this is correct?
 
@@ -145,8 +145,13 @@ class UdmaAdapter(Module):
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "tech_cells_generic", "src", "deprecated")
         platform.add_source(os.path.join(rtl_dir, "pulp_clock_gating_async.sv"))
 
-        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "do_not_checkin", "s32-tapeout", "lib", "arm_sram_macro", "ifram32kx36")
+        # ARM model => not fully supported by verilator
+        #rtl_dir = os.path.join(os.path.dirname(__file__), "..", "do_not_checkin", "s32-tapeout", "lib", "arm_sram_macro", "ifram32kx36")
+        #platform.add_source(os.path.join(rtl_dir, "ifram32kx36.v"))
+        # abstract model => less accurate but works with verilator
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
         platform.add_source(os.path.join(rtl_dir, "ifram32kx36.v"))
+
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "do_not_checkin", "s32-tapeout", "ips", "common_cells", "src")
         platform.add_source(os.path.join(rtl_dir, "onehot_to_bin.sv"))
 
