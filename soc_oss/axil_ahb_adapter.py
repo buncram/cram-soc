@@ -22,7 +22,7 @@ from soc_oss.axi_common import *
 
 PRODUCTION_MODULE="CM7AAB"
 SIMULATION_MODULE="axi2ahb"
-SELECTED_MODULE=SIMULATION_MODULE
+SELECTED_MODULE=PRODUCTION_MODULE
 class AXILite2AHBAdapter(Module):
     def __init__(self, platform, s_axil, m_ahb):
         self.logger = logging.getLogger("AXILite2AHBAdapter")
@@ -194,10 +194,14 @@ class AXILite2AHBAdapter(Module):
     @staticmethod
     def add_sources(platform):
         if SELECTED_MODULE == PRODUCTION_MODULE:
-            rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "rtl", "cm7aab", "verilog")
+            # CM7AAB sources - proprietary sim model for validation against SoC sources
+            # TODO: remove once we have validated that we don't need this anymore (e.g. we have a clean test against full chip source)
+            rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_mpw", "ips", "cortexm7", "logical", "cm7aab", "verilog")
             platform.add_source(os.path.join(rtl_dir, "cm7aab_axi.v"))
             platform.add_source(os.path.join(rtl_dir, "cm7aab_ahb.v"))
             platform.add_source(os.path.join(rtl_dir, "CM7AAB.v"))
+            platform.add_source(os.path.join(rtl_dir, "cortexm7_decl_axi_types.v"))
+            platform.add_source(os.path.join(rtl_dir, "cortexm7_decl_ahb_types.v"))
         else:
             rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "axi2ahb")
             platform.add_source(os.path.join(rtl_dir, "axi2ahb.v"))
