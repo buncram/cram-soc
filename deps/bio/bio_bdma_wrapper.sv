@@ -378,7 +378,7 @@ module bio_bdma_wrapper #(
         .pslverr      (FP3_PSLVERR    )
     );
 
-    ahb_ifs2wire ahbtrans(
+    ahb_ifs2wire_bdma ahbtrans(
         .ahbslave     (dma_ahb32      ),
         .hsel         (hsel           ),
         .haddr        (haddr          ),
@@ -488,7 +488,7 @@ endmodule
 //  ahb_ifs2wire,ahb_wire2ifm,apb_ifs2wire,apb_wire2ifm
 //  ==
 
-module ahb_ifs2wire #(
+module ahb_ifs2wire_bdma #(
     parameter AW=32,
     parameter DW=32
     )(
@@ -526,7 +526,7 @@ module ahb_ifs2wire #(
 
 endmodule
 
-module ahb_wire2ifm #(
+module ahb_wire2ifm_bdma #(
     parameter AW=32,
     parameter DW=32
     )(
