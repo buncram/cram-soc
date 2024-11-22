@@ -205,9 +205,9 @@ class BioBdmaAdapter(Module):
             i_pclk = ClockSignal(),
             i_hclk = ClockSignal("h_clk"),
             i_resetn = ~ResetSignal(),
-            i_cmatpg = Open(),
-            i_cmbist = Open(),
-            i_sramtrm = Open(3),
+            i_cmatpg = 0,
+            i_cmbist = 0,
+            i_sramtrm = 0,
 
             # APB Slave interface
             # --------------------------
@@ -410,6 +410,11 @@ class BioBdmaAdapter(Module):
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "candidate", "bio", "soc")
         platform.add_source(os.path.join(rtl_dir, "axi_pkg.sv"))
 
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl")
+        platform.add_source(os.path.join(rtl_dir, "rbist_intf.sv"))
+        rtl_dir = os.path.join(os.path.dirname(__file__), "..", "soc_oss", "rtl", "model")
+        platform.add_source(os.path.join(rtl_dir, "artisan_ram_def_v0.1.svh"))
+
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "deps", "bio", "soc")
         # platform.add_source(os.path.join(rtl_dir, "template_v0.1.sv"))
         platform.add_source(os.path.join(rtl_dir, "amba_interface_def_v0.2.sv"))
@@ -453,6 +458,7 @@ class BioBdmaAdapter(Module):
         rtl_dir = os.path.join(os.path.dirname(__file__), "..", "sim_support")
         platform.add_source(os.path.join(rtl_dir, "cdc_blinded.v"))
         platform.add_source(os.path.join(rtl_dir, "cdc_level_to_pulse.sv"))
+        platform.add_source(os.path.join(rtl_dir, "bioram1kx32.v"))
 
         # CM7AAB sources - proprietary sim model for validation against SoC sources
         # TODO: remove once we have validated that we don't need this anymore (e.g. we have a clean test against full chip source)
