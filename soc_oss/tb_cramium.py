@@ -12,9 +12,7 @@ from litex.build.sim import SimPlatform
 _io = [
     ("clk",  0, Pins(1)),
     ("reset", 0, Pins(1)),
-    ("gpio_to_dut",  0, Pins(32)),
-    ("gpio_from_dut",  0, Pins(32)),
-    ("gpio_oe",  0, Pins(32)),
+    ("gpio",  0, Pins(32)),
     ("test", 0, Pins(32)),
 ]
 
@@ -50,7 +48,6 @@ class Tb(Module):
 
         self.i2c = Signal()
         self.force = Signal()
-        self.loop_oe = Signal()
         self.invert = Signal()
         self.force_val = Signal(16)
 
@@ -58,8 +55,6 @@ class Tb(Module):
         self.comb += [
             self.i2c.eq(test[0]),
             self.force.eq(test[1]),
-            # self.loop_oe.eq(test[2]),
-            # self.invert.eq(test[3]),
             self.force_val.eq(test[16:]),
         ]
 
@@ -151,30 +146,32 @@ class Tb(Module):
             # i2c_sda_peripheral_drive_low.eq(1),
         )
 
-        self.gpio_o = platform.request("gpio_to_dut")
-        self.gpio_i = platform.request("gpio_from_dut")
-        self.gpio_oe = platform.request("gpio_oe")
+        self.gpio = platform.request("gpio")
         gpio_o = Signal(32)
         gpio_i = Signal(32)
         gpio_oe = Signal(32)
-        self.comb += [
-            i2c_sda.eq(~(i2c_sda_controller_drive_low | gpio_oe[2] | i2c_sda_peripheral_drive_low)), # fake I2C wire-OR
-        ]
         for i in range(32):
+            self.gpio_ts = TSTriple()
+            self.specials += self.gpio_ts.get_tristate(self.gpio[i])
             self.comb += [
-                self.gpio_o[i].eq(gpio_i[i]),
-                gpio_oe[i].eq(self.gpio_oe[i]),
-                gpio_o[i].eq(self.gpio_i[i]),
+                gpio_i[i].eq(self.gpio_ts.i),
+                self.gpio_ts.oe.eq(gpio_oe[i]),
+                self.gpio_ts.o.eq(gpio_o[i]),
             ]
+
+        for i in range(32):
             if (i == 2): # SDA
                 self.comb += [
                     If(self.i2c,
-                        gpio_i[i].eq(i2c_sda)
+                        i2c_sda.eq(gpio_i[i]),
+                        gpio_o[i].eq(0),
+                        gpio_oe[i].eq(i2c_sda_controller_drive_low | i2c_sda_peripheral_drive_low),
                     ).Else(
                         If(self.force,
-                            gpio_i[i].eq(self.force_val[i]),
+                            gpio_oe[i].eq(1),
+                            gpio_o[i].eq(self.force_val[i]),
                         ).Else(
-                            gpio_i[i].eq(gpio_o[i])
+                            gpio_oe[i].eq(0)
                         )
                     )
                 ]
@@ -182,35 +179,38 @@ class Tb(Module):
             elif (i == 3): # SCL
                 self.comb += [
                     If(self.i2c,
-                        gpio_i[i].eq(~gpio_oe[i]), # funky setup to try and "fake" some I2C-ish pullups
-                        i2c_scl.eq(~gpio_oe[i])
+                        i2c_scl.eq(gpio_i[i]),
                     ).Else(
                         If(self.force,
-                            gpio_i[i].eq(self.force_val[i]),
+                            gpio_o[i].eq(self.force_val[i]),
+                            gpio_oe[i].eq(1),
                         ).Else(
-                            gpio_i[i].eq(gpio_o[i]) # loopback o for testing
+                            gpio_oe[i].eq(0),
                         )
                     )
                 ]
             elif (i < 16):
                 self.comb += [
                     If(self.force,
-                        gpio_i[i].eq(self.force_val[i]) # loopback oe
+                        gpio_o[i].eq(self.force_val[i]),
+                        gpio_oe[i].eq(1),
                     ).Else(
-                        gpio_i[i].eq(gpio_o[i])
+                        gpio_oe[i].eq(0),
+                        gpio_o[i].eq(0)
                     )
                 ]
             else:
                 self.comb += [
                     If(self.force,
-                        gpio_i[i].eq(self.force_val[i - 16]),
+                        gpio_o[i].eq(~self.force_val[i - 16]),
+                        gpio_oe[i].eq(1)
                     ).Else(
-                        gpio_i[i].eq(gpio_o[i])
+                        gpio_oe[i].eq(0)
                     )
                 ]
 
-cdc = Tb(platform)
+tb = Tb(platform)
 
 # Build --------------------------------------------------------------------------------------------
 
-platform.build(cdc, build_dir="../sim_support", build_name="bio_tb")
+platform.build(tb, build_dir="../sim_support", build_name="bio_tb_nto")
