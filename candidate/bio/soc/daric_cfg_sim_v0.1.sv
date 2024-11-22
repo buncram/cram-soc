@@ -9,8 +9,6 @@
 // MERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A PARTICULAR PURPOSE.
 // Please see the [CERN-OHL- W-2.0] for applicable conditions.
 
-import axi_pkg::*;
-
 package daric_cfg;
 // AXIM ID
 // ==
