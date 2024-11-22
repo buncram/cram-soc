@@ -46,8 +46,8 @@ class BioBdmaAdapter(Module):
         if sim:
             self.i2c = Signal()
             self.force = Signal()
-            self.loop_oe = Signal()
-            self.invert = Signal()
+            # self.loop_oe = Signal()
+            # self.invert = Signal()
             self.force_val = Signal(16)
 
             FAILING_ADDRESS = 0x17
@@ -155,11 +155,9 @@ class BioBdmaAdapter(Module):
                             gpio_i[i].eq(i2c_sda)
                         ).Else(
                             If(self.force,
-                                gpio_i[i].eq(self.force_val[i - 16]),
-                            ).Elif(self.loop_oe,
-                                gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                                gpio_i[i].eq(self.force_val[i]),
                             ).Else(
-                                gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                                gpio_i[i].eq(gpio_o[i])
                             )
                         )
                     ]
@@ -171,30 +169,26 @@ class BioBdmaAdapter(Module):
                             i2c_scl.eq(~gpio_oe[i])
                         ).Else(
                             If(self.force,
-                                gpio_i[i].eq(self.force_val[i - 16]),
-                            ).Elif(self.loop_oe,
-                                gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                                gpio_i[i].eq(self.force_val[i]),
                             ).Else(
-                                gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                                gpio_i[i].eq(gpio_o[i])
                             )
                         )
                     ]
                 elif (i < 16):
                     self.comb += [
-                        If(self.loop_oe,
-                            gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                        If(self.force,
+                            gpio_i[i].eq(self.force_val[i]) # loopback oe
                         ).Else(
-                            gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                            gpio_i[i].eq(gpio_o[i])
                         )
                     ]
                 else:
                     self.comb += [
                         If(self.force,
-                            gpio_i[i].eq(self.force_val[i - 16]),
-                        ).Elif(self.loop_oe,
-                            gpio_i[i].eq(gpio_oe[i]) # loopback oe
+                            gpio_i[i].eq(~self.force_val[i - 16]),
                         ).Else(
-                            gpio_i[i].eq(gpio_o[i] ^ self.invert) # loopback o for testing
+                            gpio_i[i].eq(gpio_o[i])
                         )
                     ]
             else:
