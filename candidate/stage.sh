@@ -25,8 +25,7 @@ cp ../sim_support/mbox_client.v ./mbox/rtl/
 cp ../sim_support/ram_1w_1ra.v ./libs/
 cp ../sim_support/ram_1w_1rs.v ./libs/
 cp ../sim_support/fdre_cosim.v ./libs/
-# note renaming because test bench environment is different for production RTL
-cp ../sim_support/bio_tb_nto.v ./tb/bio_tb.v
+cp ../sim_support/bio_tb.v ./tb/
 cp ../VexRiscv/VexRiscv_CramSoC.v ./libs/
 cp ../VexRiscv/memory_AesZknPlugin_rom_storage_Rom_1rs.v ./libs/
 cp ../build/gateware/cram_axi.v .
