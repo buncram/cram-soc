@@ -331,8 +331,8 @@ class CramSoC(SoCCore):
                         self.comb += [
                             self.bioadapter.i2c.eq(self.test[0]),
                             self.bioadapter.force.eq(self.test[1]),
-                            self.bioadapter.loop_oe.eq(self.test[2]),
-                            self.bioadapter.invert.eq(self.test[3]),
+                            # self.bioadapter.loop_oe.eq(self.test[2]),
+                            # self.bioadapter.invert.eq(self.test[3]),
                             self.bioadapter.force_val.eq(self.test[16:]),
                         ]
                 elif name == "bio_bdma":
@@ -414,8 +414,8 @@ class CramSoC(SoCCore):
                         self.comb += [
                             self.bioadapter.i2c.eq(self.test[0]),
                             self.bioadapter.force.eq(self.test[1]),
-                            self.bioadapter.loop_oe.eq(self.test[2]),
-                            self.bioadapter.invert.eq(self.test[3]),
+                            # self.bioadapter.loop_oe.eq(self.test[2]),
+                            # self.bioadapter.invert.eq(self.test[3]),
                             self.bioadapter.force_val.eq(self.test[16:]),
                         ]
 
