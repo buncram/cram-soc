@@ -86,6 +86,7 @@ module bio_bdma #(
     input logic         reset_n,
     input logic         cmatpg, cmbist,
     input logic [2:0]   sramtrm,
+    rbif.slave          rbif_bioram1kx32[4],
 
     ioif.drive          bio_gpio[0:31],
     // interrupt sources originating from BIO
@@ -1753,6 +1754,7 @@ module bio_bdma #(
                 .q(ram_rd_data[j]),
                 .cmbist(cmbist),
                 .cmatpg(cmatpg),
+                .rbs(rbif_bioram1kx32[j]),
                 .sramtrm(sramtrm)
             );
 

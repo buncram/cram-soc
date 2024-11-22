@@ -211,7 +211,7 @@ module bio_bdma_wrapper #(
     output wire                 FP3_PREADY    ,
     output wire                 FP3_PSLVERR
 );
-
+    rbif  #(.AW(10   ),      .DW(32))    rbif_bioram1kx32    [0:3]();
     apbif #(.PAW(APW)) theapb();
     ahbif #(.AW(AHW),.DW(DW),.IDW(IDW),.UW(UW)) dma_ahb32();
     apbif #(.PAW(APW)) apb_imem[4](), apb_fifo[4]();
@@ -471,6 +471,7 @@ module bio_bdma_wrapper #(
         .cmbist  ,
         .sramtrm ,
         .bio_gpio,
+        .rbif_bioram1kx32,
         .irq     (irq),
         .dmareq  (dmareq),
         .apbs    (theapb),
