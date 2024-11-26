@@ -133,8 +133,8 @@ if __name__ == "__main__":
     # Each entry has this format:
     #     Path( path_to_file ) : 'top_level_module_name'
     verilog_files = {
-        Path("./candidate/libs/VexRiscv_CramSoC.v") : 'VexRiscvAxi4',
-        Path("./candidate/cram_axi.v") : 'cram_axi',
+        Path("./libs/VexRiscv_CramSoC.v") : 'VexRiscvAxi4',
+        Path("./cram_axi.v") : 'cram_axi',
     }
     module_ports_to_add = {
         ("Ram_1w_1rs", "RAM_DP_1024_32") : ".rbif_rdram1kx32",
