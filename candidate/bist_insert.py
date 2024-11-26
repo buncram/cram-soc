@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-def add_ports_to_module(file_path, module_ports_map):
+def add_ports_to_module(file_path, module_ports_map, top_ram_ports=None):
     """
     Parses a Verilog file, finds module instantiations, and adds specified ports to them.
 
@@ -15,7 +15,6 @@ def add_ports_to_module(file_path, module_ports_map):
     with open(file_path, 'r') as file:
         lines = file.read()
 
-    olines = f'// Post-processing pass by bist_insert.py on {str(datetime.now())}\n'
     module_pattern = re.compile(
         # Captures everything up until the very last "endmodule" statement; trailing comments
         # & whitespace need to be separately handled.
@@ -52,9 +51,12 @@ def add_ports_to_module(file_path, module_ports_map):
                 if port in ports_added:
                     start = ports_added[port]
                 else:
-                    start = 0
+                    if port in top_ram_ports:
+                        start = top_ram_ports[port]
+                    else:
+                        start = 0
                 ports_added[port] = start + count
-                modified_instance += f"\t\t{port}\t\t({port.lstrip('.')}[{start + count - 1}:{start}]),\n"
+                modified_instance += f"\t\t{port}\t\t({port.lstrip('.')}[{start}:{start + count - 1}]),\n"
             modified_instance += match.group(5)
         else:
             modified_instance = match.group(1) + match.group(2) + match.group(3) + match.group(4) + match.group(5)
@@ -98,28 +100,13 @@ def add_ports_to_module(file_path, module_ports_map):
                 )
                 bisted_code = instance_pattern.sub(add_port_to_instance, bisted_code)
 
-        bist_params = ''
-        for port, count in ports_added.items():
-            bist_params += f'\trbif.slave\t{port}[{count}],\n'
-        modules[module_name] = [mod.group(1), mod.group(2), bist_params, mod.group(4), bisted_code]
-        if len(ports_added) > 0:
-            module_ports[module_name] = {}
-            for port, count in ports_added.items():
-                module_ports[module_name][port] = count
-
-        for c in modules[module_name]:
-            olines += c
+        modules[module_name] = [mod.group(1), mod.group(2), ports_added, mod.group(4), bisted_code]
 
     # extract the end matter and append it
     em = end_matter.search(lines)
-    olines += em.group(2)
+    end_matter = em.group(2)
 
-    # Write the modified Verilog content back to the file
-    with open(file_path.parent / Path(file_path.stem + '.sv'), 'w') as file:
-        file.write(olines)
-
-    print(f"Modified file saved to {file_path.stem + '.sv'}; added {module_ports}")
-    return module_ports
+    return (modules, end_matter)
 
 def extract_modules(file_path):
     modules_found = {}
@@ -158,29 +145,94 @@ if __name__ == "__main__":
     }
 
     # pass #1 - insert BIST ports into the RAM and leaf cell module decl
-    module_ports_added = {}
+    next_level_ports = {}
     for file, top_level in verilog_files.items():
-        for (mod, ports) in add_ports_to_module(file, module_ports_to_add).items():
-            module_ports_added[mod] = ports
+        (modules, end_matter) = add_ports_to_module(file, module_ports_to_add)
 
         sv_file = Path(str(file).replace('.v', '.sv'))
+        module_ports = {}
+        top_ram_ports = {}
+        with open(sv_file, 'w') as f:
+            olines = f'// Post-processing pass by bist_insert.py on {str(datetime.now())}\n\n'
+            for module_name, code_elements in modules.items():
+                bist_params = ''
+                # convert code_elements[2] from a dict into a str
+                if module_name != top_level:
+                    ports_added = code_elements[2]
+                    for port, count in ports_added.items():
+                        p = port.lstrip('.')
+                        bist_params += f'\trbif.slave\t{p}[{count}],\n'
+                else:
+                    # defer finalization until later
+                    top_ram_ports = code_elements[2]
+                    ports_added = {}
+
+                code_elements[2] = bist_params
+
+                if len(ports_added) > 0:
+                    module_ports[module_name] = {}
+                    for port, count in ports_added.items():
+                        module_ports[module_name][port] = count
+
+                for c in code_elements:
+                    olines += c
+            olines += end_matter
+            f.write(olines)
+
+        # at this point on the top level, all of the leaf-level RAMs instantiated at that
+        # level have .rbif_xxx[n] ports inserted where n starts at 0 and goes to count-1.
+        # however, the very top level module definition has not yet been inserted. In the
+        # next step we have to aggregate ports of the same type and merge them to create
+        # the correct count.
+        if len(next_level_ports) != 0:
+            for module, ports in next_level_ports.items():
+                module_ports[module] = ports
+
+        def insert_port(port, count):
+            if port in module_ports[module_name]:
+                start = module_ports[module_name][port]
+            else:
+                start = 0
+            module_ports[module_name][port] = start + count
+            p = port.lstrip('.')
+            return f'\trbif.slave\t{p}[{start}:{count + start - 1}],\n'
 
         # pass #2 - go through processed files and propagate leaf cells to top module
         #   1. iterate through each module
         #   2. search for instances of modules that were modified - these are the keys in the dictionary
-        #      `module_ports_added`
+        #      `module_ports`
         #   3. add the new ports to the found instance - this may require merging port counts
         #   4. return a list of the module instantiations that were modified
         #   5. if the list was not empty, repeat 1.
         ports_at_level = {}
-        while True:
-            print(f'entering pass 2 with {module_ports_added}')
-            for (mod, ports) in add_ports_to_module(sv_file, module_ports_added).items():
-                ports_at_level[mod] = ports
-            module_ports_added = ports_at_level
-            if len(ports_at_level) == 1 and top_level in ports_at_level:
-                ports_at_level = {}
-                break
-            else:
-                ports_at_level = {}
-        print(f'end {file}, {module_ports_added}')
+        print(f'entering pass 2 with {module_ports}')
+        (modules, end_matter) = add_ports_to_module(sv_file, module_ports, top_ram_ports)
+        with open(sv_file, 'w') as f:
+            olines = ''
+            bist_params = ''
+            for module_name, code_elements in modules.items():
+                if module_name not in module_ports: # create an entry if one doesn't exist
+                    module_ports[module_name] = {}
+                bist_params = ''
+
+                if len(code_elements[2]) > 0:
+                    ports_added = code_elements[2]
+                    for port, count in ports_added.items():
+                        bist_params += insert_port(port, count)
+                        if port in top_ram_ports:
+                            del top_ram_ports[port]
+
+                    for port, count in top_ram_ports.items():
+                        bist_params += insert_port(port, count)
+
+                    code_elements[2] = bist_params
+                else:
+                    code_elements[2] = ''
+
+                for c in code_elements:
+                    olines += c
+            olines += end_matter
+            f.write(olines)
+        print(f'end {file}, {module_ports}')
+        if top_level in module_ports:
+            next_level_ports[top_level] = module_ports[top_level]
