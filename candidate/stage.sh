@@ -95,6 +95,13 @@ cp ../deps/pio/rp_pio.sv pio/rtl/
 # Add license headers
 python3 ./licenseheaders.py
 
+# Insert BIST
+python3 ./bist_insert.py
+
+# Remove non-BIST versions of models: only the .sv extension is valid.
+rm cram_axi.v
+rm libs/VexRiscv_CramSoC.v
+
 # sync the docs to the web
 rsync -a --delete ../build/gateware/build/documentation/_build/html/* bunnie@ci.betrusted.io:/var/cramium-cpu/
 rsync -a --delete ../build/doc/daric_doc/_build/html/* bunnie@ci.betrusted.io:/var/cramium/
