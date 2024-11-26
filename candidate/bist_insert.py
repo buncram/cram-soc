@@ -39,7 +39,8 @@ def add_ports_to_module(file_path, module_ports_map, top_ram_ports=None):
             else:
                 count = 1
             ports_added[new_port] = count
-            modified_instance = match.group(1) + match.group(3) + f"\t\t{new_port}[{count - 1}],\n" + match.group(4) + ";"
+            p = new_port.lstrip('.')
+            modified_instance = match.group(1) + match.group(3) + f"\t\t.rbs\t({p}[{count - 1}]),\n" + match.group(4) + ";"
         else:
             modified_instance = match.group(1) + match.group(3) + match.group(4) + ";"
         return modified_instance
