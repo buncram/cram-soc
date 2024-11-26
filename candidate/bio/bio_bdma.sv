@@ -1794,6 +1794,7 @@ module bio_bdma #(
                 .q(ram_rd_data[j]),
                 .cmbist(cmbist),
                 .cmatpg(cmatpg),
+                .rbs(rbif_bioram1kx32[j]),
                 .sramtrm(sramtrm)
             );
             always_ff @(posedge aclk) begin
