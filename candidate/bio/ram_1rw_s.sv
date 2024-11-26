@@ -34,6 +34,7 @@ module Ram_1rw_s #(
     input  wire                             wr_n,    // gwen on RAM maacro
     input  wire                             ce_n,
     input  wire [wrMaskWidth -1:0]          wr_mask_n, // wen[n-1] on RAM macro
+    rbif.slave                              rbs,
     input  wire                             cmbist, // dummy pins for test insertion
     input  wire                             cmatpg, // dummy pins for test insertion
     input  wire [2:0]                       sramtrm // dummy pins for trim insertion
@@ -45,6 +46,7 @@ parameter WORD_SIZE = DataWidth/WORD_WIDTH;
 parameter RAM_DATA_WIDTH = DataWidth;
 parameter RAM_ADDR_WIDTH = AddressWidth;
 
+`ifdef FPGA
 reg [RAM_DATA_WIDTH-1:0] mem[(2**RAM_ADDR_WIDTH)-1:0];
 
 integer i, j;
@@ -69,6 +71,64 @@ always @(posedge clk) begin
         q <= q;
     end
 end
+
+`else
+    localparam AW = AddressWidth;
+    localparam DW = DataWidth;
+
+    logic rb_clk;
+    logic rb_cen;
+    logic [AW-1:0] rb_addr;
+    logic [DW-1:0] rb_data;
+    logic [DW-1:0] rb_wenb;
+    logic [DW-1:0] rb_wr_data;
+    logic rb_gwen;
+    logic [DW-1:0] wenb;
+
+    // This needs checking - not sure if this is correct!
+    integer i;
+    always @(*) begin
+        for (i = 0; i < DW; i++) begin
+            wenb[i] = wr_mask_n[i / WORD_SIZE];
+        end
+    end
+
+    rbspmux #(.AW(AW),.DW(DW))rbmux(
+            .cmsatpg   (cmatpg),
+            .cmsbist   (cmbist),
+            .clk     (clk      ),
+            .q       (q        ),
+            .cen     (ce_n     ),
+            .gwen    (wr_n     ),
+            .wen     (wenb     ),
+            .a       (addr     ),
+            .d       (d        ),
+            .rb_clk  (rb_clk   ),
+            .rb_q    (rb_data  ),
+            .rb_cen  (rb_cen   ),
+            .rb_gwen (rb_gwen  ),
+            .rb_wen  (rb_wenb  ),
+            .rb_a    (rb_addr  ),
+            .rb_d    (rb_wr_data),
+            .rbs     (rbs      )
+        );
+
+    generate
+        if(ramname=="RAM_SP_512_32") begin: gen_RAM_SP_512_32
+            bioram1kx32 m(
+            .clk    (rb_clk    ),
+            .cen    (rb_cen    ),
+            .a      (rb_addr   ),
+            .q      (rb_data   ),
+            .d      (rb_wr_data),
+            .gwen   (rb_gwen   ),
+            .wen    (rb_wenb   ),
+            `rf_sp_hde_inst_cache // not sure if this is correct
+            );
+        end
+     endgenerate
+
+`endif
 
 endmodule
 
