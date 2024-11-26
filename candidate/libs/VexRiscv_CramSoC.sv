@@ -1,4 +1,4 @@
-// Post-processing pass by bist_insert.py on 2024-11-26 23:38:53.553417
+// Post-processing pass by bist_insert.py on 2024-11-27 00:07:19.227244
 
 // (c) Copyright CrossBar, Inc. 2024.
 //
@@ -10497,7 +10497,7 @@ module DataCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_0_tags (
-		.rbif_rdram128x22[0],
+		.rbs	(rbif_rdram128x22[0]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_0_tags_wr_en                ), //i
     .wr_mask (1'b1                             ), //i
@@ -10525,7 +10525,7 @@ module DataCache (
     .rdDataWidth(32),
     .ramname("RAM_DP_1024_32")
   ) ways_0_data (
-		.rbif_rdram1kx32[0],
+		.rbs	(rbif_rdram1kx32[0]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_0_data_wr_en                ), //i
     .wr_mask (dataWriteCmd_payload_mask[3:0]   ), //i
@@ -10553,7 +10553,7 @@ module DataCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_1_tags (
-		.rbif_rdram128x22[1],
+		.rbs	(rbif_rdram128x22[1]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_1_tags_wr_en                ), //i
     .wr_mask (1'b1                             ), //i
@@ -10581,7 +10581,7 @@ module DataCache (
     .rdDataWidth(32),
     .ramname("RAM_DP_1024_32")
   ) ways_1_data (
-		.rbif_rdram1kx32[1],
+		.rbs	(rbif_rdram1kx32[1]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_1_data_wr_en                ), //i
     .wr_mask (dataWriteCmd_payload_mask[3:0]   ), //i
@@ -10609,7 +10609,7 @@ module DataCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_2_tags (
-		.rbif_rdram128x22[2],
+		.rbs	(rbif_rdram128x22[2]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_2_tags_wr_en                ), //i
     .wr_mask (1'b1                             ), //i
@@ -10637,7 +10637,7 @@ module DataCache (
     .rdDataWidth(32),
     .ramname("RAM_DP_1024_32")
   ) ways_2_data (
-		.rbif_rdram1kx32[2],
+		.rbs	(rbif_rdram1kx32[2]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_2_data_wr_en                ), //i
     .wr_mask (dataWriteCmd_payload_mask[3:0]   ), //i
@@ -10665,7 +10665,7 @@ module DataCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_3_tags (
-		.rbif_rdram128x22[3],
+		.rbs	(rbif_rdram128x22[3]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_3_tags_wr_en                ), //i
     .wr_mask (1'b1                             ), //i
@@ -10693,7 +10693,7 @@ module DataCache (
     .rdDataWidth(32),
     .ramname("RAM_DP_1024_32")
   ) ways_3_data (
-		.rbif_rdram1kx32[3],
+		.rbs	(rbif_rdram1kx32[3]),
     .wr_clk  (clk                              ), //i
     .wr_en   (ways_3_data_wr_en                ), //i
     .wr_mask (dataWriteCmd_payload_mask[3:0]   ), //i
@@ -11809,7 +11809,7 @@ module InstructionCache (
     .rdDataWidth(64),
     .ramname("RAM_DP_512_64")
   ) banks_0 (
-		.rbif_rdram512x64[0],
+		.rbs	(rbif_rdram512x64[0]),
     .wr_clk  (clk                                         ), //i
     .wr_en   (banks_0_wr_en                               ), //i
     .wr_mask (1'b1                                        ), //i
@@ -11837,7 +11837,7 @@ module InstructionCache (
     .rdDataWidth(64),
     .ramname("RAM_DP_512_64")
   ) banks_1 (
-		.rbif_rdram512x64[1],
+		.rbs	(rbif_rdram512x64[1]),
     .wr_clk  (clk                                         ), //i
     .wr_en   (banks_1_wr_en                               ), //i
     .wr_mask (1'b1                                        ), //i
@@ -11865,7 +11865,7 @@ module InstructionCache (
     .rdDataWidth(64),
     .ramname("RAM_DP_512_64")
   ) banks_2 (
-		.rbif_rdram512x64[2],
+		.rbs	(rbif_rdram512x64[2]),
     .wr_clk  (clk                                         ), //i
     .wr_en   (banks_2_wr_en                               ), //i
     .wr_mask (1'b1                                        ), //i
@@ -11893,7 +11893,7 @@ module InstructionCache (
     .rdDataWidth(64),
     .ramname("RAM_DP_512_64")
   ) banks_3 (
-		.rbif_rdram512x64[3],
+		.rbs	(rbif_rdram512x64[3]),
     .wr_clk  (clk                                         ), //i
     .wr_en   (banks_3_wr_en                               ), //i
     .wr_mask (1'b1                                        ), //i
@@ -11921,7 +11921,7 @@ module InstructionCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_0_tags (
-		.rbif_rdram128x22[0],
+		.rbs	(rbif_rdram128x22[0]),
     .wr_clk  (clk                                        ), //i
     .wr_en   (ways_0_tags_wr_en                          ), //i
     .wr_mask (1'b1                                       ), //i
@@ -11949,7 +11949,7 @@ module InstructionCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_1_tags (
-		.rbif_rdram128x22[1],
+		.rbs	(rbif_rdram128x22[1]),
     .wr_clk  (clk                                        ), //i
     .wr_en   (ways_1_tags_wr_en                          ), //i
     .wr_mask (1'b1                                       ), //i
@@ -11977,7 +11977,7 @@ module InstructionCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_2_tags (
-		.rbif_rdram128x22[2],
+		.rbs	(rbif_rdram128x22[2]),
     .wr_clk  (clk                                        ), //i
     .wr_en   (ways_2_tags_wr_en                          ), //i
     .wr_mask (1'b1                                       ), //i
@@ -12005,7 +12005,7 @@ module InstructionCache (
     .rdDataWidth(22),
     .ramname("RAM_DP_128_22")
   ) ways_3_tags (
-		.rbif_rdram128x22[3],
+		.rbs	(rbif_rdram128x22[3]),
     .wr_clk  (clk                                        ), //i
     .wr_en   (ways_3_tags_wr_en                          ), //i
     .wr_mask (1'b1                                       ), //i
