@@ -112,7 +112,7 @@ end
             .d      (rb_wr_data),
             .gwen   (rb_gwen   ),
             .wen    (rb_wenb   ),
-            `rf_sp_hde_inst_cache // not sure if this is correct
+            `rf_sp_hde_inst_bio
             );
         end
      endgenerate
