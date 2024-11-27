@@ -86,7 +86,7 @@ module bio_bdma #(
     input logic         reset_n,
     input logic         cmatpg, cmbist,
     input logic [2:0]   sramtrm,
-    rbif.slave          rbif_bioram1kx32[4],
+    rbif.slave          rbif_bioram1kx32[0:3],
 
     ioif.drive          bio_gpio[0:31],
     // interrupt sources originating from BIO
@@ -102,12 +102,12 @@ module bio_bdma #(
     apbif.slave         apbx,
 
     // memory pages for instruction memory, one per core
-    apbif.slavein       apbs_imem[4],
-    apbif.slave         apbx_imem[4],
+    apbif.slavein       apbs_imem[0:3],
+    apbif.slave         apbx_imem[0:3],
 
     // page-mapped FIFO ins/outs/status for easy OS integration
-    apbif.slavein       apbs_fifo[4],
-    apbif.slave         apbx_fifo[4],
+    apbif.slavein       apbs_fifo[0:3],
+    apbif.slave         apbx_fifo[0:3],
 
     // above 0x6000_0000 (inclusive) go to this AXI interface on HCLK. The matrix is AXI-native.
     axiif.master        axim,
