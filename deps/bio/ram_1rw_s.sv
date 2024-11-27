@@ -65,6 +65,10 @@ end
     localparam AW = AddressWidth;
     localparam DW = DataWidth;
 
+    logic cen_gate, clk_gate;
+    assign #0.5 cen_gate = ce_n;
+    ICG icg(.CK(clk),.EN(~cen_gate),.SE(cmatpg),.CKG(clk_gate));
+
     logic rb_clk;
     logic rb_cen;
     logic [AW-1:0] rb_addr;
@@ -85,9 +89,9 @@ end
     rbspmux #(.AW(AW),.DW(DW))rbmux(
             .cmsatpg   (cmatpg),
             .cmsbist   (cmbist),
-            .clk     (clk      ),
+            .clk     (clk_gate ),
             .q       (q        ),
-            .cen     (ce_n     ),
+            .cen     (cen_gate ),
             .gwen    (wr_n     ),
             .wen     (wenb     ),
             .a       (addr     ),
