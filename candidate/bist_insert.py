@@ -162,7 +162,7 @@ if __name__ == "__main__":
                     ports_added = code_elements[2]
                     for port, count in ports_added.items():
                         p = port.lstrip('.')
-                        bist_params += f'\trbif.slave\t{p}[{count}],\n'
+                        bist_params += f'\trbif.slavedp\t{p}[{count}],\n'
                 else:
                     # defer finalization until later
                     top_ram_ports = code_elements[2]
@@ -196,7 +196,7 @@ if __name__ == "__main__":
                 start = 0
             module_ports[module_name][port] = start + count
             p = port.lstrip('.')
-            return f'\trbif.slave\t{p}[{start}:{count + start - 1}],\n'
+            return f'\trbif.slavedp\t{p}[{start}:{count + start - 1}],\n'
 
         # pass #2 - go through processed files and propagate leaf cells to top module
         #   1. iterate through each module
