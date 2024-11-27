@@ -1,4 +1,4 @@
-// Post-processing pass by bist_insert.py on 2024-11-27 00:07:19.227244
+// Post-processing pass by bist_insert.py on 2024-11-27 14:12:06.210503
 
 // (c) Copyright CrossBar, Inc. 2024.
 //
@@ -18,9 +18,9 @@
 `timescale 1ns/1ps
 
 module VexRiscvAxi4 (
-	rbif.slave	rbif_rdram1kx32[0:3],
-	rbif.slave	rbif_rdram128x22[0:7],
-	rbif.slave	rbif_rdram512x64[0:3],
+	rbif.slavedp	rbif_rdram1kx32[0:3],
+	rbif.slavedp	rbif_rdram128x22[0:7],
+	rbif.slavedp	rbif_rdram512x64[0:3],
   input      [31:0]   externalResetVector,
   output reg          CsrPlugin_inWfi /* verilator public */ ,
   input               timerInterrupt,
@@ -10110,8 +10110,8 @@ module JtagBridge (
 endmodule
 
 module DataCache (
-	rbif.slave	rbif_rdram1kx32[4],
-	rbif.slave	rbif_rdram128x22[4],
+	rbif.slavedp	rbif_rdram1kx32[4],
+	rbif.slavedp	rbif_rdram128x22[4],
   input               io_cpu_execute_isValid,
   input      [31:0]   io_cpu_execute_address,
   output reg          io_cpu_execute_haltIt,
@@ -11549,8 +11549,8 @@ module DataCache (
 endmodule
 
 module InstructionCache (
-	rbif.slave	rbif_rdram512x64[4],
-	rbif.slave	rbif_rdram128x22[4],
+	rbif.slavedp	rbif_rdram512x64[4],
+	rbif.slavedp	rbif_rdram128x22[4],
   input               io_flush,
   input               io_cpu_prefetch_isValid,
   output reg          io_cpu_prefetch_haltIt,
