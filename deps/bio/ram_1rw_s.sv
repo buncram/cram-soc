@@ -107,7 +107,7 @@ end
         );
 
     generate
-        if(ramname=="RAM_SP_512_32") begin: gen_RAM_SP_512_32
+        if(ramname=="RAM_SP_1024_32") begin: gen_RAM_SP_1024_32
             bioram1kx32 m(
             .clk    (rb_clk    ),
             .cen    (rb_cen    ),
