@@ -1752,7 +1752,7 @@ module bio_bdma #(
                 .DataWidth(32),
                 .wrMaskWidth(4),
                 .wrMaskEnable(1),
-                .ramname("RAM_SP_512_32")
+                .ramname("RAM_SP_1024_32")
             ) imem (
                 .clk(aclk),
                 .wr_n(~(ram_wr_en[j] & (~ext_addr_la[j] | ~imem_wr_mode[j]))),
@@ -1781,7 +1781,7 @@ module bio_bdma #(
                 .DataWidth(32),
                 .wrMaskWidth(4),
                 .wrMaskEnable(1),
-                .ramname("RAM_SP_512_32")
+                .ramname("RAM_SP_1024_32")
             ) imem (
                 .clk(aclk),
                 .wr_n(~(ram_wr_en[j] & (~ext_addr[j] | ~imem_wr_mode[j]))),
