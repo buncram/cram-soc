@@ -5,17 +5,17 @@
 
 PREFIX="../xous-core"
 
-riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-xous-elf/release/loader > listings/load.lst
-riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-xous-elf/release/loader | rustfilt >> listings/load.lst
-riscv-none-elf-objdump $PREFIX/target/riscv32imac-unknown-xous-elf/release/loader -S -d | rustfilt >> listings/load.lst
+riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-none-elf/release/loader > listings/load.lst
+riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-none-elf/release/loader | rustfilt >> listings/load.lst
+riscv-none-elf-objdump $PREFIX/target/riscv32imac-unknown-none-elf/release/loader -S -d | rustfilt >> listings/load.lst
 
-riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-xous-elf/release/xous-kernel > listings/kernel.lst
-riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-xous-elf/release/xous-kernel | rustfilt >> listings/kernel.lst
-riscv-none-elf-objdump $PREFIX/target/riscv32imac-unknown-xous-elf/release/xous-kernel -S -d | rustfilt >> listings/kernel.lst
+riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-none-elf/release/xous-kernel > listings/kernel.lst
+riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-none-elf/release/xous-kernel | rustfilt >> listings/kernel.lst
+riscv-none-elf-objdump $PREFIX/target/riscv32imac-unknown-none-elf/release/xous-kernel -S -d | rustfilt >> listings/kernel.lst
 
-riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-xous-elf/release/cram-console > listings/console.lst
-riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-xous-elf/release/cram-console | rustfilt >> listings/console.lst
-riscv-none-elf-objdump $PREFIX/target/riscv32imac-unknown-xous-elf/release/cram-console -S -d | rustfilt >> listings/console.lst
+#riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-xous-elf/release/cram-console > listings/console.lst
+#riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-xous-elf/release/cram-console | rustfilt >> listings/console.lst
+#riscv-none-elf-objdump $PREFIX/target/riscv32imac-unknown-xous-elf/release/cram-console -S -d | rustfilt >> listings/console.lst
 
 riscv-none-elf-objdump -h $PREFIX/target/riscv32imac-unknown-xous-elf/release/xous-ticktimer > listings/ticktimer.lst
 riscv-none-elf-nm -r --size-sort --print-size $PREFIX/target/riscv32imac-unknown-xous-elf/release/xous-ticktimer | rustfilt >> listings/ticktimer.lst
