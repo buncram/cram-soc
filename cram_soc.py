@@ -109,7 +109,7 @@ _io = [
         Subsignal("success", Pins(1)),
         Subsignal("done", Pins(1)),
         Subsignal("report", Pins(32)),
-        Subsignal("coreuser", Pins(1)),
+        Subsignal("coreuser", Pins(8)),
         Subsignal("sysclk", Pins(1)),
      ),
 
