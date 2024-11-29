@@ -405,9 +405,10 @@ generate
         integer i;
 
         always @(posedge clk or posedge rst) begin
-            fifo_wr_ptr_reg <= 0;
-            fifo_rd_ptr_reg <= 0;
             if (rst) begin
+                fifo_wr_ptr_reg <= 0;
+                fifo_rd_ptr_reg <= 0;
+
                 for(i = 0; i < 2**FIFO_ADDR_WIDTH; i = i + 1) begin
                     fifo_select[i] <= 0;
                 end

@@ -309,8 +309,13 @@ generate
                     thread_count_reg[n] <= thread_count_reg[n] - 1;
                 end
             end
-
-            if (thread_trans_start[n]) begin
+        end
+        always @(posedge clk or posedge rst) begin
+            if (rst) begin
+                thread_id_reg[n] <= 0;
+                thread_m_reg[n] <= 0;
+                thread_region_reg[n] <= 0;
+            end else if (thread_trans_start[n]) begin
                 thread_id_reg[n] <= s_axi_aid;
                 thread_m_reg[n] <= m_select_next;
                 thread_region_reg[n] <= m_axi_aregion_next;
