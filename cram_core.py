@@ -51,7 +51,7 @@ def get_common_ios():
         ("trimming_reset", 0, Pins(32)),
         ("trimming_reset_ena", 0, Pins(1)),
         # coreuser signal
-        ("coreuser", 0, Pins(1)),
+        ("coreuser", 0, Pins(8)),
         # sleep request: wfi active signal gated with interrupt status
         # when high, stop aclk, but leave "always_on" on
         ("sleep_req", 0, Pins(1)),
@@ -1651,6 +1651,7 @@ class cramSoC(SoCCore):
 
     def __init__(self, sys_clk_freq=int(100e6),
                  bios_path='boot/boot.bin',
+                 coreuser_compression=False,
                  **kwargs):
         global bios_size
 
@@ -1689,6 +1690,38 @@ class cramSoC(SoCCore):
                 0xa000_0000 : 0x6000_0000,
             },
             **kwargs)
+
+        self.csr.locs = {
+            'd11ctime': 0,
+            'susres': 1,
+            # 'coreuser': 2,
+            'csrtest': 3,
+            'irqarray0': 4,
+            'irqarray1': 5,
+            'irqarray10': 6,
+            'irqarray11': 7,
+            'irqarray12': 8,
+            'irqarray13': 9,
+            'irqarray14': 10,
+            'irqarray15': 11,
+            'irqarray16': 12,
+            'irqarray17': 13,
+            'irqarray18': 14,
+            'irqarray19': 15,
+            'irqarray2': 16,
+            'irqarray3': 17,
+            'irqarray4': 18,
+            'irqarray5': 19,
+            'irqarray6': 20,
+            'irqarray7': 21,
+            'irqarray8': 22,
+            'irqarray9': 23,
+            'mailbox': 24,
+            'mb_client': 25,
+            'resetvalue': 26,
+            'ticktimer': 27,
+            'timer0': 28,
+        }
 
         self.irq.locs['timer0'] = 30 # fix the IRQ so we don't stomp on MPW compat
         self.cpu.use_external_variant("VexRiscv/VexRiscv_CramSoC.v")
@@ -1784,12 +1817,24 @@ class cramSoC(SoCCore):
         ]
 
         # CoreUser computation ---------------------------------------------------------------------
-        self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
-        self.comb += [
-            self.coreuser.cmbist.eq(cmbist),
-            self.coreuser.cmatpg.eq(cmatpg),
-            self.coreuser.vexsramtrm.eq(vexsramtrm),
-        ]
+        coreuser = platform.request("coreuser")
+        if coreuser_compression:
+            self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
+            self.comb += [
+                self.coreuser.cmbist.eq(cmbist),
+                self.coreuser.cmatpg.eq(cmatpg),
+                self.coreuser.vexsramtrm.eq(vexsramtrm),
+            ]
+        else:
+            spoiler = self.cpu.satp_asid[8]
+            self.comb += [
+                coreuser.eq(self.cpu.satp_asid[:8] # bits 0-7 wired up
+                    # bit 8 is OR'd in so that it "spoils" the ASID if it is set - since coreuser
+                    # hardware only considers the lower 8 bits we don't want an exploit where
+                    # we can simulate a secure process by just "rolling over" the PID
+                    | Cat(spoiler, spoiler, spoiler, spoiler, spoiler, spoiler, spoiler, spoiler)
+                )
+            ]
 
         # WFI breakout -----------------------------------------------------------------------------
         sleep_req = platform.request("sleep_req")
@@ -1870,11 +1915,9 @@ class cramSoC(SoCCore):
 
         # Deterministic timeout helper ---------------------------------------------------------------
         self.submodules.d11ctime = ClockDomainsRenamer({"sys":"always_on"})(D11cTime(count=400_000, sys_clk_freq=sys_clk_freq))
-        self.add_csr("d11ctime")
 
         # Suspend/resume ---------------------------------------------------------------------------
         self.submodules.susres = ClockDomainsRenamer({"sys":"always_on"})(SusRes(bits=64))
-        self.add_csr("susres")
         self.irq.add("susres")
         # wire up signals that cross from the ticktimer's CSR space to the susres CSR space. Allows for virtual memory process isolation
         # between the ticktimer and the suspend resume server, while allowing for cycle-accurate timing on suspend and resume.
