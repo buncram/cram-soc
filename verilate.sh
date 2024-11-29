@@ -70,7 +70,7 @@ then
   # set up the linker for our target
   # cp link-soc.x link.x
   # cd ../
-  cargo xtask cramium-soc # cram-mbox1 cram-mbox2 --kernel-feature fake-rng
+  cargo xtask cramium-soc --loader-feature verilator-only --loader-feature simulation-only --kernel-feature verilator-only
   # cargo xtask cramium-fpga --kernel-feature fake-rng
   cd ../cram-soc
   python3 ./mkimage.py
@@ -92,7 +92,9 @@ else
   cd ../nto-tests
   cp tests/link.x.straight tests/link.x
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
-  cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul
+  # --feature mbox-tests --feature rram-tests --feature udma-tests
+  # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature aes-tests --feature reset-value-tests --feature bio-tests --feature gpio-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature rram-tests --feature timer0-tests
+  cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature reset-value-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature timer0-tests
   python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../daric/daricval/examples/mbox/mbox.bin --out-file=boot.bin
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > /mnt/f/code/cram-soc/listings/boot.lst
@@ -119,6 +121,7 @@ THREADS=5
   echo "Don't forget: finisher.v needs to have the XOUS variable defined according to the target config."
   echo -e "\n\nRun with $THREADS threads" >> stats.txt
   date >> stats.txt
+  # --udma for udma simulations...
   /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --speed $SPEED --bios $BIOS  --boot-offset 0x000000 --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200000000000 --trace-fst # --sim-debug
   echo "Core+SoC build finished."
 #done
