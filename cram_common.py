@@ -461,7 +461,7 @@ class CramSoC(SoCCore):
         # Cramium platform -------------------------------------------------------------------------
         self.sleep_req = Signal()
         self.uart_irq = Signal()
-        self.coreuser = Signal()
+        self.coreuser = Signal(8)
 
         zero_irq = Signal(16)
         irq0_wire_or = Signal(16)
