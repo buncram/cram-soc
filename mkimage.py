@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import argparse
 
-KERNEL_OFFSET=0x28000
+KERNEL_OFFSET=0x6_0000
 TARGET_PATH="../xous-core/target/riscv32imac-unknown-xous-elf/release/"
 def main():
     parser = argparse.ArgumentParser(description="Build a Cramium FPGA dev image")
     parser.add_argument(
-        "--loader", required=False, help="Loader path", type=str, default=TARGET_PATH+"loader_presign.bin"
+        "--loader", required=False, help="Loader path", type=str, default=TARGET_PATH+"loader.bin"
     )
     parser.add_argument(
         "--kernel", required=False, help="Kernel path", type=str, default=TARGET_PATH+"xous.img"
