@@ -58,20 +58,32 @@ class AHB2APB(Module):
               ((ahb.addr & 0x00FF_FFFF) >= base) &
               ((ahb.addr & 0x00FF_FFFF) < (base + (1 << apb.address_width))) &
               (ahb.size  <= log2_int(ahb.data_width//8)) &
-              (ahb.trans == AHBTransferType.NONSEQUENTIAL),
+              (ahb.trans == AHBTransferType.NONSEQUENTIAL) & ~ahb.write,
                 NextValue(apb.paddr, ahb.addr[:apb.address_width]),
-                NextValue(apb.pwrite, ahb.write),
+                NextValue(apb.pwrite, 0),
                 NextValue(apb.psel, 1),
                 NextValue(apb.pwdata, ahb.wdata),
                 NextValue(apb.pstrb, apb_strb),
 
-                NextState("DATA-PHASE"),
+                NextState("DATA-PHASE-READ"),
+            ).Elif(
+              ((ahb.addr & 0x00FF_FFFF) >= base) &
+              ((ahb.addr & 0x00FF_FFFF) < (base + (1 << apb.address_width))) &
+              (ahb.size  <= log2_int(ahb.data_width//8)) &
+              (ahb.trans == AHBTransferType.NONSEQUENTIAL) & ahb.write,
+                NextValue(apb.paddr, ahb.addr[:apb.address_width]),
+                NextValue(apb.pwrite, 1),
+                NextValue(apb.psel, 1),
+                NextValue(apb.pwdata, ahb.wdata),
+                NextValue(apb.pstrb, apb_strb),
+
+                NextState("DATA-PHASE-WRITE"),
             ).Else(
                 NextValue(apb.psel, 0),
                 NextValue(apb.pstrb, 0),
             )
         )
-        fsm.act("DATA-PHASE",
+        fsm.act("DATA-PHASE-READ",
             data_phase.eq(1),
             ahb.resp.eq(apb.pslverr),
             If(apb.pready & apb.penable, # funky hack that adds an extra beat to data-phase, because penable is a NextValue
@@ -81,4 +93,23 @@ class AHB2APB(Module):
             ).Else(
                 NextValue(apb.penable, 1),
             )
+        )
+        # the write data doesn't appear until a cycle later from AHB,
+        # so we can only introduce it here
+        fsm.act("DATA-PHASE-WRITE",
+            NextValue(apb.pwrite, 1),
+            NextValue(apb.pwdata, ahb.wdata),
+            NextValue(apb.psel, 1),
+            NextValue(apb.penable, 1),
+            data_phase.eq(1),
+            ahb.resp.eq(apb.pslverr),
+            NextState("DATA-PHASE-WRITE2"),
+            NextValue(apb.penable, 1),
+        )
+        fsm.act("DATA-PHASE-WRITE2",
+            data_phase.eq(1),
+            NextValue(apb.psel, 0),
+            ahb.resp.eq(apb.pslverr),
+            NextValue(apb.penable, 0),
+            NextState("ADDRESS-PHASE"),
         )
