@@ -69,6 +69,33 @@
 // then we should turn on these options. Question is - are we limited by the VexRV core already?
 // If so, then, might as well go with better IPC in favor of faster cycle time.
 
+// This is required to pass a lint that occurs in Synopsys DC2022+
+typedef struct packed {
+  logic [31:0]    aw_addr;
+  axi_pkg::prot_t aw_prot;
+  logic           aw_valid;
+  logic           aw_ready;
+
+  logic [31:0]    w_data;
+  logic [3:0]     w_strb;
+  logic           w_valid;
+  logic           w_ready;
+
+  axi_pkg::resp_t b_resp;
+  logic           b_valid;
+  logic           b_ready;
+
+  logic [31:0]    ar_addr;
+  axi_pkg::prot_t ar_prot;
+  logic           ar_valid;
+  logic           ar_ready;
+
+  logic [31:0]    r_data;
+  axi_pkg::resp_t r_resp;
+  logic           r_valid;
+  logic           r_ready;
+} bio_axi_lite_t;
+
 module bio_bdma #(
     parameter APW = 12,  // APB address width
     // 0x8000 is offset of the BIO config space
@@ -253,40 +280,22 @@ module bio_bdma #(
     logic [31:0] axi_aw_bodge;
 
     // core AXI-lite endpoints
-    AXI_LITE #(
-        .AXI_ADDR_WIDTH(32),
-        .AXI_DATA_WIDTH(32)
-    ) core_axil();
+    bio_axi_lite_t core_axil;
 
     // memory demux endpoints
-    AXI_LITE #(
-        .AXI_ADDR_WIDTH(32),
-        .AXI_DATA_WIDTH(32)
-    ) mem_axil();
+    bio_axi_lite_t mem_axil;
 
     // peripheral demux endpoints
-    AXI_LITE #(
-        .AXI_ADDR_WIDTH(32),
-        .AXI_DATA_WIDTH(32)
-    ) peri_axil();
+    bio_axi_lite_t peri_axil;
 
     // memory filter endpoints
-    AXI_LITE #(
-        .AXI_ADDR_WIDTH(32),
-        .AXI_DATA_WIDTH(32)
-    ) mem_filtered_axil();
+    bio_axi_lite_t mem_filtered_axil;
 
     // peripheral filter endpoints
-    AXI_LITE #(
-        .AXI_ADDR_WIDTH(32),
-        .AXI_DATA_WIDTH(32)
-    ) peri_filtered_axil();
+    bio_axi_lite_t peri_filtered_axil;
 
     // peripheral clock domain crossing endpoints
-    AXI_LITE #(
-        .AXI_ADDR_WIDTH(32),
-        .AXI_DATA_WIDTH(32)
-    ) peri_cdc_axil();
+    bio_axi_lite_t peri_cdc_axil;
 
     // address range filter wires
     logic disable_filter_mem;
