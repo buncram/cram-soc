@@ -63,8 +63,9 @@ echo "******************** BUILD KERNEL ***********************"
 if [ $TARGET == "xous" ]
 then
   echo "Simulating Xous target"
-  cp build/software/soc.svd ../xous-core/utralib/cramium/
-  cp build/software/core.svd ../xous-core/utralib/cramium/
+  # svd's now come from cram-nto
+  # cp build/software/soc.svd ../xous-core/utralib/cramium/
+  # cp build/software/core.svd ../xous-core/utralib/cramium/
   cd ../xous-core
   # cd ./loader
   # set up the linker for our target
@@ -83,17 +84,17 @@ else
   #cp include/pio_generated.rs ../xous-cramium/libs/xous-pio/src/
   #cp include/pio.svd ../xous-cramium/precursors/
 
-  # copy over all the latest SVD files
-  cp build/software/soc.svd ../nto-tests/svd
-  cp build/software/core.svd ../nto-tests/svd
-  cp include/daric.svd ../nto-tests/svd
+  # copy over all the latest SVD files - not anymore, because these files now come from cram-nto
+  # cp build/software/soc.svd ../nto-tests/svd
+  # cp build/software/core.svd ../nto-tests/svd
+  # cp include/daric.svd ../nto-tests/svd
 
   # build the binary
   cd ../nto-tests
   cp tests/link.x.straight tests/link.x
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
   # --feature mbox-tests --feature rram-tests --feature udma-tests
-  # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature reset-value-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature timer0-tests
+  # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature reset-value-tests --feature aes-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature timer0-tests
   cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature aes-tests --feature reset-value-tests --feature bio-tests --feature gpio-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature rram-tests --feature timer0-tests
   python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../daric/daricval/examples/mbox/mbox.bin --out-file=boot.bin
 
