@@ -10,7 +10,7 @@
 // Please see the [CERN-OHL- W-2.0] for applicable conditions.
 
 
-// SPDX-FileCopyrightText: 2023 Cramium Labs, Inc.
+// SPDX-FileCopyrightText: 2024 CrossBar, Inc.
 // SPDX-License-Identifier: BSD-2-Clause
 
 // Integration wrapper for mbox_client
