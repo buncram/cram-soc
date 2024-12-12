@@ -134,7 +134,7 @@ class Tb(Module):
                     NextState("ACK_D")
                 )
             ),
-            i2c_sda_controller_drive_low.eq(~i2c_dout[7])
+            i2c_sda_controller_drive_low.eq(~i2c_dout[7] & (i2c_ctr != 0))
         )
         i2c_p.act("ACK_D",
             If(~i2c_sda_d & i2c_sda & i2c_scl & i2c_scl_d, # stop condition
