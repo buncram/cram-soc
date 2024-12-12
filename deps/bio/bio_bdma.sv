@@ -1642,7 +1642,7 @@ module bio_bdma #(
     `ifdef FPGA
         logic aclk_buf;
         // insert a BUFH to help with clock mux distribution
-        BUFH aclk_fixer (
+        BUFG aclk_fixer (
             .I(aclk),
             .O(aclk_buf)
         );
