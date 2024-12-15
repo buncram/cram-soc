@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -157,33 +156,33 @@ localparam [1:0]
     STATE_DATA_2 = 2'd2,
     STATE_RESP = 2'd3;
 
-reg [1:0] state_reg = STATE_IDLE, state_next;
+reg [1:0] state_reg, state_next;
 
-reg [AXI_ID_WIDTH-1:0] id_reg = {AXI_ID_WIDTH{1'b0}}, id_next;
-reg [ADDR_WIDTH-1:0] addr_reg = {ADDR_WIDTH{1'b0}}, addr_next;
-reg [DATA_WIDTH-1:0] data_reg = {DATA_WIDTH{1'b0}}, data_next;
-reg [STRB_WIDTH-1:0] strb_reg = {STRB_WIDTH{1'b0}}, strb_next;
-reg [7:0] burst_reg = 8'd0, burst_next;
-reg [2:0] burst_size_reg = 3'd0, burst_size_next;
-reg [2:0] master_burst_size_reg = 3'd0, master_burst_size_next;
-reg burst_active_reg = 1'b0, burst_active_next;
-reg convert_burst_reg = 1'b0, convert_burst_next;
-reg first_transfer_reg = 1'b0, first_transfer_next;
-reg last_segment_reg = 1'b0, last_segment_next;
+reg [AXI_ID_WIDTH-1:0] id_reg, id_next;
+reg [ADDR_WIDTH-1:0] addr_reg, addr_next;
+reg [DATA_WIDTH-1:0] data_reg, data_next;
+reg [STRB_WIDTH-1:0] strb_reg, strb_next;
+reg [7:0] burst_reg, burst_next;
+reg [2:0] burst_size_reg, burst_size_next;
+reg [2:0] master_burst_size_reg, master_burst_size_next;
+reg burst_active_reg, burst_active_next;
+reg convert_burst_reg, convert_burst_next;
+reg first_transfer_reg, first_transfer_next;
+reg last_segment_reg, last_segment_next;
 
-reg s_axi_awready_reg = 1'b0, s_axi_awready_next;
-reg s_axi_wready_reg = 1'b0, s_axi_wready_next;
-reg [AXI_ID_WIDTH-1:0] s_axi_bid_reg = {AXI_ID_WIDTH{1'b0}}, s_axi_bid_next;
-reg [1:0] s_axi_bresp_reg = 2'd0, s_axi_bresp_next;
-reg s_axi_bvalid_reg = 1'b0, s_axi_bvalid_next;
+reg s_axi_awready_reg, s_axi_awready_next;
+reg s_axi_wready_reg, s_axi_wready_next;
+reg [AXI_ID_WIDTH-1:0] s_axi_bid_reg, s_axi_bid_next;
+reg [1:0] s_axi_bresp_reg, s_axi_bresp_next;
+reg s_axi_bvalid_reg, s_axi_bvalid_next;
 
-reg [ADDR_WIDTH-1:0] m_axil_awaddr_reg = {ADDR_WIDTH{1'b0}}, m_axil_awaddr_next;
-reg [2:0] m_axil_awprot_reg = 3'd0, m_axil_awprot_next;
-reg m_axil_awvalid_reg = 1'b0, m_axil_awvalid_next;
-reg [AXIL_DATA_WIDTH-1:0] m_axil_wdata_reg = {AXIL_DATA_WIDTH{1'b0}}, m_axil_wdata_next;
-reg [AXIL_STRB_WIDTH-1:0] m_axil_wstrb_reg = {AXIL_STRB_WIDTH{1'b0}}, m_axil_wstrb_next;
-reg m_axil_wvalid_reg = 1'b0, m_axil_wvalid_next;
-reg m_axil_bready_reg = 1'b0, m_axil_bready_next;
+reg [ADDR_WIDTH-1:0] m_axil_awaddr_reg, m_axil_awaddr_next;
+reg [2:0] m_axil_awprot_reg, m_axil_awprot_next;
+reg m_axil_awvalid_reg, m_axil_awvalid_next;
+reg [AXIL_DATA_WIDTH-1:0] m_axil_wdata_reg, m_axil_wdata_next;
+reg [AXIL_STRB_WIDTH-1:0] m_axil_wstrb_reg, m_axil_wstrb_next;
+reg m_axil_wvalid_reg, m_axil_wvalid_next;
+reg m_axil_bready_reg, m_axil_bready_next;
 
 assign s_axi_awready = s_axi_awready_reg;
 assign s_axi_wready = s_axi_wready_reg;
@@ -528,45 +527,63 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
-    state_reg <= state_next;
-
-    id_reg <= id_next;
-    addr_reg <= addr_next;
-    data_reg <= data_next;
-    strb_reg <= strb_next;
-    burst_reg <= burst_next;
-    burst_size_reg <= burst_size_next;
-    master_burst_size_reg <= master_burst_size_next;
-    burst_active_reg <= burst_active_next;
-    convert_burst_reg <= convert_burst_next;
-    first_transfer_reg <= first_transfer_next;
-    last_segment_reg <= last_segment_next;
-
-    s_axi_awready_reg <= s_axi_awready_next;
-    s_axi_wready_reg <= s_axi_wready_next;
-    s_axi_bid_reg <= s_axi_bid_next;
-    s_axi_bresp_reg <= s_axi_bresp_next;
-    s_axi_bvalid_reg <= s_axi_bvalid_next;
-
-    m_axil_awaddr_reg <= m_axil_awaddr_next;
-    m_axil_awprot_reg <= m_axil_awprot_next;
-    m_axil_awvalid_reg <= m_axil_awvalid_next;
-    m_axil_wdata_reg <= m_axil_wdata_next;
-    m_axil_wstrb_reg <= m_axil_wstrb_next;
-    m_axil_wvalid_reg <= m_axil_wvalid_next;
-    m_axil_bready_reg <= m_axil_bready_next;
-
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         state_reg <= STATE_IDLE;
 
-        s_axi_awready_reg <= 1'b0;
-        s_axi_wready_reg <= 1'b0;
-        s_axi_bvalid_reg <= 1'b0;
+        id_reg <= 0;
+        addr_reg <= 0;
+        data_reg <= 0;
+        strb_reg <= 0;
+        burst_reg <= 0;
+        burst_size_reg <= 0;
+        master_burst_size_reg <= 0;
+        burst_active_reg <= 0;
+        convert_burst_reg <= 0;
+        first_transfer_reg <= 0;
+        last_segment_reg <= 0;
 
-        m_axil_awvalid_reg <= 1'b0;
-        m_axil_wvalid_reg <= 1'b0;
-        m_axil_bready_reg <= 1'b0;
+        s_axi_awready_reg <= 0;
+        s_axi_wready_reg <= 0;
+        s_axi_bid_reg <= 0;
+        s_axi_bresp_reg <= 0;
+        s_axi_bvalid_reg <= 0;
+
+        m_axil_awaddr_reg <= 0;
+        m_axil_awprot_reg <= 0;
+        m_axil_awvalid_reg <= 0;
+        m_axil_wdata_reg <= 0;
+        m_axil_wstrb_reg <= 0;
+        m_axil_wvalid_reg <= 0;
+        m_axil_bready_reg <= 0;
+    end else begin
+        state_reg <= state_next;
+
+        id_reg <= id_next;
+        addr_reg <= addr_next;
+        data_reg <= data_next;
+        strb_reg <= strb_next;
+        burst_reg <= burst_next;
+        burst_size_reg <= burst_size_next;
+        master_burst_size_reg <= master_burst_size_next;
+        burst_active_reg <= burst_active_next;
+        convert_burst_reg <= convert_burst_next;
+        first_transfer_reg <= first_transfer_next;
+        last_segment_reg <= last_segment_next;
+
+        s_axi_awready_reg <= s_axi_awready_next;
+        s_axi_wready_reg <= s_axi_wready_next;
+        s_axi_bid_reg <= s_axi_bid_next;
+        s_axi_bresp_reg <= s_axi_bresp_next;
+        s_axi_bvalid_reg <= s_axi_bvalid_next;
+
+        m_axil_awaddr_reg <= m_axil_awaddr_next;
+        m_axil_awprot_reg <= m_axil_awprot_next;
+        m_axil_awvalid_reg <= m_axil_awvalid_next;
+        m_axil_wdata_reg <= m_axil_wdata_next;
+        m_axil_wstrb_reg <= m_axil_wstrb_next;
+        m_axil_wvalid_reg <= m_axil_wvalid_next;
+        m_axil_bready_reg <= m_axil_bready_next;
     end
 end
 

@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -177,8 +176,8 @@ generate
         // response routing FIFO
         localparam FIFO_ADDR_WIDTH = $clog2(S_ACCEPT[m*32 +: 32])+1;
 
-        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_wr_ptr_reg = 0;
-        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_rd_ptr_reg = 0;
+        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_wr_ptr_reg;
+        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_rd_ptr_reg;
 
         (* ram_style = "distributed", ramstyle = "no_rw_check, mlab" *)
         reg [CL_M_COUNT-1:0] fifo_select[(2**FIFO_ADDR_WIDTH)-1:0];
@@ -189,11 +188,11 @@ generate
         wire fifo_wr_decerr;
         wire fifo_wr_en;
 
-        reg [CL_M_COUNT-1:0] fifo_rd_select_reg = 0;
-        reg fifo_rd_decerr_reg = 0;
-        reg fifo_rd_valid_reg = 0;
+        reg [CL_M_COUNT-1:0] fifo_rd_select_reg;
+        reg fifo_rd_decerr_reg;
+        reg fifo_rd_valid_reg;
         wire fifo_rd_en;
-        reg fifo_half_full_reg = 1'b0;
+        reg fifo_half_full_reg;
 
         wire fifo_empty = fifo_rd_ptr_reg == fifo_wr_ptr_reg;
 
@@ -208,6 +207,10 @@ generate
                     fifo_select[i] <= 0;
                     fifo_decerr[i] <= 0;
                 end
+                fifo_rd_select_reg <= 0;
+                fifo_rd_decerr_reg <= 0;
+                fifo_rd_valid_reg <= 0;
+                fifo_half_full_reg <= 0;
             end else begin
                 if (fifo_wr_en) begin
                     fifo_select[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_select;
@@ -296,9 +299,9 @@ generate
         assign m_axil_aready = int_axil_awready[{32'b0, a_select}*S_COUNT+m];
 
         // write command handling
-        reg [CL_M_COUNT-1:0] w_select_reg = 0, w_select_next;
-        reg w_drop_reg = 1'b0, w_drop_next;
-        reg w_select_valid_reg = 1'b0, w_select_valid_next;
+        reg [CL_M_COUNT-1:0] w_select_reg, w_select_next;
+        reg w_drop_reg, w_drop_next;
+        reg w_select_valid_reg, w_select_valid_next;
 
         assign m_wc_ready = !w_select_valid_reg;
 
@@ -314,15 +317,16 @@ generate
             end
         end
 
-        always @(posedge clk) begin
+        always @(posedge clk or posedge rst) begin
             if (rst) begin
                 w_select_valid_reg <= 1'b0;
+                w_select_reg <= 0;
+                w_drop_reg <= 0;
             end else begin
                 w_select_valid_reg <= w_select_valid_next;
+                w_select_reg <= w_select_next;
+                w_drop_reg <= w_drop_next;
             end
-
-            w_select_reg <= w_select_next;
-            w_drop_reg <= w_drop_next;
         end
 
         // write data forwarding
@@ -390,15 +394,15 @@ generate
         // response routing FIFO
         localparam FIFO_ADDR_WIDTH = $clog2(M_ISSUE[n*32 +: 32])+1;
 
-        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_wr_ptr_reg = 0;
-        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_rd_ptr_reg = 0;
+        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_wr_ptr_reg;
+        reg [FIFO_ADDR_WIDTH+1-1:0] fifo_rd_ptr_reg;
 
         (* ram_style = "distributed", ramstyle = "no_rw_check, mlab" *)
         reg [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] fifo_select[(2**FIFO_ADDR_WIDTH)-1:0];
         wire [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] fifo_wr_select;
         wire fifo_wr_en;
         wire fifo_rd_en;
-        reg fifo_half_full_reg = 1'b0;
+        reg fifo_half_full_reg;
 
         wire fifo_empty = fifo_rd_ptr_reg == fifo_wr_ptr_reg;
 
@@ -412,6 +416,7 @@ generate
                 for(i = 0; i < 2**FIFO_ADDR_WIDTH; i = i + 1) begin
                     fifo_select[i] <= 0;
                 end
+                fifo_half_full_reg <= 0;
             end else begin
                 if (fifo_wr_en) begin
                     fifo_select[fifo_wr_ptr_reg[FIFO_ADDR_WIDTH-1:0]] <= fifo_wr_select;
@@ -426,9 +431,9 @@ generate
         end
 
         // address arbitration
-        reg [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] w_select_reg = 0, w_select_next = 0;
-        reg w_select_valid_reg = 1'b0, w_select_valid_next;
-        reg w_select_new_reg = 1'b0, w_select_new_next;
+        reg [(((CL_S_COUNT-1) > 0) ? CL_S_COUNT-1 : 0):0] w_select_reg, w_select_next;
+        reg w_select_valid_reg, w_select_valid_next;
+        reg w_select_new_reg, w_select_new_next;
 
         wire [S_COUNT-1:0] a_request;
         wire [S_COUNT-1:0] a_acknowledge;
@@ -490,16 +495,16 @@ generate
             end
         end
 
-        always @(posedge clk) begin
+        always @(posedge clk or posedge rst) begin
             if (rst) begin
                 w_select_valid_reg <= 1'b0;
                 w_select_new_reg <= 1'b1;
+                w_select_reg <= 0;
             end else begin
                 w_select_valid_reg <= w_select_valid_next;
                 w_select_new_reg <= w_select_new_next;
+                w_select_reg <= w_select_next;
             end
-
-            w_select_reg <= w_select_next;
         end
 
         // write response forwarding

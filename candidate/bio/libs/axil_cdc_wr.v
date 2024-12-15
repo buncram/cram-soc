@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -87,37 +86,37 @@ module axil_cdc_wr #
     output wire                   m_axil_bready
 );
 
-reg [1:0] s_state_reg = 2'd0;
-reg s_flag_reg = 1'b0;
+reg [1:0] s_state_reg;
+reg s_flag_reg;
 (* srl_style = "register" *)
-reg s_flag_sync_reg_1 = 1'b0;
+reg s_flag_sync_reg_1;
 (* srl_style = "register" *)
-reg s_flag_sync_reg_2 = 1'b0;
+reg s_flag_sync_reg_2;
 
-reg [1:0] m_state_reg = 2'd0;
-reg m_flag_reg = 1'b0;
+reg [1:0] m_state_reg;
+reg m_flag_reg;
 (* srl_style = "register" *)
-reg m_flag_sync_reg_1 = 1'b0;
+reg m_flag_sync_reg_1;
 (* srl_style = "register" *)
-reg m_flag_sync_reg_2 = 1'b0;
+reg m_flag_sync_reg_2;
 
-reg [ADDR_WIDTH-1:0]  s_axil_awaddr_reg = {ADDR_WIDTH{1'b0}};
-reg [2:0]             s_axil_awprot_reg = 3'd0;
-reg                   s_axil_awvalid_reg = 1'b0;
-reg [DATA_WIDTH-1:0]  s_axil_wdata_reg = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  s_axil_wstrb_reg = {STRB_WIDTH{1'b0}};
-reg                   s_axil_wvalid_reg = 1'b0;
-reg [1:0]             s_axil_bresp_reg = 2'b00;
-reg                   s_axil_bvalid_reg = 1'b0;
+reg [ADDR_WIDTH-1:0]  s_axil_awaddr_reg;
+reg [2:0]             s_axil_awprot_reg;
+reg                   s_axil_awvalid_reg;
+reg [DATA_WIDTH-1:0]  s_axil_wdata_reg;
+reg [STRB_WIDTH-1:0]  s_axil_wstrb_reg;
+reg                   s_axil_wvalid_reg;
+reg [1:0]             s_axil_bresp_reg ;
+reg                   s_axil_bvalid_reg;
 
-reg [ADDR_WIDTH-1:0]  m_axil_awaddr_reg = {ADDR_WIDTH{1'b0}};
-reg [2:0]             m_axil_awprot_reg = 3'd0;
-reg                   m_axil_awvalid_reg = 1'b0;
-reg [DATA_WIDTH-1:0]  m_axil_wdata_reg = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  m_axil_wstrb_reg = {STRB_WIDTH{1'b0}};
-reg                   m_axil_wvalid_reg = 1'b0;
-reg [1:0]             m_axil_bresp_reg = 2'b00;
-reg                   m_axil_bvalid_reg = 1'b1;
+reg [ADDR_WIDTH-1:0]  m_axil_awaddr_reg;
+reg [2:0]             m_axil_awprot_reg;
+reg                   m_axil_awvalid_reg;
+reg [DATA_WIDTH-1:0]  m_axil_wdata_reg ;
+reg [STRB_WIDTH-1:0]  m_axil_wstrb_reg ;
+reg                   m_axil_wvalid_reg;
+reg [1:0]             m_axil_bresp_reg ;
+reg                   m_axil_bvalid_reg;
 
 assign s_axil_awready = !s_axil_awvalid_reg && !s_axil_bvalid_reg;
 assign s_axil_wready = !s_axil_wvalid_reg && !s_axil_bvalid_reg;
@@ -133,51 +132,56 @@ assign m_axil_wvalid = m_axil_wvalid_reg;
 assign m_axil_bready = !m_axil_bvalid_reg;
 
 // slave side
-always @(posedge s_clk) begin
-    s_axil_bvalid_reg <= s_axil_bvalid_reg && !s_axil_bready;
-
-    if (!s_axil_awvalid_reg && !s_axil_bvalid_reg) begin
-        s_axil_awaddr_reg <= s_axil_awaddr;
-        s_axil_awprot_reg <= s_axil_awprot;
-        s_axil_awvalid_reg <= s_axil_awvalid;
-    end
-
-    if (!s_axil_wvalid_reg && !s_axil_bvalid_reg) begin
-        s_axil_wdata_reg <= s_axil_wdata;
-        s_axil_wstrb_reg <= s_axil_wstrb;
-        s_axil_wvalid_reg <= s_axil_wvalid;
-    end
-
-    case (s_state_reg)
-        2'd0: begin
-            if (s_axil_awvalid_reg && s_axil_wvalid_reg) begin
-                s_state_reg <= 2'd1;
-                s_flag_reg <= 1'b1;
-            end
-        end
-        2'd1: begin
-            if (m_flag_sync_reg_2) begin
-                s_state_reg <= 2'd2;
-                s_flag_reg <= 1'b0;
-                s_axil_bresp_reg <= m_axil_bresp_reg;
-                s_axil_bvalid_reg <= 1'b1;
-            end
-        end
-        2'd2: begin
-            if (!m_flag_sync_reg_2) begin
-                s_state_reg <= 2'd0;
-                s_axil_awvalid_reg <= 1'b0;
-                s_axil_wvalid_reg <= 1'b0;
-            end
-        end
-    endcase
-
+always @(posedge s_clk or posedge s_rst) begin
     if (s_rst) begin
         s_state_reg <= 2'd0;
         s_flag_reg <= 1'b0;
         s_axil_awvalid_reg <= 1'b0;
         s_axil_wvalid_reg <= 1'b0;
         s_axil_bvalid_reg <= 1'b0;
+        s_axil_awaddr_reg <= 0;
+        s_axil_awprot_reg <= 0;
+        s_axil_wdata_reg <= 0;
+        s_axil_wstrb_reg <= 0;
+        s_axil_bresp_reg <= 0;
+    end else begin
+        s_axil_bvalid_reg <= s_axil_bvalid_reg && !s_axil_bready;
+
+        if (!s_axil_awvalid_reg && !s_axil_bvalid_reg) begin
+            s_axil_awaddr_reg <= s_axil_awaddr;
+            s_axil_awprot_reg <= s_axil_awprot;
+            s_axil_awvalid_reg <= s_axil_awvalid;
+        end
+
+        if (!s_axil_wvalid_reg && !s_axil_bvalid_reg) begin
+            s_axil_wdata_reg <= s_axil_wdata;
+            s_axil_wstrb_reg <= s_axil_wstrb;
+            s_axil_wvalid_reg <= s_axil_wvalid;
+        end
+
+        case (s_state_reg)
+            2'd0: begin
+                if (s_axil_awvalid_reg && s_axil_wvalid_reg) begin
+                    s_state_reg <= 2'd1;
+                    s_flag_reg <= 1'b1;
+                end
+            end
+            2'd1: begin
+                if (m_flag_sync_reg_2) begin
+                    s_state_reg <= 2'd2;
+                    s_flag_reg <= 1'b0;
+                    s_axil_bresp_reg <= m_axil_bresp_reg;
+                    s_axil_bvalid_reg <= 1'b1;
+                end
+            end
+            2'd2: begin
+                if (!m_flag_sync_reg_2) begin
+                    s_state_reg <= 2'd0;
+                    s_axil_awvalid_reg <= 1'b0;
+                    s_axil_wvalid_reg <= 1'b0;
+                end
+            end
+        endcase
     end
 end
 
@@ -193,48 +197,54 @@ always @(posedge m_clk) begin
 end
 
 // master side
-always @(posedge m_clk) begin
-    m_axil_awvalid_reg <= m_axil_awvalid_reg && !m_axil_awready;
-    m_axil_wvalid_reg <= m_axil_wvalid_reg && !m_axil_wready;
-
-    if (!m_axil_bvalid_reg) begin
-        m_axil_bresp_reg <= m_axil_bresp;
-        m_axil_bvalid_reg <= m_axil_bvalid;
-    end
-
-    case (m_state_reg)
-        2'd0: begin
-            if (s_flag_sync_reg_2) begin
-                m_state_reg <= 2'd1;
-                m_axil_awaddr_reg <= s_axil_awaddr_reg;
-                m_axil_awprot_reg <= s_axil_awprot_reg;
-                m_axil_awvalid_reg <= 1'b1;
-                m_axil_wdata_reg <= s_axil_wdata_reg;
-                m_axil_wstrb_reg <= s_axil_wstrb_reg;
-                m_axil_wvalid_reg <= 1'b1;
-                m_axil_bvalid_reg <= 1'b0;
-            end
-        end
-        2'd1: begin
-            if (m_axil_bvalid_reg) begin
-                m_flag_reg <= 1'b1;
-                m_state_reg <= 2'd2;
-            end
-        end
-        2'd2: begin
-            if (!s_flag_sync_reg_2) begin
-                m_state_reg <= 2'd0;
-                m_flag_reg <= 1'b0;
-            end
-        end
-    endcase
-
+always @(posedge m_clk or posedge m_rst) begin
     if (m_rst) begin
         m_state_reg <= 2'd0;
         m_flag_reg <= 1'b0;
         m_axil_awvalid_reg <= 1'b0;
         m_axil_wvalid_reg <= 1'b0;
         m_axil_bvalid_reg <= 1'b1;
+        m_axil_bresp_reg <= 0;
+        m_axil_bvalid_reg <= 0;
+        m_axil_awaddr_reg <= 0;
+        m_axil_awprot_reg <= 0;
+        m_axil_wdata_reg <= 0;
+        m_axil_wstrb_reg <= 0;
+    end else begin
+        m_axil_awvalid_reg <= m_axil_awvalid_reg && !m_axil_awready;
+        m_axil_wvalid_reg <= m_axil_wvalid_reg && !m_axil_wready;
+
+        if (!m_axil_bvalid_reg) begin
+            m_axil_bresp_reg <= m_axil_bresp;
+            m_axil_bvalid_reg <= m_axil_bvalid;
+        end
+
+        case (m_state_reg)
+            2'd0: begin
+                if (s_flag_sync_reg_2) begin
+                    m_state_reg <= 2'd1;
+                    m_axil_awaddr_reg <= s_axil_awaddr_reg;
+                    m_axil_awprot_reg <= s_axil_awprot_reg;
+                    m_axil_awvalid_reg <= 1'b1;
+                    m_axil_wdata_reg <= s_axil_wdata_reg;
+                    m_axil_wstrb_reg <= s_axil_wstrb_reg;
+                    m_axil_wvalid_reg <= 1'b1;
+                    m_axil_bvalid_reg <= 1'b0;
+                end
+            end
+            2'd1: begin
+                if (m_axil_bvalid_reg) begin
+                    m_flag_reg <= 1'b1;
+                    m_state_reg <= 2'd2;
+                end
+            end
+            2'd2: begin
+                if (!s_flag_sync_reg_2) begin
+                    m_state_reg <= 2'd0;
+                    m_flag_reg <= 1'b0;
+                end
+            end
+        endcase
     end
 end
 

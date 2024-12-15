@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -143,33 +142,33 @@ if (AW_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                    s_axi_awready_reg = 1'b0;
+reg                    s_axi_awready_reg ;
 
-reg [ID_WIDTH-1:0]     m_axi_awid_reg     = {ID_WIDTH{1'b0}};
-reg [ADDR_WIDTH-1:0]   m_axi_awaddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [7:0]              m_axi_awlen_reg    = 8'd0;
-reg [2:0]              m_axi_awsize_reg   = 3'd0;
-reg [1:0]              m_axi_awburst_reg  = 2'd0;
-reg                    m_axi_awlock_reg   = 1'b0;
-reg [3:0]              m_axi_awcache_reg  = 4'd0;
-reg [2:0]              m_axi_awprot_reg   = 3'd0;
-reg [3:0]              m_axi_awqos_reg    = 4'd0;
-reg [3:0]              m_axi_awregion_reg = 4'd0;
-reg [AWUSER_WIDTH-1:0] m_axi_awuser_reg   = {AWUSER_WIDTH{1'b0}};
-reg                    m_axi_awvalid_reg  = 1'b0, m_axi_awvalid_next;
+reg [ID_WIDTH-1:0]     m_axi_awid_reg     ;
+reg [ADDR_WIDTH-1:0]   m_axi_awaddr_reg   ;
+reg [7:0]              m_axi_awlen_reg    ;
+reg [2:0]              m_axi_awsize_reg   ;
+reg [1:0]              m_axi_awburst_reg  ;
+reg                    m_axi_awlock_reg   ;
+reg [3:0]              m_axi_awcache_reg  ;
+reg [2:0]              m_axi_awprot_reg   ;
+reg [3:0]              m_axi_awqos_reg    ;
+reg [3:0]              m_axi_awregion_reg ;
+reg [AWUSER_WIDTH-1:0] m_axi_awuser_reg   ;
+reg                    m_axi_awvalid_reg  , m_axi_awvalid_next;
 
-reg [ID_WIDTH-1:0]     temp_m_axi_awid_reg     = {ID_WIDTH{1'b0}};
-reg [ADDR_WIDTH-1:0]   temp_m_axi_awaddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [7:0]              temp_m_axi_awlen_reg    = 8'd0;
-reg [2:0]              temp_m_axi_awsize_reg   = 3'd0;
-reg [1:0]              temp_m_axi_awburst_reg  = 2'd0;
-reg                    temp_m_axi_awlock_reg   = 1'b0;
-reg [3:0]              temp_m_axi_awcache_reg  = 4'd0;
-reg [2:0]              temp_m_axi_awprot_reg   = 3'd0;
-reg [3:0]              temp_m_axi_awqos_reg    = 4'd0;
-reg [3:0]              temp_m_axi_awregion_reg = 4'd0;
-reg [AWUSER_WIDTH-1:0] temp_m_axi_awuser_reg   = {AWUSER_WIDTH{1'b0}};
-reg                    temp_m_axi_awvalid_reg  = 1'b0, temp_m_axi_awvalid_next;
+reg [ID_WIDTH-1:0]     temp_m_axi_awid_reg     ;
+reg [ADDR_WIDTH-1:0]   temp_m_axi_awaddr_reg   ;
+reg [7:0]              temp_m_axi_awlen_reg    ;
+reg [2:0]              temp_m_axi_awsize_reg   ;
+reg [1:0]              temp_m_axi_awburst_reg  ;
+reg                    temp_m_axi_awlock_reg   ;
+reg [3:0]              temp_m_axi_awcache_reg  ;
+reg [2:0]              temp_m_axi_awprot_reg   ;
+reg [3:0]              temp_m_axi_awqos_reg    ;
+reg [3:0]              temp_m_axi_awregion_reg ;
+reg [AWUSER_WIDTH-1:0] temp_m_axi_awuser_reg   ;
+reg                    temp_m_axi_awvalid_reg  , temp_m_axi_awvalid_next;
 
 // datapath control
 reg store_axi_aw_input_to_output;
@@ -222,56 +221,80 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axi_awready_reg <= 1'b0;
         m_axi_awvalid_reg <= 1'b0;
         temp_m_axi_awvalid_reg <= 1'b0;
+
+        m_axi_awid_reg <= 0;
+        m_axi_awaddr_reg <= 0;
+        m_axi_awlen_reg <= 0;
+        m_axi_awsize_reg <= 0;
+        m_axi_awburst_reg <= 0;
+        m_axi_awlock_reg <= 0;
+        m_axi_awcache_reg <= 0;
+        m_axi_awprot_reg <= 0;
+        m_axi_awqos_reg <= 0;
+        m_axi_awregion_reg <= 0;
+        m_axi_awuser_reg <= 0;
+
+        temp_m_axi_awid_reg <= 0;
+        temp_m_axi_awaddr_reg <= 0;
+        temp_m_axi_awlen_reg <= 0;
+        temp_m_axi_awsize_reg <= 0;
+        temp_m_axi_awburst_reg <= 0;
+        temp_m_axi_awlock_reg <= 0;
+        temp_m_axi_awcache_reg <= 0;
+        temp_m_axi_awprot_reg <= 0;
+        temp_m_axi_awqos_reg <= 0;
+        temp_m_axi_awregion_reg <= 0;
+        temp_m_axi_awuser_reg <= 0;
     end else begin
         s_axi_awready_reg <= s_axi_awready_early;
         m_axi_awvalid_reg <= m_axi_awvalid_next;
         temp_m_axi_awvalid_reg <= temp_m_axi_awvalid_next;
-    end
 
-    // datapath
-    if (store_axi_aw_input_to_output) begin
-        m_axi_awid_reg <= s_axi_awid;
-        m_axi_awaddr_reg <= s_axi_awaddr;
-        m_axi_awlen_reg <= s_axi_awlen;
-        m_axi_awsize_reg <= s_axi_awsize;
-        m_axi_awburst_reg <= s_axi_awburst;
-        m_axi_awlock_reg <= s_axi_awlock;
-        m_axi_awcache_reg <= s_axi_awcache;
-        m_axi_awprot_reg <= s_axi_awprot;
-        m_axi_awqos_reg <= s_axi_awqos;
-        m_axi_awregion_reg <= s_axi_awregion;
-        m_axi_awuser_reg <= s_axi_awuser;
-    end else if (store_axi_aw_temp_to_output) begin
-        m_axi_awid_reg <= temp_m_axi_awid_reg;
-        m_axi_awaddr_reg <= temp_m_axi_awaddr_reg;
-        m_axi_awlen_reg <= temp_m_axi_awlen_reg;
-        m_axi_awsize_reg <= temp_m_axi_awsize_reg;
-        m_axi_awburst_reg <= temp_m_axi_awburst_reg;
-        m_axi_awlock_reg <= temp_m_axi_awlock_reg;
-        m_axi_awcache_reg <= temp_m_axi_awcache_reg;
-        m_axi_awprot_reg <= temp_m_axi_awprot_reg;
-        m_axi_awqos_reg <= temp_m_axi_awqos_reg;
-        m_axi_awregion_reg <= temp_m_axi_awregion_reg;
-        m_axi_awuser_reg <= temp_m_axi_awuser_reg;
-    end
+        // datapath
+        if (store_axi_aw_input_to_output) begin
+            m_axi_awid_reg <= s_axi_awid;
+            m_axi_awaddr_reg <= s_axi_awaddr;
+            m_axi_awlen_reg <= s_axi_awlen;
+            m_axi_awsize_reg <= s_axi_awsize;
+            m_axi_awburst_reg <= s_axi_awburst;
+            m_axi_awlock_reg <= s_axi_awlock;
+            m_axi_awcache_reg <= s_axi_awcache;
+            m_axi_awprot_reg <= s_axi_awprot;
+            m_axi_awqos_reg <= s_axi_awqos;
+            m_axi_awregion_reg <= s_axi_awregion;
+            m_axi_awuser_reg <= s_axi_awuser;
+        end else if (store_axi_aw_temp_to_output) begin
+            m_axi_awid_reg <= temp_m_axi_awid_reg;
+            m_axi_awaddr_reg <= temp_m_axi_awaddr_reg;
+            m_axi_awlen_reg <= temp_m_axi_awlen_reg;
+            m_axi_awsize_reg <= temp_m_axi_awsize_reg;
+            m_axi_awburst_reg <= temp_m_axi_awburst_reg;
+            m_axi_awlock_reg <= temp_m_axi_awlock_reg;
+            m_axi_awcache_reg <= temp_m_axi_awcache_reg;
+            m_axi_awprot_reg <= temp_m_axi_awprot_reg;
+            m_axi_awqos_reg <= temp_m_axi_awqos_reg;
+            m_axi_awregion_reg <= temp_m_axi_awregion_reg;
+            m_axi_awuser_reg <= temp_m_axi_awuser_reg;
+        end
 
-    if (store_axi_aw_input_to_temp) begin
-        temp_m_axi_awid_reg <= s_axi_awid;
-        temp_m_axi_awaddr_reg <= s_axi_awaddr;
-        temp_m_axi_awlen_reg <= s_axi_awlen;
-        temp_m_axi_awsize_reg <= s_axi_awsize;
-        temp_m_axi_awburst_reg <= s_axi_awburst;
-        temp_m_axi_awlock_reg <= s_axi_awlock;
-        temp_m_axi_awcache_reg <= s_axi_awcache;
-        temp_m_axi_awprot_reg <= s_axi_awprot;
-        temp_m_axi_awqos_reg <= s_axi_awqos;
-        temp_m_axi_awregion_reg <= s_axi_awregion;
-        temp_m_axi_awuser_reg <= s_axi_awuser;
+        if (store_axi_aw_input_to_temp) begin
+            temp_m_axi_awid_reg <= s_axi_awid;
+            temp_m_axi_awaddr_reg <= s_axi_awaddr;
+            temp_m_axi_awlen_reg <= s_axi_awlen;
+            temp_m_axi_awsize_reg <= s_axi_awsize;
+            temp_m_axi_awburst_reg <= s_axi_awburst;
+            temp_m_axi_awlock_reg <= s_axi_awlock;
+            temp_m_axi_awcache_reg <= s_axi_awcache;
+            temp_m_axi_awprot_reg <= s_axi_awprot;
+            temp_m_axi_awqos_reg <= s_axi_awqos;
+            temp_m_axi_awregion_reg <= s_axi_awregion;
+            temp_m_axi_awuser_reg <= s_axi_awuser;
+        end
     end
 end
 
@@ -279,20 +302,20 @@ end else if (AW_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                    s_axi_awready_reg = 1'b0;
+reg                    s_axi_awready_reg;
 
-reg [ID_WIDTH-1:0]     m_axi_awid_reg     = {ID_WIDTH{1'b0}};
-reg [ADDR_WIDTH-1:0]   m_axi_awaddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [7:0]              m_axi_awlen_reg    = 8'd0;
-reg [2:0]              m_axi_awsize_reg   = 3'd0;
-reg [1:0]              m_axi_awburst_reg  = 2'd0;
-reg                    m_axi_awlock_reg   = 1'b0;
-reg [3:0]              m_axi_awcache_reg  = 4'd0;
-reg [2:0]              m_axi_awprot_reg   = 3'd0;
-reg [3:0]              m_axi_awqos_reg    = 4'd0;
-reg [3:0]              m_axi_awregion_reg = 4'd0;
-reg [AWUSER_WIDTH-1:0] m_axi_awuser_reg   = {AWUSER_WIDTH{1'b0}};
-reg                    m_axi_awvalid_reg  = 1'b0, m_axi_awvalid_next;
+reg [ID_WIDTH-1:0]     m_axi_awid_reg     ;
+reg [ADDR_WIDTH-1:0]   m_axi_awaddr_reg   ;
+reg [7:0]              m_axi_awlen_reg    ;
+reg [2:0]              m_axi_awsize_reg   ;
+reg [1:0]              m_axi_awburst_reg  ;
+reg                    m_axi_awlock_reg   ;
+reg [3:0]              m_axi_awcache_reg  ;
+reg [2:0]              m_axi_awprot_reg   ;
+reg [3:0]              m_axi_awqos_reg    ;
+reg [3:0]              m_axi_awregion_reg ;
+reg [AWUSER_WIDTH-1:0] m_axi_awuser_reg   ;
+reg                    m_axi_awvalid_reg  , m_axi_awvalid_next;
 
 // datapath control
 reg store_axi_aw_input_to_output;
@@ -329,10 +352,22 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axi_awready_reg <= 1'b0;
         m_axi_awvalid_reg <= 1'b0;
+
+        m_axi_awid_reg <= 0;
+        m_axi_awaddr_reg <= 0;
+        m_axi_awlen_reg <= 0;
+        m_axi_awsize_reg <= 0;
+        m_axi_awburst_reg <= 0;
+        m_axi_awlock_reg <= 0;
+        m_axi_awcache_reg <= 0;
+        m_axi_awprot_reg <= 0;
+        m_axi_awqos_reg <= 0;
+        m_axi_awregion_reg <= 0;
+        m_axi_awuser_reg <= 0;
     end else begin
         s_axi_awready_reg <= s_axi_awready_eawly;
         m_axi_awvalid_reg <= m_axi_awvalid_next;
@@ -379,19 +414,19 @@ if (W_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                   s_axi_wready_reg = 1'b0;
+reg                   s_axi_wready_reg;
 
-reg [DATA_WIDTH-1:0]  m_axi_wdata_reg  = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  m_axi_wstrb_reg  = {STRB_WIDTH{1'b0}};
-reg                   m_axi_wlast_reg  = 1'b0;
-reg [WUSER_WIDTH-1:0] m_axi_wuser_reg  = {WUSER_WIDTH{1'b0}};
-reg                   m_axi_wvalid_reg = 1'b0, m_axi_wvalid_next;
+reg [DATA_WIDTH-1:0]  m_axi_wdata_reg  ;
+reg [STRB_WIDTH-1:0]  m_axi_wstrb_reg  ;
+reg                   m_axi_wlast_reg  ;
+reg [WUSER_WIDTH-1:0] m_axi_wuser_reg  ;
+reg                   m_axi_wvalid_reg , m_axi_wvalid_next;
 
-reg [DATA_WIDTH-1:0]  temp_m_axi_wdata_reg  = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  temp_m_axi_wstrb_reg  = {STRB_WIDTH{1'b0}};
-reg                   temp_m_axi_wlast_reg  = 1'b0;
-reg [WUSER_WIDTH-1:0] temp_m_axi_wuser_reg  = {WUSER_WIDTH{1'b0}};
-reg                   temp_m_axi_wvalid_reg = 1'b0, temp_m_axi_wvalid_next;
+reg [DATA_WIDTH-1:0]  temp_m_axi_wdata_reg  ;
+reg [STRB_WIDTH-1:0]  temp_m_axi_wstrb_reg  ;
+reg                   temp_m_axi_wlast_reg  ;
+reg [WUSER_WIDTH-1:0] temp_m_axi_wuser_reg  ;
+reg                   temp_m_axi_wvalid_reg , temp_m_axi_wvalid_next;
 
 // datapath control
 reg store_axi_w_input_to_output;
@@ -437,35 +472,45 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axi_wready_reg <= 1'b0;
         m_axi_wvalid_reg <= 1'b0;
         temp_m_axi_wvalid_reg <= 1'b0;
+
+        m_axi_wdata_reg <= 0;
+        m_axi_wstrb_reg <= 0;
+        m_axi_wlast_reg <= 0;
+        m_axi_wuser_reg <= 0;
+
+        temp_m_axi_wdata_reg <= 0;
+        temp_m_axi_wstrb_reg <= 0;
+        temp_m_axi_wlast_reg <= 0;
+        temp_m_axi_wuser_reg <= 0;
     end else begin
         s_axi_wready_reg <= s_axi_wready_early;
         m_axi_wvalid_reg <= m_axi_wvalid_next;
         temp_m_axi_wvalid_reg <= temp_m_axi_wvalid_next;
-    end
 
-    // datapath
-    if (store_axi_w_input_to_output) begin
-        m_axi_wdata_reg <= s_axi_wdata;
-        m_axi_wstrb_reg <= s_axi_wstrb;
-        m_axi_wlast_reg <= s_axi_wlast;
-        m_axi_wuser_reg <= s_axi_wuser;
-    end else if (store_axi_w_temp_to_output) begin
-        m_axi_wdata_reg <= temp_m_axi_wdata_reg;
-        m_axi_wstrb_reg <= temp_m_axi_wstrb_reg;
-        m_axi_wlast_reg <= temp_m_axi_wlast_reg;
-        m_axi_wuser_reg <= temp_m_axi_wuser_reg;
-    end
+        // datapath
+        if (store_axi_w_input_to_output) begin
+            m_axi_wdata_reg <= s_axi_wdata;
+            m_axi_wstrb_reg <= s_axi_wstrb;
+            m_axi_wlast_reg <= s_axi_wlast;
+            m_axi_wuser_reg <= s_axi_wuser;
+        end else if (store_axi_w_temp_to_output) begin
+            m_axi_wdata_reg <= temp_m_axi_wdata_reg;
+            m_axi_wstrb_reg <= temp_m_axi_wstrb_reg;
+            m_axi_wlast_reg <= temp_m_axi_wlast_reg;
+            m_axi_wuser_reg <= temp_m_axi_wuser_reg;
+        end
 
-    if (store_axi_w_input_to_temp) begin
-        temp_m_axi_wdata_reg <= s_axi_wdata;
-        temp_m_axi_wstrb_reg <= s_axi_wstrb;
-        temp_m_axi_wlast_reg <= s_axi_wlast;
-        temp_m_axi_wuser_reg <= s_axi_wuser;
+        if (store_axi_w_input_to_temp) begin
+            temp_m_axi_wdata_reg <= s_axi_wdata;
+            temp_m_axi_wstrb_reg <= s_axi_wstrb;
+            temp_m_axi_wlast_reg <= s_axi_wlast;
+            temp_m_axi_wuser_reg <= s_axi_wuser;
+        end
     end
 end
 
@@ -473,13 +518,13 @@ end else if (W_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                   s_axi_wready_reg = 1'b0;
+reg                   s_axi_wready_reg ;
 
-reg [DATA_WIDTH-1:0]  m_axi_wdata_reg  = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  m_axi_wstrb_reg  = {STRB_WIDTH{1'b0}};
-reg                   m_axi_wlast_reg  = 1'b0;
-reg [WUSER_WIDTH-1:0] m_axi_wuser_reg  = {WUSER_WIDTH{1'b0}};
-reg                   m_axi_wvalid_reg = 1'b0, m_axi_wvalid_next;
+reg [DATA_WIDTH-1:0]  m_axi_wdata_reg  ;
+reg [STRB_WIDTH-1:0]  m_axi_wstrb_reg  ;
+reg                   m_axi_wlast_reg  ;
+reg [WUSER_WIDTH-1:0] m_axi_wuser_reg  ;
+reg                   m_axi_wvalid_reg , m_axi_wvalid_next;
 
 // datapath control
 reg store_axi_w_input_to_output;
@@ -509,21 +554,26 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axi_wready_reg <= 1'b0;
         m_axi_wvalid_reg <= 1'b0;
+
+        m_axi_wdata_reg <= 0;
+        m_axi_wstrb_reg <= 0;
+        m_axi_wlast_reg <= 0;
+        m_axi_wuser_reg <= 0;
     end else begin
         s_axi_wready_reg <= s_axi_wready_ewly;
         m_axi_wvalid_reg <= m_axi_wvalid_next;
-    end
 
-    // datapath
-    if (store_axi_w_input_to_output) begin
-        m_axi_wdata_reg <= s_axi_wdata;
-        m_axi_wstrb_reg <= s_axi_wstrb;
-        m_axi_wlast_reg <= s_axi_wlast;
-        m_axi_wuser_reg <= s_axi_wuser;
+        // datapath
+        if (store_axi_w_input_to_output) begin
+            m_axi_wdata_reg <= s_axi_wdata;
+            m_axi_wstrb_reg <= s_axi_wstrb;
+            m_axi_wlast_reg <= s_axi_wlast;
+            m_axi_wuser_reg <= s_axi_wuser;
+        end
     end
 end
 
@@ -545,17 +595,17 @@ if (B_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                   m_axi_bready_reg = 1'b0;
+reg                   m_axi_bready_reg ;
 
-reg [ID_WIDTH-1:0]    s_axi_bid_reg    = {ID_WIDTH{1'b0}};
-reg [1:0]             s_axi_bresp_reg  = 2'b0;
-reg [BUSER_WIDTH-1:0] s_axi_buser_reg  = {BUSER_WIDTH{1'b0}};
-reg                   s_axi_bvalid_reg = 1'b0, s_axi_bvalid_next;
+reg [ID_WIDTH-1:0]    s_axi_bid_reg    ;
+reg [1:0]             s_axi_bresp_reg  ;
+reg [BUSER_WIDTH-1:0] s_axi_buser_reg  ;
+reg                   s_axi_bvalid_reg , s_axi_bvalid_next;
 
-reg [ID_WIDTH-1:0]    temp_s_axi_bid_reg    = {ID_WIDTH{1'b0}};
-reg [1:0]             temp_s_axi_bresp_reg  = 2'b0;
-reg [BUSER_WIDTH-1:0] temp_s_axi_buser_reg  = {BUSER_WIDTH{1'b0}};
-reg                   temp_s_axi_bvalid_reg = 1'b0, temp_s_axi_bvalid_next;
+reg [ID_WIDTH-1:0]    temp_s_axi_bid_reg    ;
+reg [1:0]             temp_s_axi_bresp_reg  ;
+reg [BUSER_WIDTH-1:0] temp_s_axi_buser_reg  ;
+reg                   temp_s_axi_bvalid_reg , temp_s_axi_bvalid_next;
 
 // datapath control
 reg store_axi_b_input_to_output;
@@ -600,32 +650,39 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         m_axi_bready_reg <= 1'b0;
         s_axi_bvalid_reg <= 1'b0;
         temp_s_axi_bvalid_reg <= 1'b0;
+
+        s_axi_bid_reg   <= 0;
+        s_axi_bresp_reg <= 0;
+        s_axi_buser_reg <= 0;
+        temp_s_axi_bid_reg   <= 0;
+        temp_s_axi_bresp_reg <= 0;
+        temp_s_axi_buser_reg <= 0;
     end else begin
         m_axi_bready_reg <= m_axi_bready_early;
         s_axi_bvalid_reg <= s_axi_bvalid_next;
         temp_s_axi_bvalid_reg <= temp_s_axi_bvalid_next;
-    end
 
-    // datapath
-    if (store_axi_b_input_to_output) begin
-        s_axi_bid_reg   <= m_axi_bid;
-        s_axi_bresp_reg <= m_axi_bresp;
-        s_axi_buser_reg <= m_axi_buser;
-    end else if (store_axi_b_temp_to_output) begin
-        s_axi_bid_reg   <= temp_s_axi_bid_reg;
-        s_axi_bresp_reg <= temp_s_axi_bresp_reg;
-        s_axi_buser_reg <= temp_s_axi_buser_reg;
-    end
+        // datapath
+        if (store_axi_b_input_to_output) begin
+            s_axi_bid_reg   <= m_axi_bid;
+            s_axi_bresp_reg <= m_axi_bresp;
+            s_axi_buser_reg <= m_axi_buser;
+        end else if (store_axi_b_temp_to_output) begin
+            s_axi_bid_reg   <= temp_s_axi_bid_reg;
+            s_axi_bresp_reg <= temp_s_axi_bresp_reg;
+            s_axi_buser_reg <= temp_s_axi_buser_reg;
+        end
 
-    if (store_axi_b_input_to_temp) begin
-        temp_s_axi_bid_reg   <= m_axi_bid;
-        temp_s_axi_bresp_reg <= m_axi_bresp;
-        temp_s_axi_buser_reg <= m_axi_buser;
+        if (store_axi_b_input_to_temp) begin
+            temp_s_axi_bid_reg   <= m_axi_bid;
+            temp_s_axi_bresp_reg <= m_axi_bresp;
+            temp_s_axi_buser_reg <= m_axi_buser;
+        end
     end
 end
 
@@ -633,12 +690,12 @@ end else if (B_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                   m_axi_bready_reg = 1'b0;
+reg                   m_axi_bready_reg;
 
-reg [ID_WIDTH-1:0]    s_axi_bid_reg    = {ID_WIDTH{1'b0}};
-reg [1:0]             s_axi_bresp_reg  = 2'b0;
-reg [BUSER_WIDTH-1:0] s_axi_buser_reg  = {BUSER_WIDTH{1'b0}};
-reg                   s_axi_bvalid_reg = 1'b0, s_axi_bvalid_next;
+reg [ID_WIDTH-1:0]    s_axi_bid_reg    ;
+reg [1:0]             s_axi_bresp_reg  ;
+reg [BUSER_WIDTH-1:0] s_axi_buser_reg  ;
+reg                   s_axi_bvalid_reg , s_axi_bvalid_next;
 
 // datapath control
 reg store_axi_b_input_to_output;
@@ -667,20 +724,24 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         m_axi_bready_reg <= 1'b0;
         s_axi_bvalid_reg <= 1'b0;
+
+        s_axi_bid_reg   <= 0;
+        s_axi_bresp_reg <= 0;
+        s_axi_buser_reg <= 0;
     end else begin
         m_axi_bready_reg <= m_axi_bready_early;
         s_axi_bvalid_reg <= s_axi_bvalid_next;
-    end
 
-    // datapath
-    if (store_axi_b_input_to_output) begin
-        s_axi_bid_reg   <= m_axi_bid;
-        s_axi_bresp_reg <= m_axi_bresp;
-        s_axi_buser_reg <= m_axi_buser;
+        // datapath
+        if (store_axi_b_input_to_output) begin
+            s_axi_bid_reg   <= m_axi_bid;
+            s_axi_bresp_reg <= m_axi_bresp;
+            s_axi_buser_reg <= m_axi_buser;
+        end
     end
 end
 

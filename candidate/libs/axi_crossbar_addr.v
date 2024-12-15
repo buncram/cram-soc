@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -244,16 +243,16 @@ localparam [2:0]
     STATE_IDLE = 3'd0,
     STATE_DECODE = 3'd1;
 
-reg [2:0] state_reg = STATE_IDLE, state_next;
+reg [2:0] state_reg, state_next;
 
-reg s_axi_aready_reg = 0, s_axi_aready_next;
+reg s_axi_aready_reg, s_axi_aready_next;
 
-reg [3:0] m_axi_aregion_reg = 4'd0, m_axi_aregion_next;
-reg [CL_M_COUNT-1:0] m_select_reg = 0, m_select_next;
-reg m_axi_avalid_reg = 1'b0, m_axi_avalid_next;
-reg m_decerr_reg = 1'b0, m_decerr_next;
-reg m_wc_valid_reg = 1'b0, m_wc_valid_next;
-reg m_rc_valid_reg = 1'b0, m_rc_valid_next;
+reg [3:0] m_axi_aregion_reg, m_axi_aregion_next;
+reg [CL_M_COUNT-1:0] m_select_reg, m_select_next;
+reg m_axi_avalid_reg, m_axi_avalid_next;
+reg m_decerr_reg, m_decerr_next;
+reg m_wc_valid_reg, m_wc_valid_next;
+reg m_rc_valid_reg, m_rc_valid_next;
 
 assign s_axi_aready = s_axi_aready_reg;
 
@@ -272,7 +271,7 @@ reg match;
 reg trans_start;
 reg trans_complete;
 
-reg [$clog2(S_ACCEPT+1)-1:0] trans_count_reg = 0;
+reg [$clog2(S_ACCEPT+1)-1:0] trans_count_reg;
 wire trans_limit = trans_count_reg >= S_ACCEPT && !trans_complete;
 
 // transfer ID thread tracking
@@ -397,7 +396,7 @@ always @* begin
     trans_complete = s_cpl_valid;
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         state_reg <= STATE_IDLE;
         s_axi_aready_reg <= 1'b0;
@@ -406,6 +405,10 @@ always @(posedge clk) begin
         m_rc_valid_reg <= 1'b0;
 
         trans_count_reg <= 0;
+
+        m_axi_aregion_reg <= 0;
+        m_select_reg <= 0;
+        m_decerr_reg <= 0;
     end else begin
         state_reg <= state_next;
         s_axi_aready_reg <= s_axi_aready_next;
@@ -418,11 +421,11 @@ always @(posedge clk) begin
         end else if (!trans_start && trans_complete) begin
             trans_count_reg <= trans_count_reg - 1;
         end
-    end
 
-    m_axi_aregion_reg <= m_axi_aregion_next;
-    m_select_reg <= m_select_next;
-    m_decerr_reg <= m_decerr_next;
+        m_axi_aregion_reg <= m_axi_aregion_next;
+        m_select_reg <= m_select_next;
+        m_decerr_reg <= m_decerr_next;
+    end
 end
 
 endmodule

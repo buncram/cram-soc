@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -287,12 +286,12 @@ generate
         assign m_axi_aready = int_axi_arready[a_select*S_COUNT+m];
 
         // decode error handling
-        reg [S_ID_WIDTH-1:0]  decerr_m_axi_rid_reg = {S_ID_WIDTH{1'b0}}, decerr_m_axi_rid_next;
-        reg                   decerr_m_axi_rlast_reg = 1'b0, decerr_m_axi_rlast_next;
-        reg                   decerr_m_axi_rvalid_reg = 1'b0, decerr_m_axi_rvalid_next;
+        reg [S_ID_WIDTH-1:0]  decerr_m_axi_rid_reg, decerr_m_axi_rid_next;
+        reg                   decerr_m_axi_rlast_reg, decerr_m_axi_rlast_next;
+        reg                   decerr_m_axi_rvalid_reg, decerr_m_axi_rvalid_next;
         wire                  decerr_m_axi_rready;
 
-        reg [7:0] decerr_len_reg = 8'd0, decerr_len_next;
+        reg [7:0] decerr_len_reg, decerr_len_next;
 
         assign m_rc_ready = !decerr_m_axi_rvalid_reg;
 
@@ -320,16 +319,19 @@ generate
             end
         end
 
-        always @(posedge clk) begin
+        always @(posedge clk or posedge rst) begin
             if (rst) begin
                 decerr_m_axi_rvalid_reg <= 1'b0;
+                decerr_m_axi_rid_reg <= 0;
+                decerr_m_axi_rlast_reg <= 0;
+                decerr_len_reg <= 0;
             end else begin
                 decerr_m_axi_rvalid_reg <= decerr_m_axi_rvalid_next;
-            end
 
-            decerr_m_axi_rid_reg <= decerr_m_axi_rid_next;
-            decerr_m_axi_rlast_reg <= decerr_m_axi_rlast_next;
-            decerr_len_reg <= decerr_len_next;
+                decerr_m_axi_rid_reg <= decerr_m_axi_rid_next;
+                decerr_m_axi_rlast_reg <= decerr_m_axi_rlast_next;
+                decerr_len_reg <= decerr_len_next;
+            end
         end
 
         // read response arbitration
@@ -444,11 +446,11 @@ generate
         // in-flight transaction count
         wire trans_start;
         wire trans_complete;
-        reg [$clog2(M_ISSUE[n*32 +: 32]+1)-1:0] trans_count_reg = 0;
+        reg [$clog2(M_ISSUE[n*32 +: 32]+1)-1:0] trans_count_reg;
 
         wire trans_limit = trans_count_reg >= M_ISSUE[n*32 +: 32] && !trans_complete;
 
-        always @(posedge clk) begin
+        always @(posedge clk or posedge rst) begin
             if (rst) begin
                 trans_count_reg <= 0;
             end else begin

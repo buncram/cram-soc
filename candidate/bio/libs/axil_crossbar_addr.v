@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -212,15 +211,15 @@ localparam [2:0]
     STATE_IDLE = 3'd0,
     STATE_DECODE = 3'd1;
 
-reg [2:0] state_reg = STATE_IDLE, state_next;
+reg [2:0] state_reg, state_next;
 
-reg s_axil_aready_reg = 0, s_axil_aready_next;
+reg s_axil_aready_reg, s_axil_aready_next;
 
-reg [CL_M_COUNT-1:0] m_select_reg = 0, m_select_next;
-reg m_axil_avalid_reg = 1'b0, m_axil_avalid_next;
-reg m_decerr_reg = 1'b0, m_decerr_next;
-reg m_wc_valid_reg = 1'b0, m_wc_valid_next;
-reg m_rc_valid_reg = 1'b0, m_rc_valid_next;
+reg [CL_M_COUNT-1:0] m_select_reg, m_select_next;
+reg m_axil_avalid_reg, m_axil_avalid_next;
+reg m_decerr_reg, m_decerr_next;
+reg m_wc_valid_reg, m_wc_valid_next;
+reg m_rc_valid_reg, m_rc_valid_next;
 
 assign s_axil_aready = s_axil_aready_reg;
 
@@ -296,23 +295,26 @@ always @* begin
     endcase
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         state_reg <= STATE_IDLE;
         s_axil_aready_reg <= 1'b0;
         m_axil_avalid_reg <= 1'b0;
         m_wc_valid_reg <= 1'b0;
         m_rc_valid_reg <= 1'b0;
+
+        m_select_reg <= 0;
+        m_decerr_reg <= 0;
     end else begin
         state_reg <= state_next;
         s_axil_aready_reg <= s_axil_aready_next;
         m_axil_avalid_reg <= m_axil_avalid_next;
         m_wc_valid_reg <= m_wc_valid_next;
         m_rc_valid_reg <= m_rc_valid_next;
-    end
 
-    m_select_reg <= m_select_next;
-    m_decerr_reg <= m_decerr_next;
+        m_select_reg <= m_select_next;
+        m_decerr_reg <= m_decerr_next;
+    end
 end
 
 endmodule

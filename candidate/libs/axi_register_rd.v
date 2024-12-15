@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -130,31 +129,31 @@ if (AR_REG_TYPE > 1) begin
 // datapath registers
 reg                    s_axi_arready_reg = 1'b0;
 
-reg [ID_WIDTH-1:0]     m_axi_arid_reg     = {ID_WIDTH{1'b0}};
-reg [ADDR_WIDTH-1:0]   m_axi_araddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [7:0]              m_axi_arlen_reg    = 8'd0;
-reg [2:0]              m_axi_arsize_reg   = 3'd0;
-reg [1:0]              m_axi_arburst_reg  = 2'd0;
-reg                    m_axi_arlock_reg   = 1'b0;
-reg [3:0]              m_axi_arcache_reg  = 4'd0;
-reg [2:0]              m_axi_arprot_reg   = 3'd0;
-reg [3:0]              m_axi_arqos_reg    = 4'd0;
-reg [3:0]              m_axi_arregion_reg = 4'd0;
-reg [ARUSER_WIDTH-1:0] m_axi_aruser_reg   = {ARUSER_WIDTH{1'b0}};
-reg                    m_axi_arvalid_reg  = 1'b0, m_axi_arvalid_next;
+reg [ID_WIDTH-1:0]     m_axi_arid_reg     ;
+reg [ADDR_WIDTH-1:0]   m_axi_araddr_reg   ;
+reg [7:0]              m_axi_arlen_reg    ;
+reg [2:0]              m_axi_arsize_reg   ;
+reg [1:0]              m_axi_arburst_reg  ;
+reg                    m_axi_arlock_reg   ;
+reg [3:0]              m_axi_arcache_reg  ;
+reg [2:0]              m_axi_arprot_reg   ;
+reg [3:0]              m_axi_arqos_reg    ;
+reg [3:0]              m_axi_arregion_reg ;
+reg [ARUSER_WIDTH-1:0] m_axi_aruser_reg   ;
+reg                    m_axi_arvalid_reg  , m_axi_arvalid_next;
 
-reg [ID_WIDTH-1:0]     temp_m_axi_arid_reg     = {ID_WIDTH{1'b0}};
-reg [ADDR_WIDTH-1:0]   temp_m_axi_araddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [7:0]              temp_m_axi_arlen_reg    = 8'd0;
-reg [2:0]              temp_m_axi_arsize_reg   = 3'd0;
-reg [1:0]              temp_m_axi_arburst_reg  = 2'd0;
-reg                    temp_m_axi_arlock_reg   = 1'b0;
-reg [3:0]              temp_m_axi_arcache_reg  = 4'd0;
-reg [2:0]              temp_m_axi_arprot_reg   = 3'd0;
-reg [3:0]              temp_m_axi_arqos_reg    = 4'd0;
-reg [3:0]              temp_m_axi_arregion_reg = 4'd0;
-reg [ARUSER_WIDTH-1:0] temp_m_axi_aruser_reg   = {ARUSER_WIDTH{1'b0}};
-reg                    temp_m_axi_arvalid_reg  = 1'b0, temp_m_axi_arvalid_next;
+reg [ID_WIDTH-1:0]     temp_m_axi_arid_reg     ;
+reg [ADDR_WIDTH-1:0]   temp_m_axi_araddr_reg   ;
+reg [7:0]              temp_m_axi_arlen_reg    ;
+reg [2:0]              temp_m_axi_arsize_reg   ;
+reg [1:0]              temp_m_axi_arburst_reg  ;
+reg                    temp_m_axi_arlock_reg   ;
+reg [3:0]              temp_m_axi_arcache_reg  ;
+reg [2:0]              temp_m_axi_arprot_reg   ;
+reg [3:0]              temp_m_axi_arqos_reg    ;
+reg [3:0]              temp_m_axi_arregion_reg ;
+reg [ARUSER_WIDTH-1:0] temp_m_axi_aruser_reg   ;
+reg                    temp_m_axi_arvalid_reg  , temp_m_axi_arvalid_next;
 
 // datapath control
 reg store_axi_ar_input_to_output;
@@ -207,56 +206,80 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axi_arready_reg <= 1'b0;
         m_axi_arvalid_reg <= 1'b0;
         temp_m_axi_arvalid_reg <= 1'b0;
+
+        m_axi_arid_reg <= 0;
+        m_axi_araddr_reg <= 0;
+        m_axi_arlen_reg <= 0;
+        m_axi_arsize_reg <= 0;
+        m_axi_arburst_reg <= 0;
+        m_axi_arlock_reg <= 0;
+        m_axi_arcache_reg <= 0;
+        m_axi_arprot_reg <= 0;
+        m_axi_arqos_reg <= 0;
+        m_axi_arregion_reg <= 0;
+        m_axi_aruser_reg <= 0;
+
+        temp_m_axi_arid_reg <= 0;
+        temp_m_axi_araddr_reg <= 0;
+        temp_m_axi_arlen_reg <= 0;
+        temp_m_axi_arsize_reg <= 0;
+        temp_m_axi_arburst_reg <= 0;
+        temp_m_axi_arlock_reg <= 0;
+        temp_m_axi_arcache_reg <= 0;
+        temp_m_axi_arprot_reg <= 0;
+        temp_m_axi_arqos_reg <= 0;
+        temp_m_axi_arregion_reg <= 0;
+        temp_m_axi_aruser_reg <= 0;
     end else begin
         s_axi_arready_reg <= s_axi_arready_early;
         m_axi_arvalid_reg <= m_axi_arvalid_next;
         temp_m_axi_arvalid_reg <= temp_m_axi_arvalid_next;
-    end
 
-    // datapath
-    if (store_axi_ar_input_to_output) begin
-        m_axi_arid_reg <= s_axi_arid;
-        m_axi_araddr_reg <= s_axi_araddr;
-        m_axi_arlen_reg <= s_axi_arlen;
-        m_axi_arsize_reg <= s_axi_arsize;
-        m_axi_arburst_reg <= s_axi_arburst;
-        m_axi_arlock_reg <= s_axi_arlock;
-        m_axi_arcache_reg <= s_axi_arcache;
-        m_axi_arprot_reg <= s_axi_arprot;
-        m_axi_arqos_reg <= s_axi_arqos;
-        m_axi_arregion_reg <= s_axi_arregion;
-        m_axi_aruser_reg <= s_axi_aruser;
-    end else if (store_axi_ar_temp_to_output) begin
-        m_axi_arid_reg <= temp_m_axi_arid_reg;
-        m_axi_araddr_reg <= temp_m_axi_araddr_reg;
-        m_axi_arlen_reg <= temp_m_axi_arlen_reg;
-        m_axi_arsize_reg <= temp_m_axi_arsize_reg;
-        m_axi_arburst_reg <= temp_m_axi_arburst_reg;
-        m_axi_arlock_reg <= temp_m_axi_arlock_reg;
-        m_axi_arcache_reg <= temp_m_axi_arcache_reg;
-        m_axi_arprot_reg <= temp_m_axi_arprot_reg;
-        m_axi_arqos_reg <= temp_m_axi_arqos_reg;
-        m_axi_arregion_reg <= temp_m_axi_arregion_reg;
-        m_axi_aruser_reg <= temp_m_axi_aruser_reg;
-    end
+        // datapath
+        if (store_axi_ar_input_to_output) begin
+            m_axi_arid_reg <= s_axi_arid;
+            m_axi_araddr_reg <= s_axi_araddr;
+            m_axi_arlen_reg <= s_axi_arlen;
+            m_axi_arsize_reg <= s_axi_arsize;
+            m_axi_arburst_reg <= s_axi_arburst;
+            m_axi_arlock_reg <= s_axi_arlock;
+            m_axi_arcache_reg <= s_axi_arcache;
+            m_axi_arprot_reg <= s_axi_arprot;
+            m_axi_arqos_reg <= s_axi_arqos;
+            m_axi_arregion_reg <= s_axi_arregion;
+            m_axi_aruser_reg <= s_axi_aruser;
+        end else if (store_axi_ar_temp_to_output) begin
+            m_axi_arid_reg <= temp_m_axi_arid_reg;
+            m_axi_araddr_reg <= temp_m_axi_araddr_reg;
+            m_axi_arlen_reg <= temp_m_axi_arlen_reg;
+            m_axi_arsize_reg <= temp_m_axi_arsize_reg;
+            m_axi_arburst_reg <= temp_m_axi_arburst_reg;
+            m_axi_arlock_reg <= temp_m_axi_arlock_reg;
+            m_axi_arcache_reg <= temp_m_axi_arcache_reg;
+            m_axi_arprot_reg <= temp_m_axi_arprot_reg;
+            m_axi_arqos_reg <= temp_m_axi_arqos_reg;
+            m_axi_arregion_reg <= temp_m_axi_arregion_reg;
+            m_axi_aruser_reg <= temp_m_axi_aruser_reg;
+        end
 
-    if (store_axi_ar_input_to_temp) begin
-        temp_m_axi_arid_reg <= s_axi_arid;
-        temp_m_axi_araddr_reg <= s_axi_araddr;
-        temp_m_axi_arlen_reg <= s_axi_arlen;
-        temp_m_axi_arsize_reg <= s_axi_arsize;
-        temp_m_axi_arburst_reg <= s_axi_arburst;
-        temp_m_axi_arlock_reg <= s_axi_arlock;
-        temp_m_axi_arcache_reg <= s_axi_arcache;
-        temp_m_axi_arprot_reg <= s_axi_arprot;
-        temp_m_axi_arqos_reg <= s_axi_arqos;
-        temp_m_axi_arregion_reg <= s_axi_arregion;
-        temp_m_axi_aruser_reg <= s_axi_aruser;
+        if (store_axi_ar_input_to_temp) begin
+            temp_m_axi_arid_reg <= s_axi_arid;
+            temp_m_axi_araddr_reg <= s_axi_araddr;
+            temp_m_axi_arlen_reg <= s_axi_arlen;
+            temp_m_axi_arsize_reg <= s_axi_arsize;
+            temp_m_axi_arburst_reg <= s_axi_arburst;
+            temp_m_axi_arlock_reg <= s_axi_arlock;
+            temp_m_axi_arcache_reg <= s_axi_arcache;
+            temp_m_axi_arprot_reg <= s_axi_arprot;
+            temp_m_axi_arqos_reg <= s_axi_arqos;
+            temp_m_axi_arregion_reg <= s_axi_arregion;
+            temp_m_axi_aruser_reg <= s_axi_aruser;
+        end
     end
 end
 
@@ -266,18 +289,18 @@ end else if (AR_REG_TYPE == 1) begin
 // datapath registers
 reg                    s_axi_arready_reg = 1'b0;
 
-reg [ID_WIDTH-1:0]     m_axi_arid_reg     = {ID_WIDTH{1'b0}};
-reg [ADDR_WIDTH-1:0]   m_axi_araddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [7:0]              m_axi_arlen_reg    = 8'd0;
-reg [2:0]              m_axi_arsize_reg   = 3'd0;
-reg [1:0]              m_axi_arburst_reg  = 2'd0;
-reg                    m_axi_arlock_reg   = 1'b0;
-reg [3:0]              m_axi_arcache_reg  = 4'd0;
-reg [2:0]              m_axi_arprot_reg   = 3'd0;
-reg [3:0]              m_axi_arqos_reg    = 4'd0;
-reg [3:0]              m_axi_arregion_reg = 4'd0;
-reg [ARUSER_WIDTH-1:0] m_axi_aruser_reg   = {ARUSER_WIDTH{1'b0}};
-reg                    m_axi_arvalid_reg  = 1'b0, m_axi_arvalid_next;
+reg [ID_WIDTH-1:0]     m_axi_arid_reg     ;
+reg [ADDR_WIDTH-1:0]   m_axi_araddr_reg   ;
+reg [7:0]              m_axi_arlen_reg    ;
+reg [2:0]              m_axi_arsize_reg   ;
+reg [1:0]              m_axi_arburst_reg  ;
+reg                    m_axi_arlock_reg   ;
+reg [3:0]              m_axi_arcache_reg  ;
+reg [2:0]              m_axi_arprot_reg   ;
+reg [3:0]              m_axi_arqos_reg    ;
+reg [3:0]              m_axi_arregion_reg ;
+reg [ARUSER_WIDTH-1:0] m_axi_aruser_reg   ;
+reg                    m_axi_arvalid_reg  , m_axi_arvalid_next;
 
 // datapath control
 reg store_axi_ar_input_to_output;
@@ -314,28 +337,40 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axi_arready_reg <= 1'b0;
         m_axi_arvalid_reg <= 1'b0;
+
+        m_axi_arid_reg <= 0;
+        m_axi_araddr_reg <= 0;
+        m_axi_arlen_reg <= 0;
+        m_axi_arsize_reg <= 0;
+        m_axi_arburst_reg <= 0;
+        m_axi_arlock_reg <= 0;
+        m_axi_arcache_reg <= 0;
+        m_axi_arprot_reg <= 0;
+        m_axi_arqos_reg <= 0;
+        m_axi_arregion_reg <= 0;
+        m_axi_aruser_reg <= 0;
     end else begin
         s_axi_arready_reg <= s_axi_arready_early;
         m_axi_arvalid_reg <= m_axi_arvalid_next;
-    end
 
-    // datapath
-    if (store_axi_ar_input_to_output) begin
-        m_axi_arid_reg <= s_axi_arid;
-        m_axi_araddr_reg <= s_axi_araddr;
-        m_axi_arlen_reg <= s_axi_arlen;
-        m_axi_arsize_reg <= s_axi_arsize;
-        m_axi_arburst_reg <= s_axi_arburst;
-        m_axi_arlock_reg <= s_axi_arlock;
-        m_axi_arcache_reg <= s_axi_arcache;
-        m_axi_arprot_reg <= s_axi_arprot;
-        m_axi_arqos_reg <= s_axi_arqos;
-        m_axi_arregion_reg <= s_axi_arregion;
-        m_axi_aruser_reg <= s_axi_aruser;
+        // datapath
+        if (store_axi_ar_input_to_output) begin
+            m_axi_arid_reg <= s_axi_arid;
+            m_axi_araddr_reg <= s_axi_araddr;
+            m_axi_arlen_reg <= s_axi_arlen;
+            m_axi_arsize_reg <= s_axi_arsize;
+            m_axi_arburst_reg <= s_axi_arburst;
+            m_axi_arlock_reg <= s_axi_arlock;
+            m_axi_arcache_reg <= s_axi_arcache;
+            m_axi_arprot_reg <= s_axi_arprot;
+            m_axi_arqos_reg <= s_axi_arqos;
+            m_axi_arregion_reg <= s_axi_arregion;
+            m_axi_aruser_reg <= s_axi_aruser;
+        end
     end
 end
 
@@ -364,21 +399,21 @@ if (R_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                   m_axi_rready_reg = 1'b0;
+reg                   m_axi_rready_reg;
 
-reg [ID_WIDTH-1:0]    s_axi_rid_reg    = {ID_WIDTH{1'b0}};
-reg [DATA_WIDTH-1:0]  s_axi_rdata_reg  = {DATA_WIDTH{1'b0}};
-reg [1:0]             s_axi_rresp_reg  = 2'b0;
-reg                   s_axi_rlast_reg  = 1'b0;
-reg [RUSER_WIDTH-1:0] s_axi_ruser_reg  = {RUSER_WIDTH{1'b0}};
-reg                   s_axi_rvalid_reg = 1'b0, s_axi_rvalid_next;
+reg [ID_WIDTH-1:0]    s_axi_rid_reg    ;
+reg [DATA_WIDTH-1:0]  s_axi_rdata_reg  ;
+reg [1:0]             s_axi_rresp_reg  ;
+reg                   s_axi_rlast_reg  ;
+reg [RUSER_WIDTH-1:0] s_axi_ruser_reg  ;
+reg                   s_axi_rvalid_reg , s_axi_rvalid_next;
 
-reg [ID_WIDTH-1:0]    temp_s_axi_rid_reg    = {ID_WIDTH{1'b0}};
-reg [DATA_WIDTH-1:0]  temp_s_axi_rdata_reg  = {DATA_WIDTH{1'b0}};
-reg [1:0]             temp_s_axi_rresp_reg  = 2'b0;
-reg                   temp_s_axi_rlast_reg  = 1'b0;
-reg [RUSER_WIDTH-1:0] temp_s_axi_ruser_reg  = {RUSER_WIDTH{1'b0}};
-reg                   temp_s_axi_rvalid_reg = 1'b0, temp_s_axi_rvalid_next;
+reg [ID_WIDTH-1:0]    temp_s_axi_rid_reg    ;
+reg [DATA_WIDTH-1:0]  temp_s_axi_rdata_reg  ;
+reg [1:0]             temp_s_axi_rresp_reg  ;
+reg                   temp_s_axi_rlast_reg  ;
+reg [RUSER_WIDTH-1:0] temp_s_axi_ruser_reg  ;
+reg                   temp_s_axi_rvalid_reg , temp_s_axi_rvalid_next;
 
 // datapath control
 reg store_axi_r_input_to_output;
@@ -425,38 +460,49 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         m_axi_rready_reg <= 1'b0;
         s_axi_rvalid_reg <= 1'b0;
         temp_s_axi_rvalid_reg <= 1'b0;
+
+        s_axi_rid_reg   <= 0;
+        s_axi_rdata_reg <= 0;
+        s_axi_rresp_reg <= 0;
+        s_axi_rlast_reg <= 0;
+        s_axi_ruser_reg <= 0;
+        temp_s_axi_rid_reg   <= 0;
+        temp_s_axi_rdata_reg <= 0;
+        temp_s_axi_rresp_reg <= 0;
+        temp_s_axi_rlast_reg <= 0;
+        temp_s_axi_ruser_reg <= 0;
     end else begin
         m_axi_rready_reg <= m_axi_rready_early;
         s_axi_rvalid_reg <= s_axi_rvalid_next;
         temp_s_axi_rvalid_reg <= temp_s_axi_rvalid_next;
-    end
 
-    // datapath
-    if (store_axi_r_input_to_output) begin
-        s_axi_rid_reg   <= m_axi_rid;
-        s_axi_rdata_reg <= m_axi_rdata;
-        s_axi_rresp_reg <= m_axi_rresp;
-        s_axi_rlast_reg <= m_axi_rlast;
-        s_axi_ruser_reg <= m_axi_ruser;
-    end else if (store_axi_r_temp_to_output) begin
-        s_axi_rid_reg   <= temp_s_axi_rid_reg;
-        s_axi_rdata_reg <= temp_s_axi_rdata_reg;
-        s_axi_rresp_reg <= temp_s_axi_rresp_reg;
-        s_axi_rlast_reg <= temp_s_axi_rlast_reg;
-        s_axi_ruser_reg <= temp_s_axi_ruser_reg;
-    end
+        // datapath
+        if (store_axi_r_input_to_output) begin
+            s_axi_rid_reg   <= m_axi_rid;
+            s_axi_rdata_reg <= m_axi_rdata;
+            s_axi_rresp_reg <= m_axi_rresp;
+            s_axi_rlast_reg <= m_axi_rlast;
+            s_axi_ruser_reg <= m_axi_ruser;
+        end else if (store_axi_r_temp_to_output) begin
+            s_axi_rid_reg   <= temp_s_axi_rid_reg;
+            s_axi_rdata_reg <= temp_s_axi_rdata_reg;
+            s_axi_rresp_reg <= temp_s_axi_rresp_reg;
+            s_axi_rlast_reg <= temp_s_axi_rlast_reg;
+            s_axi_ruser_reg <= temp_s_axi_ruser_reg;
+        end
 
-    if (store_axi_r_input_to_temp) begin
-        temp_s_axi_rid_reg   <= m_axi_rid;
-        temp_s_axi_rdata_reg <= m_axi_rdata;
-        temp_s_axi_rresp_reg <= m_axi_rresp;
-        temp_s_axi_rlast_reg <= m_axi_rlast;
-        temp_s_axi_ruser_reg <= m_axi_ruser;
+        if (store_axi_r_input_to_temp) begin
+            temp_s_axi_rid_reg   <= m_axi_rid;
+            temp_s_axi_rdata_reg <= m_axi_rdata;
+            temp_s_axi_rresp_reg <= m_axi_rresp;
+            temp_s_axi_rlast_reg <= m_axi_rlast;
+            temp_s_axi_ruser_reg <= m_axi_ruser;
+        end
     end
 end
 
@@ -464,14 +510,14 @@ end else if (R_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                   m_axi_rready_reg = 1'b0;
+reg                   m_axi_rready_reg;
 
-reg [ID_WIDTH-1:0]    s_axi_rid_reg    = {ID_WIDTH{1'b0}};
-reg [DATA_WIDTH-1:0]  s_axi_rdata_reg  = {DATA_WIDTH{1'b0}};
-reg [1:0]             s_axi_rresp_reg  = 2'b0;
-reg                   s_axi_rlast_reg  = 1'b0;
-reg [RUSER_WIDTH-1:0] s_axi_ruser_reg  = {RUSER_WIDTH{1'b0}};
-reg                   s_axi_rvalid_reg = 1'b0, s_axi_rvalid_next;
+reg [ID_WIDTH-1:0]    s_axi_rid_reg    ;
+reg [DATA_WIDTH-1:0]  s_axi_rdata_reg  ;
+reg [1:0]             s_axi_rresp_reg  ;
+reg                   s_axi_rlast_reg  ;
+reg [RUSER_WIDTH-1:0] s_axi_ruser_reg  ;
+reg                   s_axi_rvalid_reg , s_axi_rvalid_next;
 
 // datapath control
 reg store_axi_r_input_to_output;
@@ -502,22 +548,27 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         m_axi_rready_reg <= 1'b0;
         s_axi_rvalid_reg <= 1'b0;
+
+        s_axi_rid_reg   <= 0;
+        s_axi_rdata_reg <= 0;
+        s_axi_rresp_reg <= 0;
+        s_axi_rlast_reg <= 0;
+        s_axi_ruser_reg <= 0;
     end else begin
         m_axi_rready_reg <= m_axi_rready_early;
         s_axi_rvalid_reg <= s_axi_rvalid_next;
-    end
-
-    // datapath
-    if (store_axi_r_input_to_output) begin
-        s_axi_rid_reg   <= m_axi_rid;
-        s_axi_rdata_reg <= m_axi_rdata;
-        s_axi_rresp_reg <= m_axi_rresp;
-        s_axi_rlast_reg <= m_axi_rlast;
-        s_axi_ruser_reg <= m_axi_ruser;
+        // datapath
+        if (store_axi_r_input_to_output) begin
+            s_axi_rid_reg   <= m_axi_rid;
+            s_axi_rdata_reg <= m_axi_rdata;
+            s_axi_rresp_reg <= m_axi_rresp;
+            s_axi_rlast_reg <= m_axi_rlast;
+            s_axi_ruser_reg <= m_axi_ruser;
+        end
     end
 end
 

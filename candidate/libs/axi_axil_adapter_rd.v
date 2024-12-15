@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -151,28 +150,28 @@ localparam [1:0]
     STATE_DATA_READ = 2'd2,
     STATE_DATA_SPLIT = 2'd3;
 
-reg [1:0] state_reg = STATE_IDLE, state_next;
+reg [1:0] state_reg, state_next;
 
-reg [AXI_ID_WIDTH-1:0] id_reg = {AXI_ID_WIDTH{1'b0}}, id_next;
-reg [ADDR_WIDTH-1:0] addr_reg = {ADDR_WIDTH{1'b0}}, addr_next;
-reg [DATA_WIDTH-1:0] data_reg = {DATA_WIDTH{1'b0}}, data_next;
-reg [1:0] resp_reg = 2'd0, resp_next;
-reg [7:0] burst_reg = 8'd0, burst_next;
-reg [2:0] burst_size_reg = 3'd0, burst_size_next;
-reg [7:0] master_burst_reg = 8'd0, master_burst_next;
-reg [2:0] master_burst_size_reg = 3'd0, master_burst_size_next;
+reg [AXI_ID_WIDTH-1:0] id_reg, id_next;
+reg [ADDR_WIDTH-1:0] addr_reg, addr_next;
+reg [DATA_WIDTH-1:0] data_reg, data_next;
+reg [1:0] resp_reg, resp_next;
+reg [7:0] burst_reg, burst_next;
+reg [2:0] burst_size_reg, burst_size_next;
+reg [7:0] master_burst_reg, master_burst_next;
+reg [2:0] master_burst_size_reg, master_burst_size_next;
 
-reg s_axi_arready_reg = 1'b0, s_axi_arready_next;
-reg [AXI_ID_WIDTH-1:0] s_axi_rid_reg = {AXI_ID_WIDTH{1'b0}}, s_axi_rid_next;
-reg [AXI_DATA_WIDTH-1:0] s_axi_rdata_reg = {AXI_DATA_WIDTH{1'b0}}, s_axi_rdata_next;
-reg [1:0] s_axi_rresp_reg = 2'd0, s_axi_rresp_next;
-reg s_axi_rlast_reg = 1'b0, s_axi_rlast_next;
-reg s_axi_rvalid_reg = 1'b0, s_axi_rvalid_next;
+reg s_axi_arready_reg, s_axi_arready_next;
+reg [AXI_ID_WIDTH-1:0] s_axi_rid_reg, s_axi_rid_next;
+reg [AXI_DATA_WIDTH-1:0] s_axi_rdata_reg, s_axi_rdata_next;
+reg [1:0] s_axi_rresp_reg, s_axi_rresp_next;
+reg s_axi_rlast_reg, s_axi_rlast_next;
+reg s_axi_rvalid_reg, s_axi_rvalid_next;
 
-reg [ADDR_WIDTH-1:0] m_axil_araddr_reg = {ADDR_WIDTH{1'b0}}, m_axil_araddr_next;
-reg [2:0] m_axil_arprot_reg = 3'd0, m_axil_arprot_next;
-reg m_axil_arvalid_reg = 1'b0, m_axil_arvalid_next;
-reg m_axil_rready_reg = 1'b0, m_axil_rready_next;
+reg [ADDR_WIDTH-1:0] m_axil_araddr_reg, m_axil_araddr_next;
+reg [2:0] m_axil_arprot_reg, m_axil_arprot_next;
+reg m_axil_arvalid_reg, m_axil_arvalid_next;
+reg m_axil_rready_reg, m_axil_rready_next;
 
 assign s_axi_arready = s_axi_arready_reg;
 assign s_axi_rid = s_axi_rid_reg;
@@ -481,38 +480,53 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
-    state_reg <= state_next;
-
-    id_reg <= id_next;
-    addr_reg <= addr_next;
-    data_reg <= data_next;
-    resp_reg <= resp_next;
-    burst_reg <= burst_next;
-    burst_size_reg <= burst_size_next;
-    master_burst_reg <= master_burst_next;
-    master_burst_size_reg <= master_burst_size_next;
-
-    s_axi_arready_reg <= s_axi_arready_next;
-    s_axi_rid_reg <= s_axi_rid_next;
-    s_axi_rdata_reg <= s_axi_rdata_next;
-    s_axi_rresp_reg <= s_axi_rresp_next;
-    s_axi_rlast_reg <= s_axi_rlast_next;
-    s_axi_rvalid_reg <= s_axi_rvalid_next;
-
-    m_axil_araddr_reg <= m_axil_araddr_next;
-    m_axil_arprot_reg <= m_axil_arprot_next;
-    m_axil_arvalid_reg <= m_axil_arvalid_next;
-    m_axil_rready_reg <= m_axil_rready_next;
-
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         state_reg <= STATE_IDLE;
 
-        s_axi_arready_reg <= 1'b0;
-        s_axi_rvalid_reg <= 1'b0;
+        id_reg <= 0;
+        addr_reg <= 0;
+        data_reg <= 0;
+        resp_reg <= 0;
+        burst_reg <= 0;
+        burst_size_reg <= 0;
+        master_burst_reg <= 0;
+        master_burst_size_reg <= 0;
 
-        m_axil_arvalid_reg <= 1'b0;
-        m_axil_rready_reg <= 1'b0;
+        s_axi_arready_reg <= 0;
+        s_axi_rid_reg <= 0;
+        s_axi_rdata_reg <= 0;
+        s_axi_rresp_reg <= 0;
+        s_axi_rlast_reg <= 0;
+        s_axi_rvalid_reg <= 0;
+
+        m_axil_araddr_reg <= 0;
+        m_axil_arprot_reg <= 0;
+        m_axil_arvalid_reg <= 0;
+        m_axil_rready_reg <= 0;
+    end else begin
+        state_reg <= state_next;
+
+        id_reg <= id_next;
+        addr_reg <= addr_next;
+        data_reg <= data_next;
+        resp_reg <= resp_next;
+        burst_reg <= burst_next;
+        burst_size_reg <= burst_size_next;
+        master_burst_reg <= master_burst_next;
+        master_burst_size_reg <= master_burst_size_next;
+
+        s_axi_arready_reg <= s_axi_arready_next;
+        s_axi_rid_reg <= s_axi_rid_next;
+        s_axi_rdata_reg <= s_axi_rdata_next;
+        s_axi_rresp_reg <= s_axi_rresp_next;
+        s_axi_rlast_reg <= s_axi_rlast_next;
+        s_axi_rvalid_reg <= s_axi_rvalid_next;
+
+        m_axil_araddr_reg <= m_axil_araddr_next;
+        m_axil_arprot_reg <= m_axil_arprot_next;
+        m_axil_arvalid_reg <= m_axil_arvalid_next;
+        m_axil_rready_reg <= m_axil_rready_next;
     end
 end
 

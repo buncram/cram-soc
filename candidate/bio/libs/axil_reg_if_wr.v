@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -85,16 +84,16 @@ module axil_reg_if_wr #
 
 parameter TIMEOUT_WIDTH = $clog2(TIMEOUT);
 
-reg [TIMEOUT_WIDTH-1:0] timeout_count_reg = 0, timeout_count_next;
+reg [TIMEOUT_WIDTH-1:0] timeout_count_reg,  timeout_count_next;
 
-reg [ADDR_WIDTH-1:0] s_axil_awaddr_reg = {ADDR_WIDTH{1'b0}}, s_axil_awaddr_next;
-reg s_axil_awvalid_reg = 1'b0, s_axil_awvalid_next;
-reg [DATA_WIDTH-1:0] s_axil_wdata_reg = {DATA_WIDTH{1'b0}}, s_axil_wdata_next;
-reg [STRB_WIDTH-1:0] s_axil_wstrb_reg = {STRB_WIDTH{1'b0}}, s_axil_wstrb_next;
-reg s_axil_wvalid_reg = 1'b0, s_axil_wvalid_next;
-reg s_axil_bvalid_reg = 1'b0, s_axil_bvalid_next;
+reg [ADDR_WIDTH-1:0] s_axil_awaddr_reg, s_axil_awaddr_next;
+reg s_axil_awvalid_reg, s_axil_awvalid_next;
+reg [DATA_WIDTH-1:0] s_axil_wdata_reg, s_axil_wdata_next;
+reg [STRB_WIDTH-1:0] s_axil_wstrb_reg, s_axil_wstrb_next;
+reg s_axil_wvalid_reg, s_axil_wvalid_next;
+reg s_axil_bvalid_reg, s_axil_bvalid_next;
 
-reg reg_wr_en_reg = 1'b0, reg_wr_en_next;
+reg reg_wr_en_reg, reg_wr_en_next;
 
 assign s_axil_awready = !s_axil_awvalid_reg;
 assign s_axil_wready = !s_axil_wvalid_reg;
@@ -141,23 +140,28 @@ always @* begin
     reg_wr_en_next = s_axil_awvalid_next && s_axil_wvalid_next && !s_axil_bvalid_next;
 end
 
-always @(posedge clk) begin
-    timeout_count_reg <= timeout_count_next;
-
-    s_axil_awaddr_reg <= s_axil_awaddr_next;
-    s_axil_awvalid_reg <= s_axil_awvalid_next;
-    s_axil_wdata_reg <= s_axil_wdata_next;
-    s_axil_wstrb_reg <= s_axil_wstrb_next;
-    s_axil_wvalid_reg <= s_axil_wvalid_next;
-    s_axil_bvalid_reg <= s_axil_bvalid_next;
-
-    reg_wr_en_reg <= reg_wr_en_next;
-
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_awvalid_reg <= 1'b0;
         s_axil_wvalid_reg <= 1'b0;
         s_axil_bvalid_reg <= 1'b0;
         reg_wr_en_reg <= 1'b0;
+
+        timeout_count_reg <= 0;
+        s_axil_awaddr_reg <= 0;
+        s_axil_wdata_reg <= 0;
+        s_axil_wstrb_reg <= 0;
+    end else begin
+        timeout_count_reg <= timeout_count_next;
+
+        s_axil_awaddr_reg <= s_axil_awaddr_next;
+        s_axil_awvalid_reg <= s_axil_awvalid_next;
+        s_axil_wdata_reg <= s_axil_wdata_next;
+        s_axil_wstrb_reg <= s_axil_wstrb_next;
+        s_axil_wvalid_reg <= s_axil_wvalid_next;
+        s_axil_bvalid_reg <= s_axil_bvalid_next;
+
+        reg_wr_en_reg <= reg_wr_en_next;
     end
 end
 

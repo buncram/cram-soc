@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -103,15 +102,15 @@ if (AW_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                    s_axil_awready_reg = 1'b0;
+reg                    s_axil_awready_reg;
 
-reg [ADDR_WIDTH-1:0]   m_axil_awaddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [2:0]              m_axil_awprot_reg   = 3'd0;
-reg                    m_axil_awvalid_reg  = 1'b0, m_axil_awvalid_next;
+reg [ADDR_WIDTH-1:0]   m_axil_awaddr_reg  ;
+reg [2:0]              m_axil_awprot_reg  ;
+reg                    m_axil_awvalid_reg , m_axil_awvalid_next;
 
-reg [ADDR_WIDTH-1:0]   temp_m_axil_awaddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [2:0]              temp_m_axil_awprot_reg   = 3'd0;
-reg                    temp_m_axil_awvalid_reg  = 1'b0, temp_m_axil_awvalid_next;
+reg [ADDR_WIDTH-1:0]   temp_m_axil_awaddr_reg   ;
+reg [2:0]              temp_m_axil_awprot_reg   ;
+reg                    temp_m_axil_awvalid_reg  , temp_m_axil_awvalid_next;
 
 // datapath control
 reg store_axil_aw_input_to_output;
@@ -155,29 +154,33 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_awready_reg <= 1'b0;
         m_axil_awvalid_reg <= 1'b0;
         temp_m_axil_awvalid_reg <= 1'b0;
+        m_axil_awaddr_reg <= 0;
+        m_axil_awprot_reg <= 0;
+        temp_m_axil_awaddr_reg <= 0;
+        temp_m_axil_awprot_reg <= 0;
     end else begin
         s_axil_awready_reg <= s_axil_awready_early;
         m_axil_awvalid_reg <= m_axil_awvalid_next;
         temp_m_axil_awvalid_reg <= temp_m_axil_awvalid_next;
-    end
 
-    // datapath
-    if (store_axil_aw_input_to_output) begin
-        m_axil_awaddr_reg <= s_axil_awaddr;
-        m_axil_awprot_reg <= s_axil_awprot;
-    end else if (store_axil_aw_temp_to_output) begin
-        m_axil_awaddr_reg <= temp_m_axil_awaddr_reg;
-        m_axil_awprot_reg <= temp_m_axil_awprot_reg;
-    end
+        // datapath
+        if (store_axil_aw_input_to_output) begin
+            m_axil_awaddr_reg <= s_axil_awaddr;
+            m_axil_awprot_reg <= s_axil_awprot;
+        end else if (store_axil_aw_temp_to_output) begin
+            m_axil_awaddr_reg <= temp_m_axil_awaddr_reg;
+            m_axil_awprot_reg <= temp_m_axil_awprot_reg;
+        end
 
-    if (store_axil_aw_input_to_temp) begin
-        temp_m_axil_awaddr_reg <= s_axil_awaddr;
-        temp_m_axil_awprot_reg <= s_axil_awprot;
+        if (store_axil_aw_input_to_temp) begin
+            temp_m_axil_awaddr_reg <= s_axil_awaddr;
+            temp_m_axil_awprot_reg <= s_axil_awprot;
+        end
     end
 end
 
@@ -185,11 +188,11 @@ end else if (AW_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                    s_axil_awready_reg = 1'b0;
+reg                    s_axil_awready_reg;
 
-reg [ADDR_WIDTH-1:0]   m_axil_awaddr_reg   = {ADDR_WIDTH{1'b0}};
-reg [2:0]              m_axil_awprot_reg   = 3'd0;
-reg                    m_axil_awvalid_reg  = 1'b0, m_axil_awvalid_next;
+reg [ADDR_WIDTH-1:0]   m_axil_awaddr_reg ;
+reg [2:0]              m_axil_awprot_reg ;
+reg                    m_axil_awvalid_reg, m_axil_awvalid_next;
 
 // datapath control
 reg store_axil_aw_input_to_output;
@@ -217,20 +220,23 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_awready_reg <= 1'b0;
         m_axil_awvalid_reg <= 1'b0;
+        m_axil_awaddr_reg <= 0;
+        m_axil_awprot_reg <= 0;
     end else begin
         s_axil_awready_reg <= s_axil_awready_early;
         m_axil_awvalid_reg <= m_axil_awvalid_next;
+
+        // datapath
+        if (store_axil_aw_input_to_output) begin
+            m_axil_awaddr_reg <= s_axil_awaddr;
+            m_axil_awprot_reg <= s_axil_awprot;
+        end
     end
 
-    // datapath
-    if (store_axil_aw_input_to_output) begin
-        m_axil_awaddr_reg <= s_axil_awaddr;
-        m_axil_awprot_reg <= s_axil_awprot;
-    end
 end
 
 end else begin
@@ -249,15 +255,15 @@ if (W_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                   s_axil_wready_reg = 1'b0;
+reg                   s_axil_wready_reg;
 
-reg [DATA_WIDTH-1:0]  m_axil_wdata_reg  = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  m_axil_wstrb_reg  = {STRB_WIDTH{1'b0}};
-reg                   m_axil_wvalid_reg = 1'b0, m_axil_wvalid_next;
+reg [DATA_WIDTH-1:0]  m_axil_wdata_reg ;
+reg [STRB_WIDTH-1:0]  m_axil_wstrb_reg ;
+reg                   m_axil_wvalid_reg, m_axil_wvalid_next;
 
-reg [DATA_WIDTH-1:0]  temp_m_axil_wdata_reg  = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  temp_m_axil_wstrb_reg  = {STRB_WIDTH{1'b0}};
-reg                   temp_m_axil_wvalid_reg = 1'b0, temp_m_axil_wvalid_next;
+reg [DATA_WIDTH-1:0]  temp_m_axil_wdata_reg  ;
+reg [STRB_WIDTH-1:0]  temp_m_axil_wstrb_reg  ;
+reg                   temp_m_axil_wvalid_reg , temp_m_axil_wvalid_next;
 
 // datapath control
 reg store_axil_w_input_to_output;
@@ -301,29 +307,34 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_wready_reg <= 1'b0;
         m_axil_wvalid_reg <= 1'b0;
         temp_m_axil_wvalid_reg <= 1'b0;
+
+        m_axil_wdata_reg <= 0;
+        m_axil_wstrb_reg <= 0;
+        temp_m_axil_wdata_reg <= 0;
+        temp_m_axil_wstrb_reg <= 0;
     end else begin
         s_axil_wready_reg <= s_axil_wready_early;
         m_axil_wvalid_reg <= m_axil_wvalid_next;
         temp_m_axil_wvalid_reg <= temp_m_axil_wvalid_next;
-    end
 
-    // datapath
-    if (store_axil_w_input_to_output) begin
-        m_axil_wdata_reg <= s_axil_wdata;
-        m_axil_wstrb_reg <= s_axil_wstrb;
-    end else if (store_axil_w_temp_to_output) begin
-        m_axil_wdata_reg <= temp_m_axil_wdata_reg;
-        m_axil_wstrb_reg <= temp_m_axil_wstrb_reg;
-    end
+        // datapath
+        if (store_axil_w_input_to_output) begin
+            m_axil_wdata_reg <= s_axil_wdata;
+            m_axil_wstrb_reg <= s_axil_wstrb;
+        end else if (store_axil_w_temp_to_output) begin
+            m_axil_wdata_reg <= temp_m_axil_wdata_reg;
+            m_axil_wstrb_reg <= temp_m_axil_wstrb_reg;
+        end
 
-    if (store_axil_w_input_to_temp) begin
-        temp_m_axil_wdata_reg <= s_axil_wdata;
-        temp_m_axil_wstrb_reg <= s_axil_wstrb;
+        if (store_axil_w_input_to_temp) begin
+            temp_m_axil_wdata_reg <= s_axil_wdata;
+            temp_m_axil_wstrb_reg <= s_axil_wstrb;
+        end
     end
 end
 
@@ -331,11 +342,11 @@ end else if (W_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                   s_axil_wready_reg = 1'b0;
+reg                   s_axil_wready_reg;
 
-reg [DATA_WIDTH-1:0]  m_axil_wdata_reg  = {DATA_WIDTH{1'b0}};
-reg [STRB_WIDTH-1:0]  m_axil_wstrb_reg  = {STRB_WIDTH{1'b0}};
-reg                   m_axil_wvalid_reg = 1'b0, m_axil_wvalid_next;
+reg [DATA_WIDTH-1:0]  m_axil_wdata_reg ;
+reg [STRB_WIDTH-1:0]  m_axil_wstrb_reg ;
+reg                   m_axil_wvalid_reg, m_axil_wvalid_next;
 
 // datapath control
 reg store_axil_w_input_to_output;
@@ -363,19 +374,21 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_wready_reg <= 1'b0;
         m_axil_wvalid_reg <= 1'b0;
+        m_axil_wdata_reg <= 0;
+        m_axil_wstrb_reg <= 0;
     end else begin
         s_axil_wready_reg <= s_axil_wready_early;
         m_axil_wvalid_reg <= m_axil_wvalid_next;
-    end
 
-    // datapath
-    if (store_axil_w_input_to_output) begin
-        m_axil_wdata_reg <= s_axil_wdata;
-        m_axil_wstrb_reg <= s_axil_wstrb;
+        // datapath
+        if (store_axil_w_input_to_output) begin
+            m_axil_wdata_reg <= s_axil_wdata;
+            m_axil_wstrb_reg <= s_axil_wstrb;
+        end
     end
 end
 
@@ -395,13 +408,13 @@ if (B_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                   m_axil_bready_reg = 1'b0;
+reg                   m_axil_bready_reg;
 
-reg [1:0]             s_axil_bresp_reg  = 2'b0;
-reg                   s_axil_bvalid_reg = 1'b0, s_axil_bvalid_next;
+reg [1:0]             s_axil_bresp_reg ;
+reg                   s_axil_bvalid_reg, s_axil_bvalid_next;
 
-reg [1:0]             temp_s_axil_bresp_reg  = 2'b0;
-reg                   temp_s_axil_bvalid_reg = 1'b0, temp_s_axil_bvalid_next;
+reg [1:0]             temp_s_axil_bresp_reg  ;
+reg                   temp_s_axil_bvalid_reg , temp_s_axil_bvalid_next;
 
 // datapath control
 reg store_axil_b_input_to_output;
@@ -444,26 +457,28 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         m_axil_bready_reg <= 1'b0;
         s_axil_bvalid_reg <= 1'b0;
         temp_s_axil_bvalid_reg <= 1'b0;
+        s_axil_bresp_reg <= 0;
+        temp_s_axil_bresp_reg <= 0;
     end else begin
         m_axil_bready_reg <= m_axil_bready_early;
         s_axil_bvalid_reg <= s_axil_bvalid_next;
         temp_s_axil_bvalid_reg <= temp_s_axil_bvalid_next;
-    end
 
-    // datapath
-    if (store_axil_b_input_to_output) begin
-        s_axil_bresp_reg <= m_axil_bresp;
-    end else if (store_axil_b_temp_to_output) begin
-        s_axil_bresp_reg <= temp_s_axil_bresp_reg;
-    end
+        // datapath
+        if (store_axil_b_input_to_output) begin
+            s_axil_bresp_reg <= m_axil_bresp;
+        end else if (store_axil_b_temp_to_output) begin
+            s_axil_bresp_reg <= temp_s_axil_bresp_reg;
+        end
 
-    if (store_axil_b_input_to_temp) begin
-        temp_s_axil_bresp_reg <= m_axil_bresp;
+        if (store_axil_b_input_to_temp) begin
+            temp_s_axil_bresp_reg <= m_axil_bresp;
+        end
     end
 end
 
@@ -471,10 +486,10 @@ end else if (B_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                   m_axil_bready_reg = 1'b0;
+reg                   m_axil_bready_reg;
 
-reg [1:0]             s_axil_bresp_reg  = 2'b0;
-reg                   s_axil_bvalid_reg = 1'b0, s_axil_bvalid_next;
+reg [1:0]             s_axil_bresp_reg ;
+reg                   s_axil_bvalid_reg, s_axil_bvalid_next;
 
 // datapath control
 reg store_axil_b_input_to_output;
@@ -501,18 +516,19 @@ always @* begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         m_axil_bready_reg <= 1'b0;
         s_axil_bvalid_reg <= 1'b0;
+        s_axil_bresp_reg <= 0;
     end else begin
         m_axil_bready_reg <= m_axil_bready_early;
         s_axil_bvalid_reg <= s_axil_bvalid_next;
-    end
 
-    // datapath
-    if (store_axil_b_input_to_output) begin
-        s_axil_bresp_reg <= m_axil_bresp;
+        // datapath
+        if (store_axil_b_input_to_output) begin
+            s_axil_bresp_reg <= m_axil_bresp;
+        end
     end
 end
 

@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -66,9 +65,9 @@ module arbiter #
     output wire [((($clog2(PORTS)-1) > 0) ? ($clog2(PORTS)-1) : 0) :0] grant_encoded
 );
 
-reg [PORTS-1:0] grant_reg = 0, grant_next;
-reg grant_valid_reg = 0, grant_valid_next;
-reg [((($clog2(PORTS)-1) > 0) ? ($clog2(PORTS)-1) : 0) :0] grant_encoded_reg = 0, grant_encoded_next;
+reg [PORTS-1:0] grant_reg, grant_next;
+reg grant_valid_reg, grant_valid_next;
+reg [((($clog2(PORTS)-1) > 0) ? ($clog2(PORTS)-1) : 0) :0] grant_encoded_reg, grant_encoded_next;
 
 assign grant_valid = grant_valid_reg;
 assign grant = grant_reg;
@@ -89,7 +88,7 @@ priority_encoder_inst (
     .output_unencoded(request_mask)
 );
 
-reg [PORTS-1:0] mask_reg = 0, mask_next;
+reg [PORTS-1:0] mask_reg, mask_next;
 
 wire masked_request_valid;
 wire [((($clog2(PORTS)-1) > 0) ? ($clog2(PORTS)-1) : 0) :0] masked_request_index;

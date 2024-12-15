@@ -1,7 +1,6 @@
 // (c) Copyright CrossBar, Inc. 2024.
 //
-// This documentation describes Open Hardware and is licensed under the
-// [CERN-OHL-W-2.0].
+// This documentation describes Open Hardware and is licensed under the [CERN-OHL-W-2.0].
 //
 // You may redistribute and modify this documentation under the terms of the
 // [CERN-OHL- W-2.0 (http://ohwr.org/cernohl)]. This documentation is
@@ -81,14 +80,14 @@ module axil_reg_if_rd #
 
 parameter TIMEOUT_WIDTH = $clog2(TIMEOUT);
 
-reg [TIMEOUT_WIDTH-1:0] timeout_count_reg = 0, timeout_count_next;
+reg [TIMEOUT_WIDTH-1:0] timeout_count_reg, timeout_count_next;
 
-reg [ADDR_WIDTH-1:0] s_axil_araddr_reg = {ADDR_WIDTH{1'b0}}, s_axil_araddr_next;
-reg s_axil_arvalid_reg = 1'b0, s_axil_arvalid_next;
-reg [DATA_WIDTH-1:0] s_axil_rdata_reg = {DATA_WIDTH{1'b0}}, s_axil_rdata_next;
-reg s_axil_rvalid_reg = 1'b0, s_axil_rvalid_next;
+reg [ADDR_WIDTH-1:0] s_axil_araddr_reg, s_axil_araddr_next;
+reg s_axil_arvalid_reg, s_axil_arvalid_next;
+reg [DATA_WIDTH-1:0] s_axil_rdata_reg, s_axil_rdata_next;
+reg s_axil_rvalid_reg, s_axil_rvalid_next;
 
-reg reg_rd_en_reg = 1'b0, reg_rd_en_next;
+reg reg_rd_en_reg, reg_rd_en_next;
 
 assign s_axil_arready = !s_axil_arvalid_reg;
 assign s_axil_rdata = s_axil_rdata_reg;
@@ -125,21 +124,25 @@ always @* begin
     reg_rd_en_next = s_axil_arvalid_next && !s_axil_rvalid_next;
 end
 
-always @(posedge clk) begin
-    timeout_count_reg <= timeout_count_next;
-
-    s_axil_araddr_reg <= s_axil_araddr_next;
-    s_axil_arvalid_reg <= s_axil_arvalid_next;
-    s_axil_rdata_reg <= s_axil_rdata_next;
-    s_axil_rvalid_reg <= s_axil_rvalid_next;
-
-    reg_rd_en_reg <= reg_rd_en_next;
-
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_arvalid_reg <= 1'b0;
         s_axil_rvalid_reg <= 1'b0;
         reg_rd_en_reg <= 1'b0;
+        timeout_count_reg <= 0;
+        s_axil_araddr_reg <= 0;
+        s_axil_rdata_reg <= 0;
+    end else begin
+        timeout_count_reg <= timeout_count_next;
+
+        s_axil_araddr_reg <= s_axil_araddr_next;
+        s_axil_arvalid_reg <= s_axil_arvalid_next;
+        s_axil_rdata_reg <= s_axil_rdata_next;
+        s_axil_rvalid_reg <= s_axil_rvalid_next;
+
+        reg_rd_en_reg <= reg_rd_en_next;
     end
+
 end
 
 endmodule
