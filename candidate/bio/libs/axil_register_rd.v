@@ -216,15 +216,17 @@ always @(posedge clk or posedge rst) begin
     if (rst) begin
         s_axil_arready_reg <= 1'b0;
         m_axil_arvalid_reg <= 1'b0;
+        m_axil_araddr_reg <= 0;
+        m_axil_arprot_reg <= 0;
     end else begin
         s_axil_arready_reg <= s_axil_arready_early;
         m_axil_arvalid_reg <= m_axil_arvalid_next;
-    end
 
-    // datapath
-    if (store_axil_ar_input_to_output) begin
-        m_axil_araddr_reg <= s_axil_araddr;
-        m_axil_arprot_reg <= s_axil_arprot;
+        // datapath
+        if (store_axil_ar_input_to_output) begin
+            m_axil_araddr_reg <= s_axil_araddr;
+            m_axil_arprot_reg <= s_axil_arprot;
+        end
     end
 end
 

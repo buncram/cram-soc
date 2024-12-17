@@ -371,21 +371,21 @@ always @(posedge clk or posedge rst) begin
     end else begin
         s_axi_awready_reg <= s_axi_awready_eawly;
         m_axi_awvalid_reg <= m_axi_awvalid_next;
-    end
 
-    // datapath
-    if (store_axi_aw_input_to_output) begin
-        m_axi_awid_reg <= s_axi_awid;
-        m_axi_awaddr_reg <= s_axi_awaddr;
-        m_axi_awlen_reg <= s_axi_awlen;
-        m_axi_awsize_reg <= s_axi_awsize;
-        m_axi_awburst_reg <= s_axi_awburst;
-        m_axi_awlock_reg <= s_axi_awlock;
-        m_axi_awcache_reg <= s_axi_awcache;
-        m_axi_awprot_reg <= s_axi_awprot;
-        m_axi_awqos_reg <= s_axi_awqos;
-        m_axi_awregion_reg <= s_axi_awregion;
-        m_axi_awuser_reg <= s_axi_awuser;
+        // datapath
+        if (store_axi_aw_input_to_output) begin
+            m_axi_awid_reg <= s_axi_awid;
+            m_axi_awaddr_reg <= s_axi_awaddr;
+            m_axi_awlen_reg <= s_axi_awlen;
+            m_axi_awsize_reg <= s_axi_awsize;
+            m_axi_awburst_reg <= s_axi_awburst;
+            m_axi_awlock_reg <= s_axi_awlock;
+            m_axi_awcache_reg <= s_axi_awcache;
+            m_axi_awprot_reg <= s_axi_awprot;
+            m_axi_awqos_reg <= s_axi_awqos;
+            m_axi_awregion_reg <= s_axi_awregion;
+            m_axi_awuser_reg <= s_axi_awuser;
+        end
     end
 end
 

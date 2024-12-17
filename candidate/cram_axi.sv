@@ -1,4 +1,4 @@
-// Post-processing pass by bist_insert.py on 2024-12-16 00:06:56.334854
+// Post-processing pass by bist_insert.py on 2024-12-18 04:57:20.468005
 
 // (c) Copyright CrossBar, Inc. 2024.
 //
@@ -21,7 +21,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : 5375731c
-// Date       : 2024-12-16 00:06:55
+// Date       : 2024-12-18 04:57:19
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -641,10 +641,10 @@ wire          irqarray0_mdmairq_dupe0;
 wire          irqarray0_nc_b0s10;
 wire          irqarray0_nc_b0s20;
 wire          irqarray0_nc_b0s30;
-wire          irqarray0_nc_b0s40;
-wire          irqarray0_nc_b0s50;
-wire          irqarray0_nc_b0s60;
-wire          irqarray0_nc_b0s70;
+wire          irqarray0_pioirq0_dupe0;
+wire          irqarray0_pioirq1_dupe0;
+wire          irqarray0_pioirq2_dupe0;
+wire          irqarray0_pioirq3_dupe0;
 wire          irqarray0_nc_b0s80;
 wire          irqarray0_nc_b0s90;
 wire          irqarray0_nc_b0s100;
@@ -660,10 +660,10 @@ wire          irqarray0_mdmairq_dupe1;
 wire          irqarray0_nc_b0s11;
 wire          irqarray0_nc_b0s21;
 wire          irqarray0_nc_b0s31;
-wire          irqarray0_nc_b0s41;
-wire          irqarray0_nc_b0s51;
-wire          irqarray0_nc_b0s61;
-wire          irqarray0_nc_b0s71;
+wire          irqarray0_pioirq0_dupe1;
+wire          irqarray0_pioirq1_dupe1;
+wire          irqarray0_pioirq2_dupe1;
+wire          irqarray0_pioirq3_dupe1;
 wire          irqarray0_nc_b0s81;
 wire          irqarray0_nc_b0s91;
 wire          irqarray0_nc_b0s101;
@@ -680,10 +680,10 @@ wire          irqarray0_mdmairq_dupe2;
 wire          irqarray0_nc_b0s12;
 wire          irqarray0_nc_b0s22;
 wire          irqarray0_nc_b0s32;
-wire          irqarray0_nc_b0s42;
-wire          irqarray0_nc_b0s52;
-wire          irqarray0_nc_b0s62;
-wire          irqarray0_nc_b0s72;
+wire          irqarray0_pioirq0_dupe2;
+wire          irqarray0_pioirq1_dupe2;
+wire          irqarray0_pioirq2_dupe2;
+wire          irqarray0_pioirq3_dupe2;
 wire          irqarray0_nc_b0s82;
 wire          irqarray0_nc_b0s92;
 wire          irqarray0_nc_b0s102;
@@ -948,7 +948,7 @@ wire          irqarray2_nc_b2s110;
 wire          irqarray2_nc_b2s120;
 wire          irqarray2_nc_b2s130;
 wire          irqarray2_nc_b2s140;
-wire          irqarray2_nc_b2s150;
+wire          irqarray2_aowkupint0;
 reg    [15:0] irqarray2_status_status;
 wire          irqarray2_status_we;
 reg           irqarray2_status_re;
@@ -967,7 +967,7 @@ wire          irqarray2_nc_b2s111;
 wire          irqarray2_nc_b2s121;
 wire          irqarray2_nc_b2s131;
 wire          irqarray2_nc_b2s141;
-wire          irqarray2_nc_b2s151;
+wire          irqarray2_aowkupint1;
 reg    [15:0] irqarray2_pending_status;
 wire          irqarray2_pending_we;
 reg           irqarray2_pending_re;
@@ -987,7 +987,7 @@ wire          irqarray2_nc_b2s112;
 wire          irqarray2_nc_b2s122;
 wire          irqarray2_nc_b2s132;
 wire          irqarray2_nc_b2s142;
-wire          irqarray2_nc_b2s152;
+wire          irqarray2_aowkupint2;
 reg    [15:0] irqarray2_enable_storage;
 reg           irqarray2_enable_re;
 wire          irqarray3_irq;
@@ -1081,14 +1081,14 @@ reg           irqarray3_eventsourceflex63_pending;
 reg           irqarray3_eventsourceflex63_clear;
 reg           irqarray3_eventsourceflex63_trigger_d;
 reg           irqarray3_eventsourceflex63_trigger_filtered;
-wire          irqarray3_sceintr00;
-wire          irqarray3_sceintr10;
-wire          irqarray3_sceintr20;
-wire          irqarray3_sceintr30;
-wire          irqarray3_sceintr40;
-wire          irqarray3_sceintr50;
-wire          irqarray3_sceintr60;
-wire          irqarray3_sceintr70;
+wire          irqarray3_trng_done0;
+wire          irqarray3_aes_done0;
+wire          irqarray3_pke_done0;
+wire          irqarray3_hash_done0;
+wire          irqarray3_alu_done0;
+wire          irqarray3_sdma_ichdone0;
+wire          irqarray3_sdma_schdone0;
+wire          irqarray3_sdma_xchdone0;
 wire          irqarray3_nc_b3s80;
 wire          irqarray3_nc_b3s90;
 wire          irqarray3_nc_b3s100;
@@ -1100,14 +1100,14 @@ wire          irqarray3_nc_b3s150;
 reg    [15:0] irqarray3_status_status;
 wire          irqarray3_status_we;
 reg           irqarray3_status_re;
-wire          irqarray3_sceintr01;
-wire          irqarray3_sceintr11;
-wire          irqarray3_sceintr21;
-wire          irqarray3_sceintr31;
-wire          irqarray3_sceintr41;
-wire          irqarray3_sceintr51;
-wire          irqarray3_sceintr61;
-wire          irqarray3_sceintr71;
+wire          irqarray3_trng_done1;
+wire          irqarray3_aes_done1;
+wire          irqarray3_pke_done1;
+wire          irqarray3_hash_done1;
+wire          irqarray3_alu_done1;
+wire          irqarray3_sdma_ichdone1;
+wire          irqarray3_sdma_schdone1;
+wire          irqarray3_sdma_xchdone1;
 wire          irqarray3_nc_b3s81;
 wire          irqarray3_nc_b3s91;
 wire          irqarray3_nc_b3s101;
@@ -1120,14 +1120,14 @@ reg    [15:0] irqarray3_pending_status;
 wire          irqarray3_pending_we;
 reg           irqarray3_pending_re;
 reg    [15:0] irqarray3_pending_r;
-wire          irqarray3_sceintr02;
-wire          irqarray3_sceintr12;
-wire          irqarray3_sceintr22;
-wire          irqarray3_sceintr32;
-wire          irqarray3_sceintr42;
-wire          irqarray3_sceintr52;
-wire          irqarray3_sceintr62;
-wire          irqarray3_sceintr72;
+wire          irqarray3_trng_done2;
+wire          irqarray3_aes_done2;
+wire          irqarray3_pke_done2;
+wire          irqarray3_hash_done2;
+wire          irqarray3_alu_done2;
+wire          irqarray3_sdma_ichdone2;
+wire          irqarray3_sdma_schdone2;
+wire          irqarray3_sdma_xchdone2;
 wire          irqarray3_nc_b3s82;
 wire          irqarray3_nc_b3s92;
 wire          irqarray3_nc_b3s102;
@@ -1229,14 +1229,14 @@ reg           irqarray4_eventsourceflex79_pending;
 reg           irqarray4_eventsourceflex79_clear;
 reg           irqarray4_eventsourceflex79_trigger_d;
 reg           irqarray4_eventsourceflex79_trigger_filtered;
-wire          irqarray4_nc_b4s00;
-wire          irqarray4_nc_b4s10;
-wire          irqarray4_nc_b4s20;
-wire          irqarray4_nc_b4s30;
-wire          irqarray4_nc_b4s40;
-wire          irqarray4_nc_b4s50;
-wire          irqarray4_nc_b4s60;
-wire          irqarray4_nc_b4s70;
+wire          irqarray4_trng_done_dupe0;
+wire          irqarray4_aes_done_dupe0;
+wire          irqarray4_pke_done_dupe0;
+wire          irqarray4_hash_done_dupe0;
+wire          irqarray4_alu_done_dupe0;
+wire          irqarray4_sdma_ichdone_dupe0;
+wire          irqarray4_sdma_schdone_dupe0;
+wire          irqarray4_sdma_xchdone_dupe0;
 wire          irqarray4_nc_b4s80;
 wire          irqarray4_nc_b4s90;
 wire          irqarray4_nc_b4s100;
@@ -1248,14 +1248,14 @@ wire          irqarray4_nc_b4s150;
 reg    [15:0] irqarray4_status_status;
 wire          irqarray4_status_we;
 reg           irqarray4_status_re;
-wire          irqarray4_nc_b4s01;
-wire          irqarray4_nc_b4s11;
-wire          irqarray4_nc_b4s21;
-wire          irqarray4_nc_b4s31;
-wire          irqarray4_nc_b4s41;
-wire          irqarray4_nc_b4s51;
-wire          irqarray4_nc_b4s61;
-wire          irqarray4_nc_b4s71;
+wire          irqarray4_trng_done_dupe1;
+wire          irqarray4_aes_done_dupe1;
+wire          irqarray4_pke_done_dupe1;
+wire          irqarray4_hash_done_dupe1;
+wire          irqarray4_alu_done_dupe1;
+wire          irqarray4_sdma_ichdone_dupe1;
+wire          irqarray4_sdma_schdone_dupe1;
+wire          irqarray4_sdma_xchdone_dupe1;
 wire          irqarray4_nc_b4s81;
 wire          irqarray4_nc_b4s91;
 wire          irqarray4_nc_b4s101;
@@ -1268,14 +1268,14 @@ reg    [15:0] irqarray4_pending_status;
 wire          irqarray4_pending_we;
 reg           irqarray4_pending_re;
 reg    [15:0] irqarray4_pending_r;
-wire          irqarray4_nc_b4s02;
-wire          irqarray4_nc_b4s12;
-wire          irqarray4_nc_b4s22;
-wire          irqarray4_nc_b4s32;
-wire          irqarray4_nc_b4s42;
-wire          irqarray4_nc_b4s52;
-wire          irqarray4_nc_b4s62;
-wire          irqarray4_nc_b4s72;
+wire          irqarray4_trng_done_dupe2;
+wire          irqarray4_aes_done_dupe2;
+wire          irqarray4_pke_done_dupe2;
+wire          irqarray4_hash_done_dupe2;
+wire          irqarray4_alu_done_dupe2;
+wire          irqarray4_sdma_ichdone_dupe2;
+wire          irqarray4_sdma_schdone_dupe2;
+wire          irqarray4_sdma_xchdone_dupe2;
 wire          irqarray4_nc_b4s82;
 wire          irqarray4_nc_b4s92;
 wire          irqarray4_nc_b4s102;
@@ -2717,7 +2717,7 @@ wire          irqarray14_uart3_rx_dupe0;
 wire          irqarray14_uart3_tx_dupe0;
 wire          irqarray14_uart3_rx_char_dupe0;
 wire          irqarray14_uart3_err_dupe0;
-wire          irqarray14_nc_b14s80;
+wire          irqarray14_trng_done_dupe0;
 wire          irqarray14_nc_b14s90;
 wire          irqarray14_nc_b14s100;
 wire          irqarray14_nc_b14s110;
@@ -2736,7 +2736,7 @@ wire          irqarray14_uart3_rx_dupe1;
 wire          irqarray14_uart3_tx_dupe1;
 wire          irqarray14_uart3_rx_char_dupe1;
 wire          irqarray14_uart3_err_dupe1;
-wire          irqarray14_nc_b14s81;
+wire          irqarray14_trng_done_dupe1;
 wire          irqarray14_nc_b14s91;
 wire          irqarray14_nc_b14s101;
 wire          irqarray14_nc_b14s111;
@@ -2756,7 +2756,7 @@ wire          irqarray14_uart3_rx_dupe2;
 wire          irqarray14_uart3_tx_dupe2;
 wire          irqarray14_uart3_rx_char_dupe2;
 wire          irqarray14_uart3_err_dupe2;
-wire          irqarray14_nc_b14s82;
+wire          irqarray14_trng_done_dupe2;
 wire          irqarray14_nc_b14s92;
 wire          irqarray14_nc_b14s102;
 wire          irqarray14_nc_b14s112;
@@ -3005,61 +3005,61 @@ reg           irqarray16_eventsourceflex271_pending;
 reg           irqarray16_eventsourceflex271_clear;
 reg           irqarray16_eventsourceflex271_trigger_d;
 reg           irqarray16_eventsourceflex271_trigger_filtered;
-wire          irqarray16_nc_b16s00;
-wire          irqarray16_nc_b16s10;
-wire          irqarray16_nc_b16s20;
+wire          irqarray16_cam_rx_dupe0;
+wire          irqarray16_i2s_rx_dupe0;
+wire          irqarray16_i2s_tx_dupe0;
 wire          irqarray16_nc_b16s30;
-wire          irqarray16_nc_b16s40;
-wire          irqarray16_nc_b16s50;
-wire          irqarray16_nc_b16s60;
-wire          irqarray16_nc_b16s70;
-wire          irqarray16_nc_b16s80;
-wire          irqarray16_nc_b16s90;
-wire          irqarray16_nc_b16s100;
-wire          irqarray16_nc_b16s110;
-wire          irqarray16_nc_b16s120;
-wire          irqarray16_nc_b16s130;
-wire          irqarray16_nc_b16s140;
-wire          irqarray16_nc_b16s150;
+wire          irqarray16_spim1_rx_dupe0;
+wire          irqarray16_spim1_tx_dupe0;
+wire          irqarray16_spim1_cmd_dupe0;
+wire          irqarray16_spim1_eot_dupe0;
+wire          irqarray16_spim2_rx_dupe0;
+wire          irqarray16_spim2_tx_dupe0;
+wire          irqarray16_spim2_cmd_dupe0;
+wire          irqarray16_spim2_eot_dupe0;
+wire          irqarray16_i2c0_rx_dupe0;
+wire          irqarray16_i2c0_tx_dupe0;
+wire          irqarray16_i2c0_cmd_dupe0;
+wire          irqarray16_i2c0_eot_dupe0;
 reg    [15:0] irqarray16_status_status;
 wire          irqarray16_status_we;
 reg           irqarray16_status_re;
-wire          irqarray16_nc_b16s01;
-wire          irqarray16_nc_b16s11;
-wire          irqarray16_nc_b16s21;
+wire          irqarray16_cam_rx_dupe1;
+wire          irqarray16_i2s_rx_dupe1;
+wire          irqarray16_i2s_tx_dupe1;
 wire          irqarray16_nc_b16s31;
-wire          irqarray16_nc_b16s41;
-wire          irqarray16_nc_b16s51;
-wire          irqarray16_nc_b16s61;
-wire          irqarray16_nc_b16s71;
-wire          irqarray16_nc_b16s81;
-wire          irqarray16_nc_b16s91;
-wire          irqarray16_nc_b16s101;
-wire          irqarray16_nc_b16s111;
-wire          irqarray16_nc_b16s121;
-wire          irqarray16_nc_b16s131;
-wire          irqarray16_nc_b16s141;
-wire          irqarray16_nc_b16s151;
+wire          irqarray16_spim1_rx_dupe1;
+wire          irqarray16_spim1_tx_dupe1;
+wire          irqarray16_spim1_cmd_dupe1;
+wire          irqarray16_spim1_eot_dupe1;
+wire          irqarray16_spim2_rx_dupe1;
+wire          irqarray16_spim2_tx_dupe1;
+wire          irqarray16_spim2_cmd_dupe1;
+wire          irqarray16_spim2_eot_dupe1;
+wire          irqarray16_i2c0_rx_dupe1;
+wire          irqarray16_i2c0_tx_dupe1;
+wire          irqarray16_i2c0_cmd_dupe1;
+wire          irqarray16_i2c0_eot_dupe1;
 reg    [15:0] irqarray16_pending_status;
 wire          irqarray16_pending_we;
 reg           irqarray16_pending_re;
 reg    [15:0] irqarray16_pending_r;
-wire          irqarray16_nc_b16s02;
-wire          irqarray16_nc_b16s12;
-wire          irqarray16_nc_b16s22;
+wire          irqarray16_cam_rx_dupe2;
+wire          irqarray16_i2s_rx_dupe2;
+wire          irqarray16_i2s_tx_dupe2;
 wire          irqarray16_nc_b16s32;
-wire          irqarray16_nc_b16s42;
-wire          irqarray16_nc_b16s52;
-wire          irqarray16_nc_b16s62;
-wire          irqarray16_nc_b16s72;
-wire          irqarray16_nc_b16s82;
-wire          irqarray16_nc_b16s92;
-wire          irqarray16_nc_b16s102;
-wire          irqarray16_nc_b16s112;
-wire          irqarray16_nc_b16s122;
-wire          irqarray16_nc_b16s132;
-wire          irqarray16_nc_b16s142;
-wire          irqarray16_nc_b16s152;
+wire          irqarray16_spim1_rx_dupe2;
+wire          irqarray16_spim1_tx_dupe2;
+wire          irqarray16_spim1_cmd_dupe2;
+wire          irqarray16_spim1_eot_dupe2;
+wire          irqarray16_spim2_rx_dupe2;
+wire          irqarray16_spim2_tx_dupe2;
+wire          irqarray16_spim2_cmd_dupe2;
+wire          irqarray16_spim2_eot_dupe2;
+wire          irqarray16_i2c0_rx_dupe2;
+wire          irqarray16_i2c0_tx_dupe2;
+wire          irqarray16_i2c0_cmd_dupe2;
+wire          irqarray16_i2c0_eot_dupe2;
 reg    [15:0] irqarray16_enable_storage;
 reg           irqarray16_enable_re;
 wire          irqarray17_irq;
@@ -3153,18 +3153,18 @@ reg           irqarray17_eventsourceflex287_pending;
 reg           irqarray17_eventsourceflex287_clear;
 reg           irqarray17_eventsourceflex287_trigger_d;
 reg           irqarray17_eventsourceflex287_trigger_filtered;
-wire          irqarray17_nc_b17s00;
-wire          irqarray17_nc_b17s10;
-wire          irqarray17_nc_b17s20;
-wire          irqarray17_nc_b17s30;
-wire          irqarray17_nc_b17s40;
-wire          irqarray17_nc_b17s50;
-wire          irqarray17_nc_b17s60;
-wire          irqarray17_nc_b17s70;
-wire          irqarray17_nc_b17s80;
-wire          irqarray17_nc_b17s90;
-wire          irqarray17_nc_b17s100;
-wire          irqarray17_nc_b17s110;
+wire          irqarray17_i2c1_rx_dupe0;
+wire          irqarray17_i2c1_tx_dupe0;
+wire          irqarray17_i2c1_cmd_dupe0;
+wire          irqarray17_i2c1_eot_dupe0;
+wire          irqarray17_pioirq0_dupe0;
+wire          irqarray17_pioirq1_dupe0;
+wire          irqarray17_pioirq2_dupe0;
+wire          irqarray17_pioirq3_dupe0;
+wire          irqarray17_qfcirq_dupe0;
+wire          irqarray17_adc_rx_dupe0;
+wire          irqarray17_ioxirq_dupe0;
+wire          irqarray17_sddcirq_dupe0;
 wire          irqarray17_nc_b17s120;
 wire          irqarray17_nc_b17s130;
 wire          irqarray17_nc_b17s140;
@@ -3172,18 +3172,18 @@ wire          irqarray17_nc_b17s150;
 reg    [15:0] irqarray17_status_status;
 wire          irqarray17_status_we;
 reg           irqarray17_status_re;
-wire          irqarray17_nc_b17s01;
-wire          irqarray17_nc_b17s11;
-wire          irqarray17_nc_b17s21;
-wire          irqarray17_nc_b17s31;
-wire          irqarray17_nc_b17s41;
-wire          irqarray17_nc_b17s51;
-wire          irqarray17_nc_b17s61;
-wire          irqarray17_nc_b17s71;
-wire          irqarray17_nc_b17s81;
-wire          irqarray17_nc_b17s91;
-wire          irqarray17_nc_b17s101;
-wire          irqarray17_nc_b17s111;
+wire          irqarray17_i2c1_rx_dupe1;
+wire          irqarray17_i2c1_tx_dupe1;
+wire          irqarray17_i2c1_cmd_dupe1;
+wire          irqarray17_i2c1_eot_dupe1;
+wire          irqarray17_pioirq0_dupe1;
+wire          irqarray17_pioirq1_dupe1;
+wire          irqarray17_pioirq2_dupe1;
+wire          irqarray17_pioirq3_dupe1;
+wire          irqarray17_qfcirq_dupe1;
+wire          irqarray17_adc_rx_dupe1;
+wire          irqarray17_ioxirq_dupe1;
+wire          irqarray17_sddcirq_dupe1;
 wire          irqarray17_nc_b17s121;
 wire          irqarray17_nc_b17s131;
 wire          irqarray17_nc_b17s141;
@@ -3192,18 +3192,18 @@ reg    [15:0] irqarray17_pending_status;
 wire          irqarray17_pending_we;
 reg           irqarray17_pending_re;
 reg    [15:0] irqarray17_pending_r;
-wire          irqarray17_nc_b17s02;
-wire          irqarray17_nc_b17s12;
-wire          irqarray17_nc_b17s22;
-wire          irqarray17_nc_b17s32;
-wire          irqarray17_nc_b17s42;
-wire          irqarray17_nc_b17s52;
-wire          irqarray17_nc_b17s62;
-wire          irqarray17_nc_b17s72;
-wire          irqarray17_nc_b17s82;
-wire          irqarray17_nc_b17s92;
-wire          irqarray17_nc_b17s102;
-wire          irqarray17_nc_b17s112;
+wire          irqarray17_i2c1_rx_dupe2;
+wire          irqarray17_i2c1_tx_dupe2;
+wire          irqarray17_i2c1_cmd_dupe2;
+wire          irqarray17_i2c1_eot_dupe2;
+wire          irqarray17_pioirq0_dupe2;
+wire          irqarray17_pioirq1_dupe2;
+wire          irqarray17_pioirq2_dupe2;
+wire          irqarray17_pioirq3_dupe2;
+wire          irqarray17_qfcirq_dupe2;
+wire          irqarray17_adc_rx_dupe2;
+wire          irqarray17_ioxirq_dupe2;
+wire          irqarray17_sddcirq_dupe2;
 wire          irqarray17_nc_b17s122;
 wire          irqarray17_nc_b17s132;
 wire          irqarray17_nc_b17s142;
@@ -3305,18 +3305,18 @@ wire          irqarray18_pioirq0_dupe0;
 wire          irqarray18_pioirq1_dupe0;
 wire          irqarray18_pioirq2_dupe0;
 wire          irqarray18_pioirq3_dupe0;
-wire          irqarray18_nc_b18s40;
-wire          irqarray18_nc_b18s50;
-wire          irqarray18_nc_b18s60;
-wire          irqarray18_nc_b18s70;
-wire          irqarray18_nc_b18s80;
-wire          irqarray18_nc_b18s90;
-wire          irqarray18_nc_b18s100;
-wire          irqarray18_nc_b18s110;
-wire          irqarray18_nc_b18s120;
-wire          irqarray18_nc_b18s130;
-wire          irqarray18_nc_b18s140;
-wire          irqarray18_nc_b18s150;
+wire          irqarray18_i2c2_rx_dupe0;
+wire          irqarray18_i2c2_tx_dupe0;
+wire          irqarray18_i2c2_cmd_dupe0;
+wire          irqarray18_i2c2_eot_dupe0;
+wire          irqarray18_i2c0_nack_dupe0;
+wire          irqarray18_i2c1_nack_dupe0;
+wire          irqarray18_i2c2_nack_dupe0;
+wire          irqarray18_i2c0_err_dupe0;
+wire          irqarray18_i2c1_err_dupe0;
+wire          irqarray18_i2c2_err_dupe0;
+wire          irqarray18_ioxirq_dupe0;
+wire          irqarray18_cam_rx_dupe0;
 reg    [15:0] irqarray18_status_status;
 wire          irqarray18_status_we;
 reg           irqarray18_status_re;
@@ -3324,18 +3324,18 @@ wire          irqarray18_pioirq0_dupe1;
 wire          irqarray18_pioirq1_dupe1;
 wire          irqarray18_pioirq2_dupe1;
 wire          irqarray18_pioirq3_dupe1;
-wire          irqarray18_nc_b18s41;
-wire          irqarray18_nc_b18s51;
-wire          irqarray18_nc_b18s61;
-wire          irqarray18_nc_b18s71;
-wire          irqarray18_nc_b18s81;
-wire          irqarray18_nc_b18s91;
-wire          irqarray18_nc_b18s101;
-wire          irqarray18_nc_b18s111;
-wire          irqarray18_nc_b18s121;
-wire          irqarray18_nc_b18s131;
-wire          irqarray18_nc_b18s141;
-wire          irqarray18_nc_b18s151;
+wire          irqarray18_i2c2_rx_dupe1;
+wire          irqarray18_i2c2_tx_dupe1;
+wire          irqarray18_i2c2_cmd_dupe1;
+wire          irqarray18_i2c2_eot_dupe1;
+wire          irqarray18_i2c0_nack_dupe1;
+wire          irqarray18_i2c1_nack_dupe1;
+wire          irqarray18_i2c2_nack_dupe1;
+wire          irqarray18_i2c0_err_dupe1;
+wire          irqarray18_i2c1_err_dupe1;
+wire          irqarray18_i2c2_err_dupe1;
+wire          irqarray18_ioxirq_dupe1;
+wire          irqarray18_cam_rx_dupe1;
 reg    [15:0] irqarray18_pending_status;
 wire          irqarray18_pending_we;
 reg           irqarray18_pending_re;
@@ -3344,18 +3344,18 @@ wire          irqarray18_pioirq0_dupe2;
 wire          irqarray18_pioirq1_dupe2;
 wire          irqarray18_pioirq2_dupe2;
 wire          irqarray18_pioirq3_dupe2;
-wire          irqarray18_nc_b18s42;
-wire          irqarray18_nc_b18s52;
-wire          irqarray18_nc_b18s62;
-wire          irqarray18_nc_b18s72;
-wire          irqarray18_nc_b18s82;
-wire          irqarray18_nc_b18s92;
-wire          irqarray18_nc_b18s102;
-wire          irqarray18_nc_b18s112;
-wire          irqarray18_nc_b18s122;
-wire          irqarray18_nc_b18s132;
-wire          irqarray18_nc_b18s142;
-wire          irqarray18_nc_b18s152;
+wire          irqarray18_i2c2_rx_dupe2;
+wire          irqarray18_i2c2_tx_dupe2;
+wire          irqarray18_i2c2_cmd_dupe2;
+wire          irqarray18_i2c2_eot_dupe2;
+wire          irqarray18_i2c0_nack_dupe2;
+wire          irqarray18_i2c1_nack_dupe2;
+wire          irqarray18_i2c2_nack_dupe2;
+wire          irqarray18_i2c0_err_dupe2;
+wire          irqarray18_i2c1_err_dupe2;
+wire          irqarray18_i2c2_err_dupe2;
+wire          irqarray18_ioxirq_dupe2;
+wire          irqarray18_cam_rx_dupe2;
 reg    [15:0] irqarray18_enable_storage;
 reg           irqarray18_enable_re;
 wire          irqarray19_irq;
@@ -3453,14 +3453,14 @@ wire          irqarray19_mbox_irq_available_dupe0;
 wire          irqarray19_mbox_irq_abort_init_dupe0;
 wire          irqarray19_mbox_irq_done_dupe0;
 wire          irqarray19_mbox_irq_error_dupe0;
-wire          irqarray19_nc_b19s40;
-wire          irqarray19_nc_b19s50;
-wire          irqarray19_nc_b19s60;
-wire          irqarray19_nc_b19s70;
-wire          irqarray19_nc_b19s80;
-wire          irqarray19_nc_b19s90;
-wire          irqarray19_nc_b19s100;
-wire          irqarray19_nc_b19s110;
+wire          irqarray19_pioirq0_dupe0;
+wire          irqarray19_pioirq1_dupe0;
+wire          irqarray19_pioirq2_dupe0;
+wire          irqarray19_pioirq3_dupe0;
+wire          irqarray19_sdio_rx_dupe0;
+wire          irqarray19_sdio_tx_dupe0;
+wire          irqarray19_sdio_eot_dupe0;
+wire          irqarray19_sdio_err_dupe0;
 wire          irqarray19_nc_b19s120;
 wire          irqarray19_nc_b19s130;
 wire          irqarray19_nc_b19s140;
@@ -3472,14 +3472,14 @@ wire          irqarray19_mbox_irq_available_dupe1;
 wire          irqarray19_mbox_irq_abort_init_dupe1;
 wire          irqarray19_mbox_irq_done_dupe1;
 wire          irqarray19_mbox_irq_error_dupe1;
-wire          irqarray19_nc_b19s41;
-wire          irqarray19_nc_b19s51;
-wire          irqarray19_nc_b19s61;
-wire          irqarray19_nc_b19s71;
-wire          irqarray19_nc_b19s81;
-wire          irqarray19_nc_b19s91;
-wire          irqarray19_nc_b19s101;
-wire          irqarray19_nc_b19s111;
+wire          irqarray19_pioirq0_dupe1;
+wire          irqarray19_pioirq1_dupe1;
+wire          irqarray19_pioirq2_dupe1;
+wire          irqarray19_pioirq3_dupe1;
+wire          irqarray19_sdio_rx_dupe1;
+wire          irqarray19_sdio_tx_dupe1;
+wire          irqarray19_sdio_eot_dupe1;
+wire          irqarray19_sdio_err_dupe1;
 wire          irqarray19_nc_b19s121;
 wire          irqarray19_nc_b19s131;
 wire          irqarray19_nc_b19s141;
@@ -3492,14 +3492,14 @@ wire          irqarray19_mbox_irq_available_dupe2;
 wire          irqarray19_mbox_irq_abort_init_dupe2;
 wire          irqarray19_mbox_irq_done_dupe2;
 wire          irqarray19_mbox_irq_error_dupe2;
-wire          irqarray19_nc_b19s42;
-wire          irqarray19_nc_b19s52;
-wire          irqarray19_nc_b19s62;
-wire          irqarray19_nc_b19s72;
-wire          irqarray19_nc_b19s82;
-wire          irqarray19_nc_b19s92;
-wire          irqarray19_nc_b19s102;
-wire          irqarray19_nc_b19s112;
+wire          irqarray19_pioirq0_dupe2;
+wire          irqarray19_pioirq1_dupe2;
+wire          irqarray19_pioirq2_dupe2;
+wire          irqarray19_pioirq3_dupe2;
+wire          irqarray19_sdio_rx_dupe2;
+wire          irqarray19_sdio_tx_dupe2;
+wire          irqarray19_sdio_eot_dupe2;
+wire          irqarray19_sdio_err_dupe2;
 wire          irqarray19_nc_b19s122;
 wire          irqarray19_nc_b19s132;
 wire          irqarray19_nc_b19s142;
@@ -5119,10 +5119,10 @@ always @(*) begin
     irq_remap0[1] <= irqarray_bank0[1];
     irq_remap0[2] <= irqarray_bank0[2];
     irq_remap0[3] <= irqarray_bank0[3];
-    irq_remap0[4] <= irqarray_bank0[4];
-    irq_remap0[5] <= irqarray_bank0[5];
-    irq_remap0[6] <= irqarray_bank0[6];
-    irq_remap0[7] <= irqarray_bank0[7];
+    irq_remap0[4] <= irqarray_bank10[3];
+    irq_remap0[5] <= irqarray_bank10[4];
+    irq_remap0[6] <= irqarray_bank10[5];
+    irq_remap0[7] <= irqarray_bank10[6];
     irq_remap0[8] <= irqarray_bank0[8];
     irq_remap0[9] <= irqarray_bank0[9];
     irq_remap0[10] <= irqarray_bank0[10];
@@ -5191,14 +5191,14 @@ always @(*) begin
 end
 always @(*) begin
     irq_remap4 <= 16'd0;
-    irq_remap4[0] <= irqarray_bank4[0];
-    irq_remap4[1] <= irqarray_bank4[1];
-    irq_remap4[2] <= irqarray_bank4[2];
-    irq_remap4[3] <= irqarray_bank4[3];
-    irq_remap4[4] <= irqarray_bank4[4];
-    irq_remap4[5] <= irqarray_bank4[5];
-    irq_remap4[6] <= irqarray_bank4[6];
-    irq_remap4[7] <= irqarray_bank4[7];
+    irq_remap4[0] <= irqarray_bank3[0];
+    irq_remap4[1] <= irqarray_bank3[1];
+    irq_remap4[2] <= irqarray_bank3[2];
+    irq_remap4[3] <= irqarray_bank3[3];
+    irq_remap4[4] <= irqarray_bank3[4];
+    irq_remap4[5] <= irqarray_bank3[5];
+    irq_remap4[6] <= irqarray_bank3[6];
+    irq_remap4[7] <= irqarray_bank3[7];
     irq_remap4[8] <= irqarray_bank4[8];
     irq_remap4[9] <= irqarray_bank4[9];
     irq_remap4[10] <= irqarray_bank4[10];
@@ -5389,7 +5389,7 @@ always @(*) begin
     irq_remap14[5] <= irqarray_bank5[13];
     irq_remap14[6] <= irqarray_bank5[14];
     irq_remap14[7] <= irqarray_bank5[15];
-    irq_remap14[8] <= irqarray_bank14[8];
+    irq_remap14[8] <= irqarray_bank3[0];
     irq_remap14[9] <= irqarray_bank14[9];
     irq_remap14[10] <= irqarray_bank14[10];
     irq_remap14[11] <= irqarray_bank14[11];
@@ -5419,37 +5419,37 @@ always @(*) begin
 end
 always @(*) begin
     irq_remap16 <= 16'd0;
-    irq_remap16[0] <= irqarray_bank16[0];
-    irq_remap16[1] <= irqarray_bank16[1];
-    irq_remap16[2] <= irqarray_bank16[2];
+    irq_remap16[0] <= irqarray_bank8[8];
+    irq_remap16[1] <= irqarray_bank8[4];
+    irq_remap16[2] <= irqarray_bank8[5];
     irq_remap16[3] <= irqarray_bank16[3];
-    irq_remap16[4] <= irqarray_bank16[4];
-    irq_remap16[5] <= irqarray_bank16[5];
-    irq_remap16[6] <= irqarray_bank16[6];
-    irq_remap16[7] <= irqarray_bank16[7];
-    irq_remap16[8] <= irqarray_bank16[8];
-    irq_remap16[9] <= irqarray_bank16[9];
-    irq_remap16[10] <= irqarray_bank16[10];
-    irq_remap16[11] <= irqarray_bank16[11];
-    irq_remap16[12] <= irqarray_bank16[12];
-    irq_remap16[13] <= irqarray_bank16[13];
-    irq_remap16[14] <= irqarray_bank16[14];
-    irq_remap16[15] <= irqarray_bank16[15];
+    irq_remap16[4] <= irqarray_bank6[4];
+    irq_remap16[5] <= irqarray_bank6[5];
+    irq_remap16[6] <= irqarray_bank6[6];
+    irq_remap16[7] <= irqarray_bank6[7];
+    irq_remap16[8] <= irqarray_bank6[8];
+    irq_remap16[9] <= irqarray_bank6[9];
+    irq_remap16[10] <= irqarray_bank6[10];
+    irq_remap16[11] <= irqarray_bank6[11];
+    irq_remap16[12] <= irqarray_bank7[0];
+    irq_remap16[13] <= irqarray_bank7[1];
+    irq_remap16[14] <= irqarray_bank7[2];
+    irq_remap16[15] <= irqarray_bank7[3];
 end
 always @(*) begin
     irq_remap17 <= 16'd0;
-    irq_remap17[0] <= irqarray_bank17[0];
-    irq_remap17[1] <= irqarray_bank17[1];
-    irq_remap17[2] <= irqarray_bank17[2];
-    irq_remap17[3] <= irqarray_bank17[3];
-    irq_remap17[4] <= irqarray_bank17[4];
-    irq_remap17[5] <= irqarray_bank17[5];
-    irq_remap17[6] <= irqarray_bank17[6];
-    irq_remap17[7] <= irqarray_bank17[7];
-    irq_remap17[8] <= irqarray_bank17[8];
-    irq_remap17[9] <= irqarray_bank17[9];
-    irq_remap17[10] <= irqarray_bank17[10];
-    irq_remap17[11] <= irqarray_bank17[11];
+    irq_remap17[0] <= irqarray_bank7[4];
+    irq_remap17[1] <= irqarray_bank7[5];
+    irq_remap17[2] <= irqarray_bank7[6];
+    irq_remap17[3] <= irqarray_bank7[7];
+    irq_remap17[4] <= irqarray_bank10[3];
+    irq_remap17[5] <= irqarray_bank10[4];
+    irq_remap17[6] <= irqarray_bank10[5];
+    irq_remap17[7] <= irqarray_bank10[6];
+    irq_remap17[8] <= irqarray_bank2[0];
+    irq_remap17[9] <= irqarray_bank8[9];
+    irq_remap17[10] <= irqarray_bank10[0];
+    irq_remap17[11] <= irqarray_bank10[2];
     irq_remap17[12] <= irqarray_bank17[12];
     irq_remap17[13] <= irqarray_bank17[13];
     irq_remap17[14] <= irqarray_bank17[14];
@@ -5461,18 +5461,18 @@ always @(*) begin
     irq_remap18[1] <= irqarray_bank10[4];
     irq_remap18[2] <= irqarray_bank10[5];
     irq_remap18[3] <= irqarray_bank10[6];
-    irq_remap18[4] <= irqarray_bank18[4];
-    irq_remap18[5] <= irqarray_bank18[5];
-    irq_remap18[6] <= irqarray_bank18[6];
-    irq_remap18[7] <= irqarray_bank18[7];
-    irq_remap18[8] <= irqarray_bank18[8];
-    irq_remap18[9] <= irqarray_bank18[9];
-    irq_remap18[10] <= irqarray_bank18[10];
-    irq_remap18[11] <= irqarray_bank18[11];
-    irq_remap18[12] <= irqarray_bank18[12];
-    irq_remap18[13] <= irqarray_bank18[13];
-    irq_remap18[14] <= irqarray_bank18[14];
-    irq_remap18[15] <= irqarray_bank18[15];
+    irq_remap18[4] <= irqarray_bank7[8];
+    irq_remap18[5] <= irqarray_bank7[9];
+    irq_remap18[6] <= irqarray_bank7[10];
+    irq_remap18[7] <= irqarray_bank7[11];
+    irq_remap18[8] <= irqarray_bank12[8];
+    irq_remap18[9] <= irqarray_bank12[9];
+    irq_remap18[10] <= irqarray_bank12[10];
+    irq_remap18[11] <= irqarray_bank12[12];
+    irq_remap18[12] <= irqarray_bank12[13];
+    irq_remap18[13] <= irqarray_bank12[14];
+    irq_remap18[14] <= irqarray_bank10[0];
+    irq_remap18[15] <= irqarray_bank8[8];
 end
 always @(*) begin
     irq_remap19 <= 16'd0;
@@ -5480,14 +5480,14 @@ always @(*) begin
     irq_remap19[1] <= irqarray_bank2[3];
     irq_remap19[2] <= irqarray_bank2[4];
     irq_remap19[3] <= irqarray_bank2[5];
-    irq_remap19[4] <= irqarray_bank19[4];
-    irq_remap19[5] <= irqarray_bank19[5];
-    irq_remap19[6] <= irqarray_bank19[6];
-    irq_remap19[7] <= irqarray_bank19[7];
-    irq_remap19[8] <= irqarray_bank19[8];
-    irq_remap19[9] <= irqarray_bank19[9];
-    irq_remap19[10] <= irqarray_bank19[10];
-    irq_remap19[11] <= irqarray_bank19[11];
+    irq_remap19[4] <= irqarray_bank10[3];
+    irq_remap19[5] <= irqarray_bank10[4];
+    irq_remap19[6] <= irqarray_bank10[5];
+    irq_remap19[7] <= irqarray_bank10[6];
+    irq_remap19[8] <= irqarray_bank8[0];
+    irq_remap19[9] <= irqarray_bank8[1];
+    irq_remap19[10] <= irqarray_bank8[2];
+    irq_remap19[11] <= irqarray_bank8[3];
     irq_remap19[12] <= irqarray_bank19[12];
     irq_remap19[13] <= irqarray_bank19[13];
     irq_remap19[14] <= irqarray_bank19[14];
@@ -5746,32 +5746,32 @@ always @(*) begin
         irqarray0_eventsourceflex3_clear <= 1'd1;
     end
 end
-assign irqarray0_nc_b0s40 = irqarray0_eventsourceflex4_status;
-assign irqarray0_nc_b0s41 = irqarray0_eventsourceflex4_pending;
+assign irqarray0_pioirq0_dupe0 = irqarray0_eventsourceflex4_status;
+assign irqarray0_pioirq0_dupe1 = irqarray0_eventsourceflex4_pending;
 always @(*) begin
     irqarray0_eventsourceflex4_clear <= 1'd0;
     if ((irqarray0_pending_re & irqarray0_pending_r[4])) begin
         irqarray0_eventsourceflex4_clear <= 1'd1;
     end
 end
-assign irqarray0_nc_b0s50 = irqarray0_eventsourceflex5_status;
-assign irqarray0_nc_b0s51 = irqarray0_eventsourceflex5_pending;
+assign irqarray0_pioirq1_dupe0 = irqarray0_eventsourceflex5_status;
+assign irqarray0_pioirq1_dupe1 = irqarray0_eventsourceflex5_pending;
 always @(*) begin
     irqarray0_eventsourceflex5_clear <= 1'd0;
     if ((irqarray0_pending_re & irqarray0_pending_r[5])) begin
         irqarray0_eventsourceflex5_clear <= 1'd1;
     end
 end
-assign irqarray0_nc_b0s60 = irqarray0_eventsourceflex6_status;
-assign irqarray0_nc_b0s61 = irqarray0_eventsourceflex6_pending;
+assign irqarray0_pioirq2_dupe0 = irqarray0_eventsourceflex6_status;
+assign irqarray0_pioirq2_dupe1 = irqarray0_eventsourceflex6_pending;
 always @(*) begin
     irqarray0_eventsourceflex6_clear <= 1'd0;
     if ((irqarray0_pending_re & irqarray0_pending_r[6])) begin
         irqarray0_eventsourceflex6_clear <= 1'd1;
     end
 end
-assign irqarray0_nc_b0s70 = irqarray0_eventsourceflex7_status;
-assign irqarray0_nc_b0s71 = irqarray0_eventsourceflex7_pending;
+assign irqarray0_pioirq3_dupe0 = irqarray0_eventsourceflex7_status;
+assign irqarray0_pioirq3_dupe1 = irqarray0_eventsourceflex7_pending;
 always @(*) begin
     irqarray0_eventsourceflex7_clear <= 1'd0;
     if ((irqarray0_pending_re & irqarray0_pending_r[7])) begin
@@ -6510,8 +6510,8 @@ always @(*) begin
         irqarray2_eventsourceflex46_clear <= 1'd1;
     end
 end
-assign irqarray2_nc_b2s150 = irqarray2_eventsourceflex47_status;
-assign irqarray2_nc_b2s151 = irqarray2_eventsourceflex47_pending;
+assign irqarray2_aowkupint0 = irqarray2_eventsourceflex47_status;
+assign irqarray2_aowkupint1 = irqarray2_eventsourceflex47_pending;
 always @(*) begin
     irqarray2_eventsourceflex47_clear <= 1'd0;
     if ((irqarray2_pending_re & irqarray2_pending_r[15])) begin
@@ -6728,64 +6728,64 @@ always @(*) begin
 end
 assign irqarray2_eventsourceflex47_status = (irqarray2_interrupts[15] | irqarray2_trigger[15]);
 assign irqarray3_interrupts = irq_remap3;
-assign irqarray3_sceintr00 = irqarray3_eventsourceflex48_status;
-assign irqarray3_sceintr01 = irqarray3_eventsourceflex48_pending;
+assign irqarray3_trng_done0 = irqarray3_eventsourceflex48_status;
+assign irqarray3_trng_done1 = irqarray3_eventsourceflex48_pending;
 always @(*) begin
     irqarray3_eventsourceflex48_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[0])) begin
         irqarray3_eventsourceflex48_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr10 = irqarray3_eventsourceflex49_status;
-assign irqarray3_sceintr11 = irqarray3_eventsourceflex49_pending;
+assign irqarray3_aes_done0 = irqarray3_eventsourceflex49_status;
+assign irqarray3_aes_done1 = irqarray3_eventsourceflex49_pending;
 always @(*) begin
     irqarray3_eventsourceflex49_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[1])) begin
         irqarray3_eventsourceflex49_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr20 = irqarray3_eventsourceflex50_status;
-assign irqarray3_sceintr21 = irqarray3_eventsourceflex50_pending;
+assign irqarray3_pke_done0 = irqarray3_eventsourceflex50_status;
+assign irqarray3_pke_done1 = irqarray3_eventsourceflex50_pending;
 always @(*) begin
     irqarray3_eventsourceflex50_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[2])) begin
         irqarray3_eventsourceflex50_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr30 = irqarray3_eventsourceflex51_status;
-assign irqarray3_sceintr31 = irqarray3_eventsourceflex51_pending;
+assign irqarray3_hash_done0 = irqarray3_eventsourceflex51_status;
+assign irqarray3_hash_done1 = irqarray3_eventsourceflex51_pending;
 always @(*) begin
     irqarray3_eventsourceflex51_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[3])) begin
         irqarray3_eventsourceflex51_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr40 = irqarray3_eventsourceflex52_status;
-assign irqarray3_sceintr41 = irqarray3_eventsourceflex52_pending;
+assign irqarray3_alu_done0 = irqarray3_eventsourceflex52_status;
+assign irqarray3_alu_done1 = irqarray3_eventsourceflex52_pending;
 always @(*) begin
     irqarray3_eventsourceflex52_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[4])) begin
         irqarray3_eventsourceflex52_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr50 = irqarray3_eventsourceflex53_status;
-assign irqarray3_sceintr51 = irqarray3_eventsourceflex53_pending;
+assign irqarray3_sdma_ichdone0 = irqarray3_eventsourceflex53_status;
+assign irqarray3_sdma_ichdone1 = irqarray3_eventsourceflex53_pending;
 always @(*) begin
     irqarray3_eventsourceflex53_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[5])) begin
         irqarray3_eventsourceflex53_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr60 = irqarray3_eventsourceflex54_status;
-assign irqarray3_sceintr61 = irqarray3_eventsourceflex54_pending;
+assign irqarray3_sdma_schdone0 = irqarray3_eventsourceflex54_status;
+assign irqarray3_sdma_schdone1 = irqarray3_eventsourceflex54_pending;
 always @(*) begin
     irqarray3_eventsourceflex54_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[6])) begin
         irqarray3_eventsourceflex54_clear <= 1'd1;
     end
 end
-assign irqarray3_sceintr70 = irqarray3_eventsourceflex55_status;
-assign irqarray3_sceintr71 = irqarray3_eventsourceflex55_pending;
+assign irqarray3_sdma_xchdone0 = irqarray3_eventsourceflex55_status;
+assign irqarray3_sdma_xchdone1 = irqarray3_eventsourceflex55_pending;
 always @(*) begin
     irqarray3_eventsourceflex55_clear <= 1'd0;
     if ((irqarray3_pending_re & irqarray3_pending_r[7])) begin
@@ -7066,64 +7066,64 @@ always @(*) begin
 end
 assign irqarray3_eventsourceflex63_status = (irqarray3_interrupts[15] | irqarray3_trigger[15]);
 assign irqarray4_interrupts = irq_remap4;
-assign irqarray4_nc_b4s00 = irqarray4_eventsourceflex64_status;
-assign irqarray4_nc_b4s01 = irqarray4_eventsourceflex64_pending;
+assign irqarray4_trng_done_dupe0 = irqarray4_eventsourceflex64_status;
+assign irqarray4_trng_done_dupe1 = irqarray4_eventsourceflex64_pending;
 always @(*) begin
     irqarray4_eventsourceflex64_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[0])) begin
         irqarray4_eventsourceflex64_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s10 = irqarray4_eventsourceflex65_status;
-assign irqarray4_nc_b4s11 = irqarray4_eventsourceflex65_pending;
+assign irqarray4_aes_done_dupe0 = irqarray4_eventsourceflex65_status;
+assign irqarray4_aes_done_dupe1 = irqarray4_eventsourceflex65_pending;
 always @(*) begin
     irqarray4_eventsourceflex65_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[1])) begin
         irqarray4_eventsourceflex65_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s20 = irqarray4_eventsourceflex66_status;
-assign irqarray4_nc_b4s21 = irqarray4_eventsourceflex66_pending;
+assign irqarray4_pke_done_dupe0 = irqarray4_eventsourceflex66_status;
+assign irqarray4_pke_done_dupe1 = irqarray4_eventsourceflex66_pending;
 always @(*) begin
     irqarray4_eventsourceflex66_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[2])) begin
         irqarray4_eventsourceflex66_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s30 = irqarray4_eventsourceflex67_status;
-assign irqarray4_nc_b4s31 = irqarray4_eventsourceflex67_pending;
+assign irqarray4_hash_done_dupe0 = irqarray4_eventsourceflex67_status;
+assign irqarray4_hash_done_dupe1 = irqarray4_eventsourceflex67_pending;
 always @(*) begin
     irqarray4_eventsourceflex67_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[3])) begin
         irqarray4_eventsourceflex67_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s40 = irqarray4_eventsourceflex68_status;
-assign irqarray4_nc_b4s41 = irqarray4_eventsourceflex68_pending;
+assign irqarray4_alu_done_dupe0 = irqarray4_eventsourceflex68_status;
+assign irqarray4_alu_done_dupe1 = irqarray4_eventsourceflex68_pending;
 always @(*) begin
     irqarray4_eventsourceflex68_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[4])) begin
         irqarray4_eventsourceflex68_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s50 = irqarray4_eventsourceflex69_status;
-assign irqarray4_nc_b4s51 = irqarray4_eventsourceflex69_pending;
+assign irqarray4_sdma_ichdone_dupe0 = irqarray4_eventsourceflex69_status;
+assign irqarray4_sdma_ichdone_dupe1 = irqarray4_eventsourceflex69_pending;
 always @(*) begin
     irqarray4_eventsourceflex69_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[5])) begin
         irqarray4_eventsourceflex69_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s60 = irqarray4_eventsourceflex70_status;
-assign irqarray4_nc_b4s61 = irqarray4_eventsourceflex70_pending;
+assign irqarray4_sdma_schdone_dupe0 = irqarray4_eventsourceflex70_status;
+assign irqarray4_sdma_schdone_dupe1 = irqarray4_eventsourceflex70_pending;
 always @(*) begin
     irqarray4_eventsourceflex70_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[6])) begin
         irqarray4_eventsourceflex70_clear <= 1'd1;
     end
 end
-assign irqarray4_nc_b4s70 = irqarray4_eventsourceflex71_status;
-assign irqarray4_nc_b4s71 = irqarray4_eventsourceflex71_pending;
+assign irqarray4_sdma_xchdone_dupe0 = irqarray4_eventsourceflex71_status;
+assign irqarray4_sdma_xchdone_dupe1 = irqarray4_eventsourceflex71_pending;
 always @(*) begin
     irqarray4_eventsourceflex71_clear <= 1'd0;
     if ((irqarray4_pending_re & irqarray4_pending_r[7])) begin
@@ -10510,8 +10510,8 @@ always @(*) begin
         irqarray14_eventsourceflex231_clear <= 1'd1;
     end
 end
-assign irqarray14_nc_b14s80 = irqarray14_eventsourceflex232_status;
-assign irqarray14_nc_b14s81 = irqarray14_eventsourceflex232_pending;
+assign irqarray14_trng_done_dupe0 = irqarray14_eventsourceflex232_status;
+assign irqarray14_trng_done_dupe1 = irqarray14_eventsourceflex232_pending;
 always @(*) begin
     irqarray14_eventsourceflex232_clear <= 1'd0;
     if ((irqarray14_pending_re & irqarray14_pending_r[8])) begin
@@ -11122,24 +11122,24 @@ always @(*) begin
 end
 assign irqarray15_eventsourceflex255_status = (irqarray15_interrupts[15] | irqarray15_trigger[15]);
 assign irqarray16_interrupts = irq_remap16;
-assign irqarray16_nc_b16s00 = irqarray16_eventsourceflex256_status;
-assign irqarray16_nc_b16s01 = irqarray16_eventsourceflex256_pending;
+assign irqarray16_cam_rx_dupe0 = irqarray16_eventsourceflex256_status;
+assign irqarray16_cam_rx_dupe1 = irqarray16_eventsourceflex256_pending;
 always @(*) begin
     irqarray16_eventsourceflex256_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[0])) begin
         irqarray16_eventsourceflex256_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s10 = irqarray16_eventsourceflex257_status;
-assign irqarray16_nc_b16s11 = irqarray16_eventsourceflex257_pending;
+assign irqarray16_i2s_rx_dupe0 = irqarray16_eventsourceflex257_status;
+assign irqarray16_i2s_rx_dupe1 = irqarray16_eventsourceflex257_pending;
 always @(*) begin
     irqarray16_eventsourceflex257_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[1])) begin
         irqarray16_eventsourceflex257_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s20 = irqarray16_eventsourceflex258_status;
-assign irqarray16_nc_b16s21 = irqarray16_eventsourceflex258_pending;
+assign irqarray16_i2s_tx_dupe0 = irqarray16_eventsourceflex258_status;
+assign irqarray16_i2s_tx_dupe1 = irqarray16_eventsourceflex258_pending;
 always @(*) begin
     irqarray16_eventsourceflex258_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[2])) begin
@@ -11154,96 +11154,96 @@ always @(*) begin
         irqarray16_eventsourceflex259_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s40 = irqarray16_eventsourceflex260_status;
-assign irqarray16_nc_b16s41 = irqarray16_eventsourceflex260_pending;
+assign irqarray16_spim1_rx_dupe0 = irqarray16_eventsourceflex260_status;
+assign irqarray16_spim1_rx_dupe1 = irqarray16_eventsourceflex260_pending;
 always @(*) begin
     irqarray16_eventsourceflex260_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[4])) begin
         irqarray16_eventsourceflex260_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s50 = irqarray16_eventsourceflex261_status;
-assign irqarray16_nc_b16s51 = irqarray16_eventsourceflex261_pending;
+assign irqarray16_spim1_tx_dupe0 = irqarray16_eventsourceflex261_status;
+assign irqarray16_spim1_tx_dupe1 = irqarray16_eventsourceflex261_pending;
 always @(*) begin
     irqarray16_eventsourceflex261_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[5])) begin
         irqarray16_eventsourceflex261_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s60 = irqarray16_eventsourceflex262_status;
-assign irqarray16_nc_b16s61 = irqarray16_eventsourceflex262_pending;
+assign irqarray16_spim1_cmd_dupe0 = irqarray16_eventsourceflex262_status;
+assign irqarray16_spim1_cmd_dupe1 = irqarray16_eventsourceflex262_pending;
 always @(*) begin
     irqarray16_eventsourceflex262_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[6])) begin
         irqarray16_eventsourceflex262_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s70 = irqarray16_eventsourceflex263_status;
-assign irqarray16_nc_b16s71 = irqarray16_eventsourceflex263_pending;
+assign irqarray16_spim1_eot_dupe0 = irqarray16_eventsourceflex263_status;
+assign irqarray16_spim1_eot_dupe1 = irqarray16_eventsourceflex263_pending;
 always @(*) begin
     irqarray16_eventsourceflex263_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[7])) begin
         irqarray16_eventsourceflex263_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s80 = irqarray16_eventsourceflex264_status;
-assign irqarray16_nc_b16s81 = irqarray16_eventsourceflex264_pending;
+assign irqarray16_spim2_rx_dupe0 = irqarray16_eventsourceflex264_status;
+assign irqarray16_spim2_rx_dupe1 = irqarray16_eventsourceflex264_pending;
 always @(*) begin
     irqarray16_eventsourceflex264_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[8])) begin
         irqarray16_eventsourceflex264_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s90 = irqarray16_eventsourceflex265_status;
-assign irqarray16_nc_b16s91 = irqarray16_eventsourceflex265_pending;
+assign irqarray16_spim2_tx_dupe0 = irqarray16_eventsourceflex265_status;
+assign irqarray16_spim2_tx_dupe1 = irqarray16_eventsourceflex265_pending;
 always @(*) begin
     irqarray16_eventsourceflex265_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[9])) begin
         irqarray16_eventsourceflex265_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s100 = irqarray16_eventsourceflex266_status;
-assign irqarray16_nc_b16s101 = irqarray16_eventsourceflex266_pending;
+assign irqarray16_spim2_cmd_dupe0 = irqarray16_eventsourceflex266_status;
+assign irqarray16_spim2_cmd_dupe1 = irqarray16_eventsourceflex266_pending;
 always @(*) begin
     irqarray16_eventsourceflex266_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[10])) begin
         irqarray16_eventsourceflex266_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s110 = irqarray16_eventsourceflex267_status;
-assign irqarray16_nc_b16s111 = irqarray16_eventsourceflex267_pending;
+assign irqarray16_spim2_eot_dupe0 = irqarray16_eventsourceflex267_status;
+assign irqarray16_spim2_eot_dupe1 = irqarray16_eventsourceflex267_pending;
 always @(*) begin
     irqarray16_eventsourceflex267_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[11])) begin
         irqarray16_eventsourceflex267_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s120 = irqarray16_eventsourceflex268_status;
-assign irqarray16_nc_b16s121 = irqarray16_eventsourceflex268_pending;
+assign irqarray16_i2c0_rx_dupe0 = irqarray16_eventsourceflex268_status;
+assign irqarray16_i2c0_rx_dupe1 = irqarray16_eventsourceflex268_pending;
 always @(*) begin
     irqarray16_eventsourceflex268_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[12])) begin
         irqarray16_eventsourceflex268_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s130 = irqarray16_eventsourceflex269_status;
-assign irqarray16_nc_b16s131 = irqarray16_eventsourceflex269_pending;
+assign irqarray16_i2c0_tx_dupe0 = irqarray16_eventsourceflex269_status;
+assign irqarray16_i2c0_tx_dupe1 = irqarray16_eventsourceflex269_pending;
 always @(*) begin
     irqarray16_eventsourceflex269_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[13])) begin
         irqarray16_eventsourceflex269_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s140 = irqarray16_eventsourceflex270_status;
-assign irqarray16_nc_b16s141 = irqarray16_eventsourceflex270_pending;
+assign irqarray16_i2c0_cmd_dupe0 = irqarray16_eventsourceflex270_status;
+assign irqarray16_i2c0_cmd_dupe1 = irqarray16_eventsourceflex270_pending;
 always @(*) begin
     irqarray16_eventsourceflex270_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[14])) begin
         irqarray16_eventsourceflex270_clear <= 1'd1;
     end
 end
-assign irqarray16_nc_b16s150 = irqarray16_eventsourceflex271_status;
-assign irqarray16_nc_b16s151 = irqarray16_eventsourceflex271_pending;
+assign irqarray16_i2c0_eot_dupe0 = irqarray16_eventsourceflex271_status;
+assign irqarray16_i2c0_eot_dupe1 = irqarray16_eventsourceflex271_pending;
 always @(*) begin
     irqarray16_eventsourceflex271_clear <= 1'd0;
     if ((irqarray16_pending_re & irqarray16_pending_r[15])) begin
@@ -11460,96 +11460,96 @@ always @(*) begin
 end
 assign irqarray16_eventsourceflex271_status = (irqarray16_interrupts[15] | irqarray16_trigger[15]);
 assign irqarray17_interrupts = irq_remap17;
-assign irqarray17_nc_b17s00 = irqarray17_eventsourceflex272_status;
-assign irqarray17_nc_b17s01 = irqarray17_eventsourceflex272_pending;
+assign irqarray17_i2c1_rx_dupe0 = irqarray17_eventsourceflex272_status;
+assign irqarray17_i2c1_rx_dupe1 = irqarray17_eventsourceflex272_pending;
 always @(*) begin
     irqarray17_eventsourceflex272_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[0])) begin
         irqarray17_eventsourceflex272_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s10 = irqarray17_eventsourceflex273_status;
-assign irqarray17_nc_b17s11 = irqarray17_eventsourceflex273_pending;
+assign irqarray17_i2c1_tx_dupe0 = irqarray17_eventsourceflex273_status;
+assign irqarray17_i2c1_tx_dupe1 = irqarray17_eventsourceflex273_pending;
 always @(*) begin
     irqarray17_eventsourceflex273_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[1])) begin
         irqarray17_eventsourceflex273_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s20 = irqarray17_eventsourceflex274_status;
-assign irqarray17_nc_b17s21 = irqarray17_eventsourceflex274_pending;
+assign irqarray17_i2c1_cmd_dupe0 = irqarray17_eventsourceflex274_status;
+assign irqarray17_i2c1_cmd_dupe1 = irqarray17_eventsourceflex274_pending;
 always @(*) begin
     irqarray17_eventsourceflex274_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[2])) begin
         irqarray17_eventsourceflex274_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s30 = irqarray17_eventsourceflex275_status;
-assign irqarray17_nc_b17s31 = irqarray17_eventsourceflex275_pending;
+assign irqarray17_i2c1_eot_dupe0 = irqarray17_eventsourceflex275_status;
+assign irqarray17_i2c1_eot_dupe1 = irqarray17_eventsourceflex275_pending;
 always @(*) begin
     irqarray17_eventsourceflex275_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[3])) begin
         irqarray17_eventsourceflex275_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s40 = irqarray17_eventsourceflex276_status;
-assign irqarray17_nc_b17s41 = irqarray17_eventsourceflex276_pending;
+assign irqarray17_pioirq0_dupe0 = irqarray17_eventsourceflex276_status;
+assign irqarray17_pioirq0_dupe1 = irqarray17_eventsourceflex276_pending;
 always @(*) begin
     irqarray17_eventsourceflex276_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[4])) begin
         irqarray17_eventsourceflex276_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s50 = irqarray17_eventsourceflex277_status;
-assign irqarray17_nc_b17s51 = irqarray17_eventsourceflex277_pending;
+assign irqarray17_pioirq1_dupe0 = irqarray17_eventsourceflex277_status;
+assign irqarray17_pioirq1_dupe1 = irqarray17_eventsourceflex277_pending;
 always @(*) begin
     irqarray17_eventsourceflex277_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[5])) begin
         irqarray17_eventsourceflex277_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s60 = irqarray17_eventsourceflex278_status;
-assign irqarray17_nc_b17s61 = irqarray17_eventsourceflex278_pending;
+assign irqarray17_pioirq2_dupe0 = irqarray17_eventsourceflex278_status;
+assign irqarray17_pioirq2_dupe1 = irqarray17_eventsourceflex278_pending;
 always @(*) begin
     irqarray17_eventsourceflex278_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[6])) begin
         irqarray17_eventsourceflex278_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s70 = irqarray17_eventsourceflex279_status;
-assign irqarray17_nc_b17s71 = irqarray17_eventsourceflex279_pending;
+assign irqarray17_pioirq3_dupe0 = irqarray17_eventsourceflex279_status;
+assign irqarray17_pioirq3_dupe1 = irqarray17_eventsourceflex279_pending;
 always @(*) begin
     irqarray17_eventsourceflex279_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[7])) begin
         irqarray17_eventsourceflex279_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s80 = irqarray17_eventsourceflex280_status;
-assign irqarray17_nc_b17s81 = irqarray17_eventsourceflex280_pending;
+assign irqarray17_qfcirq_dupe0 = irqarray17_eventsourceflex280_status;
+assign irqarray17_qfcirq_dupe1 = irqarray17_eventsourceflex280_pending;
 always @(*) begin
     irqarray17_eventsourceflex280_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[8])) begin
         irqarray17_eventsourceflex280_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s90 = irqarray17_eventsourceflex281_status;
-assign irqarray17_nc_b17s91 = irqarray17_eventsourceflex281_pending;
+assign irqarray17_adc_rx_dupe0 = irqarray17_eventsourceflex281_status;
+assign irqarray17_adc_rx_dupe1 = irqarray17_eventsourceflex281_pending;
 always @(*) begin
     irqarray17_eventsourceflex281_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[9])) begin
         irqarray17_eventsourceflex281_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s100 = irqarray17_eventsourceflex282_status;
-assign irqarray17_nc_b17s101 = irqarray17_eventsourceflex282_pending;
+assign irqarray17_ioxirq_dupe0 = irqarray17_eventsourceflex282_status;
+assign irqarray17_ioxirq_dupe1 = irqarray17_eventsourceflex282_pending;
 always @(*) begin
     irqarray17_eventsourceflex282_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[10])) begin
         irqarray17_eventsourceflex282_clear <= 1'd1;
     end
 end
-assign irqarray17_nc_b17s110 = irqarray17_eventsourceflex283_status;
-assign irqarray17_nc_b17s111 = irqarray17_eventsourceflex283_pending;
+assign irqarray17_sddcirq_dupe0 = irqarray17_eventsourceflex283_status;
+assign irqarray17_sddcirq_dupe1 = irqarray17_eventsourceflex283_pending;
 always @(*) begin
     irqarray17_eventsourceflex283_clear <= 1'd0;
     if ((irqarray17_pending_re & irqarray17_pending_r[11])) begin
@@ -11830,96 +11830,96 @@ always @(*) begin
         irqarray18_eventsourceflex291_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s40 = irqarray18_eventsourceflex292_status;
-assign irqarray18_nc_b18s41 = irqarray18_eventsourceflex292_pending;
+assign irqarray18_i2c2_rx_dupe0 = irqarray18_eventsourceflex292_status;
+assign irqarray18_i2c2_rx_dupe1 = irqarray18_eventsourceflex292_pending;
 always @(*) begin
     irqarray18_eventsourceflex292_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[4])) begin
         irqarray18_eventsourceflex292_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s50 = irqarray18_eventsourceflex293_status;
-assign irqarray18_nc_b18s51 = irqarray18_eventsourceflex293_pending;
+assign irqarray18_i2c2_tx_dupe0 = irqarray18_eventsourceflex293_status;
+assign irqarray18_i2c2_tx_dupe1 = irqarray18_eventsourceflex293_pending;
 always @(*) begin
     irqarray18_eventsourceflex293_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[5])) begin
         irqarray18_eventsourceflex293_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s60 = irqarray18_eventsourceflex294_status;
-assign irqarray18_nc_b18s61 = irqarray18_eventsourceflex294_pending;
+assign irqarray18_i2c2_cmd_dupe0 = irqarray18_eventsourceflex294_status;
+assign irqarray18_i2c2_cmd_dupe1 = irqarray18_eventsourceflex294_pending;
 always @(*) begin
     irqarray18_eventsourceflex294_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[6])) begin
         irqarray18_eventsourceflex294_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s70 = irqarray18_eventsourceflex295_status;
-assign irqarray18_nc_b18s71 = irqarray18_eventsourceflex295_pending;
+assign irqarray18_i2c2_eot_dupe0 = irqarray18_eventsourceflex295_status;
+assign irqarray18_i2c2_eot_dupe1 = irqarray18_eventsourceflex295_pending;
 always @(*) begin
     irqarray18_eventsourceflex295_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[7])) begin
         irqarray18_eventsourceflex295_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s80 = irqarray18_eventsourceflex296_status;
-assign irqarray18_nc_b18s81 = irqarray18_eventsourceflex296_pending;
+assign irqarray18_i2c0_nack_dupe0 = irqarray18_eventsourceflex296_status;
+assign irqarray18_i2c0_nack_dupe1 = irqarray18_eventsourceflex296_pending;
 always @(*) begin
     irqarray18_eventsourceflex296_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[8])) begin
         irqarray18_eventsourceflex296_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s90 = irqarray18_eventsourceflex297_status;
-assign irqarray18_nc_b18s91 = irqarray18_eventsourceflex297_pending;
+assign irqarray18_i2c1_nack_dupe0 = irqarray18_eventsourceflex297_status;
+assign irqarray18_i2c1_nack_dupe1 = irqarray18_eventsourceflex297_pending;
 always @(*) begin
     irqarray18_eventsourceflex297_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[9])) begin
         irqarray18_eventsourceflex297_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s100 = irqarray18_eventsourceflex298_status;
-assign irqarray18_nc_b18s101 = irqarray18_eventsourceflex298_pending;
+assign irqarray18_i2c2_nack_dupe0 = irqarray18_eventsourceflex298_status;
+assign irqarray18_i2c2_nack_dupe1 = irqarray18_eventsourceflex298_pending;
 always @(*) begin
     irqarray18_eventsourceflex298_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[10])) begin
         irqarray18_eventsourceflex298_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s110 = irqarray18_eventsourceflex299_status;
-assign irqarray18_nc_b18s111 = irqarray18_eventsourceflex299_pending;
+assign irqarray18_i2c0_err_dupe0 = irqarray18_eventsourceflex299_status;
+assign irqarray18_i2c0_err_dupe1 = irqarray18_eventsourceflex299_pending;
 always @(*) begin
     irqarray18_eventsourceflex299_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[11])) begin
         irqarray18_eventsourceflex299_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s120 = irqarray18_eventsourceflex300_status;
-assign irqarray18_nc_b18s121 = irqarray18_eventsourceflex300_pending;
+assign irqarray18_i2c1_err_dupe0 = irqarray18_eventsourceflex300_status;
+assign irqarray18_i2c1_err_dupe1 = irqarray18_eventsourceflex300_pending;
 always @(*) begin
     irqarray18_eventsourceflex300_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[12])) begin
         irqarray18_eventsourceflex300_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s130 = irqarray18_eventsourceflex301_status;
-assign irqarray18_nc_b18s131 = irqarray18_eventsourceflex301_pending;
+assign irqarray18_i2c2_err_dupe0 = irqarray18_eventsourceflex301_status;
+assign irqarray18_i2c2_err_dupe1 = irqarray18_eventsourceflex301_pending;
 always @(*) begin
     irqarray18_eventsourceflex301_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[13])) begin
         irqarray18_eventsourceflex301_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s140 = irqarray18_eventsourceflex302_status;
-assign irqarray18_nc_b18s141 = irqarray18_eventsourceflex302_pending;
+assign irqarray18_ioxirq_dupe0 = irqarray18_eventsourceflex302_status;
+assign irqarray18_ioxirq_dupe1 = irqarray18_eventsourceflex302_pending;
 always @(*) begin
     irqarray18_eventsourceflex302_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[14])) begin
         irqarray18_eventsourceflex302_clear <= 1'd1;
     end
 end
-assign irqarray18_nc_b18s150 = irqarray18_eventsourceflex303_status;
-assign irqarray18_nc_b18s151 = irqarray18_eventsourceflex303_pending;
+assign irqarray18_cam_rx_dupe0 = irqarray18_eventsourceflex303_status;
+assign irqarray18_cam_rx_dupe1 = irqarray18_eventsourceflex303_pending;
 always @(*) begin
     irqarray18_eventsourceflex303_clear <= 1'd0;
     if ((irqarray18_pending_re & irqarray18_pending_r[15])) begin
@@ -12168,64 +12168,64 @@ always @(*) begin
         irqarray19_eventsourceflex307_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s40 = irqarray19_eventsourceflex308_status;
-assign irqarray19_nc_b19s41 = irqarray19_eventsourceflex308_pending;
+assign irqarray19_pioirq0_dupe0 = irqarray19_eventsourceflex308_status;
+assign irqarray19_pioirq0_dupe1 = irqarray19_eventsourceflex308_pending;
 always @(*) begin
     irqarray19_eventsourceflex308_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[4])) begin
         irqarray19_eventsourceflex308_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s50 = irqarray19_eventsourceflex309_status;
-assign irqarray19_nc_b19s51 = irqarray19_eventsourceflex309_pending;
+assign irqarray19_pioirq1_dupe0 = irqarray19_eventsourceflex309_status;
+assign irqarray19_pioirq1_dupe1 = irqarray19_eventsourceflex309_pending;
 always @(*) begin
     irqarray19_eventsourceflex309_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[5])) begin
         irqarray19_eventsourceflex309_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s60 = irqarray19_eventsourceflex310_status;
-assign irqarray19_nc_b19s61 = irqarray19_eventsourceflex310_pending;
+assign irqarray19_pioirq2_dupe0 = irqarray19_eventsourceflex310_status;
+assign irqarray19_pioirq2_dupe1 = irqarray19_eventsourceflex310_pending;
 always @(*) begin
     irqarray19_eventsourceflex310_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[6])) begin
         irqarray19_eventsourceflex310_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s70 = irqarray19_eventsourceflex311_status;
-assign irqarray19_nc_b19s71 = irqarray19_eventsourceflex311_pending;
+assign irqarray19_pioirq3_dupe0 = irqarray19_eventsourceflex311_status;
+assign irqarray19_pioirq3_dupe1 = irqarray19_eventsourceflex311_pending;
 always @(*) begin
     irqarray19_eventsourceflex311_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[7])) begin
         irqarray19_eventsourceflex311_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s80 = irqarray19_eventsourceflex312_status;
-assign irqarray19_nc_b19s81 = irqarray19_eventsourceflex312_pending;
+assign irqarray19_sdio_rx_dupe0 = irqarray19_eventsourceflex312_status;
+assign irqarray19_sdio_rx_dupe1 = irqarray19_eventsourceflex312_pending;
 always @(*) begin
     irqarray19_eventsourceflex312_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[8])) begin
         irqarray19_eventsourceflex312_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s90 = irqarray19_eventsourceflex313_status;
-assign irqarray19_nc_b19s91 = irqarray19_eventsourceflex313_pending;
+assign irqarray19_sdio_tx_dupe0 = irqarray19_eventsourceflex313_status;
+assign irqarray19_sdio_tx_dupe1 = irqarray19_eventsourceflex313_pending;
 always @(*) begin
     irqarray19_eventsourceflex313_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[9])) begin
         irqarray19_eventsourceflex313_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s100 = irqarray19_eventsourceflex314_status;
-assign irqarray19_nc_b19s101 = irqarray19_eventsourceflex314_pending;
+assign irqarray19_sdio_eot_dupe0 = irqarray19_eventsourceflex314_status;
+assign irqarray19_sdio_eot_dupe1 = irqarray19_eventsourceflex314_pending;
 always @(*) begin
     irqarray19_eventsourceflex314_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[10])) begin
         irqarray19_eventsourceflex314_clear <= 1'd1;
     end
 end
-assign irqarray19_nc_b19s110 = irqarray19_eventsourceflex315_status;
-assign irqarray19_nc_b19s111 = irqarray19_eventsourceflex315_pending;
+assign irqarray19_sdio_err_dupe0 = irqarray19_eventsourceflex315_status;
+assign irqarray19_sdio_err_dupe1 = irqarray19_eventsourceflex315_pending;
 always @(*) begin
     irqarray19_eventsourceflex315_clear <= 1'd0;
     if ((irqarray19_pending_re & irqarray19_pending_r[11])) begin
@@ -13045,10 +13045,10 @@ always @(*) begin
     irqarray0_status_status[1] <= irqarray0_nc_b0s10;
     irqarray0_status_status[2] <= irqarray0_nc_b0s20;
     irqarray0_status_status[3] <= irqarray0_nc_b0s30;
-    irqarray0_status_status[4] <= irqarray0_nc_b0s40;
-    irqarray0_status_status[5] <= irqarray0_nc_b0s50;
-    irqarray0_status_status[6] <= irqarray0_nc_b0s60;
-    irqarray0_status_status[7] <= irqarray0_nc_b0s70;
+    irqarray0_status_status[4] <= irqarray0_pioirq0_dupe0;
+    irqarray0_status_status[5] <= irqarray0_pioirq1_dupe0;
+    irqarray0_status_status[6] <= irqarray0_pioirq2_dupe0;
+    irqarray0_status_status[7] <= irqarray0_pioirq3_dupe0;
     irqarray0_status_status[8] <= irqarray0_nc_b0s80;
     irqarray0_status_status[9] <= irqarray0_nc_b0s90;
     irqarray0_status_status[10] <= irqarray0_nc_b0s100;
@@ -13066,10 +13066,10 @@ always @(*) begin
     irqarray0_pending_status[1] <= irqarray0_nc_b0s11;
     irqarray0_pending_status[2] <= irqarray0_nc_b0s21;
     irqarray0_pending_status[3] <= irqarray0_nc_b0s31;
-    irqarray0_pending_status[4] <= irqarray0_nc_b0s41;
-    irqarray0_pending_status[5] <= irqarray0_nc_b0s51;
-    irqarray0_pending_status[6] <= irqarray0_nc_b0s61;
-    irqarray0_pending_status[7] <= irqarray0_nc_b0s71;
+    irqarray0_pending_status[4] <= irqarray0_pioirq0_dupe1;
+    irqarray0_pending_status[5] <= irqarray0_pioirq1_dupe1;
+    irqarray0_pending_status[6] <= irqarray0_pioirq2_dupe1;
+    irqarray0_pending_status[7] <= irqarray0_pioirq3_dupe1;
     irqarray0_pending_status[8] <= irqarray0_nc_b0s81;
     irqarray0_pending_status[9] <= irqarray0_nc_b0s91;
     irqarray0_pending_status[10] <= irqarray0_nc_b0s101;
@@ -13085,10 +13085,10 @@ assign irqarray0_mdmairq_dupe2 = irqarray0_enable_storage[0];
 assign irqarray0_nc_b0s12 = irqarray0_enable_storage[1];
 assign irqarray0_nc_b0s22 = irqarray0_enable_storage[2];
 assign irqarray0_nc_b0s32 = irqarray0_enable_storage[3];
-assign irqarray0_nc_b0s42 = irqarray0_enable_storage[4];
-assign irqarray0_nc_b0s52 = irqarray0_enable_storage[5];
-assign irqarray0_nc_b0s62 = irqarray0_enable_storage[6];
-assign irqarray0_nc_b0s72 = irqarray0_enable_storage[7];
+assign irqarray0_pioirq0_dupe2 = irqarray0_enable_storage[4];
+assign irqarray0_pioirq1_dupe2 = irqarray0_enable_storage[5];
+assign irqarray0_pioirq2_dupe2 = irqarray0_enable_storage[6];
+assign irqarray0_pioirq3_dupe2 = irqarray0_enable_storage[7];
 assign irqarray0_nc_b0s82 = irqarray0_enable_storage[8];
 assign irqarray0_nc_b0s92 = irqarray0_enable_storage[9];
 assign irqarray0_nc_b0s102 = irqarray0_enable_storage[10];
@@ -13805,7 +13805,7 @@ always @(*) begin
     irqarray14_status_status[5] <= irqarray14_uart3_tx_dupe0;
     irqarray14_status_status[6] <= irqarray14_uart3_rx_char_dupe0;
     irqarray14_status_status[7] <= irqarray14_uart3_err_dupe0;
-    irqarray14_status_status[8] <= irqarray14_nc_b14s80;
+    irqarray14_status_status[8] <= irqarray14_trng_done_dupe0;
     irqarray14_status_status[9] <= irqarray14_nc_b14s90;
     irqarray14_status_status[10] <= irqarray14_nc_b14s100;
     irqarray14_status_status[11] <= irqarray14_nc_b14s110;
@@ -13826,7 +13826,7 @@ always @(*) begin
     irqarray14_pending_status[5] <= irqarray14_uart3_tx_dupe1;
     irqarray14_pending_status[6] <= irqarray14_uart3_rx_char_dupe1;
     irqarray14_pending_status[7] <= irqarray14_uart3_err_dupe1;
-    irqarray14_pending_status[8] <= irqarray14_nc_b14s81;
+    irqarray14_pending_status[8] <= irqarray14_trng_done_dupe1;
     irqarray14_pending_status[9] <= irqarray14_nc_b14s91;
     irqarray14_pending_status[10] <= irqarray14_nc_b14s101;
     irqarray14_pending_status[11] <= irqarray14_nc_b14s111;
@@ -13845,7 +13845,7 @@ assign irqarray14_uart3_rx_dupe2 = irqarray14_enable_storage[4];
 assign irqarray14_uart3_tx_dupe2 = irqarray14_enable_storage[5];
 assign irqarray14_uart3_rx_char_dupe2 = irqarray14_enable_storage[6];
 assign irqarray14_uart3_err_dupe2 = irqarray14_enable_storage[7];
-assign irqarray14_nc_b14s82 = irqarray14_enable_storage[8];
+assign irqarray14_trng_done_dupe2 = irqarray14_enable_storage[8];
 assign irqarray14_nc_b14s92 = irqarray14_enable_storage[9];
 assign irqarray14_nc_b14s102 = irqarray14_enable_storage[10];
 assign irqarray14_nc_b14s112 = irqarray14_enable_storage[11];
@@ -14049,62 +14049,62 @@ assign irqarray16_rising = irqarray16_polarity_storage[15:0];
 assign csrbank10_ev_polarity0_w = irqarray16_polarity_storage[15:0];
 always @(*) begin
     irqarray16_status_status <= 16'd0;
-    irqarray16_status_status[0] <= irqarray16_nc_b16s00;
-    irqarray16_status_status[1] <= irqarray16_nc_b16s10;
-    irqarray16_status_status[2] <= irqarray16_nc_b16s20;
+    irqarray16_status_status[0] <= irqarray16_cam_rx_dupe0;
+    irqarray16_status_status[1] <= irqarray16_i2s_rx_dupe0;
+    irqarray16_status_status[2] <= irqarray16_i2s_tx_dupe0;
     irqarray16_status_status[3] <= irqarray16_nc_b16s30;
-    irqarray16_status_status[4] <= irqarray16_nc_b16s40;
-    irqarray16_status_status[5] <= irqarray16_nc_b16s50;
-    irqarray16_status_status[6] <= irqarray16_nc_b16s60;
-    irqarray16_status_status[7] <= irqarray16_nc_b16s70;
-    irqarray16_status_status[8] <= irqarray16_nc_b16s80;
-    irqarray16_status_status[9] <= irqarray16_nc_b16s90;
-    irqarray16_status_status[10] <= irqarray16_nc_b16s100;
-    irqarray16_status_status[11] <= irqarray16_nc_b16s110;
-    irqarray16_status_status[12] <= irqarray16_nc_b16s120;
-    irqarray16_status_status[13] <= irqarray16_nc_b16s130;
-    irqarray16_status_status[14] <= irqarray16_nc_b16s140;
-    irqarray16_status_status[15] <= irqarray16_nc_b16s150;
+    irqarray16_status_status[4] <= irqarray16_spim1_rx_dupe0;
+    irqarray16_status_status[5] <= irqarray16_spim1_tx_dupe0;
+    irqarray16_status_status[6] <= irqarray16_spim1_cmd_dupe0;
+    irqarray16_status_status[7] <= irqarray16_spim1_eot_dupe0;
+    irqarray16_status_status[8] <= irqarray16_spim2_rx_dupe0;
+    irqarray16_status_status[9] <= irqarray16_spim2_tx_dupe0;
+    irqarray16_status_status[10] <= irqarray16_spim2_cmd_dupe0;
+    irqarray16_status_status[11] <= irqarray16_spim2_eot_dupe0;
+    irqarray16_status_status[12] <= irqarray16_i2c0_rx_dupe0;
+    irqarray16_status_status[13] <= irqarray16_i2c0_tx_dupe0;
+    irqarray16_status_status[14] <= irqarray16_i2c0_cmd_dupe0;
+    irqarray16_status_status[15] <= irqarray16_i2c0_eot_dupe0;
 end
 assign csrbank10_ev_status_w = irqarray16_status_status[15:0];
 assign irqarray16_status_we = csrbank10_ev_status_we;
 always @(*) begin
     irqarray16_pending_status <= 16'd0;
-    irqarray16_pending_status[0] <= irqarray16_nc_b16s01;
-    irqarray16_pending_status[1] <= irqarray16_nc_b16s11;
-    irqarray16_pending_status[2] <= irqarray16_nc_b16s21;
+    irqarray16_pending_status[0] <= irqarray16_cam_rx_dupe1;
+    irqarray16_pending_status[1] <= irqarray16_i2s_rx_dupe1;
+    irqarray16_pending_status[2] <= irqarray16_i2s_tx_dupe1;
     irqarray16_pending_status[3] <= irqarray16_nc_b16s31;
-    irqarray16_pending_status[4] <= irqarray16_nc_b16s41;
-    irqarray16_pending_status[5] <= irqarray16_nc_b16s51;
-    irqarray16_pending_status[6] <= irqarray16_nc_b16s61;
-    irqarray16_pending_status[7] <= irqarray16_nc_b16s71;
-    irqarray16_pending_status[8] <= irqarray16_nc_b16s81;
-    irqarray16_pending_status[9] <= irqarray16_nc_b16s91;
-    irqarray16_pending_status[10] <= irqarray16_nc_b16s101;
-    irqarray16_pending_status[11] <= irqarray16_nc_b16s111;
-    irqarray16_pending_status[12] <= irqarray16_nc_b16s121;
-    irqarray16_pending_status[13] <= irqarray16_nc_b16s131;
-    irqarray16_pending_status[14] <= irqarray16_nc_b16s141;
-    irqarray16_pending_status[15] <= irqarray16_nc_b16s151;
+    irqarray16_pending_status[4] <= irqarray16_spim1_rx_dupe1;
+    irqarray16_pending_status[5] <= irqarray16_spim1_tx_dupe1;
+    irqarray16_pending_status[6] <= irqarray16_spim1_cmd_dupe1;
+    irqarray16_pending_status[7] <= irqarray16_spim1_eot_dupe1;
+    irqarray16_pending_status[8] <= irqarray16_spim2_rx_dupe1;
+    irqarray16_pending_status[9] <= irqarray16_spim2_tx_dupe1;
+    irqarray16_pending_status[10] <= irqarray16_spim2_cmd_dupe1;
+    irqarray16_pending_status[11] <= irqarray16_spim2_eot_dupe1;
+    irqarray16_pending_status[12] <= irqarray16_i2c0_rx_dupe1;
+    irqarray16_pending_status[13] <= irqarray16_i2c0_tx_dupe1;
+    irqarray16_pending_status[14] <= irqarray16_i2c0_cmd_dupe1;
+    irqarray16_pending_status[15] <= irqarray16_i2c0_eot_dupe1;
 end
 assign csrbank10_ev_pending_w = irqarray16_pending_status[15:0];
 assign irqarray16_pending_we = csrbank10_ev_pending_we;
-assign irqarray16_nc_b16s02 = irqarray16_enable_storage[0];
-assign irqarray16_nc_b16s12 = irqarray16_enable_storage[1];
-assign irqarray16_nc_b16s22 = irqarray16_enable_storage[2];
+assign irqarray16_cam_rx_dupe2 = irqarray16_enable_storage[0];
+assign irqarray16_i2s_rx_dupe2 = irqarray16_enable_storage[1];
+assign irqarray16_i2s_tx_dupe2 = irqarray16_enable_storage[2];
 assign irqarray16_nc_b16s32 = irqarray16_enable_storage[3];
-assign irqarray16_nc_b16s42 = irqarray16_enable_storage[4];
-assign irqarray16_nc_b16s52 = irqarray16_enable_storage[5];
-assign irqarray16_nc_b16s62 = irqarray16_enable_storage[6];
-assign irqarray16_nc_b16s72 = irqarray16_enable_storage[7];
-assign irqarray16_nc_b16s82 = irqarray16_enable_storage[8];
-assign irqarray16_nc_b16s92 = irqarray16_enable_storage[9];
-assign irqarray16_nc_b16s102 = irqarray16_enable_storage[10];
-assign irqarray16_nc_b16s112 = irqarray16_enable_storage[11];
-assign irqarray16_nc_b16s122 = irqarray16_enable_storage[12];
-assign irqarray16_nc_b16s132 = irqarray16_enable_storage[13];
-assign irqarray16_nc_b16s142 = irqarray16_enable_storage[14];
-assign irqarray16_nc_b16s152 = irqarray16_enable_storage[15];
+assign irqarray16_spim1_rx_dupe2 = irqarray16_enable_storage[4];
+assign irqarray16_spim1_tx_dupe2 = irqarray16_enable_storage[5];
+assign irqarray16_spim1_cmd_dupe2 = irqarray16_enable_storage[6];
+assign irqarray16_spim1_eot_dupe2 = irqarray16_enable_storage[7];
+assign irqarray16_spim2_rx_dupe2 = irqarray16_enable_storage[8];
+assign irqarray16_spim2_tx_dupe2 = irqarray16_enable_storage[9];
+assign irqarray16_spim2_cmd_dupe2 = irqarray16_enable_storage[10];
+assign irqarray16_spim2_eot_dupe2 = irqarray16_enable_storage[11];
+assign irqarray16_i2c0_rx_dupe2 = irqarray16_enable_storage[12];
+assign irqarray16_i2c0_tx_dupe2 = irqarray16_enable_storage[13];
+assign irqarray16_i2c0_cmd_dupe2 = irqarray16_enable_storage[14];
+assign irqarray16_i2c0_eot_dupe2 = irqarray16_enable_storage[15];
 assign csrbank10_ev_enable0_w = irqarray16_enable_storage[15:0];
 assign csrbank11_sel = (interface11_bank_bus_adr[15:10] == 4'd13);
 assign csrbank11_re = interface11_bank_bus_re;
@@ -14175,18 +14175,18 @@ assign irqarray17_rising = irqarray17_polarity_storage[15:0];
 assign csrbank11_ev_polarity0_w = irqarray17_polarity_storage[15:0];
 always @(*) begin
     irqarray17_status_status <= 16'd0;
-    irqarray17_status_status[0] <= irqarray17_nc_b17s00;
-    irqarray17_status_status[1] <= irqarray17_nc_b17s10;
-    irqarray17_status_status[2] <= irqarray17_nc_b17s20;
-    irqarray17_status_status[3] <= irqarray17_nc_b17s30;
-    irqarray17_status_status[4] <= irqarray17_nc_b17s40;
-    irqarray17_status_status[5] <= irqarray17_nc_b17s50;
-    irqarray17_status_status[6] <= irqarray17_nc_b17s60;
-    irqarray17_status_status[7] <= irqarray17_nc_b17s70;
-    irqarray17_status_status[8] <= irqarray17_nc_b17s80;
-    irqarray17_status_status[9] <= irqarray17_nc_b17s90;
-    irqarray17_status_status[10] <= irqarray17_nc_b17s100;
-    irqarray17_status_status[11] <= irqarray17_nc_b17s110;
+    irqarray17_status_status[0] <= irqarray17_i2c1_rx_dupe0;
+    irqarray17_status_status[1] <= irqarray17_i2c1_tx_dupe0;
+    irqarray17_status_status[2] <= irqarray17_i2c1_cmd_dupe0;
+    irqarray17_status_status[3] <= irqarray17_i2c1_eot_dupe0;
+    irqarray17_status_status[4] <= irqarray17_pioirq0_dupe0;
+    irqarray17_status_status[5] <= irqarray17_pioirq1_dupe0;
+    irqarray17_status_status[6] <= irqarray17_pioirq2_dupe0;
+    irqarray17_status_status[7] <= irqarray17_pioirq3_dupe0;
+    irqarray17_status_status[8] <= irqarray17_qfcirq_dupe0;
+    irqarray17_status_status[9] <= irqarray17_adc_rx_dupe0;
+    irqarray17_status_status[10] <= irqarray17_ioxirq_dupe0;
+    irqarray17_status_status[11] <= irqarray17_sddcirq_dupe0;
     irqarray17_status_status[12] <= irqarray17_nc_b17s120;
     irqarray17_status_status[13] <= irqarray17_nc_b17s130;
     irqarray17_status_status[14] <= irqarray17_nc_b17s140;
@@ -14196,18 +14196,18 @@ assign csrbank11_ev_status_w = irqarray17_status_status[15:0];
 assign irqarray17_status_we = csrbank11_ev_status_we;
 always @(*) begin
     irqarray17_pending_status <= 16'd0;
-    irqarray17_pending_status[0] <= irqarray17_nc_b17s01;
-    irqarray17_pending_status[1] <= irqarray17_nc_b17s11;
-    irqarray17_pending_status[2] <= irqarray17_nc_b17s21;
-    irqarray17_pending_status[3] <= irqarray17_nc_b17s31;
-    irqarray17_pending_status[4] <= irqarray17_nc_b17s41;
-    irqarray17_pending_status[5] <= irqarray17_nc_b17s51;
-    irqarray17_pending_status[6] <= irqarray17_nc_b17s61;
-    irqarray17_pending_status[7] <= irqarray17_nc_b17s71;
-    irqarray17_pending_status[8] <= irqarray17_nc_b17s81;
-    irqarray17_pending_status[9] <= irqarray17_nc_b17s91;
-    irqarray17_pending_status[10] <= irqarray17_nc_b17s101;
-    irqarray17_pending_status[11] <= irqarray17_nc_b17s111;
+    irqarray17_pending_status[0] <= irqarray17_i2c1_rx_dupe1;
+    irqarray17_pending_status[1] <= irqarray17_i2c1_tx_dupe1;
+    irqarray17_pending_status[2] <= irqarray17_i2c1_cmd_dupe1;
+    irqarray17_pending_status[3] <= irqarray17_i2c1_eot_dupe1;
+    irqarray17_pending_status[4] <= irqarray17_pioirq0_dupe1;
+    irqarray17_pending_status[5] <= irqarray17_pioirq1_dupe1;
+    irqarray17_pending_status[6] <= irqarray17_pioirq2_dupe1;
+    irqarray17_pending_status[7] <= irqarray17_pioirq3_dupe1;
+    irqarray17_pending_status[8] <= irqarray17_qfcirq_dupe1;
+    irqarray17_pending_status[9] <= irqarray17_adc_rx_dupe1;
+    irqarray17_pending_status[10] <= irqarray17_ioxirq_dupe1;
+    irqarray17_pending_status[11] <= irqarray17_sddcirq_dupe1;
     irqarray17_pending_status[12] <= irqarray17_nc_b17s121;
     irqarray17_pending_status[13] <= irqarray17_nc_b17s131;
     irqarray17_pending_status[14] <= irqarray17_nc_b17s141;
@@ -14215,18 +14215,18 @@ always @(*) begin
 end
 assign csrbank11_ev_pending_w = irqarray17_pending_status[15:0];
 assign irqarray17_pending_we = csrbank11_ev_pending_we;
-assign irqarray17_nc_b17s02 = irqarray17_enable_storage[0];
-assign irqarray17_nc_b17s12 = irqarray17_enable_storage[1];
-assign irqarray17_nc_b17s22 = irqarray17_enable_storage[2];
-assign irqarray17_nc_b17s32 = irqarray17_enable_storage[3];
-assign irqarray17_nc_b17s42 = irqarray17_enable_storage[4];
-assign irqarray17_nc_b17s52 = irqarray17_enable_storage[5];
-assign irqarray17_nc_b17s62 = irqarray17_enable_storage[6];
-assign irqarray17_nc_b17s72 = irqarray17_enable_storage[7];
-assign irqarray17_nc_b17s82 = irqarray17_enable_storage[8];
-assign irqarray17_nc_b17s92 = irqarray17_enable_storage[9];
-assign irqarray17_nc_b17s102 = irqarray17_enable_storage[10];
-assign irqarray17_nc_b17s112 = irqarray17_enable_storage[11];
+assign irqarray17_i2c1_rx_dupe2 = irqarray17_enable_storage[0];
+assign irqarray17_i2c1_tx_dupe2 = irqarray17_enable_storage[1];
+assign irqarray17_i2c1_cmd_dupe2 = irqarray17_enable_storage[2];
+assign irqarray17_i2c1_eot_dupe2 = irqarray17_enable_storage[3];
+assign irqarray17_pioirq0_dupe2 = irqarray17_enable_storage[4];
+assign irqarray17_pioirq1_dupe2 = irqarray17_enable_storage[5];
+assign irqarray17_pioirq2_dupe2 = irqarray17_enable_storage[6];
+assign irqarray17_pioirq3_dupe2 = irqarray17_enable_storage[7];
+assign irqarray17_qfcirq_dupe2 = irqarray17_enable_storage[8];
+assign irqarray17_adc_rx_dupe2 = irqarray17_enable_storage[9];
+assign irqarray17_ioxirq_dupe2 = irqarray17_enable_storage[10];
+assign irqarray17_sddcirq_dupe2 = irqarray17_enable_storage[11];
 assign irqarray17_nc_b17s122 = irqarray17_enable_storage[12];
 assign irqarray17_nc_b17s132 = irqarray17_enable_storage[13];
 assign irqarray17_nc_b17s142 = irqarray17_enable_storage[14];
@@ -14305,18 +14305,18 @@ always @(*) begin
     irqarray18_status_status[1] <= irqarray18_pioirq1_dupe0;
     irqarray18_status_status[2] <= irqarray18_pioirq2_dupe0;
     irqarray18_status_status[3] <= irqarray18_pioirq3_dupe0;
-    irqarray18_status_status[4] <= irqarray18_nc_b18s40;
-    irqarray18_status_status[5] <= irqarray18_nc_b18s50;
-    irqarray18_status_status[6] <= irqarray18_nc_b18s60;
-    irqarray18_status_status[7] <= irqarray18_nc_b18s70;
-    irqarray18_status_status[8] <= irqarray18_nc_b18s80;
-    irqarray18_status_status[9] <= irqarray18_nc_b18s90;
-    irqarray18_status_status[10] <= irqarray18_nc_b18s100;
-    irqarray18_status_status[11] <= irqarray18_nc_b18s110;
-    irqarray18_status_status[12] <= irqarray18_nc_b18s120;
-    irqarray18_status_status[13] <= irqarray18_nc_b18s130;
-    irqarray18_status_status[14] <= irqarray18_nc_b18s140;
-    irqarray18_status_status[15] <= irqarray18_nc_b18s150;
+    irqarray18_status_status[4] <= irqarray18_i2c2_rx_dupe0;
+    irqarray18_status_status[5] <= irqarray18_i2c2_tx_dupe0;
+    irqarray18_status_status[6] <= irqarray18_i2c2_cmd_dupe0;
+    irqarray18_status_status[7] <= irqarray18_i2c2_eot_dupe0;
+    irqarray18_status_status[8] <= irqarray18_i2c0_nack_dupe0;
+    irqarray18_status_status[9] <= irqarray18_i2c1_nack_dupe0;
+    irqarray18_status_status[10] <= irqarray18_i2c2_nack_dupe0;
+    irqarray18_status_status[11] <= irqarray18_i2c0_err_dupe0;
+    irqarray18_status_status[12] <= irqarray18_i2c1_err_dupe0;
+    irqarray18_status_status[13] <= irqarray18_i2c2_err_dupe0;
+    irqarray18_status_status[14] <= irqarray18_ioxirq_dupe0;
+    irqarray18_status_status[15] <= irqarray18_cam_rx_dupe0;
 end
 assign csrbank12_ev_status_w = irqarray18_status_status[15:0];
 assign irqarray18_status_we = csrbank12_ev_status_we;
@@ -14326,18 +14326,18 @@ always @(*) begin
     irqarray18_pending_status[1] <= irqarray18_pioirq1_dupe1;
     irqarray18_pending_status[2] <= irqarray18_pioirq2_dupe1;
     irqarray18_pending_status[3] <= irqarray18_pioirq3_dupe1;
-    irqarray18_pending_status[4] <= irqarray18_nc_b18s41;
-    irqarray18_pending_status[5] <= irqarray18_nc_b18s51;
-    irqarray18_pending_status[6] <= irqarray18_nc_b18s61;
-    irqarray18_pending_status[7] <= irqarray18_nc_b18s71;
-    irqarray18_pending_status[8] <= irqarray18_nc_b18s81;
-    irqarray18_pending_status[9] <= irqarray18_nc_b18s91;
-    irqarray18_pending_status[10] <= irqarray18_nc_b18s101;
-    irqarray18_pending_status[11] <= irqarray18_nc_b18s111;
-    irqarray18_pending_status[12] <= irqarray18_nc_b18s121;
-    irqarray18_pending_status[13] <= irqarray18_nc_b18s131;
-    irqarray18_pending_status[14] <= irqarray18_nc_b18s141;
-    irqarray18_pending_status[15] <= irqarray18_nc_b18s151;
+    irqarray18_pending_status[4] <= irqarray18_i2c2_rx_dupe1;
+    irqarray18_pending_status[5] <= irqarray18_i2c2_tx_dupe1;
+    irqarray18_pending_status[6] <= irqarray18_i2c2_cmd_dupe1;
+    irqarray18_pending_status[7] <= irqarray18_i2c2_eot_dupe1;
+    irqarray18_pending_status[8] <= irqarray18_i2c0_nack_dupe1;
+    irqarray18_pending_status[9] <= irqarray18_i2c1_nack_dupe1;
+    irqarray18_pending_status[10] <= irqarray18_i2c2_nack_dupe1;
+    irqarray18_pending_status[11] <= irqarray18_i2c0_err_dupe1;
+    irqarray18_pending_status[12] <= irqarray18_i2c1_err_dupe1;
+    irqarray18_pending_status[13] <= irqarray18_i2c2_err_dupe1;
+    irqarray18_pending_status[14] <= irqarray18_ioxirq_dupe1;
+    irqarray18_pending_status[15] <= irqarray18_cam_rx_dupe1;
 end
 assign csrbank12_ev_pending_w = irqarray18_pending_status[15:0];
 assign irqarray18_pending_we = csrbank12_ev_pending_we;
@@ -14345,18 +14345,18 @@ assign irqarray18_pioirq0_dupe2 = irqarray18_enable_storage[0];
 assign irqarray18_pioirq1_dupe2 = irqarray18_enable_storage[1];
 assign irqarray18_pioirq2_dupe2 = irqarray18_enable_storage[2];
 assign irqarray18_pioirq3_dupe2 = irqarray18_enable_storage[3];
-assign irqarray18_nc_b18s42 = irqarray18_enable_storage[4];
-assign irqarray18_nc_b18s52 = irqarray18_enable_storage[5];
-assign irqarray18_nc_b18s62 = irqarray18_enable_storage[6];
-assign irqarray18_nc_b18s72 = irqarray18_enable_storage[7];
-assign irqarray18_nc_b18s82 = irqarray18_enable_storage[8];
-assign irqarray18_nc_b18s92 = irqarray18_enable_storage[9];
-assign irqarray18_nc_b18s102 = irqarray18_enable_storage[10];
-assign irqarray18_nc_b18s112 = irqarray18_enable_storage[11];
-assign irqarray18_nc_b18s122 = irqarray18_enable_storage[12];
-assign irqarray18_nc_b18s132 = irqarray18_enable_storage[13];
-assign irqarray18_nc_b18s142 = irqarray18_enable_storage[14];
-assign irqarray18_nc_b18s152 = irqarray18_enable_storage[15];
+assign irqarray18_i2c2_rx_dupe2 = irqarray18_enable_storage[4];
+assign irqarray18_i2c2_tx_dupe2 = irqarray18_enable_storage[5];
+assign irqarray18_i2c2_cmd_dupe2 = irqarray18_enable_storage[6];
+assign irqarray18_i2c2_eot_dupe2 = irqarray18_enable_storage[7];
+assign irqarray18_i2c0_nack_dupe2 = irqarray18_enable_storage[8];
+assign irqarray18_i2c1_nack_dupe2 = irqarray18_enable_storage[9];
+assign irqarray18_i2c2_nack_dupe2 = irqarray18_enable_storage[10];
+assign irqarray18_i2c0_err_dupe2 = irqarray18_enable_storage[11];
+assign irqarray18_i2c1_err_dupe2 = irqarray18_enable_storage[12];
+assign irqarray18_i2c2_err_dupe2 = irqarray18_enable_storage[13];
+assign irqarray18_ioxirq_dupe2 = irqarray18_enable_storage[14];
+assign irqarray18_cam_rx_dupe2 = irqarray18_enable_storage[15];
 assign csrbank12_ev_enable0_w = irqarray18_enable_storage[15:0];
 assign csrbank13_sel = (interface13_bank_bus_adr[15:10] == 4'd15);
 assign csrbank13_re = interface13_bank_bus_re;
@@ -14431,14 +14431,14 @@ always @(*) begin
     irqarray19_status_status[1] <= irqarray19_mbox_irq_abort_init_dupe0;
     irqarray19_status_status[2] <= irqarray19_mbox_irq_done_dupe0;
     irqarray19_status_status[3] <= irqarray19_mbox_irq_error_dupe0;
-    irqarray19_status_status[4] <= irqarray19_nc_b19s40;
-    irqarray19_status_status[5] <= irqarray19_nc_b19s50;
-    irqarray19_status_status[6] <= irqarray19_nc_b19s60;
-    irqarray19_status_status[7] <= irqarray19_nc_b19s70;
-    irqarray19_status_status[8] <= irqarray19_nc_b19s80;
-    irqarray19_status_status[9] <= irqarray19_nc_b19s90;
-    irqarray19_status_status[10] <= irqarray19_nc_b19s100;
-    irqarray19_status_status[11] <= irqarray19_nc_b19s110;
+    irqarray19_status_status[4] <= irqarray19_pioirq0_dupe0;
+    irqarray19_status_status[5] <= irqarray19_pioirq1_dupe0;
+    irqarray19_status_status[6] <= irqarray19_pioirq2_dupe0;
+    irqarray19_status_status[7] <= irqarray19_pioirq3_dupe0;
+    irqarray19_status_status[8] <= irqarray19_sdio_rx_dupe0;
+    irqarray19_status_status[9] <= irqarray19_sdio_tx_dupe0;
+    irqarray19_status_status[10] <= irqarray19_sdio_eot_dupe0;
+    irqarray19_status_status[11] <= irqarray19_sdio_err_dupe0;
     irqarray19_status_status[12] <= irqarray19_nc_b19s120;
     irqarray19_status_status[13] <= irqarray19_nc_b19s130;
     irqarray19_status_status[14] <= irqarray19_nc_b19s140;
@@ -14452,14 +14452,14 @@ always @(*) begin
     irqarray19_pending_status[1] <= irqarray19_mbox_irq_abort_init_dupe1;
     irqarray19_pending_status[2] <= irqarray19_mbox_irq_done_dupe1;
     irqarray19_pending_status[3] <= irqarray19_mbox_irq_error_dupe1;
-    irqarray19_pending_status[4] <= irqarray19_nc_b19s41;
-    irqarray19_pending_status[5] <= irqarray19_nc_b19s51;
-    irqarray19_pending_status[6] <= irqarray19_nc_b19s61;
-    irqarray19_pending_status[7] <= irqarray19_nc_b19s71;
-    irqarray19_pending_status[8] <= irqarray19_nc_b19s81;
-    irqarray19_pending_status[9] <= irqarray19_nc_b19s91;
-    irqarray19_pending_status[10] <= irqarray19_nc_b19s101;
-    irqarray19_pending_status[11] <= irqarray19_nc_b19s111;
+    irqarray19_pending_status[4] <= irqarray19_pioirq0_dupe1;
+    irqarray19_pending_status[5] <= irqarray19_pioirq1_dupe1;
+    irqarray19_pending_status[6] <= irqarray19_pioirq2_dupe1;
+    irqarray19_pending_status[7] <= irqarray19_pioirq3_dupe1;
+    irqarray19_pending_status[8] <= irqarray19_sdio_rx_dupe1;
+    irqarray19_pending_status[9] <= irqarray19_sdio_tx_dupe1;
+    irqarray19_pending_status[10] <= irqarray19_sdio_eot_dupe1;
+    irqarray19_pending_status[11] <= irqarray19_sdio_err_dupe1;
     irqarray19_pending_status[12] <= irqarray19_nc_b19s121;
     irqarray19_pending_status[13] <= irqarray19_nc_b19s131;
     irqarray19_pending_status[14] <= irqarray19_nc_b19s141;
@@ -14471,14 +14471,14 @@ assign irqarray19_mbox_irq_available_dupe2 = irqarray19_enable_storage[0];
 assign irqarray19_mbox_irq_abort_init_dupe2 = irqarray19_enable_storage[1];
 assign irqarray19_mbox_irq_done_dupe2 = irqarray19_enable_storage[2];
 assign irqarray19_mbox_irq_error_dupe2 = irqarray19_enable_storage[3];
-assign irqarray19_nc_b19s42 = irqarray19_enable_storage[4];
-assign irqarray19_nc_b19s52 = irqarray19_enable_storage[5];
-assign irqarray19_nc_b19s62 = irqarray19_enable_storage[6];
-assign irqarray19_nc_b19s72 = irqarray19_enable_storage[7];
-assign irqarray19_nc_b19s82 = irqarray19_enable_storage[8];
-assign irqarray19_nc_b19s92 = irqarray19_enable_storage[9];
-assign irqarray19_nc_b19s102 = irqarray19_enable_storage[10];
-assign irqarray19_nc_b19s112 = irqarray19_enable_storage[11];
+assign irqarray19_pioirq0_dupe2 = irqarray19_enable_storage[4];
+assign irqarray19_pioirq1_dupe2 = irqarray19_enable_storage[5];
+assign irqarray19_pioirq2_dupe2 = irqarray19_enable_storage[6];
+assign irqarray19_pioirq3_dupe2 = irqarray19_enable_storage[7];
+assign irqarray19_sdio_rx_dupe2 = irqarray19_enable_storage[8];
+assign irqarray19_sdio_tx_dupe2 = irqarray19_enable_storage[9];
+assign irqarray19_sdio_eot_dupe2 = irqarray19_enable_storage[10];
+assign irqarray19_sdio_err_dupe2 = irqarray19_enable_storage[11];
 assign irqarray19_nc_b19s122 = irqarray19_enable_storage[12];
 assign irqarray19_nc_b19s132 = irqarray19_enable_storage[13];
 assign irqarray19_nc_b19s142 = irqarray19_enable_storage[14];
@@ -14568,7 +14568,7 @@ always @(*) begin
     irqarray2_status_status[12] <= irqarray2_nc_b2s120;
     irqarray2_status_status[13] <= irqarray2_nc_b2s130;
     irqarray2_status_status[14] <= irqarray2_nc_b2s140;
-    irqarray2_status_status[15] <= irqarray2_nc_b2s150;
+    irqarray2_status_status[15] <= irqarray2_aowkupint0;
 end
 assign csrbank14_ev_status_w = irqarray2_status_status[15:0];
 assign irqarray2_status_we = csrbank14_ev_status_we;
@@ -14589,7 +14589,7 @@ always @(*) begin
     irqarray2_pending_status[12] <= irqarray2_nc_b2s121;
     irqarray2_pending_status[13] <= irqarray2_nc_b2s131;
     irqarray2_pending_status[14] <= irqarray2_nc_b2s141;
-    irqarray2_pending_status[15] <= irqarray2_nc_b2s151;
+    irqarray2_pending_status[15] <= irqarray2_aowkupint1;
 end
 assign csrbank14_ev_pending_w = irqarray2_pending_status[15:0];
 assign irqarray2_pending_we = csrbank14_ev_pending_we;
@@ -14608,7 +14608,7 @@ assign irqarray2_nc_b2s112 = irqarray2_enable_storage[11];
 assign irqarray2_nc_b2s122 = irqarray2_enable_storage[12];
 assign irqarray2_nc_b2s132 = irqarray2_enable_storage[13];
 assign irqarray2_nc_b2s142 = irqarray2_enable_storage[14];
-assign irqarray2_nc_b2s152 = irqarray2_enable_storage[15];
+assign irqarray2_aowkupint2 = irqarray2_enable_storage[15];
 assign csrbank14_ev_enable0_w = irqarray2_enable_storage[15:0];
 assign csrbank15_sel = (interface15_bank_bus_adr[15:10] == 5'd17);
 assign csrbank15_re = interface15_bank_bus_re;
@@ -14679,14 +14679,14 @@ assign irqarray3_rising = irqarray3_polarity_storage[15:0];
 assign csrbank15_ev_polarity0_w = irqarray3_polarity_storage[15:0];
 always @(*) begin
     irqarray3_status_status <= 16'd0;
-    irqarray3_status_status[0] <= irqarray3_sceintr00;
-    irqarray3_status_status[1] <= irqarray3_sceintr10;
-    irqarray3_status_status[2] <= irqarray3_sceintr20;
-    irqarray3_status_status[3] <= irqarray3_sceintr30;
-    irqarray3_status_status[4] <= irqarray3_sceintr40;
-    irqarray3_status_status[5] <= irqarray3_sceintr50;
-    irqarray3_status_status[6] <= irqarray3_sceintr60;
-    irqarray3_status_status[7] <= irqarray3_sceintr70;
+    irqarray3_status_status[0] <= irqarray3_trng_done0;
+    irqarray3_status_status[1] <= irqarray3_aes_done0;
+    irqarray3_status_status[2] <= irqarray3_pke_done0;
+    irqarray3_status_status[3] <= irqarray3_hash_done0;
+    irqarray3_status_status[4] <= irqarray3_alu_done0;
+    irqarray3_status_status[5] <= irqarray3_sdma_ichdone0;
+    irqarray3_status_status[6] <= irqarray3_sdma_schdone0;
+    irqarray3_status_status[7] <= irqarray3_sdma_xchdone0;
     irqarray3_status_status[8] <= irqarray3_nc_b3s80;
     irqarray3_status_status[9] <= irqarray3_nc_b3s90;
     irqarray3_status_status[10] <= irqarray3_nc_b3s100;
@@ -14700,14 +14700,14 @@ assign csrbank15_ev_status_w = irqarray3_status_status[15:0];
 assign irqarray3_status_we = csrbank15_ev_status_we;
 always @(*) begin
     irqarray3_pending_status <= 16'd0;
-    irqarray3_pending_status[0] <= irqarray3_sceintr01;
-    irqarray3_pending_status[1] <= irqarray3_sceintr11;
-    irqarray3_pending_status[2] <= irqarray3_sceintr21;
-    irqarray3_pending_status[3] <= irqarray3_sceintr31;
-    irqarray3_pending_status[4] <= irqarray3_sceintr41;
-    irqarray3_pending_status[5] <= irqarray3_sceintr51;
-    irqarray3_pending_status[6] <= irqarray3_sceintr61;
-    irqarray3_pending_status[7] <= irqarray3_sceintr71;
+    irqarray3_pending_status[0] <= irqarray3_trng_done1;
+    irqarray3_pending_status[1] <= irqarray3_aes_done1;
+    irqarray3_pending_status[2] <= irqarray3_pke_done1;
+    irqarray3_pending_status[3] <= irqarray3_hash_done1;
+    irqarray3_pending_status[4] <= irqarray3_alu_done1;
+    irqarray3_pending_status[5] <= irqarray3_sdma_ichdone1;
+    irqarray3_pending_status[6] <= irqarray3_sdma_schdone1;
+    irqarray3_pending_status[7] <= irqarray3_sdma_xchdone1;
     irqarray3_pending_status[8] <= irqarray3_nc_b3s81;
     irqarray3_pending_status[9] <= irqarray3_nc_b3s91;
     irqarray3_pending_status[10] <= irqarray3_nc_b3s101;
@@ -14719,14 +14719,14 @@ always @(*) begin
 end
 assign csrbank15_ev_pending_w = irqarray3_pending_status[15:0];
 assign irqarray3_pending_we = csrbank15_ev_pending_we;
-assign irqarray3_sceintr02 = irqarray3_enable_storage[0];
-assign irqarray3_sceintr12 = irqarray3_enable_storage[1];
-assign irqarray3_sceintr22 = irqarray3_enable_storage[2];
-assign irqarray3_sceintr32 = irqarray3_enable_storage[3];
-assign irqarray3_sceintr42 = irqarray3_enable_storage[4];
-assign irqarray3_sceintr52 = irqarray3_enable_storage[5];
-assign irqarray3_sceintr62 = irqarray3_enable_storage[6];
-assign irqarray3_sceintr72 = irqarray3_enable_storage[7];
+assign irqarray3_trng_done2 = irqarray3_enable_storage[0];
+assign irqarray3_aes_done2 = irqarray3_enable_storage[1];
+assign irqarray3_pke_done2 = irqarray3_enable_storage[2];
+assign irqarray3_hash_done2 = irqarray3_enable_storage[3];
+assign irqarray3_alu_done2 = irqarray3_enable_storage[4];
+assign irqarray3_sdma_ichdone2 = irqarray3_enable_storage[5];
+assign irqarray3_sdma_schdone2 = irqarray3_enable_storage[6];
+assign irqarray3_sdma_xchdone2 = irqarray3_enable_storage[7];
 assign irqarray3_nc_b3s82 = irqarray3_enable_storage[8];
 assign irqarray3_nc_b3s92 = irqarray3_enable_storage[9];
 assign irqarray3_nc_b3s102 = irqarray3_enable_storage[10];
@@ -14805,14 +14805,14 @@ assign irqarray4_rising = irqarray4_polarity_storage[15:0];
 assign csrbank16_ev_polarity0_w = irqarray4_polarity_storage[15:0];
 always @(*) begin
     irqarray4_status_status <= 16'd0;
-    irqarray4_status_status[0] <= irqarray4_nc_b4s00;
-    irqarray4_status_status[1] <= irqarray4_nc_b4s10;
-    irqarray4_status_status[2] <= irqarray4_nc_b4s20;
-    irqarray4_status_status[3] <= irqarray4_nc_b4s30;
-    irqarray4_status_status[4] <= irqarray4_nc_b4s40;
-    irqarray4_status_status[5] <= irqarray4_nc_b4s50;
-    irqarray4_status_status[6] <= irqarray4_nc_b4s60;
-    irqarray4_status_status[7] <= irqarray4_nc_b4s70;
+    irqarray4_status_status[0] <= irqarray4_trng_done_dupe0;
+    irqarray4_status_status[1] <= irqarray4_aes_done_dupe0;
+    irqarray4_status_status[2] <= irqarray4_pke_done_dupe0;
+    irqarray4_status_status[3] <= irqarray4_hash_done_dupe0;
+    irqarray4_status_status[4] <= irqarray4_alu_done_dupe0;
+    irqarray4_status_status[5] <= irqarray4_sdma_ichdone_dupe0;
+    irqarray4_status_status[6] <= irqarray4_sdma_schdone_dupe0;
+    irqarray4_status_status[7] <= irqarray4_sdma_xchdone_dupe0;
     irqarray4_status_status[8] <= irqarray4_nc_b4s80;
     irqarray4_status_status[9] <= irqarray4_nc_b4s90;
     irqarray4_status_status[10] <= irqarray4_nc_b4s100;
@@ -14826,14 +14826,14 @@ assign csrbank16_ev_status_w = irqarray4_status_status[15:0];
 assign irqarray4_status_we = csrbank16_ev_status_we;
 always @(*) begin
     irqarray4_pending_status <= 16'd0;
-    irqarray4_pending_status[0] <= irqarray4_nc_b4s01;
-    irqarray4_pending_status[1] <= irqarray4_nc_b4s11;
-    irqarray4_pending_status[2] <= irqarray4_nc_b4s21;
-    irqarray4_pending_status[3] <= irqarray4_nc_b4s31;
-    irqarray4_pending_status[4] <= irqarray4_nc_b4s41;
-    irqarray4_pending_status[5] <= irqarray4_nc_b4s51;
-    irqarray4_pending_status[6] <= irqarray4_nc_b4s61;
-    irqarray4_pending_status[7] <= irqarray4_nc_b4s71;
+    irqarray4_pending_status[0] <= irqarray4_trng_done_dupe1;
+    irqarray4_pending_status[1] <= irqarray4_aes_done_dupe1;
+    irqarray4_pending_status[2] <= irqarray4_pke_done_dupe1;
+    irqarray4_pending_status[3] <= irqarray4_hash_done_dupe1;
+    irqarray4_pending_status[4] <= irqarray4_alu_done_dupe1;
+    irqarray4_pending_status[5] <= irqarray4_sdma_ichdone_dupe1;
+    irqarray4_pending_status[6] <= irqarray4_sdma_schdone_dupe1;
+    irqarray4_pending_status[7] <= irqarray4_sdma_xchdone_dupe1;
     irqarray4_pending_status[8] <= irqarray4_nc_b4s81;
     irqarray4_pending_status[9] <= irqarray4_nc_b4s91;
     irqarray4_pending_status[10] <= irqarray4_nc_b4s101;
@@ -14845,14 +14845,14 @@ always @(*) begin
 end
 assign csrbank16_ev_pending_w = irqarray4_pending_status[15:0];
 assign irqarray4_pending_we = csrbank16_ev_pending_we;
-assign irqarray4_nc_b4s02 = irqarray4_enable_storage[0];
-assign irqarray4_nc_b4s12 = irqarray4_enable_storage[1];
-assign irqarray4_nc_b4s22 = irqarray4_enable_storage[2];
-assign irqarray4_nc_b4s32 = irqarray4_enable_storage[3];
-assign irqarray4_nc_b4s42 = irqarray4_enable_storage[4];
-assign irqarray4_nc_b4s52 = irqarray4_enable_storage[5];
-assign irqarray4_nc_b4s62 = irqarray4_enable_storage[6];
-assign irqarray4_nc_b4s72 = irqarray4_enable_storage[7];
+assign irqarray4_trng_done_dupe2 = irqarray4_enable_storage[0];
+assign irqarray4_aes_done_dupe2 = irqarray4_enable_storage[1];
+assign irqarray4_pke_done_dupe2 = irqarray4_enable_storage[2];
+assign irqarray4_hash_done_dupe2 = irqarray4_enable_storage[3];
+assign irqarray4_alu_done_dupe2 = irqarray4_enable_storage[4];
+assign irqarray4_sdma_ichdone_dupe2 = irqarray4_enable_storage[5];
+assign irqarray4_sdma_schdone_dupe2 = irqarray4_enable_storage[6];
+assign irqarray4_sdma_xchdone_dupe2 = irqarray4_enable_storage[7];
 assign irqarray4_nc_b4s82 = irqarray4_enable_storage[8];
 assign irqarray4_nc_b4s92 = irqarray4_enable_storage[9];
 assign irqarray4_nc_b4s102 = irqarray4_enable_storage[10];
@@ -22723,5 +22723,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2024-12-16 00:06:55.
+//  Auto-Generated by LiteX on 2024-12-18 04:57:19.
 //------------------------------------------------------------------------------

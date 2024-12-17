@@ -13,6 +13,7 @@ cd candidate
 
 cp ../build/software/soc.svd .
 cp ../build/software/core.svd .
+cp core.svd ../../xous-core/utralib/cramium/
 
 mkdir -p libs
 mkdir -p tb
@@ -67,12 +68,12 @@ cp ../deps/verilog-axi/rtl/axil_cdc_rd.v ./bio/libs/
 cp ../sim_support/cdc_level_to_pulse.sv ./bio/libs/
 
 # used by BIO; maybe substitute with CM7 HDK option if performance is better
-cp ../deps/axi2ahb/axi2ahb.v ./bio/libs/
-cp ../deps/axi2ahb/axi2ahb_cmd.v ./bio/libs/
-cp ../deps/axi2ahb/axi2ahb_ctrl.v ./bio/libs/
-cp ../deps/axi2ahb/axi2ahb_rd_fifo.v ./bio/libs/
-cp ../deps/axi2ahb/axi2ahb_wr_fifo.v ./bio/libs/
-cp ../deps/axi2ahb/prgen_fifo.v ./bio/libs/
+# cp ../deps/axi2ahb/axi2ahb.v ./bio/libs/
+# cp ../deps/axi2ahb/axi2ahb_cmd.v ./bio/libs/
+# cp ../deps/axi2ahb/axi2ahb_ctrl.v ./bio/libs/
+# cp ../deps/axi2ahb/axi2ahb_rd_fifo.v ./bio/libs/
+# cp ../deps/axi2ahb/axi2ahb_wr_fifo.v ./bio/libs/
+# cp ../deps/axi2ahb/prgen_fifo.v ./bio/libs/
 
 # add support modules - used by both BIO and PIO
 cp ../sim_support/cdc_blinded.v ./bio/libs/
