@@ -1049,11 +1049,11 @@ def dupe_irqs(pins, comb):
             '', '', '', '',   '', '', '', '', # unmapped
             '', '', '', '',   '', '', '', '', # unmapped
             'qfcirq', 'mdmairq', 'mbox_irq_available', 'mbox_irq_abort_init', 'mbox_irq_done', 'mbox_irq_error', '', '',
-            '', '', '', '',   '', '', '', '',
+            '', '', '', '',   '', '', '', 'aowkupint',
         ]],
         # banks 3-4
         'sceev' : [63, 32, [
-            'sceintr0', 'sceintr1', 'sceintr2', 'sceintr3', 'sceintr4', 'sceintr5', 'sceintr6', 'sceintr7',
+            'trng_done', 'aes_done', 'pke_done', 'hash_done', 'alu_done', 'sdma_ichdone', 'sdma_schdone', 'sdma_xchdone',
             '', '', '', '',   '', '', '', '',
             '', '', '', '',   '', '', '', '',
             '', '', '', '',   '', '', '', '',
@@ -1124,27 +1124,95 @@ def dupe_irqs(pins, comb):
     # list of interrupts that are copied, and where to
     dupes = {
         # 'signal_name' : (target irq bank, target bit)
-        'mbox_irq_available':      (19, 0), # mapped here fo soc/fpga "local" variants as well
-        'mbox_irq_abort_init':     (19, 1),
-        'mbox_irq_done':           (19, 2),
-        'mbox_irq_error':          (19, 3),
-        'pioirq[0]'  :             (18, 0), # mapped here for soc/fpga "local" variants as well
-        'pioirq[1]'  :             (18, 1),
-        'pioirq[2]'  :             (18, 2),
-        'pioirq[3]'  :             (18, 3),
-        'mdmairq'    :             (0, 0),  # unused 0-bank
-        'usbc' :                   (1, 0),   # unused bottom half of coresub
-        'i2s_rx' :                 (11, 0),   # unused bank in ifsubev
-        'i2s_tx' :                 (11, 1),   # unused bank in ifsubev
-        'uart2_rx':                (14, 0),  # replicas so the kernel can have its own secure UART routine
-        'uart2_tx':                (14, 1),
-        'uart2_rx_char' :          (14, 2),
-        'uart2_err':               (14, 3),
-        'uart3_rx':                (14, 4),
-        'uart3_tx':                (14, 5),
-        'uart3_rx_char' :          (14, 6),
-        'uart3_err':               (14, 7),
-        # banks 16 and 17 are still available
+        (19, 0)   : 'mbox_irq_available'   , # mapped here fo soc/fpga "local" variants as well
+        (19, 1)   : 'mbox_irq_abort_init'  ,
+        (19, 2)   : 'mbox_irq_done'        ,
+        (19, 3)   : 'mbox_irq_error'       ,
+        (19, 4)   : 'pioirq[0]'            ,
+        (19, 5)   : 'pioirq[1]'            ,
+        (19, 6)   : 'pioirq[2]'            ,
+        (19, 7)   : 'pioirq[3]'            ,
+        (19, 8)   : 'sdio_rx'              ,
+        (19, 9)   : 'sdio_tx'              ,
+        (19, 10)  : 'sdio_eot'             ,
+        (19, 11)  : 'sdio_err'             ,
+        # rest are reserved for software interrupt use
+
+        (18, 0)   : 'pioirq[0]'               ,
+        (18, 1)   : 'pioirq[1]'               ,
+        (18, 2)   : 'pioirq[2]'               ,
+        (18, 3)   : 'pioirq[3]'               ,
+        (18, 4)   : 'i2c2_rx'                 ,
+        (18, 5)   : 'i2c2_tx'                 ,
+        (18, 6)   : 'i2c2_cmd'                ,
+        (18, 7)   : 'i2c2_eot'                ,
+        (18, 8)   : 'i2c0_nack'               ,
+        (18, 9)   : 'i2c1_nack'               ,
+        (18, 10)  : 'i2c2_nack'               ,
+        (18, 11)  : 'i2c0_err'                ,
+        (18, 12)  : 'i2c1_err'                ,
+        (18, 13)  : 'i2c2_err'                ,
+        (18, 14)  : 'ioxirq'                  ,
+        (18, 15)  : 'cam_rx'                  ,
+
+        (0, 0)    : 'mdmairq'                 ,  # unused 0-bank
+        (0, 4)   : 'pioirq[0]'               ,
+        (0, 5)   : 'pioirq[1]'               ,
+        (0, 6)   : 'pioirq[2]'               ,
+        (0, 7)   : 'pioirq[3]'               ,
+        (1, 0)    : 'usbc'                    ,   # unused bottom half of coresub
+        (11, 0)   : 'i2s_rx'                  ,   # unused bank in ifsubev
+        (11, 1)   : 'i2s_tx'                  ,   # unused bank in ifsubev
+
+        # alias of SCE to unused bank
+        (4, 0)    : 'trng_done'               ,
+        (4, 1)    : 'aes_done'                ,
+        (4, 2)    : 'pke_done'                ,
+        (4, 3)    : 'hash_done'               ,
+        (4, 4)    : 'alu_done'                ,
+        (4, 5)    : 'sdma_ichdone'            ,
+        (4, 6)    : 'sdma_schdone'            ,
+        (4, 7)    : 'sdma_xchdone'            ,
+
+        (14, 0)   : 'uart2_rx'                ,  # replicas so the kernel can have its own secure UART routine
+        (14, 1)   : 'uart2_tx'                ,
+        (14, 2)   : 'uart2_rx_char'           ,
+        (14, 3)   : 'uart2_err'               ,
+        (14, 4)   : 'uart3_rx'                ,
+        (14, 5)   : 'uart3_tx'                ,
+        (14, 6)   : 'uart3_rx_char'           ,
+        (14, 7)   : 'uart3_err'               ,
+        (14, 8)   : 'trng_done'               ,
+
+        (16, 0)   : 'cam_rx'                  ,
+        (16, 1)   : 'i2s_rx'                  ,
+        (16, 2)   : 'i2s_tx'                  ,
+        (16, 4)   : 'spim1_rx'                ,
+        (16, 5)   : 'spim1_tx'                ,
+        (16, 6)   : 'spim1_cmd'               ,
+        (16, 7)   : 'spim1_eot'               ,
+        (16, 8)   : 'spim2_rx'                ,
+        (16, 9)   : 'spim2_tx'                ,
+        (16, 10)  : 'spim2_cmd'               ,
+        (16, 11)  : 'spim2_eot'               ,
+        (16, 12)  : 'i2c0_rx'                 ,
+        (16, 13)  : 'i2c0_tx'                 ,
+        (16, 14)  : 'i2c0_cmd'                ,
+        (16, 15)  : 'i2c0_eot'                ,
+
+        (17, 0)   : 'i2c1_rx'                 ,
+        (17, 1)   : 'i2c1_tx'                 ,
+        (17, 2)   : 'i2c1_cmd'                ,
+        (17, 3)   : 'i2c1_eot'                ,
+        (17, 4)   : 'pioirq[0]'               ,
+        (17, 5)   : 'pioirq[1]'               ,
+        (17, 6)   : 'pioirq[2]'               ,
+        (17, 7)   : 'pioirq[3]'               ,
+        (17, 8)   : 'qfcirq'                  ,
+        (17, 9)   : 'adc_rx'                  ,
+        (17, 10)  : 'ioxirq'                  ,
+        (17, 11)  : 'sddcirq'                 ,
+        # rest are reserved for software interrupt use
     }
     dupes_mapped = 0
 
@@ -1174,7 +1242,7 @@ def dupe_irqs(pins, comb):
 
             found = False
             # search and see if the current pin has a match to a dupe mapping; if so, wire it to the dupe mapping
-            for (name, (d_bank, d_pin)) in dupes.items():
+            for ((d_bank, d_pin), name) in dupes.items():
                 if d_bank == bank and d_pin == pin:
                     # check that the pin isn't actually used
                     assert(cur_pin_name == '' or cur_pin_name == None)
