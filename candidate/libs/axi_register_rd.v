@@ -127,7 +127,7 @@ if (AR_REG_TYPE > 1) begin
 // skid buffer, no bubble cycles
 
 // datapath registers
-reg                    s_axi_arready_reg = 1'b0;
+reg                    s_axi_arready_reg;
 
 reg [ID_WIDTH-1:0]     m_axi_arid_reg     ;
 reg [ADDR_WIDTH-1:0]   m_axi_araddr_reg   ;
@@ -287,7 +287,7 @@ end else if (AR_REG_TYPE == 1) begin
 // simple register, inserts bubble cycles
 
 // datapath registers
-reg                    s_axi_arready_reg = 1'b0;
+reg                    s_axi_arready_reg;
 
 reg [ID_WIDTH-1:0]     m_axi_arid_reg     ;
 reg [ADDR_WIDTH-1:0]   m_axi_araddr_reg   ;

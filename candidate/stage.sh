@@ -14,6 +14,7 @@ cd candidate
 cp ../build/software/soc.svd .
 cp ../build/software/core.svd .
 cp core.svd ../../xous-core/utralib/cramium/
+cp core.svd ../../nto-tests/svd/
 
 mkdir -p libs
 mkdir -p tb
