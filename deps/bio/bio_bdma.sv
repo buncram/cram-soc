@@ -8,7 +8,7 @@
 // When this is defined, instructions take an extra cycle
 // to execute, but the critical path is shorter.
 //   - Impact is significant on IPC, let's start with it off
-// `define REGISTER_RAM
+`define REGISTER_RAM
 // Add pipeline stage to AXI read to CPU
 //   - The impact of this is minimal on IPC but significant on timing closure
 //     so let's start with it enabled
@@ -663,7 +663,10 @@ module bio_bdma #(
     generate
         for(genvar j = 0; j < NUM_MACH; j = j + 1) begin: stalls
             always_comb begin
-                extclk_selected[j] = gpio_in_cleaned[extclk_gpio_aclk[j]];
+                // the external clock *must* go through synchronizers to be used as an edge
+                // to trigger the state machine - otherwise we can have big metastability problems
+                // and/or timing closure issues
+                extclk_selected[j] = gpio_in_sync1[extclk_gpio_aclk[j]];
                 // stall is probably critical path...?
                 stall[j] = (
                     quanta_halt[j] & ~quantum[j]                        // stall to next quanta
