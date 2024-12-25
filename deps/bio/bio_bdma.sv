@@ -846,14 +846,19 @@ module bio_bdma #(
             assign gpio_in[gp] = bio_gpio[gp].pi ^ in_invert[gp];
         end
     endgenerate
-    // add metastability hardening, with optional bypass path
+    // add metastability hardening, with optional reduced path for latency-sensitive ops
+    // the decision ways made to not allow total bypass of any clock hardening because
+    // the gpio_in signal is an event source, which propagates into all the registers. Any
+    // sort of metastability here could lead to really unpredictable outcomes, and the
+    // penalty is small (aclk ~ 800MHz => 1.25ns delay, which is typically well within the
+    // rise time even of many I/O signals)
     always @(posedge aclk) begin
         gpio_in_sync0 <= gpio_in;
         gpio_in_sync1 <= gpio_in_sync0;
     end
     generate
         for(genvar m = 0; m < 32; m = m + 1) begin: gen_bypass
-            assign gpio_in_cleaned[m] = sync_bypass[m] ? gpio_in[m] : gpio_in_sync1[m];
+            assign gpio_in_cleaned[m] = sync_bypass[m] ? gpio_in_sync0[m] : gpio_in_sync1[m];
         end
     endgenerate
 
