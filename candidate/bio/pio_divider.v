@@ -17,7 +17,7 @@ module pio_divider (
   input         reset,
   input [15:0]  div_int,
   input [7:0]   div_frac,
-  output        penable
+  output reg    penable
 );
   wire use_divider;
   wire divint_1;
@@ -28,14 +28,25 @@ module pio_divider (
   reg [23:0] div_counter;
   reg pen;
   reg old_pen;
+  // bring the clock dividers into the local clock domain
+  // this cleans up false path timing errors from AHB domain on
+  // a critical signal
+  reg [15:0] div_int_r;
+  reg [7:0] div_frac_r;
 
-  assign div = {div_int, div_frac};
+  assign div = {div_int_r, div_frac_r};
+  always @(posedge clk) begin
+    div_int_r <= div_int;
+    div_frac_r <= div_frac;
+  end
   always @(posedge clk) begin
     if (reset) begin
       div_counter <= 0;
       pen <= 1;
       old_pen <= 0;
+      penable <= 0;
     end else begin
+      penable <= ((pen & ~old_pen) || !use_divider) ^ divint_1;
       if (use_divider) begin
         old_pen <= pen;
         div_counter <= div_counter + 256;
@@ -45,6 +56,4 @@ module pio_divider (
       end
     end
   end
-
-  assign penable = ((pen & ~old_pen) || !use_divider) ^ divint_1;
 endmodule
