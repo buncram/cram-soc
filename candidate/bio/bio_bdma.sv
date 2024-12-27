@@ -1838,7 +1838,7 @@ module bio_bdma #(
             end
             pio_divider clk_divider (
                 .clk(aclk),
-                .reset(reset | clkdiv_restart[j]),
+                .reset(reset | (clkdiv_restart[j] & ~cmatpg)),
                 .div_int(div_int[j]),
                 .div_frac(div_frac[j]),
                 .penable(penable[j])
@@ -1910,7 +1910,7 @@ module bio_bdma #(
                 .clk_count(core_clk_count[j]),
 
                 .clk(core_clk[j]),
-                .resetn(reset_n & ~a_restart[j]),
+                .resetn(reset_n & (~a_restart[j] | cmatpg)),
                 .trap(trap[j]),
                 .mem_ready(merged_mem_ready[j]),
                 .mem_rdata(merged_mem_rdata[j]),
@@ -1947,7 +1947,10 @@ module bio_bdma #(
     generate
         for(genvar k = 0; k < 4; k = k + 1) begin: fifos
             regfifo regfifo(
-                .reset(reset | fifo_to_reset_aclk[k] & do_fifo_clr_aclk | a_restart[k]),
+                .reset(reset | (
+                        (fifo_to_reset_aclk[k] & do_fifo_clr_aclk | a_restart[k])
+                        & ~cmatpg
+                    )),
                 .aclk(aclk),
                 .wdata(regfifo_wdata[k]),
                 .we(regfifo_we[k]),
