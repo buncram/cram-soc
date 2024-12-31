@@ -1338,16 +1338,27 @@ to in the 8-bit output.
             CSRField("coreuser", size=8, description="Computed value of the `CoreUser` signal as passed on to the SoC. For debugging."),
         ])
         self.map_lo = CSRStorage(fields=[
-            CSRField("lut0", size=8, description="Value of `CoreUser` ASID"),
-            CSRField("lut1", size=8, description="Value of `CoreUser` ASID"),
-            CSRField("lut2", size=8, description="Value of `CoreUser` ASID"),
-            CSRField("lut3", size=8, description="Value of `CoreUser` ASID"),
+            CSRField("lut0", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut1", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut2", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut3", size=8, description="Value of `CoreUser` ASID bit 0"),
         ])
         self.map_hi = CSRStorage(fields=[
-            CSRField("lut4", size=8, description="Value of `CoreUser` ASID"),
-            CSRField("lut5", size=8, description="Value of `CoreUser` ASID"),
-            CSRField("lut6", size=8, description="Value of `CoreUser` ASID"),
-            CSRField("lut7", size=8, description="Value of `CoreUser` ASID"),
+            CSRField("lut4", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut5", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut6", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut7", size=8, description="Value of `CoreUser` ASID bit 0"),
+        ])
+        self.uservalue = CSRStorage(fields=[
+            CSRField("user0", size=2, description="Value of `CoreUser` for lut0 match"),
+            CSRField("user1", size=2, description="Value of `CoreUser` for lut1 match"),
+            CSRField("user2", size=2, description="Value of `CoreUser` for lut2 match"),
+            CSRField("user3", size=2, description="Value of `CoreUser` for lut3 match"),
+            CSRField("user4", size=2, description="Value of `CoreUser` for lut4 match"),
+            CSRField("user5", size=2, description="Value of `CoreUser` for lut5 match"),
+            CSRField("user6", size=2, description="Value of `CoreUser` for lut6 match"),
+            CSRField("user7", size=2, description="Value of `CoreUser` for lut7 match"),
+            CSRField("default", size=2, description="Default value of `CoreUser`, for when none of the others match"),
         ])
 
         enable = Signal()
@@ -1363,6 +1374,15 @@ to in the 8-bit output.
         lut5 = Signal(8)
         lut6 = Signal(8)
         lut7 = Signal(8)
+        user0 = Signal(8)
+        user1 = Signal(8)
+        user2 = Signal(8)
+        user3 = Signal(8)
+        user4 = Signal(8)
+        user5 = Signal(8)
+        user6 = Signal(8)
+        user7 = Signal(8)
+        user_default = Signal(8)
         use_lut = Signal()
         self.sync += [
             enable.eq(self.control.fields.enable),
@@ -1378,33 +1398,46 @@ to in the 8-bit output.
             lut5.eq(self.map_hi.fields.lut5),
             lut6.eq(self.map_hi.fields.lut6),
             lut7.eq(self.map_hi.fields.lut7),
+            user0.eq(self.uservalue.fields.user0),
+            user1.eq(self.uservalue.fields.user1),
+            user2.eq(self.uservalue.fields.user2),
+            user3.eq(self.uservalue.fields.user3),
+            user4.eq(self.uservalue.fields.user4),
+            user5.eq(self.uservalue.fields.user5),
+            user6.eq(self.uservalue.fields.user6),
+            user7.eq(self.uservalue.fields.user7),
+            user_default.eq(self.uservalue.fields.default),
         ]
         self.comb += [
             self.status.fields.coreuser.eq(coreuser)
         ]
 
         spoiler = cpu.satp_asid[8]
-        coreuser_1bit = Signal()
+        coreuser_2bit = Signal(2)
         self.comb += [
-            coreuser_1bit.eq(
-                # always trusted if we're not in Sv32 mode
-                ~cpu.satp_mode |
-                # always trusted if this check is disabled
-                ~enable |
-                (
-                    (
-                        (cpu.satp_asid == Cat(lut0, 0)) |
-                        (cpu.satp_asid == Cat(lut1, 0)) |
-                        (cpu.satp_asid == Cat(lut2, 0)) |
-                        (cpu.satp_asid == Cat(lut3, 0)) |
-                        (cpu.satp_asid == Cat(lut4, 0)) |
-                        (cpu.satp_asid == Cat(lut5, 0)) |
-                        (cpu.satp_asid == Cat(lut6, 0)) |
-                        (cpu.satp_asid == Cat(lut7, 0))
-                    )
-                    & (~require_priv | (cpu.privilege == privilege))
+            If(~require_priv | (cpu.privilege == privilege),
+                If(cpu.satp_asid == Cat(lut0, 0),
+                   coreuser_2bit.eq(user0),
+                ).Elif(cpu.satp_asid == Cat(lut1, 0),
+                   coreuser_2bit.eq(user1),
+                ).Elif(cpu.satp_asid == Cat(lut2, 0),
+                   coreuser_2bit.eq(user2),
+                ).Elif(cpu.satp_asid == Cat(lut3, 0),
+                   coreuser_2bit.eq(user3),
+                ).Elif(cpu.satp_asid == Cat(lut4, 0),
+                   coreuser_2bit.eq(user4),
+                ).Elif(cpu.satp_asid == Cat(lut5, 0),
+                   coreuser_2bit.eq(user5),
+                ).Elif(cpu.satp_asid == Cat(lut6, 0),
+                   coreuser_2bit.eq(user6),
+                ).Elif(cpu.satp_asid == Cat(lut7, 0),
+                   coreuser_2bit.eq(user7),
+                ).Else(
+                   coreuser_2bit.eq(user_default)
                 )
-            )
+            ).Else(
+                coreuser_2bit.eq(user_default)
+            ),
         ]
         self.sync += [
             use_lut.eq(
@@ -1416,7 +1449,7 @@ to in the 8-bit output.
                 ~use8bit
             ),
             If(use_lut,
-                coreuser.eq(coreuser_1bit << shift)
+                coreuser.eq(coreuser_2bit << shift)
             ).Else(
                 If((~require_priv | (cpu.privilege == privilege)),
                     coreuser.eq(
