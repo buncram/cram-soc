@@ -325,18 +325,18 @@ class MboxClient(Module):
                 NextState("REQ"),
                 NextValue(abort_ack, 0),
                 NextValue(abort_in_progress, 1),
-                mbox_ext.w_abort.eq(1),
+                NextValue(mbox_ext.w_abort, 1),
             ).Elif((ar_abort_aclk & ~ar_abort_r) & mbox_ext.r_abort, # simultaneous abort case
                 NextState("IDLE"),
                 NextValue(abort_ack, 1),
-                mbox_ext.w_abort.eq(1),
+                NextValue(mbox_ext.w_abort, 1),
             ).Elif(~(ar_abort_aclk & ~ar_abort_r) & mbox_ext.r_abort,
-                NextState("ACK"),
+                NextState("WAIT-ACK"),
                 NextValue(abort_in_progress, 1),
                 int_abort_init_aclk.eq(1), # pulse this on entering the ACK state
-                mbox_ext.w_abort.eq(0),
+                NextValue(mbox_ext.w_abort, 0),
             ).Else(
-                mbox_ext.w_abort.eq(0),
+                NextValue(mbox_ext.w_abort, 0),
             )
         )
         fsm.act("REQ",
@@ -344,18 +344,22 @@ class MboxClient(Module):
                 NextState("IDLE"),
                 NextValue(abort_in_progress, 0),
                 int_abort_done_aclk.eq(1), # pulse this on leaving the REQ state
-            ),
-            mbox_ext.w_abort.eq(1),
+                NextValue(mbox_ext.w_abort, 0),
+            ).Else(
+                NextValue(mbox_ext.w_abort, 1),
+            )
         )
-        fsm.act("ACK",
+        fsm.act("WAIT-ACK",
             If((ar_abort_aclk & ~ar_abort_r), # leave on the abort being ack'd with an abort of our own
-                NextState("IDLE"),
+                NextState("ACK"),
                 NextValue(abort_in_progress, 0),
                 NextValue(abort_ack, 1),
-                mbox_ext.w_abort.eq(1),
-            ).Else(
-                mbox_ext.w_abort.eq(0),
+                NextValue(mbox_ext.w_abort, 1),
             )
+        )
+        fsm.act("ACK",
+                NextState("IDLE"),
+                NextValue(mbox_ext.w_abort, 0),
         )
 
 

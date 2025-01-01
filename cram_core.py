@@ -619,18 +619,18 @@ from the peer.""", pulse=True)
                 NextState("REQ"),
                 NextValue(abort_ack, 0),
                 NextValue(abort_in_progress, 1),
-                self.w_abort.eq(1),
+                NextValue(self.w_abort, 1),
             ).Elif(self.control.fields.abort & self.r_abort, # simultaneous abort case
                 NextState("IDLE"),
                 NextValue(abort_ack, 1),
-                self.w_abort.eq(1),
+                NextValue(self.w_abort, 1),
             ).Elif(~self.control.fields.abort & self.r_abort,
-                NextState("ACK"),
+                NextState("WAIT-ACK"),
                 NextValue(abort_in_progress, 1),
                 self.ev.abort_init.trigger.eq(1), # pulse this on entering the ACK state
-                self.w_abort.eq(0),
+                NextValue(self.w_abort, 0),
             ).Else(
-                self.w_abort.eq(0),
+                NextValue(self.w_abort, 0),
             )
         )
         fsm.act("REQ",
@@ -638,18 +638,22 @@ from the peer.""", pulse=True)
                 NextState("IDLE"),
                 NextValue(abort_in_progress, 0),
                 self.ev.abort_done.trigger.eq(1), # pulse this on leaving the REQ state
-            ),
-            self.w_abort.eq(1),
+                NextValue(self.w_abort, 0),
+            ).Else(
+                NextValue(self.w_abort, 1),
+            )
         )
-        fsm.act("ACK",
+        fsm.act("WAIT-ACK",
             If(self.control.fields.abort, # leave on the abort being ack'd with an abort of our own
-                NextState("IDLE"),
+                NextState("ACK"),
                 NextValue(abort_in_progress, 0),
                 NextValue(abort_ack, 1),
-                self.w_abort.eq(1),
-            ).Else(
-                self.w_abort.eq(0),
+                NextValue(self.w_abort, 1),
             )
+        )
+        fsm.act("ACK",
+            NextState("IDLE"),
+            NextValue(self.w_abort, 0),
         )
 
 class MailboxClient(Module, AutoCSR, AutoDoc):
@@ -776,18 +780,18 @@ from the peer.""", pulse=True)
                 NextState("REQ"),
                 NextValue(abort_ack, 0),
                 NextValue(abort_in_progress, 1),
-                self.w_abort.eq(1),
+                NextValue(self.w_abort, 1),
             ).Elif(self.control.fields.abort & self.r_abort, # simultaneous abort case
                 NextState("IDLE"),
                 NextValue(abort_ack, 1),
-                self.w_abort.eq(1),
+                NextValue(self.w_abort, 1),
             ).Elif(~self.control.fields.abort & self.r_abort,
-                NextState("ACK"),
+                NextState("WAIT-ACK"),
                 NextValue(abort_in_progress, 1),
                 self.ev.abort_init.trigger.eq(1), # pulse this on entering the ACK state
-                self.w_abort.eq(0),
+                NextValue(self.w_abort, 0),
             ).Else(
-                self.w_abort.eq(0),
+                NextValue(self.w_abort, 0),
             )
         )
         fsm.act("REQ",
@@ -795,18 +799,22 @@ from the peer.""", pulse=True)
                 NextState("IDLE"),
                 NextValue(abort_in_progress, 0),
                 self.ev.abort_done.trigger.eq(1), # pulse this on leaving the REQ state
-            ),
-            self.w_abort.eq(1),
+                NextValue(self.w_abort, 0),
+            ).Else(
+                NextValue(self.w_abort, 1),
+            )
         )
-        fsm.act("ACK",
+        fsm.act("WAIT-ACK",
             If(self.control.fields.abort, # leave on the abort being ack'd with an abort of our own
-                NextState("IDLE"),
+                NextState("ACK"),
                 NextValue(abort_in_progress, 0),
                 NextValue(abort_ack, 1),
-                self.w_abort.eq(1),
-            ).Else(
-                self.w_abort.eq(0),
+                NextValue(self.w_abort, 1),
             )
+        )
+        fsm.act("ACK",
+            NextState("IDLE"),
+            NextValue(self.w_abort, 0),
         )
 
 
