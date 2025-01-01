@@ -303,16 +303,16 @@ always @(posedge clk or posedge rst) begin
         m_axil_rready_reg <= 1'b0;
         s_axil_rvalid_reg <= 1'b0;
         temp_s_axil_rvalid_reg <= 1'b0;
+
+        s_axil_rdata_reg <= 0;
+        s_axil_rresp_reg <= 0;
+        temp_s_axil_rdata_reg <= 0;
+        temp_s_axil_rresp_reg <= 0;
     end else begin
         m_axil_rready_reg <= m_axil_rready_early;
         s_axil_rvalid_reg <= s_axil_rvalid_next;
         temp_s_axil_rvalid_reg <= temp_s_axil_rvalid_next;
 
-        s_axil_rdata_reg <= 0;
-        s_axil_rresp_reg <= 0;
-
-        temp_s_axil_rdata_reg <= 0;
-        temp_s_axil_rresp_reg <= 0;
         // datapath
         if (store_axil_r_input_to_output) begin
             s_axil_rdata_reg <= m_axil_rdata;
