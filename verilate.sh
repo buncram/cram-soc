@@ -71,7 +71,7 @@ then
   # set up the linker for our target
   # cp link-soc.x link.x
   # cd ../
-  cargo xtask cramium-soc --loader-feature verilator-only --loader-feature simulation-only --kernel-feature verilator-only
+  cargo xtask cramium-sim --loader-feature verilator-only --loader-feature simulation-only --kernel-feature verilator-only --no-timestamp
   # cargo xtask cramium-fpga --kernel-feature fake-rng
   cd ../cram-soc
   python3 ./mkimage.py
