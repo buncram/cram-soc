@@ -1501,7 +1501,7 @@ is inverted compared to boot time.
         ]
         self.sync += [
             coreuser[4:].eq(coreuser_4bit),
-            coreuser[:4].eq(Cat(0, 0, 0, 0)),
+            coreuser[:4].eq(Cat(coreuser_4bit[3], coreuser_4bit[2], coreuser_4bit[1], coreuser_4bit[0])),
             If(enable,
                mm.eq((cpu.privilege[0] | cpu.privilege[1]) ^ invert_priv)
             ).Else(
