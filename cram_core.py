@@ -51,7 +51,8 @@ def get_common_ios():
         ("trimming_reset", 0, Pins(32)),
         ("trimming_reset_ena", 0, Pins(1)),
         # coreuser signal
-        ("coreuser", 0, Pins(8)),
+        ("coreuser_vex", 0, Pins(8)),
+        ("vex_mm", 0, Pins(1)),
         # sleep request: wfi active signal gated with interrupt status
         # when high, stop aclk, but leave "always_on" on
         ("sleep_req", 0, Pins(1)),
@@ -1315,47 +1316,59 @@ enabled with `trimming_reset_ena`.
 # CoreUserLite --------------------------------------------------------------------------------
 class CoreUserLite(Module, AutoCSR, AutoDoc):
     """Core User computation logic"""
-    def __init__(self, cpu, coreuser):
-        self.intro = ModuleDoc("""
+    def __init__(self, cpu, coreuser, mm):
+        self.intro = ModuleDoc(
+"""
 `CoreUser` is a hardware signal that indicates that the code executing is in a highly trusted
 piece of code. This is determined by examining a configurable combination of the SATP's ASID,
 PPN values, and/or privilege bits from `$mstatus.mpp`, allowing the OS to target certain virtual
-memory spaces as more trusted than others. `CoreUser` can only be computed when the RISC-V core
+memory spaces as more trusted than others. `CoreUser` can only be fully computed when the RISC-V core
 is in Sv32 mode (that is, virtual memory has been enabled).
 
-The actual integration API for CoreUser is not solidly defined, so this block adapts the
-signal into one of two modes:
-    1. Straight 8-bit pass through. The 9-bit ASID value is converted into an 8-bit value
-    by OR'ing in the MSB to all the LSB's (thus "spoiling" any ASID above 255 by mapping it
-    to 255) and passes it on to the SoC
-    2. 1-bit via LUT. The LUT has eight entries, defined by eight bytes within configuration
-    registers. If the ASID matches any of these entries, `CoreUser` is asserted. If less than
-    for processes are allowed, then the values should be aliased across the register.
+`$mstatus.mpp` encodes the machine mode as following:
+  - 0b11: machine mode. The most privileged mode, and the mode the loader runs in. It is not
+    achievable after switching into Xous.
+  - 0b10: reserved
+  - 0b01: supervisor mode. This is the mode the kernel runs in.
+  - 0b00: user mode. This is the least privileged mode and the mode of all user code.
 
-The control registers also includes the ability to set which bit position the 1-bit LUT maps
-to in the 8-bit output.
+The output of this block needs to be as follows:
+
+`coreuser_vex[7:0]` is a one-hot encoded bus with the following mapping:
+  - Bits [3:0] are 0
+  - Bits [7:4] are 1-hot encoded according to the following:
+    - Bit 7: fw1
+    - Bit 6: fw0
+    - Bit 5: boot1
+    - Bit 4: boot0
+
+The default power on state should be `boot0`.
+
+`vex_mm` is a bit that indicates a heightened privelege state while in the user mapping.
+`1` means more privileged. On boot, this should be `1`. Note that during Xous runtime,
+a *user* process gets exclusive access to fuse bits, and so, the privelege level sense
+is inverted compared to boot time.
         """)
+
         self.control = CSRStorage(fields=[
-            CSRField("enable", size=1, description="When set to `1`, mappings are enabled. When `0`, the `CoreUser` value is fixed to an 8-bit `1` value"),
-            CSRField("use8bit", size=1, description="When set to `1`, use the 8-bit version of ASID for `CoreUser`. When `0`, map `CoreUser value to 1 bit"),
-            CSRField("shift", size=3, description="Sets the bit-shift for the 1-bit mapping of `CoreUser`. This field refers directly to the bit position, and defaults to bit `0`"),
-            CSRField("privilege", size=1, description="When set to `1`, requires the current privilege state to match that specified in `set_privilege.mpp`"),
-            CSRField("mpp", size=2, description="Value of `mpp` bit from `mstatus` that must match for code to be trusted"),
+            CSRField("enable", size=1, description="When set to `1`, mappings are enabled. When `0`, the `CoreUser` value is fixed to 0b0001_0000, and the `vex_mm` bit is set to '`1`."),
+            CSRField("invert_priv", size=1, description="When set to `1` inverts the sense of the privilege bit"),
         ])
         self.status = CSRStatus(fields=[
             CSRField("coreuser", size=8, description="Computed value of the `CoreUser` signal as passed on to the SoC. For debugging."),
+            CSRField("mm", size=1, description="Computed value of the `mm` signal passed on to the SoC."),
         ])
         self.map_lo = CSRStorage(fields=[
-            CSRField("lut0", size=8, description="Value of `CoreUser` ASID bit 0"),
-            CSRField("lut1", size=8, description="Value of `CoreUser` ASID bit 0"),
-            CSRField("lut2", size=8, description="Value of `CoreUser` ASID bit 0"),
-            CSRField("lut3", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut0", size=8, description="Mapping of `CoreUser` ASID to coreuser dense conding bit 0"),
+            CSRField("lut1", size=8, description="Mapping of `CoreUser` ASID to coreuser dense conding bit 0"),
+            CSRField("lut2", size=8, description="Mapping of `CoreUser` ASID to coreuser dense conding bit 0"),
+            CSRField("lut3", size=8, description="Mapping of `CoreUser` ASID to coreuser dense conding bit 0"),
         ])
         self.map_hi = CSRStorage(fields=[
-            CSRField("lut4", size=8, description="Value of `CoreUser` ASID bit 0"),
-            CSRField("lut5", size=8, description="Value of `CoreUser` ASID bit 0"),
-            CSRField("lut6", size=8, description="Value of `CoreUser` ASID bit 0"),
-            CSRField("lut7", size=8, description="Value of `CoreUser` ASID bit 0"),
+            CSRField("lut4", size=8, description="Mapping of `CoreUser` ASID to coreuser dense coding bit 1"),
+            CSRField("lut5", size=8, description="Mapping of `CoreUser` ASID to coreuser dense coding bit 1"),
+            CSRField("lut6", size=8, description="Mapping of `CoreUser` ASID to coreuser dense coding bit 1"),
+            CSRField("lut7", size=8, description="Mapping of `CoreUser` ASID to coreuser dense coding bit 1"),
         ])
         self.uservalue = CSRStorage(fields=[
             CSRField("user0", size=2, description="Value of `CoreUser` for lut0 match"),
@@ -1368,12 +1381,22 @@ to in the 8-bit output.
             CSRField("user7", size=2, description="Value of `CoreUser` for lut7 match"),
             CSRField("default", size=2, description="Default value of `CoreUser`, for when none of the others match"),
         ])
+        self.protect = CSRStorage(size=1, description="Writing `1` to this bit prevents any further updates to CoreUser configuration status. Can only be reversed with a system reset.");
+
+        # one-way door for protecting block from updates
+        protect = Signal()
+        # instantiate as an explicitly reset FF since this signal *must* have a defined reset behavior
+        self.specials += Instance(
+            "fdre_cosim",
+            i_C=ClockSignal(),
+            i_D=1,
+            i_R=ResetSignal(),
+            o_Q=protect,
+            i_CE=self.protect.storage,
+        )
 
         enable = Signal()
-        use8bit = Signal()
-        shift = Signal(3)
-        require_priv = Signal()
-        privilege = Signal(2)
+        invert_priv = Signal()
         lut0 = Signal(8)
         lut1 = Signal(8)
         lut2 = Signal(8)
@@ -1382,94 +1405,107 @@ to in the 8-bit output.
         lut5 = Signal(8)
         lut6 = Signal(8)
         lut7 = Signal(8)
-        user0 = Signal(8)
-        user1 = Signal(8)
-        user2 = Signal(8)
-        user3 = Signal(8)
-        user4 = Signal(8)
-        user5 = Signal(8)
-        user6 = Signal(8)
-        user7 = Signal(8)
-        user_default = Signal(8)
-        use_lut = Signal()
+        user0 = Signal(2)
+        user1 = Signal(2)
+        user2 = Signal(2)
+        user3 = Signal(2)
+        user4 = Signal(2)
+        user5 = Signal(2)
+        user6 = Signal(2)
+        user7 = Signal(2)
+        user_default = Signal(2)
         self.sync += [
-            enable.eq(self.control.fields.enable),
-            use8bit.eq(self.control.fields.use8bit),
-            shift.eq(self.control.fields.shift),
-            privilege.eq(self.control.fields.mpp),
-            require_priv.eq(self.control.fields.privilege),
-            lut0.eq(self.map_lo.fields.lut0),
-            lut1.eq(self.map_lo.fields.lut1),
-            lut2.eq(self.map_lo.fields.lut2),
-            lut3.eq(self.map_lo.fields.lut3),
-            lut4.eq(self.map_hi.fields.lut4),
-            lut5.eq(self.map_hi.fields.lut5),
-            lut6.eq(self.map_hi.fields.lut6),
-            lut7.eq(self.map_hi.fields.lut7),
-            user0.eq(self.uservalue.fields.user0),
-            user1.eq(self.uservalue.fields.user1),
-            user2.eq(self.uservalue.fields.user2),
-            user3.eq(self.uservalue.fields.user3),
-            user4.eq(self.uservalue.fields.user4),
-            user5.eq(self.uservalue.fields.user5),
-            user6.eq(self.uservalue.fields.user6),
-            user7.eq(self.uservalue.fields.user7),
-            user_default.eq(self.uservalue.fields.default),
+            If(protect,
+                enable.eq(enable),
+                invert_priv.eq(invert_priv),
+                lut0.eq(lut0),
+                lut1.eq(lut1),
+                lut2.eq(lut2),
+                lut3.eq(lut3),
+                lut4.eq(lut4),
+                lut5.eq(lut5),
+                lut6.eq(lut6),
+                lut7.eq(lut7),
+                user0.eq(user0),
+                user1.eq(user1),
+                user2.eq(user2),
+                user3.eq(user3),
+                user4.eq(user4),
+                user5.eq(user5),
+                user6.eq(user6),
+                user7.eq(user7),
+                user_default.eq(user_default),
+            ).Else(
+                enable.eq(self.control.fields.enable),
+                invert_priv.eq(self.control.fields.invert_priv),
+                lut0.eq(self.map_lo.fields.lut0),
+                lut1.eq(self.map_lo.fields.lut1),
+                lut2.eq(self.map_lo.fields.lut2),
+                lut3.eq(self.map_lo.fields.lut3),
+                lut4.eq(self.map_hi.fields.lut4),
+                lut5.eq(self.map_hi.fields.lut5),
+                lut6.eq(self.map_hi.fields.lut6),
+                lut7.eq(self.map_hi.fields.lut7),
+                user0.eq(self.uservalue.fields.user0),
+                user1.eq(self.uservalue.fields.user1),
+                user2.eq(self.uservalue.fields.user2),
+                user3.eq(self.uservalue.fields.user3),
+                user4.eq(self.uservalue.fields.user4),
+                user5.eq(self.uservalue.fields.user5),
+                user6.eq(self.uservalue.fields.user6),
+                user7.eq(self.uservalue.fields.user7),
+                user_default.eq(self.uservalue.fields.default),
+            )
         ]
-        self.comb += [
-            self.status.fields.coreuser.eq(coreuser)
+        self.sync += [
+            self.status.fields.coreuser.eq(coreuser),
+            self.status.fields.mm.eq(mm),
         ]
 
         spoiler = cpu.satp_asid[8]
         coreuser_2bit = Signal(2)
         self.comb += [
-            If(~require_priv | (cpu.privilege == privilege),
-                If(cpu.satp_asid == Cat(lut0, 0),
-                   coreuser_2bit.eq(user0),
-                ).Elif(cpu.satp_asid == Cat(lut1, 0),
-                   coreuser_2bit.eq(user1),
-                ).Elif(cpu.satp_asid == Cat(lut2, 0),
-                   coreuser_2bit.eq(user2),
-                ).Elif(cpu.satp_asid == Cat(lut3, 0),
-                   coreuser_2bit.eq(user3),
-                ).Elif(cpu.satp_asid == Cat(lut4, 0),
-                   coreuser_2bit.eq(user4),
-                ).Elif(cpu.satp_asid == Cat(lut5, 0),
-                   coreuser_2bit.eq(user5),
-                ).Elif(cpu.satp_asid == Cat(lut6, 0),
-                   coreuser_2bit.eq(user6),
-                ).Elif(cpu.satp_asid == Cat(lut7, 0),
-                   coreuser_2bit.eq(user7),
-                ).Else(
-                   coreuser_2bit.eq(user_default)
-                )
+            If(cpu.satp_asid == Cat(lut0, 0),
+                coreuser_2bit.eq(user0),
+            ).Elif(cpu.satp_asid == Cat(lut1, 0),
+                coreuser_2bit.eq(user1),
+            ).Elif(cpu.satp_asid == Cat(lut2, 0),
+                coreuser_2bit.eq(user2),
+            ).Elif(cpu.satp_asid == Cat(lut3, 0),
+                coreuser_2bit.eq(user3),
+            ).Elif(cpu.satp_asid == Cat(lut4, 0),
+                coreuser_2bit.eq(user4),
+            ).Elif(cpu.satp_asid == Cat(lut5, 0),
+                coreuser_2bit.eq(user5),
+            ).Elif(cpu.satp_asid == Cat(lut6, 0),
+                coreuser_2bit.eq(user6),
+            ).Elif(cpu.satp_asid == Cat(lut7, 0),
+                coreuser_2bit.eq(user7),
             ).Else(
                 coreuser_2bit.eq(user_default)
-            ),
+            )
+        ]
+        coreuser_4bit = Signal(4)
+        coreuser_cases = {}
+        for i in range(4):
+            coreuser_cases[i] = coreuser_4bit.eq(1 << i)
+        self.comb += [
+            If(enable,
+               Case(
+                   coreuser_2bit,
+                   coreuser_cases,
+               )
+            ).Else(
+                coreuser_4bit.eq(1)
+            )
         ]
         self.sync += [
-            use_lut.eq(
-                # always LUT if we're not in Sv32 mode
-                ~cpu.satp_mode |
-                # always use LUT if function is disabled
-                ~enable |
-                # use 8 bit is not specified
-                ~use8bit
-            ),
-            If(use_lut,
-                coreuser.eq(coreuser_2bit << shift)
+            coreuser[4:].eq(coreuser_4bit),
+            coreuser[:4].eq(Cat(0, 0, 0, 0)),
+            If(enable,
+               mm.eq((cpu.privilege[0] | cpu.privilege[1]) ^ invert_priv)
             ).Else(
-                If((~require_priv | (cpu.privilege == privilege)),
-                    coreuser.eq(
-                        cpu.satp_asid[:8] # bits 0-7 wired up
-                        # bit 8 is OR'd in so that it "spoils" the ASID if it is set - since coreuser
-                        # hardware only considers the lower 8 bits we don't want an exploit where
-                        # we can simulate a secure process by just "rolling over" the PID
-                        | Cat(spoiler, spoiler, spoiler, spoiler, spoiler, spoiler, spoiler, spoiler)
-                    )
-                ).Else (
-                    coreuser.eq(0)
-                )
+               mm.eq(1)
             )
         ]
 
@@ -2055,14 +2091,14 @@ class cramSoC(SoCCore):
 
         # CoreUser computation ---------------------------------------------------------------------
         if coreuser_compression:
-            self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser"))
+            self.submodules.coreuser = CoreUser(self.cpu, platform.request("coreuser_vex"))
             self.comb += [
                 self.coreuser.cmbist.eq(cmbist),
                 self.coreuser.cmatpg.eq(cmatpg),
                 self.coreuser.vexsramtrm.eq(vexsramtrm),
             ]
         else:
-            self.submodules.coreuser = CoreUserLite(self.cpu, platform.request("coreuser"))
+            self.submodules.coreuser = CoreUserLite(self.cpu, platform.request("coreuser_vex"), platform.request("vex_mm"))
 
         # WFI breakout -----------------------------------------------------------------------------
         sleep_req = platform.request("sleep_req")
