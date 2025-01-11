@@ -1,4 +1,4 @@
-// Post-processing pass by bist_insert.py on 2025-01-01 15:33:56.203348
+// Post-processing pass by bist_insert.py on 2025-01-11 17:47:34.915465
 
 // (c) Copyright CrossBar, Inc. 2024.
 //
@@ -21,7 +21,7 @@
 // Filename   : cram_axi.v
 // Device     : 
 // LiteX sha1 : 5375731c
-// Date       : 2025-01-01 15:33:55
+// Date       : 2025-01-11 17:47:31
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -154,7 +154,8 @@ module cram_axi (
     input  wire          cmbist,
     input  wire          cmatpg,
     input  wire    [2:0] vexsramtrm,
-    output reg     [7:0] coreuser,
+    output reg     [7:0] coreuser_vex,
+    output reg           vex_mm,
     output wire          sleep_req,
     input  wire   [15:0] irqarray_bank0,
     input  wire   [15:0] irqarray_bank1,
@@ -519,14 +520,12 @@ wire          we;
 reg           re;
 reg    [31:0] latched_value;
 wire          coreuser_enable0;
-wire          coreuser_use8bit0;
-wire    [2:0] coreuser_shift0;
-wire          coreuser_privilege0;
-wire    [1:0] coreuser_mpp;
-reg     [7:0] coreuser_control_storage;
+wire          coreuser_invert_priv0;
+reg     [1:0] coreuser_control_storage;
 reg           coreuser_control_re;
-wire    [7:0] coreuser_coreuser;
-wire    [7:0] coreuser_status_status;
+reg     [7:0] coreuser_coreuser;
+reg           coreuser_mm;
+reg     [8:0] coreuser_status_status;
 wire          coreuser_status_we;
 reg           coreuser_status_re;
 wire    [7:0] coreuser_lut00;
@@ -552,11 +551,11 @@ wire    [1:0] coreuser_user70;
 wire    [1:0] coreuser_default;
 reg    [17:0] coreuser_uservalue_storage;
 reg           coreuser_uservalue_re;
+reg           coreuser_protect_storage;
+reg           coreuser_protect_re;
+wire          coreuser_protect;
 reg           coreuser_enable1;
-reg           coreuser_use8bit1;
-reg     [2:0] coreuser_shift1;
-reg           coreuser_require_priv;
-reg     [1:0] coreuser_privilege1;
+reg           coreuser_invert_priv1;
 reg     [7:0] coreuser_lut01;
 reg     [7:0] coreuser_lut11;
 reg     [7:0] coreuser_lut21;
@@ -565,17 +564,17 @@ reg     [7:0] coreuser_lut41;
 reg     [7:0] coreuser_lut51;
 reg     [7:0] coreuser_lut61;
 reg     [7:0] coreuser_lut71;
-reg     [7:0] coreuser_user01;
-reg     [7:0] coreuser_user11;
-reg     [7:0] coreuser_user21;
-reg     [7:0] coreuser_user31;
-reg     [7:0] coreuser_user41;
-reg     [7:0] coreuser_user51;
-reg     [7:0] coreuser_user61;
-reg     [7:0] coreuser_user71;
-reg     [7:0] coreuser_user_default;
-reg           coreuser_use_lut;
+reg     [1:0] coreuser_user01;
+reg     [1:0] coreuser_user11;
+reg     [1:0] coreuser_user21;
+reg     [1:0] coreuser_user31;
+reg     [1:0] coreuser_user41;
+reg     [1:0] coreuser_user51;
+reg     [1:0] coreuser_user61;
+reg     [1:0] coreuser_user71;
+reg     [1:0] coreuser_user_default;
 reg     [1:0] coreuser_coreuser_2bit;
+reg     [3:0] coreuser_coreuser_4bit;
 reg           cpu_int_active;
 wire          axi_active;
 reg           ibus_r_active;
@@ -4097,13 +4096,13 @@ wire   [31:0] interface0_bank_bus_dat_w;
 reg    [31:0] interface0_bank_bus_dat_r;
 wire          interface0_bank_bus_re;
 reg           csrbank0_control0_re;
-wire    [7:0] csrbank0_control0_r;
+wire    [1:0] csrbank0_control0_r;
 reg           csrbank0_control0_we;
-wire    [7:0] csrbank0_control0_w;
+wire    [1:0] csrbank0_control0_w;
 reg           csrbank0_status_re;
-wire    [7:0] csrbank0_status_r;
+wire    [8:0] csrbank0_status_r;
 reg           csrbank0_status_we;
-wire    [7:0] csrbank0_status_w;
+wire    [8:0] csrbank0_status_w;
 reg           csrbank0_map_lo0_re;
 wire   [31:0] csrbank0_map_lo0_r;
 reg           csrbank0_map_lo0_we;
@@ -4116,6 +4115,10 @@ reg           csrbank0_uservalue0_re;
 wire   [17:0] csrbank0_uservalue0_r;
 reg           csrbank0_uservalue0_we;
 wire   [17:0] csrbank0_uservalue0_w;
+reg           csrbank0_protect0_re;
+wire          csrbank0_protect0_r;
+reg           csrbank0_protect0_we;
+wire          csrbank0_protect0_w;
 wire          csrbank0_sel;
 wire          csrbank0_re;
 wire   [15:0] interface1_bank_bus_adr;
@@ -5602,12 +5605,12 @@ assign r_ready = mailbox_r_ready;
 assign mailbox_r_abort = r_abort;
 assign w_abort = mailbox_w_abort;
 always @(*) begin
+    mb_client_reset_n <= 1'd0;
+    r_done <= 1'd0;
     r_abort <= 1'd0;
     w_ready <= 1'd0;
-    mb_client_reset_n <= 1'd0;
     r_dat <= 32'd0;
     r_valid <= 1'd0;
-    r_done <= 1'd0;
     if (loopback) begin
         mb_client_reset_n <= (~sys_rst);
         r_dat <= mb_client_w_dat;
@@ -5801,36 +5804,33 @@ end
 assign cramsoc_irq = (cramsoc_pending_status & cramsoc_enable_storage);
 assign cramsoc_zero_status = cramsoc_zero_trigger;
 assign status = latched_value;
-assign coreuser_coreuser = coreuser;
 always @(*) begin
     coreuser_coreuser_2bit <= 2'd0;
-    if (((~coreuser_require_priv) | (cramsoc_privilege == coreuser_privilege1))) begin
-        if ((cramsoc_satp_asid == {1'd0, coreuser_lut01})) begin
-            coreuser_coreuser_2bit <= coreuser_user01;
+    if ((cramsoc_satp_asid == {1'd0, coreuser_lut01})) begin
+        coreuser_coreuser_2bit <= coreuser_user01;
+    end else begin
+        if ((cramsoc_satp_asid == {1'd0, coreuser_lut11})) begin
+            coreuser_coreuser_2bit <= coreuser_user11;
         end else begin
-            if ((cramsoc_satp_asid == {1'd0, coreuser_lut11})) begin
-                coreuser_coreuser_2bit <= coreuser_user11;
+            if ((cramsoc_satp_asid == {1'd0, coreuser_lut21})) begin
+                coreuser_coreuser_2bit <= coreuser_user21;
             end else begin
-                if ((cramsoc_satp_asid == {1'd0, coreuser_lut21})) begin
-                    coreuser_coreuser_2bit <= coreuser_user21;
+                if ((cramsoc_satp_asid == {1'd0, coreuser_lut31})) begin
+                    coreuser_coreuser_2bit <= coreuser_user31;
                 end else begin
-                    if ((cramsoc_satp_asid == {1'd0, coreuser_lut31})) begin
-                        coreuser_coreuser_2bit <= coreuser_user31;
+                    if ((cramsoc_satp_asid == {1'd0, coreuser_lut41})) begin
+                        coreuser_coreuser_2bit <= coreuser_user41;
                     end else begin
-                        if ((cramsoc_satp_asid == {1'd0, coreuser_lut41})) begin
-                            coreuser_coreuser_2bit <= coreuser_user41;
+                        if ((cramsoc_satp_asid == {1'd0, coreuser_lut51})) begin
+                            coreuser_coreuser_2bit <= coreuser_user51;
                         end else begin
-                            if ((cramsoc_satp_asid == {1'd0, coreuser_lut51})) begin
-                                coreuser_coreuser_2bit <= coreuser_user51;
+                            if ((cramsoc_satp_asid == {1'd0, coreuser_lut61})) begin
+                                coreuser_coreuser_2bit <= coreuser_user61;
                             end else begin
-                                if ((cramsoc_satp_asid == {1'd0, coreuser_lut61})) begin
-                                    coreuser_coreuser_2bit <= coreuser_user61;
+                                if ((cramsoc_satp_asid == {1'd0, coreuser_lut71})) begin
+                                    coreuser_coreuser_2bit <= coreuser_user71;
                                 end else begin
-                                    if ((cramsoc_satp_asid == {1'd0, coreuser_lut71})) begin
-                                        coreuser_coreuser_2bit <= coreuser_user71;
-                                    end else begin
-                                        coreuser_coreuser_2bit <= coreuser_user_default;
-                                    end
+                                    coreuser_coreuser_2bit <= coreuser_user_default;
                                 end
                             end
                         end
@@ -5838,8 +5838,27 @@ always @(*) begin
                 end
             end
         end
+    end
+end
+always @(*) begin
+    coreuser_coreuser_4bit <= 4'd0;
+    if (coreuser_enable1) begin
+        case (coreuser_coreuser_2bit)
+            1'd0: begin
+                coreuser_coreuser_4bit <= 1'd1;
+            end
+            1'd1: begin
+                coreuser_coreuser_4bit <= 2'd2;
+            end
+            2'd2: begin
+                coreuser_coreuser_4bit <= 3'd4;
+            end
+            2'd3: begin
+                coreuser_coreuser_4bit <= 4'd8;
+            end
+        endcase
     end else begin
-        coreuser_coreuser_2bit <= coreuser_user_default;
+        coreuser_coreuser_4bit <= 1'd1;
     end
 end
 assign irqarray0_interrupts = irq_remap0;
@@ -12689,8 +12708,8 @@ assign mailbox_w_fifo_reset_sys = ((~mailbox_reset_n) | mailbox_abort);
 assign mailbox_tx_words = mailbox_syncfifobufferedmacro0_level;
 assign mailbox_tx_err = mailbox_w_over_bit;
 always @(*) begin
-    mailbox_w_over_flag <= 1'd0;
     mailbox_syncfifobufferedmacro0_fifo_we <= 1'd0;
+    mailbox_w_over_flag <= 1'd0;
     if ((mailbox_wdata_re & (~mailbox_syncfifobufferedmacro0_fifo_writable))) begin
         mailbox_w_over_flag <= 1'd1;
     end else begin
@@ -12811,15 +12830,15 @@ assign mailbox_syncfifobufferedmacro1_fifo_rdport_re = mailbox_syncfifobufferedm
 assign mailbox_syncfifobufferedmacro1_fifo_writable = (mailbox_syncfifobufferedmacro1_fifo_level != 11'd1024);
 assign mailbox_syncfifobufferedmacro1_fifo_readable = (mailbox_syncfifobufferedmacro1_fifo_level != 1'd0);
 always @(*) begin
-    mailbox_abort_done_trigger <= 1'd0;
     cramsoc_mailbox_next_state <= 2'd0;
     mailbox_abort_ack1_mailbox_next_value0 <= 1'd0;
+    mailbox_abort_done_trigger <= 1'd0;
     mailbox_abort_ack1_mailbox_next_value_ce0 <= 1'd0;
-    mailbox_abort_init_trigger <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value1 <= 1'd0;
     mailbox_abort_in_progress1_mailbox_next_value_ce1 <= 1'd0;
     mailbox_w_abort_mailbox_next_value2 <= 1'd0;
     mailbox_w_abort_mailbox_next_value_ce2 <= 1'd0;
+    mailbox_abort_init_trigger <= 1'd0;
     cramsoc_mailbox_next_state <= cramsoc_mailbox_state;
     case (cramsoc_mailbox_state)
         1'd1: begin
@@ -12934,13 +12953,13 @@ assign mb_client_abort_done_status = mb_client_abort_done_trigger;
 assign mb_client_error_status = mb_client_error_trigger;
 always @(*) begin
     cramsoc_mailboxclient_next_state <= 2'd0;
-    mb_client_abort_init_trigger <= 1'd0;
+    mb_client_abort_done_trigger <= 1'd0;
     mb_client_abort_ack1_mailboxclient_next_value0 <= 1'd0;
     mb_client_abort_ack1_mailboxclient_next_value_ce0 <= 1'd0;
     mb_client_abort_in_progress1_mailboxclient_next_value1 <= 1'd0;
     mb_client_abort_in_progress1_mailboxclient_next_value_ce1 <= 1'd0;
     mb_client_w_abort_mailboxclient_next_value2 <= 1'd0;
-    mb_client_abort_done_trigger <= 1'd0;
+    mb_client_abort_init_trigger <= 1'd0;
     mb_client_w_abort_mailboxclient_next_value_ce2 <= 1'd0;
     cramsoc_mailboxclient_next_state <= cramsoc_mailboxclient_state;
     case (cramsoc_mailboxclient_state)
@@ -13011,8 +13030,8 @@ assign cramsoc_dat_w = cramsoc_w_payload_data;
 assign cramsoc_we = ((cramsoc_w_valid & cramsoc_w_ready) & (cramsoc_w_payload_strb != 1'd0));
 assign cramsoc_re = cramsoc_r_ready;
 always @(*) begin
-    cramsoc_do_write <= 1'd0;
     cramsoc_do_read <= 1'd0;
+    cramsoc_do_write <= 1'd0;
     if ((cramsoc_aw_valid & cramsoc_ar_valid)) begin
         cramsoc_do_write <= cramsoc_last_was_read;
         cramsoc_do_read <= (~cramsoc_last_was_read);
@@ -13027,18 +13046,18 @@ assign cramsoc_w_ready = cramsoc_nocomb_axl_w_ready;
 assign cramsoc_ar_ready = cramsoc_nocomb_axl_ar_ready;
 assign cramsoc_b_valid = cramsoc_nocomb_axl_b_valid;
 always @(*) begin
+    cramsoc_adr <= 16'd0;
+    cramsoc_axilite2csr_next_state <= 2'd0;
+    cramsoc_r_payload_data <= 32'd0;
+    cramsoc_r_payload_resp <= 2'd0;
+    cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
+    cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd0;
     cramsoc_b_payload_resp <= 2'd0;
     cramsoc_nocomb_axl_r_valid <= 1'd0;
-    cramsoc_axilite2csr_next_state <= 2'd0;
     cramsoc_nocomb_axl_w_ready <= 1'd0;
     cramsoc_nocomb_axl_aw_ready <= 1'd0;
     cramsoc_nocomb_axl_ar_ready <= 1'd0;
-    cramsoc_last_was_read_axilite2csr_next_value <= 1'd0;
     cramsoc_nocomb_axl_b_valid <= 1'd0;
-    cramsoc_last_was_read_axilite2csr_next_value_ce <= 1'd0;
-    cramsoc_r_payload_resp <= 2'd0;
-    cramsoc_adr <= 16'd0;
-    cramsoc_r_payload_data <= 32'd0;
     cramsoc_axilite2csr_next_state <= cramsoc_axilite2csr_state;
     case (cramsoc_axilite2csr_state)
         1'd1: begin
@@ -13081,19 +13100,19 @@ always @(*) begin
 end
 assign csrbank0_sel = (interface0_bank_bus_adr[15:10] == 2'd2);
 assign csrbank0_re = interface0_bank_bus_re;
-assign csrbank0_control0_r = interface0_bank_bus_dat_w[7:0];
+assign csrbank0_control0_r = interface0_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank0_control0_we <= 1'd0;
     csrbank0_control0_re <= 1'd0;
+    csrbank0_control0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank0_control0_re <= interface0_bank_bus_we;
         csrbank0_control0_we <= csrbank0_re;
     end
 end
-assign csrbank0_status_r = interface0_bank_bus_dat_w[7:0];
+assign csrbank0_status_r = interface0_bank_bus_dat_w[8:0];
 always @(*) begin
-    csrbank0_status_re <= 1'd0;
     csrbank0_status_we <= 1'd0;
+    csrbank0_status_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank0_status_re <= interface0_bank_bus_we;
         csrbank0_status_we <= csrbank0_re;
@@ -13110,8 +13129,8 @@ always @(*) begin
 end
 assign csrbank0_map_hi0_r = interface0_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank0_map_hi0_we <= 1'd0;
     csrbank0_map_hi0_re <= 1'd0;
+    csrbank0_map_hi0_we <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank0_map_hi0_re <= interface0_bank_bus_we;
         csrbank0_map_hi0_we <= csrbank0_re;
@@ -13119,21 +13138,31 @@ always @(*) begin
 end
 assign csrbank0_uservalue0_r = interface0_bank_bus_dat_w[17:0];
 always @(*) begin
-    csrbank0_uservalue0_re <= 1'd0;
     csrbank0_uservalue0_we <= 1'd0;
+    csrbank0_uservalue0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd4))) begin
         csrbank0_uservalue0_re <= interface0_bank_bus_we;
         csrbank0_uservalue0_we <= csrbank0_re;
     end
 end
+assign csrbank0_protect0_r = interface0_bank_bus_dat_w[0];
+always @(*) begin
+    csrbank0_protect0_re <= 1'd0;
+    csrbank0_protect0_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[9:0] == 3'd5))) begin
+        csrbank0_protect0_re <= interface0_bank_bus_we;
+        csrbank0_protect0_we <= csrbank0_re;
+    end
+end
 assign coreuser_enable0 = coreuser_control_storage[0];
-assign coreuser_use8bit0 = coreuser_control_storage[1];
-assign coreuser_shift0 = coreuser_control_storage[4:2];
-assign coreuser_privilege0 = coreuser_control_storage[5];
-assign coreuser_mpp = coreuser_control_storage[7:6];
-assign csrbank0_control0_w = coreuser_control_storage[7:0];
-assign coreuser_status_status[7:0] = coreuser_coreuser;
-assign csrbank0_status_w = coreuser_status_status[7:0];
+assign coreuser_invert_priv0 = coreuser_control_storage[1];
+assign csrbank0_control0_w = coreuser_control_storage[1:0];
+always @(*) begin
+    coreuser_status_status <= 9'd0;
+    coreuser_status_status[7:0] <= coreuser_coreuser;
+    coreuser_status_status[8] <= coreuser_mm;
+end
+assign csrbank0_status_w = coreuser_status_status[8:0];
 assign coreuser_status_we = csrbank0_status_we;
 assign coreuser_lut00 = coreuser_map_lo_storage[7:0];
 assign coreuser_lut10 = coreuser_map_lo_storage[15:8];
@@ -13155,12 +13184,13 @@ assign coreuser_user60 = coreuser_uservalue_storage[13:12];
 assign coreuser_user70 = coreuser_uservalue_storage[15:14];
 assign coreuser_default = coreuser_uservalue_storage[17:16];
 assign csrbank0_uservalue0_w = coreuser_uservalue_storage[17:0];
+assign csrbank0_protect0_w = coreuser_protect_storage;
 assign csrbank1_sel = (interface1_bank_bus_adr[15:10] == 2'd3);
 assign csrbank1_re = interface1_bank_bus_re;
 assign csrbank1_wtest0_r = interface1_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank1_wtest0_we <= 1'd0;
     csrbank1_wtest0_re <= 1'd0;
+    csrbank1_wtest0_we <= 1'd0;
     if ((csrbank1_sel & (interface1_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank1_wtest0_re <= interface1_bank_bus_we;
         csrbank1_wtest0_we <= csrbank1_re;
@@ -13182,8 +13212,8 @@ assign csrbank2_sel = (interface2_bank_bus_adr[15:10] == 1'd0);
 assign csrbank2_re = interface2_bank_bus_re;
 assign csrbank2_control0_r = interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank2_control0_re <= 1'd0;
     csrbank2_control0_we <= 1'd0;
+    csrbank2_control0_re <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank2_control0_re <= interface2_bank_bus_we;
         csrbank2_control0_we <= csrbank2_re;
@@ -13207,8 +13237,8 @@ assign csrbank3_sel = (interface3_bank_bus_adr[15:10] == 3'd4);
 assign csrbank3_re = interface3_bank_bus_re;
 assign csrbank3_ev_soft0_r = interface3_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank3_ev_soft0_we <= 1'd0;
     csrbank3_ev_soft0_re <= 1'd0;
+    csrbank3_ev_soft0_we <= 1'd0;
     if ((csrbank3_sel & (interface3_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank3_ev_soft0_re <= interface3_bank_bus_we;
         csrbank3_ev_soft0_we <= csrbank3_re;
@@ -13333,8 +13363,8 @@ assign csrbank4_sel = (interface4_bank_bus_adr[15:10] == 3'd5);
 assign csrbank4_re = interface4_bank_bus_re;
 assign csrbank4_ev_soft0_r = interface4_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank4_ev_soft0_we <= 1'd0;
     csrbank4_ev_soft0_re <= 1'd0;
+    csrbank4_ev_soft0_we <= 1'd0;
     if ((csrbank4_sel & (interface4_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank4_ev_soft0_re <= interface4_bank_bus_we;
         csrbank4_ev_soft0_we <= csrbank4_re;
@@ -13459,8 +13489,8 @@ assign csrbank5_sel = (interface5_bank_bus_adr[15:10] == 3'd6);
 assign csrbank5_re = interface5_bank_bus_re;
 assign csrbank5_ev_soft0_r = interface5_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank5_ev_soft0_we <= 1'd0;
     csrbank5_ev_soft0_re <= 1'd0;
+    csrbank5_ev_soft0_we <= 1'd0;
     if ((csrbank5_sel & (interface5_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank5_ev_soft0_re <= interface5_bank_bus_we;
         csrbank5_ev_soft0_we <= csrbank5_re;
@@ -13585,8 +13615,8 @@ assign csrbank6_sel = (interface6_bank_bus_adr[15:10] == 3'd7);
 assign csrbank6_re = interface6_bank_bus_re;
 assign csrbank6_ev_soft0_r = interface6_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank6_ev_soft0_we <= 1'd0;
     csrbank6_ev_soft0_re <= 1'd0;
+    csrbank6_ev_soft0_we <= 1'd0;
     if ((csrbank6_sel & (interface6_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank6_ev_soft0_re <= interface6_bank_bus_we;
         csrbank6_ev_soft0_we <= csrbank6_re;
@@ -13711,8 +13741,8 @@ assign csrbank7_sel = (interface7_bank_bus_adr[15:10] == 4'd8);
 assign csrbank7_re = interface7_bank_bus_re;
 assign csrbank7_ev_soft0_r = interface7_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank7_ev_soft0_we <= 1'd0;
     csrbank7_ev_soft0_re <= 1'd0;
+    csrbank7_ev_soft0_we <= 1'd0;
     if ((csrbank7_sel & (interface7_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank7_ev_soft0_re <= interface7_bank_bus_we;
         csrbank7_ev_soft0_we <= csrbank7_re;
@@ -13837,8 +13867,8 @@ assign csrbank8_sel = (interface8_bank_bus_adr[15:10] == 4'd9);
 assign csrbank8_re = interface8_bank_bus_re;
 assign csrbank8_ev_soft0_r = interface8_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank8_ev_soft0_we <= 1'd0;
     csrbank8_ev_soft0_re <= 1'd0;
+    csrbank8_ev_soft0_we <= 1'd0;
     if ((csrbank8_sel & (interface8_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank8_ev_soft0_re <= interface8_bank_bus_we;
         csrbank8_ev_soft0_we <= csrbank8_re;
@@ -13963,8 +13993,8 @@ assign csrbank9_sel = (interface9_bank_bus_adr[15:10] == 4'd10);
 assign csrbank9_re = interface9_bank_bus_re;
 assign csrbank9_ev_soft0_r = interface9_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank9_ev_soft0_we <= 1'd0;
     csrbank9_ev_soft0_re <= 1'd0;
+    csrbank9_ev_soft0_we <= 1'd0;
     if ((csrbank9_sel & (interface9_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank9_ev_soft0_re <= interface9_bank_bus_we;
         csrbank9_ev_soft0_we <= csrbank9_re;
@@ -14089,8 +14119,8 @@ assign csrbank10_sel = (interface10_bank_bus_adr[15:10] == 4'd11);
 assign csrbank10_re = interface10_bank_bus_re;
 assign csrbank10_ev_soft0_r = interface10_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank10_ev_soft0_we <= 1'd0;
     csrbank10_ev_soft0_re <= 1'd0;
+    csrbank10_ev_soft0_we <= 1'd0;
     if ((csrbank10_sel & (interface10_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank10_ev_soft0_re <= interface10_bank_bus_we;
         csrbank10_ev_soft0_we <= csrbank10_re;
@@ -14215,8 +14245,8 @@ assign csrbank11_sel = (interface11_bank_bus_adr[15:10] == 4'd12);
 assign csrbank11_re = interface11_bank_bus_re;
 assign csrbank11_ev_soft0_r = interface11_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank11_ev_soft0_we <= 1'd0;
     csrbank11_ev_soft0_re <= 1'd0;
+    csrbank11_ev_soft0_we <= 1'd0;
     if ((csrbank11_sel & (interface11_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank11_ev_soft0_re <= interface11_bank_bus_we;
         csrbank11_ev_soft0_we <= csrbank11_re;
@@ -14341,8 +14371,8 @@ assign csrbank12_sel = (interface12_bank_bus_adr[15:10] == 4'd13);
 assign csrbank12_re = interface12_bank_bus_re;
 assign csrbank12_ev_soft0_r = interface12_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank12_ev_soft0_we <= 1'd0;
     csrbank12_ev_soft0_re <= 1'd0;
+    csrbank12_ev_soft0_we <= 1'd0;
     if ((csrbank12_sel & (interface12_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank12_ev_soft0_re <= interface12_bank_bus_we;
         csrbank12_ev_soft0_we <= csrbank12_re;
@@ -14467,8 +14497,8 @@ assign csrbank13_sel = (interface13_bank_bus_adr[15:10] == 4'd14);
 assign csrbank13_re = interface13_bank_bus_re;
 assign csrbank13_ev_soft0_r = interface13_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank13_ev_soft0_we <= 1'd0;
     csrbank13_ev_soft0_re <= 1'd0;
+    csrbank13_ev_soft0_we <= 1'd0;
     if ((csrbank13_sel & (interface13_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank13_ev_soft0_re <= interface13_bank_bus_we;
         csrbank13_ev_soft0_we <= csrbank13_re;
@@ -14593,8 +14623,8 @@ assign csrbank14_sel = (interface14_bank_bus_adr[15:10] == 4'd15);
 assign csrbank14_re = interface14_bank_bus_re;
 assign csrbank14_ev_soft0_r = interface14_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank14_ev_soft0_we <= 1'd0;
     csrbank14_ev_soft0_re <= 1'd0;
+    csrbank14_ev_soft0_we <= 1'd0;
     if ((csrbank14_sel & (interface14_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank14_ev_soft0_re <= interface14_bank_bus_we;
         csrbank14_ev_soft0_we <= csrbank14_re;
@@ -14719,8 +14749,8 @@ assign csrbank15_sel = (interface15_bank_bus_adr[15:10] == 5'd16);
 assign csrbank15_re = interface15_bank_bus_re;
 assign csrbank15_ev_soft0_r = interface15_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank15_ev_soft0_we <= 1'd0;
     csrbank15_ev_soft0_re <= 1'd0;
+    csrbank15_ev_soft0_we <= 1'd0;
     if ((csrbank15_sel & (interface15_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank15_ev_soft0_re <= interface15_bank_bus_we;
         csrbank15_ev_soft0_we <= csrbank15_re;
@@ -14845,8 +14875,8 @@ assign csrbank16_sel = (interface16_bank_bus_adr[15:10] == 5'd17);
 assign csrbank16_re = interface16_bank_bus_re;
 assign csrbank16_ev_soft0_r = interface16_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank16_ev_soft0_we <= 1'd0;
     csrbank16_ev_soft0_re <= 1'd0;
+    csrbank16_ev_soft0_we <= 1'd0;
     if ((csrbank16_sel & (interface16_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank16_ev_soft0_re <= interface16_bank_bus_we;
         csrbank16_ev_soft0_we <= csrbank16_re;
@@ -14971,8 +15001,8 @@ assign csrbank17_sel = (interface17_bank_bus_adr[15:10] == 5'd18);
 assign csrbank17_re = interface17_bank_bus_re;
 assign csrbank17_ev_soft0_r = interface17_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank17_ev_soft0_we <= 1'd0;
     csrbank17_ev_soft0_re <= 1'd0;
+    csrbank17_ev_soft0_we <= 1'd0;
     if ((csrbank17_sel & (interface17_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank17_ev_soft0_re <= interface17_bank_bus_we;
         csrbank17_ev_soft0_we <= csrbank17_re;
@@ -15097,8 +15127,8 @@ assign csrbank18_sel = (interface18_bank_bus_adr[15:10] == 5'd19);
 assign csrbank18_re = interface18_bank_bus_re;
 assign csrbank18_ev_soft0_r = interface18_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank18_ev_soft0_we <= 1'd0;
     csrbank18_ev_soft0_re <= 1'd0;
+    csrbank18_ev_soft0_we <= 1'd0;
     if ((csrbank18_sel & (interface18_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank18_ev_soft0_re <= interface18_bank_bus_we;
         csrbank18_ev_soft0_we <= csrbank18_re;
@@ -15223,8 +15253,8 @@ assign csrbank19_sel = (interface19_bank_bus_adr[15:10] == 5'd20);
 assign csrbank19_re = interface19_bank_bus_re;
 assign csrbank19_ev_soft0_r = interface19_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank19_ev_soft0_we <= 1'd0;
     csrbank19_ev_soft0_re <= 1'd0;
+    csrbank19_ev_soft0_we <= 1'd0;
     if ((csrbank19_sel & (interface19_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank19_ev_soft0_re <= interface19_bank_bus_we;
         csrbank19_ev_soft0_we <= csrbank19_re;
@@ -15349,8 +15379,8 @@ assign csrbank20_sel = (interface20_bank_bus_adr[15:10] == 5'd21);
 assign csrbank20_re = interface20_bank_bus_re;
 assign csrbank20_ev_soft0_r = interface20_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank20_ev_soft0_we <= 1'd0;
     csrbank20_ev_soft0_re <= 1'd0;
+    csrbank20_ev_soft0_we <= 1'd0;
     if ((csrbank20_sel & (interface20_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank20_ev_soft0_re <= interface20_bank_bus_we;
         csrbank20_ev_soft0_we <= csrbank20_re;
@@ -15475,8 +15505,8 @@ assign csrbank21_sel = (interface21_bank_bus_adr[15:10] == 5'd22);
 assign csrbank21_re = interface21_bank_bus_re;
 assign csrbank21_ev_soft0_r = interface21_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank21_ev_soft0_we <= 1'd0;
     csrbank21_ev_soft0_re <= 1'd0;
+    csrbank21_ev_soft0_we <= 1'd0;
     if ((csrbank21_sel & (interface21_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank21_ev_soft0_re <= interface21_bank_bus_we;
         csrbank21_ev_soft0_we <= csrbank21_re;
@@ -15601,8 +15631,8 @@ assign csrbank22_sel = (interface22_bank_bus_adr[15:10] == 5'd23);
 assign csrbank22_re = interface22_bank_bus_re;
 assign csrbank22_ev_soft0_r = interface22_bank_bus_dat_w[15:0];
 always @(*) begin
-    csrbank22_ev_soft0_we <= 1'd0;
     csrbank22_ev_soft0_re <= 1'd0;
+    csrbank22_ev_soft0_we <= 1'd0;
     if ((csrbank22_sel & (interface22_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank22_ev_soft0_re <= interface22_bank_bus_we;
         csrbank22_ev_soft0_we <= csrbank22_re;
@@ -15727,8 +15757,8 @@ assign csrbank23_sel = (interface23_bank_bus_adr[15:10] == 5'd24);
 assign csrbank23_re = interface23_bank_bus_re;
 assign csrbank23_wdata0_r = interface23_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank23_wdata0_we <= 1'd0;
     csrbank23_wdata0_re <= 1'd0;
+    csrbank23_wdata0_we <= 1'd0;
     if ((csrbank23_sel & (interface23_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank23_wdata0_re <= interface23_bank_bus_we;
         csrbank23_wdata0_we <= csrbank23_re;
@@ -15872,8 +15902,8 @@ always @(*) begin
 end
 assign csrbank24_rdata_r = interface24_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank24_rdata_re <= 1'd0;
     csrbank24_rdata_we <= 1'd0;
+    csrbank24_rdata_re <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 1'd1))) begin
         csrbank24_rdata_re <= interface24_bank_bus_we;
         csrbank24_rdata_we <= csrbank24_re;
@@ -15890,8 +15920,8 @@ always @(*) begin
 end
 assign csrbank24_ev_status_r = interface24_bank_bus_dat_w[3:0];
 always @(*) begin
-    csrbank24_ev_status_we <= 1'd0;
     csrbank24_ev_status_re <= 1'd0;
+    csrbank24_ev_status_we <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank24_ev_status_re <= interface24_bank_bus_we;
         csrbank24_ev_status_we <= csrbank24_re;
@@ -15917,8 +15947,8 @@ always @(*) begin
 end
 assign csrbank24_control0_r = interface24_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank24_control0_we <= 1'd0;
     csrbank24_control0_re <= 1'd0;
+    csrbank24_control0_we <= 1'd0;
     if ((csrbank24_sel & (interface24_bank_bus_adr[9:0] == 3'd6))) begin
         csrbank24_control0_re <= interface24_bank_bus_we;
         csrbank24_control0_we <= csrbank24_re;
@@ -16001,8 +16031,8 @@ assign csrbank26_sel = (interface26_bank_bus_adr[15:10] == 1'd1);
 assign csrbank26_re = interface26_bank_bus_re;
 assign csrbank26_control0_r = interface26_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank26_control0_re <= 1'd0;
     csrbank26_control0_we <= 1'd0;
+    csrbank26_control0_re <= 1'd0;
     if ((csrbank26_sel & (interface26_bank_bus_adr[9:0] == 1'd0))) begin
         csrbank26_control0_re <= interface26_bank_bus_we;
         csrbank26_control0_we <= csrbank26_re;
@@ -16172,8 +16202,8 @@ always @(*) begin
 end
 assign csrbank27_msleep_target0_r = interface27_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank27_msleep_target0_we <= 1'd0;
     csrbank27_msleep_target0_re <= 1'd0;
+    csrbank27_msleep_target0_we <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd4))) begin
         csrbank27_msleep_target0_re <= interface27_bank_bus_we;
         csrbank27_msleep_target0_we <= csrbank27_re;
@@ -16199,8 +16229,8 @@ always @(*) begin
 end
 assign csrbank27_ev_enable0_r = interface27_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank27_ev_enable0_we <= 1'd0;
     csrbank27_ev_enable0_re <= 1'd0;
+    csrbank27_ev_enable0_we <= 1'd0;
     if ((csrbank27_sel & (interface27_bank_bus_adr[9:0] == 3'd7))) begin
         csrbank27_ev_enable0_re <= interface27_bank_bus_we;
         csrbank27_ev_enable0_we <= csrbank27_re;
@@ -16267,8 +16297,8 @@ always @(*) begin
 end
 assign csrbank28_update_value0_r = interface28_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank28_update_value0_we <= 1'd0;
     csrbank28_update_value0_re <= 1'd0;
+    csrbank28_update_value0_we <= 1'd0;
     if ((csrbank28_sel & (interface28_bank_bus_adr[9:0] == 2'd3))) begin
         csrbank28_update_value0_re <= interface28_bank_bus_we;
         csrbank28_update_value0_we <= csrbank28_re;
@@ -20825,37 +20855,55 @@ always @(posedge sys_clk) begin
     end else begin
         latched_value <= latched_value;
     end
-    coreuser_enable1 <= coreuser_enable0;
-    coreuser_use8bit1 <= coreuser_use8bit0;
-    coreuser_shift1 <= coreuser_shift0;
-    coreuser_privilege1 <= coreuser_mpp;
-    coreuser_require_priv <= coreuser_privilege0;
-    coreuser_lut01 <= coreuser_lut00;
-    coreuser_lut11 <= coreuser_lut10;
-    coreuser_lut21 <= coreuser_lut20;
-    coreuser_lut31 <= coreuser_lut30;
-    coreuser_lut41 <= coreuser_lut40;
-    coreuser_lut51 <= coreuser_lut50;
-    coreuser_lut61 <= coreuser_lut60;
-    coreuser_lut71 <= coreuser_lut70;
-    coreuser_user01 <= coreuser_user00;
-    coreuser_user11 <= coreuser_user10;
-    coreuser_user21 <= coreuser_user20;
-    coreuser_user31 <= coreuser_user30;
-    coreuser_user41 <= coreuser_user40;
-    coreuser_user51 <= coreuser_user50;
-    coreuser_user61 <= coreuser_user60;
-    coreuser_user71 <= coreuser_user70;
-    coreuser_user_default <= coreuser_default;
-    coreuser_use_lut <= (((~cramsoc_satp_mode) | (~coreuser_enable1)) | (~coreuser_use8bit1));
-    if (coreuser_use_lut) begin
-        coreuser <= (coreuser_coreuser_2bit <<< coreuser_shift1);
+    if (coreuser_protect) begin
+        coreuser_enable1 <= coreuser_enable1;
+        coreuser_invert_priv1 <= coreuser_invert_priv1;
+        coreuser_lut01 <= coreuser_lut01;
+        coreuser_lut11 <= coreuser_lut11;
+        coreuser_lut21 <= coreuser_lut21;
+        coreuser_lut31 <= coreuser_lut31;
+        coreuser_lut41 <= coreuser_lut41;
+        coreuser_lut51 <= coreuser_lut51;
+        coreuser_lut61 <= coreuser_lut61;
+        coreuser_lut71 <= coreuser_lut71;
+        coreuser_user01 <= coreuser_user01;
+        coreuser_user11 <= coreuser_user11;
+        coreuser_user21 <= coreuser_user21;
+        coreuser_user31 <= coreuser_user31;
+        coreuser_user41 <= coreuser_user41;
+        coreuser_user51 <= coreuser_user51;
+        coreuser_user61 <= coreuser_user61;
+        coreuser_user71 <= coreuser_user71;
+        coreuser_user_default <= coreuser_user_default;
     end else begin
-        if (((~coreuser_require_priv) | (cramsoc_privilege == coreuser_privilege1))) begin
-            coreuser <= (cramsoc_satp_asid[7:0] | {cramsoc_satp_asid[8], cramsoc_satp_asid[8], cramsoc_satp_asid[8], cramsoc_satp_asid[8], cramsoc_satp_asid[8], cramsoc_satp_asid[8], cramsoc_satp_asid[8], cramsoc_satp_asid[8]});
-        end else begin
-            coreuser <= 1'd0;
-        end
+        coreuser_enable1 <= coreuser_enable0;
+        coreuser_invert_priv1 <= coreuser_invert_priv0;
+        coreuser_lut01 <= coreuser_lut00;
+        coreuser_lut11 <= coreuser_lut10;
+        coreuser_lut21 <= coreuser_lut20;
+        coreuser_lut31 <= coreuser_lut30;
+        coreuser_lut41 <= coreuser_lut40;
+        coreuser_lut51 <= coreuser_lut50;
+        coreuser_lut61 <= coreuser_lut60;
+        coreuser_lut71 <= coreuser_lut70;
+        coreuser_user01 <= coreuser_user00;
+        coreuser_user11 <= coreuser_user10;
+        coreuser_user21 <= coreuser_user20;
+        coreuser_user31 <= coreuser_user30;
+        coreuser_user41 <= coreuser_user40;
+        coreuser_user51 <= coreuser_user50;
+        coreuser_user61 <= coreuser_user60;
+        coreuser_user71 <= coreuser_user70;
+        coreuser_user_default <= coreuser_default;
+    end
+    coreuser_coreuser <= coreuser_vex;
+    coreuser_mm <= vex_mm;
+    coreuser_vex[7:4] <= coreuser_coreuser_4bit;
+    coreuser_vex[3:0] <= {coreuser_coreuser_4bit[0], coreuser_coreuser_4bit[1], coreuser_coreuser_4bit[2], coreuser_coreuser_4bit[3]};
+    if (coreuser_enable1) begin
+        vex_mm <= ((cramsoc_privilege[0] | cramsoc_privilege[1]) ^ coreuser_invert_priv1);
+    end else begin
+        vex_mm <= 1'd1;
     end
     if (mailbox_available_clear) begin
         mailbox_available_pending <= 1'd0;
@@ -21054,10 +21102,13 @@ always @(posedge sys_clk) begin
             3'd4: begin
                 interface0_bank_bus_dat_r <= csrbank0_uservalue0_w;
             end
+            3'd5: begin
+                interface0_bank_bus_dat_r <= csrbank0_protect0_w;
+            end
         endcase
     end
     if (csrbank0_control0_re) begin
-        coreuser_control_storage[7:0] <= csrbank0_control0_r;
+        coreuser_control_storage[1:0] <= csrbank0_control0_r;
     end
     coreuser_control_re <= csrbank0_control0_re;
     coreuser_status_re <= csrbank0_status_re;
@@ -21073,6 +21124,10 @@ always @(posedge sys_clk) begin
         coreuser_uservalue_storage[17:0] <= csrbank0_uservalue0_r;
     end
     coreuser_uservalue_re <= csrbank0_uservalue0_re;
+    if (csrbank0_protect0_re) begin
+        coreuser_protect_storage <= csrbank0_protect0_r;
+    end
+    coreuser_protect_re <= csrbank0_protect0_re;
     interface1_bank_bus_dat_r <= 1'd0;
     if (csrbank1_sel) begin
         case (interface1_bank_bus_adr[9:0])
@@ -22307,9 +22362,12 @@ always @(posedge sys_clk) begin
         reset_debug_logic <= 1'd0;
         debug_reset <= 1'd0;
         re <= 1'd0;
-        coreuser <= 8'd0;
-        coreuser_control_storage <= 8'd0;
+        coreuser_vex <= 8'd0;
+        vex_mm <= 1'd0;
+        coreuser_control_storage <= 2'd0;
         coreuser_control_re <= 1'd0;
+        coreuser_coreuser <= 8'd0;
+        coreuser_mm <= 1'd0;
         coreuser_status_re <= 1'd0;
         coreuser_map_lo_storage <= 32'd0;
         coreuser_map_lo_re <= 1'd0;
@@ -22317,11 +22375,10 @@ always @(posedge sys_clk) begin
         coreuser_map_hi_re <= 1'd0;
         coreuser_uservalue_storage <= 18'd0;
         coreuser_uservalue_re <= 1'd0;
+        coreuser_protect_storage <= 1'd0;
+        coreuser_protect_re <= 1'd0;
         coreuser_enable1 <= 1'd0;
-        coreuser_use8bit1 <= 1'd0;
-        coreuser_shift1 <= 3'd0;
-        coreuser_require_priv <= 1'd0;
-        coreuser_privilege1 <= 2'd0;
+        coreuser_invert_priv1 <= 1'd0;
         coreuser_lut01 <= 8'd0;
         coreuser_lut11 <= 8'd0;
         coreuser_lut21 <= 8'd0;
@@ -22330,16 +22387,15 @@ always @(posedge sys_clk) begin
         coreuser_lut51 <= 8'd0;
         coreuser_lut61 <= 8'd0;
         coreuser_lut71 <= 8'd0;
-        coreuser_user01 <= 8'd0;
-        coreuser_user11 <= 8'd0;
-        coreuser_user21 <= 8'd0;
-        coreuser_user31 <= 8'd0;
-        coreuser_user41 <= 8'd0;
-        coreuser_user51 <= 8'd0;
-        coreuser_user61 <= 8'd0;
-        coreuser_user71 <= 8'd0;
-        coreuser_user_default <= 8'd0;
-        coreuser_use_lut <= 1'd0;
+        coreuser_user01 <= 2'd0;
+        coreuser_user11 <= 2'd0;
+        coreuser_user21 <= 2'd0;
+        coreuser_user31 <= 2'd0;
+        coreuser_user41 <= 2'd0;
+        coreuser_user51 <= 2'd0;
+        coreuser_user61 <= 2'd0;
+        coreuser_user71 <= 2'd0;
+        coreuser_user_default <= 2'd0;
         ibus_r_active <= 1'd0;
         dbus_r_active <= 1'd0;
         dbus_w_active <= 1'd0;
@@ -22810,6 +22866,14 @@ axi_axil_adapter #(
 	.s_axi_wready(cramsoc_axi_csr_w_ready)
 );
 
+fdre_cosim fdre_cosim(
+	.C(sys_clk),
+	.CE(coreuser_protect_storage),
+	.D(1'd1),
+	.R(sys_rst),
+	.Q(coreuser_protect)
+);
+
 Ram_1w_1rs #(
 	.clockCrossing(1'd0),
 	.ramname("RAM_DP_1024_32"),
@@ -23068,5 +23132,5 @@ VexRiscvAxi4 VexRiscvAxi4(
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2025-01-01 15:33:55.
+//  Auto-Generated by LiteX on 2025-01-11 17:47:33.
 //------------------------------------------------------------------------------
