@@ -53,6 +53,8 @@ def get_common_ios():
         # coreuser signal
         ("coreuser_vex", 0, Pins(8)),
         ("vex_mm", 0, Pins(1)),
+        ("default_user", 0, Pins(2)),
+        ("default_mm", 0, Pins(1)),
         # sleep request: wfi active signal gated with interrupt status
         # when high, stop aclk, but leave "always_on" on
         ("sleep_req", 0, Pins(1)),
@@ -1316,7 +1318,7 @@ enabled with `trimming_reset_ena`.
 # CoreUserLite --------------------------------------------------------------------------------
 class CoreUserLite(Module, AutoCSR, AutoDoc):
     """Core User computation logic"""
-    def __init__(self, cpu, coreuser, mm):
+    def __init__(self, cpu, coreuser, mm, default_user, default_mm):
         self.intro = ModuleDoc(
 """
 `CoreUser` is a hardware signal that indicates that the code executing is in a highly trusted
@@ -1496,7 +1498,10 @@ is inverted compared to boot time.
                    coreuser_cases,
                )
             ).Else(
-                coreuser_4bit.eq(1)
+                Case(
+                    default_user,
+                    coreuser_cases,
+                )
             )
         ]
         self.sync += [
@@ -1505,7 +1510,7 @@ is inverted compared to boot time.
             If(enable,
                mm.eq((cpu.privilege[0] | cpu.privilege[1]) ^ invert_priv)
             ).Else(
-               mm.eq(1)
+               mm.eq(default_mm)
             )
         ]
 
@@ -2098,7 +2103,13 @@ class cramSoC(SoCCore):
                 self.coreuser.vexsramtrm.eq(vexsramtrm),
             ]
         else:
-            self.submodules.coreuser = CoreUserLite(self.cpu, platform.request("coreuser_vex"), platform.request("vex_mm"))
+            self.submodules.coreuser = CoreUserLite(
+                self.cpu,
+                platform.request("coreuser_vex"),
+                platform.request("vex_mm"),
+                platform.request("default_user"),
+                platform.request("default_mm"),
+            )
 
         # WFI breakout -----------------------------------------------------------------------------
         sleep_req = platform.request("sleep_req")
