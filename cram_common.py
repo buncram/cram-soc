@@ -618,6 +618,8 @@ class CramSoC(SoCCore):
             i_jtag_trst_n         = jtag_cpu.trst_n   ,
 
             o_coreuser_vex        = self.coreuser     ,
+            i_default_user        = 0,
+            i_default_mm          = 1,
             i_irqarray_bank0      = zero_irq,
             i_irqarray_bank1      = zero_irq,
             i_irqarray_bank2      = Cat(zero_irq[:2], irq_available, irq_abort_init, irq_abort_done, irq_error, zero_irq[6:]),
