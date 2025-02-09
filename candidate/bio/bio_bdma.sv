@@ -191,6 +191,13 @@ module bio_bdma #(
     logic [31:0] gpio_out_aclk;
     logic [31:0] gpio_dir_aclk;
 
+    /////////////////////// clocking mode for AXIL CDC
+    // 00: asynchronous (two stage synchronizer)
+    // 01 or 10: mechronous (one stage synchronizer)
+    // 11: isochronous (edge synced but different frequency - no synchronizer)
+    // used to tune memory access latency versus actual timing on final chip
+    logic [1:0] clocking_mode;
+
     /////////////////////// machine hookup
     logic [15:0]  div_int      [NUM_MACH];
     logic [7:0]   div_frac     [NUM_MACH];
@@ -488,7 +495,8 @@ module bio_bdma #(
 
     apb_ac2r #(.A('h00), .DW(12))    sfr_ctrl             (.cr({clkdiv_restart, restart, en}), .ar(ctl_action), .self_clear(ctl_action_sync_ack), .prdata32(),.*);
     apb_sr  #(.A('h04), .DW(32))     sfr_cfginfo          (.sr({16'd4096, 8'd4, 8'd8}), .prdata32(),.*);
-    apb_cr  #(.A('h08), .DW(8))      sfr_config           (.cr({
+    apb_cr  #(.A('h08), .DW(10))     sfr_config           (.cr({
+                                                            clocking_mode,
                                                             disable_filter_mem, disable_filter_peri,
                                                             snap_input_to_quantum, snap_input_to_which,
                                                             snap_output_to_quantum, snap_output_to_which}), .prdata32(),.*);
@@ -1253,6 +1261,8 @@ module bio_bdma #(
         .s_axil_rvalid(mem_axil.r_valid),
         .s_axil_rready(mem_axil.r_ready),
 
+        .clkmode(clocking_mode),
+
         .m_clk(hclk),
         .m_rst(~reset_n),
         .m_axil_awaddr  (mem_filtered_axil.aw_addr ),
@@ -1386,6 +1396,8 @@ module bio_bdma #(
         .s_axil_rresp(peri_axil.r_resp),
         .s_axil_rvalid(peri_axil.r_valid),
         .s_axil_rready(peri_axil.r_ready),
+
+        .clkmode(clocking_mode),
 
         .m_clk(dmaclk),
         .m_rst(~reset_n),

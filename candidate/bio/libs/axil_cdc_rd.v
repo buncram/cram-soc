@@ -65,6 +65,12 @@ module axil_cdc_rd #
     output wire                   s_axil_rvalid,
     input  wire                   s_axil_rready,
 
+    // clocking flag
+    // 00: asynchronous (two stage synchronizer)
+    // 01 or 10: mechronous (one stage synchronizer)
+    // 11: isochronous (edge synced but different frequency - no synchronizer)
+    input wire [1:0]              clkmode,
+
     /*
      * AXI lite master interface
      */
@@ -108,6 +114,14 @@ reg [DATA_WIDTH-1:0]  m_axil_rdata_reg ;
 reg [1:0]             m_axil_rresp_reg ;
 reg                   m_axil_rvalid_reg;
 
+wire                  m_flag_sync_reg_target;
+wire                  s_flag_sync_reg_target;
+// these should be statically configured before any activity happens
+// on the AXI bus; but pulled into the target clock domain to make
+// timing cleaner
+reg [1:0]             m_clkmode[2];
+reg [1:0]             s_clkmode[2];
+
 assign s_axil_arready = !s_axil_arvalid_reg && !s_axil_rvalid_reg;
 assign s_axil_rdata = s_axil_rdata_reg;
 assign s_axil_rresp = s_axil_rresp_reg;
@@ -147,7 +161,7 @@ always @(posedge s_clk or posedge s_rst) begin
                 end
             end
             2'd1: begin
-                if (m_flag_sync_reg_2) begin
+                if (m_flag_sync_reg_target) begin
                     s_state_reg <= 2'd2;
                     s_flag_reg <= 1'b0;
                     s_axil_rdata_reg <= m_axil_rdata_reg;
@@ -156,7 +170,7 @@ always @(posedge s_clk or posedge s_rst) begin
                 end
             end
             2'd2: begin
-                if (!m_flag_sync_reg_2) begin
+                if (!m_flag_sync_reg_target) begin
                     s_state_reg <= 2'd0;
                     s_axil_arvalid_reg <= 1'b0;
                 end
@@ -169,12 +183,20 @@ end
 always @(posedge s_clk) begin
     m_flag_sync_reg_1 <= m_flag_reg;
     m_flag_sync_reg_2 <= m_flag_sync_reg_1;
+
+    m_clkmode[1] <= m_clkmode[0];
+    m_clkmode[0] <= clkmode;
 end
+assign m_flag_sync_reg_target = ~|m_clkmode[1] ? m_flag_sync_reg_2 : ^m_clkmode[1] ? m_flag_sync_reg_1 : m_flag_reg;
 
 always @(posedge m_clk) begin
     s_flag_sync_reg_1 <= s_flag_reg;
     s_flag_sync_reg_2 <= s_flag_sync_reg_1;
+
+    s_clkmode[1] <= s_clkmode[0];
+    s_clkmode[0] <= clkmode;
 end
+assign s_flag_sync_reg_target = ~|s_clkmode[1] ? s_flag_sync_reg_2 : ^s_clkmode[1] ? s_flag_sync_reg_1 : s_flag_reg;
 
 // master side
 always @(posedge m_clk or posedge m_rst) begin
@@ -199,7 +221,7 @@ always @(posedge m_clk or posedge m_rst) begin
 
         case (m_state_reg)
             2'd0: begin
-                if (s_flag_sync_reg_2) begin
+                if (s_flag_sync_reg_target) begin
                     m_state_reg <= 2'd1;
                     m_axil_araddr_reg <= s_axil_araddr_reg;
                     m_axil_arprot_reg <= s_axil_arprot_reg;
@@ -214,7 +236,7 @@ always @(posedge m_clk or posedge m_rst) begin
                 end
             end
             2'd2: begin
-                if (!s_flag_sync_reg_2) begin
+                if (!s_flag_sync_reg_target) begin
                     m_state_reg <= 2'd0;
                     m_flag_reg <= 1'b0;
                 end

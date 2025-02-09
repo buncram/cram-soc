@@ -76,6 +76,12 @@ module axil_cdc #
     output wire                   s_axil_rvalid,
     input  wire                   s_axil_rready,
 
+    // clocking mode
+    // 00: asynchronous (two stage synchronizer)
+    // 01 or 10: mechronous (one stage synchronizer)
+    // 11: isochronous (edge synced but different frequency - no synchronizer)
+    input wire [1:0]              clkmode,
+
     /*
      * AXI lite master interface
      */
@@ -125,6 +131,8 @@ axil_cdc_wr_inst (
     .s_axil_bvalid(s_axil_bvalid),
     .s_axil_bready(s_axil_bready),
 
+    .clkmode(clkmode),
+
     /*
      * AXI lite master interface
      */
@@ -162,6 +170,8 @@ axil_cdc_rd_inst (
     .s_axil_rresp(s_axil_rresp),
     .s_axil_rvalid(s_axil_rvalid),
     .s_axil_rready(s_axil_rready),
+
+    .clkmode(clkmode),
 
     /*
      * AXI lite master interface
