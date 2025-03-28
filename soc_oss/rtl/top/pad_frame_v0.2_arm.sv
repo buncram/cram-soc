@@ -1,0 +1,398 @@
+`ifndef  pad_frame_arm_included
+`define pad_frame_arm_included 1
+
+`include "io_interface_def_v0.1.sv"
+
+module pad_frame #(
+    parameter ADCCNT = 4
+)(
+
+// workmode pads
+    input wire PAD_WMS0,
+    input wire PAD_WMS1,
+    input wire PAD_WMS2,
+
+// external resetn
+    input wire PAD_XRSTn,
+
+    input  wire XTAL_IN,
+    inout  wire XTAL_OUT,
+//    input  wire XTAL24M_IN,
+//    inout  wire XTAL24M_OUT,
+    input  wire XTAL48M_IN,
+    inout  wire XTAL48M_OUT,
+
+// qspiflash
+    inout wire QFC_SCK   ,
+    inout wire QFC_SCKN  ,
+    inout wire QFC_QDS   ,
+    inout wire QFC_SS0   ,
+    inout wire QFC_SS1   ,
+    inout wire QFC_SIO0  ,
+    inout wire QFC_SIO1  ,
+    inout wire QFC_SIO2  ,
+    inout wire QFC_SIO3  ,
+    inout wire QFC_SIO4  ,
+    inout wire QFC_SIO5  ,
+    inout wire QFC_SIO6  ,
+    inout wire QFC_SIO7  ,
+//    inout wire QFC_RWDS  ,
+    inout wire QFC_INT   ,
+    inout wire QFC_RSTM0 ,
+    inout wire QFC_RSTS0 ,
+//    inout wire QFC_RSTM1 ,
+//    inout wire QFC_RSTS1 ,
+
+// swd, d-uart, jtag
+    inout  wire PAD_DUART ,
+    input  wire PAD_SWDCK ,
+    inout  wire PAD_SWDIO ,
+    inout  wire PAD_JTCK  ,
+    inout  wire PAD_JTMS  ,
+    inout  wire PAD_JTDI  ,
+    inout  wire PAD_JTDO  ,
+    inout  wire PAD_JTRST ,
+
+// gpio
+    inout wire PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7,
+    inout wire PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7, PB8, PB9, PB10, PB11, PB12, PB13, PB14, PB15,
+    inout wire PC0, PC1, PC2, PC3, PC4, PC5, PC6, PC7, PC8, PC9, PC10, PC11, PC12, PC13, PC14, PC15,
+    inout wire PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, PD8, PD9, PD10, PD11, PD12, PD13, PD14, PD15,
+    inout wire PE0, PE1, PE2, PE3, PE4, PE5, PE6, PE7, PE8, PE9, PE10, PE11, PE12, PE13, PE14, PE15,
+/*
+    input wire PAD_SDCLK,
+    input wire PAD_SDCMD,
+    inout wire PAD_SDDAT0,
+    inout wire PAD_SDDAT1,
+    inout wire PAD_SDDAT2,
+    inout wire PAD_SDDAT3,
+*/
+
+
+// to Soc_Top
+
+    output logic        clkxtl,
+    output logic [0:2]  cmspad,
+    output logic        padresetn,
+//    output logic        clkxtl24m,
+    output logic        clkxtl48m,
+    input  logic        cmstest,
+    input  logic [0:12] ipto13,
+
+    output logic        swdclk,
+    ioif.load           swdio,
+    input  logic        dbgtxd,
+    jtagif.master       jtagvex,
+    jtagif.master       jtagrrc[0:1],
+    jtagif.master       jtagipt,
+
+    ioif.load           iopad_A[0: 7],
+    ioif.load           iopad_B[0:15],
+    ioif.load           iopad_C[0:15],
+    ioif.load           iopad_D[0:15],
+    ioif.load           iopad_E[0:15],
+
+    input padcfg_arm_t  iocfg_A[0: 7],
+    input padcfg_arm_t  iocfg_B[0:15],
+    input padcfg_arm_t  iocfg_C[0:15],
+    input padcfg_arm_t  iocfg_D[0:15],
+    input padcfg_arm_t  iocfg_E[0:15],
+
+    ioif.load           qfc_sck,
+    ioif.load           qfc_sckn,
+    ioif.load           qfc_dqs,
+    ioif.load           qfc_ss[1:0],
+    ioif.load           qfc_sio[7:0],
+//    ioif.load           qfc_rwds,
+    ioif.load           qfc_rstm[1:0],
+    ioif.load           qfc_rsts[1:0],
+    ioif.load           qfc_int,
+
+    input padcfg_arm_t  padcfg_qfc_sck,
+    input padcfg_arm_t  padcfg_qfc_qds,
+    input padcfg_arm_t  padcfg_qfc_ss,
+    input padcfg_arm_t  padcfg_qfc_sio,
+//    input padcfg_arm_t  padcfg_qfc_rwds,
+    input padcfg_arm_t  padcfg_qfc_int,
+    input padcfg_arm_t  padcfg_qfc_rst,
+
+
+/*
+    ioif.load           sddc_clk,
+    ioif.load           sddc_cmd,
+//    ioif.load           sddc_dat[3:0],
+    ioif.load           sddc_dat0,
+    ioif.load           sddc_dat1,
+    ioif.load           sddc_dat2,
+    ioif.load           sddc_dat3,
+*/
+
+// adc
+    inout  wire         pmu_ana_test,
+    inout  wire [1:0]   ana_reramtest,
+    output wire [3:0]   adc_si
+
+);
+//    ioif jtagio_JTCK();
+//    ioif jtagio_JTMS();
+//    ioif jtagio_JTDI();
+//    ioif jtagio_JTDO();
+//    ioif jtagio_JTRST();
+//
+//    jtag2io j2io(
+//        .jtagen,
+//        .io_JTCK   (jtagio_JTCK),
+//        .io_JTMS   (jtagio_JTMS),
+//        .io_JTDI   (jtagio_JTDI),
+//        .io_JTDO   (jtagio_JTDO),
+//        .io_JTRST  (jtagio_JTRST),
+//        .jtagm
+//    );
+
+    parameter padcfg_arm_t padcfg_xtal = '{schmsel:'0, anamode:'0, slewslow:'0, drvsel:2'b11};    // 24.1M~48M 11
+//    parameter padcfg_arm_t padcfg_xtal24m = '{schmsel:'0, anamode:'0, slewslow:'0, drvsel:2'b01}; // 12.1M~24M 01
+    parameter padcfg_arm_t padcfg_xtal48m = '{schmsel:'0, anamode:'0, slewslow:'0, drvsel:2'b11}; // 24.1M~48M 11
+    parameter padcfg_arm_t padcfg_cms  = '{schmsel:'1, anamode:'0, slewslow:'0, drvsel:2'b00};
+    parameter padcfg_arm_t padcfg_dev  = '{schmsel:'0, anamode:'0, slewslow:'0, drvsel:2'b00};
+    parameter padcfg_arm_t padcfg_xrst = '{schmsel:'1, anamode:'0, slewslow:'0, drvsel:2'b00};
+
+    padcell_xtal  u_xtal( .padxin(XTAL_IN), .padxout(XTAL_OUT), .thecfg(padcfg_xtal), .pc(clkxtl) );
+//    padcell_xtal  u_xtal24m( .padxin(XTAL24M_IN), .padxout(XTAL24M_OUT), .thecfg(padcfg_xtal24m), .pc(clkxtl24m) );
+    padcell_xtal  u_xtal48m( .padxin(XTAL48M_IN), .padxout(XTAL48M_OUT), .thecfg(padcfg_xtal48m), .pc(clkxtl48m) );
+    padcell_i #(.pu('0), .pd('1), .H('0)) u_cmspad0( .pad( PAD_WMS0 ), .thecfg(padcfg_cms), .pi( cmspad[0] ));//zmj 20230909
+    padcell_i #(.pu('0), .pd('1), .H('0)) u_cmspad1( .pad( PAD_WMS1 ), .thecfg(padcfg_cms), .pi( cmspad[1] ));//zmj 20230909
+    padcell_i #(.pu('0), .pd('1), .H('0)) u_cmspad2( .pad( PAD_WMS2 ), .thecfg(padcfg_cms), .pi( cmspad[2] ));//zmj 20230909
+
+    padcell_i #(.pu(1'b1)) u_xrstn  ( .pad( PAD_XRSTn ), .thecfg(padcfg_xrst), .pi( padresetn ));
+    padcell_i #(.pu(1'b1)) u_swdck  ( .pad( PAD_SWDCK ), .thecfg(padcfg_dev), .pi( swdclk ));
+    padcell_io  u_swdio  ( .pad( PAD_SWDIO ), .thecfg(padcfg_dev), .pio( swdio ), .ai());
+    padcell_o   u_duart  ( .pad( PAD_DUART ), .thecfg(padcfg_dev), .po( dbgtxd ));
+    padcell_i u_JTCK  ( .pad( PAD_JTCK  ), .thecfg(padcfg_dev), .pi( jtagvex.tck  ));
+    padcell_i u_JTMS  ( .pad( PAD_JTMS  ), .thecfg(padcfg_dev), .pi( jtagvex.tms  ));
+    padcell_i u_JTDI  ( .pad( PAD_JTDI  ), .thecfg(padcfg_dev), .pi( jtagvex.tdi  ));
+    padcell_o u_JTDO  ( .pad( PAD_JTDO  ), .thecfg(padcfg_dev), .po( jtagvex.tdo  ));
+    padcell_i  #(.pu(0),.pd(1)) u_JTRST ( .pad( PAD_JTRST ), .thecfg(padcfg_dev), .pi( jtagvex.trst ));
+
+//    padcell_i #(.pu(1'b1)) u_xrstn  ( .pad( PAD_XRSTn ), .thecfg(padcfg_xrst), .pi( padresetn ));
+
+    assign adc_si[0] = u_PA4.ai; defparam u_PA4.ANA = 1'b1;
+    assign adc_si[1] = u_PA5.ai; defparam u_PA5.ANA = 1'b1;
+    assign adc_si[2] = u_PA6.ai; defparam u_PA6.ANA = 1'b1;
+    assign adc_si[3] = u_PA7.ai; defparam u_PA7.ANA = 1'b1;
+
+    assign jtagrrc[0].tck  = cmstest & iopad_A[0].pi;
+    assign jtagrrc[0].trst = cmstest & iopad_A[1].pi;
+    assign jtagrrc[0].tms  = cmstest & iopad_A[2].pi;
+    assign jtagrrc[0].tdi  = cmstest & iopad_A[3].pi;
+    assign jtagrrc[1].tck  = cmstest & iopad_A[0].pi;
+    assign jtagrrc[1].trst = cmstest & iopad_A[1].pi;
+    assign jtagrrc[1].tms  = cmstest & iopad_A[4].pi;
+    assign jtagrrc[1].tdi  = cmstest & iopad_A[5].pi;
+    assign jtagipt.tck     = cmstest & iopad_A[0].pi;
+    assign jtagipt.trst    = cmstest & iopad_A[1].pi;
+    assign jtagipt.tms     = cmstest & iopad_A[6].pi;
+    assign jtagipt.tdi     = cmstest & iopad_A[7].pi;
+
+    logic [0:15] jtdo16;
+    ioif iopad_B_T[0:15]();
+
+    io_cmstest_outmux #(16) ujr ( .cmstest, .testsig( jtdo16 ), .ios(iopad_B), .iom( iopad_B_T ) );
+
+    assign jtdo16[0] = jtagrrc[0].tdo;
+    assign jtdo16[1] = jtagrrc[1].tdo;
+    assign jtdo16[2] = jtagipt.tdo;
+    assign jtdo16[3:15] = ipto13[0:12];
+
+    padcell_io #(.H('0)) u_PA0  ( .pad( PA0  ), .pio( iopad_A[0 ]), .thecfg(iocfg_A[0 ]), .ai());
+    padcell_io #(.H('0)) u_PA1  ( .pad( PA1  ), .pio( iopad_A[1 ]), .thecfg(iocfg_A[1 ]), .ai());
+    padcell_io #(.H('0)) u_PA2  ( .pad( PA2  ), .pio( iopad_A[2 ]), .thecfg(iocfg_A[2 ]), .ai());
+    padcell_io #(.H('0)) u_PA3  ( .pad( PA3  ), .pio( iopad_A[3 ]), .thecfg(iocfg_A[3 ]), .ai());
+    padcell_io #(.H('0)) u_PA4  ( .pad( PA4  ), .pio( iopad_A[4 ]), .thecfg(iocfg_A[4 ]), .ai());
+    padcell_io #(.H('0)) u_PA5  ( .pad( PA5  ), .pio( iopad_A[5 ]), .thecfg(iocfg_A[5 ]), .ai());
+    padcell_io #(.H('0)) u_PA6  ( .pad( PA6  ), .pio( iopad_A[6 ]), .thecfg(iocfg_A[6 ]), .ai());
+    padcell_io #(.H('0)) u_PA7  ( .pad( PA7  ), .pio( iopad_A[7 ]), .thecfg(iocfg_A[7 ]), .ai());
+    padcell_io u_PB0  ( .pad( PB0  ), .pio( iopad_B_T[0 ]), .thecfg(iocfg_B[0 ]), .ai());
+    padcell_io u_PB1  ( .pad( PB1  ), .pio( iopad_B_T[1 ]), .thecfg(iocfg_B[1 ]), .ai());
+    padcell_io u_PB2  ( .pad( PB2  ), .pio( iopad_B_T[2 ]), .thecfg(iocfg_B[2 ]), .ai());
+    padcell_io u_PB3  ( .pad( PB3  ), .pio( iopad_B_T[3 ]), .thecfg(iocfg_B[3 ]), .ai());
+    padcell_io u_PB4  ( .pad( PB4  ), .pio( iopad_B_T[4 ]), .thecfg(iocfg_B[4 ]), .ai());
+    padcell_io u_PB5  ( .pad( PB5  ), .pio( iopad_B_T[5 ]), .thecfg(iocfg_B[5 ]), .ai());
+    padcell_io u_PB6  ( .pad( PB6  ), .pio( iopad_B_T[6 ]), .thecfg(iocfg_B[6 ]), .ai());
+    padcell_io u_PB7  ( .pad( PB7  ), .pio( iopad_B_T[7 ]), .thecfg(iocfg_B[7 ]), .ai());
+    padcell_io u_PB8  ( .pad( PB8  ), .pio( iopad_B_T[8 ]), .thecfg(iocfg_B[8 ]), .ai());
+    padcell_io u_PB9  ( .pad( PB9  ), .pio( iopad_B_T[9 ]), .thecfg(iocfg_B[9 ]), .ai());
+    padcell_io u_PB10 ( .pad( PB10 ), .pio( iopad_B_T[10]), .thecfg(iocfg_B[10]), .ai());
+    padcell_io u_PB11 ( .pad( PB11 ), .pio( iopad_B_T[11]), .thecfg(iocfg_B[11]), .ai());
+    padcell_io u_PB12 ( .pad( PB12 ), .pio( iopad_B_T[12]), .thecfg(iocfg_B[12]), .ai());
+    padcell_io u_PB13 ( .pad( PB13 ), .pio( iopad_B_T[13]), .thecfg(iocfg_B[13]), .ai());
+    padcell_io u_PB14 ( .pad( PB14 ), .pio( iopad_B_T[14]), .thecfg(iocfg_B[14]), .ai());
+    padcell_io u_PB15 ( .pad( PB15 ), .pio( iopad_B_T[15]), .thecfg(iocfg_B[15]), .ai());
+    padcell_io u_PC0  ( .pad( PC0  ), .pio( iopad_C[0 ]), .thecfg(iocfg_C[0 ]), .ai());
+    padcell_io u_PC1  ( .pad( PC1  ), .pio( iopad_C[1 ]), .thecfg(iocfg_C[1 ]), .ai());
+    padcell_io u_PC2  ( .pad( PC2  ), .pio( iopad_C[2 ]), .thecfg(iocfg_C[2 ]), .ai());
+    padcell_io u_PC3  ( .pad( PC3  ), .pio( iopad_C[3 ]), .thecfg(iocfg_C[3 ]), .ai());
+    padcell_io u_PC4  ( .pad( PC4  ), .pio( iopad_C[4 ]), .thecfg(iocfg_C[4 ]), .ai());
+    padcell_io u_PC5  ( .pad( PC5  ), .pio( iopad_C[5 ]), .thecfg(iocfg_C[5 ]), .ai());
+    padcell_io u_PC6  ( .pad( PC6  ), .pio( iopad_C[6 ]), .thecfg(iocfg_C[6 ]), .ai());
+    padcell_io u_PC7  ( .pad( PC7  ), .pio( iopad_C[7 ]), .thecfg(iocfg_C[7 ]), .ai());
+    padcell_io u_PC8  ( .pad( PC8  ), .pio( iopad_C[8 ]), .thecfg(iocfg_C[8 ]), .ai());
+    padcell_io u_PC9  ( .pad( PC9  ), .pio( iopad_C[9 ]), .thecfg(iocfg_C[9 ]), .ai());
+    padcell_io u_PC10 ( .pad( PC10 ), .pio( iopad_C[10]), .thecfg(iocfg_C[10]), .ai());
+    padcell_io u_PC11 ( .pad( PC11 ), .pio( iopad_C[11]), .thecfg(iocfg_C[11]), .ai());
+    padcell_io u_PC12 ( .pad( PC12 ), .pio( iopad_C[12]), .thecfg(iocfg_C[12]), .ai());
+    padcell_io u_PC13 ( .pad( PC13 ), .pio( iopad_C[13]), .thecfg(iocfg_C[13]), .ai());
+    padcell_io u_PC14 ( .pad( PC14 ), .pio( iopad_C[14]), .thecfg(iocfg_C[14]), .ai());
+    padcell_io u_PC15 ( .pad( PC15 ), .pio( iopad_C[15]), .thecfg(iocfg_C[15]), .ai());
+    padcell_io #(.H('0)) u_PD0  ( .pad( PD0  ), .pio( iopad_D[0 ]), .thecfg(iocfg_D[0 ]), .ai());//zmj 20230909
+    padcell_io #(.H('0)) u_PD1  ( .pad( PD1  ), .pio( iopad_D[1 ]), .thecfg(iocfg_D[1 ]), .ai());
+    padcell_io #(.H('0)) u_PD2  ( .pad( PD2  ), .pio( iopad_D[2 ]), .thecfg(iocfg_D[2 ]), .ai());
+    padcell_io #(.H('0)) u_PD3  ( .pad( PD3  ), .pio( iopad_D[3 ]), .thecfg(iocfg_D[3 ]), .ai());
+    padcell_io #(.H('0)) u_PD4  ( .pad( PD4  ), .pio( iopad_D[4 ]), .thecfg(iocfg_D[4 ]), .ai());
+    padcell_io #(.H('0)) u_PD5  ( .pad( PD5  ), .pio( iopad_D[5 ]), .thecfg(iocfg_D[5 ]), .ai());
+    padcell_io #(.H('0)) u_PD6  ( .pad( PD6  ), .pio( iopad_D[6 ]), .thecfg(iocfg_D[6 ]), .ai());
+    padcell_io #(.H('0)) u_PD7  ( .pad( PD7  ), .pio( iopad_D[7 ]), .thecfg(iocfg_D[7 ]), .ai());
+    padcell_io #(.H('0)) u_PD8  ( .pad( PD8  ), .pio( iopad_D[8 ]), .thecfg(iocfg_D[8 ]), .ai());
+    padcell_io #(.H('0)) u_PD9  ( .pad( PD9  ), .pio( iopad_D[9 ]), .thecfg(iocfg_D[9 ]), .ai());
+    padcell_io #(.H('0)) u_PD10 ( .pad( PD10 ), .pio( iopad_D[10]), .thecfg(iocfg_D[10]), .ai());
+    padcell_io #(.H('0)) u_PD11 ( .pad( PD11 ), .pio( iopad_D[11]), .thecfg(iocfg_D[11]), .ai());
+    padcell_io #(.H('0)) u_PD12 ( .pad( PD12 ), .pio( iopad_D[12]), .thecfg(iocfg_D[12]), .ai());
+    padcell_io #(.H('0)) u_PD13 ( .pad( PD13 ), .pio( iopad_D[13]), .thecfg(iocfg_D[13]), .ai());
+    padcell_io #(.H('0)) u_PD14 ( .pad( PD14 ), .pio( iopad_D[14]), .thecfg(iocfg_D[14]), .ai());
+    padcell_io #(.H('0)) u_PD15 ( .pad( PD15 ), .pio( iopad_D[15]), .thecfg(iocfg_D[15]), .ai());
+`ifdef MPW
+    assign iopad_E[0 ].pi = '0;
+    assign iopad_E[1 ].pi = '0;
+    assign iopad_E[2 ].pi = '0;
+    assign iopad_E[3 ].pi = '0;
+    assign iopad_E[4 ].pi = '0;
+    assign iopad_E[5 ].pi = '0;
+    assign iopad_E[6 ].pi = '0;
+    assign iopad_E[7 ].pi = '0;
+    assign iopad_E[8 ].pi = '0;
+    assign iopad_E[9 ].pi = '0;
+    assign iopad_E[10].pi = '0;
+    assign iopad_E[11].pi = '0;
+    assign iopad_E[12].pi = '0;
+    assign iopad_E[13].pi = '0;
+    assign iopad_E[14].pi = '0;
+    assign iopad_E[15].pi = '0;
+`else
+    padcell_io u_PE0  ( .pad( PE0  ), .pio( iopad_E[0 ]), .thecfg(iocfg_E[0 ]), .ai());
+    padcell_io u_PE1  ( .pad( PE1  ), .pio( iopad_E[1 ]), .thecfg(iocfg_E[1 ]), .ai());
+    padcell_io u_PE2  ( .pad( PE2  ), .pio( iopad_E[2 ]), .thecfg(iocfg_E[2 ]), .ai());
+    padcell_io u_PE3  ( .pad( PE3  ), .pio( iopad_E[3 ]), .thecfg(iocfg_E[3 ]), .ai());
+    padcell_io u_PE4  ( .pad( PE4  ), .pio( iopad_E[4 ]), .thecfg(iocfg_E[4 ]), .ai());
+    padcell_io u_PE5  ( .pad( PE5  ), .pio( iopad_E[5 ]), .thecfg(iocfg_E[5 ]), .ai());
+    padcell_io u_PE6  ( .pad( PE6  ), .pio( iopad_E[6 ]), .thecfg(iocfg_E[6 ]), .ai());
+    padcell_io u_PE7  ( .pad( PE7  ), .pio( iopad_E[7 ]), .thecfg(iocfg_E[7 ]), .ai());
+    padcell_io u_PE8  ( .pad( PE8  ), .pio( iopad_E[8 ]), .thecfg(iocfg_E[8 ]), .ai());
+    padcell_io u_PE9  ( .pad( PE9  ), .pio( iopad_E[9 ]), .thecfg(iocfg_E[9 ]), .ai());
+    padcell_io u_PE10 ( .pad( PE10 ), .pio( iopad_E[10]), .thecfg(iocfg_E[10]), .ai());
+    padcell_io u_PE11 ( .pad( PE11 ), .pio( iopad_E[11]), .thecfg(iocfg_E[11]), .ai());
+    padcell_io u_PE12 ( .pad( PE12 ), .pio( iopad_E[12]), .thecfg(iocfg_E[12]), .ai());
+    padcell_io u_PE13 ( .pad( PE13 ), .pio( iopad_E[13]), .thecfg(iocfg_E[13]), .ai());
+    padcell_io u_PE14 ( .pad( PE14 ), .pio( iopad_E[14]), .thecfg(iocfg_E[14]), .ai());
+    padcell_io u_PE15 ( .pad( PE15 ), .pio( iopad_E[15]), .thecfg(iocfg_E[15]), .ai());
+`endif
+/*
+    padcell_io u_SDCLK  ( .pad( PAD_SDCLK  ), .pio( sddc_clk ));
+    padcell_io u_SDCMD  ( .pad( PAD_SDCMD  ), .pio( sddc_cmd ));
+    padcell_io u_SDDAT0 ( .pad( PAD_SDDAT0 ), .pio( sddc_dat0 ));
+    padcell_io u_SDDAT1 ( .pad( PAD_SDDAT1 ), .pio( sddc_dat1 ));
+    padcell_io u_SDDAT2 ( .pad( PAD_SDDAT2 ), .pio( sddc_dat2 ));
+    padcell_io u_SDDAT3 ( .pad( PAD_SDDAT3 ), .pio( sddc_dat3 ));
+*/
+
+    padcell_io u_QFC_SCK   ( .pad( QFC_SCK   ), .pio( qfc_sck     ), .thecfg( padcfg_qfc_sck  ), .ai() );
+    padcell_io u_QFC_SCKN  ( .pad( QFC_SCKN  ), .pio( qfc_sckn    ), .thecfg( padcfg_qfc_sck  ), .ai() );
+    padcell_io u_QFC_QDS   ( .pad( QFC_QDS   ), .pio( qfc_dqs     ), .thecfg( padcfg_qfc_qds  ), .ai() );
+    padcell_io u_QFC_SS0   ( .pad( QFC_SS0   ), .pio( qfc_ss[0]   ), .thecfg( padcfg_qfc_ss   ), .ai() );
+    padcell_io u_QFC_SS1   ( .pad( QFC_SS1   ), .pio( qfc_ss[1]   ), .thecfg( padcfg_qfc_ss   ), .ai() ); //zmj modify 20230917
+    padcell_io u_QFC_SIO0  ( .pad( QFC_SIO0  ), .pio( qfc_sio[0]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO1  ( .pad( QFC_SIO1  ), .pio( qfc_sio[1]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO2  ( .pad( QFC_SIO2  ), .pio( qfc_sio[2]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO3  ( .pad( QFC_SIO3  ), .pio( qfc_sio[3]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO4  ( .pad( QFC_SIO4  ), .pio( qfc_sio[4]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO5  ( .pad( QFC_SIO5  ), .pio( qfc_sio[5]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO6  ( .pad( QFC_SIO6  ), .pio( qfc_sio[6]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+    padcell_io u_QFC_SIO7  ( .pad( QFC_SIO7  ), .pio( qfc_sio[7]  ), .thecfg( padcfg_qfc_sio  ), .ai() );
+//    padcell_io u_QFC_RWDS  ( .pad( QFC_RWDS  ), .pio( qfc_rwds    ), .thecfg( padcfg_qfc_rwds ), .ai() );
+    padcell_io u_QFC_INT   ( .pad( QFC_INT   ), .pio( qfc_int     ), .thecfg( padcfg_qfc_int  ), .ai() );
+    padcell_io u_QFC_RSTM0 ( .pad( QFC_RSTM0 ), .pio( qfc_rstm[0] ), .thecfg( padcfg_qfc_rst  ), .ai() );
+    padcell_io u_QFC_RSTS0 ( .pad( QFC_RSTS0 ), .pio( qfc_rsts[0] ), .thecfg( padcfg_qfc_rst  ), .ai() );
+//  padcell_io u_QFC_RSTM1 ( .pad( QFC_RSTM1 ), .pio( qfc_rstm[1] ), .thecfg( padcfg_qfc_rst  ), .ai() ); //zmj modify 20230917
+//  padcell_io u_QFC_RSTS1 ( .pad( QFC_RSTS1 ), .pio( qfc_rsts[1] ), .thecfg( padcfg_qfc_rst  ), .ai() ); //zmj modify 20230917
+    assign qfc_rstm[1].pi = '1;
+    assign qfc_rsts[1].pi = '1;
+
+`ifndef FPGA
+wire VDD25;
+wire ANA_RRTST0, ANA_RRTST1, ANA_PMUTST, ANA_VDD25A, ANA_VDD25B ; //
+        PANALOG_33_33_NT_DR_V u_ANA0(.RTO('1),.SNS('1),.PAD(ANA_RRTST0),.PADC_IOV(ana_reramtest[0]),.PADR1_IOV(),.PADR2_IOV());
+        PANALOG_33_33_NT_DR_V u_ANA1(.RTO('1),.SNS('1),.PAD(ANA_RRTST1),.PADC_IOV(ana_reramtest[1]),.PADR1_IOV(),.PADR2_IOV());
+        PANALOG_33_33_NT_DR_V u_ANA2(.RTO('1),.SNS('1),.PAD(ANA_PMUTST),.PADC_IOV(    ),.PADR1_IOV(),.PADR2_IOV(pmu_ana_test));
+        PANALOG_33_33_NT_DR_V u_VDD25A(.RTO('1),.SNS('1),.PAD(ANA_VDD25A ),.PADC_IOV(VDD25           ),.PADR1_IOV(),.PADR2_IOV());
+        PANALOG_33_33_NT_DR_V u_VDD25B(.RTO('1),.SNS('1),.PAD(ANA_VDD25B ),.PADC_IOV(VDD25           ),.PADR1_IOV(),.PADR2_IOV());
+`endif
+
+endmodule
+
+module padao_frame (
+// always on
+    input  wire XTAL32K_IN,
+    inout  wire XTAL32K_OUT,
+    input  wire PAD_AOXRSTn,
+    inout  wire PF0, PF1, PF2, PF3, PF4, PF5,
+
+// to AO_Top
+    output logic        clkxtl32k,
+    output logic        ao_padresetn,
+    ioif.load           ao_iopad_F[0: 5]
+
+);
+
+    parameter padcfg_arm_t padcfg_xrst = '{schmsel:'1, anamode:'0, slewslow:'0, drvsel:2'b00};
+
+// always on
+    padcell_xtal #(.X33k(1),.H('0)) u_xtal32k( .padxin(XTAL32K_IN), .padxout(XTAL32K_OUT), .pc( clkxtl32k ), .thecfg('0) );//zmj 20230909
+    padcell_i #(.pu(1), .H('0))  u_aoxrstn  ( .pad( PAD_AOXRSTn ), .pi( ao_padresetn ), .thecfg( padcfg_xrst ) );//zmj 20230909
+`ifdef MPW
+    padcell_io #(.H('0)) u_PF0  ( .pad( PF0  ), .pio( ao_iopad_F[0 ] ), .thecfg('0), .ai());//zmj 20230909
+    assign ao_iopad_F[1].pi = '0;
+    assign ao_iopad_F[2].pi = '0;
+    assign ao_iopad_F[3].pi = '0;
+    assign ao_iopad_F[4].pi = '0;
+    assign ao_iopad_F[5].pi = '0;
+`else
+    padcell_io u_PF0  ( .pad( PF0  ), .pio( ao_iopad_F[0 ] ), .thecfg('0), .ai());
+    padcell_io u_PF1  ( .pad( PF1  ), .pio( ao_iopad_F[1 ] ), .thecfg('0), .ai());
+    padcell_io u_PF2  ( .pad( PF2  ), .pio( ao_iopad_F[2 ] ), .thecfg('0), .ai());
+    padcell_io u_PF3  ( .pad( PF3  ), .pio( ao_iopad_F[3 ] ), .thecfg('0), .ai());
+    padcell_io u_PF4  ( .pad( PF4  ), .pio( ao_iopad_F[4 ] ), .thecfg('0), .ai());
+    padcell_io u_PF5  ( .pad( PF5  ), .pio( ao_iopad_F[5 ] ), .thecfg('0), .ai());
+`endif
+
+endmodule
+
+module io_cmstest_outmux#(
+    parameter IOC = 16
+)(
+    input logic cmstest,
+    input logic [IOC-1:0] testsig,
+    ioif.load   ios[IOC-1:0],
+    ioif.drive  iom[IOC-1:0]
+);
+
+genvar i;
+generate
+    for ( i = 0; i < IOC; i++) begin
+        assign iom[i].po = cmstest ? testsig[i] : ios[i].po;
+        assign iom[i].oe = cmstest ? '1 : ios[i].oe;
+        assign iom[i].pu = cmstest ? '1 : ios[i].pu;
+        assign ios[i].pi = cmstest ? '0 : iom[i].pi;
+    end
+endgenerate
+
+endmodule
+
+`endif // pad_frame_v0.2_arm.sv

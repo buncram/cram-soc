@@ -1,0 +1,93 @@
+
+module  ao_top #(parameter IOC=6 )(
+        input logic clkao,
+        apbif.slave apbs,
+        input logic clkxtl32k,
+        ioif.load   socpad[0:IOC-1],
+        ioif.drive  aopad[0:IOC-1],
+        input logic porresetn,
+        input logic padresetn,
+        output logic socresetn,
+        input  logic pmupd,
+        output logic pmusleep,
+
+        output logic aowkupvld
+
+);
+
+    bit [0:IOC-1] padwkupmask;
+    logic cmsatpg;
+    bit pmusleepresetn;
+    bit clkosc32k, clk32k; 
+    reg ao_iso_enable;
+
+    always @(posedge clk32k or negedge porresetn)
+	    if(porresetn == 1'b0)
+		    ao_iso_enable <= 1'b0;
+    	    else
+		    ao_iso_enable <= 1'b1;
+
+    apbs_null uapb(.apbslave(apbs));
+    iothrus #(IOC) iothru(.ioload(socpad),.iodrv(aopad));
+
+//    assign socresetn = padresetn & porresetn;
+
+    `ifdef SIM
+    parameter RSTEXTCNT = 10;
+    `else
+    parameter RSTEXTCNT = 1000;
+    `endif
+
+    resetgen #(.ICNT(1),.EXTCNT(RSTEXTCNT))gensocreset(
+        .clk         ( clk32k ),
+        .cmsatpg     ( cmsatpg ),
+        .resetn      ( porresetn ),
+        .resetnin    ( padresetn ),
+        .resetnout   ( socresetn )
+    );
+
+    `theregfull(clkao, pmusleepresetn, pmusleep, '0) <= pmupd | pmusleep;
+
+    assign pmusleepresetn = porresetn & 
+                { aopad[0].pi, aopad[1].pi, aopad[2].pi, aopad[3].pi, aopad[4].pi, aopad[5].pi } | padwkupmask;
+
+`ifdef SIM
+    initial begin
+        // for sim only
+        cmsatpg = '1;
+        #1; cmsatpg = '0;
+    end
+`else 
+    assign cmsatpg = 0;
+`endif
+
+    assign clk32k = clkosc32k;
+
+`ifdef FPGA
+    assign clkosc32k = clkxtl32k;
+`else
+    OSC_32K osc32K ( .EN('1), .CFG('0),      .CKO( clkosc32k  ) );
+//    OSC_SIM #(31250)   osc32k ( .EN('1), .CFG('0), .CKO( clkosc32k  ) );
+`endif
+
+// wakeup
+// ■■■■■■■■■■■■■■■
+
+    logic aopadwkupvld;
+
+    assign aowkupvld = aopadwkupvld;
+
+
+    bit [0:IOC-1][1:0]  aopadpiregs; 
+    bit [0:IOC-1]       aopadpiflip;
+
+    generate
+        for (genvar i = 0; i < IOC; i++) begin
+            `theregfull( clk32k, porresetn, aopadpiregs[i], '0 ) <= { aopadpiregs[i], aopad[i].pi };
+            `theregfull( clk32k, porresetn, aopadpiflip[i], '0 ) <= aopadpiregs[i][0] ^ aopadpiregs[i][1] ;
+        end
+    endgenerate    
+
+    assign aopadwkupvld = |aopadpiflip;
+
+endmodule

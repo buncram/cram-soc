@@ -1,0 +1,11 @@
+darictop
+
+	soc  	-- soc
+	pad  	-- soc
+	padao 	-- ao
+	ao   	-- ao
+	pmu		-- ao+soc
+	udp 	-- soc
+
+	soc: 	vrcore_soc
+	ao:		vrcore_ao

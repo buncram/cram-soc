@@ -1,0 +1,145 @@
+module powerpad ();
+
+`ifndef SIM
+
+localparam CNT_PBRKB2B_H = 0; //zmj modify 20230909
+localparam CNT_PBRKB2B_V = 5;
+localparam CNT_PBRK = 0;
+localparam CNT_PVDD09_H = 6;
+localparam CNT_PVSS09_H = 6;
+localparam CNT_PVDD33_H = 12;
+localparam CNT_PVSS33_H = 12;
+localparam CNT_PVDD09_V = 11;
+localparam CNT_PVSS09_V = 11;
+localparam CNT_PVDD33_V = 12;
+localparam CNT_PVSS33_V = 15;
+localparam CNT_PFILL10 = 2;
+localparam CNT_PVSENSE = 2;
+localparam CNT_PVDDTIE = 3;
+localparam CNT_PVDDI09 = 4;
+localparam CNT_PBRKANA_H = 4;
+localparam CNT_PBRKANA_V = 2;
+
+genvar i;
+generate
+        for (i = 0; i < CNT_PBRKB2B_H; i++) begin: gbrkb2b_h
+                PBRKB2B_33_33_NT_DR u(.RTO('1),.RTOBRK('0),.SNS('1),.SNSBRK('0));
+        end
+
+         for (i = 0; i < CNT_PBRKB2B_V; i++) begin: gbrkb2b_v
+                PBRKB2B_33_33_NT_DR u(.RTO('1),.RTOBRK('0),.SNS('1),.SNSBRK('0));
+        end
+
+
+        for (i = 0; i < CNT_PBRK; i++) begin: gbrk
+                PBRK_33_33_NT_DR u(.RTO('1),.RTOBRK('0),.SNS('1),.SNSBRK('0));
+        end
+
+        for (i = 0; i < CNT_PBRKANA_H; i++) begin: brkana_h
+                PBRKANALOGB2B_33_33_NT_DR u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PBRKANA_V; i++) begin: brkana_v
+                PBRKANALOGB2B_33_33_NT_DR u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVDD09_H; i++) begin: gvdd09_h
+                PVDD_09_09_NT_DR_H u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVSS09_H; i++) begin: gvss09_h
+                PVSS_09_09_NT_DR_H u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVDD33_H; i++) begin: gvdd33_h
+                PDVDD_33_33_NT_DR_H u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVSS33_H; i++) begin: gvss33_h
+                PDVSS_33_33_NT_DR_H u(.RTO('1),.SNS('1));
+        end
+
+
+
+        for (i = 0; i < CNT_PVDD09_V; i++) begin: gvdd09_v
+                PVDD_09_09_NT_DR_V u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVSS09_V; i++) begin: gvss09_v
+                PVSS_09_09_NT_DR_V u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVDD33_V; i++) begin: gvdd33_v
+                PDVDD_33_33_NT_DR_V u(.RTO('1),.SNS('1));
+        end
+
+        for (i = 0; i < CNT_PVSS33_V; i++) begin: gvss33_v
+                PDVSS_33_33_NT_DR_V u(.RTO('1),.SNS('1));
+        end
+
+
+
+        //for (i = 0; i < CNT_PFILL10; i++) begin: gfill
+        //        PFILL10_33_33_NT_DR u(.RTO('1),.SNS('1));
+        //end
+
+        for (i = 0; i < CNT_PVSENSE; i++) begin: gvsense
+                PVSENSE_33_33_NT_DR_H u(.RTO(),.SNS(),.RETOFF('0),.RETON('0));
+        end
+
+        for (i = 0; i < CNT_PVDDTIE; i++) begin: gvddtie
+                PDVDDTIE_33_33_NT_DR_V u(.RTO(),.SNS());
+        end
+
+        for (i = 0; i < CNT_PVDDI09; i++) begin: gvddi
+                PVDDI_09_09_NT_DR_V u(.RTO('1),.SNS('1));
+        end
+
+         PANALOG_33_33_NT_DR_V upll_vcca(.RTO(),.SNS()); //zmj modfiy 20230917
+         PANALOG_33_33_NT_DR_V upll_vssa(.RTO(),.SNS());
+         PDVDD_33_33_NT_DR_V upll_vdd33(.RTO('1),.SNS('1));
+         PDVSS_33_33_NT_DR_V upll_vss33(.RTO('1),.SNS('1));
+         PVDD_09_09_NT_DR_V upll_vdd09(.RTO('1),.SNS('1));
+         PVSS_09_09_NT_DR_V upll_vss09(.RTO('1),.SNS('1));
+         PVDDI_09_09_NT_DR_V upll_vccd(.RTO('1),.SNS('1));
+        
+endgenerate
+`endif
+endmodule
+
+
+
+`ifdef SIM
+module PBRKB2B_33_33_NT_DR (
+                RTO,
+                RTOBRK,
+                SNS,
+                SNSBRK
+ );
+   input SNS;
+   input RTO;
+   input SNSBRK;
+   input RTOBRK;
+endmodule // PBRKB2B_33_33_NT_DR
+
+module PBRK_33_33_NT_DR (
+                RTO,
+                RTOBRK,
+                SNS,
+                SNSBRK
+ );
+   input SNS;
+   input RTO;
+   input SNSBRK;
+   input RTOBRK;
+endmodule // PBRKB2B_33_33_NT_DR
+
+module PVDD_09_09_NT_DR_H ( input SNS, input RTO ); endmodule
+module PVSS_09_09_NT_DR_H ( input SNS, input RTO ); endmodule
+module PDVDD_33_33_NT_DR_H ( input SNS, input RTO ); endmodule
+module PDVSS_33_33_NT_DR_H ( input SNS, input RTO ); endmodule
+module PFILL10_33_33_NT_DR ( input SNS, input RTO ); endmodule
+module PVSENSE_33_33_NT_DR_H ( output SNS, output RTO, input RETOFF, input RETON ); endmodule
+module PDVDDTIE_33_33_NT_DR_H ( output SNS, output RTO ); endmodule
+module PVDDI_09_09_NT_DR_H ( input SNS, input RTO ); endmodule
+`endif

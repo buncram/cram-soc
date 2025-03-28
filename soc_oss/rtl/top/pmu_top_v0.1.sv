@@ -1,0 +1,19 @@
+
+module pmu(
+    output bit porresetn,
+    input  bit sleep
+);
+
+`ifdef SIM
+    initial begin
+        porresetn = '1;
+        #1; porresetn = '0;
+        #(100 `US); porresetn = '1;
+    end
+`else
+    `ifdef FPGA
+        assign porresetn = '1;
+    `endif
+`endif
+
+endmodule

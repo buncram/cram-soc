@@ -1,0 +1,381 @@
+`include "template.sv"						`include "template.sv"
+
+							      >
+module daric_top_tb ();						module daric_top_tb ();
+
+    bit clk,resetn;						    bit clk,resetn;
+    bit clk1m;							    bit clk1m;
+    integer i=0, j=0, k=0, errcnt=0, warncnt=0;			    integer i=0, j=0, k=0, errcnt=0, warncnt=0;
+
+    bit [0:2]   cmspad;						    bit [0:2]   cmspad;
+    bit         padresetn;					    bit         padresetn;
+    bit         clkswd;						    bit         clkswd;
+    bit         dbgtxd;						    bit         dbgtxd;
+
+    reg pulse1M = 0;						    reg pulse1M = 0;
+
+    wire pulse1Mwire; assign pulse1Mwire = pulse1M;		    wire pulse1Mwire; assign pulse1Mwire = pulse1M;
+    wire uartloop;						    wire uartloop;
+    wire SDIO_CLK;						    wire SDIO_CLK;
+    wire SDIO_CMD;						    wire SDIO_CMD;
+    wire [3:0] SDIO_DATA;					    wire [3:0] SDIO_DATA;
+
+  //								  //
+  //  dut							  //  dut
+  //  ==							  //  ==
+/*								/*
+    ioif iopad_A[0: 7]();					    ioif iopad_A[0: 7]();
+    ioif iopad_B[0:15]();					    ioif iopad_B[0:15]();
+    ioif iopad_C[0:13]();					    ioif iopad_C[0:13]();
+    ioif iopad_D[0:15]();					    ioif iopad_D[0:15]();
+    ioif iopad_E[0:15]();					    ioif iopad_E[0:15]();
+    ioif iopad_F[0: 5]();					    ioif iopad_F[0: 5]();
+*/								*/
+    bit clk32k, clk32m, clk24m;					    bit clk32k, clk32m, clk24m;
+    OSC_SIM #(31.25*1000)   osc32k ( .EN('1), .CFG('0),      	    OSC_SIM #(31.25*1000)   osc32k ( .EN('1), .CFG('0),      
+
+`ifdef FPGA							`ifdef FPGA
+    OSC_SIM #(20.83333)        osc32M ( .EN('1), .CFG('0),   	    OSC_SIM #(20.83333)        osc32M ( .EN('1), .CFG('0),   
+`else								`else
+
+    OSC_SIM #(41.67)        osc24M ( .EN('1), .CFG('0),      	    OSC_SIM #(41.67)        osc24M ( .EN('1), .CFG('0),      
+    OSC_SIM #(31.25)        osc32M ( .EN('1), .CFG('0),      	    OSC_SIM #(31.25)        osc32M ( .EN('1), .CFG('0),      
+`endif								`endif
+    wire PAD_SWDIO;						    wire PAD_SWDIO;
+
+    wire PB11, PB12;						    wire PB11, PB12;
+    pullup ( PB11 );						    pullup ( PB11 );
+    pullup ( PB12 );						    pullup ( PB12 );
+
+    daric_top dut(						    daric_top dut(
+        .XTAL_IN    (clk32m),					        .XTAL_IN    (clk32m),
+`ifndef FPGA							`ifndef FPGA
+        .XTAL32K_IN (clk32k),					        .XTAL32K_IN (clk32k),
+        .XTAL24M_IN (clk24m),					        .XTAL24M_IN (clk24m),
+`endif								`endif
+        .PA0 (pulse1Mwire),					        .PA0 (pulse1Mwire),
+        .PA3 (uartloop),					        .PA3 (uartloop),
+        .PA4 (uartloop),					        .PA4 (uartloop),
+
+        .PC0 (SDIO_CLK),					        .PC0 (SDIO_CLK),
+        .PC1 (SDIO_CMD),					        .PC1 (SDIO_CMD),
+        .PC2 (SDIO_DATA[0]),					        .PC2 (SDIO_DATA[0]),
+        .PC3 (SDIO_DATA[1]),					        .PC3 (SDIO_DATA[1]),
+        .PC4 (SDIO_DATA[2]),					        .PC4 (SDIO_DATA[2]),
+        .PC5 (SDIO_DATA[3]),					        .PC5 (SDIO_DATA[3]),
+
+        .PB11,.PB12,						        .PB11,.PB12,
+/*        input logic       */  // .clkxtl     ( clk         	/*        input logic       */  // .clkxtl     ( clk         
+/*        input logic [0:2] */  // .cmspad     ( cmspad      	/*        input logic [0:2] */  // .cmspad     ( cmspad      
+/*        input logic       */  // .chipresetn ( resetn      	/*        input logic       */  // .chipresetn ( resetn      
+/*        input logic       */  // .padresetn  ( padresetn   	/*        input logic       */  // .padresetn  ( padresetn   
+                                // .dbgtxd     ( dbgtxd      	                                // .dbgtxd     ( dbgtxd      
+/*        input logic       */  // .clkswd     ( clkswd      	/*        input logic       */  // .clkswd     ( clkswd      
+//            .*						//            .*
+        .PAD_SWDCK  (clk1m),					        .PAD_SWDCK  (clk1m),
+        .PAD_SWDIO  (PAD_SWDIO)					        .PAD_SWDIO  (PAD_SWDIO)
+    );								    );
+
+  //								  //
+  //  monitor and clk						  //  monitor and clk
+  //  ==							  //  ==
+
+    `genclk( clk, 20 )						    `genclk( clk, 20 )
+    `genclk( clk1m, 1000 )					    `genclk( clk1m, 1000 )
+    `timemarker2						    `timemarker2
+
+
+`ifdef SDSIM							`ifdef SDSIM
+sdModel sd(							sdModel sd(
+  .sdClk ( SDIO_CLK ),						  .sdClk ( SDIO_CLK ),
+  .cmd   ( SDIO_CMD ),						  .cmd   ( SDIO_CMD ),
+  .dat   ( SDIO_DATA)						  .dat   ( SDIO_DATA)
+);								);
+`endif								`endif
+
+    initial forever begin					    initial forever begin
+         pulse1M = 0;						         pulse1M = 0;
+        #( 500 `US ) pulse1M = 1;				        #( 500 `US ) pulse1M = 1;
+        #( 1 `US ) pulse1M = 1;					        #( 1 `US ) pulse1M = 1;
+    end								    end
+
+//    assign dut.PA0 = pulse1Mwire;				//    assign dut.PA0 = pulse1Mwire;
+
+  //								  //
+  //  subtitle							  //  subtitle
+  //  ==							  //  ==
+
+    initial begin						    initial begin
+        #(500 `MS);					      |	        #(100 `MS);
+    `maintestend						    `maintestend
+
+    `maintest(daric_top_tb,daric_top_tb)			    `maintest(daric_top_tb,daric_top_tb)
+        #105 resetn = 0; padresetn = 1;				        #105 resetn = 0; padresetn = 1;
+
+//        #(15 `US) resetn = 0;					//        #(15 `US) resetn = 0;
+        #(1 `US) resetn = 1;					        #(1 `US) resetn = 1;
+    								    
+        #(500 `MS);					      |	        #(100 `MS);
+    `maintestend						    `maintestend
+
+    initial resetn = 0;						    initial resetn = 0;
+    initial clk = 0;						    initial clk = 0;
+    initial clkswd = 0;						    initial clkswd = 0;
+
+    integer fd;							    integer fd;
+    string MEMFILE = "reram_simcode.bin";			    string MEMFILE = "reram_simcode.bin";
+    parameter MEMDEPTH = 2**14;				      |	    parameter MEMDEPTH = 2**17; //17
+    parameter DATAWIDTH = 64;					    parameter DATAWIDTH = 64;
+    localparam DATA_BYTES = 8;					    localparam DATA_BYTES = 8;
+
+    reg  [DATAWIDTH-1:0]    data;				    reg  [DATAWIDTH-1:0]    data;
+    integer r;						      |	    reg  [63:0]  data0,data1,data2,data3,data_i;
+							      >	    reg   [63:0] bin_data0,bin_data1,bin_data2,bin_data3;
+							      >	    reg  [255:0] reram_source;
+							      >	    bit  [255:0] probe_reram_data;
+							      >	    bit  [143:0] reram_data0,reram_data1;
+							      >	    integer r,r0,r1,r2,r3;
+							      >	    bit [143:0] probe_r0;
+							      >	    bit [143:0] probe_r1;
+							      >
+
+    initial begin						    initial begin
+          fd = $fopen(MEMFILE,"rb");				          fd = $fopen(MEMFILE,"rb");
+          #(10 `US );						          #(10 `US );
+
+//          for(i = 0; (i < MEMDEPTH) && ($fread(data,fd) != 	//          for(i = 0; (i < MEMDEPTH) && ($fread(data,fd) != 
+          for(i = 0; (i < MEMDEPTH )  && ($fread(data,fd) !=  |	          for(i = 0; (i < MEMDEPTH ) ; i = i + 1)
+          begin							          begin
+//            r = $fread(data,fd);			      |
+`ifdef FPGA							`ifdef FPGA
+							      >	            r = $fread(data,fd);
+            if( i < 4096 ) begin				            if( i < 4096 ) begin
+                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge	                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge
+                $display("%d, %016x, %d",i,dut.soc.soc_coresu	                $display("%d, %016x, %d",i,dut.soc.soc_coresu
+            end							            end
+            else if( i < 4096*2 ) begin				            else if( i < 4096*2 ) begin
+                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge	                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge
+                $display("%d, %016x, %d",i,dut.soc.soc_coresu	                $display("%d, %016x, %d",i,dut.soc.soc_coresu
+            end							            end
+            else if( i < 4096*3 ) begin				            else if( i < 4096*3 ) begin
+                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge	                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge
+                $display("%d, %016x, %d",i,dut.soc.soc_coresu	                $display("%d, %016x, %d",i,dut.soc.soc_coresu
+            end							            end
+            else if( i < 4096*4 ) begin				            else if( i < 4096*4 ) begin
+                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge	                dut.soc.soc_coresub.rrc.emuram.gencolmn[0].ge
+                $display("%d, %016x, %d",i,dut.soc.soc_coresu	                $display("%d, %016x, %d",i,dut.soc.soc_coresu
+            end							            end
+
+
+`else								`else
+            dut.soc.soc_coresub.rrc.emuram.ramdat[i] = swizzl |	            #0.01;
+            $display("%d, %016x, %d",i,dut.soc.soc_coresub.rr |	            r0 = $fread(data0,fd);
+							      >	            #0.01;
+							      >	            r1 = $fread(data1,fd);
+							      >	            #0.01;
+							      >	            r2 = $fread(data2,fd);
+							      >	            #0.01;
+							      >	            r3 = $fread(data3,fd);
+							      >	            #0.01;
+							      >	            bin_data0 = swizzle(data0);
+							      >	            #0.01;
+							      >	            bin_data1 = swizzle(data1);
+							      >	            #0.01;
+							      >	            bin_data2 = swizzle(data2);
+							      >	            #0.01;
+							      >	            bin_data3 = swizzle(data3);                      
+							      >	            //data = {data3,data2,data1,data0};
+							      >	            //dut.soc.soc_coresub.rrc.emuram.ramdat[i] = swiz
+							      >	            //$display("%d, %016x, %d",i,dut.soc.soc_coresub.
+							      >	            #0.01;
+							      >	            reram_source = {swizzle(data3),swizzle(data2),swi
+							      >	            #0.01;  
+							      >	            reram_data0 = rram_encoder(reram_source[127:0],1)
+							      >	            reram_data1 = rram_encoder(reram_source[255:128],
+							      >
+							      >	            #0.01;
+							      >	            dut.soc.soc_coresub.greram[0].reram.u_rram_wrappe
+							      >	            dut.soc.soc_coresub.greram[1].reram.u_rram_wrappe
+							      >	            #0.01;         
+							      >	            $display("%d, %016x, %d",i,probe_reram_data,(r0+r
+							      >
+							      >	            // IFR region intital
+							      >	            #0.01;
+							      >	            dut.soc.soc_coresub.greram[0].reram.u_rram_wrappe
+							      >
+`endif								`endif
+
+          end							          end
+							      >
+/*								/*
+          r = 1;						          r = 1;
+          i = 0;						          i = 0;
+          while( (i < MEMDEPTH ) && ( r != 0 ) )		          while( (i < MEMDEPTH ) && ( r != 0 ) )
+          begin							          begin
+            r = $fread(data,fd) ;				            r = $fread(data,fd) ;
+//            r = $fread(data,fd);				//            r = $fread(data,fd);
+            dut.soc_coresub.rrc.emuram.ramdat[i] = swizzle(da	            dut.soc_coresub.rrc.emuram.ramdat[i] = swizzle(da
+            $display("%d, %016x, %d",i,dut.soc_coresub.rrc.em	            $display("%d, %016x, %d",i,dut.soc_coresub.rrc.em
+
+            i = i + 1;						            i = i + 1;
+          end							          end
+*/								*/
+          $fclose(fd);						          $fclose(fd);
+          $write("RAM: image max    = %d lines\n",i);		          $write("RAM: image max    = %d lines\n",i);
+    end								    end
+//      dut.soc_coresub.rrc.emuram.sramc.ramdat			//      dut.soc_coresub.rrc.emuram.sramc.ramdat
+
+							      >	  assign probe_r0 = {dut.soc.soc_coresub.greram[0].reram.u_rr
+							      >	                      dut.soc.soc_coresub.greram[0].reram.u_r
+							      >
+							      >	  assign probe_r1 = {dut.soc.soc_coresub.greram[1].reram.u_rr
+							      >	                      dut.soc.soc_coresub.greram[1].reram.u_r
+							      >
+							      >	  assign probe_reram_data = {probe_r1[127:0],probe_r0[127:0]}
+							      >
+							      >
+  //Function to account for the Big Endianness of $fread	  //Function to account for the Big Endianness of $fread
+  function [DATAWIDTH-1:0] swizzle;				  function [DATAWIDTH-1:0] swizzle;
+      input [DATAWIDTH-1:0] data_in;				      input [DATAWIDTH-1:0] data_in;
+      integer i;						      integer i;
+      begin							      begin
+        for (i=0; i<DATA_BYTES; i=i+1)				        for (i=0; i<DATA_BYTES; i=i+1)
+          swizzle[i*8 +:8] = data_in[(DATA_BYTES-1-i)*8 +:8];	          swizzle[i*8 +:8] = data_in[(DATA_BYTES-1-i)*8 +:8];
+      end							      end
+   endfunction						      |	  endfunction
+							      >
+							      >	  function [143:0] rram_encoder;
+							      >	    input [127:0] messg;
+							      >	    input mode;
+							      >	    bit [15:0] parity;
+							      >
+							      >	      parity[0]=    messg[0]^    messg[2]^    messg[3]^    me
+							      >	                  messg[16]^    messg[18]^    messg[19]^    m
+							      >	    messg[38]^    messg[39]^    messg[40]^    messg[42]^    m
+							      >	    messg[52]^    messg[53]^    messg[63]^    messg[65]^    m
+							      >	    messg[75]^    messg[76]^    messg[77]^    messg[79]^    m
+							      >	    messg[97]^    messg[98]^    messg[101]^    messg[107]^   
+							      >	    messg[123]^    messg[124]^    messg[125];
+							      >	    
+							      >	     parity[1]=    messg[0]^    messg[1]^    messg[2]^    mes
+							      >	    messg[20]^    messg[22]^    messg[24]^    messg[26]^    m
+							      >	    messg[41]^    messg[45]^    messg[46]^    messg[47]^    m
+							      >	    messg[67]^    messg[73]^    messg[74]^    messg[75]^    m
+							      >	    messg[85]^    messg[86]^    messg[87]^    messg[88]^    m
+							      >	    messg[96]^    messg[97]^    messg[98]^    messg[99]^    m
+							      >	    messg[120]^    messg[121]^    messg[122]^    messg[123]^ 
+							      >
+							      >	     parity[2]=    messg[1]^    messg[2]^    messg[3]^    mes
+							      >	    messg[20]^    messg[21]^    messg[23]^    messg[27]^    m
+							      >	    messg[47]^    messg[48]^    messg[49]^    messg[50]^    m
+							      >	    messg[73]^    messg[74]^    messg[75]^    messg[76]^    m
+							      >	    messg[89]^    messg[90]^    messg[91]^    messg[92]^    m
+							      >	    messg[102]^    messg[103]^    messg[105]^    messg[108]^ 
+							      >	    messg[124]^    messg[127];
+							      >	    
+							      >	     parity[3]=     messg[2]^    messg[3]^    messg[4]^    me
+							      >	    messg[19]^    messg[21]^    messg[22]^    messg[24]^    m
+							      >	    messg[34]^    messg[39]^    messg[46]^    messg[48]^    m
+							      >	    messg[65]^    messg[66]^    messg[67]^    messg[68]^    m
+							      >	    messg[81]^    messg[82]^    messg[84]^    messg[85]^    m
+							      >	    messg[93]^    messg[94]^    messg[95]^    messg[97]^    m
+							      >	    messg[109]^    messg[111]^    messg[114]^    messg[115]^ 
+							      >	    
+							      >	     parity[4]=    messg[3]^    messg[4]^    messg[5]^    mes
+							      >	    messg[22]^    messg[23]^    messg[26]^    messg[29]^    m
+							      >	    messg[49]^    messg[50]^    messg[53]^    messg[55]^    m
+							      >	    messg[75]^    messg[76]^    messg[77]^    messg[78]^    m
+							      >	    messg[91]^    messg[92]^    messg[93]^    messg[94]^    m
+							      >	    messg[107]^    messg[110]^    messg[112]^    messg[114]^ 
+							      >	    
+							      >	     parity[5]=    messg[0]^    messg[2]^    messg[3]^    mes
+							      >	     messg[20]^    messg[21]^    messg[23]^    messg[24]^    
+							      >	    messg[34]^    messg[35]^    messg[36]^    messg[37]^    m
+							      >	    messg[49]^    messg[52]^    messg[53]^    messg[55]^    m
+							      >	    messg[67]^    messg[68]^    messg[70]^    messg[72]^    m
+							      >	    messg[88]^    messg[90]^    messg[91]^    messg[92]^    m
+							      >	    messg[103]^    messg[104]^    messg[105]^    messg[106]^ 
+							      >	    messg[117]^    messg[120]^    messg[121]^    messg[122]^ 
+							      >	    
+							      >	     parity[6]=    messg[0]^    messg[1]^    messg[2]^    mes
+							      >	    messg[29]^    messg[32]^    messg[33]^    messg[35]^    m
+							      >	    messg[52]^    messg[54]^    messg[55]^    messg[56]^    m
+							      >	    messg[67]^    messg[69]^    messg[70]^    messg[72]^    m
+							      >	    messg[100]^    messg[103]^    messg[104]^    messg[105]^ 
+							      >	    messg[116]^    messg[117]^    messg[118]^    messg[120]^ 
+							      >	    
+							      >	     parity[7]=    messg[1]^    messg[2]^    messg[3]^    mes
+							      >	    messg[23]^    messg[24]^    messg[25]^    messg[28]^    m
+							      >	    messg[37]^    messg[42]^    messg[44]^    messg[48]^    m
+							      >	    messg[63]^    messg[64]^    messg[65]^    messg[66]^    m
+							      >	    messg[83]^    messg[84]^    messg[87]^    messg[93]^    m
+							      >	    messg[107]^    messg[109]^    messg[110]^    messg[112]^ 
+							      >	    messg[119]^    messg[122]^    messg[123]^    messg[125];
+							      >	    
+							      >	     parity[8]=    messg[0]^    messg[5]^    messg[6]^    mes
+							      >	    messg[25]^    messg[28]^    messg[29]^    messg[32]^    m
+							      >	    messg[48]^    messg[59]^    messg[62]^    messg[63]^    m
+							      >	    messg[82]^    messg[84]^    messg[87]^    messg[89]^    m
+							      >	    messg[101]^    messg[102]^    messg[103]^    messg[106]^ 
+							      >	    messg[118]^    messg[119]^    messg[120]^    messg[125]^ 
+							      >	    
+							      >	     parity[9]=    messg[0]^    messg[1]^    messg[2]^    mes
+							      >	    messg[19]^    messg[20]^    messg[21]^    messg[24]^    m
+							      >	    messg[35]^    messg[36]^    messg[37]^    messg[38]^    m
+							      >	    messg[51]^    messg[52]^    messg[53]^    messg[54]^    m
+							      >	    messg[74]^    messg[76]^    messg[78]^    messg[79]^    m
+							      >	    messg[91]^    messg[92]^    messg[93]^    messg[94]^    m
+							      >	    messg[111]^    messg[112]^    messg[113]^    messg[114]^ 
+							      >	    
+							      >	     parity[10]=    messg[0]^    messg[1]^    messg[11]^    m
+							      >	    messg[29]^    messg[30]^    messg[32]^    messg[34]^    m
+							      >	    messg[55]^    messg[56]^    messg[57]^    messg[61]^    m
+							      >	    messg[76]^    messg[80]^    messg[82]^    messg[83]^    m
+							      >	    messg[96]^    messg[98]^    messg[101]^    messg[104]^   
+							      >	    messg[121]^    messg[123]^    messg[126];
+							      >	    
+							      >	     parity[11]=    messg[0]^    messg[1]^    messg[3]^    me
+							      >	    messg[23]^    messg[25]^    messg[26]^    messg[28]^    m
+							      >	    messg[36]^    messg[38]^    messg[39]^    messg[40]^    m
+							      >	    messg[51]^    messg[52]^    messg[53]^    messg[54]^    m
+							      >	    messg[66]^    messg[67]^    messg[68]^    messg[69]^    m
+							      >	    messg[81]^    messg[82]^    messg[83]^    messg[85]^    m
+							      >	    messg[106]^    messg[108]^    messg[110]^    messg[111]^ 
+							      >	    
+							      >	     parity[12]=    messg[1]^    messg[2]^    messg[4]^    me
+							      >	    messg[22]^    messg[25]^    messg[26]^    messg[27]^    m
+							      >	    messg[37]^    messg[39]^    messg[40]^    messg[41]^    m
+							      >	    messg[52]^    messg[53]^    messg[55]^    messg[59]^    m
+							      >	    messg[72]^    messg[75]^    messg[76]^    messg[77]^    m
+							      >	    messg[88]^    messg[90]^    messg[91]^    messg[100]^    
+							      >	    messg[112]^    messg[113]^    messg[117]^    messg[119]^ 
+							      >	    
+							      >	     parity[13]=    messg[0]^    messg[4]^    messg[7]^    me
+							      >	    messg[20]^    messg[21]^    messg[22]^    messg[23]^    m
+							      >	    messg[41]^    messg[43]^    messg[44]^    messg[46]^    m
+							      >	    messg[63]^    messg[64]^    messg[67]^    messg[68]^    m
+							      >	    messg[81]^    messg[82]^    messg[83]^    messg[86]^    m
+							      >	    messg[107]^    messg[108]^    messg[110]^    messg[113]^ 
+							      >	    
+							      >	     parity[14]=    messg[0]^    messg[1]^    messg[2]^    me
+							      >	    messg[14]^    messg[17]^    messg[18]^    messg[22]^    m
+							      >	    messg[39]^    messg[42]^    messg[43]^    messg[45]^    m
+							      >	    messg[56]^    messg[61]^    messg[63]^    messg[64]^    m
+							      >	    messg[75]^    messg[77]^    messg[80]^    messg[83]^    m
+							      >	    messg[104]^    messg[105]^    messg[108]^    messg[109]^ 
+							      >	    messg[122]^    messg[123]^    messg[125];
+							      >	    
+							      >	    parity[15]=    messg[1]^    messg[2]^    messg[3]^    mes
+							      >	    messg[18]^    messg[19]^    messg[20]^    messg[23]^    m
+							      >	    messg[39]^    messg[40]^    messg[41]^    messg[42]^    m
+							      >	    messg[53]^    messg[56]^    messg[62]^    messg[64]^    m
+							      >	    messg[74]^    messg[75]^    messg[76]^    messg[78]^    m
+							      >	    messg[90]^    messg[92]^    messg[95]^    messg[96]^    m
+							      >	    messg[113]^    messg[122]^    messg[123]^    messg[124]^ 
+							      >	    
+							      >	    rram_encoder =(mode)?({parity,messg}):(144'd0);
+							      >	    
+							      >	  endfunction
+							      >
+
+endmodule							endmodule

@@ -1,0 +1,804 @@
+`include "template.sv"
+
+module sce_tb_rsa_little_endian();
+
+    parameter COREUSERCNT = 8;
+    parameter type coreuser_t = bit[0:COREUSERCNT-1];
+    parameter INTC = 8;
+    parameter ERRC = 8;
+    localparam AW = 16;
+    localparam IDW = 8;
+    localparam DW = 32;
+    localparam UW = 4;
+
+    `include "../tb/sce_tb_v0.1.svh"
+
+    bit clk;
+    bit resetn;
+    bit cmsatpg, cmsbist;
+    coreuser_t   coreuser=8;
+    coreuser_t   sceuser;
+    bit        secmode;
+    ahbif ahbs();
+    axiif axim[0:1]();
+    bit [INTC-1:0] intr;
+    bit [ERRC-1:0] err;
+
+    integer j=0, k=0, errcnt=0, warncnt=0;
+
+
+	bit            hsel;
+	bit  [AW-1:0]  haddr;
+	bit  [1:0]     htrans;
+	bit            hwrite;
+	bit  [2:0]     hsize;
+	bit  [2:0]     hburst;
+	bit  [3:0]     hprot;
+	bit  [IDW-1:0] hmaster;
+	bit   [DW-1:0]  hwdata;
+	bit            hmasterlock;
+	bit            hreadym=1;
+	bit  [UW-1:0]  hauser;
+	bit  [UW-1:0]  hwuser;
+	bit   [DW-1:0]  hrdata;
+	bit            hready;
+	bit            hresp;
+	logic  [UW-1:0]  hruser;
+	bit hdataphase;
+	bit [DW-1:0] hrdatareg;
+	bit hclk;
+    bit [DW-1:0] membuf[0:511];
+    bit [0:31][DW-1:0] refbuf;
+
+    bit [DW-1:0] membufx[0:511];
+    bit [0:31][DW-1:0] refbufx;
+
+    bit [DW-1:0] le_membuf[0:511]; // little endian membuf
+
+    bit probe_pkeram_18d;
+    bit probe_pkeram_14a;
+    bit [15:0]  truststate;
+
+
+  //
+  //  dut
+  //  ==
+
+    sce 
+    dut
+    (
+        .clk    (clk),
+        .clktop (clk),
+        .clksceen('1),
+//        .clkpke(clk),
+        .clkpkeen('1),
+        .resetn (resetn),
+		.*
+    );
+    
+
+    wire2ahbm ahbdrv(.ahbm(ahbs),.*);
+
+  //
+  //  monitor and clk
+  //  ==
+
+    `genclk( clk, 100 )
+    `timemarker2
+    assign hclk = clk;
+
+  //
+  //  subtitle
+  //  ==
+
+    initial begin
+      #(1000 `MS);
+    `maintestend
+
+    `maintest( sce_tb_rsa_little_endian, sce_tb_rsa_little_endian)
+        resetn = 0;
+        #( 2 `US );
+        resetn = 1;
+        #( 2 `US );
+
+        #( 500 `US );
+
+        membuf[0:3] = { 32'h0123_4567, 32'h89ab_cdef, 32'h76543210, 32'hfedc_ba98 };
+
+        memwr('0, 4);
+        memrd('0, 4);
+
+//RSAME 65
+     // Design does not support 64 bit, but some cases pass
+    
+    #( 10 `US );
+    
+        $display("\n@I:: RSAME 65");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd65);
+        sfrwr( PKE_optew, 32'd65);
+
+        //N the modulo for RSA, product of two large prime
+        membuf[0:2] = {32'h00000bcb,32'hc259fee0, 32'h1};memwr(SEGADDR_PCON,3);
+        //membuf[0:2] = {32'h01000000,32'he0fe59c2, 32'hcb0b0000};memwr(SEGADDR_PCON,3);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:2] = {32'h00000000,32'h00000000,32'h2};memwr(SEGADDR_PCON+3,3);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+
+         // RSAME
+        // R1
+            membuf[0:2] ={32'h95286f13,32'h95285c51, 32'h1};memwr(SEGADDR_PIB, 3);
+        // E
+        membuf[0:2] ={32'hb1ca1a4b,32'hb1ca19a9, 32'h1};memwr(SEGADDR_PKB, 3);
+        
+        sfrwr( PKE_crfunc, 32'h13 ); // RSAME
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading RSAME 65 bit clock count\n");
+        sfrrd(GLB_tickcnt);
+        $write("\n Reading RSAME 65 bit result\n");
+        memrd(SEGADDR_POB, 2);//refbuf[0:1] = {32'h41f4cca4,32'h7479d8cf}; checkref(2);
+
+        #( 10 `US );
+    
+        $display("\n@I:: RSAME 65 little endian");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd65);
+        sfrwr( PKE_optew, 32'd65);
+
+        //N the modulo for RSA, product of two large prime
+        membuf[0:2] = {32'h01000000,32'he0fe59c2, 32'hcb0b0000};memwr(SEGADDR_PCON,3);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:3] = {32'h00000000,32'h02000000,32'h0,32'h0};memwr(SEGADDR_PCON+3,4);
+        sfrwr(PKE_optltx, 32'h1f);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+
+         // RSAME
+        // R1
+            membuf[0:2] ={32'h01000000,32'h515c2895, 32'h136f2895};memwr(SEGADDR_PIB, 3);
+        // E
+        membuf[0:2] ={32'h01000000,32'ha919cab1, 32'h4b1acab1};memwr(SEGADDR_PKB, 3);
+        
+        sfrwr( PKE_crfunc, 32'h13 ); // RSAME
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading RSAME 65 bit clock count\n");
+        sfrrd(GLB_tickcnt);
+        $write("\n Reading RSAME 65 bit result\n");
+        memrd(SEGADDR_POB, 3);//refbuf[0:1] = {32'h41f4cca4,32'h7479d8cf}; checkref(2);
+        
+// RSAMM 4096 bit
+    /*
+    #( 10 `US );
+
+        $display("\n@I:: RSA 4096");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd4096);
+        sfrwr( PKE_optew, 32'd256 );
+    #( 1 `US);
+        sfrwr(SDMA_ichcr_segid, 32'h0b09);
+        sfrwr(SDMA_ichcr_transize, 32'd32);
+        sfrwr(SDMA_chstart_ar,32'h5a);
+    //N
+   // split_Big_number();
+        membuf[0:7] =  {32'h57640469,32'h58ec9539,32'h5984fdb1,32'h8e4e2388,32'h754ef476,32'h8b5fa50,32'h37663175,32'h95b31768};
+        membuf[8:15] =  {32'h526703be,32'h690ab73b,32'h1a603838,32'h9b33de47,32'hb52a71a,32'ha7dad0a1,32'h40b4a773,32'hed5f9b6f};
+        membuf[16:23] =  {32'hfdf095a3,32'h2f578b6d,32'h26e352df,32'h1709b368,32'hc561c2b1,32'haff16bc6,32'h87ae4e76,32'he740cdfc};
+        membuf[24:31] =  {32'h400662df,32'h135a3616,32'h6316f070,32'h6a56cb33,32'h8b80ec03,32'h8882f206,32'hf55bce46,32'hecddd557};
+        membuf[32:39] =  {32'h3b11339,32'h7b9be37f,32'hbaffbdb1,32'hfba54ef0,32'h45b9ced8,32'h99168eab,32'h70c4d0ab,32'h65bedcc7};
+        membuf[40:47] =  {32'h2ef9507a,32'hd0a3b8f1,32'h13a85e6c,32'h347b64e6,32'hdb130ff8,32'h4c3466fb,32'he1effc6d,32'hb86c0a95};
+        membuf[48:55] =  {32'ha9e7c06a,32'h7bf9ddb2,32'h57197e67,32'h7c62335e,32'h3597582b,32'h864a33f,32'h31e6f953,32'h4f6e860a};
+        membuf[56:63] =  {32'h5c820cd1,32'he2257b0a,32'h6c59c36b,32'h3be1e6a0,32'h3b4b5138,32'h362e6cbe,32'h46b17026,32'h504c796c};
+        membuf[64:71] =  {32'h57640469,32'h58ec9539,32'h5984fdb1,32'h8e4e2388,32'h754ef476,32'h8b5fa50,32'h37663175,32'h95b31768};
+        membuf[72:79] =  {32'h526703be,32'h690ab73b,32'h1a603838,32'h9b33de47,32'hb52a71a,32'ha7dad0a1,32'h40b4a773,32'hed5f9b6f};
+        membuf[80:87] =  {32'hfdf095a3,32'h2f578b6d,32'h26e352df,32'h1709b368,32'hc561c2b1,32'haff16bc6,32'h87ae4e76,32'he740cdfc};
+        membuf[88:95] =  {32'h400662df,32'h135a3616,32'h6316f070,32'h6a56cb33,32'h8b80ec03,32'h8882f206,32'hf55bce46,32'hecddd557};
+        membuf[96:103] =  {32'h3b11339,32'h7b9be37f,32'hbaffbdb1,32'hfba54ef0,32'h45b9ced8,32'h99168eab,32'h70c4d0ab,32'h65bedcc7};
+        membuf[104:111] =  {32'h2ef9507a,32'hd0a3b8f1,32'h13a85e6c,32'h347b64e6,32'hdb130ff8,32'h4c3466fb,32'he1effc6d,32'hb86c0a95};
+        membuf[112:119] =  {32'ha9e7c06a,32'h7bf9ddb2,32'h57197e67,32'h7c62335e,32'h3597582b,32'h864a33f,32'h31e6f953,32'h4f6e860a};
+        membuf[120:127] =  {32'h5c820cd1,32'he2257b0a,32'h6c59c36b,32'h3be1e6a0,32'h3b4b5138,32'h362e6cbe,32'h46b17026,32'h904c796c};
+
+
+
+
+        memwr(SEGADDR_PCON,128);
+    //H, to fill the remaining position, need to summarize the pattern
+
+        membuf[0:8] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[9:16] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[17:24] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[25:32] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[33:40] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[41:48] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[49:56] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[57:64] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[65:72] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[73:80] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[81:88] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[89:96] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[97:104] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[105:112] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[113:120] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[121:128] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h1};
+        memwr(SEGADDR_PCON+128,'d129);
+
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+   //X
+        membuf[0:7] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[8:15] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[16:23] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[24:31] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[32:39] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[40:47] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[48:55] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[56:63] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+        membuf[64:71] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[72:79] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[80:87] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[88:95] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[96:103] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[104:111] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[112:119] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[120:127] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+
+
+    // Y
+
+        membuf[128:135] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[136:143] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[144:151] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[152:159] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[160:167] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[168:175] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[176:183] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[184:191] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+        membuf[192:199] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[200:207] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[208:215] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[216:223] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[224:231] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[232:239] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[240:247] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[248:255] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+
+        memwr(SEGADDR_PIB, 'd256);
+        sfrwr( PKE_segptr_PIB1, 'd128);
+        sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading 4096 bit RSAMM result\n");
+        memrd(SEGADDR_POB, 128);
+
+
+        */
+// RSA4096 big endian
+     /*
+      #( 10 `US );
+
+        $display("\n@I:: RSA 4096 Big endian");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd4096);
+        sfrwr( PKE_optew, 32'd256 );
+    #( 1 `US);
+        sfrwr(SDMA_ichcr_segid, 32'h0b09);
+        sfrwr(SDMA_ichcr_transize, 32'd32);
+        sfrwr(SDMA_chstart_ar,32'h5a);
+    //N
+   // split_Big_number();
+        membuf[0:7] =  {32'h57640469,32'h58ec9539,32'h5984fdb1,32'h8e4e2388,32'h754ef476,32'h8b5fa50,32'h37663175,32'h95b31768};
+        membuf[8:15] =  {32'h526703be,32'h690ab73b,32'h1a603838,32'h9b33de47,32'hb52a71a,32'ha7dad0a1,32'h40b4a773,32'hed5f9b6f};
+        membuf[16:23] =  {32'hfdf095a3,32'h2f578b6d,32'h26e352df,32'h1709b368,32'hc561c2b1,32'haff16bc6,32'h87ae4e76,32'he740cdfc};
+        membuf[24:31] =  {32'h400662df,32'h135a3616,32'h6316f070,32'h6a56cb33,32'h8b80ec03,32'h8882f206,32'hf55bce46,32'hecddd557};
+        membuf[32:39] =  {32'h3b11339,32'h7b9be37f,32'hbaffbdb1,32'hfba54ef0,32'h45b9ced8,32'h99168eab,32'h70c4d0ab,32'h65bedcc7};
+        membuf[40:47] =  {32'h2ef9507a,32'hd0a3b8f1,32'h13a85e6c,32'h347b64e6,32'hdb130ff8,32'h4c3466fb,32'he1effc6d,32'hb86c0a95};
+        membuf[48:55] =  {32'ha9e7c06a,32'h7bf9ddb2,32'h57197e67,32'h7c62335e,32'h3597582b,32'h864a33f,32'h31e6f953,32'h4f6e860a};
+        membuf[56:63] =  {32'h5c820cd1,32'he2257b0a,32'h6c59c36b,32'h3be1e6a0,32'h3b4b5138,32'h362e6cbe,32'h46b17026,32'h504c796c};
+        membuf[64:71] =  {32'h57640469,32'h58ec9539,32'h5984fdb1,32'h8e4e2388,32'h754ef476,32'h8b5fa50,32'h37663175,32'h95b31768};
+        membuf[72:79] =  {32'h526703be,32'h690ab73b,32'h1a603838,32'h9b33de47,32'hb52a71a,32'ha7dad0a1,32'h40b4a773,32'hed5f9b6f};
+        membuf[80:87] =  {32'hfdf095a3,32'h2f578b6d,32'h26e352df,32'h1709b368,32'hc561c2b1,32'haff16bc6,32'h87ae4e76,32'he740cdfc};
+        membuf[88:95] =  {32'h400662df,32'h135a3616,32'h6316f070,32'h6a56cb33,32'h8b80ec03,32'h8882f206,32'hf55bce46,32'hecddd557};
+        membuf[96:103] =  {32'h3b11339,32'h7b9be37f,32'hbaffbdb1,32'hfba54ef0,32'h45b9ced8,32'h99168eab,32'h70c4d0ab,32'h65bedcc7};
+        membuf[104:111] =  {32'h2ef9507a,32'hd0a3b8f1,32'h13a85e6c,32'h347b64e6,32'hdb130ff8,32'h4c3466fb,32'he1effc6d,32'hb86c0a95};
+        membuf[112:119] =  {32'ha9e7c06a,32'h7bf9ddb2,32'h57197e67,32'h7c62335e,32'h3597582b,32'h864a33f,32'h31e6f953,32'h4f6e860a};
+        membuf[120:127] =  {32'h5c820cd1,32'he2257b0a,32'h6c59c36b,32'h3be1e6a0,32'h3b4b5138,32'h362e6cbe,32'h46b17026,32'h904c796c};
+
+     //   big_to_little();
+
+
+        memwr(SEGADDR_PCON,128);
+    //H, to fill the remaining position, need to summarize the pattern
+
+        membuf[0:8] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[9:16] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[17:24] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[25:32] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[33:40] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[41:48] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[49:56] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[57:64] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[65:72] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[73:80] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[81:88] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[89:96] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[97:104] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[105:112] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[113:120] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0};
+        membuf[121:128] = {32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h0,32'h1};
+        memwr(SEGADDR_PCON+128,'d129);
+        sfrwr(PKE_optltx, 32'h0e);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+   //X
+        membuf[0:7] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[8:15] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[16:23] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[24:31] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[32:39] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[40:47] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[48:55] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[56:63] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+        membuf[64:71] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[72:79] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[80:87] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[88:95] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[96:103] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[104:111] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[112:119] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[120:127] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+
+
+    // Y
+
+        membuf[128:135] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[136:143] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[144:151] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[152:159] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[160:167] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[168:175] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[176:183] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[184:191] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+        membuf[192:199] =  {32'h589c0865,32'hc7c33eee,32'h2d180131,32'hd49e800d,32'h9027fab4,32'ha20f82b9,32'hdb29ff6a,32'h5fa765f};
+        membuf[200:207] =  {32'h7e258c53,32'h26274633,32'h7b441475,32'h3c10eab,32'heb547d58,32'hedd99d02,32'h7746a188,32'h9e1f8b6};
+        membuf[208:215] =  {32'hdeb1cf17,32'hd032d70a,32'h764d4818,32'h8f862685,32'ha378c325,32'he77e8571,32'h62b4e9da,32'h4e1ec85e};
+        membuf[216:223] =  {32'hc126d958,32'h8c4c789c,32'h6319a5c3,32'h3f5450c4,32'h179d4c5,32'h5867c130,32'he459de08,32'h9c176e7e};
+        membuf[224:231] =  {32'h6d6eb3bf,32'h23ddb111,32'h8d91341e,32'hdc94148f,32'h4d41b8dd,32'h8fbd964,32'h471e88ba,32'hba36733e};
+        membuf[232:239] =  {32'h2b6f64f4,32'h5e4d0a90,32'h3b9dfcd0,32'h2eacfb0f,32'hcfb67718,32'hbea15538,32'hd1ebf097,32'h72e25ec7};
+        membuf[240:247] =  {32'h4213f49e,32'h3040c41,32'hb4260582,32'hfd058c6c,32'hcec21a1b,32'h44c3bed2,32'hcca91d47,32'h8a82b741};
+        membuf[248:255] =  {32'hfc406c65,32'hda6b3e4d,32'h411258db,32'h110750cd,32'h944ca991,32'h60c89c5a,32'h7e3e1773,32'h4b8007d4};
+
+        big_to_little();
+
+        memwr(SEGADDR_PIB, 'd256);
+        sfrwr( PKE_segptr_PIB1, 'd128);
+        sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading 4096 bit RSAMM big endian result\n");
+        memrd(SEGADDR_POB, 128);
+
+      */
+//RSAMM 128
+     /*
+        $display("\n@I:: RSAMM 128");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd128);
+        sfrwr( PKE_optew, 32'd128);
+        //N the modulo for RSA, product of two large prime
+        membuf[0:3] = {32'h1,32'h0,32'hbeef9527, 32'hc259feeb};
+        memwr(SEGADDR_PCON,4);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:4] = {32'h00000000,32'h00000000,32'h00000000,32'h00000000,32'h1};
+            memwr(SEGADDR_PCON+4,5);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+    // X
+        membuf[0:3] ={32'h92345678,32'haeebd162, 32'h0, 32'h0};
+    // Y
+        membuf[4:7] ={32'haeebd162,32'h92345678,32'h0,32'h0};
+        memwr(SEGADDR_PIB, 8);
+        sfrwr( PKE_segptr_PIB1, 'd4);
+        sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading 128 bit RSAMM big endianresult\n");
+        memrd(SEGADDR_POB, 4);
+
+*/
+
+//RSAMM 128
+    /*
+
+        $display("\n@I:: RSAMM 128");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd128);
+        sfrwr( PKE_optew, 32'd128);
+        //N the modulo for RSA, product of two large prime
+        membuf[0:3] = {32'h1,32'h0,32'hbeef9527, 32'hc259feeb};
+        memwr(SEGADDR_PCON,4);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:4] = {32'h00000000,32'h00000000,32'h00000000,32'h00000000,32'h1};
+            memwr(SEGADDR_PCON+4,5);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+
+        // X
+        membuf[0:3] ={32'h92345678,32'haeebd162, 32'h0, 32'h0};
+        // Y
+        membuf[4:7] ={32'haeebd162,32'h92345678,32'h0,32'h0};
+        memwr(SEGADDR_PIB, 8);
+        sfrwr( PKE_segptr_PIB1, 'd4);
+        sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading 128 bit RSAMM\n");
+        memrd(SEGADDR_POB, 4);
+
+
+
+        $display("\n@I:: RSAMM 128 big endian");       
+        sfrwr( GLB_suben,'1 );          
+        sfrwr( PKE_optnw, 32'd128);  
+        sfrwr( PKE_optew, 32'd128);
+
+        //N the modulo for RSA, product of two large prime      
+            membuf[0:3] = {32'hEBFE59C2,32'h2795EFBE,32'h00000000, 32'h01000000};
+            memwr(SEGADDR_PCON,4);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen, divisible by 64
+            membuf[0:5] = {32'h00000000,32'h01000000,32'h00000000,32'h00000000,32'h0,32'h00000000};
+            memwr(SEGADDR_PCON+4,6);
+
+            sfrwr(PKE_optltx, 32'h1f);  //endian setting
+            sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+            sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        // X
+            membuf[0:3] ={32'h0,32'h0, 32'h62D1EBAE, 32'h78563492};
+        // Y
+            membuf[4:7] ={32'h0,32'h0,32'h78563492, 32'h62D1EBAE};
+            memwr(SEGADDR_PIB, 8);
+        
+            sfrwr( PKE_segptr_PIB1, 'd4);
+            sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+            sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+            $write("\n Reading 128 bit RSAMM big endian result\n");
+            memrd(SEGADDR_POB, 4);
+       */
+//RSAMM 64
+     /*
+        $display("\n@I:: RSAMM 64");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd64);
+        sfrwr( PKE_optew, 32'd64);
+        //N the modulo for RSA, product of two large prime
+        membuf[0:1] = {32'h000003D9,32'h8fffffbe};
+        memwr(SEGADDR_PCON,2);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:2] = {32'h00000000,32'h00000000,32'h1};
+            memwr(SEGADDR_PCON+2,3);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+    // X
+        membuf[0:1] ={32'hb,32'h0};
+    // Y
+        membuf[2:3] ={32'h7,32'h0};
+        memwr(SEGADDR_PIB, 4);
+        sfrwr( PKE_segptr_PIB1, 'h2);
+        sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading 64 bit RSAMM result\n");
+        memrd(SEGADDR_POB, 2);
+ 
+
+//RSAMM 64 Little endian
+         $display("\n@I:: RSAMM 64");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd64);
+        sfrwr( PKE_optew, 32'd64);
+        //N the modulo for RSA, product of two large prime
+       // membuf[0:1] = {32'h000003D9,32'h8fffffbe};
+          membuf[0:1] = {32'hbeffff8f,32'hd9030000};
+        memwr(SEGADDR_PCON,2);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:2] = {32'h01000000,32'h00000000,32'h0};
+            memwr(SEGADDR_PCON+2,3);
+            sfrwr(PKE_optltx, 32'h1f);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+    // X
+        membuf[0:1] ={32'h0,32'h0b000000};
+        
+    // Y
+        membuf[2:3] ={32'h0,32'h07000000};
+     //   big_to_little();
+        memwr(SEGADDR_PIB, 4);
+        sfrwr( PKE_segptr_PIB1, 'h2);
+        sfrwr( PKE_crfunc, 32'h12 ); // RSAMM
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        $write("\n Reading 64 bit RSAMM result\n");
+        memrd(SEGADDR_POB, 2);
+*/
+  
+// RSA MA 64
+    /*
+    #( 10 `US );
+
+        $display("\n@I:: RSAMA 64");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd64);
+        sfrwr( PKE_optew, 32'd64);
+
+    #( 1 `US);
+        sfrwr(SDMA_ichcr_segid, 32'h0b09);
+        sfrwr(SDMA_ichcr_transize, 32'd32);
+        sfrwr(SDMA_chstart_ar,32'h5a);
+
+        //N the modulo for RSA, product of two large prime
+        membuf[0:1] = {32'h000003D9,32'h8fffffbe};
+        memwr(SEGADDR_PCON,2);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:2] = {32'h00000000,32'h00000000,32'h1};
+        memwr(SEGADDR_PCON+2,3);
+        sfrwr( PKE_optmask, 32'h1);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        // X
+               membuf[0:1] = {32'h000003D5,32'h8fffffbe};
+        // Y
+            membuf[2:3] =  {32'h3,32'h0};
+            memwr(SEGADDR_PIB, 4);
+            sfrwr( PKE_segptr_PIB1, 'h2);
+            sfrwr( PKE_crfunc, 32'h19 ); // RSAMA
+            sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+            $write("\n Reading 64 bit RSAMA result\n");
+            memrd(SEGADDR_POB, 2);refbuf[0:1] = {32'h4,32'h0};checkref(2);
+
+
+    
+        
+    #( 10 `US );
+
+        $display("\n@I:: RSAMA 64");
+        sfrwr( GLB_suben,'1 );
+        sfrwr( PKE_optnw, 32'd64);
+        sfrwr( PKE_optew, 32'd64);
+
+    #( 1 `US);
+        sfrwr(SDMA_ichcr_segid, 32'h0b09);
+        sfrwr(SDMA_ichcr_transize, 32'd32);
+        sfrwr(SDMA_chstart_ar,32'h5a);
+
+        //N the modulo for RSA, product of two large prime
+        membuf[0:1] = {32'h000003D9,32'h8fffffbe};
+        //  big_to_little();
+        memwr(SEGADDR_PCON,2);
+
+        //H, to fill the remaining position, need to summarize the pattern, H = 1 << NLen
+        membuf[0:2] = {32'h00000000,32'h00000000,32'h1};
+        memwr(SEGADDR_PCON+2,3);
+       
+        sfrwr( PKE_optmask, 32'h1);
+        sfrwr(PKE_optltx, 32'h0f);
+        sfrwr( PKE_crfunc, 32'h11); //RSAINIT
+        sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+        // X
+               membuf[0:1] = {32'h000003D5,32'h8fffffbe};
+        // {membuf[0], membuf[1]} =   {membuf[1], membuf[0]};
+        
+        // Y
+            membuf[2:3] =  {32'h3,32'h0};
+         //       {membuf[2], membuf[3]} =   {membuf[3], membuf[2]};
+             big_to_little();
+            memwr(SEGADDR_PIB, 4);
+            
+            sfrwr( PKE_segptr_PIB1, 'h2);
+            sfrwr( PKE_crfunc, 32'h19 ); // RSAMM
+            sfrwr( PKE_ar, 32'h5a ); sfrwait(PKE_fr, 32'h1, 32'h1); sfrwr(PKE_fr, 32'h1);
+            $write("\n Reading 64 bit RSAMA result\n");
+          
+            memrd(SEGADDR_POB, 2);//refbuf[0:1] = {32'h4,32'h0};checkref(2);
+    
+*/
+
+`maintestend
+
+
+
+
+
+    task memwr();
+        input bit [AW-1:0] thaddr;
+        input integer tc;
+        $write("@::memwr:: %04x <- ", SCERAM_BA+thaddr );
+        for (int i = 0; i < tc; i++) begin
+            ahbwr( (SCERAM_BA+thaddr+i)*4, membuf[i] );
+            $write(" %08x", membuf[i]);
+            @(negedge hclk);
+        end
+        $write("\n");
+    endtask
+
+    task memrd();
+        input bit [AW-1:0] thaddr;
+        input integer tc;
+        $write("@::memrd:: %04x -> ", SCERAM_BA+thaddr );
+        for (int i = 0; i < tc; i++) begin
+            ahbrd( (SCERAM_BA+thaddr+i)*4 );
+            @(negedge hdataphase);
+            @(negedge hclk);
+            membuf[i] = hrdatareg;
+            $write(" %08x", membuf[i]);
+        end
+        $write("\n");
+    endtask
+
+    task checkref();
+        input integer tc;
+        bit checkbit=1;
+        checkbit='1;
+        $write("@::chref:: ---- -> " );
+        for (int i = 0; i < tc; i++) begin
+            $write(" %08x", refbuf[i]);
+            checkbit = checkbit & ( refbuf[i] == membuf[i] );
+            if(refbuf[i] != membuf[i] )
+            $write("@E: !!![%02d][ref:%08x][mem:%08x]\n",i,refbuf[i],membuf[i]);
+        end
+        $write(" %01x \n", checkbit);
+        if(checkbit)
+            $write("@i: PASS!\n");
+        else begin
+            errcnt = errcnt + 1;
+            $write("@E: FAIL! %0d\n", errcnt);
+           // $stop;
+        end
+        sfrrd(GLB_tickcyc);
+        sfrrd(GLB_tickcnt);
+    endtask
+
+    task sfrwr();
+        input bit  [AW-1:0]  thaddr;
+        input bit  [DW-1:0]  thwdata;
+        $write("@::sfrwr:: %04x <- ", thaddr );
+        ahbwr( thaddr, thwdata );
+        $write(" %08x", thwdata );
+        $write("\n");
+    endtask
+
+
+    task sfrrd();
+        input bit [AW-1:0] thaddr;
+        $write("@::sfrrd:: %04x -> ", thaddr );
+        ahbrd( thaddr );
+        @(negedge hdataphase);
+        @(negedge hclk);
+        $write(" %08x", hrdatareg);
+        $write("\n");
+    endtask
+
+    task sfrwait();
+        input bit [AW-1:0] thaddr;
+        input bit [DW-1:0] texpdata;
+        input bit [DW-1:0] tmask;
+
+        $write("@::sfrwait:: %04x == %08x & %08x ? ", thaddr, texpdata, tmask );
+        while(1)begin
+            ahbrd( thaddr );
+            @(negedge hdataphase);
+            @(negedge hclk);
+            if( hrdatareg & tmask == texpdata ) break;
+        end
+        $write(" done! ");
+        $write("\n");
+    endtask
+
+    
+
+// ■■■■■■■■■■■■■■■ 
+
+    task ahbrd();
+        input bit  [AW-1:0]  thaddr;
+        @( posedge hready & clk);
+        @(negedge hclk);
+        hsel = 1;
+        haddr = thaddr;
+        htrans = 'h2;
+        hwrite = '0;
+        @(negedge hclk);
+        hsel = 0;
+    endtask : ahbrd
+
+        `theregrn(hdataphase) <= ( hsel & hreadym & |htrans & ~hwrite ) ? 1 : hready ? 0 : hdataphase;
+        `theregrn(hrdatareg) <= hdataphase & hready ? hrdata : hrdatareg;
+
+    task ahbwr();
+        input bit  [AW-1:0]  thaddr;
+        input bit  [DW-1:0]   thwdata;
+        @( posedge hready & clk);
+        @(negedge hclk);
+        hsel = 1;
+        haddr = thaddr;
+        htrans = 'h2;
+        hwrite = '1;
+        hwdata = thwdata;
+        @(negedge hclk);
+        hsel = 0;
+        hwrite = '0;
+    endtask : ahbwr
+
+    task big_to_little();
+    integer i;
+
+        for(i = 0; i <512; i = i+1)begin
+    le_membuf[i] = {membuf[i][7:0],membuf[i][15:8],membuf[i][23:16],membuf[i][31:24]};
+        end
+        
+        for(i = 0; i <512; i = i+1)begin
+            membuf[i] = le_membuf[i];
+        end
+    endtask
+
+        task split_Big_number();
+    integer i;
+    reg [4095:0] bigNumber = 4096'h0x7d05ff6f7d05fe7e7d05fd8d7d05fc9c7d05fbab7d05faba7d05f9c97d05f8d87d05f7e77d05f6f67d05f6057d05f5147d05f4237d05f3327d05f2417d05f1507d05f05f7d05ef6e7d05ee7d7d05ed8c7d05ec9b7d05ebaa7d05eab97d05e9c87d05e8d77d05e7e67d05e6f57d05e6047d05e5137d05e4227d05e3317d05e2407d05e14f7d05e05e7d05df6d7d05de7c7d05dd8b7d05dc9a7d05dba97d05dab87d05d9c77d05d8d67d05d7e57d05d6f47d05d6037d05d5127d05d4217d05d3307d05d23f7d05d14e7d05d05d7d05cf6c7d05ce7b7d05cd8a7d05cc997d05cba87d05cab77d05c9c67d05c8d57d05c7e47d05c6f37d05c6027d05c5117d05c4207d05c32f7d05c23e7d05c14d7d05c05c7d05bf6b7d05be7a7d05bd897d05bc987d05bba77d05bab67d05b9c57d05b8d47d05b7e37d05b6f27d05b6017d05b5107d05b41f7d05b32e7d05b23d7d05b14c7d05b05b7d05af6a7d05ae797d05ad887d05ac977d05aba67d05aab57d05a9c47d05a8d37d05a7e27d05a6f17d05a6007d05a50f7d05a41e7d05a32d7d05a23c7d05a14b7d05a05a7d059f697d059e787d059d877d059c967d059ba57d059ab47d0599c37d0598d27d0597e17d0596f07d0595ff7d05950e7d05941d7d05932c7d05923b7d05914a7d0590597d058f687d058e777d058d867d058c957d058ba400000007;
+   
+    for(i = 0; i< 128; i = i+1) begin
+        membuf[i] = bigNumber[i*32 +:32];
+    end
+
+    for(i = 0; i < 128; i=i+8) begin
+      $display("membuf[%0d:%0d] =  {32'h%0h,32'h%0h,32'h%0h,32'h%0h,32'h%0h,32'h%0h,32'h%0h,32'h%0h};", i+128, i+7+128,  membuf[i],membuf[i+1], membuf[i+2], membuf[i+3], membuf[i+4], membuf[i+5], membuf[i+6], membuf[i+7]);
+    end
+    endtask
+
+
+endmodule
+
+
+    module wire2ahbm #(
+      parameter AW=16,
+      parameter DW=32,
+      parameter IDW=8,
+      parameter UW=4
+     )(
+        ahbif.master          ahbm,
+        input wire            hsel,
+        input wire  [AW-1:0]  haddr,
+        input wire  [1:0]     htrans,
+        input wire            hwrite,
+        input wire  [2:0]     hsize,
+        input wire  [2:0]     hburst,
+        input wire  [3:0]     hprot,
+        input wire  [IDW-1:0] hmaster,
+        input bit   [DW-1:0]  hwdata,
+        input wire            hmasterlock,
+        input wire            hreadym,
+        input wire  [UW-1:0]  hauser,
+        input wire  [UW-1:0]  hwuser,
+        output bit   [DW-1:0]  hrdata,
+        output wire            hready,
+        output wire            hresp,
+        output logic  [UW-1:0]  hruser
+    );
+        assign ahbm.hsel = hsel;
+        assign ahbm.haddr = haddr;
+        assign ahbm.htrans = htrans;
+        assign ahbm.hwrite = hwrite;
+        assign ahbm.hsize = hsize;
+        assign ahbm.hburst = hburst;
+        assign ahbm.hprot = hprot;
+        assign ahbm.hmaster = hmaster;
+        assign ahbm.hwdata = hwdata;
+        assign ahbm.hmasterlock = hmasterlock;
+        assign ahbm.hreadym = hreadym;
+        assign ahbm.hauser = hauser;
+        assign ahbm.hwuser = hwuser;
+
+        assign hrdata = ahbm.hrdata;
+        assign hready = ahbm.hready;
+        assign hresp = ahbm.hresp;
+        assign hruser = ahbm.hruser;
+
+    endmodule

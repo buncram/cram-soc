@@ -1,0 +1,7 @@
+`include "rtl/dft/bscell.sv"
+//`include "rtl/dft/jtag_enable.sv"
+//`include "rtl/dft/jtag_enable_synch.sv"
+`include "rtl/dft/jtagreg.sv"
+//`include "rtl/dft/jtag_rst_synch.sv"
+`include "rtl/dft/jtag_sync.sv"
+`include "rtl/dft/tap_top.v"

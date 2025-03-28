@@ -1,0 +1,17 @@
+2030704
+1.modify digitalization parallel to serial design.
+2.modify healthtest counter design.
+3.clear up test steps in tb_rng_top
+
+20230709
+1.add parameter ANA_NUM
+2.modify TRNG+LFSR design
+
+20230803
+1.add parameter ANA_NUM in rng_top.v and tb_rng_top.v
+
+20230816
+1.add seed configure to step5 in tb_rng_top.v
+
+20230823
+1.add descrition of each step in tb_rng_top.v
