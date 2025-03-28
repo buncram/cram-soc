@@ -15,7 +15,7 @@ jobs:
             const commentBody = `
 This project enforces the [Developer Certificate of Origin (DCO)](https://developercertificate.org/).
 
-By signing off your commits, you acknowledge this DCO on behalf of ACME Corp contributors.
+By signing off your commits, you acknowledge this DCO on behalf of CrossBar Inc. contributors.
 `;
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -37,3 +37,4 @@ By signing off your commits, you acknowledge this DCO on behalf of ACME Corp con
               });
             } else {
               console.log("DCO message already posted.");
+            }
