@@ -49,10 +49,12 @@ do_not_checkin/
 soc_mpw/
 
 # files under review for checking into github
-soc_oss/common
-soc_oss/ips
-soc_oss/rtl
-soc_oss/tb
+# these are now reviewed and approved for publication
+# soc_oss/common
+# soc_oss/ips
+# soc_oss/rtl
+# soc_oss/tb
+
 # this is the contents of soc_oss as taped out. Small modifications
 # are made to files in soc_oss to make automated documentation easier.
 soc_oss_tapeout/
