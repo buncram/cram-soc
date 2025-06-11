@@ -25,7 +25,7 @@ module bioram1kx32 (q, clk, cen, wen, a, d, ema, emaw, emas, gwen, ret1n, wabl, 
   reg [RAM_DATA_WIDTH-1:0] mem[(2**RAM_ADDR_WIDTH)-1:0];
 
   integer i, j, k;
-
+`ifdef SIM
   initial begin
       for (i = 0; i < 2**RAM_ADDR_WIDTH; i = i + 2**(RAM_ADDR_WIDTH/2)) begin
           for (j = i; j < i + 2**(RAM_ADDR_WIDTH/2); j = j + 1) begin
@@ -33,6 +33,7 @@ module bioram1kx32 (q, clk, cen, wen, a, d, ema, emaw, emas, gwen, ret1n, wabl, 
           end
       end
   end
+`endif
 
 always @(posedge clk) begin
     if (!cen) begin
