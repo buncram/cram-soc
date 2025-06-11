@@ -98,7 +98,7 @@ else
   # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature satp-tests --feature irq-tests --feature coreuser-onehot
   cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature reset-value-tests --feature bio-tests
   # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature aes-tests --feature reset-value-tests --feature coreuser-onehot
-  python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../daric/daricval/examples/mbox/mbox.bin --out-file=boot.bin
+  python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../nto-tests/cm7/mbox.bin --out-file=boot.bin
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > ../cram-soc/listings/boot.lst
   riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/tests | rustfilt >> ../cram-soc/listings/boot.lst
