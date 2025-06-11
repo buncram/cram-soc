@@ -95,8 +95,9 @@ else
   # change --boot-offset in the cramy_soc.py commandline to match what is in link.x!!
   # --feature mbox-tests --feature rram-tests --feature udma-tests
   # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature reset-value-tests --feature aes-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature timer0-tests
-  # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature satp-tests --feature irq-tests --feature coreuser-lutop
-  cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature aes-tests --feature reset-value-tests --feature bio-tests --feature gpio-tests --feature satp-tests --feature irq-tests --feature wfi-tests --feature rram-tests --feature timer0-tests --feature coreuser-lutop
+  # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature satp-tests --feature irq-tests --feature coreuser-onehot
+  cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature reset-value-tests --feature bio-tests
+  # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature aes-tests --feature reset-value-tests --feature coreuser-onehot
   python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../daric/daricval/examples/mbox/mbox.bin --out-file=boot.bin
 
   riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > /mnt/f/code/cram-soc/listings/boot.lst
