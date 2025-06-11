@@ -100,9 +100,9 @@ else
   # cargo xtask boot-image --no-default-features --feature fast-fclk --feature quirks-pll --feature aes-zkn --feature bio-mul --feature aes-tests --feature reset-value-tests --feature coreuser-onehot
   python3 ./merge_cm7.py --rv32=rv32.bin --cm7=../daric/daricval/examples/mbox/mbox.bin --out-file=boot.bin
 
-  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > /mnt/f/code/cram-soc/listings/boot.lst
-  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/tests | rustfilt >> /mnt/f/code/cram-soc/listings/boot.lst
-  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/tests -S -d | rustfilt >> /mnt/f/code/cram-soc/listings/boot.lst
+  riscv-none-elf-objdump -h target/riscv32imac-unknown-none-elf/release/tests > ../cram-soc/listings/boot.lst
+  riscv-none-elf-nm -r --size-sort --print-size target/riscv32imac-unknown-none-elf/release/tests | rustfilt >> ../cram-soc/listings/boot.lst
+  riscv-none-elf-objdump target/riscv32imac-unknown-none-elf/release/tests -S -d | rustfilt >> ../cram-soc/listings/boot.lst
 
   cd ../cram-soc
   BIOS="../nto-tests/boot.bin"
