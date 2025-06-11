@@ -4,6 +4,7 @@
 `endif
 
 // `define FPGA 1
++`define USE_OSS_BRIDGE
 
 // When this is defined, instructions take an extra cycle
 // to execute, but the critical path is shorter.
