@@ -12,6 +12,8 @@
 # - DDR3 should be disabled: ex --integrated-main-ram-size=8192
 # - Clk Freq should be lowered: ex --sys-clk-freq=50e6
 
+# Complied with: --build --no-uart --cpu-reset-address 0x40000000 --cpu-variant imac+debug --integrated-rom-size 0
+
 from migen import *
 
 from litex.gen import *
