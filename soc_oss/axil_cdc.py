@@ -68,6 +68,7 @@ class AXILiteCDC(Module):
             i_s_rst = ResetSignal(s_axil.clock_domain),
             i_m_clk = ClockSignal(m_axil.clock_domain),
             i_m_rst = ResetSignal(m_axil.clock_domain),
+            i_clkmode = 0,
 
             # AXI-Lite Slave Interface.
             # -------------------------
