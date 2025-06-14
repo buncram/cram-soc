@@ -49,7 +49,8 @@ class _CRG(LiteXModule):
 
         # # #
         self.cd_p   = ClockDomain()
-        self.cd_h_clk = ClockDomain()
+        # self.cd_h_clk = ClockDomain()
+        self.cd_bio = ClockDomain()
 
         # Clk/Rst.
         clk100 = platform.request("clk100")
@@ -62,7 +63,8 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         # pll.create_clkout(self.cd_eth, 25e6)
         pll.create_clkout(self.cd_p, sys_clk_freq)
-        pll.create_clkout(self.cd_h_clk, sys_clk_freq)
+        # pll.create_clkout(self.cd_h_clk, sys_clk_freq)
+        pll.create_clkout(self.cd_bio, 2*sys_clk_freq)
 
         # self.comb += platform.request("eth_ref_clk").eq(self.cd_eth.clk)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin) # Ignore sys_clk to pll.clkin path created by SoC's rst.
@@ -227,7 +229,7 @@ class BaseSoC(SoCCore):
             self.bus.add_slave("can0", self.can0.bus, SoCRegion(origin=0xb0010000, size=0x10000, mode="rw", cached=False))
             self.irq.add("can0")
 
-        self.add_uartbone(name="serial", baudrate=115200)
+        self.add_uartbone(name="serial", baudrate=1_000_000)
 
         # UART -------------------------------------------------------------------------------------
         if True:
@@ -255,7 +257,7 @@ class BaseSoC(SoCCore):
             from soc_oss.axi_axil_adapter import AXI2AXILiteAdapter
             from litex.build.generic_platform import Subsignal, Pins, IOStandard
 
-            self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets sys_clk]")
+            self.platform.add_platform_command("set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets bio_clk]")
             self.platform.add_platform_command('set_false_path -through [get_nets *_rst]')
 
             pio = [
@@ -355,7 +357,7 @@ class BaseSoC(SoCCore):
                 bdma_fifo += [getattr(self, fifo_name + "_ahb")]
 
             from soc_oss.bio_bdma_adapter import BioBdmaAdapter
-            clock_remap = {"bio" : "sys"}
+            clock_remap = {"h_clk" : "sys"}
             self.submodules.bioadapter = ClockDomainsRenamer(clock_remap)(BioBdmaAdapter(platform,
                 getattr(self, name + "_ahb"),
                 bdma_imem,
@@ -387,7 +389,7 @@ def main():
     parser = LiteXArgumentParser(platform=digilent_arty.Platform, description="LiteX SoC on Arty A7.")
     parser.add_target_argument("--flash",          action="store_true",       help="Flash bitstream.")
     parser.add_target_argument("--variant",        default="a7-100",           help="Board variant (a7-35 or a7-100).")
-    parser.add_target_argument("--sys-clk-freq",   default=50e6, type=float, help="System clock frequency.")
+    parser.add_target_argument("--sys-clk-freq",   default=40e6, type=float, help="System clock frequency.")
     parser.add_target_argument("--with-xadc",      action="store_true",       help="Enable 7-Series XADC.")
     parser.add_target_argument("--with-dna",       action="store_true",       help="Enable 7-Series DNA.")
     parser.add_target_argument("--with-usb",       action="store_true",       help="Enable USB Host.")
