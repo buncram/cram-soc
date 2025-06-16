@@ -441,6 +441,10 @@ def main():
         soc.add_jtagbone()
 
     builder = Builder(soc, **parser.builder_argdict)
+    # Set `defines that establish the correct verilog environment
+    # Quadruple parenthesis are needed because {{}} is stripped by two successive .format() calls in this chain {{{{FPGA USE_OSS_BRIDGE}}}}
+    soc.platform.toolchain.project_commands.add(r'set_property VERILOG_DEFINE {{{{FPGA USE_OSS_BRIDGE}}}} [get_filesets sources_1]')
+
     builder.csr_csv = "build/csr.csv"
     builder.csr_svd = "build/software/soc.svd"
     if args.build:
