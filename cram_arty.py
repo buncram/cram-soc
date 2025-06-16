@@ -310,6 +310,7 @@ def main():
         with_spi_flash = args.with_spi_flash,
         with_pmod_gpio = args.with_pmod_gpio,
     )
+    soc.platform.toolchain.project_commands.add(r'set_property VERILOG_DEFINE {{{{FPGA USE_OSS_BRIDGE}}}} [get_filesets sources_1]')
 
     builder = Builder(
         soc,
