@@ -172,9 +172,15 @@ class HistogramWidget(npyscreen.MultiLineAction):
             return super().handle_input(key)
 
     def filter(self, filter_string):
+        is_negative = False
         is_regex = False
         pattern = None
         paths = []
+
+        # Detect negative filters.
+        if filter_string.startswith('-'):
+            is_negative = True
+            filter_string = filter_string[1:]
 
         # Detect raw regex pattern: starts with r" and ends with "
         if filter_string.startswith('r"') and filter_string.endswith('"') and len(filter_string) > 3:
@@ -182,10 +188,8 @@ class HistogramWidget(npyscreen.MultiLineAction):
                 pattern = re.compile(filter_string[2:-1])
                 is_regex = True
             except re.error:
+                npyscreen.notify_confirm(f"Invalid regular expression, ignoring.", title="Notice")
                 return  # Invalid regex: ignore filtering
-        elif len(filter_string) <= 4:
-            self.bins = bin_results_by_slack(self.paths, self.min_slack, self.max_slack, self.width - 2)
-            return
 
         for path in self.paths:
             target_fields = [path['startpoint'], path['endpoint']]
@@ -193,9 +197,15 @@ class HistogramWidget(npyscreen.MultiLineAction):
 
             if is_regex:
                 if any(pattern.search(field) for field in target_fields):
+                    if not is_negative:
+                        paths.append(path)
+                elif is_negative:
                     paths.append(path)
             else:
                 if any(filter_string in field for field in target_fields):
+                    if not is_negative:
+                        paths.append(path)
+                elif is_negative:
                     paths.append(path)
 
         if len(paths) > 0:
