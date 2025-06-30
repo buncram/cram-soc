@@ -189,6 +189,14 @@ class DetailPopup(npyscreen.ActionFormV2):
     def on_cancel(self):
         self.parentApp.setNextForm("MAIN")
 
+    def handle_input(self, key):
+        if key not in (curses.KEY_UP, curses.KEY_DOWN, 450, 456):
+            self.on_cancel()
+            self.editing = False
+            self.exit_editing()
+            return
+        return super().handle_input(key)
+
 class SelectableMultiLine(npyscreen.MultiLine):
     def handle_input(self, key):
         if key in ("KEY_UP", "KEY_DOWN"):
