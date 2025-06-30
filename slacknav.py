@@ -171,6 +171,40 @@ class HistogramWidget(npyscreen.MultiLineAction):
         else:
             return super().handle_input(key)
 
+    def filter(self, filter_string):
+        is_regex = False
+        pattern = None
+        paths = []
+
+        # Detect raw regex pattern: starts with r" and ends with "
+        if filter_string.startswith('r"') and filter_string.endswith('"') and len(filter_string) > 3:
+            try:
+                pattern = re.compile(filter_string[2:-1])
+                is_regex = True
+            except re.error:
+                return  # Invalid regex: ignore filtering
+        elif len(filter_string) <= 4:
+            self.bins = bin_results_by_slack(self.paths, self.min_slack, self.max_slack, self.width - 2)
+            return
+
+        for path in self.paths:
+            target_fields = [path['startpoint'], path['endpoint']]
+            target_fields += path.get('collapsed_paths', [])
+
+            if is_regex:
+                if any(pattern.search(field) for field in target_fields):
+                    paths.append(path)
+            else:
+                if any(filter_string in field for field in target_fields):
+                    paths.append(path)
+
+        if len(paths) > 0:
+            # use the current "zoom" settings
+            bins = bin_results_by_slack(paths, self.min_slack, self.max_slack, self.width - 2)
+            self.bins = bins
+            self.update_histogram()
+            self.parent.update_display()
+            self.display()
 
 class DetailPopup(npyscreen.ActionFormV2):
     preloaded_content = ""
@@ -216,7 +250,6 @@ class SelectableMultiLine(npyscreen.MultiLine):
             self.parent.toggle_item(self.cursor_line)
         else:
             return super().handle_input(key)
-
 class PathListWidget(npyscreen.MultiLineAction):
     def __init__(self, *args, **keywords):
         super().__init__(*args, **keywords)
@@ -228,9 +261,8 @@ class PathListWidget(npyscreen.MultiLineAction):
 
     def actionHighlighted(self, act_on_this=None, key_press=None):
         details = self.entry_data[self.cursor_line]
-        # npyscreen.notify_confirm(f"selected {details}", title="Path details") #, wide = True
-        form_class, _, _ = self.parent.parentApp._Forms["DETAIL_POPUP"]
-        form_class.preloaded_content = details
+        form = self.parent.parentApp.getForm("DETAIL_POPUP")
+        form.preloaded_content = details
         self.parent.parentApp.switchForm("DETAIL_POPUP")
 
     def update_paths(self, paths):
@@ -274,9 +306,21 @@ class MainApp(npyscreen.NPSAppManaged):
         super().__init__()
 
     def onStart(self):
-        self.addFormClass("DETAIL_POPUP", DetailPopup)
         self.addForm("MAIN", MainForm, name="Path Delay UI")
-        self.setNextForm("MAIN")
+        self.addForm("DETAIL_POPUP", DetailPopup)
+
+    def onCleanExit(self):
+        print("Exiting app")
+
+class FilterText(npyscreen.TitleText):
+    def handle_input(self, key):
+        result = super().handle_input(key)
+
+        # Only apply filter if this widget is actively being edited
+        if self.editing:
+            self.parent.apply_filter(self.value.strip())
+
+        return result
 
 class MainForm(npyscreen.FormBaseNew):
     def create(self):
@@ -304,7 +348,7 @@ class MainForm(npyscreen.FormBaseNew):
                                   relx=2, rely=hist_height, max_height=path_height)
 
         # Filter input box (bottom line)
-        self.filter_input = self.add(npyscreen.TitleText, name="Filter:",
+        self.filter_input = self.add(FilterText, name="Filter:",
                                      relx=0, rely=hist_height + path_height,
                                      max_height=1, max_width=max_x - 4)
         self.filter_input.when_value_edited = self.on_filter_change
@@ -322,10 +366,6 @@ class MainForm(npyscreen.FormBaseNew):
     def get_paths_in_selected_bin(self):
         return self.histogram.bins[self.histogram.selected_bin]
 
-    def set_editing(self, widget):
-        for w in self.pane_order:
-            w.editing = (w == widget)
-
     def handle_input(self, key):
         if key != -1:
             self.process_key(key)
@@ -340,13 +380,9 @@ class MainForm(npyscreen.FormBaseNew):
         filter_val = self.filter_input.value.strip()
         self.apply_filter(filter_val)
         self.update_display()
-        self.parentApp.setNextForm(None)
 
     def apply_filter(self, filter_string):
-        # Logic to re-filter self.paths based on filter_string
-        # self.filtered_data = filter_paths(self.paths, filter_string)
-        pass
-        # Re-bin or refresh data
+        self.histogram.filter(filter_string)
 
     def on_filter_change(self):
         filter_val = self.filter_input.value.strip()
