@@ -142,21 +142,22 @@ class HistogramWidget(npyscreen.MultiLineAction):
                 line[x] = char
                 display_lines[row] = "".join(line)
 
-        # Label top Y-axis
-        display_lines.insert(0, f"max={max_count}".ljust(width))
-
         # Label X-axis with start slack of each bin
         slack_labels = [""] * width
-        if hasattr(self, "min_slack") and hasattr(self, "max_slack"):
-            slack_range = self.max_slack - self.min_slack
-            slack_step = slack_range / bin_count
-            for x in range(0, width, max(1, width // 8)):
-                slack_value = self.min_slack + (x * slack_step)
-                label = f"{slack_value:.3f}"
-                for i, ch in enumerate(label):
-                    if x + i < width:
-                        slack_labels[x + i] = ch
+        slack_range = self.max_slack - self.min_slack
+        slack_step = slack_range / bin_count
+        for x in range(0, width, max(1, width // 8)):
+            slack_value = self.min_slack + (x * slack_step)
+            label = f"{slack_value:.3f}"
+            for i, ch in enumerate(label):
+                if x + i < width:
+                    slack_labels[x + i] = ch
         display_lines.append("".join(ch or " " for ch in slack_labels))
+
+        # Label top Y-axis
+        selected_count = len(self.bins[self.selected_bin])
+        selected_slack = slack_step * self.selected_bin + self.min_slack
+        display_lines.insert(0, f"max={max_count} selected={selected_count}({selected_slack:.4f}ns)".ljust(width))
 
         self.values = display_lines
         self.display()
@@ -260,71 +261,6 @@ class PathListWidget(npyscreen.MultiLineAction):
             key = curses.KEY_DOWN
         return super().handle_input(key)
 
-class FilterWidget(npyscreen.BoxTitle):
-    def __init__(self, *args, category=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.category = category
-        self.selected_items = set()
-
-    def update_filter_items(self, data):
-        items = {p[self.category] for p in data}
-        self.values = ["*"] + sorted(items)
-
-    def toggle_item(self, index):
-        item = self.values[index]
-        if item == "*":
-            self.selected_items = set()
-        elif item in self.selected_items:
-            self.selected_items.remove(item)
-        else:
-            self.selected_items.add(item)
-
-class CommandLine(npyscreen.Textfield):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.command_history = []
-        self.history_index = -1
-        self.prompt = "slacknav> "
-        self.value = self.prompt
-        self.cursor_position = len(self.value)
-
-    def get_user_input(self):
-        return self.value[len(self.prompt):]
-
-    def process_command(self):
-        cmd = self.get_user_input().strip()
-        if cmd:
-            if cmd == 'quit' or cmd == 'exit':
-                exit(0)
-            else:
-                self.command_history.append(cmd)
-                self.history_index = len(self.command_history)
-                npyscreen.notify_confirm(f"Echo: {cmd}", title="Command Output", wide=True)
-        self.value = self.prompt
-        self.cursor_position = len(self.value)
-
-    def history_up(self):
-        if self.history_index > 0:
-            self.history_index -= 1
-            self.value = self.prompt + self.command_history[self.history_index]
-            self.cursor_position = len(self.value)
-
-    def history_down(self):
-        if self.history_index < len(self.command_history) - 1:
-            self.history_index += 1
-            self.value = self.prompt + self.command_history[self.history_index]
-        else:
-            self.value = self.prompt
-        self.cursor_position = len(self.value)
-
-    def when_value_edited(self):
-        if not self.value.startswith(self.prompt):
-            self.value = self.prompt + self.get_user_input()
-        self.cursor_position = len(self.value)
-
-    def h_exit_down(self, ch=None):
-        self.process_command()
-
 class PathDetailPopup(npyscreen.Popup):
     def create(self):
         self.detail_text = self.add(npyscreen.Pager)
@@ -346,26 +282,18 @@ class MainApp(npyscreen.NPSAppManaged):
 
 class MainForm(npyscreen.FormBaseNew):
     def create(self):
-        use_cmdline = False
         self.report = self.parentApp.report
         self.paths = paths = parse_sta_report(self.report)
         self.min_slack, self.max_slack = get_min_max_slack(paths)
-        startpoints = get_unique_startpoints(paths)
-        endpoints = get_unique_endpoints(paths)
-        midpoints = get_unique_collapsed_path_elements(paths)
-
         max_y, max_x = self.useable_space()
-        if use_cmdline:
-            max_y = max_y - 5
-        else:
-            max_y = max_y - 1
+        max_y = max_y - 1
 
         self.selected_bin = 0
         self.data = []  # Replace with actual data
         self.filtered_data = self.data
 
         self.histogram = self.add(HistogramWidget, name="Delay Histogram",
-                                  relx=0, rely=0, max_height=max_y // 3)
+                                  relx=0, rely=0, max_height=max_y // 2)
         histo_width = self.histogram.width - 2 # space for border
         bins = bin_results_by_slack(self.paths, self.min_slack, self.max_slack, histo_width)
         self.histogram.bins = bins
@@ -375,21 +303,9 @@ class MainForm(npyscreen.FormBaseNew):
         self.histogram.paths = paths
 
         self.path_list = self.add(PathListWidget, name="Paths in Bin",
-                                  relx=0, rely=max_y // 3, max_height=max_y // 3)
-        self.filter_start = self.add(FilterWidget, name="Start Points", relx=0,
-                                     rely=2 * max_y // 3, max_height=max_y // 3, max_width=max_x // 3 - 1, category="start")
-        self.filter_mid = self.add(FilterWidget, name="Mid Points", relx=max_x // 3,
-                                   rely=2 * max_y // 3, max_height=max_y // 3, max_width=max_x // 3 - 1, category="mid")
-        self.filter_end = self.add(FilterWidget, name="End Points", relx=2 * max_x // 3,
-                                   rely=2 * max_y // 3, max_height=max_y // 3, max_width=max_x // 3 - 1, category="end")
+                                  relx=0, rely=max_y // 2, max_height=max_y // 2)
 
-        if use_cmdline:
-            self.command_line = self.add(CommandLine, relx=0, rely=max_y, max_width=max_x - 5)
-
-        self.pane_order = [self.histogram, self.path_list,
-                           self.filter_start, self.filter_mid, self.filter_end]
-        if use_cmdline:
-            self.pane_order += [self.command_line]
+        self.pane_order = [self.histogram, self.path_list]
 
         # setup default
         self.set_editing(self.histogram)
@@ -398,13 +314,8 @@ class MainForm(npyscreen.FormBaseNew):
     def update_display(self):
         self.histogram.update_histogram()
         self.path_list.update_paths(self.get_paths_in_selected_bin())
-        self.filter_start.update_filter_items(self.data)
-        self.filter_mid.update_filter_items(self.data)
-        self.filter_end.update_filter_items(self.data)
 
     def get_paths_in_selected_bin(self):
-        # Apply filters and select bin contents
-        # Placeholder: return all paths
         return self.histogram.bins[self.histogram.selected_bin]
 
     def set_editing(self, widget):
@@ -418,49 +329,8 @@ class MainForm(npyscreen.FormBaseNew):
         self.update_display()
 
     def process_key(self, key):
-        # current = self._widgets__[self.editw]
-
         if key == ord('q'):
             exit(0)
-"""
-        # some curses keys are hard-coded because they only exist on windows platforms
-        # and alternate key codes are sent back for that platform.
-        if key in (curses.KEY_LEFT, curses.KEY_RIGHT, 452, 454): # curses.KEY_B1, curses.KEY_B3
-            if current == self.histogram:
-                self.selected_bin = max(0, min(
-                    self.selected_bin + (1 if key in ((curses.KEY_RIGHT, 454)) else -1), # curses.KEY_B3
-                    len(self.histogram.bins) - 1
-                ))
-                self.histogram.selected_bin = self.selected_bin
-        elif key in ((ord('+'), ord('-'))):
-            if current == self.histogram:
-                if key == ord('+'): # zoom in
-                    span = self.histogram.max_slack - self.histogram.min_slack
-                    self.histogram.max_slack = self.histogram.min_slack + span / 2
-                else: # zoom out
-                    self.histogram.max_slack = min(self.histogram.max_slack * 2, self.absmax_slack)
-                bins = bin_results_by_slack(self.paths, self.histogram.min_slack, self.histogram.max_slack, self.histogram.width - 2)
-                self.histogram.bins = bins
-
-        elif key == ord(' '):
-            if current in (self.filter_start, self.filter_mid, self.filter_end):
-                index = current.cursor_line
-                current.toggle_item(index)
-        elif key in (curses.KEY_UP, 450): # curses.KEY_A2
-            if current == self.command_line:
-                self.command_line.history_up()
-            elif current == self.path_list:
-                self.path_list.handle_input(key)
-        elif key in (curses.KEY_DOWN, 456): # curses.KEY_C2
-            if current == self.command_line:
-                self.command_line.history_down()
-            elif current == self.path_list:
-                self.path_list.handle_input(key)
-        elif key == 27:  # ESC
-            pass
-        elif key == ord('q'):
-            exit(0)
-"""
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Slack navigator", prog="slacknav")
