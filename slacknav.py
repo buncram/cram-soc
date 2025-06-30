@@ -205,6 +205,8 @@ class HistogramWidget(npyscreen.MultiLineAction):
             self.update_histogram()
             self.parent.update_display()
             self.display()
+        else:
+            npyscreen.notify_confirm(f"Filter matched nothing, ignoring.", title="Notice")
 
 class DetailPopup(npyscreen.ActionFormV2):
     preloaded_content = ""
@@ -313,14 +315,13 @@ class MainApp(npyscreen.NPSAppManaged):
         print("Exiting app")
 
 class FilterText(npyscreen.TitleText):
-    def handle_input(self, key):
-        result = super().handle_input(key)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key in (curses.ascii.NL, curses.ascii.CR, 10, 13):
+            self.entry_widget.handlers[key] = self._on_enter
 
-        # Only apply filter if this widget is actively being edited
-        if self.editing:
-            self.parent.apply_filter(self.value.strip())
-
-        return result
+    def _on_enter(self, *args, **keywords):
+        self.parent.apply_filter(self.value)
 
 class MainForm(npyscreen.FormBaseNew):
     def create(self):
@@ -351,7 +352,7 @@ class MainForm(npyscreen.FormBaseNew):
         self.filter_input = self.add(FilterText, name="Filter:",
                                      relx=0, rely=hist_height + path_height,
                                      max_height=1, max_width=max_x - 4)
-        self.filter_input.when_value_edited = self.on_filter_change
+        # self.filter_input.when_value_edited = self.on_filter_change
 
         self.pane_order = [self.histogram, self.path_list, self.filter_input]
 
@@ -375,11 +376,6 @@ class MainForm(npyscreen.FormBaseNew):
     def process_key(self, key):
         if key == ord('q'):
             exit(0)
-
-    def afterEditing(self):
-        filter_val = self.filter_input.value.strip()
-        self.apply_filter(filter_val)
-        self.update_display()
 
     def apply_filter(self, filter_string):
         self.histogram.filter(filter_string)
