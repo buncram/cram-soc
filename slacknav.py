@@ -161,29 +161,70 @@ class HistogramWidget(npyscreen.BoxTitle):
         self.values = display_lines
         self.display()
 
-class PathListWidget(npyscreen.BoxTitle):
-    _contained_widget = npyscreen.MultiLine
+class DetailPopup(npyscreen.ActionFormV2):
+    preloaded_content = ""
+
+    def create(self):
+        self.text_widget = self.add(
+            npyscreen.Pager,
+            name="Details",
+        )
+
+    def beforeEditing(self):
+        if self.preloaded_content:
+            content = []
+            content += [self.preloaded_content['startpoint']]
+            for line in self.preloaded_content['collapsed_paths']:
+                content += [f"  {line}"]
+            content += [self.preloaded_content['endpoint']]
+            content += [f"Slack: {self.preloaded_content['slack']}"]
+            self.text_widget.values = content
+
+    def set_text(self, content):
+        self.preloaded_content = content
+
+    def on_ok(self):
+        self.parentApp.setNextForm("MAIN")
+
+    def on_cancel(self):
+        self.parentApp.setNextForm("MAIN")
+
+class SelectableMultiLine(npyscreen.MultiLine):
+    def handle_input(self, key):
+        if key in ("KEY_UP", "KEY_DOWN"):
+            return super().handle_input(key)
+        elif key in (" ", "^M"):
+            self.parent.toggle_item(self.cursor_line)
+        else:
+            return super().handle_input(key)
+
+class PathListWidget(npyscreen.MultiLineAction):
+    def __init__(self, *args, **keywords):
+        super().__init__(*args, **keywords)
+        self.add_handlers({
+            "^M": self.actionHighlighted,   # Enter
+            " ": self.actionHighlighted,    # Space
+        })
+
+    def actionHighlighted(self, act_on_this=None, key_press=None):
+        details = self.entry_data[self.cursor_line]
+        # npyscreen.notify_confirm(f"selected {details}", title="Path details") #, wide = True
+        form_class, _, _ = self.parent.parentApp._Forms["DETAIL_POPUP"]
+        form_class.preloaded_content = details
+        self.parent.parentApp.switchForm("DETAIL_POPUP")
 
     def update_paths(self, paths):
         self.entry_data = paths
         self.values = [f"{p['startpoint']} -> {p['endpoint']} ({p['slack']})" for p in paths]
         self.display()
 
-    def get_selected_path(self):
-        if not hasattr(self, 'entry_data') or not self.entry_data:
-            return None
-        index = self.entry_widget.cursor_line
-        if 0 <= index < len(self.entry_data):
-            return self.entry_data[index]
-        return None
-
-    def actionHighlighted(self, act_on_this, keypress):
-        selected_path = self.get_selected_path()
-        npyscreen.notify_confirm(f"SELECTED!!!!", title="Path details") #, wide = True
-
-    # def handle_input(self, key):
-    #     # Forward input to the underlying MultiLine widget
-    #     self.entry_widget.handle_input(_input = key)
+    def handle_input(self, key):
+        # Normalize Windows-specific arrow keys
+        if key in (450,):  # Windows Up curses.KEY_A2
+            key = curses.KEY_UP
+        elif key in (456,):  # Windows Down curses.KEY_C2
+            key = curses.KEY_DOWN
+        return super().handle_input(key)
 
 class FilterWidget(npyscreen.BoxTitle):
     def __init__(self, *args, category=None, **kwargs):
@@ -203,7 +244,6 @@ class FilterWidget(npyscreen.BoxTitle):
             self.selected_items.remove(item)
         else:
             self.selected_items.add(item)
-
 
 class CommandLine(npyscreen.Textfield):
     def __init__(self, *args, **kwargs):
@@ -265,9 +305,10 @@ class MainApp(npyscreen.NPSAppManaged):
         curses.start_color()
         curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        self.addFormClass("DETAIL_POPUP", DetailPopup)
         form = self.addForm("MAIN", MainForm, name="Path Delay UI")
         self.setNextForm("MAIN")
-        form.edit()
+        # form.edit()
 
 class MainForm(npyscreen.FormBaseNew):
     def create(self):
@@ -312,11 +353,6 @@ class MainForm(npyscreen.FormBaseNew):
         self.set_editing(self.histogram)
         self.update_display()
 
-    def handle_input(self, key):
-        if key != -1:
-            self.process_key(key)
-        self.update_display()
-
     def update_display(self):
         self.histogram.update_histogram()
         self.path_list.update_paths(self.get_paths_in_selected_bin())
@@ -333,16 +369,21 @@ class MainForm(npyscreen.FormBaseNew):
         for w in self.pane_order:
             w.editing = (w == widget)
 
+    def handle_input(self, key):
+        if key != -1:
+            self.process_key(key)
+        super().handle_input(key)
+        self.update_display()
+
     def process_key(self, key):
         current = self._widgets__[self.editw]
 
-        # if key == ord('\t'):
-        #     self.pane_index = (self.pane_index + 1) % len(self.pane_order)
-        #     self.set_editing(self.pane_order[self.pane_index])
-        if key in (curses.KEY_LEFT, curses.KEY_RIGHT, curses.KEY_B1, curses.KEY_B3):
+        # some curses keys are hard-coded because they only exist on windows platforms
+        # and alternate key codes are sent back for that platform.
+        if key in (curses.KEY_LEFT, curses.KEY_RIGHT, 452, 454): # curses.KEY_B1, curses.KEY_B3
             if current == self.histogram:
                 self.selected_bin = max(0, min(
-                    self.selected_bin + (1 if key in ((curses.KEY_RIGHT, curses.KEY_B3)) else -1),
+                    self.selected_bin + (1 if key in ((curses.KEY_RIGHT, 454)) else -1), # curses.KEY_B3
                     len(self.histogram.bins) - 1
                 ))
                 self.histogram.selected_bin = self.selected_bin
@@ -360,12 +401,12 @@ class MainForm(npyscreen.FormBaseNew):
             if current in (self.filter_start, self.filter_mid, self.filter_end):
                 index = current.cursor_line
                 current.toggle_item(index)
-        elif key in (curses.KEY_UP, curses.KEY_A2):
+        elif key in (curses.KEY_UP, 450): # curses.KEY_A2
             if current == self.command_line:
                 self.command_line.history_up()
             elif current == self.path_list:
                 self.path_list.handle_input(key)
-        elif key in (curses.KEY_DOWN, curses.KEY_C2):
+        elif key in (curses.KEY_DOWN, 456): # curses.KEY_C2
             if current == self.command_line:
                 self.command_line.history_down()
             elif current == self.path_list:
@@ -374,7 +415,6 @@ class MainForm(npyscreen.FormBaseNew):
             pass
         elif key == ord('q'):
             exit(0)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Slack navigator", prog="slacknav")
