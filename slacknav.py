@@ -1,29 +1,13 @@
 #!/usr/bin/env python3
 
-"""
-give me a template for an ncurses-based python text-based UI that can run on both windows and linux. The dataset we're showing has the structure where each entry represents a path. Each path has at least a start and end point, and 0 or more midpoints, along with a total delay associated with the path.
-
-The UI has the following features:
-
-A top half window which displays data that is a histogram of delay counts. The vertical axis is number of paths, the horizontal axis is the delay of the various paths. Each bin will be drawn using a '#" symbol, and the selected bin is done by rendering the # with an inverted background. The bins are plotted horizontally, and navigated using left/right arrow keys, and selected with the space bar. The number of bins is dynamically set to equal the width of the terminal screen, and thus each bin represents delays from the maximum delay out of the set divided  by the width of the screen in characters.
-
-the lower half window is split into two further halves. The top quarter shows a list of all the paths that are within a selected bin. The list can be scrolled up and down with the up/down arrows, and when the space bar is pressed, the whole screen toggles to another mode where details about the path are displayed and a scrollable text window with all the path details. Hitting 'esc' exits out of that mode and returns to the ui.
-
-the bottom quarter is divided into thirds and contains filters that narrow down the data shown in the upper part of the screen. The left third contains a list of "startpoints", middle third contains a list of "midpoints" and the right third contains a list of "endpoints". Any element in these lists can be toggled as selected or unselected by pressing space on a list entry, or all-selected by hitting a default "*" entry that's always available on the top of the list. As these lists are updated, the upper screen data would ideally dynamically respond and update based on the filters.
-
-Finally, at the very bottom of the UI, there is a one-line text area where commands can be typed in that are used to do advanced commands/modifications. the exact command vocabulary is tbd but each command consists of a verb followed by zero or more arguments and up/down arrows navigates the command history, placing it as the current command in the buffer.
-
-Panes are selected by hitting "tab". Any time tab is hit, the selected pane changes and rotates through the panes.
-
-Try your best, this is a tough one!
-"""
-
 import npyscreen
 import curses
 import math
 import argparse
 import re
 from collections import defaultdict
+import json
+from pathlib import Path
 
 def parse_sta_report(report):
     with open(report, 'r') as f:
@@ -236,6 +220,7 @@ class SelectableMultiLine(npyscreen.MultiLine):
 class PathListWidget(npyscreen.MultiLineAction):
     def __init__(self, *args, **keywords):
         super().__init__(*args, **keywords)
+        self.scrollbar = True
         self.add_handlers({
             "^M": self.actionHighlighted,   # Enter
             " ": self.actionHighlighted,    # Space
@@ -261,51 +246,70 @@ class PathListWidget(npyscreen.MultiLineAction):
             key = curses.KEY_DOWN
         return super().handle_input(key)
 
+    def display_value(self, vl):
+        return f"  {vl}"  # add margin to avoid text against scrollbar
+
 class PathDetailPopup(npyscreen.Popup):
     def create(self):
         self.detail_text = self.add(npyscreen.Pager)
 
 
 class MainApp(npyscreen.NPSAppManaged):
-    def __init__(self, report):
+    def __init__(self, report, output):
         self.report = report
+
+        report_path = Path(report)
+
+        if report_path.suffix == ".json":
+            self.paths = paths = json.loads(report_path.read_text())
+        else:
+            self.paths = paths = parse_sta_report(report_path)
+
+        self.min_slack, self.max_slack = get_min_max_slack(paths)
+
+        if output:
+            json_path = report_path.with_suffix(".json")
+            json_path.write_text(json.dumps(self.paths, indent=2))
+
         super().__init__()
 
     def onStart(self):
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
         self.addFormClass("DETAIL_POPUP", DetailPopup)
-        form = self.addForm("MAIN", MainForm, name="Path Delay UI")
+        self.addForm("MAIN", MainForm, name="Path Delay UI")
         self.setNextForm("MAIN")
-        # form.edit()
 
 class MainForm(npyscreen.FormBaseNew):
     def create(self):
-        self.report = self.parentApp.report
-        self.paths = paths = parse_sta_report(self.report)
-        self.min_slack, self.max_slack = get_min_max_slack(paths)
         max_y, max_x = self.useable_space()
         max_y = max_y - 1
+        # Define available height chunks
+        hist_height = max_y // 2
+        path_height = max_y // 2 - 3  # leave room for input
 
         self.selected_bin = 0
         self.data = []  # Replace with actual data
         self.filtered_data = self.data
 
         self.histogram = self.add(HistogramWidget, name="Delay Histogram",
-                                  relx=0, rely=0, max_height=max_y // 2)
+                                  relx=0, rely=0, max_height=hist_height)
         histo_width = self.histogram.width - 2 # space for border
-        bins = bin_results_by_slack(self.paths, self.min_slack, self.max_slack, histo_width)
+        bins = bin_results_by_slack(self.parentApp.paths, self.parentApp.min_slack, self.parentApp.max_slack, histo_width)
         self.histogram.bins = bins
-        self.histogram.min_slack = self.min_slack
-        self.histogram.max_slack = self.max_slack
-        self.histogram.absmax_slack = self.max_slack
-        self.histogram.paths = paths
+        self.histogram.min_slack = self.parentApp.min_slack
+        self.histogram.max_slack = self.parentApp.max_slack
+        self.histogram.absmax_slack = self.parentApp.max_slack
+        self.histogram.paths = self.parentApp.paths
 
         self.path_list = self.add(PathListWidget, name="Paths in Bin",
-                                  relx=0, rely=max_y // 2, max_height=max_y // 2)
+                                  relx=2, rely=hist_height, max_height=path_height)
 
-        self.pane_order = [self.histogram, self.path_list]
+        # Filter input box (bottom line)
+        self.filter_input = self.add(npyscreen.TitleText, name="Filter:",
+                                     relx=0, rely=hist_height + path_height,
+                                     max_height=1, max_width=max_x - 4)
+        self.filter_input.when_value_edited = self.on_filter_change
+
+        self.pane_order = [self.histogram, self.path_list, self.filter_input]
 
         # setup default
         self.set_editing(self.histogram)
@@ -332,12 +336,31 @@ class MainForm(npyscreen.FormBaseNew):
         if key == ord('q'):
             exit(0)
 
+    def afterEditing(self):
+        filter_val = self.filter_input.value.strip()
+        self.apply_filter(filter_val)
+        self.update_display()
+        self.parentApp.setNextForm(None)
+
+    def apply_filter(self, filter_string):
+        # Logic to re-filter self.paths based on filter_string
+        # self.filtered_data = filter_paths(self.paths, filter_string)
+        pass
+        # Re-bin or refresh data
+
+    def on_filter_change(self):
+        filter_val = self.filter_input.value.strip()
+        self.apply_filter(filter_val)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Slack navigator", prog="slacknav")
     parser.add_argument(
         "--report", required=True, help="Delay file to parse", type=str
     )
+    parser.add_argument(
+        "--output", action="store_true", help = "Write the processed report to a redacted output file."
+    )
     args = parser.parse_args()
 
-    app = MainApp(args.report)
+    app = MainApp(args.report, args.output)
     app.run()
