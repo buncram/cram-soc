@@ -13,6 +13,7 @@
 # - Clk Freq should be lowered: ex --sys-clk-freq=50e6
 
 # Complied with: --build --no-uart --cpu-reset-address 0x40000000 --cpu-variant imac+debug --integrated-rom-size 0
+# Sim config: "--sim --no-compile-software --no-uart --cpu-type vexiiriscv --cpu-variant standard --integrated-rom-size 65536 --integrated-sram-size 8192 --integrated-main-ram-size 131072"
 
 from migen import *
 
