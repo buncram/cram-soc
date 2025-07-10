@@ -1,3 +1,11 @@
+`ifdef XVLOG // required for compatibility with xsim
+`include "template_v0.1.sv"
+`include "apb_sfr_v0.1.sv"
+`include "axi_pkg.sv"
+`include "daric_cfg_sim_v0.1.sv"
+`include "amba_interface_def_v0.2.sv"
+`include "io_interface_def_v0.1.sv"
+`endif
 
 module ahb_to_axi4 #(
       parameter AW  = 32,

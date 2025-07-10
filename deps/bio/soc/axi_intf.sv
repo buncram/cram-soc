@@ -14,7 +14,9 @@
 // - Wolfgang Roenninger <wroennin@iis.ee.ethz.ch>
 // - Andreas Kurth <akurth@iis.ee.ethz.ch>
 
-// `include "axi_pkg.sv"
+`ifdef XVLOG // required for compatibility with xsim
+`include "axi_pkg.sv"
+`endif
 
 /// An AXI4 interface.
 interface AXI_BUS #(
