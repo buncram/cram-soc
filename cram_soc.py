@@ -526,6 +526,12 @@ def main():
     else:
         platform = XsimPlatform(_io)
 
+    if True: # third party builds can switch this to False and use OSS models
+        rtl_dir = os.path.join(os.path.dirname(__file__), "soc_mpw", "ips", "cortexm7", "logical", "cm7aab", "verilog")
+        platform.add_source(os.path.join(rtl_dir, "cm7aab_axi.v"))
+        platform.add_source(os.path.join(rtl_dir, "cm7aab_ahb.v"))
+        platform.add_source(os.path.join(rtl_dir, "CM7AAB.v"))
+
     if args.udma:
         soc = CramSoCUdma(
             platform,
