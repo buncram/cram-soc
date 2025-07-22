@@ -475,6 +475,11 @@ class CramSoC(SoCCore):
         ])
         trimming_reset = Signal(32, reset=(0x6000_0000 + boot_offset))
 
+        # Test reporting
+        self.report = CSRStorage(fields=[
+            CSRField("report", size=32, description="Fast feedback for simulations")
+        ])
+
         # Pull in DUT IP ---------------------------------------------------------------------------
         # remap the IDs to match system params
         self.comb += [
