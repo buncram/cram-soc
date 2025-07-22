@@ -38,6 +38,7 @@ from liteeth.phy.mii import LiteEthPHYMII
 
 import multiprocessing
 VEX_CPU_PATH="VexiiRiscv/VexiiRiscv.sv"
+# VEX_CPU_PATH="VexRiscv_BetrustedSoC.v"
 from pathlib import Path
 import shutil
 import shlex
@@ -49,6 +50,9 @@ import io
 
 from functools import reduce
 from operator import or_
+
+from litex.soc.interconnect.wishbone import CTI_BURST_INCREMENTING, CTI_BURST_END
+from litex.soc.interconnect import wishbone
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -131,6 +135,187 @@ class VexLegacyInt(Module, AutoCSR):
             self.super_pending.status.eq(extint_super),
         ]
 
+class CsrTest(Module, AutoCSR, AutoDoc):
+    def __init__(self):
+        self.csr_wtest = CSRStorage(32, name="wtest", description="Write test data here")
+        self.csr_rtest = CSRStatus(32, name="rtest", description="Read test data here")
+        self.comb += [
+            self.csr_rtest.status.eq(self.csr_wtest.storage + 0x1000_0000)
+        ]
+
+# Wishbone SRAM ------------------------------------------------------------------------------------
+
+class CoherencyTest(Module, AutoCSR, AutoDoc):
+    def __init__(self, mem_or_size, read_only=None, init=None, bus=None, name=None):
+        self.seed = CSRStorage(32, name="seed", description="Seed for test data")
+        self.length = CSRStorage(16, name="length", description="Length to run")
+        self.start = CSRStorage(16, name="start", description="Start of region to overwrite")
+        self.control = CSRStorage(fields=[
+            CSRField("go", size = 1, description="Write `1` to start overwriting", pulse=True)
+        ])
+        self.stat = CSRStatus(fields=[
+            CSRField("done", size=1, description="Indicates that a run is finished. Reset when `go` is pulsed")
+        ])
+        done = Signal()
+        self.comb += [
+            self.stat.fields.done.eq(done),
+        ]
+        init = mem_or_size * [0]
+
+        if bus is None:
+            print("not supported")
+            exit(1)
+        self.bus = bus
+        bus_data_width = len(self.bus.dat_r)
+        if isinstance(mem_or_size, Memory):
+            assert(mem_or_size.width <= bus_data_width)
+            self.mem = mem_or_size
+        else:
+            self.mem = Memory(bus_data_width, mem_or_size//(bus_data_width//8), init=init, name=name)
+
+        if read_only is None:
+            if hasattr(self.mem, "bus_read_only"):
+                read_only = self.mem.bus_read_only
+            else:
+                read_only = False
+
+        # # #
+
+        adr_burst = Signal()
+
+        # Burst support.
+        # --------------
+
+        if self.bus.bursting:
+            adr_wrap_mask = Array((0b0000, 0b0011, 0b0111, 0b1111))
+            adr_wrap_max  = adr_wrap_mask[-1].bit_length()
+
+            adr_burst_wrap = Signal()
+            adr_latched    = Signal()
+
+            adr_counter        = Signal(len(self.bus.adr))
+            adr_counter_base   = Signal(len(self.bus.adr))
+            adr_counter_offset = Signal(adr_wrap_max)
+            adr_offset_lsb     = Signal(adr_wrap_max)
+            adr_offset_msb     = Signal(len(self.bus.adr))
+
+            adr_next = Signal(len(self.bus.adr))
+
+            # Only Incrementing Burts are supported.
+            self.comb += [
+                Case(self.bus.cti, {
+                    # incrementing address burst cycle
+                    CTI_BURST_INCREMENTING: adr_burst.eq(1),
+                    # end current burst cycle
+                    CTI_BURST_END: adr_burst.eq(0),
+                    # unsupported burst cycle
+                    "default": adr_burst.eq(0)
+                }),
+                adr_burst_wrap.eq(self.bus.bte[0] | self.bus.bte[1]),
+                adr_counter_base.eq(
+                    Cat(self.bus.adr & ~adr_wrap_mask[self.bus.bte],
+                       self.bus.adr[adr_wrap_max:]
+                    )
+                )
+            ]
+
+            # Latch initial address (without wrapping bits and wrap offset).
+            self.sync += [
+                If(self.bus.cyc & self.bus.stb & adr_burst,
+                    adr_latched.eq(1),
+                    # Latch initial address, then increment it every clock cycle
+                    If(adr_latched,
+                        adr_counter.eq(adr_counter + 1)
+                    ).Else(
+                        adr_counter_offset.eq(self.bus.adr & adr_wrap_mask[self.bus.bte]),
+                        adr_counter.eq(adr_counter_base +
+                            Cat(~self.bus.we, Replicate(0, len(adr_counter)-1))
+                        )
+                    ),
+                    If(self.bus.cti == CTI_BURST_END,
+                        adr_latched.eq(0),
+                        adr_counter.eq(0),
+                        adr_counter_offset.eq(0)
+                    )
+                ).Else(
+                    adr_latched.eq(0),
+                    adr_counter.eq(0),
+                    adr_counter_offset.eq(0)
+                ),
+            ]
+
+            # Next Address = counter value without wrapped bits + wrapped counter bits with offset.
+            self.comb += [
+                adr_offset_lsb.eq((adr_counter + adr_counter_offset) & adr_wrap_mask[self.bus.bte]),
+                adr_offset_msb.eq(adr_counter & ~adr_wrap_mask[self.bus.bte]),
+                adr_next.eq(adr_offset_msb + adr_offset_lsb)
+            ]
+
+        # # #
+
+        # Memory.
+        # -------
+        port = self.mem.get_port(write_capable=not read_only, we_granularity=8,
+            mode=READ_FIRST if read_only else WRITE_FIRST)
+        self.specials += self.mem, port
+        # Generate write enable signal
+        if not read_only:
+            self.comb += [port.we[i].eq(self.bus.cyc & self.bus.stb & self.bus.we & self.bus.sel[i])
+                for i in range(bus_data_width//8)]
+        # Address and data
+        self.comb += port.adr.eq(self.bus.adr[:len(port.adr)])
+        if self.bus.bursting:
+            self.comb += If(adr_burst & adr_latched,
+                port.adr.eq(adr_next[:len(port.adr)]),
+            )
+        self.comb += [
+            self.bus.dat_r.eq(port.dat_r)
+        ]
+        if not read_only:
+            self.comb += port.dat_w.eq(self.bus.dat_w),
+
+        # Generate Ack.
+        self.sync += [
+            self.bus.ack.eq(0),
+            If(self.bus.cyc & self.bus.stb & (~self.bus.ack | adr_burst), self.bus.ack.eq(1))
+        ]
+
+        testport = self.mem.get_port(write_capable=True, we_granularity=32, mode=WRITE_FIRST)
+        self.specials += testport
+        self.submodules.test_ram_fsm = fsm = FSM(reset_state="IDLE")
+        count = Signal(32)
+        stop = Signal(32)
+        value = Signal(32)
+        self.comb += [
+            testport.adr.eq(count),
+            testport.dat_w.eq(value),
+            stop.eq(self.start.storage + self.length.storage),
+        ]
+        fsm.act("IDLE",
+            testport.we.eq(0),
+            If(self.control.fields.go,
+                NextValue(count, self.start.storage),
+                NextValue(value, self.seed.storage),
+                NextState("RUN"),
+                NextValue(done, 0),
+            ).Else(
+                NextValue(count, self.start.storage),
+                NextValue(value, self.seed.storage),
+                NextState("IDLE")
+            )
+        )
+        fsm.act("RUN",
+            testport.we.eq(0xf),
+            NextValue(count, count + 1),
+            NextValue(value, value + 1),
+            If(count == stop - 1,
+                NextState("IDLE"),
+                NextValue(done, 1),
+            ).Else(
+                NextState("RUN")
+            )
+        )
+
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
@@ -164,13 +349,28 @@ class BaseSoC(SoCCore):
                          # cpu_variant="imac+debug",
                          ident="BIO on Arty A7", **kwargs
                     )
-        self.legacy_int = VexLegacyInt(self.cpu.m_ext, self.cpu.s_ext)
-        self.comb += [
-            self.legacy_int.interrupts.eq(self.cpu.interrupt)
-        ]
+        if True:
+            self.legacy_int = VexLegacyInt(self.cpu.m_ext, self.cpu.s_ext)
+            self.comb += [
+                self.legacy_int.interrupts.eq(self.cpu.interrupt)
+            ]
+        else:
+            # dummy block just for code compatibility
+            self.m_ext = Signal()
+            self.s_ext = Signal()
+            self.legacy_int = VexLegacyInt(self.m_ext, self.s_ext)
+            self.cpu.set_reset_address(0x8000_0000)
 
         self.add_csr("legacy_int")
+
         # self.add_ram("betrusted_ram", 0x4000_0000, 131072)
+        from litex.soc.integration.soc import SoCRegion
+        test_bus = wishbone.Interface(data_width=self.bus.data_width, address_width=self.bus.address_width, bursting=self.bus.bursting)
+        test_ram = CoherencyTest(0x1_0000, bus=test_bus, init=[], read_only=False, name="test_ram")
+        test_region = SoCRegion(origin=0x5000_0000, size=0x1_0000, mode="rwx")
+        self.bus.add_slave("test_ram", test_ram.bus, test_region)
+        self.add_module(name="test_ram", module=test_ram)
+        self.add_config("test_ram_INIT", 1)
 
         # XADC -------------------------------------------------------------------------------------
         if with_xadc:
@@ -439,6 +639,8 @@ class BaseSoC(SoCCore):
                         self.bioadapter.force_val.eq(self.test[16:]),
                     ]
 
+        self.submodules.csrtest = CsrTest()
+
 
 def run_xvlog(cmd):
     subprocess.run(cmd, check=True, cwd="run"),
@@ -482,6 +684,9 @@ class SimRunner():
         headers = [
             (Path("deps/bio/soc/axi"), Path("run/axi"))
         ]
+        inits = [
+            Path("build/digilent_arty/gateware/digilent_arty_test_ram.init"),
+        ]
 
         # Expand globs to actual Path objects
         for pattern in glob_patterns:
@@ -497,6 +702,10 @@ class SimRunner():
             dest = target_dir / src.name
             shutil.copy2(src, dest)
             copied_files.append(src.name)
+        # copy the inits
+        for src in inits:
+            dest = target_dir / src.name
+            shutil.copy2(src, dest)
 
         # Copy headers
         for src_header, dst_header in headers:
@@ -703,7 +912,17 @@ def main():
         builder.compile_gateware = False # update .v model, but don't compile
         builder.build(regular_comb=False, **parser.toolchain_argdict)
         # build test software
-        subprocess.run(["cargo", "xtask", "baremetal-artyvexii"], cwd="../xous-core", check=True)
+        if False:
+            subprocess.run(["cargo", "xtask", "baremetal-artyvexii"], cwd="../xous-core", check=True)
+        else:
+            subprocess.run([
+            "cargo",
+                "+nightly",
+                "build",
+                "--release", "--target",  "riscv32imac-unknown-none-elf",
+                "--package", "baremetal",
+                "--no-default-features", "--features", "artyvexii", "--features", "utralib/artyvexii"
+            ], cwd="../xous-core", check=True)
         load_elf("../xous-core/target/riscv32imac-unknown-none-elf/release/baremetal", "run/digilent_arty_rom.init", "run/digilent_arty_main_ram.init")
         # run the simulator
         SimRunner()
