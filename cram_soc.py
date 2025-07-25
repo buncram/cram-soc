@@ -493,6 +493,8 @@ def sim_args(parser):
     # UDMA simulation variant
     parser.add_argument("--udma",                 action="store_true",     help="use UDMA variant of SoC")
 
+    parser.add_argument("--vextype",              type=str, default="vexi", choices=['vexi', 'vexii'],  help="Select Vex variant")
+
 def main():
     from litex.build.parser import LiteXArgumentParser
     parser = LiteXArgumentParser(description="LiteX SoC Simulation utility")
@@ -510,14 +512,24 @@ def main():
 
     if simulator == 'verilator':
         sys_clk_freq = int(800e6)
+        realistic = False # turn of realism for faster prints, etc. useful when debugging CPU bugs, not peripheral bugs
+        if realistic:
+            p_clk = 100e6
+            pio_clk = 200e6
+        else:
+            p_clk = 400e6 # turbocharge for faster prints; unrealistic in actual system
+            pio_clk = 400e6
     else:
         sys_clk_freq = int(100e6)
+        # these are the "system realistic" settings
+        p_clk = 100e6
+        pio_clk = 200e6
     sim_config   = SimConfig()
     sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
-    sim_config.add_clocker("p_clk", freq_hz=100e6) # simulated down to 50MHz, but left at 100MHz to speed up simulations
-    sim_config.add_clocker("pio_clk", freq_hz=200e6)
+    sim_config.add_clocker("p_clk", freq_hz=p_clk) # simulated down to 50MHz, but left at 100MHz to speed up simulations
+    sim_config.add_clocker("pio_clk", freq_hz=pio_clk)
     sim_config.add_clocker("bio_clk", freq_hz=sys_clk_freq)
-    sim_config.add_clocker("h_clk", freq_hz=200e6)
+    sim_config.add_clocker("h_clk", freq_hz=p_clk)
 
     bios_path = args.bios
 
@@ -572,6 +584,7 @@ def main():
             sim_debug          = args.sim_debug,
             trace_reset_on     = False,
             production_models  = production_models,
+            vextype            = args.vextype,
             **soc_kwargs
         )
         if args.speed == "fast":
@@ -607,11 +620,15 @@ def main():
         if args.svd_only:
             builder.build(run=False, regular_comb=rc)
         else:
-            shutil.copy('./build/gateware/reram_mem.init', './build/sim/gateware/')
-            # shutil.copy('./VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', './build/sim/gateware/')
-            # shutil.copy('./VexRiscv/memory_AesPlugin_rom_storage_Rom_1rs.v', './build/sim/gateware/')
-            shutil.copy('./VexRiscv/memory_AesZknPlugin_rom_storage_Rom_1rs.v', './build/sim/gateware/')
-            shutil.copy('soc_oss/rtl/common/template.sv', './build/sim/gateware/')
+            destdir = './build/sim/gateware/'
+            shutil.copy('./build/gateware/reram_mem.init', destdir)
+            # shutil.copy('./VexRiscv/VexRiscv_CramSoC.v_toplevel_memory_AesPlugin_rom_storage.bin', destdir)
+            # shutil.copy('./VexRiscv/memory_AesPlugin_rom_storage_Rom_1rs.v', destdir)
+            shutil.copy('./VexRiscv/memory_AesZknPlugin_rom_storage_Rom_1rs.v', destdir)
+            shutil.copy('soc_oss/rtl/common/template.sv', destdir)
+            shutil.copy('./VexiiRiscv/VexiiRiscv-cramsoc.sv', destdir + 'VexiiRiscv.sv')
+            shutil.copy('./VexiiRiscv/early0_AesZknPlugin_logic_onData_rom_storage.v', destdir)
+            shutil.copy('./build/gateware/cram_vexii.v', destdir)
 
             # this runs the sim
             builder.build(

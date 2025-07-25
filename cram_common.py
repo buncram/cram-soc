@@ -54,6 +54,7 @@ class CramSoC(SoCCore):
         sim_debug=False,
         trace_reset_on=False,
         vivado=False,
+        vextype='vexi',
         # bogus arg handlers - we are doing SoCMini, but the simulator passes args for a full SoC
         bus_standard=None,
         bus_data_width=None,
@@ -121,8 +122,11 @@ class CramSoC(SoCCore):
         use_bdma = "bio_bdma" in self.axi_peri_map
 
         # Add standalone SoC sources.
-        platform.add_source("build/gateware/cram_axi.v")
-        platform.add_source(VEX_VERILOG_PATH)
+        if vextype == 'vexii':
+            platform.add_source("build/gateware/cram_vexii.v")
+        else:
+            platform.add_source("build/gateware/cram_axi.v")
+            platform.add_source(VEX_VERILOG_PATH)
         platform.add_source("sim_support/ram_1w_1ra.v")
         # platform.add_source("sim_support/prims.v")
         platform.add_source("sim_support/fdre_cosim.v")
@@ -163,9 +167,13 @@ class CramSoC(SoCCore):
         # ------------------------------------------
 
         # 1) Create AXI interface and connect it to SoC.
-        dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=4, bursting=True)
-        dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
-        self.submodules += AXIAdapter(platform, s_axi = dbus_axi, m_axi = dbus64_axi, convert_burst=True, convert_narrow_burst=True)
+        if vextype == 'vexi':
+            dbus_axi = AXIInterface(data_width=32, address_width=32, id_width=4, bursting=True)
+            dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
+            self.submodules += AXIAdapter(platform, s_axi = dbus_axi, m_axi = dbus64_axi, convert_burst=True, convert_narrow_burst=True)
+        else:
+            dbus_axi = dbus64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
+
         ibus64_axi = AXIInterface(data_width=64, address_width=32, id_width=4, bursting=True)
         if use_bdma:
             # Convert to 64-bits for the main memory crossbar
@@ -482,14 +490,7 @@ class CramSoC(SoCCore):
 
         # Pull in DUT IP ---------------------------------------------------------------------------
         # remap the IDs to match system params
-        self.comb += [
-            ibus64_axi.aw.id.eq(3),
-            ibus64_axi.ar.id.eq(3),
-            dbus_axi.aw.id.eq(4),
-            dbus_axi.ar.id.eq(4),
-            dbus_axi.w.id.eq(4),
-        ]
-        self.specials += Instance("cram_axi",
+        self.core_params = dict(
             i_aclk                = ClockSignal("sys"),
             i_rst                 = ResetSignal("sys"),
             i_always_on           = ClockSignal("sys_always_on"),
@@ -660,6 +661,29 @@ class CramSoC(SoCCore):
             o_sleep_req            = self.sleep_req,
             o_test                 = self.test,
         )
+        if vextype == 'vexi':
+            self.model = 'cram_axi'
+            self.comb += [
+                ibus64_axi.aw.id.eq(3),
+                ibus64_axi.ar.id.eq(3),
+                dbus_axi.aw.id.eq(4),
+                dbus_axi.ar.id.eq(4),
+                dbus_axi.w.id.eq(4),
+            ]
+        else:
+            self.model = 'cram_vexii'
+            # actually wire up the IDs
+            self.core_params.update(
+               o_ibus_axi_awid       = ibus64_axi.aw.id    ,
+               #o_ibus_axi_wid        = ibus64_axi.w.id     ,
+               o_ibus_axi_arid       = ibus64_axi.ar.id    ,
+               o_dbus_axi_awid       = dbus_axi.aw.id    ,
+               #o_dbus_axi_wid        = dbus_axi.w.id     ,
+               o_dbus_axi_arid       = dbus_axi.ar.id    ,
+            )
+
+    def do_finalize(self):
+        self.specials += Instance(self.model, **self.core_params)
 
     def add_sdram_emu(self, name="sdram", mem_bus=None, phy=None, module=None, origin=None, size=None,
         l2_cache_size           = 8192,

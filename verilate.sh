@@ -3,22 +3,27 @@
 # Set default values for the options
 TARGET="iron"
 SPEED="normal"
+CPU="vexi"
 
 # Function to display the script usage
 function display_usage {
-    echo "Usage: $0 [-t xous] [-s fast]"
+    echo "Usage: $0 [-t xous] [-s fast] [-c vexii]"
     echo "-t: Select target [xous, iron]"
     echo "-s: Run fast (but don't save waveforms) [normal, fast]"
+    echo "-c: Select cpu [vexi, vexii]"
 }
 
 # Parse command line options
-while getopts ":s:t:" opt; do
+while getopts ":s:t:c:" opt; do
     case $opt in
         t)
             TARGET=$OPTARG
             ;;
         s)
             SPEED=$OPTARG
+            ;;
+        c)
+            CPU=$OPTARG
             ;;
         \?)
             echo "Invalid option: -$OPTARG"
@@ -48,15 +53,20 @@ fi
 # Use the parsed options in your script logic
 echo "Target: $TARGET"
 echo "Speed: $SPEED"
-
+echo "CPU: $CPU"
 
 set -e
 
 echo "--------------------- BUILD CORE --------------------"
-python3 ./cram_core.py
+if [ $CPU == "vexii" ]
+then
+    python3 ./cram_core_vexii.py
+else
+    python3 ./cram_core.py
+fi
 
 echo "******************** BUILD SOC DEFS ***********************"
-python3 ./cram_soc.py --svd-only
+python3 ./cram_soc.py --svd-only --vextype $CPU
 echo "Core+SoC build finished."
 
 echo "******************** BUILD KERNEL ***********************"
@@ -71,7 +81,16 @@ then
   # set up the linker for our target
   # cp link-soc.x link.x
   # cd ../
-  cargo xtask cramium-sim --loader-feature verilator-only --loader-feature simulation-only --kernel-feature verilator-only --no-timestamp
+  cargo xtask cramium-sim --loader-feature verilator-only \
+    --loader-feature simulation-only \
+    --kernel-feature verilator-only \
+    --feature hwsim \
+    --feature message-test \
+    --loader-feature vexii-test \
+    --kernel-feature vexii-test \
+    --feature vexii-test \
+    --no-timestamp
+    # --feature aestests \
   # cargo xtask cramium-fpga --kernel-feature fake-rng
   cd ../cram-soc
   python3 ./mkimage.py
@@ -125,7 +144,7 @@ THREADS=5
   echo -e "\n\nRun with $THREADS threads" >> stats.txt
   date >> stats.txt
   # --udma for udma simulations...
-  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --speed $SPEED --bios $BIOS  --boot-offset 0x000000 --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200000000000 --trace-fst # --sim-debug
+  /usr/bin/time -a --output stats.txt python3 ./cram_soc.py --vextype $CPU --speed $SPEED --bios $BIOS  --boot-offset 0x000000 --gtkwave-savefile --threads $THREADS --jobs 20 --trace --trace-start 0 --trace-end 200000000000 --trace-fst # --sim-debug
   echo "Core+SoC build finished."
 #done
 

@@ -110,6 +110,25 @@ class CsrTest(Module, AutoCSR, AutoDoc):
         self.comb += [
             self.csr_rtest.status.eq(self.csr_wtest.storage + 0x1000_0000)
         ]
+class VexLegacyInt(Module, AutoCSR):
+    def __init__(self, mach_int, super_int):
+        self.interrupts = Signal(32)
+        self.interrupts_sync = Signal(32)
+        self.mach_mask = CSRStorage(size=32, name="mach_mask", description="Machine IRQ mask")
+        self.mach_pending = CSRStatus(size=32, name="mach_pending", description="Machine IRQ pending")
+        self.super_mask = CSRStorage(size=32, name="super_mask", description="Supervisor IRQ mask")
+        self.super_pending = CSRStatus(size=32, name="super_pending", description="Supervisor IRQ pending")
+        extint_mach = Signal(32)
+        extint_super = Signal(32)
+        self.sync += self.interrupts_sync.eq(self.interrupts)
+        self.comb += [
+            extint_mach.eq(self.interrupts_sync & self.mach_mask.storage),
+            extint_super.eq(self.interrupts_sync & self.super_mask.storage),
+            mach_int.eq(reduce(or_, [extint_mach[i] for i in range(32)])),
+            super_int.eq(reduce(or_, [extint_super[i] for i in range(32)])),
+            self.mach_pending.status.eq(extint_mach),
+            self.super_pending.status.eq(extint_super),
+        ]
 
 # Mailbox ------------------------------------------------------------------------------------------
 class SyncFIFOMacro(Module, _FIFOInterface):
@@ -1952,7 +1971,7 @@ class cramSoC(SoCCore):
         # SoCMini ----------------------------------------------------------------------------------
         reset_address = self.mem_map["reram"]
         SoCMini.__init__(self, platform, sys_clk_freq,
-            cpu_type             = "vexriscv_axi",
+            cpu_type             = "vexiiriscv_cramsoc",
             csr_paging           = 4096,  # increase paging to 1 page size
             csr_address_width    = 16,    # increase to accommodate larger page size
             cpu_reset_address    = reset_address,
@@ -1999,10 +2018,11 @@ class cramSoC(SoCCore):
             'resetvalue': 26,
             'ticktimer': 27,
             'timer0': 28,
+            'legacy_int' : 29,
         }
 
         self.irq.locs['timer0'] = 30 # fix the IRQ so we don't stomp on MPW compat
-        self.cpu.use_external_variant("VexRiscv/VexRiscv_CramSoC.v")
+        self.cpu.use_external_variant("VexiiRiscv/VexiiRiscv-cramsoc.sv")
         self.cpu.add_debug()
         # self.cpu.set_reset_address(reset_address)
         self.cpu.disable_reset_address_check()
@@ -2284,13 +2304,19 @@ class cramSoC(SoCCore):
             self.platform.request("test").eq(self.csrtest.csr_wtest.storage)
         ]
 
+        # Legacy interrupt manager -----------------------------------------------------------------
+        self.legacy_int = VexLegacyInt(self.cpu.m_ext, self.cpu.s_ext)
+        self.comb += [
+            self.legacy_int.interrupts.eq(self.cpu.interrupt)
+        ]
+
 # Build --------------------------------------------------------------------------------------------
 def main():
     # Arguments.
     from litex.soc.integration.soc import LiteXSoCArgumentParser
     parser = LiteXSoCArgumentParser(description="LiteX standalone SoC generator")
     target_group = parser.add_argument_group(title="Generator options")
-    target_group.add_argument("--name",          default="cram_axi", help="SoC Name.")
+    target_group.add_argument("--name",          default="cram_vexii", help="SoC Name.")
     target_group.add_argument("--build",         action="store_true", help="Build SoC.")
     target_group.add_argument("--sys-clk-freq",  default=int(800e6),   help="System clock frequency.")
     parser.add_argument(
